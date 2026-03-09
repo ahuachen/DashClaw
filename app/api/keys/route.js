@@ -17,6 +17,11 @@ function generateApiKey() {
   return `oc_live_${random}`;
 }
 
+// Store enough of the key to visually distinguish it in the dashboard.
+// "oc_live_" is 8 chars and identical for every key, so we need at least
+// 16 chars to show the first 8 unique hex digits after the prefix.
+const KEY_PREFIX_LENGTH = 16;
+
 // GET /api/keys - List API keys for the user's org
 export async function GET(request) {
   try {
@@ -78,7 +83,7 @@ export async function POST(request) {
 
     const rawKey = generateApiKey();
     const keyHash = hashKey(rawKey);
-    const keyPrefix = rawKey.substring(0, 8);
+    const keyPrefix = rawKey.substring(0, KEY_PREFIX_LENGTH);
     const keyId = `key_${crypto.randomUUID()}`;
 
     await sql`
