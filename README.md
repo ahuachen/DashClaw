@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/images/logo-circular.png" alt="DashClaw" width="120" />
+  <img src="public/images/github-social-preview.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
   <p><strong>AI Agent Decision Infrastructure</strong></p>
   <p>The self-hosted control plane that proves what your AI agents decided and why.<br/>Enforce policies before agents act. Track every assumption. Maintain full decision accountability.</p>
@@ -12,7 +12,7 @@
 
   <br /><br />
 
-  <img src="public/images/github-social-preview.png" alt="DashClaw - Agent Decision Infrastructure" width="600" />
+  <img src="screenshots/Mission%20Control2.png" alt="DashClaw Mission Control dashboard" width="1000" />
 </div>
 
 <br />
