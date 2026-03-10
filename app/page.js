@@ -18,44 +18,67 @@ const coreFeatures = [
   {
     icon: Zap,
     title: 'Prove Every Decision Your Agents Make',
-    description: 'Every action recorded with reasoning, assumptions, and policy compliance. A live decision ledger streams everything so you can prove why any agent acted.',
+    description: 'Every action, approval, assumption, and outcome lands in a live decision ledger so you can prove what happened, why it happened, and who authorized it.',
   },
   {
     icon: DashClawLogo,
     title: 'Enforce Policies Before Agents Act',
-    description: 'Semantic guard policies intercept intent before execution. Natural language rules evaluated in real time. No hard-coded checks to maintain.',
+    description: 'Semantic guard policies intercept intent before execution. Test policies, import packs, generate proof reports, and keep governance logic out of brittle application code.',
   },
   {
     icon: BarChart3,
-    title: 'Attribute Every Dollar to a Decision',
-    description: 'Cost-per-decision and burn rate by goal in real time. Financial accountability for every autonomous operation.',
+    title: 'Score, Calibrate, and Improve Quality',
+    description: 'Built-in scorers, weighted scoring profiles, risk templates, and auto-calibration give operators a concrete quality bar instead of vibes and one-off dashboards.',
   },
   {
     icon: ShieldAlert,
     title: 'Human-in-the-Loop Decision Gates',
-    description: 'Approval workflows pause risky decisions for human review. Agents request permission, not forgiveness.',
+    description: 'Approval workflows pause risky decisions for human review, pair trusted agents, and keep verified identity attached to the decisions that matter most.',
   },
   {
     icon: FileCheck,
-    title: 'Built-in Evaluation Framework',
-    description: '5 built-in scorer types (regex, keywords, numeric range, custom, optional LLM judge) to track output quality automatically.',
+    title: 'Adaptive Learning That Closes the Loop',
+    description: 'Completed actions turn into scored learning episodes, recommendations, adoption telemetry, and maturity analytics so your fleet improves over time.',
   },
   {
-    icon: Zap,
-    title: 'Learning Velocity & Maturity',
-    description: 'Track how fast your agents are improving. 6-level maturity model from Novice to Master based on real performance data.',
+    icon: MessageSquare,
+    title: 'Shared Agent Workspace',
+    description: 'Messaging, shared docs, handoffs, context threads, snippets, and memory health keep long-running agent work coherent across sessions and operators.',
   },
 ];
 
 const platformFeatures = [
-  { icon: Package, title: 'Drop-In SDKs', description: 'Connect any agent in minutes. Zero-dependency Node.js and Python clients with native adapters for OpenClaw, CrewAI, AutoGen, and LangChain.' },
+  { icon: Package, title: 'Drop-In SDKs', description: 'Connect any agent in minutes. Zero-dependency Node.js and Python clients with adapters for OpenClaw, CrewAI, AutoGen, and LangChain.' },
   { icon: Newspaper, title: 'Prompt Registry', description: 'Version-controlled prompt templates with mustache variables and instant rollback. Stop hardcoding prompts in your agent code.' },
-  { icon: MessageSquare, title: 'User Feedback Loop', description: 'Collect structured ratings with auto-sentiment detection and 6-category auto-tagging. Close the loop between users and agents.' },
+  { icon: MessageSquare, title: 'Messaging + Shared Docs', description: 'Direct agent messaging, smart inboxes, conversation threads, attachments, broadcasts, and shared workspace documents.' },
   { icon: Radio, title: 'Behavioral Drift Detection', description: 'Statistical baselines and z-score alerts catch when agent behavior deviates from the norm. Detect logic drift early.' },
-  { icon: Download, title: 'Compliance Export Bundles', description: 'One-click exports for SOC 2, NIST AI RMF, EU AI Act, and ISO 42001. All your governance evidence, packaged.' },
+  { icon: Download, title: 'Compliance Export Bundles', description: 'Framework mapping, gap analysis, evidence capture, and audit-ready exports for serious governance workflows.' },
   { icon: SlidersHorizontal, title: 'Scoring Profiles', description: 'User-defined weighted quality scoring with auto-calibration from real data. Risk templates replace hardcoded agent risk numbers with transparent, editable rules.' },
   { icon: DashClawLogo, title: 'Verified Agent Identity', description: 'Know which agent took which action. RSA signature verification ensures accountability at every step.' },
-  { icon: Brain, title: 'Keep Agent Memory Clean', description: 'Detect stale facts, repetition loops, and context bloat before they cause bad decisions.' },
+  { icon: Brain, title: 'Keep Agent Memory Clean', description: 'Detect stale facts, repetition loops, and context bloat before they cause bad decisions, then sync the findings back into the platform.' },
+];
+
+const homepagePillars = [
+  {
+    icon: ShieldAlert,
+    title: 'Govern Execution',
+    description: 'Policies, approvals, verified agent identity, assumptions, and decision proof before risky work runs.',
+  },
+  {
+    icon: FolderKanban,
+    title: 'Run The Fleet',
+    description: 'Mission Control, routing, swarm views, schedules, notifications, and operator workflows in one control plane.',
+  },
+  {
+    icon: SlidersHorizontal,
+    title: 'Measure And Improve',
+    description: 'Scoring profiles, evaluations, drift detection, learning recommendations, and maturity analytics.',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Keep Context Intact',
+    description: 'Messaging, handoffs, shared docs, snippets, threads, and memory health across long-running agent work.',
+  },
 ];
 
 const operationalFeatures = [
@@ -90,22 +113,22 @@ const platformCoverage = [
   {
     icon: FolderKanban,
     title: 'Control Plane + Dashboard',
-    description: 'Onboarding, team roles, approval queue, risk signals, live action views, and platform health cards.',
+    description: 'Mission Control, onboarding, approval queue, fleet health, security posture, operator workflows, and role-based workspace management.',
   },
   {
     icon: MessageSquare,
     title: 'API + Data Layer',
-    description: 'Typed repository boundaries, route contract governance, maturity labels, and OpenAPI drift checks.',
+    description: 'Broad API coverage for governance, learning, messaging, routing, compliance, and workspace data with contract and maturity governance.',
   },
   {
     icon: Zap,
     title: 'Realtime Runtime',
-    description: 'Broker-backed SSE fanout, reconnect with Last-Event-ID replay, and cutover health controls.',
+    description: 'Realtime streams for actions, policies, tasks, and messages with SSE replay, reconnect handling, and live dashboard updates.',
   },
   {
     icon: Package,
     title: 'SDK + Tooling',
-    description: 'Node and Python SDKs, CLI toolkit, parity test suites, and docs/CI governance.',
+    description: 'Node and Python SDKs, agent bootstrap flows, local CLI tooling, parity suites, and CI-backed docs and contract governance.',
   },
 ];
 
@@ -143,7 +166,7 @@ const shippedHighlights = [
   {
     icon: Scale,
     title: 'Compliance Without the Spreadsheets',
-    description: 'Map your guardrails to SOC 2, ISO 27001, GDPR, and NIST AI RMF automatically. Generate audit-ready reports in one click.',
+    description: 'Map your guardrails to SOC 2, ISO 27001, GDPR, NIST AI RMF, and more. Generate audit-ready reports and live evidence on demand.',
     href: '/docs#compliance-engine',
   },
   {
@@ -170,45 +193,71 @@ export default function LandingPage() {
             Open-source &middot; MIT Licensed &middot; Self-hosted
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            Your agents are making decisions.<br />
-            <span className="text-brand">Do you know which ones?</span>
+            Govern, route, score, and improve<br />
+            <span className="text-brand">your entire agent fleet.</span>
           </h1>
           <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            DashClaw is a governance control plane for AI agent fleets. It records every decision with reasoning, enforces policies before agents act, and surfaces risk signals before they become incidents. Connect your first agent in under 10 minutes.
+            DashClaw is the self-hosted platform for running AI agents in production. Govern decisions before execution, route tasks to the right agent, score quality, track learning, manage agent workspace state, and surface compliance and security evidence from one control plane.
           </p>
-          <p className="mt-3 text-sm text-zinc-500">Open-source. Self-hosted. No OAuth required to get started.</p>
+          <p className="mt-3 text-sm text-zinc-500">Open-source. Self-hosted. Zero-dependency SDKs. No OAuth required to get started.</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
             <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Policy guard</span>
             <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Decision audit trail</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Risk signals</span>
+            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Task routing</span>
+            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Scoring profiles</span>
+            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Adaptive learning</span>
             <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Compliance mapping</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Assumption tracking</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Human-in-the-loop</span>
+            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Messaging + handoffs</span>
+            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Risk signals</span>
           </div>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
-              Deploy Free <ArrowRight size={16} />
-            </Link>
-            <Link href="/dashboard" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
+            <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
               <Terminal size={16} /> Live Demo
             </Link>
+            <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
+              Deploy Free <ArrowRight size={16} />
+            </Link>
           </div>
+          <p className="mt-3 text-xs text-zinc-500">Start with the demo to see the full control plane. Deploy when you want to connect real agents.</p>
         </div>
       </section>
 
       {/* ── 2.5 Dashboard Preview ── */}
+      <section className="pb-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6 text-center">
+            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">Four Platform Pillars</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {homepagePillars.map((pillar) => {
+              const Icon = pillar.icon;
+              return (
+                <div key={pillar.title} className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[rgba(249,115,22,0.1)]">
+                    <Icon size={18} className="text-brand" />
+                  </div>
+                  <h3 className="text-base font-semibold text-white">{pillar.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">{pillar.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section className="pb-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto pt-16">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
             <div className="lg:col-span-2">
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">One screen. Everything your fleet is doing.</h2>
               <p className="mt-3 text-zinc-400 leading-relaxed">
-                Live actions, open risk signals, pending approvals, and agent context in a single view. Built for operators who need answers fast, not dashboards to maintain.
+                Live actions, open risk signals, pending approvals, cost movement, fleet presence, and active agent work in a single view. Built for operators who need answers fast, not more dashboards to maintain.
               </p>
               <div className="mt-5 flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Realtime</span>
                 <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">HITL approvals</span>
                 <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Guard policies</span>
+                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Fleet presence</span>
                 <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Swarm map</span>
               </div>
             </div>
@@ -257,8 +306,8 @@ export default function LandingPage() {
       <section id="features" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Built for the moment your agent does something unexpected</h2>
-            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">Every feature exists to give you control over agents you cannot watch manually.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Everything else the platform already ships</h2>
+            <p className="mt-3 text-zinc-400 max-w-2xl mx-auto">After the four core pillars, DashClaw expands into deeper surfaces for compliance, workspace, integrations, observability, and day-two operations.</p>
           </div>
 
           {/* Core features: 2 col, larger */}
@@ -300,35 +349,31 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">What makes DashClaw different?</h2>
-            <p className="mt-3 text-zinc-400">Governance that doesn&apos;t slow you down.</p>
+            <p className="mt-3 text-zinc-400">Governance is the spine, not the whole story.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
               <h3 className="text-lg font-semibold text-white">No-Code Policy Engine</h3>
               <p className="text-sm text-zinc-400 mt-2">
-                Define guardrails in natural language and enforce them across all agents instantly.
-                No hardcoded checks or messy conditional logic.
+                Define guardrails in natural language, test them before rollout, and generate proof when auditors or stakeholders ask how decisions were controlled.
               </p>
             </div>
             <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">Learning Velocity</h3>
+              <h3 className="text-lg font-semibold text-white">Adaptive Learning Loop</h3>
               <p className="text-sm text-zinc-400 mt-2">
-                DashClaw doesn&apos;t just log actions; it tracks how fast your agents are improving
-                and where they&apos;re still struggling.
-              </p>
-            </div>
-            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">Financial Attribution</h3>
-              <p className="text-sm text-zinc-400 mt-2">
-                Every dollar spent on tokens is attributed to a specific decision and goal.
-                Know exactly what your AI budget is buying.
+                DashClaw doesn&apos;t stop at logging. It turns completed work into recommendations, telemetry, and maturity signals your operators can actually act on.
               </p>
             </div>
             <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
               <h3 className="text-lg font-semibold text-white">Operator-Defined Quality</h3>
               <p className="text-sm text-zinc-400 mt-2">
-                You define what &quot;good&quot; means. Weighted multi-dimensional scoring with auto-calibration
-                from your real data. Risk templates replace guesswork with transparent rules.
+                Weighted scoring profiles, risk templates, and calibration from real data let operators define what good looks like instead of trusting opaque model heuristics.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
+              <h3 className="text-lg font-semibold text-white">Shared Agent Workspace</h3>
+              <p className="text-sm text-zinc-400 mt-2">
+                Messaging, handoffs, threads, snippets, shared docs, and memory health give agents and humans a durable operating context instead of fragmented session state.
               </p>
             </div>
           </div>
@@ -341,8 +386,8 @@ export default function LandingPage() {
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Complete platform scope</h2>
             <p className="mt-3 text-zinc-400 max-w-2xl mx-auto">
-              DashClaw is more than a dashboard. It is a full platform spanning control plane UX, APIs, data contracts,
-              realtime transport, SDKs, and CI governance.
+              DashClaw is more than a dashboard. It spans control plane UX, governance APIs, learning systems,
+              workspace primitives, realtime transport, SDKs, and CI-backed contract governance.
             </p>
           </div>
 
@@ -399,12 +444,12 @@ export default function LandingPage() {
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">The only agent platform with built-in compliance</h2>
               <p className="mt-3 text-zinc-400 max-w-2xl mx-auto leading-relaxed">
                 Most platforms stop at logging. DashClaw ships decision enforcement,
-                regulatory compliance mapping, and intelligent task routing. All auditable,
-                all testable, all live in the demo.
+                regulatory compliance mapping, security scanning, and intelligent task routing in one system.
+                All auditable, all testable, all live in the demo.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
               {/* Card 1: Compliance Engine */}
               <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
                 <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
@@ -455,13 +500,34 @@ export default function LandingPage() {
                   Explore Task Routing <ArrowRight size={14} />
                 </Link>
               </div>
+
+              <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
+                <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
+                  <Shield size={20} className="text-brand" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-3">Security + Agent Integrity</h3>
+                <ul className="space-y-2 text-sm text-zinc-400 mb-4">
+                  <li>Prompt injection and outbound content scanning</li>
+                  <li>Verified agent identity and approval pairings</li>
+                  <li>Webhook and email alerting on new risk signals</li>
+                  <li>Multi-tenant isolation with encrypted settings</li>
+                </ul>
+                <Link href="/docs#security-scanning" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
+                  Explore Security <ArrowRight size={14} />
+                </Link>
+              </div>
             </div>
 
             <div className="text-center">
               <p className="text-sm text-zinc-400 mb-4">Every feature works in the demo. No signup required.</p>
-              <Link href="/demo" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors">
-                Launch Demo <ArrowRight size={14} />
-              </Link>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link href="/demo" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors">
+                  <Terminal size={14} /> Explore Demo
+                </Link>
+                <Link href="/self-host" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors">
+                  Deploy Free <ArrowRight size={14} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -473,12 +539,12 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(249,115,22,0.08)] border border-[rgba(249,115,22,0.2)] text-brand text-xs font-medium mb-4">
                 <Package size={12} />
-                177+ methods across 29 categories
+                170+ methods across 29+ categories
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">One SDK. Full decision governance.</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">One SDK. Full agent operations surface.</h2>
               <p className="mt-3 text-zinc-400 leading-relaxed">
                 Install from npm or pip. Zero dependencies. Native adapters for <span className="text-zinc-200 font-semibold">OpenClaw</span>, <span className="text-zinc-200 font-semibold">CrewAI</span>, <span className="text-zinc-200 font-semibold">AutoGen</span>, and <span className="text-zinc-200 font-semibold">LangChain</span>.
-                Decision recording, policy enforcement, assumption tracking, handoffs, messaging, and more.
+                Decision recording, policy enforcement, scoring, recommendations, handoffs, messaging, routing, compliance, and more.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">npm package</span>
@@ -603,7 +669,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Production-ready operations</h2>
-            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">Team management, audit trails, webhooks, and more. Built in from day one.</p>
+            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">Team management, notifications, audit trails, automation hooks, and org controls. Built in from day one.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {operationalFeatures.map((feature) => {
@@ -657,19 +723,20 @@ export default function LandingPage() {
       <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Get your first agent governed today
+            Connect your real agents when you are ready
           </h2>
           <p className="mt-3 text-zinc-400">
-            Deploy to Vercel, set a password, paste one env var into your agent. Your first decision shows up in the dashboard in under 10 minutes. Open-source, MIT licensed, no lock-in.
+            You have seen the product. The next step is to run your own control plane, generate a key, and point your agents at it. Your first governed decision shows up in minutes.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
               Deploy Free <ArrowRight size={16} />
             </Link>
-            <Link href="/dashboard" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
-              <Terminal size={16} /> Live Demo
+            <Link href="/docs" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
+              <BookOpen size={16} /> Read Docs
             </Link>
           </div>
+          <p className="mt-3 text-xs text-zinc-500">Best CTA hierarchy: demo first for discovery, deploy first after product understanding.</p>
         </div>
       </section>
 

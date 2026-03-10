@@ -1,8 +1,8 @@
 <div align="center">
   <img src="public/images/github-social-preview.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
-  <p><strong>AI Agent Decision Infrastructure</strong></p>
-  <p>The self-hosted control plane that proves what your AI agents decided and why.<br/>Enforce policies before agents act. Track every assumption. Maintain full decision accountability.</p>
+  <p><strong>AI Agent Governance, Operations, and Intelligence Platform</strong></p>
+  <p>The self-hosted control plane for running serious AI agent fleets.<br/>Govern decisions before agents act, route work to the right agent, score output quality, track learning, manage context and messaging, and generate audit-ready compliance evidence.</p>
 
   <a href="https://dashclaw.io"><img src="https://img.shields.io/badge/website-dashclaw.io-orange?style=flat-square" alt="Website" /></a>
   <a href="https://dashclaw.io/docs"><img src="https://img.shields.io/badge/docs-SDK%20%26%20API-blue?style=flat-square" alt="Docs" /></a>
@@ -21,52 +21,69 @@
 
 ---
 
+## What DashClaw Has Become
+
+DashClaw started as decision infrastructure. It is now a much broader platform for operating, governing, and improving AI agents in production.
+
+- **Decision governance** -- guard policies, approvals, assumption tracking, open loops, root-cause traceability
+- **Operator control plane** -- Mission Control, approval queue, security signals, swarm views, fleet health, audit trail
+- **Quality and evaluation** -- scorer framework, weighted scoring profiles, risk templates, auto-calibration
+- **Adaptive learning** -- learning episodes, recommendations, adoption telemetry, maturity and velocity analytics
+- **Agent workspace** -- handoffs, context threads, shared docs, snippets, messaging, memory health
+- **Compliance and security** -- policy testing, proof reports, framework mapping, prompt injection scanning, content security scanning
+- **Fleet operations** -- task routing, agent registry, schedules, notifications, webhooks, cron automation, multi-tenant org controls
+- **SDK and tooling** -- zero-dependency Node.js and Python SDKs, agent bootstrap scanner, and 30+ local CLI tools
+
+---
+
 ## Why DashClaw
 
-Most observability tools tell you *what* your agents did. DashClaw tells you *what they decided, why, and whether they should have.*
+Most observability tools tell you *what* your agents did. DashClaw tells you *what they decided, why, whether they should have, and how to improve the next decision.*
 
-- **No-code policy enforcement** -- behavior guards that block risky actions before they happen
-- **Full decision audit trail** -- every approval, override, and outcome tracked
-- **Self-hosted** -- your data never leaves your infrastructure
-- **Zero-dependency SDKs** -- Node.js and Python, no vendor lock-in
+- **Govern before execution** -- no-code policies, human approvals, verified agent identity, and decision proof
+- **Operate the fleet** -- Mission Control, routing, schedules, notifications, webhooks, and multi-agent coordination
+- **Improve over time** -- evaluations, scoring profiles, drift detection, learning recommendations, and maturity analytics
+- **Keep context intact** -- messaging, handoffs, workspace docs, snippets, memory health, and agent bootstrap tooling
+- **Stay audit-ready** -- compliance mapping, evidence exports, audit logs, security scanning, and self-hosted control
+- **Integrate fast** -- zero-dependency Node.js and Python SDKs plus local CLI tools for agent-side workflows
 
 <br />
 
 <table>
   <tr>
     <td align="center" width="25%">
-      <strong>🛡️ Governance</strong><br />
-      <sub>No-code guards, approval chains, compliance mapping</sub>
+      <strong>Governance</strong><br />
+      <sub>Policies, approvals, identity binding, assumptions, proof</sub>
     </td>
     <td align="center" width="25%">
-      <strong>📊 Quality & Eval</strong><br />
-      <sub>5 scorer types, scoring profiles, weighted composites</sub>
+      <strong>Quality &amp; Eval</strong><br />
+      <sub>Scorers, scoring profiles, risk templates, auto-calibration</sub>
     </td>
     <td align="center" width="25%">
-      <strong>🧠 Learning</strong><br />
-      <sub>Velocity tracking, maturity models, per-skill curves</sub>
+      <strong>Learning</strong><br />
+      <sub>Recommendations, telemetry, maturity, per-skill curves</sub>
     </td>
     <td align="center" width="25%">
-      <strong>🔍 Observability</strong><br />
-      <sub>Decision trails, drift detection, cost tracking</sub>
+      <strong>Operations</strong><br />
+      <sub>Mission Control, routing, swarm views, risk and cost signals</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <strong>📝 Prompt Mgmt</strong><br />
-      <sub>Version control, variable rendering, usage analytics</sub>
+      <strong>Workspace</strong><br />
+      <sub>Messages, shared docs, handoffs, context, snippets</sub>
     </td>
     <td align="center">
-      <strong>💬 Feedback</strong><br />
-      <sub>User feedback loop, sentiment analysis, triage</sub>
+      <strong>Prompt Mgmt</strong><br />
+      <sub>Templates, versions, rendering, runs, coverage prompts</sub>
     </td>
     <td align="center">
-      <strong>📋 Compliance</strong><br />
-      <sub>Multi-framework export, evidence packaging, schedules</sub>
+      <strong>Compliance</strong><br />
+      <sub>Framework mapping, gap analysis, reports, evidence bundles</sub>
     </td>
     <td align="center">
-      <strong>🔒 Security</strong><br />
-      <sub>AES-256 encryption, multi-tenant isolation, OIDC</sub>
+      <strong>Security</strong><br />
+      <sub>Prompt injection scans, content scanning, OIDC, encryption</sub>
     </td>
   </tr>
 </table>
@@ -366,3 +383,4 @@ See [docs/SECURITY.md](docs/SECURITY.md).
   <br />
   <sub>Built by <a href="https://practicalsystems.io">Practical Systems</a></sub>
 </div>
+
