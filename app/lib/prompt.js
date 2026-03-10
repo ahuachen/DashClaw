@@ -199,77 +199,111 @@ export async function recordPromptRun(request, { template_id, version_id, action
   const sql = getSql();
   const orgId = getOrgId(request);
   const id = 'pr_' + crypto.randomBytes(12).toString('hex');
+  const isMissingTable = (err) =>
+    String(err?.code || '').includes('42P01') || String(err?.message || '').includes('does not exist');
 
-  await sql`
-    INSERT INTO prompt_runs (id, org_id, template_id, version_id, action_id, agent_id, input_vars, rendered, tokens_used, latency_ms, outcome)
-    VALUES (${id}, ${orgId}, ${template_id}, ${version_id}, ${action_id || ''}, ${agent_id || ''}, ${JSON.stringify(input_vars || {})}, ${rendered || ''}, ${tokens_used || 0}, ${latency_ms || 0}, ${outcome || ''})
-  `;
+  try {
+    await sql`
+      INSERT INTO prompt_runs (id, org_id, template_id, version_id, action_id, agent_id, input_vars, rendered, tokens_used, latency_ms, outcome)
+      VALUES (${id}, ${orgId}, ${template_id}, ${version_id}, ${action_id || ''}, ${agent_id || ''}, ${JSON.stringify(input_vars || {})}, ${rendered || ''}, ${tokens_used || 0}, ${latency_ms || 0}, ${outcome || ''})
+    `;
+  } catch (error) {
+    if (!isMissingTable(error)) throw error;
+    return {
+      id: null,
+      recorded: false,
+      missing_table: 'prompt_runs',
+      setup_hint: 'Run scripts/migrate-prompts.mjs to enable prompt usage analytics.',
+    };
+  }
 
-  return { id };
+  return { id, recorded: true };
 }
 
 export async function getPromptStats(request, { template_id } = {}) {
   const sql = getSql();
   const orgId = getOrgId(request);
+  const isMissingTable = (err) =>
+    String(err?.code || '').includes('42P01') || String(err?.message || '').includes('does not exist');
 
-  if (template_id) {
-    const rows = await sql`
+  try {
+    if (template_id) {
+      const rows = await sql`
+        SELECT
+          COUNT(*) AS total_runs,
+          ROUND(AVG(tokens_used), 0) AS avg_tokens,
+          ROUND(AVG(latency_ms), 0) AS avg_latency_ms,
+          COUNT(DISTINCT version_id) AS versions_used,
+          COUNT(DISTINCT agent_id) FILTER (WHERE agent_id != '') AS unique_agents
+        FROM prompt_runs
+        WHERE org_id = ${orgId} AND template_id = ${template_id}
+      `;
+      return rows[0] || {};
+    }
+
+    const overall = await sql`
       SELECT
         COUNT(*) AS total_runs,
+        COUNT(DISTINCT template_id) AS unique_templates,
         ROUND(AVG(tokens_used), 0) AS avg_tokens,
         ROUND(AVG(latency_ms), 0) AS avg_latency_ms,
-        COUNT(DISTINCT version_id) AS versions_used,
-        COUNT(DISTINCT agent_id) FILTER (WHERE agent_id != '') AS unique_agents
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') AS today_count
       FROM prompt_runs
-      WHERE org_id = ${orgId} AND template_id = ${template_id}
+      WHERE org_id = ${orgId}
     `;
-    return rows[0] || {};
+
+    const byTemplate = await sql`
+      SELECT
+        pt.name AS template_name,
+        COUNT(pr.id) AS total_runs,
+        ROUND(AVG(pr.tokens_used), 0) AS avg_tokens,
+        ROUND(AVG(pr.latency_ms), 0) AS avg_latency_ms
+      FROM prompt_runs pr
+      JOIN prompt_templates pt ON pt.id = pr.template_id
+      WHERE pr.org_id = ${orgId}
+      GROUP BY pt.name
+      ORDER BY total_runs DESC
+      LIMIT 10
+    `;
+
+    const byVersion = await sql`
+      SELECT
+        pt.name AS template_name,
+        pv.version,
+        pv.id AS version_id,
+        COUNT(pr.id) AS total_runs,
+        ROUND(AVG(pr.tokens_used), 0) AS avg_tokens
+      FROM prompt_runs pr
+      JOIN prompt_versions pv ON pv.id = pr.version_id
+      JOIN prompt_templates pt ON pt.id = pr.template_id
+      WHERE pr.org_id = ${orgId}
+      GROUP BY pt.name, pv.version, pv.id
+      ORDER BY total_runs DESC
+      LIMIT 20
+    `;
+
+    return {
+      overall: overall[0] || {},
+      by_template: byTemplate,
+      by_version: byVersion,
+      available: true,
+    };
+  } catch (error) {
+    if (!isMissingTable(error)) throw error;
+
+    return {
+      overall: {
+        total_runs: 0,
+        unique_templates: 0,
+        avg_tokens: null,
+        avg_latency_ms: null,
+        today_count: 0,
+      },
+      by_template: [],
+      by_version: [],
+      available: false,
+      missing_table: 'prompt_runs',
+      setup_hint: 'Run scripts/migrate-prompts.mjs to enable prompt usage analytics.',
+    };
   }
-
-  const overall = await sql`
-    SELECT
-      COUNT(*) AS total_runs,
-      COUNT(DISTINCT template_id) AS unique_templates,
-      ROUND(AVG(tokens_used), 0) AS avg_tokens,
-      ROUND(AVG(latency_ms), 0) AS avg_latency_ms,
-      COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours') AS today_count
-    FROM prompt_runs
-    WHERE org_id = ${orgId}
-  `;
-
-  const byTemplate = await sql`
-    SELECT
-      pt.name AS template_name,
-      COUNT(pr.id) AS total_runs,
-      ROUND(AVG(pr.tokens_used), 0) AS avg_tokens,
-      ROUND(AVG(pr.latency_ms), 0) AS avg_latency_ms
-    FROM prompt_runs pr
-    JOIN prompt_templates pt ON pt.id = pr.template_id
-    WHERE pr.org_id = ${orgId}
-    GROUP BY pt.name
-    ORDER BY total_runs DESC
-    LIMIT 10
-  `;
-
-  const byVersion = await sql`
-    SELECT
-      pt.name AS template_name,
-      pv.version,
-      pv.id AS version_id,
-      COUNT(pr.id) AS total_runs,
-      ROUND(AVG(pr.tokens_used), 0) AS avg_tokens
-    FROM prompt_runs pr
-    JOIN prompt_versions pv ON pv.id = pr.version_id
-    JOIN prompt_templates pt ON pt.id = pr.template_id
-    WHERE pr.org_id = ${orgId}
-    GROUP BY pt.name, pv.version, pv.id
-    ORDER BY total_runs DESC
-    LIMIT 20
-  `;
-
-  return {
-    overall: overall[0] || {},
-    by_template: byTemplate,
-    by_version: byVersion,
-  };
 }

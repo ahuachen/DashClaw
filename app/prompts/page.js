@@ -190,6 +190,7 @@ export default function PromptsPage() {
   }
 
   const overall = stats?.overall || {};
+  const statsUnavailable = stats?.available === false;
 
   return (
     <PageLayout
@@ -226,6 +227,12 @@ export default function PromptsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {statsUnavailable && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/6 px-4 py-3 text-sm text-amber-200">
+            Prompt usage analytics are not enabled in this database yet. {stats?.setup_hint || 'Run scripts/migrate-prompts.mjs.'}
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 border-b border-[rgba(255,255,255,0.06)]">

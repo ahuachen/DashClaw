@@ -45,7 +45,8 @@ export async function POST(request) {
         latency_ms: body.latency_ms || 0,
         outcome: body.outcome || '',
       });
-      result.run_id = run.id;
+      if (run?.id) result.run_id = run.id;
+      if (run?.recorded === false) result.analytics = run;
     }
 
     return NextResponse.json(result);

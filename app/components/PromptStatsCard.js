@@ -40,13 +40,18 @@ export default function PromptStatsCard() {
 
   const overall = stats?.overall || {};
   const hasData = (overall.total_runs || 0) > 0;
+  const unavailable = stats?.available === false;
 
   if (!hasData) {
     return (
       <Card className="h-full" ref={sizeRef}>
         <CardHeader title="Prompts" icon={FileCode} />
         <CardContent>
-          <EmptyState icon={FileCode} title="No prompt activity" description="Create and render prompts to track usage here." />
+          <EmptyState
+            icon={FileCode}
+            title={unavailable ? 'Prompt analytics unavailable' : 'No prompt activity'}
+            description={unavailable ? (stats?.setup_hint || 'Run the prompt analytics migration to enable usage stats.') : 'Create and render prompts to track usage here.'}
+          />
         </CardContent>
       </Card>
     );

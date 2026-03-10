@@ -7,7 +7,17 @@ const { mockSql } = vi.hoisted(() => ({
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
 vi.mock('@/lib/org.js', () => ({ getOrgId: () => 'org_test' }));
 
-import { renderPrompt } from '@/lib/prompt.js';
+import { renderPrompt, getPromptStats, recordPromptRun } from '@/lib/prompt.js';
+
+const request = new Request('http://localhost/api/prompts/stats', {
+  headers: { 'x-org-id': 'org_test' },
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockSql.mockImplementation(async () => []);
+  mockSql.query.mockImplementation(async () => []);
+});
 
 describe('renderPrompt', () => {
   it('renders simple mustache variables', () => {
@@ -53,5 +63,35 @@ describe('renderPrompt', () => {
   it('handles numeric values', () => {
     const result = renderPrompt('Count: {{n}}', { n: 42 });
     expect(result).toBe('Count: 42');
+  });
+});
+
+describe('getPromptStats', () => {
+  it('returns an unavailable payload when prompt_runs is missing', async () => {
+    const missingTable = Object.assign(new Error('relation "prompt_runs" does not exist'), { code: '42P01' });
+    mockSql.mockRejectedValueOnce(missingTable);
+
+    const result = await getPromptStats(request);
+
+    expect(result.available).toBe(false);
+    expect(result.missing_table).toBe('prompt_runs');
+    expect(result.overall.total_runs).toBe(0);
+    expect(result.setup_hint).toContain('migrate-prompts');
+  });
+});
+
+describe('recordPromptRun', () => {
+  it('fails soft when prompt_runs is missing', async () => {
+    const missingTable = Object.assign(new Error('relation "prompt_runs" does not exist'), { code: '42P01' });
+    mockSql.mockRejectedValueOnce(missingTable);
+
+    const result = await recordPromptRun(request, {
+      template_id: 'pt_1',
+      version_id: 'pv_1',
+      rendered: 'hello',
+    });
+
+    expect(result.recorded).toBe(false);
+    expect(result.missing_table).toBe('prompt_runs');
   });
 });

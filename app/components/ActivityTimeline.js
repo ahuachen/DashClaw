@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  Clock, Play, CheckCircle2, XCircle, AlertTriangle,
-  CircleDot, Brain, ArrowRight, Shield, Loader2, Target,
+  Clock, Play, CheckCircle2, XCircle, AlertTriangle, CircleDot, Brain,
+  ArrowRight, Shield, Loader2, Target, EyeOff, Eye, Siren, ShieldCheck,
 } from 'lucide-react';
 import { Card, CardHeader, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
@@ -12,25 +12,34 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
-import { useTileSize, fitItems } from '../hooks/useTileSize';
+import {
+  buildActionEvent,
+  buildGuardEvent,
+  buildLearningEvent,
+  buildLoopEvent,
+  collapseRoutineTelemetry,
+} from '../lib/missionControl';
 
 function getEventIcon(event) {
   switch (event.category) {
-    case 'action':
+    case 'decision':
       if (event.status === 'completed') return <CheckCircle2 size={14} className="text-emerald-400" />;
       if (event.status === 'failed') return <XCircle size={14} className="text-red-400" />;
       if (event.status === 'running') return <Loader2 size={14} className="text-blue-400 animate-spin" />;
-      return <Play size={14} className="text-zinc-400" />;
-    case 'loop':
-      if (event.status === 'resolved') return <CheckCircle2 size={14} className="text-emerald-400" />;
-      return <CircleDot size={14} className="text-amber-400" />;
-    case 'goal':
-      if (event.status === 'completed') return <CheckCircle2 size={14} className="text-emerald-400" />;
-      return <Target size={14} className="text-emerald-400" />;
-    case 'learning':
-      return <Brain size={14} className="text-purple-400" />;
-    case 'signal':
-      return <Shield size={14} className="text-red-400" />;
+      if (event.status === 'pending_approval') return <AlertTriangle size={14} className="text-amber-400" />;
+      return <Play size={14} className="text-sky-400" />;
+    case 'intervention':
+      return event.status === 'resolved'
+        ? <CheckCircle2 size={14} className="text-emerald-400" />
+        : <Siren size={14} className="text-amber-400" />;
+    case 'governance':
+      if (event.status === 'block') return <Shield size={14} className="text-red-400" />;
+      if (event.status === 'require_approval') return <AlertTriangle size={14} className="text-amber-400" />;
+      return <ShieldCheck size={14} className="text-emerald-400" />;
+    case 'outcome':
+      return <Brain size={14} className="text-cyan-400" />;
+    case 'telemetry':
+      return <CircleDot size={14} className="text-zinc-500" />;
     default:
       return <Clock size={14} className="text-zinc-400" />;
   }
@@ -38,24 +47,31 @@ function getEventIcon(event) {
 
 function getCategoryLabel(category) {
   switch (category) {
-    case 'action': return 'Decision';
-    case 'loop': return 'Open Loop';
-    case 'goal': return 'Goal';
-    case 'learning': return 'Lesson';
-    case 'signal': return 'Integrity Signal';
+    case 'decision': return 'Decision';
+    case 'intervention': return 'Intervention';
+    case 'governance': return 'Governance';
+    case 'outcome': return 'Outcome';
+    case 'telemetry': return 'Telemetry';
     default: return 'Event';
   }
 }
 
 function getCategoryColor(category) {
   switch (category) {
-    case 'action': return 'text-blue-400';
-    case 'loop': return 'text-amber-400';
-    case 'goal': return 'text-emerald-400';
-    case 'learning': return 'text-purple-400';
-    case 'signal': return 'text-red-400';
+    case 'decision': return 'text-sky-300';
+    case 'intervention': return 'text-amber-300';
+    case 'governance': return 'text-red-300';
+    case 'outcome': return 'text-cyan-300';
+    case 'telemetry': return 'text-zinc-500';
     default: return 'text-zinc-400';
   }
+}
+
+function getStatusVariant(status) {
+  if (['completed', 'resolved', 'allow', 'success'].includes(status)) return 'success';
+  if (['failed', 'block', 'failure'].includes(status)) return 'error';
+  if (['running', 'pending', 'pending_approval', 'warn', 'open', 'require_approval'].includes(status)) return 'warning';
+  return 'default';
 }
 
 function formatTimestamp(ts) {
@@ -71,6 +87,27 @@ function formatTimestamp(ts) {
 
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
     ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function formatLifecycle(event) {
+  if (event.category === 'decision') {
+    if (event.status === 'running' && event.startedAt) {
+      return `Started ${formatTimestamp(event.startedAt)}`;
+    }
+    if (event.endedAt) {
+      return `${event.statusLabel} ${formatTimestamp(event.endedAt)}`;
+    }
+    if (event.startedAt) {
+      return `${event.statusLabel} ${formatTimestamp(event.startedAt)}`;
+    }
+  }
+
+  if (event.category === 'intervention') {
+    if (event.status === 'open' && event.startedAt) return `Opened ${formatTimestamp(event.startedAt)}`;
+    if (event.endedAt) return `${event.statusLabel} ${formatTimestamp(event.endedAt)}`;
+  }
+
+  return formatTimestamp(event.timestamp);
 }
 
 function groupByDay(events) {
@@ -95,69 +132,48 @@ export default function ActivityTimeline() {
   const { agentId } = useAgentFilter();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { ref: sizeRef, height: tileHeight } = useTileSize();
+  const [showTelemetry, setShowTelemetry] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('all');
 
   const fetchAll = useCallback(async () => {
     try {
-      const agentParam = agentId ? `&agent_id=${encodeURIComponent(agentId)}` : '';
-      const [actionsRes, loopsRes, learningRes] = await Promise.all([
-        fetch(`/api/actions?limit=20${agentParam}`),
-        fetch(`/api/actions/loops?limit=15${agentParam}`),
-        fetch(`/api/learning?${agentId ? `agent_id=${encodeURIComponent(agentId)}` : ''}`),
+      const queryAgent = agentId ? `agent_id=${encodeURIComponent(agentId)}` : '';
+      const withPrefix = (base, extra = []) => {
+        const params = [...extra];
+        if (queryAgent) params.push(queryAgent);
+        return `${base}${params.length ? `?${params.join('&')}` : ''}`;
+      };
+
+      const [actionsRes, loopsRes, learningRes, guardRes] = await Promise.all([
+        fetch(withPrefix('/api/actions', ['limit=24'])),
+        fetch(withPrefix('/api/actions/loops', ['limit=12'])),
+        fetch(withPrefix('/api/learning')),
+        fetch(withPrefix('/api/guard', ['limit=12'])),
       ]);
 
       const merged = [];
 
       if (actionsRes.ok) {
         const actionsData = await actionsRes.json();
-        for (const a of (actionsData.actions || [])) {
-          merged.push({
-            id: a.action_id,
-            category: 'action',
-            title: a.action_type || 'Action',
-            detail: a.declared_goal || '',
-            agentId: a.agent_id,
-            agentName: a.agent_name,
-            status: a.status === 'in-progress' ? 'running' : a.status,
-            riskScore: a.risk_score,
-            timestamp: a.timestamp_start || a.timestamp_end,
-          });
-        }
+        merged.push(...(actionsData.actions || []).map(buildActionEvent));
       }
 
       if (loopsRes.ok) {
         const loopsData = await loopsRes.json();
-        for (const l of (loopsData.loops || [])) {
-          merged.push({
-            id: l.loop_id,
-            category: 'loop',
-            title: l.loop_type || 'Open Loop',
-            detail: l.description || '',
-            agentId: l.agent_id,
-            agentName: l.agent_name,
-            status: l.status,
-            priority: l.priority,
-            timestamp: l.created_at,
-          });
-        }
+        merged.push(...(loopsData.loops || []).map(buildLoopEvent));
       }
 
       if (learningRes.ok) {
         const learningData = await learningRes.json();
-        for (const l of (learningData.lessons || [])) {
-          merged.push({
-            id: `learn-${Math.random().toString(36).slice(2, 8)}`,
-            category: 'learning',
-            title: 'Lesson Learned',
-            detail: l.lesson || l.text || '',
-            timestamp: l.created_at || l.timestamp || new Date().toISOString(),
-          });
-        }
+        merged.push(...(learningData.decisions || []).slice(0, 8).map(buildLearningEvent));
       }
 
-      // Sort by timestamp descending
-      merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      setEvents(merged.slice(0, 30));
+      if (guardRes.ok) {
+        const guardData = await guardRes.json();
+        merged.push(...(guardData.decisions || []).map(buildGuardEvent));
+      }
+
+      setEvents(collapseRoutineTelemetry(merged).slice(0, 36));
     } catch (error) {
       console.error('Timeline fetch error:', error);
       setEvents([]);
@@ -171,212 +187,197 @@ export default function ActivityTimeline() {
     fetchAll();
   }, [fetchAll]);
 
-  // Real-time updates
   useRealtime(useCallback((event, payload) => {
-    if (event === 'action.created') {
-      const a = payload;
-      if (agentId && a.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: a.action_id,
-        category: 'action',
-        title: a.action_type || 'Action',
-        detail: a.declared_goal || '',
-        agentId: a.agent_id,
-        agentName: a.agent_name,
-        status: a.status === 'running' ? 'running' : a.status,
-        timestamp: a.timestamp_start || new Date().toISOString(),
-      }, ...prev].slice(0, 30));
-    } else if (event === 'action.updated') {
-      const a = payload;
-      setEvents(prev => prev.map(e => {
-        if (e.id === a.action_id) {
-          return {
-            ...e,
-            status: a.status === 'running' ? 'running' : a.status,
-            timestamp: a.timestamp_end || e.timestamp,
-          };
-        }
-        return e;
-      }));
+    let next = null;
+
+    if (event === 'action.created' || event === 'action.updated') {
+      const action = payload.action || payload;
+      if (agentId && action.agent_id !== agentId) return;
+      next = buildActionEvent(action);
     } else if (event === 'decision.created') {
-      const d = payload;
-      if (agentId && d.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: `learn-${d.id || Math.random().toString(36).slice(2, 8)}`,
-        category: 'learning',
-        title: 'Lesson Learned',
-        detail: d.decision || '',
-        timestamp: d.timestamp || new Date().toISOString(),
-      }, ...prev].slice(0, 30));
-    } else if (event === 'loop.created') {
-      const l = payload;
-      if (agentId && l.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: l.loop_id,
-        category: 'loop',
-        title: l.loop_type || 'Open Loop',
-        detail: l.description || '',
-        agentId: l.agent_id,
-        agentName: l.agent_name,
-        status: l.status,
-        priority: l.priority,
-        timestamp: l.created_at || new Date().toISOString(),
-      }, ...prev].slice(0, 30));
-    } else if (event === 'loop.updated') {
-      const l = payload;
-      setEvents(prev => prev.map(e => {
-        if (e.id === l.loop_id) {
-          return {
-            ...e,
-            status: l.status,
-            timestamp: l.resolved_at || e.timestamp,
-          };
-        }
-        return e;
-      }));
-    } else if (event === 'goal.created') {
-      const g = payload;
-      if (agentId && g.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: g.id,
-        category: 'goal',
-        title: 'New Goal',
-        detail: g.title || '',
-        agentId: g.agent_id,
-        status: g.status,
-        timestamp: g.created_at || new Date().toISOString(),
-      }, ...prev].slice(0, 30));
-    } else if (event === 'goal.updated') {
-      const g = payload;
-      setEvents(prev => prev.map(e => {
-        if (e.id === g.id) {
-          return {
-            ...e,
-            status: g.status,
-            detail: `${g.title} (${g.progress}%)`,
-          };
-        }
-        return e;
-      }));
+      const decision = payload.decision || payload;
+      if (agentId && decision.agent_id !== agentId) return;
+      next = buildLearningEvent(decision);
+    } else if (event === 'loop.created' || event === 'loop.updated') {
+      const loop = payload.loop || payload;
+      if (agentId && loop.agent_id !== agentId) return;
+      next = buildLoopEvent(loop);
     } else if (event === 'guard.decision.created') {
-      const g = payload;
-      if (agentId && g.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: g.id,
-        category: 'signal',
-        title: 'Guard Decision',
-        detail: `${g.decision.toUpperCase()}: ${g.reason || 'Evaluated action'}`,
-        agentId: g.agent_id,
-        status: g.decision,
-        timestamp: g.created_at,
-      }, ...prev].slice(0, 30));
-    } else if (event === 'signal.detected') {
-      const s = payload;
-      if (agentId && s.agent_id !== agentId) return;
-      setEvents(prev => [{
-        id: `sig-${Date.now()}`,
-        category: 'signal',
-        title: s.label || 'Risk Signal',
-        detail: s.detail || '',
-        agentId: s.agent_id,
-        timestamp: new Date().toISOString(),
-      }, ...prev].slice(0, 30));
+      const guard = payload.guardDecision || payload.decision || payload;
+      if (agentId && guard.agent_id !== agentId) return;
+      next = buildGuardEvent(guard);
     }
+
+    if (!next) return;
+
+    setEvents((prev) => {
+      const filtered = prev.filter((item) => item.id !== next.id);
+      return collapseRoutineTelemetry([next, ...filtered]).slice(0, 36);
+    });
   }, [agentId]));
 
   if (loading) return <CardSkeleton />;
 
-  const ITEM_H = 44;
-  const DAY_HEADER_H = 28;
-  const maxVisibleEvents = tileHeight > 0 ? fitItems(tileHeight, ITEM_H, DAY_HEADER_H) : 8;
-  const visibleEvents = events.slice(0, maxVisibleEvents);
-  const eventOverflow = events.length - visibleEvents.length;
-  const grouped = groupByDay(visibleEvents);
+  const categoryOptions = [
+    { id: 'all', label: 'All' },
+    { id: 'decision', label: 'Decisions' },
+    { id: 'governance', label: 'Governance' },
+    { id: 'intervention', label: 'Interventions' },
+    { id: 'outcome', label: 'Outcomes' },
+  ];
+  const filteredEvents = (showTelemetry ? events : events.filter((event) => !event.lowSignal))
+    .filter((event) => activeCategory === 'all' ? true : event.category === activeCategory);
+  const telemetryCount = events.filter((event) => event.lowSignal).reduce((sum, event) => sum + (event.count || 1), 0);
+  const prominentCount = filteredEvents.length;
+  const grouped = groupByDay(filteredEvents);
+  const emptyForCategory = activeCategory !== 'all' && filteredEvents.length === 0;
+  const hasAnyEvents = events.length > 0;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden">
       <CardHeader title="Decision Timeline" icon={Clock}>
-        <Badge variant="default" size="sm">{events.length} events</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="brand" size="sm">{prominentCount} priority</Badge>
+          {telemetryCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowTelemetry((prev) => !prev)}
+              className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
+            >
+              {showTelemetry ? <EyeOff size={11} /> : <Eye size={11} />}
+              {showTelemetry ? 'Hide routine telemetry' : `Show ${telemetryCount} routine updates`}
+            </button>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent>
-        <div ref={sizeRef} className="flex flex-col h-full min-h-0">
-        {events.length === 0 ? (
-          <EmptyState
-            icon={Clock}
-            title="No activity yet"
-            description="Decisions, open loops, and learning events will appear here chronologically"
-          />
-        ) : (<>
-          <div className="flex-1 min-h-0">
-            {grouped.map(([dayLabel, dayEvents]) => (
-              <div key={dayLabel} className="mb-4 last:mb-0">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600 mb-2 bg-surface-secondary py-1 z-[1]">
-                  {dayLabel}
-                </div>
-                <div className="relative">
-                  {/* Timeline line */}
-                  <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[rgba(255,255,255,0.06)]" />
-
-                  <div className="space-y-1">
-                    {dayEvents.map((event) => {
-                      const isClickable = event.category === 'action' || event.category === 'loop';
-                      const href = event.category === 'action' ? `/actions/${event.id}` : (event.category === 'loop' ? `/actions/${event.actionId || ''}` : null);
-                      
-                      const content = (
-                        <div className={`flex items-start gap-3 pl-0 py-1.5 group ${isClickable ? 'cursor-pointer' : ''}`}>
-                          {/* Icon dot on timeline */}
-                          <div className="relative z-[1] mt-0.5 flex-shrink-0">
-                            {getEventIcon(event)}
-                          </div>
-
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className={`text-[10px] font-medium uppercase tracking-wider ${getCategoryColor(event.category)}`}>
-                                {getCategoryLabel(event.category)}
-                              </span>
-                              <span className="text-xs font-medium text-white truncate">{event.title}</span>
-                              {event.agentName && (
-                                <span className="text-[10px] text-zinc-600 font-mono">{event.agentName}</span>
-                              )}
-                              {event.riskScore != null && event.riskScore >= 70 && (
-                                <span className="flex items-center gap-0.5 text-[10px] text-red-400">
-                                  <AlertTriangle size={9} /> {event.riskScore}
-                                </span>
-                              )}
-                              {event.priority === 'critical' && (
-                                <Badge variant="error" size="sm">Critical</Badge>
-                              )}
-                            </div>
-                            {event.detail && (
-                              <p className="text-xs text-zinc-500 mt-0.5 truncate max-w-md">{event.detail}</p>
-                            )}
-                          </div>
-
-                          {/* Timestamp */}
-                          <span className="text-[10px] text-zinc-600 whitespace-nowrap flex-shrink-0 mt-0.5 tabular-nums">
-                            {formatTimestamp(event.timestamp)}
-                          </span>
-                        </div>
-                      );
-
-                      if (isClickable && href) {
-                        return (
-                          <Link key={event.id} href={href} className="block hover:bg-white/[0.02] rounded-md transition-colors px-1 -mx-1">
-                            {content}
-                          </Link>
-                        );
-                      }
-
-                      return <div key={event.id}>{content}</div>;
-                    })}
-                  </div>
-                </div>
-              </div>
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="mb-3 flex flex-wrap gap-2 text-[11px] text-zinc-500">
+            <span>Priority events stay visible by default.</span>
+            {telemetryCount > 0 && <span>Routine monitor churn is collapsed until you ask for it.</span>}
+          </div>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {categoryOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setActiveCategory(option.id)}
+                className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+                  activeCategory === option.id
+                    ? 'border-brand/40 bg-brand/10 text-brand'
+                    : 'border-white/10 text-zinc-500 hover:text-white'
+                }`}
+              >
+                {option.label}
+              </button>
             ))}
           </div>
-        </>)}
+
+          {!hasAnyEvents ? (
+            <EmptyState
+              icon={Target}
+              title="No governed decisions yet"
+              description="Mission Control will turn agent goals, guard interventions, assumptions, and outcomes into an operator-readable timeline."
+            />
+          ) : emptyForCategory ? (
+            <EmptyState
+              icon={Target}
+              title={`No ${activeCategory} events right now`}
+              description="This filter is empty for the current dataset. Switch to another category or show routine telemetry to inspect lower-signal updates."
+            />
+          ) : (
+            <>
+              <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                {grouped.map(([dayLabel, dayEvents]) => (
+                  <div key={dayLabel} className="mb-4 last:mb-0">
+                    <div className="mb-2 bg-surface-secondary py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
+                      {dayLabel}
+                    </div>
+                    <div className="relative">
+                      <div className="absolute left-[7px] top-4 bottom-4 w-px bg-[rgba(255,255,255,0.06)]" />
+
+                      <div className="space-y-2">
+                        {dayEvents.map((event) => {
+                          const href =
+                            event.entityType === 'action'
+                              ? `/actions/${event.entityId}`
+                              : event.entityType === 'loop' && event.actionId
+                                ? `/actions/${event.actionId}`
+                                : null;
+
+                          const content = (
+                            <div className={`rounded-lg border px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${event.lowSignal ? 'border-[rgba(255,255,255,0.05)] bg-white/[0.015]' : 'border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]'} transition-colors ${href ? 'group-hover:border-white/20' : ''}`}>
+                              <div className="flex items-start gap-3">
+                                <div className="relative z-[1] mt-1 flex-shrink-0">
+                                  {getEventIcon(event)}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${getCategoryColor(event.category)}`}>
+                                      {getCategoryLabel(event.category)}
+                                    </span>
+                                    <span className="truncate text-sm font-medium text-white">{event.title}</span>
+                                    <Badge variant={getStatusVariant(event.status)} size="xs">{event.statusLabel}</Badge>
+                                    {event.priority === 'critical' && <Badge variant="error" size="xs">Critical</Badge>}
+                                    {event.priority === 'high' && <Badge variant="warning" size="xs">High priority</Badge>}
+                                  </div>
+
+                                  <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-zinc-500">
+                                    {event.goal && <span><span className="text-zinc-600">Goal:</span> {event.goal}</span>}
+                                    {event.actionType && <span><span className="text-zinc-600">Action:</span> {event.actionType}</span>}
+                                    {event.agentName && <span className="font-mono">{event.agentName}</span>}
+                                    {event.parentActionId && <span><span className="text-zinc-600">Parent:</span> {event.parentActionId}</span>}
+                                  </div>
+
+                                  {event.outputSummary && (
+                                    <p className={`mb-2 text-xs leading-5 ${event.lowSignal ? 'text-zinc-500' : 'text-zinc-300'}`}>
+                                      {event.outputSummary}
+                                    </p>
+                                  )}
+
+                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+                                    <span>{formatLifecycle(event)}</span>
+                                    {event.riskScore != null && (
+                                      <span className={`inline-flex items-center gap-1 ${event.riskScore >= 70 ? 'text-red-400' : 'text-zinc-500'}`}>
+                                        <AlertTriangle size={10} />
+                                        Risk {event.riskScore}
+                                      </span>
+                                    )}
+                                    {event.confidence != null && (
+                                      <span>Confidence {event.confidence}%</span>
+                                    )}
+                                    {event.aggregate && (
+                                      <span>{event.count} items collapsed</span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {href && (
+                                  <ArrowRight size={14} className="mt-1 flex-shrink-0 text-zinc-600 transition-colors group-hover:text-white" />
+                                )}
+                              </div>
+                            </div>
+                          );
+
+                          if (href) {
+                            return (
+                              <Link key={event.id} href={href} className="group block">
+                                {content}
+                              </Link>
+                            );
+                          }
+
+                          return <div key={event.id}>{content}</div>;
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
