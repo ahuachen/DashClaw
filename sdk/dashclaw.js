@@ -870,7 +870,9 @@ class DashClaw {
         status: 'failed',
         duration_ms: Date.now() - startTime,
         error_message: error.message || String(error)
-      }).catch(() => {}); // Don't throw if outcome update fails
+      }).catch((outcomeErr) => {
+        console.warn(`[DashClaw] Failed to close action ${action_id}: ${outcomeErr.message || outcomeErr}`);
+      });
       throw error;
     }
   }

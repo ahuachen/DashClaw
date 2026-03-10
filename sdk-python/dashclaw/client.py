@@ -452,8 +452,9 @@ class DashClaw:
             duration_ms = int((time.time() - start_time) * 1000)
             try:
                 self.update_outcome(action_id, status="failed", duration_ms=duration_ms, error_message=str(e))
-            except:
-                pass
+            except Exception as outcome_err:
+                import warnings
+                warnings.warn(f"[DashClaw] Failed to close action {action_id}: {outcome_err}")
             raise
 
     # --- Category 2: Decision Integrity (Loops & Assumptions) ---

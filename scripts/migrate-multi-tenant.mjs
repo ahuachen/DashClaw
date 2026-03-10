@@ -205,9 +205,12 @@ async function run() {
         tokens_out INTEGER DEFAULT 0,
         signature TEXT,
         verified BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
+    // Backfill: existing deployments may lack updated_at (added after initial schema)
+    await sql`ALTER TABLE action_records ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
     await sql`CREATE INDEX IF NOT EXISTS idx_action_records_org_action_id ON action_records(org_id, action_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_action_records_org_agent_id ON action_records(org_id, agent_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_action_records_org_ts ON action_records(org_id, timestamp_start)`;

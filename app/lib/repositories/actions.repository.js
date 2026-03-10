@@ -214,7 +214,7 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
   if (existing.length === 0) return null;
 
   const data = { ...outcome };
-  
+
   // JSON stringify array/object fields
   if (data.side_effects !== undefined) data.side_effects = JSON.stringify(data.side_effects);
   if (data.artifacts_created !== undefined) data.artifacts_created = JSON.stringify(data.artifacts_created);
@@ -232,32 +232,22 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
     return updated[0] || null;
   }
 
-  if (fields.includes('status')) {
-    await sql`UPDATE action_records SET status = ${data.status}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('output_summary')) {
-    await sql`UPDATE action_records SET output_summary = ${data.output_summary}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('side_effects')) {
-    await sql`UPDATE action_records SET side_effects = ${data.side_effects}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('artifacts_created')) {
-    await sql`UPDATE action_records SET artifacts_created = ${data.artifacts_created}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('error_message')) {
-    await sql`UPDATE action_records SET error_message = ${data.error_message}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('timestamp_end')) {
-    await sql`UPDATE action_records SET timestamp_end = ${data.timestamp_end}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('duration_ms')) {
-    await sql`UPDATE action_records SET duration_ms = ${data.duration_ms}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-  if (fields.includes('cost_estimate')) {
-    await sql`UPDATE action_records SET cost_estimate = ${data.cost_estimate}, updated_at = CURRENT_TIMESTAMP WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-  }
-
-  const updated = await sql`SELECT * FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1`;
+  // Single atomic UPDATE with all outcome fields at once.
+  // Each field uses COALESCE to preserve existing values when not provided.
+  const updated = await sql`
+    UPDATE action_records SET
+      status            = COALESCE(${fields.includes('status') ? data.status : null}, status),
+      output_summary    = COALESCE(${fields.includes('output_summary') ? data.output_summary : null}, output_summary),
+      side_effects      = COALESCE(${fields.includes('side_effects') ? data.side_effects : null}, side_effects),
+      artifacts_created = COALESCE(${fields.includes('artifacts_created') ? data.artifacts_created : null}, artifacts_created),
+      error_message     = COALESCE(${fields.includes('error_message') ? data.error_message : null}, error_message),
+      timestamp_end     = COALESCE(${fields.includes('timestamp_end') ? data.timestamp_end : null}, timestamp_end),
+      duration_ms       = COALESCE(${fields.includes('duration_ms') ? data.duration_ms : null}, duration_ms),
+      cost_estimate     = COALESCE(${fields.includes('cost_estimate') ? data.cost_estimate : null}, cost_estimate),
+      updated_at        = CURRENT_TIMESTAMP
+    WHERE action_id = ${actionId} AND org_id = ${orgId}
+    RETURNING *
+  `;
   return updated[0] || null;
 }
 

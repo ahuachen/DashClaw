@@ -72,3 +72,4 @@ secrets/
 *.sqlite
 *.sqlite3
 .vercel
+.env*.local
