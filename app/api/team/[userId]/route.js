@@ -138,7 +138,9 @@ export async function DELETE(request, { params }) {
     `;
 
     // Fire-and-forget meter decrement
-    incrementMeter(orgId, 'members', sql, -1).catch(() => {});
+    incrementMeter(orgId, 'members', sql, -1).catch((err) => {
+      console.warn('[Team] Failed to decrement members meter:', err.message);
+    });
 
     logActivity({
       orgId, actorId: callerId, action: isSelfLeave ? 'member.left' : 'member.removed',

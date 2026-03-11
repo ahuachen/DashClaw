@@ -126,7 +126,7 @@ app/
     ├── calendar/              # Calendar events
     ├── content/               # Content management
     ├── goals/                 # Goals + milestones
-    ├── health/                # DB connectivity check (public)
+    ├── health/                # DB + core table health check (public)
     ├── inspiration/           # Ideas + ratings
     ├── learning/              # Decisions + lessons
     ├── learning/analytics/    # Learning velocity, curves, summary, maturity
@@ -420,7 +420,7 @@ function getSql() {
 - Agent-reported connections show blue dot ("Agent Connected") status
 
 ## ActionRecord Control Plane
-- 3 tables: `action_records`, `open_loops`, `assumptions` (with `invalidated_at` column)
+- 3 tables: `action_records` (with `updated_at` column), `open_loops`, `assumptions` (with `invalidated_at` column)
 - 13 API routes under `/api/actions/`:
   - `GET/POST /api/actions` - list + create actions (stats respect all query filters: agent_id, status, action_type, risk_min)
   - `GET/PATCH /api/actions/[actionId]` - single action + update outcome
@@ -435,6 +435,7 @@ function getSql() {
 - Tests: `scripts/test-full-api.mjs` - ~186 assertions across 15 phases (all remaining API routes)
 - Post-mortem UI: interactive validate/invalidate assumptions, resolve/cancel loops, root-cause analysis
 - `timestamp_start` is TEXT (ISO string), not native TIMESTAMP
+- `updated_at` column tracks last modification (PATCH /api/actions/[actionId]); added in migration Step 6 backfill
 
 ### DB Migration (if upgrading from Phase 1)
 ```sql
@@ -554,7 +555,7 @@ Token tracking is disabled in the dashboard UI pending a better approach. The AP
   1. Auth via \`Authorization: Bearer CRON_SECRET\`
   2. For each org: compute signals -> hash -> compare to \`signal_snapshots\` -> find NEW signals
   3. Upsert all current signals into snapshots (update \`last_seen_at\`)
-  4. For new signals: fire webhooks, send emails to opted-in users, log activities
+  4. For new signals: publish `signal.detected` SSE events, fire webhooks, send emails to opted-in users, log activities
 - Signal hashing: MD5 of \`type:agent_id:action_id:loop_id:assumption_id\`
 - Scheduling: DashClaw does not ship a hosted scheduler in OSS. Configure any scheduler (GitHub Actions, system cron, Cloudflare, etc.) to call \`/api/cron/*\` with \`Authorization: Bearer \$CRON_SECRET\`.
 - Sidebar: "Notifications" link with Bell icon in System group (after Webhooks)
@@ -583,3 +584,13 @@ Token tracking is disabled in the dashboard UI pending a better approach. The AP
 - Sidebar: "Scoring" link with SlidersHorizontal icon in Operations group (after Evaluations).
 - Widget: `ScoringProfileCard` dashboard widget for active profile monitoring.
 - Migration: `scripts/migrate-scoring-profiles.mjs`
+
+## Bug Hunter (Experimental)
+- Route: `/api/bug-hunter` - automated vulnerability scanning for agent actions
+- Table: `bug_hunter_scans` (id SERIAL, scan_id TEXT `bhs_` prefix, org_id, agent_id, scope, status, findings_count, resolved_count, created_at)
+- Repository: `app/lib/repositories/bugHunter.repository.js`
+- Migration Step 40 in `migrate-multi-tenant.mjs`
+
+## Operational Scripts
+- `scripts/repair-stale-running-actions.mjs` - closes stale `running` actions that were never resolved (supports `--dry-run`, `--older-than-hours`, `--action-type`)
+- Run via: `node scripts/_run-with-env.mjs scripts/repair-stale-running-actions.mjs --dry-run`

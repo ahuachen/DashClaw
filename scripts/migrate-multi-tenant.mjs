@@ -1752,6 +1752,28 @@ async function run() {
     log('⚠️', `routing_decisions migration: ${err.message}`);
   }
 
+  // Step 40: Bug hunter scans table
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS bug_hunter_scans (
+        id SERIAL PRIMARY KEY,
+        scan_id TEXT UNIQUE NOT NULL,
+        org_id TEXT NOT NULL DEFAULT 'org_default',
+        agent_id TEXT,
+        scope TEXT,
+        status TEXT DEFAULT 'completed',
+        findings_count INTEGER DEFAULT 0,
+        resolved_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bug_hunter_scans_org ON bug_hunter_scans(org_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_bug_hunter_scans_agent ON bug_hunter_scans(org_id, agent_id)`;
+    log('✅', 'bug_hunter_scans table + indexes ready');
+  } catch (err) {
+    log('⚠️', `bug_hunter_scans migration: ${err.message}`);
+  }
+
   // Verification
   console.log('\n=== Verification ===\n');
 

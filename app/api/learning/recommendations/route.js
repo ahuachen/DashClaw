@@ -108,7 +108,9 @@ export async function GET(request) {
           confidence: rec.confidence,
         },
       }));
-      void recordLearningRecommendationEvents(sql, orgId, events).catch(() => {});
+      void recordLearningRecommendationEvents(sql, orgId, events).catch((err) => {
+        console.warn('[Learning] Failed to record recommendation events:', err.message);
+      });
     }
 
     let metrics = undefined;

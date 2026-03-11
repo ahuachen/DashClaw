@@ -92,7 +92,9 @@ export async function POST(request) {
     `;
 
     // Fire-and-forget meter increment
-    incrementMeter(orgId, 'api_keys', sql).catch(() => {});
+    incrementMeter(orgId, 'api_keys', sql).catch((err) => {
+      console.warn('[Keys] Failed to increment api_keys meter:', err.message);
+    });
 
     logActivity({
       orgId, actorId: getUserId(request) || 'unknown', action: 'key.created',
@@ -154,7 +156,9 @@ export async function DELETE(request) {
     `;
 
     // Fire-and-forget meter decrement
-    incrementMeter(orgId, 'api_keys', sql, -1).catch(() => {});
+    incrementMeter(orgId, 'api_keys', sql, -1).catch((err) => {
+      console.warn('[Keys] Failed to decrement api_keys meter:', err.message);
+    });
 
     logActivity({
       orgId, actorId: getUserId(request) || 'unknown', action: 'key.revoked',

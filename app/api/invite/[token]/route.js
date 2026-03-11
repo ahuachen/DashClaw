@@ -144,7 +144,9 @@ export async function POST(request, { params }) {
     `;
 
     // Fire-and-forget meter increment
-    incrementMeter(invite.org_id, 'members', sql).catch(() => {});
+    incrementMeter(invite.org_id, 'members', sql).catch((err) => {
+      console.warn('[Invite] Failed to increment members meter:', err.message);
+    });
 
     logActivity({
       orgId: invite.org_id, actorId: userId, action: 'invite.accepted',

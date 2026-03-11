@@ -130,7 +130,9 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       ${context.action_type || null},
       ${evaluated_at}
     )
-  `.catch(() => {});
+  `.catch((err) => {
+    console.warn('[Guard] Failed to persist guard_decisions audit row:', err.message);
+  });
 
   void publishOrgEvent(EVENTS.GUARD_DECISION_CREATED, {
     orgId,

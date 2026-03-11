@@ -9,7 +9,7 @@ export async function getSharedActions(sql, orgId, sourceIds, targetIds) {
   const combinedArr = [...new Set([...sourceIds, ...targetIds])];
   try {
     return await sql`
-      SELECT a.id as action_id, a.agent_id, a.action_type, a.status, a.risk_score, a.timestamp_start, a.status_reason
+      SELECT a.id as action_id, a.agent_id, a.action_type, a.status, a.risk_score, a.timestamp_start
       FROM action_records a
       WHERE a.org_id = ${orgId}
         AND (a.agent_id = ANY(${combinedArr}) OR a.agent_name = ANY(${combinedArr}))

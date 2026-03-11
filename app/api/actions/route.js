@@ -237,7 +237,9 @@ export async function POST(request) {
       }
     };
 
-    Promise.all([...meterUpdates, indexAction()]).catch(() => {});
+    Promise.all([...meterUpdates, indexAction()]).catch((err) => {
+      console.warn('[API] Background meter/index update failed:', err.message);
+    });
 
     const response = NextResponse.json({ 
       action: createdAction, 

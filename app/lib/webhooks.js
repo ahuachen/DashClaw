@@ -286,14 +286,20 @@ export async function fireWebhooksForOrg(orgId, signals, sql) {
 
     if (result.success) {
       // Reset failure count on success
-      sql`UPDATE webhooks SET failure_count = 0, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch(() => {});
+      sql`UPDATE webhooks SET failure_count = 0, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch((err) => {
+        console.warn(`[Webhooks] Failed to reset failure_count for webhook ${wh.id}:`, err.message);
+      });
     } else {
       const newCount = (parseInt(wh.failure_count, 10) || 0) + 1;
       if (newCount >= 10) {
         // Disable webhook after 10 consecutive failures
-        sql`UPDATE webhooks SET failure_count = ${newCount}, active = 0, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch(() => {});
+        sql`UPDATE webhooks SET failure_count = ${newCount}, active = 0, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch((err) => {
+          console.warn(`[Webhooks] Failed to disable webhook ${wh.id} after ${newCount} failures:`, err.message);
+        });
       } else {
-        sql`UPDATE webhooks SET failure_count = ${newCount}, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch(() => {});
+        sql`UPDATE webhooks SET failure_count = ${newCount}, last_triggered_at = ${new Date().toISOString()} WHERE id = ${wh.id} AND org_id = ${orgId}`.catch((err) => {
+          console.warn(`[Webhooks] Failed to update failure_count for webhook ${wh.id}:`, err.message);
+        });
       }
     }
 

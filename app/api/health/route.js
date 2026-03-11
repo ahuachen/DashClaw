@@ -25,11 +25,22 @@ export async function GET() {
     engine: 'openai/text-embedding-3-small'
   };
 
-  // Check database connection
+  // Check database connection and core table existence
   try {
     const sql = getSql();
-    await sql`SELECT 1 as health_check`;
-    health.checks.database = { status: 'healthy', latency: 'ok' };
+    const coreTables = ['action_records', 'guard_decisions', 'api_keys', 'org_members'];
+    const tableCheck = await sql`
+      SELECT table_name FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = ANY(${coreTables})
+    `;
+    const foundTables = tableCheck.map(r => r.table_name);
+    const missingTables = coreTables.filter(t => !foundTables.includes(t));
+    if (missingTables.length > 0) {
+      health.status = 'degraded';
+      health.checks.database = { status: 'degraded', missing_tables: missingTables.length };
+    } else {
+      health.checks.database = { status: 'healthy' };
+    }
   } catch (error) {
     health.status = 'degraded';
     // SECURITY: avoid leaking backend error details on a public endpoint.

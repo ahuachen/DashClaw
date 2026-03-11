@@ -9,6 +9,7 @@ import { logActivity } from '../../../lib/audit.js';
 import { getSql } from '../../../lib/db.js';
 import crypto from 'crypto';
 import { timingSafeCompare } from '../../../lib/timing-safe.js';
+import { publishOrgEvent, EVENTS } from '../../../lib/events.js';
 
 /**
  * Hash a signal into a stable identifier for deduplication.
@@ -106,6 +107,14 @@ export async function GET(request) {
             action: 'webhook.fired', resourceType: 'webhook',
             details: { count: whFired, signal_count: cleanSignals.length },
           }, sql);
+        }
+
+        // Publish SSE events for realtime UI updates
+        for (const signal of cleanSignals) {
+          void publishOrgEvent(EVENTS.SIGNAL_DETECTED, {
+            orgId: org.id,
+            signal,
+          });
         }
 
         // Send email alerts to opted-in users
