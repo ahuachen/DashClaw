@@ -7,6 +7,8 @@ import { Badge } from './ui/Badge';
 import { StatCompact } from './ui/Stat';
 import { CardSkeleton } from './ui/Skeleton';
 import { useRealtime } from '../hooks/useRealtime';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function FleetPresenceCard() {
   const [agents, setAgents] = useState([]);
@@ -56,9 +58,9 @@ export default function FleetPresenceCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader 
-        title="Agent Fleet Presence" 
-        icon={Cpu} 
+      <CardHeader
+        title={<span className="flex items-center">Agent Fleet Presence<HelpIcon sectionKey="fleet-presence" tip={HELP_TIPS['fleet-presence']} /></span>}
+        icon={Cpu}
         count={onlineAgents.length}
       />
       <CardContent>

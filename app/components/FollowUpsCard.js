@@ -9,6 +9,8 @@ import { EmptyState } from './ui/EmptyState';
 import { ListSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function FollowUpsCard() {
   const [followUps, setFollowUps] = useState([]);
@@ -80,7 +82,7 @@ export default function FollowUpsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Follow-ups" icon={CheckCircle2} count={followUps.length} action={viewAllLink} />
+      <CardHeader title={<span className="flex items-center">Follow-ups<HelpIcon sectionKey="open-loops" tip={HELP_TIPS['open-loops']} /></span>} icon={CheckCircle2} count={followUps.length} action={viewAllLink} />
       <CardContent>
         {loading ? (
           <ListSkeleton rows={3} />

@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function EvalScoreCard() {
   const [stats, setStats] = useState(null);
@@ -47,7 +49,7 @@ export default function EvalScoreCard() {
   if (!hasData) {
     return (
       <Card className="h-full" ref={sizeRef}>
-        <CardHeader title="Evaluations" icon={BarChart3} />
+        <CardHeader title={<span className="flex items-center">Evaluations<HelpIcon sectionKey="eval-scores" tip={HELP_TIPS['eval-scores']} /></span>} icon={BarChart3} />
         <CardContent>
           <EmptyState icon={BarChart3} title="No evaluations yet" description="Define scorers and run evaluations to track agent quality." />
         </CardContent>
@@ -61,7 +63,7 @@ export default function EvalScoreCard() {
   return (
     <Card className="h-full" ref={sizeRef}>
       <CardHeader
-        title="Evaluations"
+        title={<span className="flex items-center">Evaluations<HelpIcon sectionKey="eval-scores" tip={HELP_TIPS['eval-scores']} /></span>}
         icon={BarChart3}
         count={overall.total_scores || 0}
         action={

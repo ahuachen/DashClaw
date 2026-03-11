@@ -18,6 +18,8 @@ import { getAgentColor } from '../lib/colors';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 const TYPE_ICONS = {
   build: Hammer,
@@ -149,7 +151,7 @@ export default function RecentActionsCard() {
   if (loading) {
     return (
       <Card className="h-full animate-pulse">
-        <CardHeader title="Decision Ledger" icon={Zap} />
+        <CardHeader title={<span className="flex items-center">Decision Ledger<HelpIcon sectionKey="actions" tip={HELP_TIPS['actions']} /></span>} icon={Zap} />
         <CardContent className="h-80 bg-zinc-900/50 rounded-lg" />
       </Card>
     );
@@ -174,7 +176,7 @@ export default function RecentActionsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Decision Ledger" icon={Zap} count={actions.length} action={viewAllLink} />
+      <CardHeader title={<span className="flex items-center">Decision Ledger<HelpIcon sectionKey="actions" tip={HELP_TIPS['actions']} /></span>} icon={Zap} count={actions.length} action={viewAllLink} />
 
       <CardContent>
         <div ref={sizeRef} className="flex flex-col h-full min-h-0">

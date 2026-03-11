@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function LearningStatsCard() {
   const [stats, setStats] = useState(null);
@@ -68,7 +70,7 @@ export default function LearningStatsCard() {
   if (!stats || (stats.decisions === 0 && stats.lessons === 0)) {
     return (
       <Card className="h-full">
-        <CardHeader title="Learning" icon={BookOpen} />
+        <CardHeader title={<span className="flex items-center">Learning<HelpIcon sectionKey="learning" tip={HELP_TIPS['learning']} /></span>} icon={BookOpen} />
         <CardContent>
           <EmptyState
             icon={BookOpen}
@@ -88,7 +90,7 @@ export default function LearningStatsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Learning" icon={BookOpen} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Learning<HelpIcon sectionKey="learning" tip={HELP_TIPS['learning']} /></span>} icon={BookOpen} action={viewAllLink}>
         <span className="text-xs text-zinc-500">{stats.successRate}% success</span>
       </CardHeader>
 

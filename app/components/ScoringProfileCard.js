@@ -6,6 +6,8 @@ import { Target, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardContent } from './ui/Card';
 import { StatCompact } from './ui/Stat';
 import { CardSkeleton } from './ui/Skeleton';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function ScoringProfileCard() {
   const [data, setData] = useState(null);
@@ -31,8 +33,8 @@ export default function ScoringProfileCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader 
-        title="Scoring Profiles" 
+      <CardHeader
+        title={<span className="flex items-center">Scoring Profiles<HelpIcon sectionKey="scoring" tip={HELP_TIPS['scoring']} /></span>}
         icon={Target}
         action={
           <Link href="/scoring" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">

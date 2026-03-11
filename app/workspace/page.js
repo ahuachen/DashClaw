@@ -15,6 +15,8 @@ import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { getAgentColor } from '../lib/colors';
 
@@ -156,6 +158,10 @@ function OverviewTab({ agentId, dense }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
+        <span className="flex items-center text-sm font-medium text-zinc-200">
+          Digest
+          <HelpIcon sectionKey="workspace-digest" tip={HELP_TIPS['workspace-digest']} />
+        </span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDate('')}
@@ -457,7 +463,7 @@ function ContextTab({ agentId, dense }) {
 
       {/* Threads */}
       <Card hover={false}>
-        <CardHeader title="Threads" icon={Layers} count={threads.length}>
+        <CardHeader title={<span className="flex items-center">Threads<HelpIcon sectionKey="context-threads" tip={HELP_TIPS['context-threads']} /></span>} icon={Layers} count={threads.length}>
           <button
             onClick={() => setShowCreateThread(p => !p)}
             className="text-xs text-zinc-400 hover:text-brand transition-colors flex items-center gap-1"
@@ -577,6 +583,10 @@ function HandoffsTab({ agentId, dense }) {
 
   return (
     <div className={`space-y-${dense ? '2' : '4'}`}>
+      <span className="flex items-center text-sm font-medium text-zinc-200 mb-2">
+        Session Handoffs
+        <HelpIcon sectionKey="handoffs" tip={HELP_TIPS['handoffs']} />
+      </span>
       {handoffs.map(h => {
         const decisions = safeParseJson(h.key_decisions);
         const tasks = safeParseJson(h.open_tasks);
@@ -694,6 +704,10 @@ function SnippetsTab({ agentId, dense }) {
 
   return (
     <div>
+      <span className="flex items-center text-sm font-medium text-zinc-200 mb-3">
+        Snippets
+        <HelpIcon sectionKey="snippets" tip={HELP_TIPS['snippets']} />
+      </span>
       <div className="flex gap-2 mb-4">
         <input
           type="text"
@@ -904,7 +918,7 @@ function PreferencesTab({ agentId, dense }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card hover={false} className="cursor-pointer" onClick={() => handleDrilldown('observations')}>
-        <CardHeader title="Observations" icon={UserCog} />
+        <CardHeader title={<span className="flex items-center">Observations<HelpIcon sectionKey="learning" tip={HELP_TIPS['learning']} /></span>} icon={UserCog} />
         <CardContent>
           <div className="text-2xl font-semibold tabular-nums text-white">{obsCount}</div>
           <div className="text-xs text-zinc-500 mt-1">observations logged</div>
@@ -1032,7 +1046,10 @@ function MemoryTab({ agentId, dense }) {
           {score !== null ? score : '—'}
         </div>
         <div>
-          <div className="text-sm text-zinc-200">Health Score</div>
+          <span className="flex items-center text-sm text-zinc-200">
+            Health Score
+            <HelpIcon sectionKey="memory-health" tip={HELP_TIPS['memory-health']} />
+          </span>
           {agentId && (
             <Badge variant="info" size="xs">Org-wide</Badge>
           )}

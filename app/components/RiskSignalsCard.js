@@ -10,6 +10,8 @@ import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
 import { useRealtime } from '../hooks/useRealtime';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 function getSignalHash(signal) {
   return `${signal.type || signal.signal_type || ''}:${signal.agent_id || ''}:${signal.action_id || ''}:${signal.loop_id || ''}:${signal.assumption_id || ''}`;
@@ -75,7 +77,7 @@ export default function RiskSignalsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Decision Integrity Signals" icon={ShieldAlert} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Decision Integrity Signals<HelpIcon sectionKey="risk-signals" tip={HELP_TIPS['risk-signals']} /></span>} icon={ShieldAlert} action={viewAllLink}>
         {redCount > 0 && (
           <Badge variant="error" size="sm">{redCount} Red</Badge>
         )}

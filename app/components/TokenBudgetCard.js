@@ -10,6 +10,8 @@ import { CardSkeleton } from './ui/Skeleton';
 import { EmptyState } from './ui/EmptyState';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function TokenBudgetCard() {
   const { agentId } = useAgentFilter();
@@ -129,7 +131,7 @@ export default function TokenBudgetCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Token Usage" icon={Gauge} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Token Usage<HelpIcon sectionKey="token-budget" tip={HELP_TIPS['token-budget']} /></span>} icon={Gauge} action={viewAllLink}>
         {getStatusBadge()}
       </CardHeader>
 

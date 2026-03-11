@@ -10,6 +10,8 @@ import { Badge } from './ui/Badge';
 import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function MemoryHealthCard() {
   const [data, setData] = useState({
@@ -89,7 +91,7 @@ export default function MemoryHealthCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Memory Health" icon={HardDrive} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Memory Health<HelpIcon sectionKey="memory-health" tip={HELP_TIPS['memory-health']} /></span>} icon={HardDrive} action={viewAllLink}>
         {health && (
           <span className={`text-2xl font-semibold tabular-nums ${getScoreColor(health.score)}`}>
             {health.score}

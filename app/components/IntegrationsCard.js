@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function IntegrationsCard() {
   const [integrations, setIntegrations] = useState([]);
@@ -123,7 +125,7 @@ export default function IntegrationsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Integrations" icon={Plug} action={total > 0 ? viewAllLink : undefined}>
+      <CardHeader title={<span className="flex items-center">Integrations<HelpIcon sectionKey="team" tip={HELP_TIPS['team']} /></span>} icon={Plug} action={total > 0 ? viewAllLink : undefined}>
         {agentId && <Badge variant="info" size="xs">Org-wide</Badge>}
         {total === 0 && !agentId && (
           <Link href="/integrations" className="text-xs text-brand hover:text-brand-hover transition-colors duration-150">

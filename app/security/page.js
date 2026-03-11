@@ -12,6 +12,8 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import SecurityDetailPanel from '../components/SecurityDetailPanel';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { getAgentColor } from '../lib/colors';
 
@@ -348,7 +350,7 @@ export default function SecurityDashboard() {
         {/* Signal Feed - left */}
         <div className="lg:col-span-3">
           <Card>
-            <CardHeader title="Risk Signals" icon={ShieldAlert} count={activeSignals.length}>
+            <CardHeader title={<span className="flex items-center">Risk Signals<HelpIcon sectionKey="security-signals" tip={HELP_TIPS['security-signals']} /></span>} icon={ShieldAlert} count={activeSignals.length}>
               <div className="flex items-center gap-2">
                 {activeSignals.length > 0 && (
                   <button
@@ -470,7 +472,7 @@ export default function SecurityDashboard() {
         {/* High-Risk Actions - right */}
         <div className="lg:col-span-2">
           <Card>
-            <CardHeader title="High-Risk Actions" icon={Zap} count={highRiskActions.length} />
+            <CardHeader title={<span className="flex items-center">High-Risk Actions<HelpIcon sectionKey="risk-signals" tip={HELP_TIPS['risk-signals']} /></span>} icon={Zap} count={highRiskActions.length} />
             <CardContent>
               {loading ? (
                 <ListSkeleton rows={5} />

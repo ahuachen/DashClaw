@@ -11,6 +11,8 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
 import { getAgentColor } from '../lib/colors';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 const TYPE_VARIANTS = {
   action: 'warning',
@@ -88,7 +90,7 @@ export default function RecentMessagesCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Recent Messages" icon={MessageSquare} count={unreadCount > 0 ? unreadCount : undefined} action={viewAllLink} />
+      <CardHeader title={<span className="flex items-center">Recent Messages<HelpIcon sectionKey="messages" tip={HELP_TIPS['messages']} /></span>} icon={MessageSquare} count={unreadCount > 0 ? unreadCount : undefined} action={viewAllLink} />
 
       <CardContent>
         <div ref={sizeRef} className="flex flex-col h-full min-h-0">
