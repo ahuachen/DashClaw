@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Clock, Play, CheckCircle2, XCircle, AlertTriangle, CircleDot, Brain,
   ArrowRight, Shield, Loader2, Target, EyeOff, Eye, Siren, ShieldCheck,
+  ChevronDown, ChevronRight,
 } from 'lucide-react';
 import { Card, CardHeader, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
@@ -14,10 +15,12 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import {
   buildActionEvent,
+  buildAssumptionEvent,
   buildGuardEvent,
   buildLearningEvent,
   buildLoopEvent,
   collapseRoutineTelemetry,
+  OPERATOR_CHANNEL_OPTIONS,
 } from '../lib/missionControl';
 
 function getEventIcon(event) {
@@ -128,12 +131,42 @@ function groupByDay(events) {
   return Object.entries(groups);
 }
 
-export default function ActivityTimeline() {
+function buildChainRows(events) {
+  const actionMap = new Map(
+    events
+      .filter((event) => event.entityType === 'action')
+      .map((event) => [event.entityId, event])
+  );
+  const childMap = new Map();
+  const childIds = new Set();
+
+  for (const event of events) {
+    if (event.entityType !== 'action' || !event.parentActionId) continue;
+    if (!actionMap.has(event.parentActionId)) continue;
+    const existing = childMap.get(event.parentActionId) || [];
+    existing.push(event);
+    childMap.set(event.parentActionId, existing);
+    childIds.add(event.id);
+  }
+
+  return events
+    .filter((event) => !childIds.has(event.id))
+    .map((event) => ({
+      ...event,
+      spawnedChildren: (childMap.get(event.entityId) || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)),
+    }));
+}
+
+export default function ActivityTimeline({
+  activeCategory = 'all',
+  onCategoryChange = null,
+  showTelemetry = false,
+  onToggleTelemetry = null,
+}) {
   const { agentId } = useAgentFilter();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showTelemetry, setShowTelemetry] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [expandedChains, setExpandedChains] = useState({});
 
   const fetchAll = useCallback(async () => {
     try {
@@ -144,11 +177,12 @@ export default function ActivityTimeline() {
         return `${base}${params.length ? `?${params.join('&')}` : ''}`;
       };
 
-      const [actionsRes, loopsRes, learningRes, guardRes] = await Promise.all([
+      const [actionsRes, loopsRes, learningRes, guardRes, assumptionsRes] = await Promise.all([
         fetch(withPrefix('/api/actions', ['limit=24'])),
         fetch(withPrefix('/api/actions/loops', ['limit=12'])),
         fetch(withPrefix('/api/learning')),
         fetch(withPrefix('/api/guard', ['limit=12'])),
+        fetch(withPrefix('/api/actions/assumptions', ['limit=16'])),
       ]);
 
       const merged = [];
@@ -173,7 +207,12 @@ export default function ActivityTimeline() {
         merged.push(...(guardData.decisions || []).map(buildGuardEvent));
       }
 
-      setEvents(collapseRoutineTelemetry(merged).slice(0, 36));
+      if (assumptionsRes.ok) {
+        const assumptionsData = await assumptionsRes.json();
+        merged.push(...(assumptionsData.assumptions || []).map(buildAssumptionEvent));
+      }
+
+      setEvents(collapseRoutineTelemetry(merged).slice(0, 60));
     } catch (error) {
       console.error('Timeline fetch error:', error);
       setEvents([]);
@@ -212,24 +251,19 @@ export default function ActivityTimeline() {
 
     setEvents((prev) => {
       const filtered = prev.filter((item) => item.id !== next.id);
-      return collapseRoutineTelemetry([next, ...filtered]).slice(0, 36);
+      return collapseRoutineTelemetry([next, ...filtered]).slice(0, 60);
     });
   }, [agentId]));
 
   if (loading) return <CardSkeleton />;
 
-  const categoryOptions = [
-    { id: 'all', label: 'All' },
-    { id: 'decision', label: 'Decisions' },
-    { id: 'governance', label: 'Governance' },
-    { id: 'intervention', label: 'Interventions' },
-    { id: 'outcome', label: 'Outcomes' },
-  ];
+  const setCategory = onCategoryChange || (() => {});
+  const toggleTelemetry = onToggleTelemetry || (() => {});
   const filteredEvents = (showTelemetry ? events : events.filter((event) => !event.lowSignal))
     .filter((event) => activeCategory === 'all' ? true : event.category === activeCategory);
   const telemetryCount = events.filter((event) => event.lowSignal).reduce((sum, event) => sum + (event.count || 1), 0);
   const prominentCount = filteredEvents.length;
-  const grouped = groupByDay(filteredEvents);
+  const grouped = groupByDay(buildChainRows(filteredEvents));
   const emptyForCategory = activeCategory !== 'all' && filteredEvents.length === 0;
   const hasAnyEvents = events.length > 0;
 
@@ -241,7 +275,7 @@ export default function ActivityTimeline() {
           {telemetryCount > 0 && (
             <button
               type="button"
-              onClick={() => setShowTelemetry((prev) => !prev)}
+              onClick={toggleTelemetry}
               className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
             >
               {showTelemetry ? <EyeOff size={11} /> : <Eye size={11} />}
@@ -258,11 +292,11 @@ export default function ActivityTimeline() {
             {telemetryCount > 0 && <span>Routine monitor churn is collapsed until you ask for it.</span>}
           </div>
           <div className="mb-3 flex flex-wrap gap-2">
-            {categoryOptions.map((option) => (
+            {OPERATOR_CHANNEL_OPTIONS.map((option) => (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => setActiveCategory(option.id)}
+                onClick={() => setCategory(option.id)}
                 className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                   activeCategory === option.id
                     ? 'border-brand/40 bg-brand/10 text-brand'
@@ -306,6 +340,8 @@ export default function ActivityTimeline() {
                                 ? `/actions/${event.actionId}`
                                 : null;
 
+                          const isExpanded = !!expandedChains[event.id];
+
                           const content = (
                             <div className={`rounded-lg border px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${event.lowSignal ? 'border-[rgba(255,255,255,0.05)] bg-white/[0.015]' : 'border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]'} transition-colors ${href ? 'group-hover:border-white/20' : ''}`}>
                               <div className="flex items-start gap-3">
@@ -335,6 +371,47 @@ export default function ActivityTimeline() {
                                     <p className={`mb-2 text-xs leading-5 ${event.lowSignal ? 'text-zinc-500' : 'text-zinc-300'}`}>
                                       {event.outputSummary}
                                     </p>
+                                  )}
+
+                                  {event.spawnedChildren?.length > 0 && (
+                                    <div className="mb-2">
+                                      <button
+                                        type="button"
+                                        onClick={(clickEvent) => {
+                                          clickEvent.preventDefault();
+                                          clickEvent.stopPropagation();
+                                          setExpandedChains((prev) => ({ ...prev, [event.id]: !prev[event.id] }));
+                                        }}
+                                        className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+                                      >
+                                        {isExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+                                        {event.spawnedChildren.length} spawned {event.spawnedChildren.length === 1 ? 'action' : 'actions'}
+                                      </button>
+
+                                      {isExpanded && (
+                                        <div className="mt-2 space-y-2 border-l border-white/10 pl-3">
+                                          {event.spawnedChildren.map((child) => (
+                                            <Link
+                                              key={child.id}
+                                              href={`/actions/${child.entityId}`}
+                                              className="block rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2 transition-colors hover:border-white/15"
+                                            >
+                                              <div className="mb-1 flex items-center gap-2">
+                                                <span className="text-xs font-medium text-white">{child.title}</span>
+                                                <Badge variant={getStatusVariant(child.status)} size="xs">{child.statusLabel}</Badge>
+                                              </div>
+                                              <div className="text-[11px] text-zinc-500">
+                                                {child.actionType && <span>Action: {child.actionType}</span>}
+                                                {child.goal && <span className="ml-3">Goal: {child.goal}</span>}
+                                              </div>
+                                              {child.outputSummary && (
+                                                <div className="mt-1 text-xs text-zinc-400">{child.outputSummary}</div>
+                                              )}
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
                                   )}
 
                                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">

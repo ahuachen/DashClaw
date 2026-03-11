@@ -26,7 +26,7 @@
 DashClaw started as decision infrastructure. It is now a much broader platform for operating, governing, and improving AI agents in production.
 
 - **Decision governance** -- guard policies, approvals, assumption tracking, open loops, root-cause traceability
-- **Operator control plane** -- Mission Control, approval queue, security signals, swarm views, fleet health, audit trail, and decision-native timelines
+- **Operator control plane** -- Mission Control, approval queue, security signals, swarm views, fleet health, audit trail, 15-minute change digests, and decision-native timelines with chain expansion
 - **Quality and evaluation** -- scorer framework, weighted scoring profiles, risk templates, auto-calibration
 - **Adaptive learning** -- learning episodes, recommendations, adoption telemetry, maturity and velocity analytics
 - **Agent workspace** -- handoffs, context threads, shared docs, snippets, messaging, memory health
@@ -41,7 +41,7 @@ DashClaw started as decision infrastructure. It is now a much broader platform f
 Most observability tools tell you *what* your agents did. DashClaw tells you *what they decided, why, whether they should have, and how to improve the next decision.*
 
 - **Govern before execution** -- no-code policies, human approvals, verified agent identity, and decision proof
-- **Operate the fleet** -- Mission Control, decision timelines, routing, schedules, notifications, webhooks, and multi-agent coordination
+- **Operate the fleet** -- Mission Control, recent-change digests, decision timelines with parent/child continuity, routing, schedules, notifications, webhooks, and multi-agent coordination
 - **Improve over time** -- evaluations, scoring profiles, drift detection, learning recommendations, and maturity analytics
 - **Keep context intact** -- messaging, handoffs, workspace docs, snippets, memory health, and agent bootstrap tooling
 - **Stay audit-ready** -- compliance mapping, evidence exports, audit logs, security scanning, and self-hosted control

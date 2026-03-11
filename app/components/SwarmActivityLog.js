@@ -16,6 +16,7 @@ import {
   buildGuardEvent,
   buildLoopEvent,
   collapseRoutineTelemetry,
+  OPERATOR_CHANNEL_OPTIONS,
 } from '../lib/missionControl';
 
 function formatTime(ts) {
@@ -37,6 +38,7 @@ function toLogEntry(item) {
   return {
     id: item.id,
     kind: source,
+    category: item.category || (source === 'loop' ? 'intervention' : source === 'guard' ? 'governance' : source === 'telemetry' ? 'telemetry' : 'decision'),
     agentId: item.agentId,
     text:
       source === 'guard'
@@ -51,11 +53,15 @@ function toLogEntry(item) {
   };
 }
 
-export default function SwarmActivityLog() {
+export default function SwarmActivityLog({
+  activeCategory = 'all',
+  onCategoryChange = null,
+  showTelemetry = false,
+  onToggleTelemetry = null,
+}) {
   const { agentId } = useAgentFilter();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showTelemetry, setShowTelemetry] = useState(false);
 
   useEffect(() => {
     async function fetchInitial() {
@@ -86,6 +92,7 @@ export default function SwarmActivityLog() {
           merged.push(...(d.messages || []).map((message) => ({
             id: `message:${message.id}`,
             kind: 'message',
+            category: 'decision',
             agentId: message.from_agent_id,
             text: `Message: ${message.subject || message.body?.substring(0, 48) || 'No subject'}`,
             timestamp: message.created_at,
@@ -105,7 +112,7 @@ export default function SwarmActivityLog() {
         }
 
         const collapsed = collapseRoutineTelemetry(
-          merged.map((item) => item.kind === 'message' ? { ...item, category: 'message', emphasis: 48 } : item)
+          merged.map((item) => item.kind === 'message' ? { ...item, emphasis: 48 } : item)
         ).map((item) => item.kind ? item : toLogEntry(item));
 
         setLogs(collapsed.slice(0, 50));
@@ -128,12 +135,13 @@ export default function SwarmActivityLog() {
     } else if (event === 'message.created') {
       const msg = payload.message || payload;
       if (agentId && msg.from_agent_id !== agentId && msg.to_agent_id !== agentId) return;
-      newEntry = {
-        id: `message:${msg.id}`,
-        kind: 'message',
-        agentId: msg.from_agent_id,
-        text: `Message: ${msg.subject || msg.body?.substring(0, 48) || 'No subject'}`,
-        timestamp: msg.created_at,
+        newEntry = {
+          id: `message:${msg.id}`,
+          kind: 'message',
+          category: 'decision',
+          agentId: msg.from_agent_id,
+          text: `Message: ${msg.subject || msg.body?.substring(0, 48) || 'No subject'}`,
+          timestamp: msg.created_at,
         lowSignal: false,
         status: null,
       };
@@ -151,6 +159,7 @@ export default function SwarmActivityLog() {
       newEntry = {
         id: `goal:${goal.id}`,
         kind: 'goal',
+        category: 'decision',
         agentId: goal.agent_id,
         text: `${event === 'goal.created' ? 'Goal opened' : 'Goal updated'}: ${goal.title}${goal.progress != null ? ` (${goal.progress}%)` : ''}`,
         timestamp: goal.created_at || new Date().toISOString(),
@@ -165,7 +174,7 @@ export default function SwarmActivityLog() {
       const merged = [newEntry, ...prev.filter((item) => item.id !== newEntry.id)].slice(0, 60);
       const collapsed = collapseRoutineTelemetry(
         merged.map((item) => item.kind === 'message' || item.kind === 'goal'
-          ? { ...item, category: item.kind, emphasis: 42 }
+          ? { ...item, emphasis: 42 }
           : item)
       ).map((item) => item.kind ? item : toLogEntry(item));
 
@@ -173,8 +182,12 @@ export default function SwarmActivityLog() {
     });
   }, [agentId]));
 
-  const visibleLogs = showTelemetry ? logs : logs.filter((log) => !log.lowSignal);
+  const setCategory = onCategoryChange || (() => {});
+  const toggleTelemetry = onToggleTelemetry || (() => {});
+  const visibleLogs = (showTelemetry ? logs : logs.filter((log) => !log.lowSignal))
+    .filter((log) => activeCategory === 'all' ? true : log.category === activeCategory);
   const telemetryCount = logs.filter((log) => log.lowSignal).reduce((sum, log) => sum + (log.count || 1), 0);
+  const hasAnyLogs = logs.length > 0;
 
   return (
     <Card className="h-full flex flex-col overflow-hidden border-brand/10">
@@ -184,7 +197,7 @@ export default function SwarmActivityLog() {
           {telemetryCount > 0 && (
             <button
               type="button"
-              onClick={() => setShowTelemetry((prev) => !prev)}
+              onClick={toggleTelemetry}
               className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
             >
               {showTelemetry ? <EyeOff size={11} /> : <Eye size={11} />}
@@ -196,6 +209,23 @@ export default function SwarmActivityLog() {
 
       <CardContent className="flex-1 overflow-hidden bg-black/40 p-0 font-mono text-[11px]">
         <div className="h-full overflow-y-auto p-3 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-800">
+          <div className="mb-2 flex flex-wrap gap-2 border-b border-white/[0.04] pb-2 font-sans">
+            {OPERATOR_CHANNEL_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setCategory(option.id)}
+                className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+                  activeCategory === option.id
+                    ? 'border-brand/40 bg-brand/10 text-brand'
+                    : 'border-white/10 text-zinc-500 hover:text-white'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+
           {loading ? (
             <div className="flex h-full items-center justify-center text-zinc-600 animate-pulse">
               Initialising stream...
@@ -203,8 +233,12 @@ export default function SwarmActivityLog() {
           ) : visibleLogs.length === 0 ? (
             <EmptyState
               icon={Activity}
-              title="Awaiting governed activity"
-              description="Policy interventions, active work, and meaningful outcomes will stream here first. Routine telemetry stays out of the way."
+              title={hasAnyLogs && activeCategory !== 'all' ? `No ${activeCategory} events in the live feed` : 'Awaiting governed activity'}
+              description={
+                hasAnyLogs && activeCategory !== 'all'
+                  ? 'This operator lens is empty right now. Switch categories or reveal telemetry to inspect lower-signal updates.'
+                  : 'Policy interventions, active work, and meaningful outcomes will stream here first. Routine telemetry stays out of the way.'
+              }
             />
           ) : (
             visibleLogs.map((log) => {

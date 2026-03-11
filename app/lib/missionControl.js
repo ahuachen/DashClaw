@@ -12,7 +12,17 @@ const STATUS_LABELS = {
   block: 'Blocked',
   require_approval: 'Approval required',
   open: 'Open',
+  validated: 'Validated',
+  invalidated: 'Invalidated',
 };
+
+export const OPERATOR_CHANNEL_OPTIONS = [
+  { id: 'all', label: 'All' },
+  { id: 'decision', label: 'Decisions' },
+  { id: 'governance', label: 'Governance' },
+  { id: 'intervention', label: 'Interventions' },
+  { id: 'outcome', label: 'Outcomes' },
+];
 
 function titleCase(value) {
   return String(value || 'unknown')
@@ -70,6 +80,7 @@ export function buildActionEvent(action) {
     endedAt: action.timestamp_end || null,
     timestamp: action.timestamp_end || action.timestamp_start || action.created_at || new Date().toISOString(),
     parentActionId: action.parent_action_id || null,
+    chainRootId: action.parent_action_id || action.action_id,
     lowSignal: isMonitor,
     emphasis,
   };
@@ -138,6 +149,54 @@ export function buildGuardEvent(decision) {
     outputSummary: decision.reason || null,
     timestamp: decision.created_at || new Date().toISOString(),
     startedAt: decision.created_at || null,
+    actionId: decision.action_id || null,
+    lowSignal,
+    emphasis,
+  };
+}
+
+export function buildAssumptionEvent(assumption) {
+  const invalidated = assumption.invalidated === 1 || assumption.invalidated === true;
+  const validated = assumption.validated === 1 || assumption.validated === true;
+  const driftScore = asNumber(assumption.drift_score, null);
+  const unresolved = !invalidated && !validated;
+  const lowSignal = validated && !invalidated;
+  const status = invalidated ? 'invalidated' : validated ? 'validated' : 'pending';
+  const emphasis =
+    invalidated ? 94 :
+    driftScore >= 70 ? 86 :
+    unresolved ? 76 :
+    22;
+  const summaryParts = [assumption.assumption];
+
+  if (invalidated && assumption.invalidated_reason) {
+    summaryParts.push(`Invalidated: ${assumption.invalidated_reason}`);
+  } else if (unresolved && assumption.basis) {
+    summaryParts.push(`Basis: ${assumption.basis}`);
+  }
+
+  return {
+    id: `assumption:${assumption.assumption_id}`,
+    entityId: assumption.assumption_id,
+    entityType: 'assumption',
+    category: lowSignal ? 'telemetry' : 'governance',
+    title:
+      invalidated ? 'Decision basis invalidated' :
+      unresolved ? 'Decision basis awaiting validation' :
+      'Decision basis validated',
+    goal: assumption.declared_goal || null,
+    actionId: assumption.action_id || null,
+    actionType: assumption.action_type || 'assumption',
+    agentId: assumption.agent_id || null,
+    agentName: assumption.agent_name || assumption.agent_id || null,
+    status,
+    statusLabel: formatMissionStatus(status),
+    outputSummary: summaryParts.filter(Boolean).join(' | '),
+    riskScore: driftScore,
+    timestamp: assumption.updated_at || assumption.created_at || new Date().toISOString(),
+    startedAt: assumption.created_at || null,
+    endedAt: invalidated || validated ? (assumption.updated_at || assumption.created_at || null) : null,
+    parentActionId: assumption.action_id || null,
     lowSignal,
     emphasis,
   };
@@ -224,15 +283,79 @@ export function collapseRoutineTelemetry(events, { windowMs = 90 * 60 * 1000 } =
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 }
 
-export function buildOperatorBrief({ actions = [], loops = [], guardDecisions = [] }) {
+export function buildRecentChangesDigest(
+  { actions = [], loops = [], guardDecisions = [], assumptions = [], learning = [] },
+  { windowMs = 15 * 60 * 1000 } = {}
+) {
+  const cutoff = Date.now() - windowMs;
+  const normalized = [
+    ...actions.map(buildActionEvent),
+    ...loops.map(buildLoopEvent),
+    ...guardDecisions.map(buildGuardEvent),
+    ...assumptions.map(buildAssumptionEvent),
+    ...learning.map(buildLearningEvent),
+  ].filter((event) => new Date(event.timestamp).getTime() >= cutoff);
+
+  const changes = [
+    {
+      id: 'decisions',
+      label: 'Decision movement',
+      count: normalized.filter((event) => event.category === 'decision').length,
+      detail: 'New or updated governed actions in the last 15 minutes.',
+      tone: 'neutral',
+    },
+    {
+      id: 'governance',
+      label: 'Governance pressure',
+      count: normalized.filter((event) => event.category === 'governance').length,
+      detail: 'Guard decisions and assumption changes that altered oversight posture.',
+      tone: 'warning',
+    },
+    {
+      id: 'interventions',
+      label: 'Interventions opened',
+      count: normalized.filter((event) => event.category === 'intervention' && event.status === 'open').length,
+      detail: 'Open loops and approval interruptions created recently.',
+      tone: 'warning',
+    },
+    {
+      id: 'outcomes',
+      label: 'Outcomes landed',
+      count: normalized.filter((event) => event.category === 'outcome' || ['completed', 'failed'].includes(event.status)).length,
+      detail: 'Decisions that resolved into visible outcomes.',
+      tone: 'success',
+    },
+  ];
+
+  const highlights = normalized
+    .filter((event) => !event.lowSignal)
+    .sort((a, b) => b.emphasis - a.emphasis || new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 3)
+    .map((event) => ({
+      id: event.id,
+      title: event.title,
+      detail: event.outputSummary || event.goal || event.statusLabel,
+      status: event.statusLabel,
+    }));
+
+  return {
+    total: normalized.length,
+    changes,
+    highlights,
+  };
+}
+
+export function buildOperatorBrief({ actions = [], loops = [], guardDecisions = [], assumptions = [] }) {
   const normalizedActions = actions.map(buildActionEvent);
   const normalizedLoops = loops.map(buildLoopEvent);
   const normalizedGuards = guardDecisions.map(buildGuardEvent);
+  const normalizedAssumptions = assumptions.map(buildAssumptionEvent);
 
   const needsAttention = [
     ...normalizedActions.filter((event) => ['failed', 'pending_approval'].includes(event.status) || (event.riskScore ?? 0) >= 85),
     ...normalizedLoops.filter((event) => ['critical', 'high'].includes(event.priority) && event.status === 'open'),
     ...normalizedGuards.filter((event) => ['block', 'require_approval', 'warn'].includes(event.status)),
+    ...normalizedAssumptions.filter((event) => event.status === 'invalidated' || ((event.riskScore ?? 0) >= 60 && event.status === 'pending')),
   ]
     .sort((a, b) => b.emphasis - a.emphasis || new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 4);
@@ -250,6 +373,7 @@ export function buildOperatorBrief({ actions = [], loops = [], guardDecisions = 
   const interventions = [
     ...normalizedGuards.filter((event) => ['block', 'require_approval', 'warn'].includes(event.status)),
     ...normalizedLoops.filter((event) => event.status === 'open'),
+    ...normalizedAssumptions.filter((event) => event.status === 'invalidated'),
   ]
     .sort((a, b) => b.emphasis - a.emphasis || new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 4);

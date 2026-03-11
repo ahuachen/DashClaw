@@ -15,8 +15,14 @@ import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import ActivityTimeline from '../components/ActivityTimeline';
+import MissionControlOperatorLens from '../components/MissionControlOperatorLens';
+import MissionControlRecentDigest from '../components/MissionControlRecentDigest';
 import SwarmActivityLog from '../components/SwarmActivityLog';
-import { buildOperatorBrief, formatMissionStatus } from '../lib/missionControl';
+import {
+  buildOperatorBrief,
+  buildRecentChangesDigest,
+  formatMissionStatus,
+} from '../lib/missionControl';
 
 function computeSystemState(redCount, amberCount) {
   if (redCount >= 2) return { label: 'ALERT', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: true };
@@ -92,7 +98,10 @@ export default function MissionControlPage() {
   const [health, setHealth] = useState(null);
   const [actions, setActions] = useState([]);
   const [guardData, setGuardData] = useState(null);
+  const [assumptions, setAssumptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [showTelemetry, setShowTelemetry] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const agentParam = agentId ? `agent_id=${encodeURIComponent(agentId)}` : '';
@@ -103,13 +112,14 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, tokensRes, healthRes, actionsRes, guardRes] = await Promise.all([
+      const [signalsRes, loopsRes, tokensRes, healthRes, actionsRes, guardRes, assumptionsRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
         fetch(withParams('/api/actions/loops', ['status=open', 'limit=5'])),
         fetch(withParams('/api/tokens')),
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
         fetch(withParams('/api/guard', ['limit=10'])),
+        fetch(withParams('/api/actions/assumptions', ['limit=12'])),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
@@ -121,6 +131,10 @@ export default function MissionControlPage() {
         setActions(actionsJson.actions || []);
       }
       if (guardRes.ok) setGuardData(await guardRes.json());
+      if (assumptionsRes.ok) {
+        const assumptionsJson = await assumptionsRes.json();
+        setAssumptions(assumptionsJson.assumptions || []);
+      }
     } catch (error) {
       console.error('Mission Control fetch error:', error);
     } finally {
@@ -186,7 +200,9 @@ export default function MissionControlPage() {
   const healthDot = healthStatus === 'healthy' ? 'bg-emerald-500' : healthStatus === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500';
   const lastActivity = actions[0]?.timestamp_start || loopList[0]?.created_at || null;
   const fleetCount = agents.length;
-  const brief = buildOperatorBrief({ actions, loops: loopList, guardDecisions: guardData?.decisions || [] });
+  const guardDecisions = guardData?.decisions || [];
+  const brief = buildOperatorBrief({ actions, loops: loopList, guardDecisions, assumptions });
+  const recentDigest = buildRecentChangesDigest({ actions, loops: loopList, guardDecisions, assumptions });
 
   const actionButton = (
     <Link
@@ -245,6 +261,15 @@ export default function MissionControlPage() {
           />
         </div>
       </div>
+
+      <MissionControlRecentDigest digest={recentDigest} />
+
+      <MissionControlOperatorLens
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        showTelemetry={showTelemetry}
+        onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
+      />
 
       <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -408,8 +433,18 @@ export default function MissionControlPage() {
       </div>
 
       <div className="grid h-[640px] grid-cols-1 gap-6 lg:grid-cols-2">
-        <ActivityTimeline />
-        <SwarmActivityLog />
+        <ActivityTimeline
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+          showTelemetry={showTelemetry}
+          onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
+        />
+        <SwarmActivityLog
+          activeCategory={activeCategory}
+          onCategoryChange={setActiveCategory}
+          showTelemetry={showTelemetry}
+          onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
+        />
       </div>
     </PageLayout>
   );
