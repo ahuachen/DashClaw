@@ -193,11 +193,10 @@ export default function LandingPage() {
             Open-source &middot; MIT Licensed &middot; Self-hosted
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            Govern, route, score, and improve<br />
-            <span className="text-brand">your entire agent fleet.</span>
+            Govern agent decisions before execution.
           </h1>
           <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            DashClaw is the self-hosted platform for running AI agents in production. Govern decisions before execution, route tasks to the right agent, score quality, track learning, manage agent workspace state, and surface compliance and security evidence from one control plane.
+            DashClaw is the self hosted control plane for running AI agents in production. Govern decisions before execution, route work, score quality, track learning, preserve workspace context, and surface compliance and security evidence from one place.
           </p>
           <p className="mt-3 text-sm text-zinc-500">Open-source. Self-hosted. Zero-dependency SDKs. No OAuth required to get started.</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
