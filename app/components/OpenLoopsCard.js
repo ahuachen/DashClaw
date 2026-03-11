@@ -14,6 +14,8 @@ import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 const LOOP_TYPE_ICONS = {
   followup: ClipboardList,
@@ -140,7 +142,7 @@ export default function OpenLoopsCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Open Loops" icon={CircleDot} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Open Loops<HelpIcon sectionKey="open-loops" tip={HELP_TIPS['open-loops']} /></span>} icon={CircleDot} action={viewAllLink}>
         {openCount > 0 && (
           <Badge variant="brand" size="sm">{openCount} Open</Badge>
         )}

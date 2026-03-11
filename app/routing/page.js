@@ -13,6 +13,8 @@ import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 import { isDemoMode } from '../lib/isDemoMode';
 
 const URGENCY_BADGE = {
@@ -260,7 +262,7 @@ export default function TaskRoutingPage() {
           <div className="lg:col-span-3">
             <Card className="mb-6">
               <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-                <h2 className="text-sm font-medium text-white">Task Queue</h2>
+                <h2 className="text-sm font-medium text-white flex items-center">Task Queue<HelpIcon sectionKey="routing" tip={HELP_TIPS['routing']} /></h2>
                 {canEdit && (
                   <button
                     onClick={() => setShowTaskForm(!showTaskForm)}
@@ -421,7 +423,7 @@ export default function TaskRoutingPage() {
           <div className="lg:col-span-2">
             <Card className="mb-6">
               <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-                <h2 className="text-sm font-medium text-white">Agent Registry</h2>
+                <h2 className="text-sm font-medium text-white flex items-center">Agent Registry<HelpIcon sectionKey="routing" tip={HELP_TIPS['routing']} /></h2>
                 {canEdit && (
                   <button
                     onClick={() => setShowAgentForm(!showAgentForm)}

@@ -9,6 +9,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function PromptStatsCard() {
   const [stats, setStats] = useState(null);
@@ -45,7 +47,7 @@ export default function PromptStatsCard() {
   if (!hasData) {
     return (
       <Card className="h-full" ref={sizeRef}>
-        <CardHeader title="Prompts" icon={FileCode} />
+        <CardHeader title={<span className="flex items-center">Prompts<HelpIcon sectionKey="prompt-stats" tip={HELP_TIPS['prompt-stats']} /></span>} icon={FileCode} />
         <CardContent>
           <EmptyState
             icon={FileCode}
@@ -60,7 +62,7 @@ export default function PromptStatsCard() {
   return (
     <Card className="h-full" ref={sizeRef}>
       <CardHeader
-        title="Prompts"
+        title={<span className="flex items-center">Prompts<HelpIcon sectionKey="prompt-stats" tip={HELP_TIPS['prompt-stats']} /></span>}
         icon={FileCode}
         count={overall.unique_templates || 0}
         action={

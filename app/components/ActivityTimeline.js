@@ -22,6 +22,8 @@ import {
   collapseRoutineTelemetry,
   OPERATOR_CHANNEL_OPTIONS,
 } from '../lib/missionControl';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 function getEventIcon(event) {
   switch (event.category) {
@@ -269,7 +271,7 @@ export default function ActivityTimeline({
 
   return (
     <Card className="flex flex-col h-full overflow-hidden">
-      <CardHeader title="Decision Timeline" icon={Clock}>
+      <CardHeader title={<span className="flex items-center">Decision Timeline<HelpIcon sectionKey="activity-timeline" tip={HELP_TIPS['activity-timeline']} /></span>} icon={Clock}>
         <div className="flex items-center gap-2">
           <Badge variant="brand" size="sm">{prominentCount} priority</Badge>
           {telemetryCount > 0 && (

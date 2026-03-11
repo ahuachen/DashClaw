@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function GoalsChart() {
   const [goals, setGoals] = useState([]);
@@ -51,7 +53,7 @@ export default function GoalsChart() {
   if (totalGoals === 0) {
     return (
       <Card className="h-full">
-        <CardHeader title="Goal Progress" icon={Target} />
+        <CardHeader title={<span className="flex items-center">Goal Progress<HelpIcon sectionKey="goals" tip={HELP_TIPS['goals']} /></span>} icon={Target} />
         <CardContent>
           <EmptyState
             icon={Target}
@@ -73,7 +75,7 @@ export default function GoalsChart() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Goal Progress" icon={Target} count={totalGoals} action={viewAllLink} />
+      <CardHeader title={<span className="flex items-center">Goal Progress<HelpIcon sectionKey="goals" tip={HELP_TIPS['goals']} /></span>} icon={Target} count={totalGoals} action={viewAllLink} />
 
       <CardContent>
         {/* Stats row */}

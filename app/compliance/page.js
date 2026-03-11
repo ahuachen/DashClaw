@@ -14,6 +14,8 @@ import { StatCompact } from '../components/ui/Stat';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 import { isDemoMode } from '../lib/isDemoMode';
 
 const FRAMEWORK_LABELS = {
@@ -238,7 +240,7 @@ export default function CompliancePage() {
         <div className="lg:col-span-3">
           <Card>
             <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white">Control Map</h2>
+              <h2 className="text-sm font-medium text-white flex items-center">Control Map<HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} /></h2>
               {controls.length > 0 && (
                 <span className="text-xs text-zinc-500">{controls.length} controls</span>
               )}
@@ -324,7 +326,7 @@ export default function CompliancePage() {
           {/* Gap Analysis */}
           <Card>
             <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white">Gap Analysis</h2>
+              <h2 className="text-sm font-medium text-white flex items-center">Gap Analysis<HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} /></h2>
             </div>
             <CardContent>
               {!gapAnalysis ? (
@@ -384,7 +386,7 @@ export default function CompliancePage() {
           {/* Enforcement Evidence */}
           <Card>
             <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white">Enforcement Evidence</h2>
+              <h2 className="text-sm font-medium text-white flex items-center">Enforcement Evidence<HelpIcon sectionKey="guard-decisions" tip={HELP_TIPS['guard-decisions']} /></h2>
             </div>
             <CardContent>
               {!evidence ? (

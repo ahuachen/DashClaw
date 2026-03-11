@@ -11,6 +11,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function ContextCard() {
   const [contextData, setContextData] = useState({
@@ -111,7 +113,7 @@ export default function ContextCard() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Context" icon={FileText} action={viewAllLink}>
+      <CardHeader title={<span className="flex items-center">Context<HelpIcon sectionKey="context-threads" tip={HELP_TIPS['context-threads']} /></span>} icon={FileText} action={viewAllLink}>
         <Badge variant="success" size="sm">{contextData.todayPoints} decisions</Badge>
         {contextData.stats.totalLessons > 0 && (
           <Badge variant="info" size="sm">{contextData.stats.totalLessons} lessons</Badge>

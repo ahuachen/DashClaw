@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 export default function DriftCard() {
   const [stats, setStats] = useState(null);
@@ -38,7 +40,7 @@ export default function DriftCard() {
   if (!hasData) {
     return (
       <Card className="h-full" ref={sizeRef}>
-        <CardHeader title="Drift" icon={Activity} />
+        <CardHeader title={<span className="flex items-center">Drift<HelpIcon sectionKey="drift" tip={HELP_TIPS['drift']} /></span>} icon={Activity} />
         <CardContent>
           <EmptyState icon={Activity} title="No drift data" description="Run drift detection to monitor behavioral patterns." />
         </CardContent>
@@ -49,7 +51,7 @@ export default function DriftCard() {
   return (
     <Card className="h-full" ref={sizeRef}>
       <CardHeader
-        title="Drift"
+        title={<span className="flex items-center">Drift<HelpIcon sectionKey="drift" tip={HELP_TIPS['drift']} /></span>}
         icon={Activity}
         count={overall.total_alerts || 0}
         action={<Link href="/drift" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}

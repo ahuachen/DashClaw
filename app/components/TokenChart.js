@@ -8,6 +8,8 @@ import { Card, CardHeader, CardContent } from './ui/Card';
 import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 function CustomTooltip({ active, payload, label }) {
   if (active && payload && payload.length) {
@@ -70,7 +72,7 @@ export default function TokenChart() {
   if (data.length === 0) {
     return (
       <Card className="h-full">
-        <CardHeader title="Token Usage (7 Days)" icon={TrendingUp} />
+        <CardHeader title={<span className="flex items-center">Token Usage (7 Days)<HelpIcon sectionKey="token-budget" tip={HELP_TIPS['token-budget']} /></span>} icon={TrendingUp} />
         <CardContent>
           <EmptyState
             icon={BarChart3}
@@ -90,7 +92,7 @@ export default function TokenChart() {
 
   return (
     <Card className="h-full">
-      <CardHeader title="Token Usage (7 Days)" icon={TrendingUp} action={viewAllLink} />
+      <CardHeader title={<span className="flex items-center">Token Usage (7 Days)<HelpIcon sectionKey="token-budget" tip={HELP_TIPS['token-budget']} /></span>} icon={TrendingUp} action={viewAllLink} />
 
       <CardContent>
         <div className="h-64">

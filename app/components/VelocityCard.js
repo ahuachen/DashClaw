@@ -10,6 +10,8 @@ import { EmptyState } from './ui/EmptyState';
 import { CardSkeleton } from './ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useTileSize, fitItems } from '../hooks/useTileSize';
+import { HelpIcon } from './HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 
 const MATURITY_VARIANT = {
   master: 'info', expert: 'success', proficient: 'info', competent: 'warning', developing: 'warning', novice: 'default',
@@ -43,7 +45,7 @@ export default function VelocityCard() {
   if (!hasData) {
     return (
       <Card className="h-full" ref={sizeRef}>
-        <CardHeader title="Learning Velocity" icon={Zap} />
+        <CardHeader title={<span className="flex items-center">Learning Velocity<HelpIcon sectionKey="velocity" tip={HELP_TIPS['velocity']} /></span>} icon={Zap} />
         <CardContent>
           <EmptyState icon={Zap} title="No learning data" description="Record episodes to track learning velocity." />
         </CardContent>
@@ -54,7 +56,7 @@ export default function VelocityCard() {
   return (
     <Card className="h-full" ref={sizeRef}>
       <CardHeader
-        title="Learning Velocity"
+        title={<span className="flex items-center">Learning Velocity<HelpIcon sectionKey="velocity" tip={HELP_TIPS['velocity']} /></span>}
         icon={Zap}
         action={<Link href="/learning/analytics" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}
       />
