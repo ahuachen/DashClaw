@@ -5,7 +5,15 @@ const lines = readFileSync('.env.local', 'utf8').split('\n');
 for (const l of lines) {
   const idx = l.indexOf('=');
   if (idx > 0 && !l.startsWith('#')) {
-    process.env[l.slice(0, idx).trim()] = l.slice(idx + 1).trim();
+    const key = l.slice(0, idx).trim();
+    let value = l.slice(idx + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1).replace(/\\"/g, '"').replace(/\\'/g, "'");
+    }
+    process.env[key] = value;
   }
 }
 

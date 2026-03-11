@@ -3,6 +3,7 @@
  * Import this module early to fail fast on misconfiguration.
  * Only validates in production (NODE_ENV=production).
  */
+import { getAuthConfig, getMissingAuthMessage } from './authConfig.mjs';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -30,15 +31,9 @@ if (isProd) {
     errors.push('ENCRYPTION_KEY must be exactly 32 characters');
   }
 
-  // At least one OAuth provider
-  const hasGitHub = (process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID) && 
-                    (process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET);
-  const hasGoogle = (process.env.GOOGLE_ID || process.env.GOOGLE_CLIENT_ID) && 
-                    (process.env.GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET);
-  const hasOIDC = process.env.OIDC_CLIENT_ID && process.env.OIDC_CLIENT_SECRET && process.env.OIDC_ISSUER_URL;
-
-  if (!hasGitHub && !hasGoogle && !hasOIDC) {
-    errors.push('At least one authentication provider (GITHUB, GOOGLE, or OIDC) must be configured in production');
+  const authConfig = getAuthConfig();
+  if (!authConfig.hasAnySignInMethod) {
+    warnings.push(getMissingAuthMessage());
   }
 
   // Validate OIDC fields if any are set

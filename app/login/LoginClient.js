@@ -11,6 +11,8 @@ export default function LoginClient({ localAuthEnabled }) {
   const { data: session, status } = useSession();
   const [providers, setProviders] = useState([]);
   const [isProd, setIsProd] = useState(true);
+  const [authMessage, setAuthMessage] = useState('');
+  const [localPasswordEnabled, setLocalPasswordEnabled] = useState(localAuthEnabled);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,14 +28,16 @@ export default function LoginClient({ localAuthEnabled }) {
         if (res.ok) {
           const data = await res.json();
           setProviders(data.providers || []);
-          setIsProd(data.isProd);
+          setIsProd(Boolean(data.isProd));
+          setAuthMessage(data.message || '');
+          setLocalPasswordEnabled(Boolean(data.localAuthEnabled ?? localAuthEnabled));
         }
       } catch (err) {
         console.error('Failed to fetch auth providers:', err);
       }
     }
     fetchProviders();
-  }, []);
+  }, [localAuthEnabled]);
 
   if (status === 'loading' || status === 'authenticated') {
     return (
@@ -51,7 +55,11 @@ export default function LoginClient({ localAuthEnabled }) {
             <DashClawLogo size={32} />
           </div>
           <h1 className="text-2xl font-bold text-white">Sign in to DashClaw</h1>
-          <p className="text-sm text-zinc-400 mt-2">Agent governance starts here.</p>
+          <p className="text-sm text-zinc-400 mt-2">
+            {localPasswordEnabled
+              ? 'Use the admin password you set during setup, or choose an identity provider.'
+              : 'Agent governance starts here.'}
+          </p>
         </div>
 
         <div className="space-y-3">
@@ -72,13 +80,13 @@ export default function LoginClient({ localAuthEnabled }) {
             </button>
           ))}
 
-          {providers.length === 0 && (
-            <p className="text-xs text-red-400 text-center py-4">
-              No authentication providers configured. Check your environment variables.
+          {providers.length === 0 && !localPasswordEnabled && (
+            <p className="text-xs text-amber-300 text-center py-4">
+              {authMessage || 'No dashboard sign-in method is configured yet.'}
             </p>
           )}
 
-          {localAuthEnabled && <LocalPasswordForm />}
+          {localPasswordEnabled && <LocalPasswordForm />}
         </div>
 
         {!isProd && !providers.some(p => p.id === 'oidc') && (

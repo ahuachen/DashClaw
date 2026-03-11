@@ -102,16 +102,17 @@ node scripts/setup.mjs
 
 The interactive setup handles everything:
 
-1. **Database** -- Docker (local), Neon (cloud), or any Postgres URL
+1. **Database** -- checks whether Docker is available before steering you into the local Docker path, or lets you use Neon / any Postgres URL
 2. **Secrets** -- auto-generates API key, auth secrets, encryption key
-3. **Migrations** -- creates all tables with progress spinners
-4. **Build** -- compiles the Next.js app
+3. **Dashboard login** -- offers a local admin password when no OAuth provider is configured yet
+4. **Migrations + readiness check** -- runs migrations, then verifies the same database readiness used by `/api/setup/status`
+5. **Build** -- compiles the Next.js app without pretending setup is complete if the app still is not ready
 
 Optional feature migrations:
 
 - **Prompt analytics** -- run `node scripts/migrate-prompts.mjs` to enable `prompt_runs` usage stats and prompt render telemetry on existing installs that predate prompt analytics.
 
-When it finishes, you get a ready-to-use agent connection snippet.
+When it finishes, you get an honest ready/not-ready summary plus a ready-to-use agent connection snippet.
 
 > Platform installers also available: `./install-windows.bat` or `bash ./install-mac.sh`
 
@@ -235,7 +236,7 @@ Mix and match: Vercel + self-hosted Postgres, or local + Neon. DashClaw auto-det
 
 ## OAuth Setup
 
-OAuth is optional if you set `DASHCLAW_LOCAL_ADMIN_PASSWORD`. You can add an OAuth provider later when you want to invite teammates.
+OAuth is optional if you set `DASHCLAW_LOCAL_ADMIN_PASSWORD`. `node scripts/setup.mjs` now offers that path directly when no provider is configured, and you can add OAuth later when you want to invite teammates.
 
 <details>
 <summary><strong>GitHub OAuth</strong></summary>

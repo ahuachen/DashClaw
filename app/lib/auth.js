@@ -2,25 +2,19 @@ import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import crypto from 'crypto';
 import { getSql } from './db.js';
+import { getAuthConfig } from './authConfig.mjs';
 
-// SECURITY: In production, require real OAuth credentials — do not fall through to mocks
+// SECURITY: In production, require real OAuth credentials. Dev mode may use mocks.
 const isProd = process.env.NODE_ENV === 'production';
+const authConfig = getAuthConfig();
 
 const GITHUB_ID = process.env.GITHUB_ID || process.env.GITHUB_CLIENT_ID;
 const GITHUB_SECRET = process.env.GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET;
 const GOOGLE_ID = process.env.GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_SECRET = process.env.GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
 
-const hasGitHub = GITHUB_ID && GITHUB_SECRET;
-const hasGoogle = GOOGLE_ID && GOOGLE_SECRET;
-const hasOIDC = process.env.OIDC_CLIENT_ID && process.env.OIDC_CLIENT_SECRET && process.env.OIDC_ISSUER_URL;
-
-if (isProd && !hasGitHub && !hasGoogle && !hasOIDC) {
-  console.error('[AUTH] FATAL: At least one authentication provider (GitHub, Google, or OIDC) must be configured in production');
-}
-
 const providers = [];
-if (hasGitHub) {
+if (authConfig.hasGitHub) {
   providers.push(GitHubProvider({
     clientId: GITHUB_ID,
     clientSecret: GITHUB_SECRET,
@@ -32,7 +26,7 @@ if (hasGitHub) {
   }));
 }
 
-if (hasGoogle) {
+if (authConfig.hasGoogle) {
   providers.push(GoogleProvider({
     clientId: GOOGLE_ID,
     clientSecret: GOOGLE_SECRET,
@@ -44,7 +38,7 @@ if (hasGoogle) {
   }));
 }
 
-if (hasOIDC) {
+if (authConfig.hasOIDC) {
   const oidcProvider = {
     id: 'oidc',
     name: process.env.OIDC_DISPLAY_NAME || 'OIDC',
@@ -127,7 +121,7 @@ export const authOptions = {
       if (account) {
         try {
           if (!process.env.DATABASE_URL) throw new Error('No DB');
-          
+
           const sql = getSql();
           const rows = await sql`
             SELECT u.id, u.org_id, u.role, COALESCE(o.plan, 'free') AS plan
@@ -173,14 +167,13 @@ export const authOptions = {
               token.plan = rows[0].plan;
             }
           } catch (err) {
-             if (err.message !== 'No DB') console.error('[AUTH] jwt refresh error:', err.message);
+            if (err.message !== 'No DB') console.error('[AUTH] jwt refresh error:', err.message);
           }
           token.orgRefreshedAt = Date.now();
         }
       }
       return token;
     },
-
 
     async session({ session, token }) {
       session.user.id = token.userId || null;
