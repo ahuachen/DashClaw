@@ -52,7 +52,8 @@ app/
 ├── mission-control/page.js    # Mission Control — strategic fleet overview (signals, loops, cost, fleet status, activity timeline)
 ├── dashboard/page.js          # Authenticated dashboard (draggable/resizable widget grid)
 ├── lib/validate.js            # Input validation helpers
-├── lib/db.js                  # Shared database connection utility (production-safe)
+├── lib/db.js                  # Shared database connection utility (production-safe, triggers startup schema check)
+├── lib/schemaCheck.js         # Core table verification (CORE_TABLES, checkCoreTables, startupSchemaCheck)
 ├── lib/security.js            # DLP / Sensitive data scanning engine
 ├── lib/embeddings.js          # Vector embedding generation (OpenAI)
 ├── lib/maintenance.js         # Proactive memory health engine
@@ -134,7 +135,7 @@ app/
     ├── relationships/         # Contacts + interactions
     ├── schedules/             # Schedule management
     ├── settings/              # Integration credentials (encrypted)
-    ├── setup/                 # Setup status (public)
+    ├── setup/                 # Setup status + core table check (public)
     ├── keys/                  # API key management (list, generate, revoke - admin only for POST/DELETE)
     ├── team/                  # Team management (members list, invite CRUD, role change, remove)
     ├── invite/[token]/        # Invite accept (public GET for details, POST to accept)
@@ -590,6 +591,12 @@ Token tracking is disabled in the dashboard UI pending a better approach. The AP
 - Table: `bug_hunter_scans` (id SERIAL, scan_id TEXT `bhs_` prefix, org_id, agent_id, scope, status, findings_count, resolved_count, created_at)
 - Repository: `app/lib/repositories/bugHunter.repository.js`
 - Migration Step 40 in `migrate-multi-tenant.mjs`
+
+## Startup & Health Protections
+- **Startup schema check**: On first DB connection, `schemaCheck.js` verifies 6 core tables exist (`action_records`, `guard_decisions`, `api_keys`, `org_members`, `settings`, `policies`). Logs a warning with migration command if any are missing. Fire-and-forget — does not block requests.
+- **Health endpoint** (`GET /api/health`): Checks DB connectivity + core table existence, realtime backend, env vars, embeddings. Returns `degraded` (503) if tables are missing or DB is unreachable.
+- **Setup status** (`GET /api/setup/status`): Reports `configured: false` with `missing_tables` count when core tables are absent. Used by onboarding flow.
+- **Environment validation** (`validateEnv.js`): Imported by `db.js` on module load. Validates required env vars in production, warns in dev.
 
 ## Operational Scripts
 - `scripts/repair-stale-running-actions.mjs` - closes stale `running` actions that were never resolved (supports `--dry-run`, `--older-than-hours`, `--action-type`)
