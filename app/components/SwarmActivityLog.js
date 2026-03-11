@@ -16,12 +16,33 @@ import {
   buildGuardEvent,
   buildLoopEvent,
   collapseRoutineTelemetry,
+  isPriorityEvent,
   OPERATOR_CHANNEL_OPTIONS,
 } from '../lib/missionControl';
 
 function formatTime(ts) {
   const d = new Date(ts);
   return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+const RAW_PATTERN_LABELS = [
+  [/^Warned:\s*other$/i, 'Guard raised warning'],
+  [/^Warned:\s*/i, (text) => `Guard warning: ${text.replace(/^Warned:\s*/i, '')}`],
+  [/^Blocked:\s*other$/i, 'Blocked by policy'],
+  [/^Blocked:\s*/i, (text) => `Policy block: ${text.replace(/^Blocked:\s*/i, '')}`],
+  [/^Failed:\s*other$/i, 'Action failed'],
+  [/^Failed:\s*/i, (text) => `Failed: ${text.replace(/^Failed:\s*/i, '')}`],
+  [/^Allowed:\s*other$/i, 'Guard cleared action'],
+];
+
+function humanizeLogText(text) {
+  if (!text) return '';
+  for (const [pattern, replacement] of RAW_PATTERN_LABELS) {
+    if (pattern.test(text)) {
+      return typeof replacement === 'function' ? replacement(text) : replacement;
+    }
+  }
+  return text;
 }
 
 function toLogEntry(item) {
@@ -184,8 +205,12 @@ export default function SwarmActivityLog({
 
   const setCategory = onCategoryChange || (() => {});
   const toggleTelemetry = onToggleTelemetry || (() => {});
-  const visibleLogs = (showTelemetry ? logs : logs.filter((log) => !log.lowSignal))
-    .filter((log) => activeCategory === 'all' ? true : log.category === activeCategory);
+  const baseLogs = showTelemetry ? logs : logs.filter((log) => !log.lowSignal);
+  const visibleLogs = activeCategory === 'priority'
+    ? baseLogs.filter(isPriorityEvent)
+    : activeCategory === 'all'
+      ? baseLogs
+      : baseLogs.filter((log) => log.category === activeCategory);
   const telemetryCount = logs.filter((log) => log.lowSignal).reduce((sum, log) => sum + (log.count || 1), 0);
   const hasAnyLogs = logs.length > 0;
 
@@ -259,25 +284,23 @@ export default function SwarmActivityLog({
                 'text-zinc-500';
 
               return (
-                <div key={log.id} className={`group flex items-start gap-3 border-b py-1.5 last:border-0 ${log.lowSignal ? 'border-white/[0.015]' : 'border-white/[0.03]'}`}>
-                  <span className="shrink-0 tabular-nums text-zinc-600">[{formatTime(log.timestamp)}]</span>
-                  <div className={`mt-0.5 shrink-0 ${typeColor}`}>
+                <div key={log.id} className={`group flex items-center gap-2 border-b py-1.5 last:border-0 ${log.lowSignal ? 'border-white/[0.015]' : 'border-white/[0.03]'}`}>
+                  <span className="w-[72px] shrink-0 tabular-nums text-zinc-600">[{formatTime(log.timestamp)}]</span>
+                  <div className={`shrink-0 ${typeColor}`}>
                     <Icon size={10} />
                   </div>
-                  <div className="flex min-w-0 flex-1 items-start gap-2">
-                    <span className={`shrink-0 rounded border border-white/6 bg-[rgba(255,255,255,0.03)] px-1 text-[10px] ${agentColor}`}>
-                      {log.agentId?.substring(0, 8) || 'system'}
-                    </span>
-                    <span className={`truncate transition-colors ${log.lowSignal ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-300 group-hover:text-white'}`}>
-                      {log.text}
-                    </span>
-                    {log.count > 1 && (
-                      <Badge variant="default" size="xs">{log.count}x</Badge>
-                    )}
-                    {log.kind === 'guard' && log.status === 'block' && (
-                      <XCircle size={10} className="mt-0.5 shrink-0 text-red-400" />
-                    )}
-                  </div>
+                  <span className={`max-w-[80px] shrink-0 truncate rounded border border-white/6 bg-[rgba(255,255,255,0.03)] px-1 text-[10px] ${agentColor}`}>
+                    {log.agentId?.substring(0, 8) || 'system'}
+                  </span>
+                  <span className={`min-w-0 flex-1 truncate transition-colors ${log.lowSignal ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-300 group-hover:text-white'}`}>
+                    {humanizeLogText(log.text)}
+                  </span>
+                  {log.count > 1 && (
+                    <Badge variant="default" size="xs">{log.count}x</Badge>
+                  )}
+                  {log.kind === 'guard' && log.status === 'block' && (
+                    <XCircle size={10} className="shrink-0 text-red-400" />
+                  )}
                 </div>
               );
             })

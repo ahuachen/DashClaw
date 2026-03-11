@@ -20,6 +20,7 @@ import {
   buildLearningEvent,
   buildLoopEvent,
   collapseRoutineTelemetry,
+  isPriorityEvent,
   OPERATOR_CHANNEL_OPTIONS,
 } from '../lib/missionControl';
 import { HelpIcon } from './HelpIcon';
@@ -70,6 +71,14 @@ function getCategoryColor(category) {
     case 'telemetry': return 'text-zinc-500';
     default: return 'text-zinc-400';
   }
+}
+
+function getCategoryBorder(event) {
+  if (event.category === 'governance') return 'border-l-2 border-l-amber-500/60';
+  if (event.category === 'intervention' || event.status === 'block' || event.status === 'failed') return 'border-l-2 border-l-red-500/60';
+  if (['completed', 'resolved'].includes(event.status) && event.category === 'outcome') return 'border-l-2 border-l-emerald-500/60';
+  if (event.category === 'decision') return 'border-l-2 border-l-blue-500/40';
+  return 'border-l-2 border-l-border';
 }
 
 function getStatusVariant(status) {
@@ -261,12 +270,17 @@ export default function ActivityTimeline({
 
   const setCategory = onCategoryChange || (() => {});
   const toggleTelemetry = onToggleTelemetry || (() => {});
-  const filteredEvents = (showTelemetry ? events : events.filter((event) => !event.lowSignal))
-    .filter((event) => activeCategory === 'all' ? true : event.category === activeCategory);
+  const isPriority = activeCategory === 'priority';
+  const baseEvents = showTelemetry ? events : events.filter((event) => !event.lowSignal);
+  const filteredEvents = isPriority
+    ? baseEvents.filter(isPriorityEvent).slice(0, 15)
+    : activeCategory === 'all'
+      ? baseEvents
+      : baseEvents.filter((event) => event.category === activeCategory);
   const telemetryCount = events.filter((event) => event.lowSignal).reduce((sum, event) => sum + (event.count || 1), 0);
   const prominentCount = filteredEvents.length;
   const grouped = groupByDay(buildChainRows(filteredEvents));
-  const emptyForCategory = activeCategory !== 'all' && filteredEvents.length === 0;
+  const emptyForCategory = activeCategory !== 'all' && activeCategory !== 'priority' && filteredEvents.length === 0;
   const hasAnyEvents = events.length > 0;
 
   return (
@@ -274,7 +288,7 @@ export default function ActivityTimeline({
       <CardHeader title={<span className="flex items-center">Decision Timeline<HelpIcon sectionKey="activity-timeline" tip={HELP_TIPS['activity-timeline']} /></span>} icon={Clock}>
         <div className="flex items-center gap-2">
           <Badge variant="brand" size="sm">{prominentCount} priority</Badge>
-          {telemetryCount > 0 && (
+          {telemetryCount > 0 && isPriority && (
             <button
               type="button"
               onClick={toggleTelemetry}
@@ -316,6 +330,12 @@ export default function ActivityTimeline({
               title="No governed decisions yet"
               description="Mission Control will turn agent goals, guard interventions, assumptions, and outcomes into an operator-readable timeline."
             />
+          ) : isPriority && filteredEvents.length === 0 ? (
+            <EmptyState
+              icon={Target}
+              title="No priority events right now"
+              description="No governance actions, interventions, or failed outcomes require your attention. Switch to ALL to see the full event stream."
+            />
           ) : emptyForCategory ? (
             <EmptyState
               icon={Target}
@@ -345,7 +365,7 @@ export default function ActivityTimeline({
                           const isExpanded = !!expandedChains[event.id];
 
                           const content = (
-                            <div className={`rounded-lg border px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${event.lowSignal ? 'border-[rgba(255,255,255,0.05)] bg-white/[0.015]' : 'border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]'} transition-colors ${href ? 'group-hover:border-white/20' : ''}`}>
+                            <div className={`rounded-lg border px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] ${getCategoryBorder(event)} ${event.lowSignal ? 'border-[rgba(255,255,255,0.05)] bg-white/[0.015]' : 'border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.012))]'} transition-colors ${href ? 'group-hover:border-white/20 hover:bg-white/5 cursor-pointer' : ''}`}>
                               <div className="flex items-start gap-3">
                                 <div className="relative z-[1] mt-1 flex-shrink-0">
                                   {getEventIcon(event)}

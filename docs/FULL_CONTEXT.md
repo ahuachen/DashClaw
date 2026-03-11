@@ -126,6 +126,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 2. **Org context headers** (`x-org-id`, `x-org-role`, `x-user-id`) are injected by middleware only — never accepted from clients.
 3. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
 4. **Thread system duality**: context threads (`ct_*` via `/api/context/threads`) are different from message threads (`mt_*` via `/api/messages/threads`).
+5. **Demo contract preservation**: demo fixtures can be authored with teaching-oriented field names, but demo API responses must preserve the same shape expected by the production dashboard. Normalize aliases at the middleware/demo-handler boundary instead of teaching page components a second schema.
 
 ---
 

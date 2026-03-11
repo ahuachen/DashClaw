@@ -17,12 +17,23 @@ const STATUS_LABELS = {
 };
 
 export const OPERATOR_CHANNEL_OPTIONS = [
+  { id: 'priority', label: 'Priority' },
   { id: 'all', label: 'All' },
   { id: 'decision', label: 'Decisions' },
   { id: 'governance', label: 'Governance' },
   { id: 'intervention', label: 'Interventions' },
   { id: 'outcome', label: 'Outcomes' },
 ];
+
+const PRIORITY_CATEGORIES = new Set(['governance', 'intervention']);
+const SUCCESS_STATUSES = new Set(['completed', 'resolved', 'allow', 'validated']);
+
+export function isPriorityEvent(event) {
+  if (PRIORITY_CATEGORIES.has(event.category)) return true;
+  if (event.category === 'outcome' && !SUCCESS_STATUSES.has(event.status)) return true;
+  if (event.category === 'decision' && ['failed', 'pending_approval'].includes(event.status)) return true;
+  return false;
+}
 
 function titleCase(value) {
   return String(value || 'unknown')

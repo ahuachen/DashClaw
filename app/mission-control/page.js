@@ -1,36 +1,30 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
-  Activity, ShieldAlert, ShieldCheck, CircleDot, DollarSign,
-  ArrowRight, TrendingUp, TrendingDown, Users, Clock, AlertTriangle,
-  PlayCircle, CheckCircle2, Shield, Radar,
+  Activity, ShieldAlert, ShieldCheck, DollarSign,
+  ArrowRight, TrendingUp, TrendingDown, Users, Clock,
+  CheckCircle2, AlertTriangle, Minus,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { EmptyState } from '../components/ui/EmptyState';
-import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
+import { getAgentColor } from '../lib/colors';
 import ActivityTimeline from '../components/ActivityTimeline';
-import MissionControlOperatorLens from '../components/MissionControlOperatorLens';
-import MissionControlRecentDigest from '../components/MissionControlRecentDigest';
 import SwarmActivityLog from '../components/SwarmActivityLog';
-import {
-  buildOperatorBrief,
-  buildRecentChangesDigest,
-  formatMissionStatus,
-} from '../lib/missionControl';
 
-function computeSystemState(redCount, amberCount) {
-  if (redCount >= 2) return { label: 'ALERT', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: true };
-  if (redCount === 1) return { label: 'ELEVATED', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: false };
-  if (amberCount >= 3) return { label: 'DRIFTING', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', pulse: false };
-  if (amberCount > 0) return { label: 'REVIEWING', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', pulse: false };
-  return { label: 'STABLE', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', pulse: false };
+/* ---------- System posture: exactly 3 states ---------- */
+
+function computePosture(redCount, amberCount) {
+  if (redCount >= 1) return { label: 'CRITICAL', dot: 'bg-red-500', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: true };
+  if (amberCount >= 1) return { label: 'ELEVATED', dot: 'bg-amber-500', text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', pulse: true };
+  return { label: 'NOMINAL', dot: 'bg-emerald-500', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', pulse: false };
 }
+
+/* ---------- Helpers ---------- */
 
 function formatRelativeTime(ts) {
   if (!ts) return '--';
@@ -49,46 +43,89 @@ function formatCost(cost) {
   return `$${cost.toFixed(2)}`;
 }
 
-function BriefColumn({ title, icon: Icon, items, emptyLabel, href }) {
-  return (
-    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Icon size={14} className="text-zinc-400" />
-          <div className="text-xs font-semibold uppercase tracking-wider text-zinc-300">{title}</div>
-        </div>
-        {href && (
-          <Link href={href} className="text-[10px] text-zinc-500 transition-colors hover:text-white">
-            Open
-          </Link>
-        )}
-      </div>
+function truncateText(text, maxLen) {
+  if (!text) return '';
+  return text.length > maxLen ? text.substring(0, maxLen) + '\u2026' : text;
+}
 
-      {items.length === 0 ? (
-        <div className="text-xs leading-5 text-zinc-500">{emptyLabel}</div>
-      ) : (
-        <div className="space-y-2">
-          {items.map((item) => (
-            <div key={item.id} className="rounded-lg border border-[rgba(255,255,255,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
-              <div className="mb-1 flex items-start justify-between gap-2">
-                <div className="min-w-0 text-sm font-medium text-white">{item.title}</div>
-                <Badge variant={['failed', 'block'].includes(item.status) ? 'error' : ['pending_approval', 'require_approval', 'warn', 'open', 'running'].includes(item.status) ? 'warning' : 'success'} size="xs">
-                  {formatMissionStatus(item.status)}
-                </Badge>
-              </div>
-              <div className="mb-1 text-xs text-zinc-500">
-                {item.goal || item.actionType || item.agentName || 'System event'}
-              </div>
-              {item.outputSummary && (
-                <div className="text-xs leading-5 text-zinc-400">{item.outputSummary}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+/* ---------- Intervention merging ---------- */
+
+const PRIORITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
+
+function buildInterventionList(pendingActions, openLoops) {
+  const items = [];
+
+  for (const action of pendingActions) {
+    items.push({
+      id: `approval:${action.action_id}`,
+      kind: 'approval',
+      agentId: action.agent_id,
+      agentName: action.agent_name || action.agent_id,
+      description: action.declared_goal || action.action_type || 'Pending action',
+      href: '/approvals',
+      sortKey: -1,
+    });
+  }
+
+  for (const loop of openLoops) {
+    const isRelevant = loop.loop_type === 'approval' || loop.priority === 'critical' || loop.priority === 'high';
+    if (!isRelevant) continue;
+    items.push({
+      id: `loop:${loop.loop_id}`,
+      kind: 'loop',
+      agentId: loop.agent_id,
+      agentName: loop.agent_name || loop.agent_id,
+      description: loop.description || loop.loop_type || 'Open loop',
+      href: '/dashboard',
+      sortKey: PRIORITY_ORDER[loop.priority] ?? 2,
+    });
+  }
+
+  items.sort((a, b) => a.sortKey - b.sortKey);
+  return items;
+}
+
+/* ---------- Skeleton placeholders ---------- */
+
+function CommandStripSkeleton() {
+  return (
+    <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">
+      <div className="flex items-center gap-6">
+        {[120, 80, 70, 100, 90].map((w, i) => (
+          <div key={i} className="h-5 animate-pulse rounded bg-white/[0.04]" style={{ width: w }} />
+        ))}
+      </div>
     </div>
   );
 }
+
+function InterventionSkeleton() {
+  return (
+    <div className="space-y-3">
+      <div className="h-3 w-28 animate-pulse rounded bg-white/[0.04]" />
+      <div className="h-8 w-12 animate-pulse rounded bg-white/[0.04]" />
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className="h-4 w-16 animate-pulse rounded bg-white/[0.04]" />
+          <div className="h-4 w-14 animate-pulse rounded bg-white/[0.04]" />
+          <div className="h-4 flex-1 animate-pulse rounded bg-white/[0.04]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MetricSkeleton() {
+  return (
+    <div className="space-y-3">
+      <div className="h-3 w-20 animate-pulse rounded bg-white/[0.04]" />
+      <div className="h-8 w-16 animate-pulse rounded bg-white/[0.04]" />
+      <div className="h-3 w-24 animate-pulse rounded bg-white/[0.04]" />
+    </div>
+  );
+}
+
+/* ---------- Main page ---------- */
 
 export default function MissionControlPage() {
   const { agentId, agents } = useAgentFilter();
@@ -97,10 +134,9 @@ export default function MissionControlPage() {
   const [tokens, setTokens] = useState(null);
   const [health, setHealth] = useState(null);
   const [actions, setActions] = useState([]);
-  const [guardData, setGuardData] = useState(null);
-  const [assumptions, setAssumptions] = useState([]);
+  const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('priority');
   const [showTelemetry, setShowTelemetry] = useState(false);
 
   const fetchAll = useCallback(async () => {
@@ -112,14 +148,13 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, tokensRes, healthRes, actionsRes, guardRes, assumptionsRes] = await Promise.all([
+      const [signalsRes, loopsRes, tokensRes, healthRes, actionsRes, pendingRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
-        fetch(withParams('/api/actions/loops', ['status=open', 'limit=5'])),
+        fetch(withParams('/api/actions/loops', ['status=open', 'limit=20'])),
         fetch(withParams('/api/tokens')),
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
-        fetch(withParams('/api/guard', ['limit=10'])),
-        fetch(withParams('/api/actions/assumptions', ['limit=12'])),
+        fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
@@ -130,10 +165,9 @@ export default function MissionControlPage() {
         const actionsJson = await actionsRes.json();
         setActions(actionsJson.actions || []);
       }
-      if (guardRes.ok) setGuardData(await guardRes.json());
-      if (assumptionsRes.ok) {
-        const assumptionsJson = await assumptionsRes.json();
-        setAssumptions(assumptionsJson.assumptions || []);
+      if (pendingRes.ok) {
+        const pendingJson = await pendingRes.json();
+        setPendingActions(pendingJson.actions || []);
       }
     } catch (error) {
       console.error('Mission Control fetch error:', error);
@@ -168,13 +202,12 @@ export default function MissionControlPage() {
     }
   }, [agentId, fetchAll]));
 
-  const signalCounts = signals?.counts || { red: 0, amber: 0, total: 0 };
-  const systemState = computeSystemState(signalCounts.red, signalCounts.amber);
+  /* ---------- Derived state ---------- */
 
-  const loopList = loops?.loops || [];
-  const openLoopCount = loops?.total || loopList.length;
-  const criticalLoops = loopList.filter((l) => l.priority === 'critical').length;
-  const highLoops = loopList.filter((l) => l.priority === 'high').length;
+  const signalCounts = signals?.counts || { red: 0, amber: 0, total: 0 };
+  const posture = computePosture(signalCounts.red, signalCounts.amber);
+
+  const loopList = useMemo(() => loops?.loops || [], [loops]);
 
   const todayCost = tokens?.today?.estimatedCost || 0;
   const history = tokens?.history || [];
@@ -196,13 +229,56 @@ export default function MissionControlPage() {
   }
 
   const healthStatus = health?.status || 'unknown';
-  const healthColor = healthStatus === 'healthy' ? 'text-emerald-400' : healthStatus === 'degraded' ? 'text-amber-400' : 'text-zinc-500';
   const healthDot = healthStatus === 'healthy' ? 'bg-emerald-500' : healthStatus === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500';
+  const healthLabel = healthStatus === 'healthy' ? 'Healthy' : healthStatus === 'degraded' ? 'Degraded' : 'Unknown';
+  const healthColor = healthStatus === 'healthy' ? 'text-emerald-400' : healthStatus === 'degraded' ? 'text-amber-400' : 'text-zinc-500';
+
   const lastActivity = actions[0]?.timestamp_start || loopList[0]?.created_at || null;
   const fleetCount = agents.length;
-  const guardDecisions = guardData?.decisions || [];
-  const brief = buildOperatorBrief({ actions, loops: loopList, guardDecisions, assumptions });
-  const recentDigest = buildRecentChangesDigest({ actions, loops: loopList, guardDecisions, assumptions });
+
+  // Intervention card data
+  const interventions = useMemo(
+    () => buildInterventionList(pendingActions, loopList),
+    [pendingActions, loopList]
+  );
+  const hasPendingApprovals = pendingActions.length > 0;
+  const interventionBorder = hasPendingApprovals
+    ? 'border-l-red-500'
+    : interventions.length > 0
+      ? 'border-l-amber-500'
+      : 'border-l-emerald-500/30';
+
+  // Fleet: identify degraded agents by cross-referencing loops + recent actions
+  const criticalAgentIds = useMemo(() => {
+    const ids = new Set();
+    for (const loop of loopList) {
+      if (loop.priority === 'critical' && loop.agent_id) ids.add(loop.agent_id);
+    }
+    return ids;
+  }, [loopList]);
+
+  const failedAgentIds = useMemo(() => {
+    const ids = new Set();
+    const seen = new Set();
+    for (const action of actions) {
+      if (!action.agent_id || seen.has(action.agent_id)) continue;
+      seen.add(action.agent_id);
+      if (action.status === 'failed' || action.status === 'blocked') {
+        ids.add(action.agent_id);
+      }
+    }
+    return ids;
+  }, [actions]);
+
+  const sortedAgents = useMemo(() => {
+    return [...agents].sort((a, b) => {
+      const aDegraded = criticalAgentIds.has(a.agent_id) || failedAgentIds.has(a.agent_id) || a.status === 'degraded' || a.status === 'blocked';
+      const bDegraded = criticalAgentIds.has(b.agent_id) || failedAgentIds.has(b.agent_id) || b.status === 'degraded' || b.status === 'blocked';
+      if (aDegraded && !bDegraded) return -1;
+      if (!aDegraded && bDegraded) return 1;
+      return 0;
+    });
+  }, [agents, criticalAgentIds, failedAgentIds]);
 
   const actionButton = (
     <Link
@@ -216,103 +292,126 @@ export default function MissionControlPage() {
   return (
     <PageLayout
       title="Mission Control"
-      subtitle="Operational clarity for agent decisions, interventions, and outcomes"
+      subtitle="Fleet posture, interventions, and decision intelligence"
       breadcrumbs={['Mission Control']}
       actions={actionButton}
     >
-      <div className="mb-6 rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.008))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
-        <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Badge variant={systemState.label === 'STABLE' ? 'success' : systemState.label === 'REVIEWING' || systemState.label === 'DRIFTING' ? 'warning' : 'error'} size="sm">
-            {loading ? 'Loading' : systemState.label}
-          </Badge>
-          <div className="text-sm text-zinc-300">
-            DashClaw highlights the decisions that changed operator posture, not every background heartbeat.
-          </div>
-        </div>
+      {/* ═══ BAND 1: Command Strip ═══ */}
+      {loading ? <CommandStripSkeleton /> : (
+        <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">
+          <div className="flex flex-wrap items-center gap-y-2 divide-x divide-border/50">
+            {/* System Posture */}
+            <div className="flex items-center gap-2 pr-5">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">Posture</span>
+              <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 ${posture.bg} ${posture.border}`}>
+                <span className={`h-2 w-2 rounded-full ${posture.dot} ${posture.pulse ? 'animate-pulse' : ''}`} />
+                <span className={`text-xs font-semibold uppercase tracking-widest ${posture.text}`}>
+                  {posture.label}
+                </span>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
-          <BriefColumn
-            title="Needs Attention"
-            icon={AlertTriangle}
-            items={brief.needsAttention}
-            emptyLabel="No blocked decisions, approval holds, or critical loops need operator action right now."
-            href="/dashboard"
-          />
-          <BriefColumn
-            title="Currently Running"
-            icon={PlayCircle}
-            items={brief.running}
-            emptyLabel="No governed work is actively running or waiting on approval right now. New in-flight decisions will appear here."
-            href="/actions"
-          />
-          <BriefColumn
-            title="Recent Outcomes"
-            icon={CheckCircle2}
-            items={brief.recentOutcomes}
-            emptyLabel="Completed and failed decisions will land here with their final outcome summaries."
-            href="/actions"
-          />
-          <BriefColumn
-            title="Interventions"
-            icon={Shield}
-            items={brief.interventions}
-            emptyLabel="Approval requests, warnings, and open governance loops will appear here as soon as policy steps in."
-            href="/security"
-          />
-        </div>
-      </div>
+            {/* Fleet count */}
+            <div className="flex items-center gap-2 px-5">
+              <Users size={14} className="text-zinc-500" />
+              <span className="text-sm font-medium tabular-nums text-white">{fleetCount}</span>
+              <span className="text-xs text-zinc-500">agents</span>
+            </div>
 
-      <MissionControlRecentDigest digest={recentDigest} />
+            {/* DB Health */}
+            <div className="flex items-center gap-2 px-5">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">DB Health</span>
+              <span className={`h-2 w-2 rounded-full ${healthDot}`} />
+              <span className={`text-sm font-medium ${healthColor}`}>{healthLabel}</span>
+            </div>
 
-      <MissionControlOperatorLens
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        showTelemetry={showTelemetry}
-        onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
-      />
+            {/* Active interventions */}
+            <div className="flex items-center gap-2 px-5">
+              <Activity size={14} className="text-zinc-500" />
+              <span className="text-sm font-medium tabular-nums text-white">{interventions.length}</span>
+              <span className="text-xs text-zinc-500">{interventions.length === 1 ? 'intervention' : 'interventions'}</span>
+            </div>
 
-      <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${systemState.bg} ${systemState.border}`}>
-              <Activity size={11} className={`${systemState.color} ${systemState.pulse ? 'animate-pulse' : ''}`} />
-              <span className={`text-xs font-semibold tracking-wider ${systemState.color}`}>
-                {loading ? '...' : systemState.label}
-              </span>
+            {/* Last activity */}
+            <div className="flex items-center gap-2 pl-5">
+              <Clock size={14} className="text-zinc-500" />
+              <span className="text-sm text-zinc-400">{formatRelativeTime(lastActivity)}</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <Users size={14} className="text-zinc-500" />
-            <span className="tabular-nums text-sm font-medium text-white">{fleetCount}</span>
-            <span className="text-xs text-zinc-500">agents</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${healthDot}`} />
-            <span className={`text-sm font-medium ${healthColor}`}>
-              {loading ? '...' : healthStatus === 'healthy' ? 'Healthy' : healthStatus === 'degraded' ? 'Degraded' : 'Unknown'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Clock size={14} className="text-zinc-500" />
-            <span className="text-sm text-zinc-400">{loading ? '...' : formatRelativeTime(lastActivity)}</span>
-          </div>
         </div>
-      </div>
+      )}
 
+      {/* ═══ BAND 2: Signal Quadrants ═══ */}
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Card 1 — Intervention Required */}
+        <Card className={`border-l-4 ${interventionBorder} !bg-surface-secondary`} hover={false}>
+          <div className="p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Intervention Required</span>
+              {interventions.length > 0 && (
+                <Link href="/approvals" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                  Queue <ArrowRight size={10} />
+                </Link>
+              )}
+            </div>
+            {loading ? <InterventionSkeleton /> : interventions.length === 0 ? (
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-500/60" />
+                <span className="text-sm text-zinc-400">No action required</span>
+              </div>
+            ) : (
+              <>
+                <div className="mb-3 text-3xl font-bold tabular-nums text-white">{interventions.length}</div>
+                <div className="space-y-1">
+                  {interventions.slice(0, 4).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-white/5"
+                    >
+                      <Badge
+                        variant={item.kind === 'approval' ? 'error' : 'warning'}
+                        size="xs"
+                      >
+                        {item.kind === 'approval' ? 'Approval' : 'Loop'}
+                      </Badge>
+                      <span className={`max-w-[72px] shrink-0 truncate rounded border px-1 py-0.5 text-[10px] ${getAgentColor(item.agentId)}`}>
+                        {(item.agentName || '').substring(0, 12) || item.agentId?.substring(0, 8) || 'system'}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-zinc-300">
+                        {truncateText(item.description, 60)}
+                      </span>
+                      <ArrowRight size={10} className="shrink-0 text-zinc-600" />
+                    </Link>
+                  ))}
+                  {interventions.length > 4 && (
+                    <Link href="/approvals" className="block px-2 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                      +{interventions.length - 4} more
+                    </Link>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </Card>
+
+        {/* Card 2 — Risk Signals */}
         <Card>
-          <CardHeader title="Risk Signals" icon={ShieldAlert}>
-            <Link href="/security" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
-              View all <ArrowRight size={10} />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {loading ? <ListSkeleton rows={2} /> : (
-              <div>
-                <div className="mb-2 text-3xl font-bold text-white tabular-nums">{signalCounts.total}</div>
+          <div className="p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Risk Signals</span>
+              <Link href="/security" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                View <ArrowRight size={10} />
+              </Link>
+            </div>
+            {loading ? <MetricSkeleton /> : signalCounts.total === 0 ? (
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-500/60" />
+                <span className="text-sm text-zinc-400">No signals</span>
+              </div>
+            ) : (
+              <>
+                <div className="mb-2 text-3xl font-bold tabular-nums text-white">{signalCounts.total}</div>
                 <div className="flex items-center gap-3 text-xs">
                   {signalCounts.red > 0 && (
                     <span className="flex items-center gap-1">
@@ -326,125 +425,107 @@ export default function MissionControlPage() {
                       <span className="font-medium text-amber-400">{signalCounts.amber} amber</span>
                     </span>
                   )}
-                  {signalCounts.red === 0 && signalCounts.amber === 0 && (
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck size={12} className="text-emerald-500" />
-                      <span className="text-emerald-400">All clear</span>
-                    </span>
-                  )}
                 </div>
-              </div>
+              </>
             )}
-          </CardContent>
+          </div>
         </Card>
 
+        {/* Card 3 — Cost Velocity */}
         <Card>
-          <CardHeader title="Open Loops" icon={CircleDot}>
-            <Link href="/dashboard" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
-              View all <ArrowRight size={10} />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {loading ? <ListSkeleton rows={3} /> : (
-              <div>
-                <div className="mb-2 text-3xl font-bold text-white tabular-nums">{openLoopCount}</div>
-                <div className="mb-3 flex items-center gap-3 text-xs">
-                  {criticalLoops > 0 && <span className="font-medium text-red-400">{criticalLoops} critical</span>}
-                  {highLoops > 0 && <span className="font-medium text-amber-400">{highLoops} high</span>}
-                  {criticalLoops === 0 && highLoops === 0 && openLoopCount > 0 && (
-                    <span className="text-zinc-500">No critical/high</span>
-                  )}
-                </div>
-                {loopList.slice(0, 3).map((loop) => (
-                  <div key={loop.loop_id} className="mb-1 truncate text-xs text-zinc-400">
-                    {loop.description || loop.loop_type || 'Unnamed loop'}
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader title="Cost Velocity" icon={DollarSign}>
-            <Link href="/usage" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
-              Details <ArrowRight size={10} />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {loading ? <ListSkeleton rows={2} /> : (
-              <div>
-                <div className="mb-1 text-3xl font-bold text-white tabular-nums">{formatCost(todayCost)}</div>
-                <div className="mb-3 text-[10px] uppercase tracking-wider text-zinc-500">Today&#39;s spend</div>
-                {projectedCost !== null && (
+          <div className="p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Cost Velocity</span>
+              <Link href="/usage" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                Details <ArrowRight size={10} />
+              </Link>
+            </div>
+            {loading ? <MetricSkeleton /> : (
+              <>
+                <div className="mb-1 text-3xl font-bold tabular-nums text-white">{formatCost(todayCost)}</div>
+                {projectedCost !== null ? (
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-zinc-500">24h projection</span>
-                    <span className="font-medium text-zinc-300 tabular-nums">{formatCost(projectedCost)}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-medium tabular-nums text-zinc-300">{formatCost(projectedCost)}</span>
+                      {trendDirection === 'up' && <TrendingUp size={12} className="text-amber-400" />}
+                      {trendDirection === 'down' && <TrendingDown size={12} className="text-emerald-400" />}
+                      {trendDirection === null && <Minus size={12} className="text-zinc-500" />}
+                    </div>
                   </div>
+                ) : (
+                  <div className="text-xs text-zinc-600">No projection until data exists</div>
                 )}
                 {trendDirection && (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-xs">
-                    {trendDirection === 'up' ? (
-                      <TrendingUp size={12} className="text-amber-400" />
-                    ) : (
-                      <TrendingDown size={12} className="text-emerald-400" />
-                    )}
-                    <span className={trendDirection === 'up' ? 'text-amber-400' : 'text-emerald-400'}>
-                      vs 7-day avg
-                    </span>
-                  </div>
+                  <div className="mt-1 text-[10px] text-zinc-500">vs 7-day avg</div>
                 )}
-              </div>
+              </>
             )}
-          </CardContent>
+          </div>
         </Card>
 
+        {/* Card 4 — Fleet Status */}
         <Card>
-          <CardHeader title="Fleet Status" icon={Radar}>
-            <Link href="/swarm" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
-              Manage <ArrowRight size={10} />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {loading ? <ListSkeleton rows={4} /> : agents.length === 0 ? (
-              <EmptyState
-                icon={Users}
-                title="No agents registered"
-                description="Register an agent to turn Mission Control into a live decision ledger with approvals, loops, and outcomes."
-              />
+          <div className="p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Fleet Status</span>
+              <Link href="/swarm" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                Manage <ArrowRight size={10} />
+              </Link>
+            </div>
+            {loading ? <MetricSkeleton /> : agents.length === 0 ? (
+              <div className="text-sm text-zinc-500">No agents connected</div>
             ) : (
-              <div className="max-h-[200px] space-y-1.5 overflow-y-auto pr-1">
-                {agents.slice(0, 8).map((agent) => (
-                  <div key={agent.agent_id} className="flex items-center gap-2 py-1">
-                    <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-500" />
-                    <span className="flex-1 truncate text-xs text-zinc-300">{agent.name || agent.agent_id}</span>
-                    <span className="flex-shrink-0 text-[10px] text-zinc-600 tabular-nums">
-                      {formatRelativeTime(agent.last_heartbeat || agent.created_at)}
-                    </span>
-                  </div>
-                ))}
-                {agents.length > 8 && (
-                  <div className="pt-1 text-[10px] text-zinc-600">+{agents.length - 8} more</div>
+              <div className="space-y-1.5">
+                {sortedAgents.slice(0, 5).map((agent) => {
+                  const isCritical = criticalAgentIds.has(agent.agent_id);
+                  const isDegraded = isCritical || failedAgentIds.has(agent.agent_id) || agent.status === 'degraded' || agent.status === 'blocked';
+                  return (
+                    <Link
+                      key={agent.agent_id}
+                      href={`/workspace?agent=${encodeURIComponent(agent.agent_id)}`}
+                      className="flex items-center gap-2 rounded-lg px-1 py-0.5 transition-colors hover:bg-white/5"
+                    >
+                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-amber-500' : 'bg-emerald-500/40'}`} />
+                      <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-amber-300' : 'text-zinc-500'}`}>
+                        {agent.name || agent.agent_id}
+                      </span>
+                      {isCritical && <AlertTriangle size={10} className="shrink-0 text-red-400" />}
+                    </Link>
+                  );
+                })}
+                {agents.length > 5 && (
+                  <Link href="/swarm" className="block px-1 text-[10px] text-zinc-600 transition-colors hover:text-zinc-400">
+                    +{agents.length - 5} more
+                  </Link>
                 )}
               </div>
             )}
-          </CardContent>
+          </div>
         </Card>
       </div>
 
-      <div className="grid h-[640px] grid-cols-1 gap-6 lg:grid-cols-2">
-        <ActivityTimeline
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-          showTelemetry={showTelemetry}
-          onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
-        />
-        <SwarmActivityLog
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-          showTelemetry={showTelemetry}
-          onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
-        />
+      {/* ═══ BAND 3: Activity Split (60/40) ═══ */}
+      <div className="grid h-[640px] grid-cols-1 gap-4 lg:grid-cols-5">
+        {/* Decision Timeline (60%) */}
+        <div className="lg:col-span-3">
+          <ActivityTimeline
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            showTelemetry={showTelemetry}
+            onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
+          />
+        </div>
+
+        {/* Mission Feed (40%) */}
+        <div className="lg:col-span-2">
+          <SwarmActivityLog
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            showTelemetry={showTelemetry}
+            onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
+          />
+        </div>
       </div>
     </PageLayout>
   );

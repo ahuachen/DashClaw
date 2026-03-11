@@ -771,6 +771,10 @@ Test in browser:
 - Dashboard should show ~75 agents in agent filter dropdown
 - Actions table should show educational content in tutorial agent actions
 - Messages page should show tutorial threads
+- Opening a thread should show message body text, not blank rows
+- Copying a thread message should copy rendered content, not `undefined`
+- Opening shared docs from `Messages` should render without a client-side exception
+- Policies should render in demo mode without field-shape errors
 - HelpIcon (?) should appear on section headers
 - Clicking (?) shows tip, "Got it" dismisses
 - Realistic agents should show normal-looking data

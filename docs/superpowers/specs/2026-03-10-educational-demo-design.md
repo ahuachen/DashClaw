@@ -268,6 +268,17 @@ app/lib/demo/
 
 `getDemoFixtures()` returns the same shape it does today. The orchestrator merges agent arrays, action arrays, etc. from all modules. No middleware changes needed — all existing demo handlers read from `getDemoFixtures()` as before.
 
+Implementation note added March 11, 2026:
+
+- Internal fixture modules may use more expressive authoring fields for educational content.
+- Public demo responses must still match the production dashboard contract.
+- Normalize fixture aliases at the demo API boundary, for example:
+  - messages: `sender_id` -> `from_agent_id`, `type` -> `message_type`, `content` -> `body`
+  - threads: `subject` -> `name`
+  - docs: `title` -> `name`
+  - policies: `type` -> `policy_type`, `config` -> `rules`
+- Do not push this aliasing burden into the user-facing page components as a second long-term schema.
+
 ### Scale Changes
 
 | Data | Current | New |
