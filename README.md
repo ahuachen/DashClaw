@@ -12,7 +12,7 @@
 
   <br /><br />
 
-  <img src="screenshots/Mission%20Control2.png" alt="DashClaw Mission Control dashboard" width="1000" />
+  <img src="screenshots/Mission%20Control3.png" alt="DashClaw Mission Control dashboard" width="1000" />
 </div>
 
 <br />

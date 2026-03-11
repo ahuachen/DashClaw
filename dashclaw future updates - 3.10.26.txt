@@ -1,3 +1,0 @@
-- update the "copy agent prompt" after you create an API key because it wants you to clone the repo when it's easier to download the skill with the better bootstrap script. Also add a download skill option somewhere in the dashboard or multiple places probably.
-- do a deep dive of all the shit you built at the beginning and think about how it probably is broken now somehow.
-- fix the "active agents" thing right now it shows 0/4 online even though MoltFire and Cinder are both online and currently adding decisions to the dashboard
