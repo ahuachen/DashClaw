@@ -11,6 +11,8 @@ const {
     { table_name: 'guard_decisions' },
     { table_name: 'api_keys' },
     { table_name: 'org_members' },
+    { table_name: 'settings' },
+    { table_name: 'policies' },
   ]), { query: vi.fn(async () => []) }),
   mockIsEmbeddingsEnabled: vi.fn(),
   mockGetRealtimeHealth: vi.fn(),
@@ -34,6 +36,8 @@ beforeEach(() => {
     { table_name: 'guard_decisions' },
     { table_name: 'api_keys' },
     { table_name: 'org_members' },
+    { table_name: 'settings' },
+    { table_name: 'policies' },
   ]);
   mockIsEmbeddingsEnabled.mockReturnValue(false);
   mockGetRealtimeHealth.mockResolvedValue({ status: 'healthy', backend: 'redis' });

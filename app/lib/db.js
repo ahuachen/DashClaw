@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import postgres from 'postgres';
 import './validateEnv.js';
+import { startupSchemaCheck } from './schemaCheck.js';
 
 // Use globalThis to survive Next.js dev mode hot reloads.
 // Without this, each HMR re-evaluation creates a new connection pool
@@ -63,6 +64,7 @@ export function getSql() {
 
   if (shouldUseNeon) {
     _setSql(neon(url));
+    void startupSchemaCheck(_getSql());
     return _getSql();
   }
 
@@ -80,5 +82,6 @@ export function getSql() {
   sql.end = async (opts) => client.end(opts);
 
   _setSql(sql);
+  void startupSchemaCheck(_getSql());
   return _getSql();
 }

@@ -33,6 +33,8 @@ describe('/api/health core table checks', () => {
       { table_name: 'guard_decisions' },
       { table_name: 'api_keys' },
       { table_name: 'org_members' },
+      { table_name: 'settings' },
+      { table_name: 'policies' },
     ]);
 
     const res = await GET(makeRequest('http://localhost/api/health'));
@@ -44,7 +46,7 @@ describe('/api/health core table checks', () => {
   it('returns degraded when some core tables are missing', async () => {
     mockSql.mockResolvedValue([
       { table_name: 'action_records' },
-      // guard_decisions, api_keys, org_members missing
+      // guard_decisions, api_keys, org_members, settings, policies missing
     ]);
 
     const res = await GET(makeRequest('http://localhost/api/health'));
@@ -52,7 +54,7 @@ describe('/api/health core table checks', () => {
     const data = await res.json();
     expect(data.status).toBe('degraded');
     expect(data.checks.database.status).toBe('degraded');
-    expect(data.checks.database.missing_tables).toBe(3);
+    expect(data.checks.database.missing_tables).toBe(5);
   });
 
   it('returns degraded when no core tables exist (fresh DB)', async () => {
@@ -62,7 +64,7 @@ describe('/api/health core table checks', () => {
     expect(res.status).toBe(503);
     const data = await res.json();
     expect(data.checks.database.status).toBe('degraded');
-    expect(data.checks.database.missing_tables).toBe(4);
+    expect(data.checks.database.missing_tables).toBe(6);
   });
 
   it('returns unhealthy when DB query throws', async () => {

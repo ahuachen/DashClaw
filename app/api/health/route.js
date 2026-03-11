@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSql } from '../../lib/db.js';
 import { isEmbeddingsEnabled } from '../../lib/embeddings.js';
 import { getRealtimeHealth } from '../../lib/events.js';
+import { checkCoreTables } from '../../lib/schemaCheck.js';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -28,16 +29,10 @@ export async function GET() {
   // Check database connection and core table existence
   try {
     const sql = getSql();
-    const coreTables = ['action_records', 'guard_decisions', 'api_keys', 'org_members'];
-    const tableCheck = await sql`
-      SELECT table_name FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = ANY(${coreTables})
-    `;
-    const foundTables = tableCheck.map(r => r.table_name);
-    const missingTables = coreTables.filter(t => !foundTables.includes(t));
-    if (missingTables.length > 0) {
+    const { ok, missing } = await checkCoreTables(sql);
+    if (!ok) {
       health.status = 'degraded';
-      health.checks.database = { status: 'degraded', missing_tables: missingTables.length };
+      health.checks.database = { status: 'degraded', missing_tables: missing.length };
     } else {
       health.checks.database = { status: 'healthy' };
     }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
+import { checkCoreTables } from '../../../lib/schemaCheck.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,26 +8,20 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const sql = getSql();
-    
-    // Check if settings table exists
-    const tables = await sql`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name = 'settings'
-    `;
+    const { ok, missing } = await checkCoreTables(sql);
 
-    if (tables.length === 0) {
-      return NextResponse.json({ 
-        configured: false, 
+    if (!ok) {
+      return NextResponse.json({
+        configured: false,
         reason: 'no_tables',
-        message: 'Database tables not created' 
+        message: `Missing ${missing.length} core table(s). Run migrations.`,
+        missing_tables: missing.length,
       });
     }
 
-    // All good!
-    return NextResponse.json({ 
+    return NextResponse.json({
       configured: true,
-      message: 'Dashboard is configured' 
+      message: 'Dashboard is configured'
     });
 
   } catch (error) {
