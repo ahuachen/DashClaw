@@ -1,6 +1,6 @@
 import { lcg, pick, int, isoFromNow, stableId, DEMO_ORG, MS_HOUR, MS_DAY } from './shared-utils.js';
 
-const rnd = lcg(0xDAY10001);
+const rnd = lcg(0xDA010001);
 
 const agents = [
   { agent_id: 'day-1-what-is-dashclaw',      agent_name: 'Day 1: What is DashClaw?' },

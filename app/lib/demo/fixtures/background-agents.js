@@ -1,6 +1,6 @@
 import { lcg, pick, int, isoFromNow, stableId, DEMO_ORG, MS_HOUR, MS_DAY } from './shared-utils.js';
 
-const rnd = lcg(0xBACK0001);
+const rnd = lcg(0xBAC00001);
 
 const agentDefs = [
   { id: 'cache-manager',     name: 'cache-manager' },

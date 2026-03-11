@@ -1,6 +1,6 @@
 import { lcg, pick, int, isoFromNow, stableId, DEMO_ORG, MS_HOUR, MS_DAY } from './shared-utils.js';
 
-const rnd = lcg(0xFEAT0001);
+const rnd = lcg(0xFEA00001);
 
 /* ------------------------------------------------------------------ */
 /*  Agent definitions – 28 feature deep-dive tutorial agents          */

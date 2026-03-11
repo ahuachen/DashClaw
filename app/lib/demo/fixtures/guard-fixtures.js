@@ -1,6 +1,6 @@
 import { lcg, pick, int, isoFromNow, stableId, DEMO_ORG, MS_HOUR, MS_DAY } from './shared-utils.js';
 
-const rnd = lcg(0xGUARD001);
+const rnd = lcg(0x60A8D001);
 
 /* ---------- agent pool (realistic + tutorial mix) ---------- */
 

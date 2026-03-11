@@ -1,6 +1,6 @@
 import { lcg, pick, int, isoFromNow, stableId, DEMO_ORG, MS_HOUR, MS_DAY } from './shared-utils.js';
 
-const rnd = lcg(0xREAL0001);
+const rnd = lcg(0xBEA10001);
 
 const agentDefs = [
   { id: 'deploy-bot', name: 'deploy-bot' },
