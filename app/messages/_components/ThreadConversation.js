@@ -183,8 +183,11 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
           <div className="text-center text-zinc-500 py-8 text-sm">No messages in this thread yet.</div>
         ) : (
           messages.map((msg, idx) => {
-            const agentColor = getAgentColor(msg.from_agent_id);
-            const isDashboard = msg.from_agent_id === 'dashboard' || msg.from_agent_id === (filterAgentId || 'dashboard');
+            const fromAgentId = msg.from_agent_id || msg.sender_id || 'unknown';
+            const messageType = msg.message_type || msg.type || 'info';
+            const body = msg.body ?? msg.content ?? '';
+            const agentColor = getAgentColor(fromAgentId);
+            const isDashboard = fromAgentId === 'dashboard' || fromAgentId === (filterAgentId || 'dashboard');
             const prevDate = idx > 0 ? formatDateGroup(messages[idx - 1].created_at) : null;
             const curDate = formatDateGroup(msg.created_at);
             const showDateSep = curDate && curDate !== prevDate;
@@ -205,9 +208,9 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                   </div>
                   <div className={`flex-1 min-w-0 ${fullWidth ? 'max-w-[75%]' : 'max-w-[85%]'} ${isDashboard ? 'text-right' : ''}`}>
                     <div className={`flex items-center gap-1.5 mb-0.5 ${isDashboard ? 'justify-end' : ''}`}>
-                      <span className="text-xs font-medium text-zinc-300">{msg.from_agent_id}</span>
-                      <Badge variant={TYPE_VARIANTS[msg.message_type] || 'default'} size="xs">
-                        {msg.message_type}
+                      <span className="text-xs font-medium text-zinc-300">{fromAgentId}</span>
+                      <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
+                        {messageType}
                       </Badge>
                       {msg.urgent && <AlertCircle size={10} className="text-red-400" />}
                       <span className="text-xs text-zinc-600">{timeAgo(msg.created_at)}</span>
@@ -217,12 +220,12 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                         ? 'bg-brand/10 border border-brand/20'
                         : 'bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]'
                     } ${msg._optimistic ? 'opacity-60' : ''}`}>
-                      <MarkdownBody content={msg.body} />
+                      <MarkdownBody content={body} />
                       <AttachmentChips attachments={msg.attachments} compact />
                       {!msg._optimistic && (
                         <button
                           onClick={async () => {
-                            const ok = await copyToClipboard(msg.body);
+                            const ok = await copyToClipboard(body);
                             if (ok) { setCopiedId(msg.id); setTimeout(() => setCopiedId(null), 2000); }
                           }}
                           className={`absolute top-1.5 ${isDashboard ? 'left-1.5' : 'right-1.5'} opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-[rgba(0,0,0,0.3)] text-zinc-400 hover:text-zinc-200`}

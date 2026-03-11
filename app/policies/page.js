@@ -86,10 +86,11 @@ const DECISION_COLORS = {
 };
 
 function formatRules(policy) {
+  const policyType = policy.policy_type || policy.type;
   let rules;
-  try { rules = JSON.parse(policy.rules); } catch { return 'Invalid rules'; }
+  try { rules = JSON.parse(policy.rules || policy.config || '{}'); } catch { return 'Invalid rules'; }
 
-  switch (policy.policy_type) {
+  switch (policyType) {
     case 'risk_threshold':
       return `Risk >= ${rules.threshold} → ${rules.action || 'block'}`;
     case 'require_approval':
@@ -752,7 +753,7 @@ export default function PoliciesPage() {
                       <Badge variant={policy.active ? 'success' : 'muted'}>
                         {policy.active ? 'active' : 'inactive'}
                       </Badge>
-                      <Badge variant="info">{policy.policy_type.replace(/_/g, ' ')}</Badge>
+                      <Badge variant="info">{(policy.policy_type || policy.type || 'custom_policy').replace(/_/g, ' ')}</Badge>
                     </div>
                     <p className="text-xs text-zinc-400">{formatRules(policy)}</p>
                     <p className="text-xs text-zinc-600 mt-0.5 font-mono">{policy.id}</p>
@@ -760,7 +761,7 @@ export default function PoliciesPage() {
                   {canEdit && (
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
-                        onClick={() => handleSimulate(JSON.parse(policy.rules), policy.policy_type)}
+                        onClick={() => handleSimulate(JSON.parse(policy.rules || policy.config || '{}'), policy.policy_type || policy.type)}
                         className="text-zinc-500 hover:text-brand transition-colors p-1"
                         title="Simulate historical impact"
                         disabled={simulating}

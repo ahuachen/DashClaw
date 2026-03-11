@@ -15,13 +15,14 @@ export default function DocDetail({ doc }) {
   const [copied, setCopied] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
-
-  const safeFilename = doc.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const docName = doc.name || doc.title || 'Untitled document';
+  const docContent = doc.content || '';
+  const safeFilename = docName.replace(/[^a-zA-Z0-9_-]/g, '_');
 
   async function handleExport(format) {
     setShowExportMenu(false);
     if (format === 'md') {
-      const blob = new Blob([doc.content], { type: 'text/markdown' });
+      const blob = new Blob([docContent], { type: 'text/markdown' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -34,9 +35,9 @@ export default function DocDetail({ doc }) {
     setExporting(true);
     try {
       const { exportToPdf, exportToWord, exportToExcel } = await import('../../lib/docExport');
-      if (format === 'pdf') await exportToPdf(doc.content, safeFilename);
-      else if (format === 'docx') await exportToWord(doc.content, safeFilename);
-      else if (format === 'xlsx') await exportToExcel(doc.content, safeFilename);
+      if (format === 'pdf') await exportToPdf(docContent, safeFilename);
+      else if (format === 'docx') await exportToWord(docContent, safeFilename);
+      else if (format === 'xlsx') await exportToExcel(docContent, safeFilename);
     } catch (err) {
       console.error('Export failed:', err);
     } finally {
@@ -45,19 +46,22 @@ export default function DocDetail({ doc }) {
   }
 
   async function handleCopy() {
-    const ok = await copyToClipboard(doc.content);
-    if (ok) { setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    const ok = await copyToClipboard(docContent);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }
 
   return (
     <div>
-      <h4 className="text-sm font-semibold text-white mb-1">{doc.name}</h4>
+      <h4 className="text-sm font-semibold text-white mb-1">{docName}</h4>
       <div className="flex items-center gap-2 mb-2">
         <Badge variant="info" size="xs">v{doc.version}</Badge>
         <span className="text-xs text-zinc-500">by {doc.last_edited_by || doc.created_by}</span>
       </div>
       <div className="bg-[rgba(255,255,255,0.02)] rounded-md p-3 mb-2 max-h-[400px] overflow-y-auto">
-        <MarkdownBody content={doc.content} />
+        <MarkdownBody content={docContent} />
       </div>
       <div className="flex items-center gap-2 mb-2">
         <div className="relative">
@@ -72,7 +76,7 @@ export default function DocDetail({ doc }) {
           </button>
           {showExportMenu && (
             <div className="absolute left-0 top-full mt-1 w-44 bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-lg shadow-xl z-50 py-1">
-              {EXPORT_FORMATS.map(fmt => (
+              {EXPORT_FORMATS.map((fmt) => (
                 <button
                   key={fmt.id}
                   onClick={() => handleExport(fmt.id)}
@@ -93,8 +97,8 @@ export default function DocDetail({ doc }) {
         </button>
       </div>
       <div className="text-xs text-zinc-600">
-        Created {new Date(doc.created_at).toLocaleString()}
-        {doc.updated_at !== doc.created_at && ` · Updated ${timeAgo(doc.updated_at)}`}
+        Created {doc.created_at ? new Date(doc.created_at).toLocaleString() : 'unknown'}
+        {doc.updated_at && doc.updated_at !== doc.created_at && ` | Updated ${timeAgo(doc.updated_at)}`}
       </div>
     </div>
   );

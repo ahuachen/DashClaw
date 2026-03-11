@@ -33,7 +33,7 @@ export default function DocList({ docs, onSelect, selectedId }) {
               <FileText size={14} className="text-zinc-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-zinc-200 truncate block">{doc.name}</span>
+              <span className="text-sm font-medium text-zinc-200 truncate block">{doc.name || doc.title || 'Untitled document'}</span>
               <div className="text-xs text-zinc-500 mt-0.5">
                 v{doc.version} · by {doc.last_edited_by || doc.created_by}
               </div>

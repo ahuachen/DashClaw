@@ -35,7 +35,7 @@ export default function ThreadList({ threads, onSelect, selectedId }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-zinc-200 truncate">{thread.name}</span>
+                <span className="text-sm font-medium text-zinc-200 truncate">{thread.name || thread.subject || 'Untitled thread'}</span>
                 <Badge variant={thread.status === 'open' ? 'success' : 'default'} size="xs">
                   {thread.status}
                 </Badge>

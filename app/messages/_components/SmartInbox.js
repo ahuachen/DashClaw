@@ -8,7 +8,11 @@ import { timeAgo, TYPE_VARIANTS } from './helpers';
 import MessageActionMenu from './MessageActionMenu';
 
 function MessageRow({ msg, onSelect, selectedId, onReply, onMarkRead, onArchive }) {
-  const agentColor = getAgentColor(msg.from_agent_id);
+  const fromAgentId = msg.from_agent_id || msg.sender_id || 'unknown';
+  const toAgentId = msg.to_agent_id ?? null;
+  const messageType = msg.message_type || msg.type || 'info';
+  const body = msg.body ?? msg.content ?? '';
+  const agentColor = getAgentColor(fromAgentId);
   const isUnread = !msg.is_read && msg.status === 'sent';
   return (
     <div
@@ -27,12 +31,12 @@ function MessageRow({ msg, onSelect, selectedId, onReply, onMarkRead, onArchive 
           {isUnread && <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />}
           {msg.urgent && <AlertCircle size={10} className="text-red-400 flex-shrink-0" />}
           <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-zinc-300'}`}>
-            {msg.from_agent_id}
+            {fromAgentId}
           </span>
-          <Badge variant={TYPE_VARIANTS[msg.message_type] || 'default'} size="xs">
-            {msg.message_type}
+          <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
+            {messageType}
           </Badge>
-          {!msg.to_agent_id && (
+          {!toAgentId && (
             <Badge variant="secondary" size="xs">
               <Users size={10} className="mr-0.5" /> broadcast
             </Badge>
@@ -42,7 +46,7 @@ function MessageRow({ msg, onSelect, selectedId, onReply, onMarkRead, onArchive 
           )}
         </div>
         {msg.subject && <div className="text-sm text-zinc-200 truncate mt-0.5">{msg.subject}</div>}
-        <div className="text-xs text-zinc-500 truncate mt-0.5">{msg.body}</div>
+        <div className="text-xs text-zinc-500 truncate mt-0.5">{body}</div>
       </div>
       <div className="flex flex-col items-end gap-1 flex-shrink-0">
         <span className="text-xs text-zinc-600">{timeAgo(msg.created_at)}</span>
@@ -93,7 +97,10 @@ export default function SmartInbox({ messages, onSelect, selectedId, onReply, on
     );
   }
 
-  const needsInput = messages.filter(m => m.message_type === 'question' || m.message_type === 'action');
+  const needsInput = messages.filter((m) => {
+    const messageType = m.message_type || m.type;
+    return messageType === 'question' || messageType === 'action';
+  });
   const needsInputIds = new Set(needsInput.map(m => m.id));
   const urgent = messages.filter(m => m.urgent && !needsInputIds.has(m.id));
   const urgentIds = new Set(urgent.map(m => m.id));

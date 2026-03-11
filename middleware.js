@@ -255,7 +255,77 @@ function demoTokens(fixtures) {
 
 
 function demoPolicies(fixtures) {
-  return { policies: fixtures.policies || [] };
+  const policies = (fixtures.policies || []).map((policy) => ({
+    ...policy,
+    policy_type: policy.policy_type || policy.type || 'custom',
+    rules: policy.rules || policy.config || '{}',
+    active: policy.active === true ? 1 : policy.active === false ? 0 : policy.active ?? 0,
+    updated_at: policy.updated_at || policy.created_at || new Date().toISOString(),
+  }));
+  return { policies };
+}
+
+function parseDemoParticipants(rawParticipants) {
+  try {
+    const parsed = typeof rawParticipants === 'string'
+      ? JSON.parse(rawParticipants || '[]')
+      : rawParticipants;
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeDemoMessageThreads(fixtures) {
+  const messages = fixtures.messages || [];
+
+  return (fixtures.messageThreads || []).map((thread) => {
+    const participants = parseDemoParticipants(thread.participants);
+    const threadMessages = messages.filter((message) => message.thread_id === thread.id);
+    const lastMessageAt = threadMessages
+      .map((message) => message.created_at)
+      .filter(Boolean)
+      .sort((a, b) => b.localeCompare(a))[0] || null;
+
+    return {
+      ...thread,
+      name: thread.name || thread.subject || 'Untitled thread',
+      participants: JSON.stringify(participants),
+      created_by: thread.created_by || participants[0] || null,
+      message_count: thread.message_count ?? threadMessages.length,
+      last_message_at: thread.last_message_at || lastMessageAt,
+    };
+  });
+}
+
+function normalizeDemoMessages(fixtures) {
+  const threadsById = new Map(
+    normalizeDemoMessageThreads(fixtures).map((thread) => [thread.id, parseDemoParticipants(thread.participants)])
+  );
+
+  return (fixtures.messages || []).map((message) => {
+    const participants = threadsById.get(message.thread_id) || [];
+    const fromAgentId = message.from_agent_id || message.sender_id || null;
+    const inferredRecipient = participants.length === 2
+      ? participants.find((participantId) => participantId !== fromAgentId) || null
+      : null;
+    const status = message.status || 'sent';
+
+    return {
+      ...message,
+      from_agent_id: fromAgentId,
+      to_agent_id: message.to_agent_id ?? inferredRecipient,
+      message_type: message.message_type || message.type || 'info',
+      body: message.body ?? message.content ?? '',
+      subject: message.subject || null,
+      urgent: Boolean(message.urgent),
+      status,
+      is_read: message.is_read ?? (status === 'read' || status === 'archived'),
+      attachments: Array.isArray(message.attachments) ? message.attachments : [],
+      read_by: message.read_by || [],
+      demo_direction: message.direction || null,
+    };
+  });
 }
 
 function demoGuard(fixtures, url) {
@@ -294,13 +364,9 @@ function demoMessages(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 500);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  let items = (fixtures.messages || []).slice();
-  if (direction === 'all' || direction === 'thread') {
-    // Return all messages regardless of sender (for thread views)
-  } else if (direction === 'sent') {
-    items = items.filter(m => m.from_agent_id === 'dashboard');
-  } else {
-    items = items.filter(m => m.to_agent_id === 'dashboard' || m.to_agent_id == null);
+  let items = normalizeDemoMessages(fixtures);
+  if (direction === 'sent') {
+    items = items.filter((message) => message.demo_direction === 'outbound');
   }
 
   if (agentId) items = items.filter(m => m.from_agent_id === agentId || m.to_agent_id === agentId);
@@ -311,7 +377,7 @@ function demoMessages(fixtures, url) {
   const total = items.length;
   const paged = items.slice(offset, offset + limit);
 
-  const unreadCount = items.filter(m => m.status === 'sent' && (m.to_agent_id === 'dashboard' || m.to_agent_id == null)).length;
+  const unreadCount = items.filter((message) => !message.is_read && message.demo_direction === 'inbound').length;
   return { messages: paged, total, unread_count: unreadCount };
 }
 
@@ -320,16 +386,11 @@ function demoMessageThreads(fixtures, url) {
   const agentId = sp.get('agent_id') || undefined;
   const limit = Math.min(parseInt(sp.get('limit') || '20', 10), 100);
 
-  let items = (fixtures.messageThreads || []).slice();
+  let items = normalizeDemoMessageThreads(fixtures);
   if (agentId) {
     items = items.filter(t => {
       if (t.created_by === agentId) return true;
-      try {
-        const p = JSON.parse(t.participants || '[]');
-        return Array.isArray(p) && p.includes(agentId);
-      } catch {
-        return false;
-      }
+      return parseDemoParticipants(t.participants).includes(agentId);
     });
   }
 
@@ -342,7 +403,13 @@ function demoMessageDocs(fixtures, url) {
   const search = sp.get('search') || '';
   const limit = Math.min(parseInt(sp.get('limit') || '20', 10), 100);
 
-  let items = (fixtures.sharedDocs || []).slice();
+  let items = (fixtures.sharedDocs || []).map((doc) => ({
+    ...doc,
+    name: doc.name || doc.title || 'Untitled document',
+    content: doc.content || '',
+    last_edited_by: doc.last_edited_by || doc.created_by || null,
+    updated_at: doc.updated_at || doc.created_at || new Date().toISOString(),
+  }));
   if (search) items = items.filter(d => String(d.name || '').toLowerCase().includes(search.toLowerCase()));
   items.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
   return { docs: items.slice(0, limit), total: Math.min(limit, items.length) };
@@ -1580,7 +1647,7 @@ export async function middleware(request) {
     if (!expectedKey) {
       // SECURITY: Fail closed if not strictly in development mode
       if (process.env.NODE_ENV !== 'development') {
-        console.warn(`[SECURITY] DASHCLAW_API_KEY not set - blocking access to: ${pathname}`);
+        console.warn('[SECURITY] DASHCLAW_API_KEY not set - blocking API access.');
         return NextResponse.json(
           { error: 'Server misconfigured: set DASHCLAW_API_KEY to protect /api/* endpoints.' },
           { status: 503 }
@@ -1627,7 +1694,7 @@ export async function middleware(request) {
         const isAllowedForOnboarding = ONBOARDING_PREFIXES.some(p => pathname.startsWith(p));
 
         if (orgId === 'org_default' && !isAllowedForOnboarding) {
-          console.warn(`[SECURITY] Blocked org_default access to: ${pathname} from user ${sessionToken.userId}`);
+          console.warn('[SECURITY] Blocked org_default API access for unaffiliated session.');
           return NextResponse.json(
             { error: 'Forbidden - Complete onboarding to access this resource', needsOnboarding: true },
             { status: 403 }
@@ -1645,7 +1712,7 @@ export async function middleware(request) {
         return response;
       }
 
-      console.warn(`[SECURITY] Missing API key: ${pathname} from ${ip}`);
+      console.warn('[SECURITY] Missing API key on cross-origin API request.');
       return NextResponse.json(
         { error: 'Unauthorized - Invalid or missing API key' },
         { status: 401 }

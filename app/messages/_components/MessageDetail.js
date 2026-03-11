@@ -9,11 +9,15 @@ import AttachmentChips from './AttachmentChips';
 
 export default function MessageDetail({ message, onMarkRead, onArchive, onReply, onViewThread }) {
   const isDemo = isDemoMode();
-  const agentColor = getAgentColor(message.from_agent_id);
+  const fromAgentId = message.from_agent_id || message.sender_id || 'unknown';
+  const toAgentId = message.to_agent_id ?? null;
+  const messageType = message.message_type || message.type || 'info';
+  const body = message.body ?? message.content ?? '';
+  const agentColor = getAgentColor(fromAgentId);
   const [copyState, setCopyState] = useState(null);
 
   async function handleCopy(mode) {
-    const text = mode === 'markdown' ? message.body : stripMarkdown(message.body);
+    const text = mode === 'markdown' ? body : stripMarkdown(body);
     const ok = await copyToClipboard(text);
     if (ok) {
       setCopyState(mode);
@@ -28,20 +32,20 @@ export default function MessageDetail({ message, onMarkRead, onArchive, onReply,
         >
           <MessageSquare size={12} />
         </div>
-        <span className="text-sm font-medium text-white">{message.from_agent_id}</span>
+        <span className="text-sm font-medium text-white">{fromAgentId}</span>
         {message.urgent && <AlertCircle size={12} className="text-red-400" />}
-        <Badge variant={TYPE_VARIANTS[message.message_type] || 'default'} size="xs">
-          {message.message_type}
+        <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
+          {messageType}
         </Badge>
       </div>
       <div className="text-xs text-zinc-500 mb-1">
-        To: {message.to_agent_id || 'All Agents (Broadcast)'}
+        To: {toAgentId || 'All Agents (Broadcast)'}
       </div>
       {message.subject && (
         <div className="text-sm font-medium text-zinc-200 mb-2">{message.subject}</div>
       )}
       <div className="mb-3 bg-[rgba(255,255,255,0.02)] rounded-md p-3">
-        <MarkdownBody content={message.body} />
+        <MarkdownBody content={body} />
       </div>
       <AttachmentChips attachments={message.attachments} />
       <div className="flex gap-1.5 mb-3 mt-2">
