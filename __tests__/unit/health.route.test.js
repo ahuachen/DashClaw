@@ -6,7 +6,12 @@ const {
   mockIsEmbeddingsEnabled,
   mockGetRealtimeHealth,
 } = vi.hoisted(() => ({
-  mockSql: Object.assign(vi.fn(async () => [{ health_check: 1 }]), { query: vi.fn(async () => []) }),
+  mockSql: Object.assign(vi.fn(async () => [
+    { table_name: 'action_records' },
+    { table_name: 'guard_decisions' },
+    { table_name: 'api_keys' },
+    { table_name: 'org_members' },
+  ]), { query: vi.fn(async () => []) }),
   mockIsEmbeddingsEnabled: vi.fn(),
   mockGetRealtimeHealth: vi.fn(),
 }));
@@ -24,7 +29,12 @@ beforeEach(() => {
   vi.clearAllMocks();
   process.env.DATABASE_URL = 'postgres://unit-test';
   process.env.NEXTAUTH_SECRET = 'test-secret';
-  mockSql.mockImplementation(async () => [{ health_check: 1 }]);
+  mockSql.mockImplementation(async () => [
+    { table_name: 'action_records' },
+    { table_name: 'guard_decisions' },
+    { table_name: 'api_keys' },
+    { table_name: 'org_members' },
+  ]);
   mockIsEmbeddingsEnabled.mockReturnValue(false);
   mockGetRealtimeHealth.mockResolvedValue({ status: 'healthy', backend: 'redis' });
 });
