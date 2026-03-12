@@ -17,6 +17,7 @@
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
     "sdk:integration": "node scripts/check-sdk-cross-integration.mjs",
     "sdk:integration:python": "node scripts/run-python-unittest.mjs",
+    "sdk:live": "node scripts/_run-with-env.mjs scripts/test-sdk-live.mjs",
     "reliability:evidence": "node scripts/collect-platform-convergence-evidence.mjs",
     "reliability:ws1:check": "node scripts/check-convergence-ws1-latency.mjs",
     "convergence:evidence": "node scripts/collect-platform-convergence-evidence.mjs",

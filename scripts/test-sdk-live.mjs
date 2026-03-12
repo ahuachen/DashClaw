@@ -7,10 +7,23 @@
  * reading back persisted records, and asserting stored values match inputs.
  * Closes the silent field-mapping regression gap in check-sdk-cross-integration.mjs.
  *
+ * ⚠️  WARNING: This script performs REAL WRITES against a live DashClaw instance.
+ * It creates test actions, loops, assumptions, handoffs, threads, snippets,
+ * preferences, messages, and other records. Run against a development or staging
+ * instance, not production, unless you are comfortable with test data in your org.
+ *
  * Usage:
- *   node scripts/_run-with-env.mjs scripts/test-sdk-live.mjs
- *   DASHCLAW_URL=http://localhost:3000 DASHCLAW_API_KEY=xxx DASHCLAW_AGENT_ID=my-agent \
- *     node scripts/test-sdk-live.mjs
+ *   npm run sdk:live                                          # uses .env.local via _run-with-env.mjs
+ *   DASHCLAW_URL=https://staging.example.com \
+ *     DASHCLAW_API_KEY=oc_live_xxx \
+ *     node scripts/test-sdk-live.mjs                          # explicit env for hosted instances
+ *
+ * Required env:
+ *   DASHCLAW_API_KEY   - API key for the target instance
+ *
+ * Optional env:
+ *   DASHCLAW_URL       - Base URL (default: http://localhost:3000)
+ *   DASHCLAW_AGENT_ID  - Agent ID for test records (default: sdk-live-test-agent)
  */
 
 process.on('unhandledRejection', (reason) => {
@@ -48,10 +61,10 @@ function log(icon, msg) {
 function assert(condition, label, detail) {
   if (condition) {
     passed++;
-    log('✅', label);
+    log('PASS', label);
   } else {
     failed++;
-    log('❌', label);
+    log('FAIL', label);
     if (detail) failures.push({ label, ...detail });
     else failures.push({ label });
   }
@@ -62,7 +75,7 @@ function assert(condition, label, detail) {
 // ──────────────────────────────────────────────────────────────
 
 async function testActionRecording() {
-  console.log('\n━━━ Category 1: Action Recording ━━━');
+  console.log('\n--- Category 1: Action Recording ---');
 
   const input = {
     action_type:   'research',
@@ -127,7 +140,7 @@ async function testActionRecording() {
 // ──────────────────────────────────────────────────────────────
 
 async function testLoopsAndAssumptions(actionId) {
-  console.log('\n━━━ Category 2: Loops & Assumptions ━━━');
+  console.log('\n--- Category 2: Loops & Assumptions ---');
 
   // Open loop
   const loopInput = {
@@ -190,7 +203,7 @@ async function testLoopsAndAssumptions(actionId) {
 // ──────────────────────────────────────────────────────────────
 
 async function testSignals() {
-  console.log('\n━━━ Category 3: Signals ━━━');
+  console.log('\n--- Category 3: Signals ---');
 
   // Ensure agent_presence table exists (created lazily by heartbeat)
   await sdk.heartbeat({ status: 'online' }).catch(() => {});
@@ -209,7 +222,7 @@ async function testSignals() {
 // ──────────────────────────────────────────────────────────────
 
 async function testDashboardData() {
-  console.log('\n━━━ Category 4: Dashboard Data ━━━');
+  console.log('\n--- Category 4: Dashboard Data ---');
 
   const tokenInput = {
     tokens_in:   100,
@@ -236,7 +249,7 @@ async function testDashboardData() {
 // ──────────────────────────────────────────────────────────────
 
 async function testHandoffs() {
-  console.log('\n━━━ Category 5: Session Handoffs ━━━');
+  console.log('\n--- Category 5: Session Handoffs ---');
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -276,7 +289,7 @@ async function testHandoffs() {
 // ──────────────────────────────────────────────────────────────
 
 async function testContextManager() {
-  console.log('\n━━━ Category 6: Context Manager ━━━');
+  console.log('\n--- Category 6: Context Manager ---');
 
   const threadName = `sdk-live-test-${Date.now()}`;
 
@@ -310,7 +323,7 @@ async function testContextManager() {
 // ──────────────────────────────────────────────────────────────
 
 async function testSnippets() {
-  console.log('\n━━━ Category 7: Automation Snippets ━━━');
+  console.log('\n--- Category 7: Automation Snippets ---');
 
   const snippetName = `sdk-live-test-${Date.now()}`;
 
@@ -353,7 +366,7 @@ async function testSnippets() {
 // ──────────────────────────────────────────────────────────────
 
 async function testUserPreferences() {
-  console.log('\n━━━ Category 8: User Preferences ━━━');
+  console.log('\n--- Category 8: User Preferences ---');
 
   const input = {
     preference: 'sdk-live-test: prefers verbose logging',
@@ -379,7 +392,7 @@ async function testUserPreferences() {
 // ──────────────────────────────────────────────────────────────
 
 async function testDailyDigest() {
-  console.log('\n━━━ Category 9: Daily Digest ━━━');
+  console.log('\n--- Category 9: Daily Digest ---');
 
   const res = await sdk.getDailyDigest();
 
@@ -392,7 +405,7 @@ async function testDailyDigest() {
 // ──────────────────────────────────────────────────────────────
 
 async function testSecurityScanning() {
-  console.log('\n━━━ Category 10: Security Scanning ━━━');
+  console.log('\n--- Category 10: Security Scanning ---');
 
   const res = await sdk.scanContent(
     'sdk-live-test: hello world no sensitive data here',
@@ -417,7 +430,7 @@ async function testSecurityScanning() {
 // ──────────────────────────────────────────────────────────────
 
 async function testAgentMessaging() {
-  console.log('\n━━━ Category 11: Agent Messaging ━━━');
+  console.log('\n--- Category 11: Agent Messaging ---');
 
   const TARGET_AGENT = AGENT_ID; // send to self so the org can see it
 
@@ -530,7 +543,7 @@ async function testAgentMessaging() {
 // ──────────────────────────────────────────────────────────────
 
 async function testBehaviorGuard() {
-  console.log('\n━━━ Category 12: Behavior Guard ━━━');
+  console.log('\n--- Category 12: Behavior Guard ---');
 
   const res = await sdk.guard({
     action_type: 'deploy',
@@ -560,7 +573,7 @@ async function testBehaviorGuard() {
 // ──────────────────────────────────────────────────────────────
 
 async function testWebhooks() {
-  console.log('\n━━━ Category 14: Webhooks ━━━');
+  console.log('\n--- Category 14: Webhooks ---');
 
   const res = await sdk.getWebhooks();
 
@@ -573,7 +586,7 @@ async function testWebhooks() {
 // ──────────────────────────────────────────────────────────────
 
 async function testBulkSync() {
-  console.log('\n━━━ Category 15: Bulk Sync ━━━');
+  console.log('\n--- Category 15: Bulk Sync ---');
 
   const res = await sdk.syncState({
     goals: [{ title: 'sdk-live-test: sync state field mapping' }],
@@ -591,7 +604,7 @@ async function testBulkSync() {
 // ──────────────────────────────────────────────────────────────
 
 async function testSendDirectMessageWrapper() {
-  console.log('\n━━━ sendDirectMessage wrapper (tools/dashclaw/client.js) ━━━');
+  console.log('\n--- sendDirectMessage wrapper (tools/dashclaw/client.js) ---');
 
   // Missing `to` throws at call time
   let threwOnMissingTo = false;
@@ -657,7 +670,7 @@ async function testSendDirectMessageWrapper() {
 // ──────────────────────────────────────────────────────────────
 
 function testValidMessageTypesExport() {
-  console.log('\n━━━ VALID_MESSAGE_TYPES constant ━━━');
+  console.log('\n--- VALID_MESSAGE_TYPES constant ---');
 
   assert(Array.isArray(VALID_MESSAGE_TYPES),
     'VALID_MESSAGE_TYPES: exported as array');
@@ -676,11 +689,13 @@ function testValidMessageTypesExport() {
 // ──────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log(`\n${'═'.repeat(60)}`);
+  console.log(`\n${'='.repeat(60)}`);
   console.log(`DashClaw SDK Live Integration Tests`);
-  console.log(`Base URL:  ${BASE_URL}`);
-  console.log(`Agent ID:  ${AGENT_ID}`);
-  console.log(`${'═'.repeat(60)}`);
+  console.log(`${'='.repeat(60)}`);
+  console.log(`  Base URL:  ${BASE_URL}`);
+  console.log(`  Agent ID:  ${AGENT_ID}`);
+  console.log(`  WARNING:   This suite performs REAL WRITES to the target instance.`);
+  console.log(`${'='.repeat(60)}`);
 
   const categoryErrors = [];
 
@@ -690,7 +705,7 @@ async function main() {
     } catch (err) {
       failed++;
       const msg = `[CATEGORY ERROR] ${label}: ${err.message}`;
-      console.log(`  ❌ ${msg}`);
+      console.log(`  FAIL ${msg}`);
       categoryErrors.push({ label, error: err.message });
       return undefined;
     }
@@ -713,30 +728,31 @@ async function main() {
   testValidMessageTypesExport();
   await runCategory('sendDirectMessage Wrapper', testSendDirectMessageWrapper);
 
-  // ── Summary ───────────────────────────────────────────────
+  // -- Summary --------------------------------------------------------
   const total = passed + failed;
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log(`Results: ${passed}/${total} passed`);
-
-  if (failures.length > 0) {
-    console.log(`\nFailed assertions (${failures.length}):`);
-    for (const f of failures) {
-      console.log(`\n  ❌ ${f.label}`);
-      if (f.sent !== undefined)    console.log(`       sent:     ${JSON.stringify(f.sent)}`);
-      if (f.stored !== undefined)  console.log(`       stored:   ${JSON.stringify(f.stored)}`);
-      if (f.expected !== undefined) console.log(`       expected: ${JSON.stringify(f.expected)}`);
-      if (f.got !== undefined)     console.log(`       got:      ${JSON.stringify(f.got)}`);
-    }
-  }
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`Results: ${passed}/${total} passed, ${failed} failed`);
 
   if (categoryErrors.length > 0) {
-    console.log(`\nCategory-level errors (${categoryErrors.length}) — endpoint or schema issue, not field-mapping:`);
+    console.log(`\n--- Category-level errors (${categoryErrors.length}) ---`);
+    console.log(`These indicate an endpoint/schema/connectivity issue, not a field-mapping bug:`);
     for (const e of categoryErrors) {
-      console.log(`  ⚠️  ${e.label}: ${e.error}`);
+      console.log(`  [!] ${e.label}: ${e.error}`);
     }
   }
 
-  console.log(`${'═'.repeat(60)}\n`);
+  if (failures.length > 0) {
+    console.log(`\n--- Failed assertions (${failures.length}) ---`);
+    for (const f of failures) {
+      console.log(`\n  FAIL: ${f.label}`);
+      if (f.sent !== undefined)    console.log(`        sent:     ${JSON.stringify(f.sent)}`);
+      if (f.stored !== undefined)  console.log(`        stored:   ${JSON.stringify(f.stored)}`);
+      if (f.expected !== undefined) console.log(`        expected: ${JSON.stringify(f.expected)}`);
+      if (f.got !== undefined)     console.log(`        got:      ${JSON.stringify(f.got)}`);
+    }
+  }
+
+  console.log(`${'='.repeat(60)}\n`);
 
   if (failed > 0) process.exit(1);
 }

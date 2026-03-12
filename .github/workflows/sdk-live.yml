@@ -1,0 +1,37 @@
+name: SDK Live Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      dashclaw_url:
+        description: 'DashClaw instance URL (leave empty to use DASHCLAW_URL secret)'
+        required: false
+        default: ''
+      agent_id:
+        description: 'Agent ID for test records'
+        required: false
+        default: 'sdk-live-test-agent'
+
+jobs:
+  sdk-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run SDK live validation
+        env:
+          DASHCLAW_URL: ${{ inputs.dashclaw_url || secrets.DASHCLAW_URL }}
+          DASHCLAW_API_KEY: ${{ secrets.DASHCLAW_API_KEY }}
+          DASHCLAW_AGENT_ID: ${{ inputs.agent_id }}
+        run: node scripts/test-sdk-live.mjs

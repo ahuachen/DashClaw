@@ -339,6 +339,9 @@ npm run route-sql:check
 npm run test -- --run
 npm run sdk:integration
 npm run sdk:integration:python
+
+# Live validation (requires running instance + API key — not in default CI)
+npm run sdk:live
 ```
 
 ---
@@ -362,6 +365,7 @@ See [docs/SECURITY.md](docs/SECURITY.md).
 | [**QUICK-START.md**](QUICK-START.md) | Non-coding setup guide |
 | [**docs/client-setup-guide.md**](docs/client-setup-guide.md) | SDK & operator reference |
 | [**docs/agent-bootstrap.md**](docs/agent-bootstrap.md) | Agent import & bootstrap |
+| [**docs/sdk-live-validation.md**](docs/sdk-live-validation.md) | SDK live integration testing |
 | [**CONTRIBUTING.md**](CONTRIBUTING.md) | Contribution guidelines |
 
 ---
