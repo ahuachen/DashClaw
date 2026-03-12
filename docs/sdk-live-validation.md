@@ -11,6 +11,17 @@ The live SDK validation suite runs the full Node.js SDK against a real DashClaw 
 
 **This suite performs real writes.** It creates test records (prefixed with `sdk-live-test`) in the target instance. Run it against development or staging instances, not production, unless you are comfortable with test data in your org.
 
+### Agent signing
+
+The suite automatically handles agent identity signing. At startup it:
+
+1. Generates an ephemeral RSA-2048 keypair (in-memory, not persisted)
+2. Registers the public key via the SDK pairing flow (`createPairingFromPrivateJwk`)
+3. Approves the pairing via the admin API (using the same API key)
+4. Configures the SDK client with the private key so all `createAction` calls are signed
+
+This means **no pre-provisioned keys are needed** — the suite works against instances with `ENFORCE_AGENT_SIGNATURES=true` (the production default). The API key must have admin role for the auto-approve step.
+
 ## When to run
 
 - **Before publishing a new SDK version** — validates that the SDK and API are in sync

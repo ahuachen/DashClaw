@@ -31,6 +31,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
+import { webcrypto } from 'node:crypto';
 import { DashClaw } from '../sdk/dashclaw.js';
 import { sendDirectMessage, VALID_MESSAGE_TYPES } from '../tools/dashclaw/client.js';
 
@@ -43,12 +44,52 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const sdk = new DashClaw({
-  baseUrl:   BASE_URL,
-  apiKey:    API_KEY,
-  agentId:   AGENT_ID,
-  agentName: 'SDK Live Test Agent',
-});
+// -- Generate ephemeral RSA keypair and register it with the instance ------
+// This allows the test agent to pass signature enforcement without
+// pre-provisioned keys. The pairing is created and auto-approved via the
+// admin API key, so no manual step is needed.
+
+async function setupSignedSdk() {
+  const { publicKey, privateKey } = await webcrypto.subtle.generateKey(
+    { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+    true,
+    ['sign', 'verify']
+  );
+
+  const privateJwk = await webcrypto.subtle.exportKey('jwk', privateKey);
+
+  // Create an unsigned SDK client first (for pairing registration)
+  const unsignedSdk = new DashClaw({
+    baseUrl: BASE_URL, apiKey: API_KEY, agentId: AGENT_ID, agentName: 'SDK Live Test Agent',
+  });
+
+  // Register the public key via the pairing flow
+  const { pairing } = await unsignedSdk.createPairingFromPrivateJwk(privateJwk, {
+    agentName: 'SDK Live Test Agent',
+  });
+
+  // Approve the pairing via direct API call (requires admin role on the API key)
+  const approveRes = await fetch(`${BASE_URL}/api/pairings/${pairing.id}/approve`, {
+    method: 'POST',
+    headers: { 'x-api-key': API_KEY, 'Content-Type': 'application/json' },
+  });
+  if (!approveRes.ok) {
+    const body = await approveRes.text();
+    throw new Error(`Failed to approve test pairing (${approveRes.status}): ${body}`);
+  }
+
+  // Return a signed SDK client
+  return new DashClaw({
+    baseUrl:    BASE_URL,
+    apiKey:     API_KEY,
+    agentId:    AGENT_ID,
+    agentName:  'SDK Live Test Agent',
+    privateKey: privateJwk,
+  });
+}
+
+// sdk is initialized in main() after the signing setup
+let sdk;
 
 let passed = 0;
 let failed = 0;
@@ -562,11 +603,12 @@ async function testBehaviorGuard() {
 }
 
 // ──────────────────────────────────────────────────────────────
-// Category 13: Agent Pairing (structure-level only — key not available in test)
+// Category 13: Agent Pairing
 // ──────────────────────────────────────────────────────────────
 
-// Skipped: createPairing requires a real RSA PEM key which is environment-specific.
-// The field-mapping contract is covered by the cross-SDK harness.
+// Covered by the setup phase: setupSignedSdk() generates an ephemeral RSA
+// keypair, calls createPairingFromPrivateJwk, and approves the pairing.
+// If setup succeeds, the pairing flow works end-to-end.
 
 // ──────────────────────────────────────────────────────────────
 // Category 14: Webhooks
@@ -696,6 +738,17 @@ async function main() {
   console.log(`  Agent ID:  ${AGENT_ID}`);
   console.log(`  WARNING:   This suite performs REAL WRITES to the target instance.`);
   console.log(`${'='.repeat(60)}`);
+
+  // Set up signed SDK (generates ephemeral keypair, registers + approves it)
+  console.log('\n--- Setup: Agent Identity & Signing ---');
+  try {
+    sdk = await setupSignedSdk();
+    console.log('  PASS Ephemeral keypair generated, pairing registered and approved');
+  } catch (err) {
+    console.error(`  FAIL Could not set up signed SDK: ${err.message}`);
+    console.error('  The API key may not have admin role, or the instance may be unreachable.');
+    process.exit(1);
+  }
 
   const categoryErrors = [];
 
