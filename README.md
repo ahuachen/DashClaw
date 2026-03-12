@@ -342,6 +342,7 @@ npm run sdk:integration:python
 
 # Live validation (requires running instance + API key — not in default CI)
 npm run sdk:live
+npm run sdk:live:python
 ```
 
 ---

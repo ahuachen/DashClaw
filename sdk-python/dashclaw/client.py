@@ -76,6 +76,14 @@ class DashClaw:
             raise ValueError("auto_recommend must be one of: off, warn, enforce")
 
     def _request(self, path_or_method, method_or_path=None, body=None, params=None, json_payload=None, **kwargs):
+        # Support 'method' as an explicit keyword arg so callers can write
+        # _request("/path", method="POST", body=...) without positional ambiguity.
+        if "method" in kwargs:
+            if method_or_path is None:
+                method_or_path = kwargs.pop("method")
+            else:
+                kwargs.pop("method")  # positional takes precedence
+
         # Support both (path, method, body) and (method, path, json=...) signatures
         if path_or_method.startswith("/"):
             path = path_or_method

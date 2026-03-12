@@ -13,7 +13,8 @@ on:
         default: 'sdk-live-test-agent'
 
 jobs:
-  sdk-live:
+  sdk-live-node:
+    name: Node SDK Live
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -29,9 +30,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run SDK live validation
+      - name: Run Node SDK live validation
         env:
           DASHCLAW_URL: ${{ inputs.dashclaw_url || secrets.DASHCLAW_URL }}
           DASHCLAW_API_KEY: ${{ secrets.DASHCLAW_API_KEY }}
           DASHCLAW_AGENT_ID: ${{ inputs.agent_id }}
         run: node scripts/test-sdk-live.mjs
+
+  sdk-live-python:
+    name: Python SDK Live
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install cryptography (for agent signing)
+        run: pip install cryptography
+
+      - name: Run Python SDK live validation
+        env:
+          DASHCLAW_URL: ${{ inputs.dashclaw_url || secrets.DASHCLAW_URL }}
+          DASHCLAW_API_KEY: ${{ secrets.DASHCLAW_API_KEY }}
+          DASHCLAW_AGENT_ID: ${{ inputs.agent_id || 'sdk-live-test-agent-py' }}
+          PYTHONPATH: sdk-python
+        run: python scripts/test-sdk-live-python.py
