@@ -204,7 +204,32 @@ export default function MissionControlPage() {
 
   /* ---------- Derived state ---------- */
 
-  const signalCounts = signals?.counts || { red: 0, amber: 0, total: 0 };
+  // Apply the same client-side dismissal filter used by the Security page.
+  // Dismissed signal hashes are stored in localStorage under 'dashclaw_dismissed_signals'.
+  const getSignalHash = (s) =>
+    `${s.type || s.signal_type || ''}:${s.agent_id || ''}:${s.action_id || ''}:${s.loop_id || ''}:${s.assumption_id || ''}`;
+
+  const dismissedSet = useMemo(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const stored = localStorage.getItem('dashclaw_dismissed_signals');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  // Re-evaluate whenever signals change so a dismiss in another tab eventually syncs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signals]);
+
+  const activeSignalList = useMemo(() => {
+    const list = signals?.signals || [];
+    return list.filter(s => !dismissedSet.has(getSignalHash(s)));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signals, dismissedSet]);
+
+  const signalCounts = {
+    red: activeSignalList.filter(s => s.severity === 'red').length,
+    amber: activeSignalList.filter(s => s.severity === 'amber').length,
+    total: activeSignalList.length,
+  };
   const posture = computePosture(signalCounts.red, signalCounts.amber);
 
   const loopList = useMemo(() => loops?.loops || [], [loops]);
