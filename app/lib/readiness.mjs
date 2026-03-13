@@ -189,6 +189,146 @@ PY`,
   };
 }
 
+function getAgentStarterSnippets(host) {
+  const baseUrl = getBaseUrl(host);
+
+  return {
+    node: `npm install dashclaw
+
+import { DashClaw } from 'dashclaw';
+
+const claw = new DashClaw({
+  baseUrl: '${baseUrl}',
+  apiKey: process.env.DASHCLAW_API_KEY,
+  agentId: 'my-agent',
+  agentName: 'My Agent',
+});
+
+await claw.createAction({
+  action_type: 'test',
+  declared_goal: 'Verify DashClaw connection',
+  risk_score: 10,
+});`,
+    python: `pip install dashclaw
+
+import os
+from dashclaw import DashClaw
+
+claw = DashClaw(
+    base_url='${baseUrl}',
+    api_key=os.environ['DASHCLAW_API_KEY'],
+    agent_id='my-agent',
+    agent_name='My Agent',
+)
+
+claw.create_action(
+    action_type='test',
+    declared_goal='Verify DashClaw connection',
+    risk_score=10,
+)`,
+  };
+}
+
+export function projectConnectNextStep({
+  isAuthenticated = false,
+  verification = {},
+  onboarding = null,
+  host = '',
+  sdk = null,
+} = {}) {
+  const steps = onboarding?.steps || {};
+  const snippets = getAgentStarterSnippets(host);
+  const validatorCommand = sdk?.commands?.node || getSdkCommands(host).node;
+  const docsHref = '/docs';
+  const statusItems = [
+    {
+      label: 'Workspace ready',
+      complete: Boolean(steps.workspace_created),
+    },
+    {
+      label: 'API key ready',
+      complete: Boolean(steps.api_key_exists),
+    },
+    {
+      label: steps.first_action_sent ? 'First live action received' : 'Waiting for first live action',
+      complete: Boolean(steps.first_action_sent),
+    },
+  ];
+
+  if (!isAuthenticated) {
+    return {
+      state: 'sign_in',
+      title: 'Next step: connect your first agent',
+      summary: 'Core checks can be reviewed here, but connecting a real agent requires operator access.',
+      primaryCta: { label: 'Sign in to continue', href: '/login' },
+      secondaryCtas: [{ label: 'Go to dashboard', href: '/dashboard' }],
+      statusItems: [],
+      snippets: null,
+      validatorCommand: '',
+    };
+  }
+
+  if (!steps.workspace_created) {
+    return {
+      state: 'create_workspace',
+      title: 'Connect your first agent',
+      summary: 'Create a workspace before generating API keys or sending live agent traffic.',
+      primaryCta: { label: 'Create workspace', href: '/dashboard' },
+      secondaryCtas: [{ label: 'Open dashboard', href: '/dashboard' }],
+      statusItems,
+      snippets: null,
+      validatorCommand: '',
+    };
+  }
+
+  if (!steps.api_key_exists) {
+    return {
+      state: 'create_api_key',
+      title: 'Connect your first agent',
+      summary: 'Workspace is ready. Next, generate an API key so your first agent can authenticate.',
+      primaryCta: { label: 'Generate API key', href: '/api-keys' },
+      secondaryCtas: [{ label: 'Open dashboard', href: '/dashboard' }],
+      statusItems,
+      snippets: null,
+      validatorCommand: '',
+    };
+  }
+
+  if (steps.first_action_sent) {
+    return {
+      state: 'connected',
+      title: 'Your first agent is connected',
+      summary:
+        verification?.overall === 'verified'
+          ? 'Core checks and live proof are in place. Move into day-to-day controls from here.'
+          : 'DashClaw has already recorded a real agent action. From here, tighten controls and review live activity.',
+      primaryCta: { label: 'Open dashboard', href: '/dashboard' },
+      secondaryCtas: [
+        { label: 'Enable pairings', href: '/pairings' },
+        { label: 'Review policies', href: '/policies' },
+      ],
+      statusItems,
+      snippets: null,
+      validatorCommand,
+    };
+  }
+
+  return {
+    state: 'connect_agent',
+    title: 'Connect your first agent',
+    summary: 'Core checks are passing. Next, connect a real agent so DashClaw can record live actions.',
+    primaryCta: { label: 'Open connect guide', href: docsHref },
+    secondaryCtas: [
+      { label: 'Node starter', href: '#connect-node' },
+      { label: 'Python starter', href: '#connect-python' },
+      { label: 'Run validator', href: '#connect-validator' },
+    ],
+    statusItems,
+    snippets,
+    validatorCommand,
+  };
+}
+
 export function checkConfiguration(env = process.env) {
   const required = REQUIRED_ENV_VARS.map(({ key, description, help }) => ({
     key,

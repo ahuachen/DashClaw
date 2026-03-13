@@ -89,7 +89,7 @@ npm run dev
 
 Open `http://localhost:3000` — you'll be redirected to login. Sign in with your **Admin Password** or **GitHub** and you're in!
 
-Not sure if everything is configured? Visit `http://localhost:3000/setup` — it shows live status for your database, sign-in method, and exact next steps if anything is missing.
+Not sure if everything is configured? Visit `http://localhost:3000/setup` — it shows live verification status for your database and sign-in path, then gives you a state-aware "Connect your first agent" handoff so you can move straight into workspace creation, API key generation, or first-action validation.
 
 ---
 
@@ -159,5 +159,5 @@ Once your dashboard is running:
 
 1. Follow the **onboarding checklist** on the dashboard
 2. Install the SDK: `npm install dashclaw` (or `pip install dashclaw`)
-3. Connect your agents using the connection snippet from setup
+3. Open `/setup` and use the **Connect your first agent** panel to pick the right next step, starter snippet, or validator command
 4. Start tracking your AI agent's activity!

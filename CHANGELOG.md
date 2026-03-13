@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Setup Activation Handoff**: `/setup` now includes a prominent, state-aware "Connect your first agent" panel near the top of the page so operators can move directly into sign-in, workspace creation, API key generation, first-agent connection, or post-connection next steps.
+- **Shared Onboarding Projection**: Reused the existing onboarding signals for workspace, API key, and first-action state so `/setup` can guide activation without introducing a parallel onboarding state model.
+
 ## [2.3.4] - 2026-03-11
 
 ### Changed

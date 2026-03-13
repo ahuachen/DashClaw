@@ -8,9 +8,120 @@ vi.mock('@/lib/setupStatus.mjs', () => ({
   getSetupStatus: mockGetSetupStatus,
 }));
 
-import { getReadinessReport, projectReadinessReport } from '@/lib/readiness.mjs';
+import { getReadinessReport, projectConnectNextStep, projectReadinessReport } from '@/lib/readiness.mjs';
 
 describe('readiness projections', () => {
+  it('projects a sign-in handoff when operator context is unavailable', () => {
+    const step = projectConnectNextStep({
+      isAuthenticated: false,
+      verification: {
+        overall: 'ready_unverified',
+        ready: true,
+      },
+      onboarding: null,
+      host: 'dashclaw.example.com',
+    });
+
+    expect(step.state).toBe('sign_in');
+    expect(step.primaryCta.label).toBe('Sign in to continue');
+    expect(step.primaryCta.href).toBe('/login');
+  });
+
+  it('projects a workspace handoff for authenticated users without a workspace', () => {
+    const step = projectConnectNextStep({
+      isAuthenticated: true,
+      verification: {
+        overall: 'ready_unverified',
+        ready: true,
+      },
+      onboarding: {
+        steps: {
+          workspace_created: false,
+          api_key_exists: false,
+          first_action_sent: false,
+        },
+      },
+      host: 'dashclaw.example.com',
+    });
+
+    expect(step.state).toBe('create_workspace');
+    expect(step.primaryCta.label).toBe('Create workspace');
+    expect(step.primaryCta.href).toBe('/dashboard');
+  });
+
+  it('projects an API key handoff when a workspace exists but no key is available', () => {
+    const step = projectConnectNextStep({
+      isAuthenticated: true,
+      verification: {
+        overall: 'ready_unverified',
+        ready: true,
+      },
+      onboarding: {
+        steps: {
+          workspace_created: true,
+          api_key_exists: false,
+          first_action_sent: false,
+        },
+      },
+      host: 'dashclaw.example.com',
+    });
+
+    expect(step.state).toBe('create_api_key');
+    expect(step.primaryCta.label).toBe('Generate API key');
+    expect(step.primaryCta.href).toBe('/api-keys');
+  });
+
+  it('projects a connect-agent handoff when an API key exists but no first action has been observed', () => {
+    const step = projectConnectNextStep({
+      isAuthenticated: true,
+      verification: {
+        overall: 'ready_unverified',
+        ready: true,
+      },
+      onboarding: {
+        steps: {
+          workspace_created: true,
+          api_key_exists: true,
+          first_action_sent: false,
+        },
+      },
+      host: 'dashclaw.example.com',
+    });
+
+    expect(step.state).toBe('connect_agent');
+    expect(step.primaryCta.label).toBe('Open connect guide');
+    expect(step.secondaryCtas.map((cta) => cta.label)).toEqual(
+      expect.arrayContaining(['Node starter', 'Python starter', 'Run validator'])
+    );
+    expect(step.statusItems.map((item) => item.label)).toEqual(
+      expect.arrayContaining(['Workspace ready', 'API key ready', 'Waiting for first live action'])
+    );
+  });
+
+  it('projects a connected handoff when the first action has already been observed', () => {
+    const step = projectConnectNextStep({
+      isAuthenticated: true,
+      verification: {
+        overall: 'verified',
+        ready: true,
+      },
+      onboarding: {
+        steps: {
+          workspace_created: true,
+          api_key_exists: true,
+          first_action_sent: true,
+        },
+      },
+      host: 'dashclaw.example.com',
+    });
+
+    expect(step.state).toBe('connected');
+    expect(step.primaryCta.label).toBe('Open dashboard');
+    expect(step.secondaryCtas.map((cta) => cta.href)).toEqual(
+      expect.arrayContaining(['/pairings', '/policies'])
+    );
+  });
+
   it('redacts missing table names in the public view', async () => {
     mockGetSetupStatus.mockResolvedValue({
       configured: false,
