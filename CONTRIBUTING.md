@@ -54,7 +54,7 @@ To get started with the codebase:
 
 ## Project Structure
 
--   `app/`: The Next.js 15 dashboard (App Router), API routes, and UI components.
+-   `app/`: The Next.js 16 dashboard (App Router), API routes, and UI components.
 -   `agent-tools/`: Specialized Python CLI tools for agent memory, goals, and context tracking.
 -   `sdk/`: The Node.js DashClaw SDK for instrumenting agents.
 -   `sdk-python/`: The Python DashClaw SDK and parity test suite.
