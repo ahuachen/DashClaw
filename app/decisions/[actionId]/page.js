@@ -289,7 +289,8 @@ export default function DecisionReplayPage() {
             <div className="text-2xl font-semibold tabular-nums text-purple-400">${parseFloat(action.cost_estimate || 0).toFixed(4)}</div>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Cost</div>
           </CardContent>
-        </div>
+        </Card>
+      </div>
 
       {/* ═══ Tab Navigation ═══ */}
       <div className="flex items-center gap-1 mb-6 border-b border-white/5 pb-px">
