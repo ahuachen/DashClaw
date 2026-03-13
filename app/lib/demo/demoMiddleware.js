@@ -261,19 +261,35 @@ export function demoPolicySimulate(fixtures, body) {
 }
 
 export function demoPolicyProof(fixtures, format) {
+  const reportText = fixtures.policyProofReport || '# DashClaw Policy Proof\n\nAll policies active and verified.\n\n## Active Policies\n' + 
+    (fixtures.policies || []).map(p => `- ${p.name} (${p.type || p.policy_type})`).join('\n');
+
   if (format === 'json') {
-    return { report: JSON.stringify(fixtures.policyProofReport || { status: 'compliant', policies: fixtures.policies.length }) };
+    return { report: JSON.stringify({ status: 'compliant', policies: (fixtures.policies || []).length, generated_at: new Date().toISOString() }) };
   }
-  return { report: fixtures.policyProofReport || '# DashClaw Policy Proof\n\nAll policies active and verified.' };
+  return { report: reportText };
 }
 
 export function demoPolicyTest(fixtures) {
-  return fixtures.policyTestResults || {
-    totalPolicies: fixtures.policies.length,
-    totalTests: fixtures.policies.length * 2,
-    passed: fixtures.policies.length * 2,
+  if (fixtures.policyTestResults) return fixtures.policyTestResults;
+  
+  const policies = fixtures.policies || [];
+  if (policies.length === 0) {
+    return {
+      totalPolicies: 0,
+      totalTests: 0,
+      passed: 0,
+      failed: 0,
+      results: []
+    };
+  }
+
+  return {
+    totalPolicies: policies.length,
+    totalTests: policies.length * 2,
+    passed: policies.length * 2,
     failed: 0,
-    results: fixtures.policies.map(p => ({
+    results: policies.map(p => ({
       policyId: p.id,
       policyName: p.name,
       failCount: 0,

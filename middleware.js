@@ -539,13 +539,8 @@ export async function middleware(request) {
         if (fmt === 'json') {
           return demoJson(request, { report: fixtures.policyProofReport });
         }
-        const response = new Response(fixtures.policyProofReport, {
-          status: 200,
-          headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
-        });
-        addSecurityHeaders(response);
-        withCors(request, response);
-        return response;
+        // Markdown format — wrap in JSON object for client to parse
+        return demoJson(request, { report: fixtures.policyProofReport });
       }
 
       // ── Routing demo endpoints ──
