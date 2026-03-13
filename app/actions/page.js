@@ -17,6 +17,7 @@ import {
   Settings, Radio, AlertTriangle, Trash2, Package, Inbox,
   CheckCircle2, XCircle, Clock, Loader2, Ban,
   ChevronUp, ChevronDown, ChevronLeft, ChevronRight, RotateCw,
+  ShieldCheck, ShieldAlert, ExternalLink, Info,
 } from 'lucide-react';
 
 const typeIconMap = {

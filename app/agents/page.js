@@ -165,7 +165,7 @@ export default function AgentsFleetPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-1.5">
                           {agent.governed !== false ? (
                             <Badge variant="success" size="xs">
                               <ShieldCheck size={10} className="mr-1" />
@@ -176,6 +176,15 @@ export default function AgentsFleetPage() {
                               <ShieldAlert size={10} className="mr-1" />
                               Passive
                             </Badge>
+                          )}
+                          {agent.verified ? (
+                            <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500 uppercase tracking-tighter" title="Agent identity cryptographically verified">
+                              <Lock size={10} /> Verified Identity
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase tracking-tighter" title="Agent is using an unsigned session">
+                              <Info size={10} /> Unsigned
+                            </div>
                           )}
                         </div>
                       </td>

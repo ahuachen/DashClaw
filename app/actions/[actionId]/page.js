@@ -7,7 +7,7 @@ import {
   CheckCircle2, XCircle, Clock, Zap, Target, BarChart3, HelpCircle,
   RefreshCw, MapPin, Microscope, IdCard, Rocket, Search, ArrowUp,
   Link2, AlertTriangle, ShieldCheck, ShieldAlert, Scale, FileText,
-  Activity, Info, ChevronRight, Fingerprint, Database, LayoutPanelLeft
+  Activity, Info, ChevronRight, Fingerprint, Database, LayoutPanelLeft, ExternalLink
 } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';

@@ -208,7 +208,7 @@ export function demoGuard(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  let reads = fixtures.guardReads.slice();
+  let reads = (fixtures.guardReads || fixtures.guardDecisions || []).slice();
   if (agentId) reads = reads.filter(r => r.agent_id === agentId);
   if (policyId) reads = reads.filter(r => r.policy_id === policyId);
 
