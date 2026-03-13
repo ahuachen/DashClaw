@@ -17,7 +17,7 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <img src="screenshots/decision.png" alt="DashClaw Full Decision Record" width="2500" /></div>
+  <img src="screenshots/decision2.png" alt="DashClaw Full Decision Record" width="2500" /></div>
 
 <br />
 
