@@ -32,4 +32,18 @@ describe('authConfig helpers', () => {
   it('returns a clear missing-auth message', () => {
     expect(getMissingAuthMessage()).toContain('DASHCLAW_LOCAL_ADMIN_PASSWORD');
   });
+
+  it('reports partially configured providers', () => {
+    const config = getAuthConfig({
+      GITHUB_ID: 'github-id',
+    });
+
+    expect(config.providerChecks.find((entry) => entry.id === 'github')).toEqual(
+      expect.objectContaining({
+        configured: false,
+        partiallyConfigured: true,
+        missingKeys: ['GITHUB_SECRET'],
+      })
+    );
+  });
 });

@@ -53,7 +53,8 @@ app/
 ├── dashboard/page.js          # Authenticated dashboard (draggable/resizable widget grid)
 ├── lib/validate.js            # Input validation helpers
 ├── lib/db.js                  # Shared database connection utility (production-safe, triggers startup schema check)
-├── lib/schemaCheck.js         # Core table verification (CORE_TABLES, checkCoreTables, startupSchemaCheck)
+├── lib/schemaCheck.js         # Core table verification (CORE_TABLES, checkCoreTables, startupSchemaCheck) — canonical source of truth for required tables
+├── lib/readiness.mjs          # Full instance readiness report (DB + config + auth) used by /setup page (getReadinessReport, checkConfiguration)
 ├── lib/security.js            # DLP / Sensitive data scanning engine
 ├── lib/embeddings.js          # Vector embedding generation (OpenAI)
 ├── lib/maintenance.js         # Proactive memory health engine
@@ -262,6 +263,7 @@ function getSql() {
 - Page routes use `getToken()` from `next-auth/jwt` (Edge-compatible) for session checks
 - `PROTECTED_ROUTES` array - prefix matching (includes `/api/orgs`, `/api/team`, `/api/invite`)
 - `PUBLIC_ROUTES` - `/api/health`, `/api/setup/status`, `/api/waitlist`, `/api/auth`, `/api/webhooks/stripe`, `/api/cron`
+- Public setup page exception: `/setup` is intentionally reachable before login so operators can debug first-run and broken-auth states without weakening other protected pages
 - **Role-based access**: Two roles (`admin`, `member`). `session.user.role` available client-side via `useSession()`
 - **Admin-only API routes** (return 403 for members): POST/DELETE `/api/keys`, POST/DELETE `/api/settings`, all `/api/team/invite`, PATCH/DELETE `/api/team/[userId]`, all `/api/orgs`, POST/DELETE `/api/webhooks`
 - **Admin-only UI**: Generate/revoke API keys hidden for members; Integrations configure modal disabled; Team invite/role/remove sections hidden
@@ -593,9 +595,10 @@ Token tracking is disabled in the dashboard UI pending a better approach. The AP
 - Migration Step 40 in `migrate-multi-tenant.mjs`
 
 ## Startup & Health Protections
-- **Startup schema check**: On first DB connection, `schemaCheck.js` verifies 6 core tables exist (`action_records`, `guard_decisions`, `api_keys`, `org_members`, `settings`, `policies`). Logs a warning with migration command if any are missing. Fire-and-forget — does not block requests.
+- **Startup schema check**: On first DB connection, `schemaCheck.js` verifies 6 core tables exist (`action_records`, `guard_decisions`, `api_keys`, `users`, `settings`, `guard_policies`). Logs a warning with migration command if any are missing. Fire-and-forget — does not block requests.
 - **Health endpoint** (`GET /api/health`): Checks DB connectivity + core table existence, realtime backend, env vars, embeddings. Returns `degraded` (503) if tables are missing or DB is unreachable.
-- **Setup status** (`GET /api/setup/status`): Reports `configured: false` with `missing_tables` count when core tables are absent. The `/setup` page consumes this alongside `authConfig` to render a live instance status surface.
+- **Setup status** (`GET /api/setup/status`): Reports database readiness, including `configured`, `reason`, and missing core tables when the schema is incomplete. It is the DB-facing input to `app/lib/readiness.mjs`.
+- **Setup & Verify page** (`/setup`): Server-rendered readiness surface backed by `getReadinessReport(process.env)` plus a public-safe projection layer. The page is intentionally reachable before login; anonymous viewers get sanitized presence/status checks and next steps, while authenticated viewers get richer operator detail such as exact missing schema items and fuller recovery commands.
 - **Environment validation** (`validateEnv.js`): Imported by `db.js` on module load. Validates required env vars in production, warns in dev.
 
 ## Operational Scripts

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { jwtVerify } from 'jose';
 import { neon } from '@neondatabase/serverless';
 import { getDemoFixtures } from './app/lib/demo/demoFixtures.js';
+import { getViewerContextFromCookieHeader } from './app/lib/sessionViewer.mjs';
 
 /**
  * Authentication middleware for DashClaw
@@ -24,19 +24,12 @@ const PUBLIC_ROUTES = [
   '/practical-systems',
 ];
 
-const LOCAL_SESSION_COOKIE = 'dashclaw-local-session';
-
 async function getLocalAdminSession(request) {
-  const cookie = request.cookies.get(LOCAL_SESSION_COOKIE);
-  if (!cookie?.value) return null;
-  try {
-    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
-    const { payload } = await jwtVerify(cookie.value, secret);
-    if (payload.provider !== 'local') return null;
-    return payload;
-  } catch {
-    return null;
-  }
+  const viewer = await getViewerContextFromCookieHeader(
+    request.headers.get('cookie') || '',
+    process.env
+  );
+  return viewer.authType === 'local' ? viewer.session : null;
 }
 
 function getDashclawMode() {
@@ -1542,6 +1535,7 @@ export async function middleware(request) {
   // Page routes (non-API): check NextAuth session
   if (!pathname.startsWith('/api/')) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const isPublicSetupPage = pathname === '/setup' || pathname.startsWith('/setup/');
 
     // /login — redirect to dashboard if already logged in
     if (pathname === '/login') {
@@ -1551,6 +1545,10 @@ export async function middleware(request) {
 
     // Landing page is always public
     if (pathname === '/') {
+      return NextResponse.next();
+    }
+
+    if (isPublicSetupPage) {
       return NextResponse.next();
     }
 

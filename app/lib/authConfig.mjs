@@ -19,6 +19,40 @@ export function getAuthConfig(env = process.env) {
     });
   }
 
+  const providerChecks = [
+    {
+      id: 'github',
+      name: 'GitHub OAuth',
+      configured: hasGitHub,
+      partiallyConfigured: Boolean(githubId || githubSecret) && !hasGitHub,
+      missingKeys: [
+        ...(githubId ? [] : ['GITHUB_ID']),
+        ...(githubSecret ? [] : ['GITHUB_SECRET']),
+      ],
+    },
+    {
+      id: 'google',
+      name: 'Google OAuth',
+      configured: hasGoogle,
+      partiallyConfigured: Boolean(googleId || googleSecret) && !hasGoogle,
+      missingKeys: [
+        ...(googleId ? [] : ['GOOGLE_ID']),
+        ...(googleSecret ? [] : ['GOOGLE_SECRET']),
+      ],
+    },
+    {
+      id: 'oidc',
+      name: env.OIDC_DISPLAY_NAME || 'OIDC',
+      configured: hasOIDC,
+      partiallyConfigured: Boolean(env.OIDC_CLIENT_ID || env.OIDC_CLIENT_SECRET || env.OIDC_ISSUER_URL) && !hasOIDC,
+      missingKeys: [
+        ...(env.OIDC_CLIENT_ID ? [] : ['OIDC_CLIENT_ID']),
+        ...(env.OIDC_CLIENT_SECRET ? [] : ['OIDC_CLIENT_SECRET']),
+        ...(env.OIDC_ISSUER_URL ? [] : ['OIDC_ISSUER_URL']),
+      ],
+    },
+  ];
+
   return {
     hasGitHub,
     hasGoogle,
@@ -27,6 +61,7 @@ export function getAuthConfig(env = process.env) {
     hasAnyOAuth: oauthProviders.length > 0,
     hasAnySignInMethod: hasLocalPassword || oauthProviders.length > 0,
     oauthProviders,
+    providerChecks,
   };
 }
 

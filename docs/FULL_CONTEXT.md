@@ -72,6 +72,7 @@ app/
 ├── workspace/                 # Agent workspace (6 tabs)
 ├── actions/                   # ActionRecord list + post-mortem detail
 ├── api-keys/                  # API key management
+├── setup/                     # Setup & Verify page (DB/config/auth readiness + next actions)
 ├── team/                      # Team management + invites
 ├── invite/[token]/            # Invite accept page
 ├── activity/                  # Audit trail
@@ -91,6 +92,8 @@ app/
 ├── lib/
 │   ├── auth.js                # NextAuth config (providers, JWT, user upsert)
 │   ├── db.js                  # DB connection utility
+│   ├── schemaCheck.js         # Canonical core-table verification + startup schema warning
+│   ├── readiness.mjs          # Full readiness report used by /setup (DB + config + auth)
 │   ├── org.js                 # Multi-tenant helpers (getOrgId, getOrgRole, getUserId)
 │   ├── guard.js               # Guard evaluation engine
 │   ├── signals.js             # Signal computation (computeSignals)
@@ -127,6 +130,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 3. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
 4. **Thread system duality**: context threads (`ct_*` via `/api/context/threads`) are different from message threads (`mt_*` via `/api/messages/threads`).
 5. **Demo contract preservation**: demo fixtures can be authored with teaching-oriented field names, but demo API responses must preserve the same shape expected by the production dashboard. Normalize aliases at the middleware/demo-handler boundary instead of teaching page components a second schema.
+6. **Public-safe setup exception**: `/setup` is the only protected page intentionally reachable before login. It renders sanitized readiness information for anonymous users and richer operator diagnostics after authentication.
 
 ---
 
@@ -158,6 +162,12 @@ middleware.js                  # Auth + rate limiting + org context injection
 - `/api/auth/*` (NextAuth)
 - `/api/webhooks/stripe`
 - `/api/cron/*` (requires `Authorization: Bearer CRON_SECRET`)
+
+### Public Setup Page
+- `GET /setup` is intentionally accessible before login.
+- Anonymous users see a public-safe readiness view: overall health, config presence/missing state, DB reachability, schema pass/fail, auth readiness, and next-step guidance.
+- Anonymous mode does **not** expose secret values, connection strings, token material, raw errors, or exact missing internal details that are reserved for authenticated operators.
+- Authenticated users see the richer operator view on the same page.
 
 ### Admin-Only API Routes (return 403 for members)
 - `POST/DELETE /api/keys`
@@ -344,7 +354,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 |-------|---------|-------------|
 | `/api/auth/[...nextauth]` | GET, POST | NextAuth OAuth handler |
 | `/api/health` | GET | DB connectivity check (public) |
-| `/api/setup/status` | GET | Setup status (public) |
+| `/api/setup/status` | GET | Public database readiness status used by `/setup` |
 | `/api/waitlist` | GET, POST | Waitlist signups (public) |
 | `/api/activity` | GET | Activity log (paginated, filtered) |
 | `/api/webhooks` | GET, POST, DELETE | Webhook CRUD |

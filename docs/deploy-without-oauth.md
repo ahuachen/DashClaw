@@ -62,6 +62,15 @@ click **Fork**. Accept all defaults. This gives you your own copy to deploy from
 Vercel will build and deploy. Tables are created automatically on the first request.
 No migrations to run manually.
 
+Before signing in, open `https://your-app.vercel.app/setup`. That page verifies:
+- the app is up
+- the database is reachable and all required tables exist
+- required vs advisory environment variables
+- local password / OAuth auth readiness
+- copy-ready SDK validation commands
+
+`/setup` is intentionally safe to open before login. It shows status and recovery guidance without exposing secret values.
+
 ---
 
 ## Step 4 — Sign In With Your Password
@@ -170,6 +179,6 @@ This is normal on a fresh instance. Complete the onboarding checklist and connec
 an agent. Data appears as soon as an agent sends its first action.
 
 **Tables were not created automatically**
-Visit `/api/health` on your deployment. If it returns an error about missing tables,
-visit `/api/setup/status` — the app runs migrations on first boot and this endpoint
-can trigger them manually.
+Visit `/setup` first. If the Database section shows missing core tables, the page will
+tell you exactly which tables are absent and which migration commands to run. You can
+also check `/api/health` for a machine-readable status response.
