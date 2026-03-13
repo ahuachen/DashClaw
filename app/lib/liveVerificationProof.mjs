@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import { jwtVerify } from 'jose';
 
 const LIVE_PROOF_AUDIENCE = 'dashclaw-setup-live-proof';
 const LIVE_PROOF_ISSUER = 'dashclaw';
@@ -9,7 +8,7 @@ function getJwtSecret(env = process.env) {
   if (!env.NEXTAUTH_SECRET) {
     throw new Error('NEXTAUTH_SECRET is required to sign live verification proof.');
   }
-  return new TextEncoder().encode(env.NEXTAUTH_SECRET);
+  return String(env.NEXTAUTH_SECRET);
 }
 
 function normalizeTool(tool) {
@@ -104,10 +103,29 @@ export async function readLiveVerificationProofToken(token, env = process.env) {
 
   try {
     const secret = getJwtSecret(env);
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: LIVE_PROOF_ISSUER,
-      audience: LIVE_PROOF_AUDIENCE,
-    });
+    const parts = String(token).split('.');
+    if (parts.length !== 3) return null;
+
+    const [encodedHeader, encodedPayload, encodedSignature] = parts;
+    const signingInput = `${encodedHeader}.${encodedPayload}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(signingInput)
+      .digest('base64url');
+
+    if (
+      encodedSignature.length !== expectedSignature.length ||
+      !crypto.timingSafeEqual(Buffer.from(encodedSignature), Buffer.from(expectedSignature))
+    ) {
+      return null;
+    }
+
+    const header = JSON.parse(Buffer.from(encodedHeader, 'base64url').toString('utf8'));
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8'));
+
+    if (header?.alg !== 'HS256' || header?.typ !== 'JWT') return null;
+    if (payload?.iss !== LIVE_PROOF_ISSUER || payload?.aud !== LIVE_PROOF_AUDIENCE) return null;
+    if (!payload?.exp || Number(payload.exp) <= Math.floor(Date.now() / 1000)) return null;
 
     return {
       validator: sanitizeText(payload.validator || '', 80),
