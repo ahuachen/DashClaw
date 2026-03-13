@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { CompactSign, jwtVerify } from 'jose';
 
 const LIVE_PROOF_AUDIENCE = 'dashclaw-setup-live-proof';
 const LIVE_PROOF_ISSUER = 'dashclaw';
@@ -74,13 +74,19 @@ export function normalizeLiveVerificationPayload(payload = {}, options = {}) {
 export async function createLiveVerificationProofToken(payload, options = {}) {
   const normalized = normalizeLiveVerificationPayload(payload, options);
   const secret = getJwtSecret(options.env);
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const claims = {
+    ...normalized,
+    iss: LIVE_PROOF_ISSUER,
+    aud: LIVE_PROOF_AUDIENCE,
+    iat: issuedAt,
+    exp: issuedAt + 7 * 24 * 60 * 60,
+  };
 
-  const token = await new SignJWT(normalized)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuer(LIVE_PROOF_ISSUER)
-    .setAudience(LIVE_PROOF_AUDIENCE)
-    .setIssuedAt()
-    .setExpirationTime('7d')
+  const token = await new CompactSign(
+    new TextEncoder().encode(JSON.stringify(claims))
+  )
+    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .sign(secret);
 
   return {
