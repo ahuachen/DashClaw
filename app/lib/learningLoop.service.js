@@ -1,4 +1,4 @@
-import { buildRecommendationsFromEpisodes, scoreActionEpisode } from './learning-loop.js';
+import { buildRecommendationsFromEpisodes, scoreActionEpisode, toNumber, average } from './learning-loop.js';
 import {
   clearLearningRecommendations,
   createLearningRecommendationEvents,
@@ -43,15 +43,6 @@ export async function recordLearningRecommendationEvents(sql, orgId, events = []
   return createLearningRecommendationEvents(sql, orgId, events);
 }
 
-function toNumber(value, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function average(values) {
-  if (!values.length) return 0;
-  return values.reduce((sum, n) => sum + n, 0) / values.length;
-}
 
 function rate(numerator, denominator) {
   if (!denominator) return 0;

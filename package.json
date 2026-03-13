@@ -21,8 +21,6 @@
     "sdk:live:python": "node scripts/_run-with-env.mjs scripts/run-sdk-live-python.mjs",
     "reliability:evidence": "node scripts/collect-platform-convergence-evidence.mjs",
     "reliability:ws1:check": "node scripts/check-convergence-ws1-latency.mjs",
-    "convergence:evidence": "node scripts/collect-platform-convergence-evidence.mjs",
-    "convergence:ws1:check": "node scripts/check-convergence-ws1-latency.mjs",
     "scripts:check-syntax": "node scripts/check-scripts-syntax.mjs",
     "setup": "node scripts/setup.mjs",
     "init:self-host-env": "node scripts/init-self-host-env.mjs",

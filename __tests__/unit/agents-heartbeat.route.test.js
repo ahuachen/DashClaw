@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { makeRequest } from '../../helpers.js';
+import { makeRequest } from '../helpers.js';
 
 const {
   mockSql,

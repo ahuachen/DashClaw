@@ -2,7 +2,7 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function toNumber(value, fallback = 0) {
+export function toNumber(value, fallback = 0) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
@@ -26,7 +26,7 @@ function quantile(values, q) {
   return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
 }
 
-function average(values) {
+export function average(values) {
   if (!values.length) return 0;
   return values.reduce((sum, n) => sum + n, 0) / values.length;
 }
