@@ -47,18 +47,19 @@ export default function AuditLogPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        setError(json.error || 'Failed to load activity logs');
+        setError(json.error || 'Failed to load audit logs');
         return;
       }
 
+      const newItems = json.events || [];
       if (reset) {
-        setLogs(json.logs || []);
+        setLogs(newItems);
       } else {
-        setLogs((prev) => [...prev, ...(json.logs || [])]);
+        setLogs((prev) => [...prev, ...newItems]);
       }
 
-      setStats(json.stats || { total: 0, today: 0, unique_actors: 0 });
-      setHasMore((json.logs || []).length === limit);
+      setStats(json.stats || { total: json.total || 0, today: 0, unique_actors: 0 });
+      setHasMore(newItems.length === limit);
 
       if (!reset) {
         setOffset(currentOffset + limit);

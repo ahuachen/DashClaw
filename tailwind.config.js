@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// Force reload after file move
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
