@@ -3,7 +3,9 @@
   <h1>DashClaw</h1>
   <p><strong>Decision runtime for AI agents</strong></p>
   <p>DashClaw is a policy firewall that intercepts agent actions before they reach real systems.</p>
-  <p>MIT Licensed &bull; Self-hosted &bull; Zero-dependency SDK &bull; Node + Python</p>
+  <p>MIT Licensed &bull; Self-hosted &bull; Zero-dependency SDK &bull; Node + Python &bull; Open source</p>
+  <br />
+  <p><strong>Agents &rarr; DashClaw &rarr; External Systems</strong></p>
   <br />
   <p><a href="https://www.dashclaw.io/mission-control">View Demo</a></p>
 
@@ -22,7 +24,7 @@
 
 DashClaw is a decision runtime for AI agents. It sits between agents and the systems they control, intercepting actions, enforcing policies, and recording decision evidence before execution.
 
-Think of it as a **firewall for agent behavior**.
+Think of it as a **firewall for AI agent actions**.
 
 ---
 
@@ -90,19 +92,40 @@ Frameworks (like LangChain or CrewAI) help you build agents. DashClaw provides t
 
 ---
 
+## Works With
+
+DashClaw integrates with any agent framework.
+
+- OpenAI agents
+- Claude / Anthropic agents
+- LangChain
+- CrewAI
+- OpenClaw
+- AutoGen
+- custom agents
+
+---
+
 ## 30-Second Quick Start
 
-**1. Install the SDK**
+**1. Run DashClaw locally**
+```bash
+git clone https://github.com/ucsandman/DashClaw.git
+cd DashClaw
+node scripts/setup.mjs
+```
+
+**2. Install the SDK**
 ```bash
 npm install dashclaw
 ```
 
-**2. Guard your agent**
+**3. Guard your agent**
 ```javascript
 import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: 'https://your-dashclaw-host.com',
+  baseUrl: 'http://localhost:3000',
   apiKey: 'oc_live_...',
   agentId: 'deployment-bot'
 });
@@ -161,35 +184,15 @@ DashClaw is built around five primitives that form a decision runtime for autono
 
 ---
 
-## Full Installation
-
-**Prerequisites:** Node.js 20+
-
-```bash
-git clone https://github.com/ucsandman/DashClaw.git
-cd DashClaw
-node scripts/setup.mjs
-```
-
-The interactive setup handles everything: database, secrets, dashboard login, and migrations. When setup finishes, visit your dashboard at `http://localhost:3000`.
-
----
-
 ## Platform Expansion
 
-Once decisions are governed, DashClaw expands into a full operational control plane for agent fleets.
+Once governance is in place, DashClaw adds operational tooling:
 
-### Core Platform
-- **Fleet Operations** -- Mission Control, swarm views, routing, schedules, notifications.
-- **Quality and Learning** -- Scoring profiles, calibration, evaluations, drift detection.
-
-### Developer Tools
-- **Agent Workspace** -- Messaging, shared docs, handoffs, context threads, memory health.
-- **Toolkit** -- 30+ Python CLI tools that run alongside your agent.
-
-### Trust Infrastructure
-- **Compliance** -- Framework mapping (SOC 2, ISO 27001), gap analysis, audit-ready evidence.
-- **Security** -- Prompt injection scanning, content security, identity binding.
+- **Mission Control dashboard** — operational visibility for agent fleets.
+- **Agent routing and orchestration** — match tasks to the right agent.
+- **Evaluation and scoring** — track quality and accuracy over time.
+- **Compliance evidence** — generate audit-ready reports.
+- **Shared workspace and messaging** — agent-to-agent collaboration.
 
 ---
 
