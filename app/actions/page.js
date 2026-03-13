@@ -209,9 +209,9 @@ export default function ActionsTimeline() {
 
   return (
     <PageLayout
-      title="Decision Ledger"
-      subtitle={`Decision Governance Control Plane${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
-      breadcrumbs={['Dashboard', 'Actions']}
+      title="Decisions Ledger"
+      subtitle={`Global record of agent activity and governance${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
+      breadcrumbs={['Governance', 'Decisions']}
       actions={
         <div className="flex items-center gap-2">
           {isAdmin && (

@@ -17,7 +17,7 @@ export default function LoginClient({ localAuthEnabled }) {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace('/dashboard');
+      router.replace('/mission-control');
     }
   }, [status, router]);
 
@@ -66,7 +66,7 @@ export default function LoginClient({ localAuthEnabled }) {
           {providers.map((provider) => (
             <button
               key={provider.id}
-              onClick={() => signIn(provider.id, { callbackUrl: '/dashboard' })}
+              onClick={() => signIn(provider.id, { callbackUrl: '/mission-control' })}
               className={`w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 provider.id === 'github'
                   ? 'bg-white text-black hover:bg-zinc-200'

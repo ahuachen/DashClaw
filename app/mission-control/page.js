@@ -307,10 +307,10 @@ export default function MissionControlPage() {
 
   const actionButton = (
     <Link
-      href="/dashboard"
+      href="/actions"
       className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm text-brand transition-colors hover:bg-brand/20"
     >
-      Operations View <ArrowRight size={14} />
+      View Decisions <ArrowRight size={14} />
     </Link>
   );
 

@@ -34,9 +34,9 @@ export default function PublicFooter() {
             <Terminal size={14} />
             Toolkit
           </Link>
-          <Link href="/dashboard" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+          <Link href="/mission-control" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
             <ExternalLink size={14} />
-            Dashboard
+            Mission Control
           </Link>
           <Link href="/self-host" className="hover:text-zinc-300 transition-colors">
             Get Started

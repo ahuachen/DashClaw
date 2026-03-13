@@ -16,62 +16,39 @@ import DashClawLogo from './DashClawLogo';
 
 const navGroups = [
   {
-    label: 'Overview',
+    label: 'Command',
     items: [
       { href: '/mission-control', icon: Radar, label: 'Mission Control' },
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/swarm', icon: Users, label: 'Swarm Intelligence' },
+      { href: '/agents', icon: Users, label: 'Agents' },
+      { href: '/actions', icon: Activity, label: 'Activity' },
     ],
   },
   {
-    label: 'Operations',
+    label: 'Governance',
     items: [
       { href: '/actions', icon: Zap, label: 'Decisions' },
-      { href: '/approvals', icon: Clock, label: 'Approval Queue' },
-      { href: '/security', icon: ShieldAlert, label: 'Security' },
       { href: '/policies', icon: Shield, label: 'Policies' },
-      { href: '/messages', icon: MessageSquare, label: 'Messages' },
-      { href: '/workspace', icon: FolderKanban, label: 'Workspace' },
-      { href: '/routing', icon: Network, label: 'Task Routing' },
-      { href: '/compliance', icon: Scale, label: 'Compliance' },
-      { href: '/evaluations', icon: BarChart3, label: 'Evaluations' },
-      { href: '/scoring', icon: SlidersHorizontal, label: 'Scoring' },
-      { href: '/prompts', icon: FileCode, label: 'Prompts' },
-      { href: '/feedback', icon: MessageCircle, label: 'Feedback' },
-      { href: '/drift', icon: Activity, label: 'Drift Detection' },
+      { href: '/approvals', icon: Clock, label: 'Approvals' },
+      { href: '/security', icon: ShieldAlert, label: 'Signals' },
+      { href: '/drift', icon: Activity, label: 'Assumptions' },
     ],
   },
   {
-    label: 'Data',
+    label: 'Evidence',
     items: [
-      { href: '/content', icon: FileText, label: 'Content' },
-      { href: '/relationships', icon: Users, label: 'Relationships' },
-      { href: '/learning', icon: BookOpen, label: 'Learning' },
-      { href: '/learning/analytics', icon: Zap, label: 'Learning Analytics' },
-      { href: '/goals', icon: Target, label: 'Goals' },
-      { href: '/tokens', icon: Coins, label: 'Token Budget' },
+      { href: '/compliance', icon: Scale, label: 'Compliance' },
+      { href: '/activity', icon: Clock, label: 'Audit Log' },
     ],
   },
   {
     label: 'System',
     items: [
       { href: '/integrations', icon: Plug, label: 'Integrations' },
-      { href: '/pairings', icon: CircleDot, label: 'Pairings' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
+      { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
       { href: '/team', icon: UsersRound, label: 'Team' },
       { href: '/usage', icon: BarChart3, label: 'Usage' },
-      { href: '/activity', icon: Clock, label: 'Activity' },
-      { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
-      { href: '/notifications', icon: Bell, label: 'Notifications' },
-      { href: '/workflows', icon: GitBranch, label: 'Workflows' },
-      { href: '/setup', icon: Settings, label: 'Setup & Verify' },
-    ],
-  },
-  {
-    label: 'Tools',
-    items: [
-      { href: '/bug-hunter', icon: Bug, label: 'Bug Hunter' },
-      { href: '/calendar', icon: Calendar, label: 'Calendar' },
+      { href: '/setup', icon: Settings, label: 'Settings' },
     ],
   },
 ];
@@ -96,7 +73,7 @@ export default function Sidebar() {
   }, []);
 
   const isActive = (href) => {
-    if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/mission-control') return pathname === '/mission-control' || pathname === '/';
     return pathname.startsWith(href);
   };
 
@@ -114,7 +91,7 @@ export default function Sidebar() {
             {!collapsed && <span className="text-lg font-semibold text-white">DashClaw</span>}
           </a>
         ) : (
-          <Link href="/dashboard" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+          <Link href="/mission-control" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
             <DashClawLogo size={20} />
             {!collapsed && <span className="text-lg font-semibold text-white">DashClaw</span>}
           </Link>

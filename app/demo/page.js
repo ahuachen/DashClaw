@@ -7,5 +7,5 @@ export const metadata = {
 
 export default function DemoPage() {
   // The demo is the real dashboard UI, powered by fixture-backed /api/* responses in demo mode.
-  redirect('/dashboard');
+  redirect('/mission-control');
 }

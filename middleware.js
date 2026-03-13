@@ -319,7 +319,7 @@ export async function middleware(request) {
   // /demo is always a public entrypoint: it sets a non-secret cookie and forwards into the dashboard.
   // This makes the live demo work even if the deployment forgot to set DASHCLAW_MODE=demo.
   if (pathname === '/demo') {
-    const response = NextResponse.redirect(new URL('/dashboard', request.url));
+    const response = NextResponse.redirect(new URL('/mission-control', request.url));
     response.cookies.set('dashclaw_demo', '1', {
       path: '/',
       maxAge: 60 * 60 * 24, // 24h
@@ -880,7 +880,7 @@ export async function middleware(request) {
 
     // /login — redirect to dashboard if already logged in
     if (pathname === '/login') {
-      if (token) return NextResponse.redirect(new URL('/dashboard', request.url));
+      if (token) return NextResponse.redirect(new URL('/mission-control', request.url));
       return NextResponse.next();
     }
 
