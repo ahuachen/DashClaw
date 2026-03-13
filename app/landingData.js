@@ -54,26 +54,31 @@ export const platformFeatures = [
   { icon: Brain, title: 'Keep Agent Memory Clean', description: 'Detect stale facts, repetition loops, and context bloat before they cause bad decisions, then sync the findings back into the platform.' },
 ];
 
-export const homepagePillars = [
+export const corePrimitives = [
   {
-    icon: ShieldAlert,
-    title: 'Govern Execution',
-    description: 'Policies, approvals, verified agent identity, assumptions, and decision proof before risky work runs.',
+    icon: Shield,
+    title: 'Guard',
+    description: 'Evaluate policies before agents act.',
   },
   {
-    icon: FolderKanban,
-    title: 'Run The Fleet',
-    description: 'Mission Control, routing, swarm views, schedules, notifications, and operator workflows in one control plane.',
+    icon: FileCheck,
+    title: 'Action Records',
+    description: 'Capture intent, reasoning, and outcomes.',
   },
   {
-    icon: SlidersHorizontal,
-    title: 'Measure And Improve',
-    description: 'Scoring profiles, evaluations, drift detection, learning recommendations, and maturity analytics.',
+    icon: Compass,
+    title: 'Assumptions',
+    description: 'Track what the agent believed and detect drift.',
   },
   {
-    icon: MessageSquare,
-    title: 'Keep Context Intact',
-    description: 'Messaging, handoffs, shared docs, snippets, threads, and memory health across long-running agent work.',
+    icon: UsersRound,
+    title: 'Approvals',
+    description: 'Pause risky decisions for human review.',
+  },
+  {
+    icon: Scale,
+    title: 'Evidence',
+    description: 'Generate audit-ready decision trails automatically.',
   },
 ];
 

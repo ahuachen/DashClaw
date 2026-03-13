@@ -1,8 +1,8 @@
 # DashClaw: Complete Setup & Usage Guide
 
-> **What is DashClaw?** AI agent decision infrastructure. It gives you a control plane to prove what your agents decided, enforce policies before they act, and track every assumption and risk signal. Think of it as the governance layer for your agent fleet.
+> **What is DashClaw?** DashClaw is a **policy firewall** for AI agents. It sits between AI agents and real-world systems to intercept actions, enforce policies, and record decision evidence before execution. Together with its core primitives, it forms a **decision runtime** for autonomous systems.
 >
-> **Live Demo (fake data):** https://dashclaw.io/demo
+> **Live Demo:** https://dashclaw.io/demo
 > **Your Dashboard (self-host):** http://localhost:3000 (or `https://YOUR_DASHCLAW_HOST`)
 > **SDK Docs:** `/docs` on any DashClaw instance (or https://dashclaw.io/docs)
 > **npm Package:** `dashclaw`

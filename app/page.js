@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock } from 'lucide-react';
 import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
@@ -8,7 +8,7 @@ import HeroScreenshot from './components/HeroScreenshot';
 import {
   coreFeatures,
   platformFeatures,
-  homepagePillars,
+  corePrimitives,
   operationalFeatures,
   signals,
   agentToolCategories,
@@ -20,7 +20,7 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white text-base">
       {/* ── 1. Navbar ── */}
       <PublicNavbar />
 
@@ -29,147 +29,456 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(249,115,22,0.3)] bg-[rgba(249,115,22,0.08)] text-brand text-xs font-medium mb-6">
             <ShieldAlert size={14} />
-            Open-source &middot; MIT Licensed &middot; Self-hosted
+            Open-source AI governance runtime
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            Govern agent decisions before execution.
+            Govern AI agents before they act.
           </h1>
-          <p className="mt-6 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            DashClaw is the self hosted control plane for running AI agents in production. Govern decisions before execution, route work, score quality, track learning, preserve workspace context, and surface compliance and security evidence from one place.
+          <p className="mt-6 text-brand font-semibold text-xl sm:text-2xl">
+            DashClaw is a policy firewall for AI agents.
           </p>
-          <p className="mt-3 text-sm text-zinc-500">Open-source. Self-hosted. Zero-dependency SDKs. No OAuth required to get started.</p>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Policy guard</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Decision audit trail</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Task routing</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Scoring profiles</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Adaptive learning</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Compliance mapping</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Messaging + handoffs</span>
-            <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Risk signals</span>
-          </div>
+          <p className="mt-4 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+            DashClaw sits between AI agents and real-world systems. It intercepts actions, enforces policies, and records decision evidence before execution.
+          </p>
+          <p className="mt-4 text-sm text-zinc-500 font-medium">Simple to adopt. Powerful to operate. MIT Licensed.</p>
+
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
-              <Terminal size={16} /> Live Demo
+            <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
+              Deploy DashClaw
             </Link>
-            <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
-              Deploy Free <ArrowRight size={16} />
+            <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
+              <Terminal size={16} /> View Demo
             </Link>
           </div>
-          <p className="mt-3 text-xs text-zinc-500">Start with the demo to see the full control plane. Deploy when you want to connect real agents.</p>
+
+          <div className="mt-6 flex items-center justify-center gap-4 text-[10px] font-mono text-zinc-500">
+            <span className="flex items-center gap-1.5 bg-zinc-900/50 px-2 py-1 rounded border border-zinc-800">
+              <Terminal size={10} /> npm install dashclaw
+            </span>
+            <span className="flex items-center gap-1.5 bg-zinc-900/50 px-2 py-1 rounded border border-zinc-800">
+              <Terminal size={10} /> pip install dashclaw
+            </span>
+          </div>
+
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-brand"></div> MIT Licensed
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-brand"></div> Self-hosted
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-brand"></div> Zero-dependency SDK
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-brand"></div> Node + Python
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── 2.5 Dashboard Preview ── */}
-      <section className="pb-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-6 text-center">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-zinc-500">Four Platform Pillars</p>
+      {/* ── 3. The Interception Layer ── */}
+      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">The interception layer for AI agents</h2>
+            <p className="mt-4 text-brand font-medium">
+              DashClaw governs the moment where agent intent becomes real-world action.
+            </p>
+            <p className="mt-2 text-zinc-400 max-w-2xl mx-auto">
+              This interception is where trust is created.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {homepagePillars.map((pillar) => {
-              const Icon = pillar.icon;
+          
+          <div className="relative max-w-md mx-auto py-10 px-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#111] overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-brand/30"></div>
+            <div className="space-y-4 text-center">
+              <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] text-sm font-medium text-zinc-300">Agent attempts action</div>
+              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
+              <div className="p-3 rounded-lg bg-brand/10 border border-brand/20 text-sm font-semibold text-brand">DashClaw evaluates guard policies</div>
+              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm font-medium text-red-400">Risk threshold triggered</div>
+              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
+              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm font-medium text-blue-400">Human approval required</div>
+              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
+              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm font-medium text-green-400">Action approved or blocked</div>
+              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
+              <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] text-sm font-medium text-zinc-300">Decision evidence recorded</div>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center max-w-2xl mx-auto">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
+                <p className="text-brand font-semibold text-sm">Agents retain autonomy.</p>
+              </div>
+              <div className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
+                <p className="text-brand font-semibold text-sm">Organizations retain control.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. Architecture Section ── */}
+      <section className="py-24 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0c0c0c]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">DashClaw sits between agents and the systems they control</h2>
+            <p className="mt-4 text-zinc-400">DashClaw intercepts actions before they reach real-world systems.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#111] text-center">
+              <div className="text-xs font-mono text-zinc-500 mb-4 uppercase tracking-widest">Autonomous Actor</div>
+              <div className="text-lg font-bold text-white mb-2">AI Agent</div>
+              <div className="text-xs text-zinc-400 leading-relaxed">
+                OpenAI &middot; Claude &middot; CrewAI &middot; OpenClaw
+              </div>
+            </div>
+
+            <div className="flex md:flex-col items-center justify-center gap-4">
+              <div className="h-px w-8 md:w-px md:h-12 bg-zinc-800"></div>
+              <div className="p-1 rounded-full bg-brand/20 border border-brand/30">
+                <ArrowRight className="text-brand md:rotate-90" size={16} />
+              </div>
+              <div className="h-px w-8 md:w-px md:h-12 bg-zinc-800"></div>
+            </div>
+
+            <div className="hidden md:block"></div>
+
+            <div className="hidden md:block"></div>
+            
+            <div className="relative p-8 rounded-2xl border-2 border-brand/30 bg-brand/5 text-center shadow-[0_0_40px_rgba(249,115,22,0.1)]">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-brand text-[10px] font-bold text-white uppercase tracking-widest">
+                DashClaw Runtime
+              </div>
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-white">Policy Engine</div>
+                <div className="text-sm font-semibold text-white">Approval Routing</div>
+                <div className="text-sm font-semibold text-white">Evidence Ledger</div>
+              </div>
+            </div>
+
+            <div className="hidden md:block"></div>
+
+            <div className="hidden md:block"></div>
+
+            <div className="flex md:flex-col items-center justify-center gap-4">
+              <div className="h-px w-8 md:w-px md:h-12 bg-zinc-800"></div>
+              <div className="p-1 rounded-full bg-brand/20 border border-brand/30">
+                <ArrowRight className="text-brand md:rotate-90" size={16} />
+              </div>
+              <div className="h-px w-8 md:w-px md:h-12 bg-zinc-800"></div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#111] text-center">
+              <div className="text-xs font-mono text-zinc-500 mb-4 uppercase tracking-widest">Real-world Targets</div>
+              <div className="text-lg font-bold text-white mb-2">External Systems</div>
+              <div className="text-xs text-zinc-400 leading-relaxed">
+                GitHub &middot; APIs &middot; Databases &middot; Infrastructure
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. The Runtime Problem ── */}
+      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0c0c0c]">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">AI agents introduce a new runtime problem</h2>
+          <div className="mt-8 space-y-4 text-lg text-zinc-400 leading-relaxed text-left max-w-2xl mx-auto">
+            <p>Traditional software executes deterministic code paths.</p>
+            <p>AI agents generate actions from goals and context.</p>
+            <p>Debugging alone is no longer enough.</p>
+            <p>Developers need governance over agent decisions.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. The Decision Runtime ── */}
+      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0d0d0d]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">The Decision Runtime</h2>
+            <p className="mt-3 text-zinc-400">DashClaw is built around five primitives that form a decision runtime for autonomous systems.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {corePrimitives.map((primitive) => {
+              const Icon = primitive.icon;
               return (
-                <div key={pillar.title} className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5">
+                <div key={primitive.title} className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5 flex flex-col items-center text-center">
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[rgba(249,115,22,0.1)]">
                     <Icon size={18} className="text-brand" />
                   </div>
-                  <h3 className="text-base font-semibold text-white">{pillar.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">{pillar.description}</p>
+                  <h3 className="text-base font-semibold text-white">{primitive.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">{primitive.description}</p>
                 </div>
               );
             })}
           </div>
+          <p className="mt-10 text-center text-zinc-500 text-sm italic">
+            Governance logic belongs in the runtime, not hardcoded in your agents.
+          </p>
         </div>
       </section>
 
-      <section className="pb-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto pt-16">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
-            <div className="lg:col-span-2">
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">One screen. Everything your fleet is doing.</h2>
+      {/* ── 6. Quickstart ── */}
+      <section id="sdk" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0c0c0c]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(249,115,22,0.08)] border border-[rgba(249,115,22,0.2)] text-brand text-xs font-medium mb-4">
+                <Package size={12} />
+                One SDK. Full decision infrastructure.
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Get governance in 60 seconds</h2>
               <p className="mt-3 text-zinc-400 leading-relaxed">
-                Live actions, open risk signals, pending approvals, cost movement, fleet presence, and active agent work in a single view. Built for operators who need answers fast, not more dashboards to maintain.
+                Zero-dependency Node.js and Python clients. Adding governance requires only a small wrapper around risky actions.
               </p>
-              <div className="mt-5 flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Realtime</span>
-                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">HITL approvals</span>
-                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Guard policies</span>
-                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Fleet presence</span>
-                <span className="rounded-full border border-[rgba(255,255,255,0.12)] bg-[#111] px-3 py-1 text-zinc-300">Swarm map</span>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">npm install dashclaw</span>
+                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">pip install dashclaw</span>
               </div>
+              <Link href="/docs" className="mt-6 inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
+                View full SDK docs <ArrowRight size={14} />
+              </Link>
             </div>
-            <div className="lg:col-span-3">
-              <HeroScreenshot
-                src="/images/screenshots/Mission Control.png"
-                alt="DashClaw Mission Control - strategic overview of your agent fleet"
-                className="shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]"
-              />
-              <div className="mt-3 text-right">
-                <Link href="/gallery" className="text-xs text-zinc-500 hover:text-zinc-200 transition-colors">
-                  View full gallery →
-                </Link>
+            <div>
+              <div className="text-xs text-zinc-500 font-mono mb-2 uppercase tracking-wider">SDK Example</div>
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-5 font-mono text-sm overflow-x-auto shadow-2xl">
+                <div className="text-zinc-500 mb-3">{'// 1. Initialize DashClaw'}</div>
+                <div>
+                  <span className="text-purple-400">const</span>
+                  <span className="text-zinc-300"> claw = </span>
+                  <span className="text-purple-400">new</span>
+                  <span className="text-yellow-300"> DashClaw</span>
+                  <span className="text-zinc-300">()</span>
+                </div>
+
+                <div className="mt-6 text-zinc-500">{'// 2. Intercept before you act'}</div>
+                <div>
+                  <span className="text-purple-400">const</span>
+                  <span className="text-zinc-300">{' { decision } = '}</span>
+                  <span className="text-purple-400">await</span>
+                  <span className="text-zinc-300"> claw.</span>
+                  <span className="text-yellow-300">guard</span>
+                  <span className="text-zinc-300">({'{'}</span>
+                </div>
+                <div className="text-zinc-300 pl-4">
+                  actionType: <span className="text-green-400">&apos;deploy&apos;</span>,
+                </div>
+                <div className="text-zinc-300 pl-4">
+                  riskScore: <span className="text-cyan-300">85</span>
+                </div>
+                <div className="text-zinc-300">{'})'}</div>
+                
+                <div className="mt-6 text-zinc-500">{'// 3. Follow the decision'}</div>
+                <div className="text-zinc-300">
+                  <span className="text-purple-400">if</span> (decision === <span className="text-green-400">&apos;allowed&apos;</span>) {'{'}
+                </div>
+                <div className="text-zinc-300 pl-4 text-zinc-500">
+                  {'// execute real-world action'}
+                </div>
+                <div className="text-zinc-300">{'}'}</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 3. How It Works ── */}
-      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Connect your first agent in 5 minutes</h2>
-            <p className="mt-3 text-zinc-400">Four steps from install to live decision governance. No OAuth app, no database setup, no DevOps.</p>
+      {/* ── 7. Real Use Cases ── */}
+      <section className="py-24 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">What developers use DashClaw for</h2>
+            <p className="mt-4 text-zinc-400">Practical scenarios where decision governance creates trust.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              { step: '1', title: 'Instrument in 60 seconds', code: 'npm install dashclaw\n# or\npip install dashclaw', desc: 'Zero dependencies. Works with Node.js and Python agents.' },
-              { step: '2', title: 'Guard before you act', code: "const decision = await dc.guard({\n  actionType: 'deploy',\n  riskScore: 85,\n});", desc: 'Intervene with real-time policy checks.' },
-              { step: '3', title: 'Score with your own quality bar', code: "// Define what \"good\" means for your use case\nawait dc.createScoringProfile({\n  name: 'deploy-quality',\n  action_type: 'deploy',\n  dimensions: [\n    { name: 'Speed', weight: 0.3, data_source: 'duration_ms',\n      scale: [\n        { label: 'excellent', operator: 'lt', value: 30000, score: 100 },\n        { label: 'poor', operator: 'gte', value: 120000, score: 20 },\n      ]},\n    { name: 'Reliability', weight: 0.4, data_source: 'confidence',\n      scale: [\n        { label: 'excellent', operator: 'gte', value: 0.9, score: 100 },\n        { label: 'poor', operator: 'lt', value: 0.7, score: 25 },\n      ]},\n  ],\n});\n\n// Or let DashClaw suggest thresholds from your real data\nconst suggestions = await dc.autoCalibrate({ lookback_days: 30 });", desc: 'Custom weighted quality scoring with auto-calibration.' },
-              { step: '4', title: 'Record and Learn', code: "with claw.track(action='deploy'):\n  # ... decisions stream to\n  # dashboard in real-time", desc: 'Decisions, policy checks, and signals stream in real-time.' },
-            ].map((item) => (
-              <div key={item.step} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-                <span className="w-7 h-7 rounded-full bg-brand/20 text-brand text-xs font-bold flex items-center justify-center mb-3">{item.step}</span>
-                <h3 className="text-base font-semibold text-white mb-2">{item.title}</h3>
-                <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2.5 text-xs text-zinc-300 font-mono overflow-x-auto mb-3 whitespace-pre-wrap">{item.code}</pre>
-                <p className="text-sm text-zinc-400">{item.desc}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                  <ShieldAlert size={20} />
+                </div>
+                <h3 className="text-xl font-bold">Prevent risky deployments</h3>
               </div>
-            ))}
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Intercept deploy commands from agents and require approval when risk thresholds are exceeded.
+              </p>
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[11px] overflow-x-auto text-zinc-300 shadow-lg">
+                <span className="text-purple-400">const</span> decision = <span className="text-purple-400">await</span> claw.guard({'{'}
+                <div className="pl-4">actionType: <span className="text-green-400">&quot;deploy&quot;</span>,</div>
+                <div className="pl-4">environment: <span className="text-green-400">&quot;production&quot;</span>,</div>
+                <div className="pl-4">riskScore: <span className="text-cyan-300">92</span></div>
+                {'}'})
+              </div>
+              <ul className="space-y-2 text-xs text-zinc-500">
+                <li className="flex items-center gap-2">&bull; Request human approval</li>
+                <li className="flex items-center gap-2">&bull; Pause execution</li>
+                <li className="flex items-center gap-2">&bull; Record evidence for audit</li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                  <Lock size={20} />
+                </div>
+                <h3 className="text-xl font-bold">Control autonomous API usage</h3>
+              </div>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Agents interacting with third-party APIs can be governed with policies.
+              </p>
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[11px] overflow-x-auto text-zinc-300 shadow-lg">
+                <span className="text-purple-400">await</span> claw.guard({'{'}
+                <div className="pl-4">actionType: <span className="text-green-400">&quot;external_api_call&quot;</span>,</div>
+                <div className="pl-4">provider: <span className="text-green-400">&quot;stripe&quot;</span>,</div>
+                <div className="pl-4">amount: <span className="text-cyan-300">2000</span></div>
+                {'}'})
+              </div>
+              <ul className="space-y-2 text-xs text-zinc-500">
+                <li className="flex items-center gap-2">&bull; Limit spending thresholds</li>
+                <li className="flex items-center gap-2">&bull; Block dangerous actions</li>
+                <li className="flex items-center gap-2">&bull; Trigger approval workflows</li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                  <Activity size={20} />
+                </div>
+                <h3 className="text-xl font-bold">Detect agent reasoning drift</h3>
+              </div>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Track assumptions agents rely on and detect when they become invalid. DashClaw records agent assumptions and decision context.
+              </p>
+              <div className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-400 space-y-2">
+                <div className="flex items-center justify-between border-b border-zinc-800/50 pb-2">
+                  <span>Assumptions Divergence</span>
+                  <span className="text-orange-400 font-mono">DRIFT DETECTED</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Logic Baseline</span>
+                  <span className="text-zinc-500">v1.2.0</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Current Context</span>
+                  <span className="text-zinc-500">Unverified state</span>
+                </div>
+              </div>
+              <p className="text-xs text-zinc-500 leading-relaxed italic">
+                When assumptions diverge from reality, the system flags drift immediately.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-white">
+                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
+                  <FileJson size={20} />
+                </div>
+                <h3 className="text-xl font-bold">Produce audit trails</h3>
+              </div>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Every governed action generates structured evidence records ready for compliance and review.
+              </p>
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[10px] overflow-x-auto text-green-400/80 shadow-lg">
+                <pre>{`{
+  "agent": "deployment-bot",
+  "action": "deploy",
+  "riskScore": 85,
+  "policy": "production_guard",
+  "approval": "granted"
+}`}</pre>
+              </div>
+              <ul className="space-y-2 text-xs text-zinc-500">
+                <li className="flex items-center gap-2">&bull; Compliance reporting</li>
+                <li className="flex items-center gap-2">&bull; Debugging agent failures</li>
+                <li className="flex items-center gap-2">&bull; Governance review</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── 4. Features Grid ── */}
+      {/* ── 8. Platform Expansion ── */}
       <section id="features" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Everything else the platform already ships</h2>
-            <p className="mt-3 text-zinc-400 max-w-2xl mx-auto">After the four core pillars, DashClaw expands into deeper surfaces for compliance, workspace, integrations, observability, and day-two operations.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">When governance becomes operations</h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl mx-auto">
+              Once decisions are governed, DashClaw expands into a full operational control plane for agent fleets.
+            </p>
           </div>
 
-          {/* Core features: 2 col, larger */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            {coreFeatures.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
-                  <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
-                    <Icon size={20} className="text-brand" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">{feature.description}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 mb-16 text-left">
+            <div>
+              <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Core Platform</div>
+              <div className="space-y-12">
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <FolderKanban size={20} className="text-brand" /> Fleet Operations
+                  </h3>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {['Mission Control', 'Swarm views', 'Routing', 'Schedules', 'Notifications'].map(f => (
+                      <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              );
-            })}
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <BarChart3 size={20} className="text-brand" /> Quality and Learning
+                  </h3>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {['Scoring profiles', 'Calibration', 'Evaluations', 'Learning recommendations'].map(f => (
+                      <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-12">
+              <div>
+                <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Developer Tools</div>
+                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                  <MessageSquare size={20} className="text-brand" /> Agent Workspace
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {['Messaging', 'Shared docs', 'Handoffs', 'Threads', 'Memory health', 'SDKs', 'Prompt Registry', 'CLI tools'].map(f => (
+                    <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Trust Infrastructure</div>
+                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                  <Shield size={20} className="text-brand" /> Compliance and Security
+                </h3>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {['Framework mapping', 'Risk signals', 'Policy testing', 'Audit evidence', 'Evidence', 'Identity', 'Drift Detection'].map(f => (
+                    <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
 
-          {/* Platform features: 4 col, smaller */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
             {platformFeatures.map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
+                <div key={feature.title} className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors text-left">
                   <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-3">
                     <Icon size={16} className="text-brand" />
                   </div>
@@ -179,380 +488,110 @@ export default function LandingPage() {
               );
             })}
           </div>
-        </div>
-      </section>
 
-      {/* ── 4.5 What Makes DashClaw Different ── */}
-      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">What makes DashClaw different?</h2>
-            <p className="mt-3 text-zinc-400">Governance is the spine, not the whole story.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">No-Code Policy Engine</h3>
-              <p className="text-sm text-zinc-400 mt-2">
-                Define guardrails in natural language, test them before rollout, and generate proof when auditors or stakeholders ask how decisions were controlled.
-              </p>
+          <div className="space-y-20">
+            {/* Compliance Suite Merge */}
+            <div className="rounded-2xl bg-gradient-to-b from-[rgba(249,115,22,0.06)] to-transparent p-8 sm:p-12 border border-[rgba(249,115,22,0.12)]">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(249,115,22,0.3)] bg-[rgba(249,115,22,0.08)] text-brand text-xs font-medium mb-4">
+                  <DashClawLogo size={12} />
+                  AI Governance Suite
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Every governed decision produces audit-ready evidence.</h2>
+                <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm font-semibold text-zinc-300">
+                  <span className="px-3 py-1 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.06)]">SOC 2</span>
+                  <span className="px-3 py-1 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.06)]">ISO 27001</span>
+                  <span className="px-3 py-1 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.06)]">GDPR</span>
+                  <span className="px-3 py-1 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.06)]">NIST AI RMF</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)] text-center">
+                  <Scale size={20} className="text-brand mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2 text-sm">Compliance Engine</h3>
+                  <p className="text-xs text-zinc-400">Control-level gap analysis with remediation priorities.</p>
+                </div>
+                <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)] text-center">
+                  <FileCheck size={20} className="text-brand mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2 text-sm">Policy Testing</h3>
+                  <p className="text-xs text-zinc-400">Run tests against all active guard policies.</p>
+                </div>
+                <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)] text-center">
+                  <Network size={20} className="text-brand mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2 text-sm">Audit Evidence</h3>
+                  <p className="text-xs text-zinc-400">Generate audit-ready evidence from live behavior.</p>
+                </div>
+              </div>
             </div>
-            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">Adaptive Learning Loop</h3>
-              <p className="text-sm text-zinc-400 mt-2">
-                DashClaw doesn&apos;t stop at logging. It turns completed work into recommendations, telemetry, and maturity signals your operators can actually act on.
-              </p>
-            </div>
-            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">Operator-Defined Quality</h3>
-              <p className="text-sm text-zinc-400 mt-2">
-                Weighted scoring profiles, risk templates, and calibration from real data let operators define what good looks like instead of trusting opaque model heuristics.
-              </p>
-            </div>
-            <div className="p-6 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h3 className="text-lg font-semibold text-white">Shared Agent Workspace</h3>
-              <p className="text-sm text-zinc-400 mt-2">
-                Messaging, handoffs, threads, snippets, shared docs, and memory health give agents and humans a durable operating context instead of fragmented session state.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── 5. SDK Showcase ── */}
-      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Complete platform scope</h2>
-            <p className="mt-3 text-zinc-400 max-w-2xl mx-auto">
-              DashClaw is more than a dashboard. It spans control plane UX, governance APIs, learning systems,
-              workspace primitives, realtime transport, SDKs, and CI-backed contract governance.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-            {platformCoverage.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[rgba(249,115,22,0.1)]">
-                      <Icon size={18} className="text-brand" />
+            {/* Signals Showcase Merge */}
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Detect when agent autonomy goes wrong</h2>
+                <p className="mt-3 text-zinc-400">Automatic detection of autonomy breaches and logic drift.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                {signals.map((signal, i) => (
+                  <div key={signal.name} className="flex items-start gap-4 p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
+                    <div className="w-7 h-7 rounded-lg bg-[rgba(239,68,68,0.1)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <ShieldAlert size={14} className="text-red-400" />
                     </div>
-                    <h3 className="text-base font-semibold text-zinc-100">{item.title}</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed text-zinc-400">{item.description}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5">
-            <h3 className="text-base font-semibold text-zinc-100 mb-3">Production hardening shipped</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-              {shippedHighlights.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link key={item.title} href={item.href} className="rounded-lg border border-[rgba(255,255,255,0.06)] bg-[#0d0d0d] p-3 hover:border-[rgba(255,255,255,0.14)] transition-colors">
-                    <div className="mb-1.5 flex items-center gap-2">
-                      <Icon size={14} className="text-brand" />
-                      <p className="text-sm font-medium text-zinc-200">{item.title}</p>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">{signal.name}</h3>
+                      <p className="text-xs text-zinc-400 mt-0.5">{signal.description}</p>
                     </div>
-                    <p className="text-xs leading-relaxed text-zinc-400">{item.description}</p>
-                    <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-brand">
-                      Explore <ArrowRight size={11} />
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── AI Governance Suite Showcase ── */}
-      <section className="py-20 px-6 border-t border-[rgba(249,115,22,0.15)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-2xl bg-gradient-to-b from-[rgba(249,115,22,0.06)] to-transparent p-8 sm:p-12 border border-[rgba(249,115,22,0.12)]">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(249,115,22,0.3)] bg-[rgba(249,115,22,0.08)] text-brand text-xs font-medium mb-4">
-                <DashClawLogo size={12} />
-                AI Governance Suite
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">The only agent platform with built-in compliance</h2>
-              <p className="mt-3 text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-                Most platforms stop at logging. DashClaw ships decision enforcement,
-                regulatory compliance mapping, security scanning, and intelligent task routing in one system.
-                All auditable, all testable, all live in the demo.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-              {/* Card 1: Compliance Engine */}
-              <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
-                <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
-                  <Scale size={20} className="text-brand" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-3">Compliance Engine</h3>
-                <ul className="space-y-2 text-sm text-zinc-400 mb-4">
-                  <li>SOC 2, ISO 27001, GDPR, NIST AI RMF, EU AI Act</li>
-                  <li>Control-level gap analysis with remediation priorities</li>
-                  <li>Audit-ready reports in Markdown or JSON</li>
-                  <li>Live enforcement evidence from guard decisions</li>
-                </ul>
-                <Link href="/demo" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-                  Explore Compliance <ArrowRight size={14} />
-                </Link>
-              </div>
-
-              {/* Card 2: Policy Testing & Proof */}
-              <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
-                <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
-                  <FileCheck size={20} className="text-brand" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-3">Policy Testing &amp; Proof</h3>
-                <ul className="space-y-2 text-sm text-zinc-400 mb-4">
-                  <li>Run tests against all active guard policies</li>
-                  <li>Per-policy pass/fail breakdown with diagnostics</li>
-                  <li>Generate compliance proof reports on demand</li>
-                  <li>Import pre-built policy packs (enterprise, SMB, startup)</li>
-                </ul>
-                <Link href="/demo" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-                  Explore Policy Testing <ArrowRight size={14} />
-                </Link>
-              </div>
-
-              {/* Card 3: Intelligent Task Routing */}
-              <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
-                <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
-                  <Network size={20} className="text-brand" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-3">Intelligent Task Routing</h3>
-                <ul className="space-y-2 text-sm text-zinc-400 mb-4">
-                  <li>Skill-based agent matching with scoring</li>
-                  <li>Real-time load balancing and health verification</li>
-                  <li>Urgency-aware queue with retry and escalation</li>
-                  <li>Full agent registry with capability tracking</li>
-                </ul>
-                <Link href="/demo" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-                  Explore Task Routing <ArrowRight size={14} />
-                </Link>
-              </div>
-
-              <div className="p-6 rounded-xl bg-[#111]/80 border border-[rgba(255,255,255,0.06)]">
-                <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-4">
-                  <Shield size={20} className="text-brand" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-3">Security + Agent Integrity</h3>
-                <ul className="space-y-2 text-sm text-zinc-400 mb-4">
-                  <li>Prompt injection and outbound content scanning</li>
-                  <li>Verified agent identity and approval pairings</li>
-                  <li>Webhook and email alerting on new risk signals</li>
-                  <li>Multi-tenant isolation with encrypted settings</li>
-                </ul>
-                <Link href="/docs#security-scanning" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-                  Explore Security <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <p className="text-sm text-zinc-400 mb-4">Every feature works in the demo. No signup required.</p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link href="/demo" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors">
-                  <Terminal size={14} /> Explore Demo
-                </Link>
-                <Link href="/self-host" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors">
-                  Deploy Free <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="sdk" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(249,115,22,0.08)] border border-[rgba(249,115,22,0.2)] text-brand text-xs font-medium mb-4">
-                <Package size={12} />
-                170+ methods across 29+ categories
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">One SDK. Full agent operations surface.</h2>
-              <p className="mt-3 text-zinc-400 leading-relaxed">
-                Install from npm or pip. Zero dependencies. Native adapters for <span className="text-zinc-200 font-semibold">OpenClaw</span>, <span className="text-zinc-200 font-semibold">CrewAI</span>, <span className="text-zinc-200 font-semibold">AutoGen</span>, and <span className="text-zinc-200 font-semibold">LangChain</span>.
-                Decision recording, policy enforcement, scoring, recommendations, handoffs, messaging, routing, compliance, and more.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">npm package</span>
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">Node.js</span>
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">ESM + CJS</span>
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">Zero Dependencies</span>
-              </div>
-              <Link href="/docs" className="mt-4 inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-                View full SDK docs <ArrowRight size={14} />
-              </Link>
-            </div>
-            <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-5 font-mono text-sm overflow-x-auto">
-              <div className="text-zinc-500 mb-3">{'// govern your agent'}</div>
-              <div>
-                <span className="text-purple-400">import</span>
-                <span className="text-zinc-300">{' { DashClaw } '}</span>
-                <span className="text-purple-400">from</span>
-                <span className="text-green-400"> &apos;dashclaw&apos;</span>
-              </div>
-              <div className="mt-3">
-                <span className="text-purple-400">const</span>
-                <span className="text-zinc-300"> claw = </span>
-                <span className="text-purple-400">new</span>
-                <span className="text-yellow-300"> DashClaw</span>
-                <span className="text-zinc-300">({'{'}</span>
-              </div>
-              <div className="text-zinc-300 pl-4">
-                apiKey: <span className="text-zinc-300">process.env.</span><span className="text-cyan-300">DASHCLAW_API_KEY</span>,
-              </div>
-              <div className="text-zinc-300 pl-4">
-                agentId: <span className="text-green-400">&apos;my-agent&apos;</span>,
-              </div>
-              <div className="text-zinc-300">{'})'}</div>
-
-              <div className="mt-4 text-zinc-500">{'// check guard before acting'}</div>
-              <div>
-                <span className="text-purple-400">const</span>
-                <span className="text-zinc-300">{' { decision } = '}</span>
-                <span className="text-purple-400">await</span>
-                <span className="text-zinc-300"> claw.</span>
-                <span className="text-yellow-300">guard</span>
-                <span className="text-zinc-300">({'{'}</span>
-              </div>
-              <div className="text-zinc-300 pl-4">
-                action_type: <span className="text-green-400">&apos;deploy&apos;</span>,
-              </div>
-              <div className="text-zinc-300 pl-4">
-                risk_score: <span className="text-cyan-300">85</span>,
-              </div>
-              <div className="text-zinc-300">{'})'}</div>
-
-              <div className="mt-4 text-zinc-500">{'// record a governed decision'}</div>
-              <div>
-                <span className="text-purple-400">await</span>
-                <span className="text-zinc-300"> claw.</span>
-                <span className="text-yellow-300">createAction</span>
-                <span className="text-zinc-300">({'{'}</span>
-              </div>
-              <div className="text-zinc-300 pl-4">
-                action_type: <span className="text-green-400">&apos;deploy&apos;</span>,
-              </div>
-              <div className="text-zinc-300 pl-4">
-                declared_goal: <span className="text-green-400">&apos;Ship auth service&apos;</span>,
-              </div>
-              <div className="text-zinc-300">{'})'}</div>
-
-              <div className="mt-4 text-zinc-500">{'// create a session handoff'}</div>
-              <div>
-                <span className="text-purple-400">await</span>
-                <span className="text-zinc-300"> claw.</span>
-                <span className="text-yellow-300">createHandoff</span>
-                <span className="text-zinc-300">({'{'}</span>
-              </div>
-              <div className="text-zinc-300 pl-4">
-                summary: <span className="text-green-400">&apos;Completed auth system&apos;</span>,
-              </div>
-              <div className="text-zinc-300 pl-4">
-                key_decisions: [<span className="text-green-400">&apos;JWT over sessions&apos;</span>],
-              </div>
-              <div className="text-zinc-300">{'})'}</div>
-
-              <div className="mt-4 text-zinc-500">{'// bulk sync agent state'}</div>
-              <div>
-                <span className="text-purple-400">await</span>
-                <span className="text-zinc-300"> claw.</span>
-                <span className="text-yellow-300">syncState</span>
-                <span className="text-zinc-300">({'{'} goals, learning, snippets {'}'})</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 6. Signals Showcase ── */}
-      <section id="signals" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">7 Decision Integrity Signals</h2>
-            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">Automatic detection of autonomy breaches and logic drift. Zero configuration.</p>
-          </div>
-          <div className="space-y-3">
-            {signals.map((signal, i) => (
-              <div key={signal.name} className="flex items-start gap-4 p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-                <div className="w-7 h-7 rounded-lg bg-[rgba(239,68,68,0.1)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <ShieldAlert size={14} className="text-red-400" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white">{signal.name}</h3>
-                    <span className="text-[10px] text-zinc-500 font-mono">SIGNAL-{String(i + 1).padStart(2, '0')}</span>
                   </div>
-                  <p className="text-sm text-zinc-400 mt-0.5">{signal.description}</p>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 7. Platform Operations ── */}
-      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Production-ready operations</h2>
-            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">Team management, notifications, audit trails, automation hooks, and org controls. Built in from day one.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {operationalFeatures.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
-                  <div className="w-9 h-9 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-3">
-                    <Icon size={18} className="text-brand" />
-                  </div>
-                  <h3 className="text-base font-semibold text-white mb-1.5">{feature.title}</h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. Agent Tools ── */}
-      <section id="agent-tools" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(249,115,22,0.08)] border border-[rgba(249,115,22,0.2)] text-brand text-xs font-medium mb-4">
-              <Terminal size={12} />
-              30+ Python CLI tools
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Local Agent Toolkit</h2>
-            <p className="mt-3 text-zinc-400 max-w-xl mx-auto">
-              Python CLI tools that run alongside your agent. Local-first with SQLite storage.
-              Add <code className="text-zinc-300 font-mono">--push</code> to sync anything to your dashboard.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-            {agentToolCategories.map((cat) => (
-              <div key={cat.title} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
-                <h3 className="text-base font-semibold text-white mb-1.5">{cat.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed mb-3">{cat.desc}</p>
-                <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono overflow-x-auto">{cat.example}</pre>
+
+            {/* Agent Tools Merge */}
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Local Agent Toolkit</h2>
+                <p className="mt-3 text-zinc-400">DashClaw also ships local tools that run alongside agents to manage memory, goals, and security.</p>
               </div>
-            ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
+                {agentToolCategories.slice(0, 3).map((cat) => (
+                  <div key={cat.title} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
+                    <h3 className="text-sm font-semibold text-white mb-1.5">{cat.title}</h3>
+                    <p className="text-xs text-zinc-400 leading-relaxed mb-3">{cat.desc}</p>
+                    <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2 text-[10px] text-zinc-300 font-mono overflow-x-auto">{cat.example}</pre>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <Link href="/docs#agent-tools" className="inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
-              View full toolkit docs <ArrowRight size={14} />
-            </Link>
+        </div>
+      </section>
+
+      {/* ── 8. Mission Control ── */}
+      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
+            <div className="lg:col-span-2">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Operational visibility for agent fleets</h2>
+              <p className="mt-4 text-zinc-400 leading-relaxed">
+                Once decisions are governed, Mission Control provides the operational visibility required to run fleets at scale.
+              </p>
+              <div className="mt-8 space-y-4 text-zinc-400 leading-relaxed">
+                <p className="text-sm font-semibold text-white">Live operational data:</p>
+                <ul className="space-y-1.5 list-disc list-inside text-sm">
+                  <li>live actions</li>
+                  <li>policy decisions</li>
+                  <li>pending approvals</li>
+                  <li>integrity signals</li>
+                  <li>agent health</li>
+                </ul>
+              </div>
+            </div>
+            <div className="lg:col-span-3">
+              <HeroScreenshot
+                src="/images/screenshots/Mission Control.png"
+                alt="DashClaw Mission Control - strategic overview of your agent fleet"
+                className="shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -561,20 +600,19 @@ export default function LandingPage() {
       <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Connect your real agents when you are ready
+            Run agents with permissioned autonomy.
           </h2>
           <p className="mt-3 text-zinc-400">
-            You have seen the product. The next step is to run your own control plane, generate a key, and point your agents at it. Your first governed decision shows up in minutes.
+            DashClaw lets agents move fast without giving up control. Intercept risky actions. Require approval when needed. Prove every decision afterward.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
-              Deploy Free <ArrowRight size={16} />
+              Deploy DashClaw
             </Link>
-            <Link href="/docs" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
-              <BookOpen size={16} /> Read Docs
+            <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
+              Explore the Demo <ArrowRight size={16} />
             </Link>
           </div>
-          <p className="mt-3 text-xs text-zinc-500">Best CTA hierarchy: demo first for discovery, deploy first after product understanding.</p>
         </div>
       </section>
 

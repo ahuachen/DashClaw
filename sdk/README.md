@@ -1,17 +1,21 @@
-# DashClaw SDK: Agent Decision Infrastructure
+# DashClaw SDK: AI Governance Runtime
 
 Full reference for the DashClaw SDK (Node.js). For Python, see the [Python SDK docs](../sdk-python/README.md).
 
-DashClaw treats every agent action as a governed decision. The SDK provides decision recording, policy enforcement, evaluation, and compliance mapping. It proves what your agents decided and why.
+DashClaw treats every agent action as a governed decision. The SDK provides the interface to a **governance runtime** that handles decision recording, policy enforcement, evaluation, and compliance mapping. It proves what your agents decided and why.
 
-Install, configure, and govern your AI agents with a broad, evolving SDK surface spanning action recording, behavior guard, evaluation framework, scoring profiles, learning analytics, prompt management, feedback loops, behavioral drift, compliance exports, and more. Native adapters for **OpenClaw**, **CrewAI**, **AutoGen**, and **LangChain**.
+DashClaw is built around five primitives that form a **decision runtime** for autonomous systems:
+- **Guard** -- Enforce policies before a decision executes.
+- **Action Records** -- Capture the intent and outcome of every autonomous step.
+- **Assumptions** -- Track what the agent believed to be true when making a decision.
+- **Approvals** -- Pause risky actions for human review.
+- **Evidence** -- Produce verifiable, audit-ready decision trails.
 
 ---
 
 ## Quick Start
 
-### 1. Copy the SDK
-Install from npm, or copy the single-file SDK directly.
+### 1. Install the SDK
 ```bash
 npm install dashclaw
 ```
@@ -22,30 +26,28 @@ import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL || 'http://localhost:3000',
-  // Use http://localhost:3000 for local, or https://your-app.vercel.app for cloud
   apiKey: process.env.DASHCLAW_API_KEY,
-  agentId: 'my-agent',
-  agentName: 'My Agent',
-  hitlMode: 'wait', // Optional: automatically wait for human approval
+  agentId: 'my-agent'
 });
 ```
 
-### 3. Record your first action
+### 3. Intercept and act
 ```javascript
-// Create an action before doing work
-const { action_id } = await claw.createAction({
+// Intercept before you act
+const { decision } = await claw.guard({
   action_type: 'deploy',
-  declared_goal: 'Deploy authentication service',
-  risk_score: 60,
+  risk_score: 85
 });
 
-// ... do the work ...
-
-// Update when done
-await claw.updateOutcome(action_id, {
-  status: 'completed',
-  output_summary: 'Auth service deployed to prod',
-});
+if (decision === 'allowed') {
+  // execute real-world action
+  
+  // Record the action for evidence
+  const { action_id } = await claw.createAction({
+    action_type: 'deploy',
+    declared_goal: 'Deploy authentication service'
+  });
+}
 ```
 
 ---

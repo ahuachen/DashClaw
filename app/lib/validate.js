@@ -115,7 +115,10 @@ function validate(body, schema) {
   const data = {};
 
   for (const [key, rule] of Object.entries(schema)) {
-    const value = body[key];
+    // Support both snake_case (schema key) and camelCase (DX preference)
+    const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+    const value = body[key] !== undefined ? body[key] : body[camelKey];
+
     const error = validateField(key, value, rule);
     if (error) {
       errors.push(error);
