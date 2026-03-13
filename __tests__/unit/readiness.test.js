@@ -8,9 +8,18 @@ vi.mock('@/lib/setupStatus.mjs', () => ({
   getSetupStatus: mockGetSetupStatus,
 }));
 
-import { getReadinessReport, projectConnectNextStep, projectReadinessReport } from '@/lib/readiness.mjs';
+import { getReadinessReport, getSdkCommands, projectConnectNextStep, projectReadinessReport } from '@/lib/readiness.mjs';
 
 describe('readiness projections', () => {
+  it('uses a path-neutral validator command and never suggests dashclaw.io as the agent base URL', () => {
+    const commands = getSdkCommands('dashclaw.io');
+
+    expect(commands.baseUrl).toBe('https://your-dashclaw-instance.example.com');
+    expect(commands.node).toContain('node ./dashclaw-platform-intelligence/scripts/validate-integration.mjs');
+    expect(commands.node).not.toContain('.claude/skills');
+    expect(commands.node).not.toContain('dashclaw.io');
+  });
+
   it('projects a sign-in handoff when operator context is unavailable', () => {
     const step = projectConnectNextStep({
       isAuthenticated: false,
@@ -281,3 +290,5 @@ describe('readiness projections', () => {
     expect(authCategory.checks.find((check) => check.id === 'auth_github')?.sub_detail || '').not.toContain('GITHUB');
   });
 });
+
+

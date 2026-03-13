@@ -115,10 +115,20 @@ export default function ConnectGuideClient({ content }) {
             <p className="mt-2 text-lg font-semibold text-white">{language.label}</p>
             <p className="mt-2 text-sm text-zinc-400">Install command:</p>
             <CodeCard title={`${language.label} install`} body={language.installCommand} />
+            <div className="mt-4">
+              <InfoList items={content.baseUrlGuidance} icon={Terminal} />
+            </div>
           </div>
           <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
             <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">What the agent needs</p>
-            <InfoList items={[`Base URL: ${content.baseUrl}`, 'Workspace API key', 'No direct database access']} />
+            <InfoList
+              items={[
+                `Base URL: ${content.baseUrl}`,
+                'Workspace API key',
+                'No direct database access',
+                'Never use https://dashclaw.io as the agent base URL',
+              ]}
+            />
           </div>
         </div>
       </StepSection>
@@ -129,6 +139,9 @@ export default function ConnectGuideClient({ content }) {
         summary="Set the minimum connection values in the agent runtime. The agent only talks to the DashClaw HTTP API."
       >
         <CodeCard title={`${language.label} environment`} body={language.envBlock} tone="accent" />
+        <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+          <p className="text-sm text-amber-100">{content.envNote}</p>
+        </div>
       </StepSection>
 
       <StepSection
@@ -153,6 +166,9 @@ export default function ConnectGuideClient({ content }) {
         summary={language.validatorSummary}
       >
         <CodeCard title={`${language.label} validator`} body={language.validatorCommand} tone="accent" />
+        <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
+          <p className="text-sm text-zinc-300">{content.validatorNote}</p>
+        </div>
         <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
           <p className="text-sm text-zinc-300">
             Successful validation can feed proof back into{' '}

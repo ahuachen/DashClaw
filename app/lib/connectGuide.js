@@ -1,7 +1,24 @@
 import { getSdkCommands } from './readiness.mjs';
 
+const DEPLOYED_BASE_URL_PLACEHOLDER = 'https://your-dashclaw-instance.example.com';
+const LOCAL_BASE_URL_PLACEHOLDER = 'http://localhost:3000';
+
+function normalizeHost(host) {
+  return String(host || '')
+    .trim()
+    .replace(/^https?:\/\//, '')
+    .split('/')[0]
+    .toLowerCase();
+}
+
+function isMarketingHost(host) {
+  const normalizedHost = normalizeHost(host);
+  return normalizedHost === 'dashclaw.io' || normalizedHost === 'www.dashclaw.io';
+}
+
 function getBaseUrl(host) {
-  if (!host) return 'https://your-dashclaw-host';
+  if (!host) return DEPLOYED_BASE_URL_PLACEHOLDER;
+  if (isMarketingHost(host)) return DEPLOYED_BASE_URL_PLACEHOLDER;
   if (host.startsWith('http://') || host.startsWith('https://')) return host;
   const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https';
   return `${protocol}://${host}`;
@@ -14,9 +31,18 @@ export function getConnectGuideContent({ host = '' } = {}) {
   return {
     baseUrl,
     intro:
-      'This page gets a real Node or Python agent reporting live actions to DashClaw.',
+      'This page gets a real Node or Python agent reporting live actions to your DashClaw deployment.',
     agentRequirementsNote:
       'Your agent only needs DASHCLAW_BASE_URL and DASHCLAW_API_KEY. It never needs DATABASE_URL.',
+    baseUrlGuidance: [
+      'Use the URL of your own deployed DashClaw app, not https://dashclaw.io.',
+      `Example deployment: ${DEPLOYED_BASE_URL_PLACEHOLDER}`,
+      `Local development: ${LOCAL_BASE_URL_PLACEHOLDER}`,
+    ],
+    envNote:
+      'Do not use the marketing site URL. DASHCLAW_BASE_URL must point to your deployed DashClaw app.',
+    validatorNote:
+      'This command assumes you downloaded and extracted dashclaw-platform-intelligence.zip so the validator lives in ./dashclaw-platform-intelligence/scripts/. If you installed it elsewhere, adjust the path.',
     successChecks: [
       'Your first action appears in the dashboard and recent activity.',
       'The agent shows up in live DashClaw traffic once it starts sending actions.',
@@ -24,6 +50,7 @@ export function getConnectGuideContent({ host = '' } = {}) {
       'If policies are active, future risky actions can route into guard and approvals.',
     ],
     commonMistakes: [
+      'Do not use https://dashclaw.io as DASHCLAW_BASE_URL. Use your own DashClaw deployment URL.',
       'Use your DashClaw instance URL, not an API route or localhost from a different machine.',
       'Set DASHCLAW_API_KEY in the agent runtime before running the snippet or validator.',
       'Keep DATABASE_URL on the DashClaw server only. The agent should never need it.',

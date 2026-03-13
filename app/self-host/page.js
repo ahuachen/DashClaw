@@ -50,6 +50,9 @@ export default function SelfHostPage() {
             <Link href="/docs" className="inline-flex items-center gap-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-[#181818] hover:text-white transition-colors">
               SDK Docs
             </Link>
+            <Link href="/connect" className="inline-flex items-center gap-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-[#181818] hover:text-white transition-colors">
+              Connect your first agent <ArrowRight size={16} />
+            </Link>
             <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-[#181818] hover:text-white transition-colors">
               Open Source Repo <ArrowRight size={16} />
             </a>
@@ -374,3 +377,4 @@ ENFORCE_AGENT_SIGNATURES=true`}</CopyableCodeBlock>
     </div>
   );
 }
+

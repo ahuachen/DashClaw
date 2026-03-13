@@ -10,8 +10,19 @@ describe('connect guide content', () => {
     expect(content.languages.node.envBlock).toContain('DASHCLAW_BASE_URL=https://dashclaw.example.com');
     expect(content.languages.node.envBlock).toContain('DASHCLAW_API_KEY=<your-workspace-api-key>');
     expect(content.languages.node.starterSnippet).toContain('await claw.createAction');
+    expect(content.languages.node.validatorCommand).toContain('node ./dashclaw-platform-intelligence/scripts/validate-integration.mjs');
     expect(content.languages.node.validatorCommand).toContain('--capture-setup-proof');
     expect(content.languages.node.optionalPairingSnippet).toContain('createPairingFromPrivateJwk');
+  });
+
+  it('uses a safe placeholder instead of the marketing host for base URL examples', () => {
+    const content = getConnectGuideContent({ host: 'dashclaw.io' });
+
+    expect(content.baseUrl).toBe('https://your-dashclaw-instance.example.com');
+    expect(content.languages.node.envBlock).toContain('DASHCLAW_BASE_URL=https://your-dashclaw-instance.example.com');
+    expect(content.baseUrlGuidance[0]).toContain('not https://dashclaw.io');
+    expect(content.envNote).toContain('Do not use the marketing site URL');
+    expect(content.commonMistakes[0]).toContain('Do not use https://dashclaw.io');
   });
 
   it('builds a python golden path with explicit no-database note and pairing guidance', () => {

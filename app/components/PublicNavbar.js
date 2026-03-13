@@ -93,6 +93,7 @@ export default function PublicNavbar() {
               </div>
             )}
           </div>
+          <Link href="/connect" className="hover:text-white transition-colors">Connect an Agent</Link>
           <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
           <Link href="/practical-systems" className="hover:text-white transition-colors">Practical Systems</Link>
           <a
@@ -116,3 +117,4 @@ export default function PublicNavbar() {
     </nav>
   );
 }
+

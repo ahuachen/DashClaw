@@ -143,7 +143,11 @@ function createWorkflowStep({ id, title, status, summary, proof, nextAction }) {
 }
 
 function getBaseUrl(host) {
-  if (!host) return 'https://your-dashclaw-host';
+  if (!host) return 'https://your-dashclaw-instance.example.com';
+  const normalizedHost = String(host).replace(/^https?:\/\//, '').split('/')[0].toLowerCase();
+  if (normalizedHost === 'dashclaw.io' || normalizedHost === 'www.dashclaw.io') {
+    return 'https://your-dashclaw-instance.example.com';
+  }
   if (host.startsWith('http://') || host.startsWith('https://')) return host;
   const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https';
   return `${protocol}://${host}`;
@@ -154,7 +158,7 @@ export function getSdkCommands(host) {
 
   return {
     baseUrl,
-    node: `node .claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs \\
+    node: `node ./dashclaw-platform-intelligence/scripts/validate-integration.mjs \\
   --base-url ${baseUrl} \\
   --api-key <api-key> \\
   --full \\
@@ -1290,3 +1294,5 @@ export function projectReadinessReport(report, { isAuthenticated = false, host =
     proofArtifact: buildProofArtifact(view, host),
   };
 }
+
+
