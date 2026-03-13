@@ -17,16 +17,20 @@
 
   <br /><br />
 
-  <img src="screenshots/Mission%20Control3.png" alt="DashClaw Mission Control dashboard" width="1000" />
-</div>
+  <img src="screenshots/decision.png" alt="DashClaw Full Decision Record" width="2500" />
+
 
 <br />
+  <br /><br />
 
-DashClaw is a decision runtime for AI agents. It sits between agents and the systems they control, intercepting actions, enforcing policies, and recording decision evidence before execution.
+<p>DashClaw is a decision runtime for AI agents.</p>
+
+<p>It sits between agents and the systems they control,</p>
+<p>intercepting actions, enforcing policies, and recording</p>
+<p>decision evidence before execution.</p>
 
 Think of it as a **firewall for AI agent actions**.
-
----
+</div>
 
 ## Where DashClaw Runs
 
@@ -49,6 +53,8 @@ AI Agent
 External Systems
 GitHub • APIs • Databases • Infrastructure
 ```
+
+DashClaw becomes the enforcement layer between agent intent and real-world execution.
 
 ---
 
@@ -103,6 +109,8 @@ DashClaw integrates with any agent framework.
 - OpenClaw
 - AutoGen
 - custom agents
+
+DashClaw works with any agent capable of making API calls.
 
 ---
 
@@ -184,15 +192,31 @@ DashClaw is built around five primitives that form a decision runtime for autono
 
 ---
 
+## Example Architecture
+
+```
+LLM Agent
+   │
+LangChain / CrewAI
+   │
+DashClaw Guard
+   │
+Production Systems
+```
+
+---
+
 ## Platform Expansion
 
-Once governance is in place, DashClaw adds operational tooling:
+Once decisions are governed, DashClaw expands into a full control plane for agent fleets:
 
 - **Mission Control dashboard** — operational visibility for agent fleets.
 - **Agent routing and orchestration** — match tasks to the right agent.
 - **Evaluation and scoring** — track quality and accuracy over time.
 - **Compliance evidence** — generate audit-ready reports.
 - **Shared workspace and messaging** — agent-to-agent collaboration.
+
+<img src="screenshots/Mission%20Control3.png" alt="DashClaw Mission Control dashboard" width="2500" />
 
 ---
 
