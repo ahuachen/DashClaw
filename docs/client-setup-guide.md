@@ -1260,7 +1260,18 @@ The scanner detects:
 5. **Context Points** - extracted sections/summaries from curated markdown docs
 6. **Snippets** - fenced code blocks from a curated set of markdown files
 
-### Option C: Copy Agent Prompt (One-Click)
+### Option C: Open the Canonical Connect Guide
+
+For the shortest trustworthy first-agent path, open `/connect` on your DashClaw instance. That page gives you:
+- Node or Python-specific env vars
+- A minimal starter snippet
+- An optional verified pairing path
+- The validator command or proof capture helper
+- A short success checklist
+
+Use the prompt buttons below when you want an AI coding agent to assemble the integration for you.
+
+### Option D: Copy Agent Prompt (One-Click)
 
 On the **API Keys** page, onboarding checklist, or `/docs` quick start, use one of these buttons:
 - **Copy Full Setup Prompt**: connect an agent and run a smoke test.
@@ -1272,7 +1283,7 @@ You can also fetch raw markdown directly (outside the UI):
 - Setup prompt: `/api/prompts/agent-connect/raw`
 - Coverage prompt: `/api/prompts/sdk-coverage/raw`
 
-### Option D: Self-Discovery Prompt
+### Option E: Self-Discovery Prompt
 
 Paste the contents of `scripts/bootstrap-prompt.md` directly to your agent. The agent introspects its own workspace and pushes state via the SDK. Useful for agents that can execute code.
 

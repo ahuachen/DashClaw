@@ -90,6 +90,7 @@ describe('readiness projections', () => {
 
     expect(step.state).toBe('connect_agent');
     expect(step.primaryCta.label).toBe('Open connect guide');
+    expect(step.primaryCta.href).toBe('/connect');
     expect(step.secondaryCtas.map((cta) => cta.label)).toEqual(
       expect.arrayContaining(['Node starter', 'Python starter', 'Run validator'])
     );

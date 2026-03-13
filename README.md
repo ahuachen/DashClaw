@@ -109,6 +109,8 @@ The interactive setup handles everything:
 4. **Migrations + readiness check** -- runs migrations, then verifies the same database readiness used by `/api/setup/status`
 5. **Build** -- compiles the Next.js app without pretending setup is complete if the app still is not ready
 
+When setup finishes, send operators to `/connect` for the canonical first-agent path. That page gives the shortest trustworthy route for Node or Python: env vars, minimal starter snippet, optional verified pairing, validation, and success criteria.
+
 Optional feature migrations:
 
 - **Prompt analytics** -- run `node scripts/migrate-prompts.mjs` to enable `prompt_runs` usage stats and prompt render telemetry on existing installs that predate prompt analytics.
@@ -185,6 +187,7 @@ DashClaw is a single Next.js codebase that serves two roles:
 |-------|-------------|
 | `/` | Landing page |
 | `/dashboard` | Operations dashboard (requires auth) |
+| `/connect` | Canonical first-agent connection guide for Node and Python |
 | `/swarm` | Real-time swarm intelligence & neural web |
 | `/docs` | SDK + platform documentation |
 | `/self-host` | Getting started guide |

@@ -71,6 +71,8 @@ Before signing in, open `https://your-app.vercel.app/setup`. That page verifies:
 
 `/setup` is intentionally safe to open before login. It shows verification state, recovery guidance, and a sanitized JSON proof download without exposing secret values.
 
+After the instance looks healthy, open `/connect` for the canonical first-agent path. That page keeps the activation flow short: choose Node or Python, copy the env vars, run the minimal starter snippet, optionally enable verified pairing, then run the validator.
+
 After core checks pass, you can strengthen that view with live SDK proof:
 - Node: add `--capture-setup-proof` to the validator command and open the returned `/setup?proof=...` URL
 - Python: after a successful ping, run the helper snippet shown on `/setup` or in `docs/client-setup-guide.md` to POST the sanitized success payload to `/api/setup/live-proof`
@@ -96,7 +98,7 @@ The dashboard walks you through four steps automatically:
 1. **Create a workspace** — give your org a name, e.g. "My Agent Fleet"
 2. **Generate an API key** — this is what your agents use to authenticate
 3. **Install the SDK** — one npm or pip install
-4. **Record your first action** — paste a snippet into your agent and run it
+4. **Record your first action** — open `/connect`, paste the starter snippet into your agent, and run it
 
 The onboarding checklist tracks your progress and shows you exactly what to do next.
 

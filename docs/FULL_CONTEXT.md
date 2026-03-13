@@ -94,6 +94,7 @@ app/
 │   ├── db.js                  # DB connection utility
 │   ├── schemaCheck.js         # Canonical core-table verification + startup schema warning
 │   ├── readiness.mjs          # Canonical verification report + proof projection used by /setup
+│   ├── connectGuide.js        # Canonical first-agent Node/Python golden-path content
 │   ├── org.js                 # Multi-tenant helpers (getOrgId, getOrgRole, getUserId)
 │   ├── guard.js               # Guard evaluation engine
 │   ├── signals.js             # Signal computation (computeSignals)
@@ -166,6 +167,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 
 ### Public Setup Page
 - `GET /setup` is intentionally accessible before login.
+- `GET /connect` is the canonical task page for first-agent activation after instance verification.
 - Anonymous users see a public-safe verification view: explicit verification state, config presence/missing state, DB reachability, schema pass/fail, auth readiness, proof download access, and next-step guidance.
 - Anonymous mode does **not** expose secret values, connection strings, token material, raw errors, or exact missing internal details that are reserved for authenticated operators.
 - Authenticated users see the richer operator view on the same page, including fuller diagnostics and a richer JSON proof artifact.

@@ -149,7 +149,7 @@ function getBaseUrl(host) {
   return `${protocol}://${host}`;
 }
 
-function getSdkCommands(host) {
+export function getSdkCommands(host) {
   const baseUrl = getBaseUrl(host);
 
   return {
@@ -239,7 +239,7 @@ export function projectConnectNextStep({
   const steps = onboarding?.steps || {};
   const snippets = getAgentStarterSnippets(host);
   const validatorCommand = sdk?.commands?.node || getSdkCommands(host).node;
-  const docsHref = '/docs';
+  const docsHref = '/connect';
   const statusItems = [
     {
       label: 'Workspace ready',
