@@ -32,9 +32,9 @@ describe('/api/health core table checks', () => {
       { table_name: 'action_records' },
       { table_name: 'guard_decisions' },
       { table_name: 'api_keys' },
-      { table_name: 'org_members' },
+      { table_name: 'users' },
       { table_name: 'settings' },
-      { table_name: 'policies' },
+      { table_name: 'guard_policies' },
     ]);
 
     const res = await GET(makeRequest('http://localhost/api/health'));

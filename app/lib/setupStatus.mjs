@@ -5,9 +5,9 @@ const CORE_TABLES = [
   'action_records',
   'guard_decisions',
   'api_keys',
-  'org_members',
+  'users',
   'settings',
-  'policies',
+  'guard_policies',
 ];
 
 async function checkCoreTables(sql) {
