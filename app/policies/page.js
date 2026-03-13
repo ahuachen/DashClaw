@@ -914,7 +914,7 @@ export default function PoliciesPage() {
 
               <button
                 onClick={handleImport}
-                disabled={importing || isDemo || (importMode === 'yaml' && !importYaml.trim())}
+                disabled={importing || !canEdit || (importMode === 'yaml' && !importYaml.trim())}
                 className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
               >
                 {importing ? 'Importing...' : 'Import'}
@@ -977,44 +977,50 @@ export default function PoliciesPage() {
               {/* Per-policy details */}
               {testResults.results && testResults.results.length > 0 && (
                 <div className="divide-y divide-[rgba(255,255,255,0.04)]">
-                  {testResults.results.map((pr, i) => (
-                    <div key={pr.policyId || i} className="py-2">
-                      <button
-                        type="button"
-                        onClick={() => toggleTestExpand(pr.policyId)}
-                        className="flex items-center gap-2 w-full text-left"
-                      >
-                        {expandedTests[pr.policyId] ? (
-                          <ChevronUp size={14} className="text-zinc-500" />
-                        ) : (
-                          <ChevronDown size={14} className="text-zinc-500" />
+                  {testResults.results.map((pr, i) => {
+                    const pId = pr.policyId || pr.id || `test-${i}`;
+                    const pName = pr.policyName || pr.name || pId;
+                    const fCount = pr.failCount ?? (pr.passed ? 0 : 1);
+
+                    return (
+                      <div key={pId} className="py-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleTestExpand(pId)}
+                          className="flex items-center gap-2 w-full text-left"
+                        >
+                          {expandedTests[pId] ? (
+                            <ChevronUp size={14} className="text-zinc-500" />
+                          ) : (
+                            <ChevronDown size={14} className="text-zinc-500" />
+                          )}
+                          <span className="text-sm text-white">{pName}</span>
+                          <Badge variant={fCount === 0 ? 'success' : 'error'}>
+                            {fCount === 0 ? 'pass' : `${fCount} fail`}
+                          </Badge>
+                        </button>
+                        {expandedTests[pId] && pr.tests && (
+                          <div className="mt-2 ml-6 space-y-1">
+                            {pr.tests.map((t, j) => (
+                              <div key={j} className="flex items-center gap-2 text-xs">
+                                {t.passed ? (
+                                  <Check size={12} className="text-green-500" />
+                                ) : (
+                                  <AlertTriangle size={12} className="text-red-400" />
+                                )}
+                                <span className={t.passed ? 'text-zinc-300' : 'text-red-400'}>
+                                  {t.name || `Test ${j + 1}`}
+                                </span>
+                                {t.message && (
+                                  <span className="text-zinc-600 ml-1">{t.message}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         )}
-                        <span className="text-sm text-white">{pr.policyName || pr.policyId}</span>
-                        <Badge variant={pr.failCount === 0 ? 'success' : 'error'}>
-                          {pr.failCount === 0 ? 'pass' : `${pr.failCount} fail`}
-                        </Badge>
-                      </button>
-                      {expandedTests[pr.policyId] && pr.tests && (
-                        <div className="mt-2 ml-6 space-y-1">
-                          {pr.tests.map((t, i) => (
-                            <div key={i} className="flex items-center gap-2 text-xs">
-                              {t.passed ? (
-                                <Check size={12} className="text-green-500" />
-                              ) : (
-                                <AlertTriangle size={12} className="text-red-400" />
-                              )}
-                              <span className={t.passed ? 'text-zinc-300' : 'text-red-400'}>
-                                {t.name || `Test ${i + 1}`}
-                              </span>
-                              {t.message && (
-                                <span className="text-zinc-600 ml-1">{t.message}</span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
