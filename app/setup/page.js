@@ -156,7 +156,7 @@ node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs
 node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs
 node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs`}</CodeSnippet>
         <p className="text-xs text-zinc-500 mt-3">
-          These are the core bootstrap migrations. Additional feature migrations may exist in <code>scripts/</code>.
+          These four commands are all you need for initial setup.
           After running, reload this page.
         </p>
       </ActionBlock>

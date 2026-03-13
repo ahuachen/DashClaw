@@ -89,6 +89,8 @@ npm run dev
 
 Open `http://localhost:3000` — you'll be redirected to login. Sign in with your **Admin Password** or **GitHub** and you're in!
 
+Not sure if everything is configured? Visit `http://localhost:3000/setup` — it shows live status for your database, sign-in method, and exact next steps if anything is missing.
+
 ---
 
 ## Step 6: Deploy to Cloud (Optional — access from anywhere)
