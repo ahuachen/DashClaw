@@ -3,6 +3,7 @@
   <h1>DashClaw</h1>
   <p><strong>AI Agent Governance, Operations, and Intelligence Platform</strong></p>
   <p>The self-hosted control plane for running serious AI agent fleets.<br/>Govern decisions before agents act, route work to the right agent, score output quality, track learning, manage context and messaging, and generate audit-ready compliance evidence.</p>
+  <p><a href="https://www.dashclaw.io/mission-control">Demo</p>
 
   <a href="https://dashclaw.io"><img src="https://img.shields.io/badge/website-dashclaw.io-orange?style=flat-square" alt="Website" /></a>
   <a href="https://dashclaw.io/docs"><img src="https://img.shields.io/badge/docs-SDK%20%26%20API-blue?style=flat-square" alt="Docs" /></a>
