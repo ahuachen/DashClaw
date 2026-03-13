@@ -1,24 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import postgres from 'postgres';
-
-const CORE_TABLES = [
-  'action_records',
-  'guard_decisions',
-  'api_keys',
-  'users',
-  'settings',
-  'guard_policies',
-];
-
-async function checkCoreTables(sql) {
-  const rows = await sql`
-    SELECT table_name FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = ANY(${CORE_TABLES})
-  `;
-  const found = new Set(rows.map((row) => row.table_name));
-  const missing = CORE_TABLES.filter((table) => !found.has(table));
-  return { ok: missing.length === 0, missing };
-}
+import { checkCoreTables } from './schemaCheck.js';
 
 function parseHostname(databaseUrl) {
   try {

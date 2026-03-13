@@ -256,6 +256,19 @@ export default function ApiKeysPage() {
         </Card>
       </div>
 
+      {/* Setup callout */}
+      <div className="mb-4 flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
+        <p className="text-xs text-zinc-500">
+          Need to verify your instance is configured correctly before connecting agents?
+        </p>
+        <a
+          href="/setup"
+          className="text-xs text-brand hover:text-brand/80 transition-colors shrink-0 flex items-center gap-1"
+        >
+          Setup & Verify <ArrowRight size={11} />
+        </a>
+      </div>
+
       {/* Create form (inline, admin only) */}
       {showCreateForm && isAdmin && (
         <Card hover={false} className="mb-6">

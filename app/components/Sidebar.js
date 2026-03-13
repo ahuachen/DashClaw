@@ -64,6 +64,7 @@ const navGroups = [
       { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
       { href: '/notifications', icon: Bell, label: 'Notifications' },
       { href: '/workflows', icon: GitBranch, label: 'Workflows' },
+      { href: '/setup', icon: Settings, label: 'Setup & Verify' },
     ],
   },
   {
