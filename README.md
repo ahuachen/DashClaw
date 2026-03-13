@@ -169,8 +169,10 @@ DashClaw is built around the **Decision Lifecycle**, providing a runtime for aut
 
 - **Mission Control** -- Control tower for fleet posture and real-time governance.
 - **Guard** -- Evaluate policies before an action executes.
-- **Decisions Ledger** -- Visual causal chain of intent, policy evaluation, and outcome.
-- **Decision Replay** -- Specialized replay of why a decision was made and how it was governed.
+- **Decisions Ledger** -- Global stream of governed agent decisions.
+- **Agent Governance Dossier** -- Dedicated profile for every agent (posture, active policies, history).
+- **Decision Replay** -- Specialized causal chain visualization of a single decision.
+- **Public Permalinks** -- Shareable, public-safe decision stories for audit and storytelling.
 - **Assumptions** -- Track what the agent believed to be true when making a decision.
 - **Approvals** -- Pause risky actions for human review.
 - **Evidence** -- Produce verifiable, audit-ready decision trails.
