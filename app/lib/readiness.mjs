@@ -1,7 +1,7 @@
 /**
- * Canonical readiness checks for the /setup page.
- * Keep all instance-readiness logic here so /setup remains the single source
- * of truth for onboarding and recovery guidance.
+ * Canonical readiness and verification checks for the /setup page.
+ * Keep instance verification logic here so the page and proof artifact share
+ * the same structured source of truth.
  */
 
 import { getSetupStatus } from './setupStatus.mjs';
@@ -34,12 +34,28 @@ export const ADVISORY_ENV_VARS = [
   },
 ];
 
-function pickStatus({ ok, warn = false, fail = false }) {
-  if (fail) return 'fail';
-  if (warn) return 'warn';
-  if (ok) return 'pass';
-  return 'info';
-}
+const OVERALL_STATE_META = {
+  verified: {
+    label: 'Verified',
+    summary: 'Core verification checks passed and operator access looks ready.',
+    readiness: 'healthy',
+  },
+  ready_unverified: {
+    label: 'Ready but not fully verified',
+    summary: 'Core checks are passing, but deeper validation or operator follow-up is still pending.',
+    readiness: 'healthy',
+  },
+  needs_attention: {
+    label: 'Needs attention',
+    summary: 'DashClaw can partially verify this instance, but some follow-up is required before normal use is trustworthy.',
+    readiness: 'needs_attention',
+  },
+  blocked: {
+    label: 'Blocked',
+    summary: 'Required verification checks are failing. Resolve those first before trusting the instance.',
+    readiness: 'blocked',
+  },
+};
 
 function createCheck({
   id,
@@ -65,6 +81,32 @@ function createCheck({
   };
 }
 
+function createSection({
+  id,
+  title,
+  status,
+  description,
+  summary,
+  whatWasChecked,
+  evidenceSummary = '',
+  pendingProof = '',
+  checks,
+  ...rest
+}) {
+  return {
+    id,
+    title,
+    status,
+    description,
+    summary,
+    whatWasChecked,
+    evidenceSummary,
+    pendingProof,
+    checks,
+    ...rest,
+  };
+}
+
 function createStep({
   id,
   title,
@@ -86,6 +128,38 @@ function createStep({
     publicCode: publicCode ?? code,
     note,
     publicNote: publicNote ?? note,
+  };
+}
+
+function createWorkflowStep({ id, title, status, summary, proof, nextAction }) {
+  return {
+    id,
+    title,
+    status,
+    summary,
+    proof,
+    nextAction,
+  };
+}
+
+function getBaseUrl(host) {
+  if (!host) return 'https://your-dashclaw-host';
+  if (host.startsWith('http://') || host.startsWith('https://')) return host;
+  const protocol = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https';
+  return `${protocol}://${host}`;
+}
+
+function getSdkCommands(host) {
+  const baseUrl = getBaseUrl(host);
+
+  return {
+    baseUrl,
+    node: `node .claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs \\
+  --base-url ${baseUrl} \\
+  --api-key <api-key> \\
+  --full`,
+    python: `pip install dashclaw
+python -c "from dashclaw import DashClaw; dc = DashClaw(base_url='${baseUrl}', api_key='<api-key>'); print(dc.ping())"`,
   };
 }
 
@@ -116,7 +190,7 @@ export function checkConfiguration(env = process.env) {
       label: entry.key,
       status: entry.present ? 'pass' : entry.required ? 'fail' : 'warn',
       detail: entry.present
-        ? `${entry.description} is configured.`
+        ? `${entry.key} is present.`
         : `${entry.required ? 'Required' : 'Recommended'} setting is missing.`,
       subDetail: entry.present ? entry.description : '',
       likelyCause: entry.present
@@ -145,31 +219,32 @@ export function checkConfiguration(env = process.env) {
 function buildApplicationSection(env) {
   const mode = env.NODE_ENV || 'development';
 
-  return {
+  return createSection({
     id: 'application',
-    title: 'Application',
+    title: 'Core Readiness',
     status: 'pass',
-    description: 'Confirms that the setup page is rendering and the app process is alive.',
-    summary: 'DashClaw is responding to setup checks.',
+    description: 'Confirms that DashClaw is serving the verify surface and the app process is alive.',
+    summary: 'DashClaw responded to the verification request.',
+    whatWasChecked: 'The /setup page rendered and the server runtime reported process metadata.',
+    evidenceSummary: 'Behavior verified: the app process responded and exposed runtime metadata.',
+    pendingProof: '',
     checks: [
       createCheck({
         id: 'app_reachable',
-        label: 'Setup page',
+        label: 'Verify surface reachable',
         status: 'pass',
-        detail: 'The setup page rendered successfully.',
-        nextAction: '',
+        detail: 'The Setup & Verify page rendered successfully.',
       }),
       createCheck({
         id: 'runtime',
-        label: 'Runtime',
+        label: 'Runtime metadata',
         status: 'pass',
         detail: `Node.js ${process.version} running in ${mode}.`,
         publicDetail: 'Application runtime is available.',
-        likelyCause: '',
-        nextAction: '',
       }),
     ],
-  };
+    ok: true,
+  });
 }
 
 function buildDatabaseSection(dbStatus) {
@@ -177,12 +252,15 @@ function buildDatabaseSection(dbStatus) {
   const presentCount = CORE_TABLES.length - missing.length;
 
   if (dbStatus.reason === 'missing_database_url') {
-    return {
+    return createSection({
       id: 'database',
-      title: 'Database',
+      title: 'Database Verification',
       status: 'fail',
-      description: 'Checks whether DashClaw can reach its database and verify required tables.',
-      summary: 'Database setup is blocked because DATABASE_URL is missing.',
+      description: 'Checks whether DashClaw can reach its database and confirm the core schema exists.',
+      summary: 'Database verification is blocked because DATABASE_URL is missing.',
+      whatWasChecked: 'Environment presence for DATABASE_URL, then database connectivity and core table checks when possible.',
+      evidenceSummary: 'Verification blocked before a live connection test could run.',
+      pendingProof: 'Database behavior is not yet verified because no connection string is configured.',
       checks: [
         createCheck({
           id: 'database_url',
@@ -197,40 +275,37 @@ function buildDatabaseSection(dbStatus) {
           label: 'Connection test',
           status: 'info',
           detail: 'Skipped because there is no database URL to test.',
-          likelyCause: '',
-          nextAction: '',
         }),
         createCheck({
           id: 'db_schema',
           label: 'Core schema',
           status: 'info',
           detail: 'Skipped because database connectivity is not configured yet.',
-          likelyCause: '',
-          nextAction: '',
         }),
       ],
       ok: false,
       reason: dbStatus.reason,
       missing,
       allTables: CORE_TABLES,
-    };
+    });
   }
 
   if (dbStatus.reason === 'connection_error') {
-    return {
+    return createSection({
       id: 'database',
-      title: 'Database',
+      title: 'Database Verification',
       status: 'fail',
-      description: 'Checks whether DashClaw can reach its database and verify required tables.',
+      description: 'Checks whether DashClaw can reach its database and confirm the core schema exists.',
       summary: 'Database connectivity failed.',
+      whatWasChecked: 'DATABASE_URL presence and a live connection attempt from this deployment.',
+      evidenceSummary: 'Configuration is present, but live database behavior is failing.',
+      pendingProof: 'Schema verification remains pending until the connection succeeds.',
       checks: [
         createCheck({
           id: 'database_url',
           label: 'DATABASE_URL',
           status: 'pass',
           detail: 'DATABASE_URL is present.',
-          likelyCause: '',
-          nextAction: '',
         }),
         createCheck({
           id: 'db_connection',
@@ -245,40 +320,37 @@ function buildDatabaseSection(dbStatus) {
           label: 'Core schema',
           status: 'info',
           detail: 'Schema verification could not run because the connection test failed.',
-          likelyCause: '',
-          nextAction: '',
         }),
       ],
       ok: false,
       reason: dbStatus.reason,
       missing,
       allTables: CORE_TABLES,
-    };
+    });
   }
 
   if (dbStatus.reason === 'no_tables') {
-    return {
+    return createSection({
       id: 'database',
-      title: 'Database',
+      title: 'Database Verification',
       status: 'fail',
-      description: 'Checks whether DashClaw can reach its database and verify required tables.',
+      description: 'Checks whether DashClaw can reach its database and confirm the core schema exists.',
       summary: `${missing.length} required table(s) are still missing.`,
+      whatWasChecked: 'DATABASE_URL presence, a live database connection, and the required DashClaw core tables.',
+      evidenceSummary: 'Connection succeeded, but schema verification failed.',
+      pendingProof: 'Bootstrap migrations still need to complete before database verification can pass.',
       checks: [
         createCheck({
           id: 'database_url',
           label: 'DATABASE_URL',
           status: 'pass',
           detail: 'DATABASE_URL is present.',
-          likelyCause: '',
-          nextAction: '',
         }),
         createCheck({
           id: 'db_connection',
           label: 'Connection test',
           status: 'pass',
           detail: 'Database connection succeeded.',
-          likelyCause: '',
-          nextAction: '',
         }),
         createCheck({
           id: 'db_schema',
@@ -296,15 +368,18 @@ function buildDatabaseSection(dbStatus) {
       reason: dbStatus.reason,
       missing,
       allTables: CORE_TABLES,
-    };
+    });
   }
 
-  return {
+  return createSection({
     id: 'database',
-    title: 'Database',
+    title: 'Database Verification',
     status: 'pass',
-    description: 'Checks whether DashClaw can reach its database and verify required tables.',
-    summary: 'Database connectivity and core schema checks passed.',
+    description: 'Checks whether DashClaw can reach its database and confirm the core schema exists.',
+    summary: 'Database connection and core schema checks passed.',
+    whatWasChecked: 'DATABASE_URL presence, a live connection from this deployment, and all required core tables.',
+    evidenceSummary: 'Database verified: connection succeeded and required core tables were present.',
+    pendingProof: '',
     checks: [
       createCheck({
         id: 'database_url',
@@ -331,22 +406,33 @@ function buildDatabaseSection(dbStatus) {
     reason: 'ready',
     missing,
     allTables: CORE_TABLES,
-  };
+  });
 }
 
 function buildConfigurationSection(config) {
-  return {
+  return createSection({
     id: 'configuration',
     title: 'Configuration',
     status: config.status,
     description: 'Verifies required settings and highlights recommended follow-up configuration.',
     summary: config.summary,
+    whatWasChecked: 'Presence of required and advisory environment variables. Values are never shown here.',
+    evidenceSummary:
+      config.missingRequired.length > 0
+        ? 'Configuration verification failed because required settings are missing.'
+        : config.missingAdvisory.length > 0
+          ? 'Required settings are present, but some recommended configuration is still pending.'
+          : 'Configuration presence checks passed for required and recommended settings.',
+    pendingProof:
+      config.missingAdvisory.length > 0
+        ? 'Recommended configuration is still pending for a stronger operator setup.'
+        : '',
     checks: config.checks,
     ok: config.ok,
     vars: config.vars,
     missingRequired: config.missingRequired,
     missingAdvisory: config.missingAdvisory,
-  };
+  });
 }
 
 function buildAuthSection(authConfig, env) {
@@ -354,7 +440,6 @@ function buildAuthSection(authConfig, env) {
     ...(authConfig.oauthProviders || []).map((provider) => provider.name),
     ...(authConfig.hasLocalPassword ? ['Local password'] : []),
   ];
-
   const checks = [];
 
   checks.push(
@@ -442,49 +527,179 @@ function buildAuthSection(authConfig, env) {
 
   const hasWarnings = checks.some((check) => check.status === 'warn' || check.status === 'fail');
 
-  return {
+  return createSection({
     id: 'auth',
-    title: 'Authentication and API Access',
+    title: 'Auth Readiness',
     status: authConfig.hasAnySignInMethod ? (hasWarnings ? 'warn' : 'pass') : 'warn',
-    description: 'Checks whether operators can sign in and whether agents can authenticate.',
+    description: 'Checks whether operators can sign in and whether agents have an authentication path.',
     summary: authConfig.hasAnySignInMethod
       ? 'At least one sign-in method is available.'
       : 'DashClaw cannot be signed into normally until auth setup is completed.',
+    whatWasChecked: 'Whether at least one complete sign-in method exists and whether agent API authentication has a configured path.',
+    evidenceSummary: authConfig.hasAnySignInMethod
+      ? 'Auth ready: a normal operator sign-in path exists.'
+      : 'Auth is still inferred as incomplete because no sign-in method is fully configured.',
+    pendingProof: env.DASHCLAW_API_KEY
+      ? ''
+      : 'Agent and SDK verification remain limited until API key access is configured.',
     checks,
     ok: authConfig.hasAnySignInMethod,
     methods,
     config: authConfig,
-  };
+    hasAgentApiKey: Boolean(env.DASHCLAW_API_KEY),
+    hasPartialProviderWarnings: (authConfig.providerChecks || []).some((provider) => provider.partiallyConfigured),
+    hasLocalPassword: authConfig.hasLocalPassword,
+  });
 }
 
-function buildSdkSection() {
-  return {
+function buildSdkSection(host, report) {
+  const commands = getSdkCommands(host);
+  const coreReady = report.db.ok && report.config.ok && report.auth.ok;
+  const apiReady = report.auth.hasAgentApiKey || report.config.vars.some((entry) => entry.key === 'DASHCLAW_API_KEY' && entry.present);
+  const status = !coreReady ? 'warn' : apiReady ? 'info' : 'warn';
+  const summary = !coreReady
+    ? 'Finish core verification first, then run live SDK checks.'
+    : apiReady
+      ? 'Live validation paths are ready to run. Proof remains pending until you execute them.'
+      : 'Core checks are in place, but you still need an API key before running live SDK validation.';
+
+  return createSection({
     id: 'sdk',
     title: 'SDK and Integration Verification',
-    status: 'info',
-    description: 'Provides safe validation commands you can use after setup is ready.',
-    summary: 'Use these commands to verify the SDK once login and API access are ready.',
+    status,
+    description: 'Provides guided live validation paths for Node and Python once core verification is in place.',
+    summary,
+    whatWasChecked: 'This section does not execute SDK calls. It verifies whether a live validation path is available and documents the exact next commands.',
+    evidenceSummary: coreReady
+      ? 'Verification path available: DashClaw can now guide live SDK checks.'
+      : 'Live SDK proof is pending because core instance verification is not complete yet.',
+    pendingProof: 'SDK and integration proof is still pending until one of the live validation commands is run successfully.',
     checks: [
       createCheck({
+        id: 'sdk_gate',
+        label: 'Core verification gate',
+        status: coreReady ? 'pass' : 'warn',
+        detail: coreReady
+          ? 'Core instance verification checks are passing.'
+          : 'Core verification is still incomplete, so SDK validation should wait.',
+        likelyCause: coreReady ? '' : 'Database, required configuration, or auth readiness still needs attention.',
+        nextAction: coreReady ? '' : 'Fix the blocked or warning checks above, then return to live SDK validation.',
+      }),
+      createCheck({
         id: 'sdk_node',
-        label: 'Node.js validation',
-        status: 'info',
-        detail: 'Use the Node validation script after you have a base URL and API key.',
-        nextAction: 'Install the SDK or validation helper, then run the command shown below.',
+        label: 'Node live validation path',
+        status: coreReady ? 'info' : 'warn',
+        detail: 'Use the Node validation script to prove the instance accepts authenticated SDK traffic.',
+        subDetail: 'What it proves: API ingress, auth, and a real end-to-end SDK request path.',
+        nextAction: coreReady
+          ? 'Use a valid API key and run the Node command shown below.'
+          : 'Wait until core verification passes before running this.',
       }),
       createCheck({
         id: 'sdk_python',
-        label: 'Python validation',
-        status: 'info',
-        detail: 'Use the Python SDK after you have a base URL and API key.',
-        nextAction: 'Install dashclaw and run a basic ping once auth is ready.',
+        label: 'Python live validation path',
+        status: coreReady ? 'info' : 'warn',
+        detail: 'Use the Python SDK ping flow to prove a second client path works against this instance.',
+        subDetail: 'What it proves: package install, authentication, base URL correctness, and a live request/response loop.',
+        nextAction: coreReady
+          ? 'Install the SDK, then run the Python command shown below.'
+          : 'Wait until core verification passes before running this.',
+      }),
+      createCheck({
+        id: 'sdk_api_key_gate',
+        label: 'API key available for live checks',
+        status: apiReady ? 'pass' : 'warn',
+        detail: apiReady
+          ? 'An API authentication path is available for SDK verification.'
+          : 'You still need an API key before you can complete live SDK validation.',
+        likelyCause: apiReady ? '' : 'Neither DASHCLAW_API_KEY nor an operator-generated workspace API key is currently available.',
+        nextAction: apiReady ? '' : 'Set DASHCLAW_API_KEY or sign in and create a workspace API key.',
       }),
     ],
-  };
+    commands,
+    coreReady,
+    apiReady,
+  });
+}
+
+function buildWorkflow(report) {
+  const coreReady = report.db.ok && report.config.ok;
+  const authReady = report.auth.ok;
+  const apiReady = report.auth.hasAgentApiKey;
+  const requiredMissing = report.config.missingRequired.length > 0;
+
+  return [
+    createWorkflowStep({
+      id: 'core_instance',
+      title: 'Core instance verification',
+      status: coreReady ? 'pass' : requiredMissing || !report.db.ok ? 'fail' : 'warn',
+      summary: coreReady
+        ? 'DashClaw rendered, required config is present, and database checks completed.'
+        : 'Core instance verification is not complete yet.',
+      proof: coreReady
+        ? 'Verified by page reachability, config presence checks, database connectivity, and core schema inspection.'
+        : 'Blocked until required config and database checks pass.',
+      nextAction: coreReady ? '' : 'Resolve the blocked checks in Configuration and Database first.',
+    }),
+    createWorkflowStep({
+      id: 'auth_operator',
+      title: 'Operator and auth verification',
+      status: authReady ? (apiReady ? 'pass' : 'warn') : 'warn',
+      summary: authReady
+        ? 'At least one operator sign-in path is configured.'
+        : 'Normal operator sign-in still needs setup.',
+      proof: authReady
+        ? 'Verified by checking complete sign-in provider configuration.'
+        : 'Only inferred as incomplete because no complete sign-in method was found.',
+      nextAction: authReady
+        ? apiReady
+          ? ''
+          : 'Add or generate an API key before running live SDK validation.'
+        : 'Finish local password or OAuth setup before relying on dashboard access.',
+    }),
+    createWorkflowStep({
+      id: 'sdk_live',
+      title: 'SDK and integration verification',
+      status: !coreReady ? 'blocked' : apiReady ? 'pending' : 'warn',
+      summary: !coreReady
+        ? 'Live SDK validation should wait until core checks pass.'
+        : apiReady
+          ? 'Live validation commands are ready, but proof is still pending until you run them.'
+          : 'Core checks are in place, but you still need API credentials for live SDK validation.',
+      proof: !coreReady
+        ? 'No live SDK proof collected yet.'
+        : 'This page provides the commands and explains what each live validation will prove.',
+      nextAction: !coreReady
+        ? 'Complete the core verification step first.'
+        : apiReady
+          ? 'Run the Node or Python validation command below and capture the result in your deployment notes.'
+          : 'Configure an API key, then run one of the live validation commands.',
+    }),
+    createWorkflowStep({
+      id: 'proof_artifact',
+      title: 'Verification proof artifact',
+      status: 'pass',
+      summary: 'A structured JSON artifact is available for the current verification view.',
+      proof: 'The artifact records timestamp, mode, overall state, categories checked, per-check status, and next steps.',
+      nextAction: 'Download the proof artifact once you are ready to share or archive the current verification state.',
+    }),
+  ];
 }
 
 function buildRecommendations(report) {
   const steps = [];
+
+  if (report.config.missingRequired.length > 0) {
+    steps.push(
+      createStep({
+        id: 'set_required_env',
+        title: 'Set required environment variables',
+        variant: 'error',
+        summary: `DashClaw is missing ${report.config.missingRequired.length} required setting(s).`,
+        details: report.config.missingRequired.map((entry) => `${entry.key}: ${entry.help}`),
+      })
+    );
+  }
 
   if (report.db.reason === 'missing_database_url') {
     steps.push(
@@ -492,14 +707,15 @@ function buildRecommendations(report) {
         id: 'set_database_url',
         title: 'Set DATABASE_URL',
         variant: 'error',
-        summary: 'DashClaw cannot start database checks until DATABASE_URL is configured.',
+        summary: 'DashClaw cannot start database verification until DATABASE_URL is configured.',
         details: [
+          'What failed: no database connection string was present.',
           'Likely cause: the deployment is missing its database connection string.',
           'Next action: add DATABASE_URL to your environment and restart or redeploy.',
         ],
         code: 'DATABASE_URL=postgres://user:password@localhost:5432/dashclaw',
         publicCode: '',
-        note: 'Use the real connection string from your Postgres or Neon deployment. Do not paste secrets into shared screenshots.',
+        note: 'Use the real connection string from your Postgres deployment. Do not paste secrets into shared screenshots.',
       })
     );
   }
@@ -512,8 +728,9 @@ function buildRecommendations(report) {
         variant: 'error',
         summary: 'DashClaw found DATABASE_URL but could not connect to the database.',
         details: [
-          'Likely cause: database is offline, unreachable from this deployment, or using invalid credentials.',
-          'Next action: verify DATABASE_URL, confirm the database is accepting connections, then reload /setup.',
+          'What failed: the live database connection attempt did not succeed.',
+          'Likely cause: the database is offline, unreachable from this deployment, or using invalid credentials.',
+          'Next action: verify DATABASE_URL, confirm the database is reachable, then reload /setup.',
         ],
         code: `# Confirm the database is reachable from this environment
 node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs`,
@@ -531,6 +748,7 @@ node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs`,
         variant: 'warn',
         summary: 'The database is reachable, but DashClaw schema setup is incomplete.',
         details: [
+          'What failed: one or more required core tables are still missing.',
           'Likely cause: bootstrap migrations have not run, or they only ran partially.',
           'Next action: run the migration commands, then reload /setup.',
         ],
@@ -545,20 +763,6 @@ node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs`,
     );
   }
 
-  if (report.config.missingRequired.length > 0) {
-    steps.push(
-      createStep({
-        id: 'set_required_env',
-        title: 'Set required environment variables',
-        variant: 'error',
-        summary: `DashClaw is missing ${report.config.missingRequired.length} required setting(s).`,
-        details: report.config.missingRequired.map(
-          (entry) => `${entry.key}: ${entry.help}`
-        ),
-      })
-    );
-  }
-
   if (!report.auth.ok) {
     steps.push(
       createStep({
@@ -567,6 +771,7 @@ node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs`,
         variant: 'warn',
         summary: 'Operators need at least one complete sign-in method before normal dashboard access will work.',
         details: [
+          'What failed: no complete operator sign-in path is configured.',
           'Likely cause: neither local password login nor a fully configured OAuth provider is available yet.',
           'Next action: set DASHCLAW_LOCAL_ADMIN_PASSWORD for solo access, or finish GitHub, Google, or OIDC setup.',
         ],
@@ -584,9 +789,29 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
         title: 'Finish recommended configuration',
         variant: 'info',
         summary: 'DashClaw can run, but a few optional settings will improve reliability and integrations.',
-        details: report.config.missingAdvisory.map(
-          (entry) => `${entry.key}: ${entry.help}`
-        ),
+        details: report.config.missingAdvisory.map((entry) => `${entry.key}: ${entry.help}`),
+      })
+    );
+  }
+
+  if (report.db.ok && report.config.ok) {
+    steps.push(
+      createStep({
+        id: 'run_sdk_validation',
+        title: 'Run live SDK validation',
+        variant: report.auth.hasAgentApiKey ? 'info' : 'warn',
+        summary: report.auth.hasAgentApiKey
+          ? 'Core verification passed. Use the Node or Python validation path to collect live client proof.'
+          : 'Core verification passed, but you still need API credentials before live SDK validation can succeed.',
+        details: report.auth.hasAgentApiKey
+          ? [
+              'What this proves next: real API ingress, authentication, and a live client request path.',
+              'Next action: run the Node or Python command in the SDK verification section and archive the result with the JSON proof artifact.',
+            ]
+          : [
+              'What is pending: live integration proof still depends on API credentials.',
+              'Next action: set DASHCLAW_API_KEY or sign in and create a workspace API key before running the SDK validation commands.',
+            ],
       })
     );
   }
@@ -594,13 +819,11 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
   if (steps.length === 0) {
     steps.push(
       createStep({
-        id: 'instance_ready',
-        title: 'Instance looks ready',
+        id: 'instance_verified',
+        title: 'Instance verification looks strong',
         variant: 'info',
-        summary: 'Core readiness checks are passing.',
-        details: [
-          'Next action: sign in, create or verify an API key, and run an SDK validation command.',
-        ],
+        summary: 'Core verification checks are passing and operator access looks ready.',
+        details: ['Next action: download the JSON proof artifact and run a live SDK validation command if you want additional client-path evidence.'],
       })
     );
   }
@@ -608,7 +831,120 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
   return steps;
 }
 
-export async function getReadinessReport(env = process.env) {
+function buildVerificationState(report) {
+  const hasBlockingFailure = !report.db.ok || !report.config.ok;
+  if (hasBlockingFailure) {
+    return {
+      overall: 'blocked',
+      ...OVERALL_STATE_META.blocked,
+      ready: false,
+      fullyVerified: false,
+    };
+  }
+
+  const hasAttentionIssue =
+    !report.auth.ok ||
+    report.config.missingAdvisory.length > 0 ||
+    report.auth.hasPartialProviderWarnings;
+
+  if (hasAttentionIssue) {
+    return {
+      overall: 'needs_attention',
+      ...OVERALL_STATE_META.needs_attention,
+      ready: false,
+      fullyVerified: false,
+    };
+  }
+
+  if (!report.auth.hasAgentApiKey) {
+    return {
+      overall: 'ready_unverified',
+      ...OVERALL_STATE_META.ready_unverified,
+      ready: true,
+      fullyVerified: false,
+    };
+  }
+
+  return {
+    overall: 'verified',
+    ...OVERALL_STATE_META.verified,
+    ready: true,
+    fullyVerified: true,
+  };
+}
+
+function buildProofArtifact(view, host) {
+  const categories = view.sections.map((section) => ({
+    id: section.id,
+    title: section.title,
+    status: section.status,
+    summary: section.summary,
+    what_was_checked: section.whatWasChecked,
+    evidence_summary: section.evidenceSummary,
+    pending_proof: section.pendingProof,
+    checks: section.checks.map((check) => ({
+      id: check.id,
+      label: check.label,
+      status: check.status,
+      detail: check.detail,
+      sub_detail: check.subDetail,
+      likely_cause: check.likelyCause,
+      next_action: check.nextAction,
+    })),
+  }));
+
+  return {
+    artifact_version: 1,
+    generated_at: new Date().toISOString(),
+    checked_at: view.checkedAt,
+    route: '/setup',
+    viewer_mode: view.mode,
+    host: host || '',
+    verification: {
+      overall: view.verification.overall,
+      label: view.verification.label,
+      summary: view.verification.summary,
+      ready: view.verification.ready,
+      fully_verified: view.verification.fullyVerified,
+      readiness_status: view.overall,
+    },
+    runtime: {
+      node_version: process.version,
+      node_env: process.env.NODE_ENV || 'development',
+    },
+    categories,
+    workflow: view.workflow.map((step) => ({
+      id: step.id,
+      title: step.title,
+      status: step.status,
+      summary: step.summary,
+      proof: step.proof,
+      next_action: step.nextAction,
+    })),
+    recommended_next_steps: view.recommendations.map((step) => ({
+      id: step.id,
+      title: step.title,
+      variant: step.variant,
+      summary: step.summary,
+      details: step.details,
+      code: step.code,
+      note: step.note,
+    })),
+    sdk_validation: view.sdk?.commands
+      ? {
+          base_url: view.sdk.commands.baseUrl,
+          node_command: view.sdk.commands.node,
+          python_command: view.sdk.commands.python,
+          note: 'These commands are guidance for live validation. The artifact does not claim they have already been executed.',
+        }
+      : null,
+    notice: view.notice || '',
+  };
+}
+
+export async function getReadinessReport(env = process.env, options = {}) {
+  const { host = '' } = options;
+
   const [dbStatus, authConfig, config] = await Promise.all([
     getSetupStatus(env),
     Promise.resolve(getAuthConfig(env)),
@@ -617,30 +953,43 @@ export async function getReadinessReport(env = process.env) {
 
   const application = buildApplicationSection(env);
   const db = buildDatabaseSection(dbStatus);
-  const auth = buildAuthSection(authConfig, env);
   const configuration = buildConfigurationSection(config);
-  const sdk = buildSdkSection();
-
-  let overall = 'healthy';
-  if (!db.ok || !configuration.ok) {
-    overall = 'blocked';
-  } else if (!auth.ok || configuration.missingAdvisory.length > 0) {
-    overall = 'needs_attention';
-  }
-
-  const report = {
-    overall,
+  const auth = buildAuthSection(authConfig, env);
+  const baseReport = {
     checkedAt: new Date().toISOString(),
     application,
     db,
     config: configuration,
     auth,
-    sdk,
   };
+
+  const sdk = buildSdkSection(host, baseReport);
+  const sections = [application, db, configuration, auth, sdk];
+
+  let overall = 'healthy';
+  if (!db.ok || !configuration.ok) {
+    overall = 'blocked';
+  } else if (!auth.ok || configuration.missingAdvisory.length > 0 || auth.status === 'warn') {
+    overall = 'needs_attention';
+  }
+
+  const report = {
+    overall,
+    checkedAt: baseReport.checkedAt,
+    application,
+    db,
+    config: configuration,
+    auth,
+    sdk,
+    sections,
+  };
+
+  const verification = buildVerificationState(report);
 
   return {
     ...report,
-    sections: [application, db, configuration, auth, sdk],
+    verification,
+    workflow: buildWorkflow(report),
     recommendations: buildRecommendations(report),
   };
 }
@@ -685,8 +1034,14 @@ function projectStep(step, isAuthenticated) {
   };
 }
 
-export function projectReadinessReport(report, { isAuthenticated = false } = {}) {
-  return {
+export function projectReadinessReport(report, { isAuthenticated = false, host = '' } = {}) {
+  const projectedSections = report.sections.map((section) => ({
+    ...section,
+    checks: section.checks.map((check) => projectCheck(check, isAuthenticated)),
+  }));
+
+  const projectedSdk = projectedSections.find((section) => section.id === 'sdk') || report.sdk;
+  const view = {
     ...report,
     isAuthenticated,
     mode: isAuthenticated ? 'operator' : 'public',
@@ -698,10 +1053,14 @@ export function projectReadinessReport(report, { isAuthenticated = false } = {})
       missing: isAuthenticated ? report.db.missing : [],
     },
     auth: projectAuthConfig(report.auth, isAuthenticated),
-    sections: report.sections.map((section) => ({
-      ...section,
-      checks: section.checks.map((check) => projectCheck(check, isAuthenticated)),
-    })),
+    sdk: projectedSdk,
+    sections: projectedSections,
+    workflow: report.workflow.map((step) => ({ ...step })),
     recommendations: report.recommendations.map((step) => projectStep(step, isAuthenticated)),
+  };
+
+  return {
+    ...view,
+    proofArtifact: buildProofArtifact(view, host),
   };
 }

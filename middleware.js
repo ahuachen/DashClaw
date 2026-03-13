@@ -16,6 +16,7 @@ import { getViewerContextFromCookieHeader } from './app/lib/sessionViewer.mjs';
 const PUBLIC_ROUTES = [
   '/api/health',
   '/api/setup/status',
+  '/api/setup/proof',
   '/api/auth',
   '/api/cron',
   // Public read-only content endpoints

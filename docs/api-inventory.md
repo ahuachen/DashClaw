@@ -13,9 +13,9 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `145`
+- Total routes: `146`
 - Stable routes: `44`
-- Beta routes: `17`
+- Beta routes: `18`
 - Experimental routes: `84`
 
 ## Routes
@@ -149,6 +149,7 @@ doc-type: architecture
 | `/api/settings` | `DELETE, GET, POST` | `stable` | `/api/settings` | `app/api/settings/route.js` |
 | `/api/settings/llm-status` | `GET` | `stable` | `/api/settings` | `app/api/settings/llm-status/route.js` |
 | `/api/settings/test` | `POST` | `stable` | `/api/settings` | `app/api/settings/test/route.js` |
+| `/api/setup/proof` | `GET` | `beta` | `/api/setup` | `app/api/setup/proof/route.js` |
 | `/api/setup/status` | `GET` | `beta` | `/api/setup` | `app/api/setup/status/route.js` |
 | `/api/snippets` | `DELETE, GET, POST` | `stable` | `/api/snippets` | `app/api/snippets/route.js` |
 | `/api/snippets/{snippetId}` | `GET` | `stable` | `/api/snippets` | `app/api/snippets/[snippetId]/route.js` |

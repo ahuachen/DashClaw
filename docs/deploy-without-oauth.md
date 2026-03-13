@@ -69,7 +69,7 @@ Before signing in, open `https://your-app.vercel.app/setup`. That page verifies:
 - local password / OAuth auth readiness
 - copy-ready SDK validation commands
 
-`/setup` is intentionally safe to open before login. It shows status and recovery guidance without exposing secret values.
+`/setup` is intentionally safe to open before login. It shows verification state, recovery guidance, and a sanitized JSON proof download without exposing secret values.
 
 ---
 
@@ -180,5 +180,6 @@ an agent. Data appears as soon as an agent sends its first action.
 
 **Tables were not created automatically**
 Visit `/setup` first. If the Database section shows missing core tables, the page will
-tell you exactly which tables are absent and which migration commands to run. You can
-also check `/api/health` for a machine-readable status response.
+tell you exactly which tables are absent and which migration commands to run. Use the
+proof download on that page if you need a shareable verification snapshot, or check
+`/api/health` for a machine-readable status response.
