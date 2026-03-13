@@ -15,6 +15,8 @@ import { useRealtime } from '../hooks/useRealtime';
 import { getAgentColor } from '../lib/colors';
 import ActivityTimeline from '../components/ActivityTimeline';
 import SwarmActivityLog from '../components/SwarmActivityLog';
+import QuickStart from '../components/QuickStart';
+import { isDemoMode } from '../lib/isDemoMode';
 
 /* ---------- System posture: exactly 3 states ---------- */
 
@@ -138,6 +140,9 @@ export default function MissionControlPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('priority');
   const [showTelemetry, setShowTelemetry] = useState(false);
+  const [showQuickStart, setShowQuickStart] = useState(true);
+
+  const isDemo = isDemoMode();
 
   const fetchAll = useCallback(async () => {
     const agentParam = agentId ? `agent_id=${encodeURIComponent(agentId)}` : '';
@@ -321,6 +326,11 @@ export default function MissionControlPage() {
       breadcrumbs={['Mission Control']}
       actions={actionButton}
     >
+      {/* ═══ Activation: Quick Start (Only if no agents or in demo mode for review) ═══ */}
+      {!loading && (agents.length === 0 || isDemo) && showQuickStart && (
+        <QuickStart onSimulationComplete={fetchAll} onDismiss={() => setShowQuickStart(false)} />
+      )}
+
       {/* ═══ BAND 1: Command Strip ═══ */}
       {loading ? <CommandStripSkeleton /> : (
         <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">

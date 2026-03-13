@@ -322,41 +322,67 @@ export default function ActionsTimeline() {
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleExpand(action.action_id); }}
                       className="w-full p-4 text-left hover:bg-white/[0.02] transition-colors duration-150 cursor-pointer"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          {getTypeIcon(action.action_type)}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm text-white truncate">{action.declared_goal}</div>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-zinc-500 flex-wrap">
-                              <span className={`px-1.5 py-0.5 rounded border text-xs font-medium ${getAgentColor(action.agent_id)}`}>
-                                {action.agent_name || action.agent_id}
-                              </span>
-                              <span>{action.action_type}</span>
-                              <span className="text-zinc-600">{formatTime(action.timestamp_start)}</span>
-                              {systems.length > 0 && (
-                                <span className="text-zinc-600">{systems.slice(0, 2).join(', ')}{systems.length > 2 ? ` +${systems.length - 2}` : ''}</span>
-                              )}
+                      <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        {/* 1. Agent & Intent */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className={`w-1.5 h-1.5 rounded-full ${action.status === 'completed' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getAgentColor(action.agent_id)}`}>
+                              {action.agent_name || action.agent_id}
+                            </span>
+                            <span className="text-[10px] text-zinc-600 font-mono">{formatTime(action.timestamp_start)}</span>
+                          </div>
+                          <div className="font-medium text-sm text-white truncate pl-3.5 border-l border-white/5">
+                            {action.declared_goal}
+                          </div>
+                        </div>
+
+                        {/* Lineage Arrow */}
+                        <div className="hidden md:block text-zinc-700">
+                          <ChevronRight size={16} />
+                        </div>
+
+                        {/* 2. Policy Evaluation (Simplified) */}
+                        <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02] rounded-lg border border-white/5 min-w-[140px]">
+                          <Shield size={14} className={action.risk_score >= 70 ? 'text-red-400' : 'text-emerald-400'} />
+                          <div>
+                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-tighter">Governance</div>
+                            <div className={`text-xs font-semibold ${getRiskColor(action.risk_score)}`}>
+                              Risk {action.risk_score || 0}
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 ml-3">
-                          <span className={`text-xs font-mono font-medium ${getRiskColor(action.risk_score)}`}>
-                            R:{action.risk_score || 0}
-                          </span>
-                          <Badge variant={statusVariantMap[action.status] || 'default'} size="xs">
-                            {action.status}
-                          </Badge>
-                          {isAdmin && (
-                            <button
-                              onClick={(e) => handleDeleteAction(action.action_id, e)}
-                              disabled={deletingId === action.action_id}
-                              className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                              title="Delete action"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
-                          {isExpanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
+
+                        {/* Lineage Arrow */}
+                        <div className="hidden md:block text-zinc-700">
+                          <ChevronRight size={16} />
+                        </div>
+
+                        {/* 3. Outcome */}
+                        <div className="flex items-center justify-between gap-4 min-w-[160px]">
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(action.status)}
+                            <span className={`text-xs font-bold uppercase tracking-wide ${
+                              action.status === 'completed' ? 'text-emerald-400' :
+                              action.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                            }`}>
+                              {action.status}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {isAdmin && (
+                              <button
+                                onClick={(e) => handleDeleteAction(action.action_id, e)}
+                                disabled={deletingId === action.action_id}
+                                className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                title="Delete action"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
+                            {isExpanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
+                          </div>
                         </div>
                       </div>
                     </div>
