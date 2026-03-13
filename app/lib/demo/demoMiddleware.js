@@ -362,7 +362,7 @@ export function demoContent(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  const items = fixtures.contentItems.slice();
+  const items = (fixtures.content || []).slice();
   const total = items.length;
   const paged = items.slice(offset, offset + limit);
   const docs = items.filter(i => i.type === 'document').length;
@@ -374,11 +374,11 @@ export function demoContent(fixtures, url) {
 }
 
 export function demoTeam(fixtures) {
-  return { team: fixtures.team, lastUpdated: new Date().toISOString() };
+  return { team: fixtures.teamMembers || [], lastUpdated: new Date().toISOString() };
 }
 
 export function demoTeamInvites(fixtures) {
-  return { invites: fixtures.invites, lastUpdated: new Date().toISOString() };
+  return { invites: fixtures.teamInvites || [], lastUpdated: new Date().toISOString() };
 }
 
 export function demoActivity(fixtures, url) {
@@ -386,7 +386,7 @@ export function demoActivity(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  const items = fixtures.activityEvents.slice();
+  const items = (fixtures.activityLogs || []).slice();
   const total = items.length;
   const paged = items.slice(offset, offset + limit);
   return { events: paged, total, lastUpdated: new Date().toISOString() };
@@ -403,7 +403,7 @@ export function demoWebhooks(fixtures) {
 }
 
 export function demoWebhookDeliveries(fixtures, webhookId) {
-  const d = fixtures.webhookDeliveries.filter(del => del.webhook_id === webhookId);
+  const d = (fixtures.webhookDeliveries && fixtures.webhookDeliveries[webhookId]) || [];
   return { deliveries: d, total: d.length };
 }
 
@@ -424,7 +424,7 @@ export function demoSchedules(fixtures) {
 export function demoDigest(fixtures, url) {
   const sp = url.searchParams;
   const since = sp.get('since') || undefined;
-  return { digest: fixtures.digestSummary, lastUpdated: new Date().toISOString() };
+  return { digest: fixtures.digest || null, lastUpdated: new Date().toISOString() };
 }
 
 export function demoContextPoints(fixtures, url) {
@@ -432,22 +432,22 @@ export function demoContextPoints(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  const items = fixtures.contextPoints.slice();
+  const items = (fixtures.contextPoints || []).slice();
   const total = items.length;
   const paged = items.slice(offset, offset + limit);
   return { points: paged, total, lastUpdated: new Date().toISOString() };
 }
 
 export function demoContextThreads(fixtures, url) {
-  const items = fixtures.contextThreads.slice();
+  const items = (fixtures.contextThreads || []).slice();
   const active = items.filter(t => t.status === 'active').length;
   return { threads: items, total: items.length, stats: { total: items.length, active }, lastUpdated: new Date().toISOString() };
 }
 
 export function demoContextThreadDetail(fixtures, threadId) {
-  const t = fixtures.contextThreads.find(th => th.id === threadId);
+  const t = (fixtures.contextThreads || []).find(th => th.id === threadId);
   if (!t) return null;
-  const pts = fixtures.contextPoints.filter(p => p.thread_id === threadId);
+  const pts = (fixtures.contextPoints || []).filter(p => p.thread_id === threadId);
   return { thread: t, points: pts };
 }
 
@@ -456,7 +456,7 @@ export function demoHandoffs(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  const items = fixtures.handoffs.slice();
+  const items = (fixtures.handoffs || []).slice();
   const total = items.length;
   const paged = items.slice(offset, offset + limit);
   const pending = items.filter(h => h.status === 'pending').length;
@@ -465,7 +465,7 @@ export function demoHandoffs(fixtures, url) {
 
 export function demoSnippets(fixtures, url) {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200);
-  const items = fixtures.contentItems.filter(i => i.type === 'snippet').slice(0, limit);
+  const items = (fixtures.content || []).filter(i => i.type === 'snippet').slice(0, limit);
   return { snippets: items, total: items.length };
 }
 

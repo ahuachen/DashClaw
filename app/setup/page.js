@@ -14,6 +14,8 @@ import { VerificationSection } from './components/VerificationSection.js';
 import { RecommendedSteps } from './components/RecommendedSteps.js';
 import { ProofPanel } from './components/ProofPanel.js';
 import { FooterLinks } from './components/FooterLinks.js';
+import PageLayout from '../components/PageLayout';
+import { LogIn } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,19 +60,30 @@ export default async function SetupPage({ searchParams }) {
     : '/api/setup/proof?download=1';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-6 py-12 text-white">
+    <PageLayout 
+      title="Setup & Verify"
+      subtitle="Verify the instance, inspect what was actually checked, and export a proof artifact."
+      breadcrumbs={['System', 'Settings']}
+      actions={
+        <div className="flex items-center gap-2">
+          {!viewer.isAuthenticated && (
+            <Link 
+              href="/login" 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/20 text-brand text-xs font-medium hover:bg-brand/20 transition-colors"
+            >
+              <LogIn size={14} />
+              Sign In
+            </Link>
+          )}
+          <ModeBadge isAuthenticated={viewer.isAuthenticated} />
+        </div>
+      }
+    >
       <div className="mx-auto max-w-5xl">
-        <div className="mb-8">
-          <p className="mb-2 text-xs uppercase tracking-[0.35em] text-zinc-500">DashClaw</p>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Setup &amp; Verify</h1>
-              <p className="mt-2 max-w-2xl text-sm text-zinc-400">
-                Verify the instance, inspect what was actually checked, and export a proof artifact for the current state.
-              </p>
-              <p className="mt-2 text-xs text-zinc-500">{host}</p>
-            </div>
-            <ModeBadge isAuthenticated={view.isAuthenticated} />
+        {/* Readiness Info */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">
+            Host: <span className="text-zinc-400">{host}</span>
           </div>
         </div>
 
@@ -102,13 +115,13 @@ export default async function SetupPage({ searchParams }) {
           <div className="space-y-4">
             <ProofPanel view={view} proofDownloadHref={proofDownloadHref} />
             <FooterLinks
-              isAuthenticated={view.isAuthenticated}
+              isAuthenticated={viewer.isAuthenticated}
               authReady={view.auth.ok}
               verificationOverall={view.verification.overall}
             />
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }

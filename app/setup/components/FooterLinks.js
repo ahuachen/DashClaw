@@ -22,7 +22,7 @@ export function FooterLinks({ isAuthenticated, authReady, verificationOverall })
           </Link>
         ) : null}
         {isAuthenticated && verificationOverall !== 'blocked' ? (
-          <Link href="/dashboard" className="font-medium text-brand transition-colors hover:text-brand">
+          <Link href="/mission-control" className="font-medium text-brand transition-colors hover:text-brand">
             Go to dashboard -&gt;
           </Link>
         ) : null}

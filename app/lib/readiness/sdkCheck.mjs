@@ -123,7 +123,7 @@ export function projectConnectNextStep({
       title: 'Next step: connect your first agent',
       summary: 'Core checks can be reviewed here, but connecting a real agent requires operator access.',
       primaryCta: { label: 'Sign in to continue', href: '/login' },
-      secondaryCtas: [{ label: 'Go to dashboard', href: '/dashboard' }],
+      secondaryCtas: [{ label: 'Go to dashboard', href: '/mission-control' }],
       statusItems: [],
       snippets: null,
       validatorCommand: '',
@@ -135,8 +135,8 @@ export function projectConnectNextStep({
       state: 'create_workspace',
       title: 'Connect your first agent',
       summary: 'Create a workspace before generating API keys or sending live agent traffic.',
-      primaryCta: { label: 'Create workspace', href: '/dashboard' },
-      secondaryCtas: [{ label: 'Open dashboard', href: '/dashboard' }],
+      primaryCta: { label: 'Create workspace', href: '/mission-control' },
+      secondaryCtas: [{ label: 'Open dashboard', href: '/mission-control' }],
       statusItems,
       snippets: null,
       validatorCommand: '',
@@ -149,7 +149,7 @@ export function projectConnectNextStep({
       title: 'Connect your first agent',
       summary: 'Workspace is ready. Next, generate an API key so your first agent can authenticate.',
       primaryCta: { label: 'Generate API key', href: '/api-keys' },
-      secondaryCtas: [{ label: 'Open dashboard', href: '/dashboard' }],
+      secondaryCtas: [{ label: 'Open dashboard', href: '/mission-control' }],
       statusItems,
       snippets: null,
       validatorCommand: '',
@@ -164,7 +164,7 @@ export function projectConnectNextStep({
         verification?.overall === 'verified'
           ? 'Core checks and live proof are in place. Move into day-to-day controls from here.'
           : 'DashClaw has already recorded a real agent action. From here, tighten controls and review live activity.',
-      primaryCta: { label: 'Open dashboard', href: '/dashboard' },
+      primaryCta: { label: 'Open dashboard', href: '/mission-control' },
       secondaryCtas: [
         { label: 'Enable pairings', href: '/pairings' },
         { label: 'Review policies', href: '/policies' },
