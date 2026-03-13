@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { getReadinessReport, projectReadinessReport } from '../lib/readiness.mjs';
+import { readLiveVerificationProofToken } from '../lib/liveVerificationProof.mjs';
 import { getViewerContextFromCookieHeader } from '../lib/sessionViewer.mjs';
 
 export const dynamic = 'force-dynamic';
@@ -9,17 +10,23 @@ export const metadata = {
   title: 'Setup & Verify - DashClaw',
 };
 
-export default async function SetupPage() {
+export default async function SetupPage({ searchParams }) {
   const headerStore = await headers();
   const host = headerStore.get('host') || 'localhost';
   const cookieHeader = headerStore.get('cookie') || '';
+  const resolvedSearchParams = await searchParams;
+  const liveProofToken = typeof resolvedSearchParams?.proof === 'string' ? resolvedSearchParams.proof : '';
 
   const viewer = await getViewerContextFromCookieHeader(cookieHeader, process.env);
-  const report = await getReadinessReport(process.env, { host });
+  const liveProof = await readLiveVerificationProofToken(liveProofToken, process.env);
+  const report = await getReadinessReport(process.env, { host, liveProof });
   const view = projectReadinessReport(report, {
     isAuthenticated: viewer.isAuthenticated,
     host,
   });
+  const proofDownloadHref = liveProofToken
+    ? `/api/setup/proof?proof=${encodeURIComponent(liveProofToken)}&download=1`
+    : '/api/setup/proof?download=1';
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-6 py-12 text-white">
@@ -38,11 +45,18 @@ export default async function SetupPage() {
           </div>
         </div>
 
-        <TopSummary view={view} />
+        <TopSummary view={view} proofDownloadHref={proofDownloadHref} />
 
         {view.notice ? (
           <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] px-5 py-4">
             <p className="text-sm text-zinc-300">{view.notice}</p>
+          </div>
+        ) : null}
+        {liveProofToken && !liveProof ? (
+          <div className="mt-4 rounded-2xl border border-red-900/50 bg-[#111] px-5 py-4">
+            <p className="text-sm text-red-300">
+              The supplied live validation proof token could not be verified. Run the validator again and use the latest setup URL it returns.
+            </p>
           </div>
         ) : null}
 
@@ -56,7 +70,7 @@ export default async function SetupPage() {
           </div>
 
           <div className="space-y-4">
-            <ProofPanel view={view} />
+            <ProofPanel view={view} proofDownloadHref={proofDownloadHref} />
             <FooterLinks
               isAuthenticated={view.isAuthenticated}
               authReady={view.auth.ok}
@@ -82,7 +96,7 @@ function ModeBadge({ isAuthenticated }) {
   );
 }
 
-function TopSummary({ view }) {
+function TopSummary({ view, proofDownloadHref }) {
   const config = {
     verified: {
       dot: 'bg-emerald-400',
@@ -140,7 +154,7 @@ function TopSummary({ view }) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <ActionLink href="/api/setup/proof?download=1">Download verification proof</ActionLink>
+          <ActionLink href={proofDownloadHref}>Download verification proof</ActionLink>
           <ActionLink href="#workflow" secondary>
             Review verification flow
           </ActionLink>
@@ -255,7 +269,7 @@ function VerificationSection({ section }) {
           <CheckRow key={check.id} check={check} />
         ))}
 
-        {section.id === 'sdk' ? <SdkCommands commands={section.commands} coreReady={section.coreReady} /> : null}
+        {section.id === 'sdk' ? <SdkCommands commands={section.commands} coreReady={section.coreReady} liveProof={section.liveProof} /> : null}
       </div>
     </div>
   );
@@ -292,7 +306,7 @@ function CheckRow({ check }) {
   );
 }
 
-function SdkCommands({ commands, coreReady }) {
+function SdkCommands({ commands, coreReady, liveProof }) {
   if (!commands) return null;
 
   return (
@@ -303,6 +317,9 @@ function SdkCommands({ commands, coreReady }) {
           Proves a live authenticated SDK request path from a Node client.
         </p>
         <CodeBlock>{commands.node}</CodeBlock>
+        <p className="mt-2 text-xs text-zinc-500">
+          Add <code>--capture-setup-proof</code> to have the validator mint a signed setup proof link automatically after a successful run.
+        </p>
       </div>
 
       <div>
@@ -311,11 +328,30 @@ function SdkCommands({ commands, coreReady }) {
           Proves package install, auth, base URL correctness, and a live ping from Python.
         </p>
         <CodeBlock>{commands.python}</CodeBlock>
+        <p className="mt-2 text-xs text-zinc-500">
+          After a successful Python check, run the helper below to mint a signed setup proof link from the successful ping.
+        </p>
+        <CodeBlock>{commands.pythonCapture}</CodeBlock>
       </div>
+
+      {liveProof ? (
+        <div className="rounded-xl border border-emerald-900/40 bg-[#0d0d0d] p-4">
+          <p className="text-xs uppercase tracking-[0.24em] text-emerald-300">Captured live proof</p>
+          <p className="mt-2 text-xs text-zinc-300">{liveProof.proofStatement}</p>
+          <p className="mt-1 text-xs text-zinc-500">
+            Captured {new Date(liveProof.capturedAt).toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
+      ) : null}
 
       <p className="text-xs text-zinc-500">
         {coreReady
-          ? 'These commands are guidance for live validation. This page does not claim they have already been executed.'
+          ? 'These commands are guidance for live validation. This page only upgrades to verified after a signed live-proof token is attached.'
           : 'Run these only after the blocked core checks above have been resolved.'}
       </p>
     </div>
@@ -373,7 +409,7 @@ function ActionBlock({ step }) {
   );
 }
 
-function ProofPanel({ view }) {
+function ProofPanel({ view, proofDownloadHref }) {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
       <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Verification proof</p>
@@ -391,13 +427,13 @@ function ProofPanel({ view }) {
         <div className="mt-3 space-y-2 text-xs text-zinc-500">
           <p>Timestamp, viewer mode, and overall verification state.</p>
           <p>Per-section summaries and per-check status details.</p>
-          <p>Recommended next steps and SDK validation guidance.</p>
+          <p>Recommended next steps, SDK validation guidance, and any attached live validation proof.</p>
         </div>
       </div>
 
       <div className="mt-4">
         <a
-          href="/api/setup/proof?download=1"
+          href={proofDownloadHref}
           className="inline-flex items-center rounded-full border border-brand/40 bg-brand/10 px-4 py-2 text-sm text-brand transition-colors hover:border-brand/60 hover:bg-brand/15"
         >
           Download JSON proof

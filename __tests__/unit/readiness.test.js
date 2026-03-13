@@ -83,7 +83,7 @@ describe('readiness projections', () => {
     expect(step.note).toContain('required schema check');
   });
 
-  it('marks strong operator-ready instances as verified', async () => {
+  it('marks strong operator-ready instances as ready but unverified until live proof is captured', async () => {
     mockGetSetupStatus.mockResolvedValue({
       configured: true,
       reason: 'ready',
@@ -99,8 +99,43 @@ describe('readiness projections', () => {
       DASHCLAW_API_KEY: 'dc_test_key',
     });
 
+    expect(report.verification.overall).toBe('ready_unverified');
+    expect(report.verification.fullyVerified).toBe(false);
+  });
+
+  it('marks strong operator-ready instances as verified when live proof is attached', async () => {
+    mockGetSetupStatus.mockResolvedValue({
+      configured: true,
+      reason: 'ready',
+      missing: [],
+      message: 'Ready.',
+    });
+
+    const report = await getReadinessReport(
+      {
+        DATABASE_URL: 'postgres://db',
+        NEXTAUTH_SECRET: 'secret',
+        NEXTAUTH_URL: 'https://dashclaw.example.com',
+        DASHCLAW_LOCAL_ADMIN_PASSWORD: 'password',
+        DASHCLAW_API_KEY: 'dc_test_key',
+      },
+      {
+        host: 'dashclaw.example.com',
+        liveProof: {
+          tool: 'node',
+          mode: 'full',
+          capturedAt: '2026-03-13T12:00:00.000Z',
+          summary: { passed: 13, failed: 0, skipped: 0, score: 100 },
+          checks: [{ name: 'Health endpoint', status: 'pass' }],
+          proofStatement: 'Node validator full validation passed with 13 successful check(s) and 0 skipped check(s).',
+          verified: true,
+        },
+      }
+    );
+
     expect(report.verification.overall).toBe('verified');
     expect(report.verification.fullyVerified).toBe(true);
+    expect(report.sdk.hasLiveProof).toBe(true);
   });
 
   it('exposes a sanitized public proof artifact', async () => {

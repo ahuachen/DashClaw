@@ -301,6 +301,12 @@
       "total": 1
     },
     {
+      "file": "app/api/setup/live-proof/route.js",
+      "tagged_template": 0,
+      "query_call": 0,
+      "total": 0
+    },
+    {
       "file": "app/api/setup/proof/route.js",
       "tagged_template": 0,
       "query_call": 0,

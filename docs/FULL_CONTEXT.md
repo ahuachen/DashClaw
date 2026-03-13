@@ -169,6 +169,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 - Anonymous users see a public-safe verification view: explicit verification state, config presence/missing state, DB reachability, schema pass/fail, auth readiness, proof download access, and next-step guidance.
 - Anonymous mode does **not** expose secret values, connection strings, token material, raw errors, or exact missing internal details that are reserved for authenticated operators.
 - Authenticated users see the richer operator view on the same page, including fuller diagnostics and a richer JSON proof artifact.
+- Successful live SDK validation can be folded back into `/setup` via a signed `proof` token minted by `POST /api/setup/live-proof`. The token can be shared as `/setup?proof=...` without storing verification state in the database.
 
 ### Admin-Only API Routes (return 403 for members)
 - `POST/DELETE /api/keys`
@@ -357,6 +358,7 @@ middleware.js                  # Auth + rate limiting + org context injection
 | `/api/health` | GET | DB connectivity check (public) |
 | `/api/setup/status` | GET | Public database readiness status used by `/setup` |
 | `/api/setup/proof` | GET | Public-safe or operator JSON verification proof for `/setup` |
+| `/api/setup/live-proof` | POST | Protected route that mints a signed `/setup?proof=...` URL from a successful SDK validation summary |
 | `/api/waitlist` | GET, POST | Waitlist signups (public) |
 | `/api/activity` | GET | Activity log (paginated, filtered) |
 | `/api/webhooks` | GET, POST, DELETE | Webhook CRUD |

@@ -157,9 +157,35 @@ function getSdkCommands(host) {
     node: `node .claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs \\
   --base-url ${baseUrl} \\
   --api-key <api-key> \\
-  --full`,
+  --full \\
+  --capture-setup-proof`,
     python: `pip install dashclaw
 python -c "from dashclaw import DashClaw; dc = DashClaw(base_url='${baseUrl}', api_key='<api-key>'); print(dc.ping())"`,
+    pythonCapture: `python - <<'PY'
+import json
+import urllib.request
+
+payload = {
+    "validator": "python-sdk-helper",
+    "tool": "python",
+    "mode": "read_only",
+    "summary": {"passed": 1, "failed": 0, "skipped": 0, "score": 100},
+    "checks": [{"name": "Python SDK ping", "status": "pass"}],
+}
+
+req = urllib.request.Request(
+    "${baseUrl}/api/setup/live-proof",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+        "Content-Type": "application/json",
+        "x-api-key": "<api-key>",
+    },
+    method="POST",
+)
+
+with urllib.request.urlopen(req) as response:
+    print(response.read().decode("utf-8"))
+PY`,
   };
 }
 
@@ -552,14 +578,27 @@ function buildAuthSection(authConfig, env) {
   });
 }
 
-function buildSdkSection(host, report) {
+function formatCapturedAt(value) {
+  if (!value) return 'recently';
+  return new Date(value).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function buildSdkSection(host, report, liveProof) {
   const commands = getSdkCommands(host);
   const coreReady = report.db.ok && report.config.ok && report.auth.ok;
   const apiReady = report.auth.hasAgentApiKey || report.config.vars.some((entry) => entry.key === 'DASHCLAW_API_KEY' && entry.present);
-  const status = !coreReady ? 'warn' : apiReady ? 'info' : 'warn';
+  const hasLiveProof = Boolean(liveProof?.verified);
+  const status = !coreReady ? 'warn' : hasLiveProof ? 'pass' : apiReady ? 'info' : 'warn';
   const summary = !coreReady
     ? 'Finish core verification first, then run live SDK checks.'
-    : apiReady
+    : hasLiveProof
+      ? 'A successful live SDK validation has been captured for this verify view.'
+      : apiReady
       ? 'Live validation paths are ready to run. Proof remains pending until you execute them.'
       : 'Core checks are in place, but you still need an API key before running live SDK validation.';
 
@@ -570,11 +609,29 @@ function buildSdkSection(host, report) {
     description: 'Provides guided live validation paths for Node and Python once core verification is in place.',
     summary,
     whatWasChecked: 'This section does not execute SDK calls. It verifies whether a live validation path is available and documents the exact next commands.',
-    evidenceSummary: coreReady
+    evidenceSummary: hasLiveProof
+      ? liveProof.proofStatement
+      : coreReady
       ? 'Verification path available: DashClaw can now guide live SDK checks.'
       : 'Live SDK proof is pending because core instance verification is not complete yet.',
-    pendingProof: 'SDK and integration proof is still pending until one of the live validation commands is run successfully.',
+    pendingProof: hasLiveProof
+      ? ''
+      : 'SDK and integration proof is still pending until one of the live validation commands is run successfully.',
     checks: [
+      createCheck({
+        id: 'sdk_live_proof',
+        label: 'Captured live validation proof',
+        status: hasLiveProof ? 'pass' : coreReady ? 'info' : 'warn',
+        detail: hasLiveProof
+          ? `${liveProof.tool === 'python' ? 'Python SDK' : 'Node validator'} ${liveProof.mode === 'full' ? 'full' : 'read-only'} validation passed on ${formatCapturedAt(liveProof.capturedAt)}.`
+          : 'No successful live validation proof has been attached to this verify view yet.',
+        subDetail: hasLiveProof
+          ? `${liveProof.summary.passed} passed, ${liveProof.summary.failed} failed, ${liveProof.summary.skipped} skipped.`
+          : 'Run a live validation command, then capture the result to upgrade this instance from ready_unverified to verified.',
+        nextAction: hasLiveProof
+          ? 'Download the updated JSON proof artifact or share the setup URL that includes this live proof token.'
+          : 'Use the Node auto-capture flow or POST a sanitized Python success payload to /api/setup/live-proof after the command succeeds.',
+      }),
       createCheck({
         id: 'sdk_gate',
         label: 'Core verification gate',
@@ -619,6 +676,8 @@ function buildSdkSection(host, report) {
     commands,
     coreReady,
     apiReady,
+    liveProof,
+    hasLiveProof,
   });
 }
 
@@ -627,6 +686,7 @@ function buildWorkflow(report) {
   const authReady = report.auth.ok;
   const apiReady = report.auth.hasAgentApiKey;
   const requiredMissing = report.config.missingRequired.length > 0;
+  const hasLiveProof = Boolean(report.sdk?.hasLiveProof);
 
   return [
     createWorkflowStep({
@@ -660,17 +720,23 @@ function buildWorkflow(report) {
     createWorkflowStep({
       id: 'sdk_live',
       title: 'SDK and integration verification',
-      status: !coreReady ? 'blocked' : apiReady ? 'pending' : 'warn',
+      status: !coreReady ? 'blocked' : hasLiveProof ? 'pass' : apiReady ? 'pending' : 'warn',
       summary: !coreReady
         ? 'Live SDK validation should wait until core checks pass.'
+        : hasLiveProof
+          ? 'Live SDK proof has been captured for this verify view.'
         : apiReady
           ? 'Live validation commands are ready, but proof is still pending until you run them.'
           : 'Core checks are in place, but you still need API credentials for live SDK validation.',
-      proof: !coreReady
+      proof: hasLiveProof
+        ? report.sdk.evidenceSummary
+        : !coreReady
         ? 'No live SDK proof collected yet.'
         : 'This page provides the commands and explains what each live validation will prove.',
       nextAction: !coreReady
         ? 'Complete the core verification step first.'
+        : hasLiveProof
+          ? 'Download the refreshed proof artifact or share the setup URL with the attached live proof token.'
         : apiReady
           ? 'Run the Node or Python validation command below and capture the result in your deployment notes.'
           : 'Configure an API key, then run one of the live validation commands.',
@@ -688,6 +754,7 @@ function buildWorkflow(report) {
 
 function buildRecommendations(report) {
   const steps = [];
+  const hasLiveProof = Boolean(report.sdk?.hasLiveProof);
 
   if (report.config.missingRequired.length > 0) {
     steps.push(
@@ -798,12 +865,19 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
     steps.push(
       createStep({
         id: 'run_sdk_validation',
-        title: 'Run live SDK validation',
-        variant: report.auth.hasAgentApiKey ? 'info' : 'warn',
-        summary: report.auth.hasAgentApiKey
+        title: hasLiveProof ? 'Live SDK proof captured' : 'Run live SDK validation',
+        variant: hasLiveProof ? 'info' : report.auth.hasAgentApiKey ? 'info' : 'warn',
+        summary: hasLiveProof
+          ? 'A successful live validation result is attached to this verify view.'
+          : report.auth.hasAgentApiKey
           ? 'Core verification passed. Use the Node or Python validation path to collect live client proof.'
           : 'Core verification passed, but you still need API credentials before live SDK validation can succeed.',
-        details: report.auth.hasAgentApiKey
+        details: hasLiveProof
+          ? [
+              `Captured proof: ${report.sdk.evidenceSummary}`,
+              'Next action: download the refreshed JSON proof artifact or keep the signed setup URL for operational handoff.',
+            ]
+          : report.auth.hasAgentApiKey
           ? [
               'What this proves next: real API ingress, authentication, and a live client request path.',
               'Next action: run the Node or Python command in the SDK verification section and archive the result with the JSON proof artifact.',
@@ -856,7 +930,7 @@ function buildVerificationState(report) {
     };
   }
 
-  if (!report.auth.hasAgentApiKey) {
+  if (!report.auth.hasAgentApiKey || !report.sdk?.hasLiveProof) {
     return {
       overall: 'ready_unverified',
       ...OVERALL_STATE_META.ready_unverified,
@@ -935,7 +1009,19 @@ function buildProofArtifact(view, host) {
           base_url: view.sdk.commands.baseUrl,
           node_command: view.sdk.commands.node,
           python_command: view.sdk.commands.python,
-          note: 'These commands are guidance for live validation. The artifact does not claim they have already been executed.',
+          live_proof: view.sdk.liveProof
+            ? {
+                tool: view.sdk.liveProof.tool,
+                mode: view.sdk.liveProof.mode,
+                captured_at: view.sdk.liveProof.capturedAt,
+                summary: view.sdk.liveProof.summary,
+                proof_statement: view.sdk.liveProof.proofStatement,
+                checks: view.sdk.liveProof.checks,
+              }
+            : null,
+          note: view.sdk.liveProof
+            ? 'This artifact includes a signed live validation proof token summary for the current verify view.'
+            : 'These commands are guidance for live validation. The artifact does not claim they have already been executed.',
         }
       : null,
     notice: view.notice || '',
@@ -943,7 +1029,7 @@ function buildProofArtifact(view, host) {
 }
 
 export async function getReadinessReport(env = process.env, options = {}) {
-  const { host = '' } = options;
+  const { host = '', liveProof = null } = options;
 
   const [dbStatus, authConfig, config] = await Promise.all([
     getSetupStatus(env),
@@ -963,7 +1049,7 @@ export async function getReadinessReport(env = process.env, options = {}) {
     auth,
   };
 
-  const sdk = buildSdkSection(host, baseReport);
+  const sdk = buildSdkSection(host, baseReport, liveProof);
   const sections = [application, db, configuration, auth, sdk];
 
   let overall = 'healthy';

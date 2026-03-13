@@ -37,6 +37,7 @@ DashClaw includes Data Loss Prevention (DLP) redaction to reduce the chance of s
 - Only a small allowlist of `PUBLIC_ROUTES` is unauthenticated (e.g., `/api/health`, `/api/setup/status`, `/api/setup/proof`, `/api/auth/*`, `/api/cron/*`, `/api/docs/raw`, `/api/prompts/*`).
 - `/setup` is the one intentional pre-auth page exception on the UI side. It is public so first-time operators can diagnose broken auth/setup states, but the page uses a public-safe projection that exposes verification status only, not secrets or raw configuration values.
 - `/api/setup/proof` follows the same projection model: anonymous callers receive a sanitized JSON proof artifact, while authenticated operators receive richer operational detail.
+- `/api/setup/live-proof` is not public. It stays behind normal API auth and only mints signed proof tokens from successful SDK validation summaries. The token contains sanitized verification metadata only and is designed to be safe to attach to `/setup?proof=...`.
 - Tenant context headers (`x-org-id`, `x-org-role`, `x-user-id`) are stripped from all inbound API requests to prevent spoofing; middleware injects trusted values only after authentication.
 - Readonly API keys are enforced centrally: API-key requests with role `readonly` are blocked from non-GET/HEAD methods.
 - Decrypted integration secrets are only returned to admin API-key callers; non-admin API keys receive encrypted payloads only.

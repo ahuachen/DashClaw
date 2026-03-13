@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { getReadinessReport, projectReadinessReport } from '../../../lib/readiness.mjs';
+import { readLiveVerificationProofToken } from '../../../lib/liveVerificationProof.mjs';
 import { getViewerContextFromCookieHeader } from '../../../lib/sessionViewer.mjs';
 
 function buildResponse(artifact, download) {
@@ -25,9 +26,11 @@ export async function GET(request) {
   try {
     const url = new URL(request.url);
     const download = url.searchParams.get('download') === '1';
+    const liveProofToken = url.searchParams.get('proof') || '';
     const cookieHeader = request.headers.get('cookie') || '';
     const viewer = await getViewerContextFromCookieHeader(cookieHeader, process.env);
-    const report = await getReadinessReport(process.env, { host: url.host });
+    const liveProof = await readLiveVerificationProofToken(liveProofToken, process.env);
+    const report = await getReadinessReport(process.env, { host: url.host, liveProof });
     const view = projectReadinessReport(report, {
       isAuthenticated: viewer.isAuthenticated,
       host: url.host,
@@ -39,4 +42,3 @@ export async function GET(request) {
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

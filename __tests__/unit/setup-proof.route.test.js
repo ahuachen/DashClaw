@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeRequest } from '../helpers.js';
 
-const { mockGetReadinessReport, mockProjectReadinessReport, mockGetViewerContext } = vi.hoisted(() => ({
+const { mockGetReadinessReport, mockProjectReadinessReport, mockGetViewerContext, mockReadLiveVerificationProofToken } = vi.hoisted(() => ({
   mockGetReadinessReport: vi.fn(),
   mockProjectReadinessReport: vi.fn(),
   mockGetViewerContext: vi.fn(),
+  mockReadLiveVerificationProofToken: vi.fn(),
 }));
 
 vi.mock('@/lib/readiness.mjs', () => ({
@@ -16,11 +17,16 @@ vi.mock('@/lib/sessionViewer.mjs', () => ({
   getViewerContextFromCookieHeader: mockGetViewerContext,
 }));
 
+vi.mock('@/lib/liveVerificationProof.mjs', () => ({
+  readLiveVerificationProofToken: mockReadLiveVerificationProofToken,
+}));
+
 import { GET } from '@/api/setup/proof/route.js';
 
 describe('/api/setup/proof GET', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockReadLiveVerificationProofToken.mockResolvedValue(null);
   });
 
   it('returns a public-safe artifact for anonymous viewers', async () => {

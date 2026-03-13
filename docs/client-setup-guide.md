@@ -1407,7 +1407,7 @@ The skill also includes companion scripts:
 ```bash
 # Validate an agent's DashClaw integration
 node .claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs \
-  --base-url http://localhost:3000 --api-key $DASHCLAW_API_KEY --full
+  --base-url http://localhost:3000 --api-key $DASHCLAW_API_KEY --full --capture-setup-proof
 
 # Diagnose connection or auth issues
 node .claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs \
@@ -1417,6 +1417,40 @@ node .claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs \
 node .claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs \
   --dir "/path/to/agent" --agent-id "my-agent" --validate
 ```
+
+When `--capture-setup-proof` succeeds, the validator returns a signed `/setup?proof=...` URL and a matching proof download URL. Opening that setup URL upgrades the Verify surface with the captured live SDK proof for the current view.
+
+Python helper snippet for the same flow:
+
+```bash
+python - <<'PY'
+import json
+import urllib.request
+
+payload = {
+    "validator": "python-sdk-helper",
+    "tool": "python",
+    "mode": "read_only",
+    "summary": {"passed": 1, "failed": 0, "skipped": 0, "score": 100},
+    "checks": [{"name": "Python SDK ping", "status": "pass"}],
+}
+
+req = urllib.request.Request(
+    "http://localhost:3000/api/setup/live-proof",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+        "Content-Type": "application/json",
+        "x-api-key": "$DASHCLAW_API_KEY",
+    },
+    method="POST",
+)
+
+with urllib.request.urlopen(req) as response:
+    print(response.read().decode("utf-8"))
+PY
+```
+
+Use the returned `setup_url` to reopen `/setup` with the captured Python proof attached.
 
 Upload notes for Claude skill packages:
 - Keep `SKILL.md` frontmatter `description` at or under 1024 characters.

@@ -71,6 +71,10 @@ Before signing in, open `https://your-app.vercel.app/setup`. That page verifies:
 
 `/setup` is intentionally safe to open before login. It shows verification state, recovery guidance, and a sanitized JSON proof download without exposing secret values.
 
+After core checks pass, you can strengthen that view with live SDK proof:
+- Node: add `--capture-setup-proof` to the validator command and open the returned `/setup?proof=...` URL
+- Python: after a successful ping, run the helper snippet shown on `/setup` or in `docs/client-setup-guide.md` to POST the sanitized success payload to `/api/setup/live-proof`
+
 ---
 
 ## Step 4 — Sign In With Your Password
