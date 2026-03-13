@@ -2,7 +2,55 @@
 
 ## Summary
 
-All **HIGH**, **MEDIUM**, and **LOW** severity security issues identified in February 2026 audits have been addressed.
+All **HIGH**, **MEDIUM**, and **LOW** severity security issues identified in February and March 2026 audits have been addressed.
+
+---
+
+## Audit: March 13, 2026 (Manual Review)
+
+### 1. Server-Side Request Forgery (SSRF) Bypass ✅ FIXED
+
+**Issue**: The `isPrivateIp` validation logic in the webhook delivery engine failed to block IPv4-mapped IPv6 loopbacks (e.g., `::ffff:127.0.0.1`).
+**Security Risk**: Critical. An attacker could bypass DNS rebinding and internal network blocklists to perform a Server-Side Request Forgery attack against internal or metadata services.
+**Resolution**: Updated `isPrivateIp` to explicitly identify and validate the inner IPv4 portion of `::ffff:` mapped addresses.
+
+**Files Modified**:
+- `app/lib/webhooks.js`
+
+---
+
+### 2. Silent Credential Destruction ("False Encryption") ✅ FIXED
+
+**Issue**: The `/api/settings` POST endpoint blindly accepted masked UI strings (e.g., `••••••••`) as valid input, encrypting and overwriting the real secrets in the database.
+**Security Risk**: Critical. Legitimate admins could easily wipe out production API keys and database credentials unintentionally while saving settings from the dashboard.
+**Resolution**: Enforced a rejection pattern within `app/api/settings/route.js` that detects and drops any POST requests attempting to save the masked string format.
+
+**Files Modified**:
+- `app/api/settings/route.js`
+
+---
+
+### 3. Plan Privilege Escalation via Agent Connections ✅ FIXED
+
+**Issue**: Despite prior documentation claiming a fix, the `plan_name` field was still actively parsed by the Zod validation schema and directly upserted into the `agent_connections` table.
+**Security Risk**: High. An attacker could spoof their connection tier (e.g., set `plan_name` to 'enterprise') via the bulk sync endpoint to gain elevated access across downstream agent capabilities.
+**Resolution**: Removed `plan_name` entirely from the Zod validation schema and all corresponding DB operations.
+
+**Files Modified**:
+- `app/lib/validators/sync.js`
+- `app/lib/repositories/connections.repository.js`
+
+---
+
+### 4. Missing Context Binding (AAD) in Encryption ✅ FIXED
+
+**Issue**: The AES-256-GCM encryption strategy lacked Additional Authenticated Data (AAD) to bind ciphertexts to their respective configurations.
+**Security Risk**: High. An attacker with database access could swap encrypted values between different settings rows (e.g., copying a known `OPENAI_API_KEY` into `STRIPE_SECRET_KEY`) without detection.
+**Resolution**: Modified `encrypt` and `decrypt` functions to accept and enforce AAD, utilizing the `${orgId}:${key}` compound to cryptographically bind ciphertexts to their exact row locations.
+
+**Files Modified**:
+- `app/lib/encryption.js`
+- `app/api/settings/route.js`
 
 ---
 

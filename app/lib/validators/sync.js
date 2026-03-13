@@ -11,7 +11,6 @@ export const syncSchema = z.object({
   connections: z.array(z.object({
     provider: z.string().max(100),
     auth_type: z.string().max(50).default('api_key'),
-    plan_name: optionalString,
     status: z.string().max(50).default('active'),
     metadata: z.record(z.any()).nullish(),
   })).max(1000).optional(),

@@ -137,6 +137,13 @@ DashClaw supports Vercel Web Analytics (`@vercel/analytics`), but it is intentio
 
 Please do not open a public issue for security vulnerabilities. Email `practicalsystems@gmail.com` or open a private GitHub security advisory.
 
+## Recent Hardening (2026-03)
+
+- Fixed SSRF vulnerability in `app/lib/webhooks.js` by ensuring IPv4-mapped IPv6 addresses (e.g. `::ffff:127.0.0.1`) are properly detected and blocked by the `isPrivateIp` check.
+- Fixed False Encryption vulnerability in `app/api/settings/route.js` by explicitly preventing frontend mask placeholders (`••••••••`) from overriding real secrets.
+- Added cryptographic context binding (AAD) to the AES-256-GCM encryption in `app/lib/encryption.js` and `app/api/settings/route.js` to prevent database-level ciphertext swapping across different settings.
+- Enforced prevention of Plan Privilege Escalation by completely stripping the `plan_name` field from the validation schema (`app/lib/validators/sync.js`) and database upsert statements (`app/lib/repositories/connections.repository.js`).
+
 ## Recent Hardening (2026-02)
 
 - Fixed SSRF via DNS Rebinding TOCTOU in `app/lib/webhooks.js` by resolving IP once and forcing fetch to use the resolved IP.
