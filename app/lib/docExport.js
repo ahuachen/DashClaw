@@ -56,7 +56,7 @@ export async function exportToWord(content, filename) {
 }
 
 export async function exportToExcel(content, filename) {
-  const XLSX = await import('xlsx');
+  const XLSX = await import('@e965/xlsx');
 
   const tableMatch = content.match(/\|(.+)\|\n\|[-| :]+\|\n((\|.+\|\n?)+)/);
   let ws;

@@ -346,7 +346,7 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
       filtered[bp] = layouts[bp].filter(item => !hiddenTiles.includes(item.i));
     });
     return filtered;
-  }, [layoutKey, activePreset, hiddenTiles]);
+  }, [activePreset, hiddenTiles]);
 
   const handleLayoutChange = useCallback((_currentLayout, allLayouts) => {
     saveLayouts(allLayouts);

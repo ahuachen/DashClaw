@@ -2,6 +2,23 @@
 
 This is the operator-facing security guide for DashClaw (self-host and cloud). It documents the security model, key controls, and how to run audits.
 
+## 2026-03-13 Security Remediation
+
+On March 13, 2026, a comprehensive security audit and remediation was performed to address supply chain and runtime vulnerabilities:
+
+### Supply Chain Hardening
+- **Dependency Patching**: Resolved 11 High severity and 3 Medium severity vulnerabilities identified via OSV Scanner.
+- **`jspdf`**: Upgraded to `4.2.0` to remediate PDF Object Injection and Denial of Service (GHSA-67pg-wm7f-q7fj, GHSA-9vjf-qc39-jprp).
+- **`minimatch` / `ajv`**: Upgraded to latest patched versions to eliminate ReDoS vulnerabilities.
+- **`xlsx` Migration**: Migrated from the vulnerable `xlsx` package to the community-maintained `@e965/xlsx` fork to remediate Prototype Pollution and ReDoS risks (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9) while preserving Excel export functionality.
+- **`next`**: Upgraded to `^16.1.6` to remediate an Unbounded Memory Consumption vulnerability (GHSA-5f7q-jpqc-wp7h).
+
+### Linter & Best Practices
+- **ESLint Migration**: Migrated the `lint` script to use the standard ESLint CLI (`eslint .`) instead of the deprecated `next lint` wrapper.
+- **React Hook Safety**: Refactored `DraggableDashboard.js` to remove unnecessary dependencies in `useMemo`, preventing redundant re-renders and improving client-side performance.
+
+---
+
 ## Architecture and Trust Boundaries (High Level)
 
 DashClaw has two primary inbound trust boundaries:
