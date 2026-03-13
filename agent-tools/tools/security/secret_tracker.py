@@ -28,6 +28,24 @@ ROTATION_POLICIES = {
     'other': 90
 }
 
+
+def _mask_value(value: str, visible_prefix: int = 4, visible_suffix: int = 2) -> str:
+    """
+    Mask a potentially sensitive value for display/logging.
+
+    Shows only a small prefix and suffix of the string and replaces the middle
+    with asterisks. Short values are fully masked.
+    """
+    if value is None:
+        return "-"
+    text = str(value)
+    # If very short, avoid revealing it at all
+    if len(text) <= max(visible_prefix + visible_suffix, 4):
+        return "***"
+    prefix = text[:visible_prefix] if visible_prefix > 0 else ""
+    suffix = text[-visible_suffix:] if visible_suffix > 0 else ""
+    return f"{prefix}***{suffix}"
+
 def init_db():
     """Initialize database."""
     conn = sqlite3.connect(DB_PATH)
@@ -281,7 +299,9 @@ def main():
         for s in secrets:
             name, stype, service, location, last_rot, days, active = s
             status = "" if active else " (inactive)"
-            print(f"{name:<25} {stype:<15} {(service or '-'):<15} {(last_rot or '-'):<12} {days:<5}{status}")
+            safe_name = _mask_value(name)
+            safe_service = _mask_value(service) if service else "-"
+            print(f"{safe_name:<25} {stype:<15} {safe_service:<15} {(last_rot or '-'):<12} {days:<5}{status}")
     
     elif args.command == 'history':
         history = get_rotation_history(args.name)
