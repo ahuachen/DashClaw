@@ -35,7 +35,7 @@ const statusVariantMap = {
   completed: 'success', failed: 'error', running: 'warning', cancelled: 'default', pending: 'info',
 };
 
-export default function ActionsTimeline() {
+export default function DecisionsLedger() {
   const { agentId: globalAgentId } = useAgentFilter();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === 'admin';
@@ -211,7 +211,7 @@ export default function ActionsTimeline() {
   return (
     <PageLayout
       title="Decisions Ledger"
-      subtitle={`Global record of agent activity and governance${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
+      subtitle={`Global stream of governed agent actions${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Governance', 'Decisions']}
       actions={
         <div className="flex items-center gap-2">
@@ -489,7 +489,7 @@ export default function ActionsTimeline() {
                         )}
 
                         <div className="pt-2 flex items-center gap-4">
-                          <Link href={`/actions/${action.action_id}`} className="text-sm text-brand hover:text-brand-hover transition-colors duration-150">
+                          <Link href={`/decisions/${action.action_id}`} className="text-sm text-brand hover:text-brand-hover transition-colors duration-150">
                             View full decision record
                           </Link>
                           <button 

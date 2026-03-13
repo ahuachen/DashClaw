@@ -20,13 +20,13 @@ const navGroups = [
     items: [
       { href: '/mission-control', icon: Radar, label: 'Mission Control' },
       { href: '/agents', icon: Users, label: 'Agents' },
-      { href: '/actions', icon: Activity, label: 'Activity' },
+      { href: '/activity', icon: Activity, label: 'Activity' },
     ],
   },
   {
     label: 'Governance',
     items: [
-      { href: '/actions', icon: Zap, label: 'Decisions' },
+      { href: '/decisions', icon: Zap, label: 'Decisions' },
       { href: '/policies', icon: Shield, label: 'Policies' },
       { href: '/approvals', icon: Clock, label: 'Approvals' },
       { href: '/security', icon: ShieldAlert, label: 'Signals' },
@@ -37,7 +37,7 @@ const navGroups = [
     label: 'Evidence',
     items: [
       { href: '/compliance', icon: Scale, label: 'Compliance' },
-      { href: '/activity', icon: Clock, label: 'Audit Log' },
+      { href: '/audit-log', icon: Clock, label: 'Audit Log' },
     ],
   },
   {
