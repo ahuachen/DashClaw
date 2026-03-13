@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Rocket, Terminal, Zap, CheckCircle2, Copy, 
-  Play, Shield, ArrowRight, Loader2, X
+  Play, Shield, ArrowRight, Loader2, X, MousePointer2
 } from 'lucide-react';
 import { Card, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
@@ -15,22 +15,17 @@ export default function QuickStart({ onSimulationComplete, onDismiss }) {
   const [simulating, setSimulating] = useState(false);
   const [step, setStep] = useState(1);
 
-  const sdkCode = `const { DashClaw } = require('@dashclaw/sdk');
-const claw = new DashClaw({ apiKey: 'YOUR_API_KEY' });
+  const sdkCode = `// 1. node demo.js
+import { DashClaw } from '@dashclaw/sdk'
 
-// 1. Evaluate policy before acting
-const decision = await claw.guard({
-  actionType: 'deploy',
+const claw = new DashClaw({ 
+  apiKey: process.env.DASHCLAW_KEY 
+})
+
+await claw.guard({
+  actionType: "deploy",
   riskScore: 85
-});
-
-// 2. Record the action
-if (decision.allowed) {
-  await claw.createAction({
-    goal: 'Deploy production hotfix',
-    status: 'completed'
-  });
-}`;
+})`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(sdkCode);
@@ -39,7 +34,6 @@ if (decision.allowed) {
   };
 
   const handleSimulate = async () => {
-    console.log('Starting simulation...');
     setSimulating(true);
     try {
       // Simulate a governed decision by calling the real API
@@ -60,10 +54,8 @@ if (decision.allowed) {
         })
       });
       
-      console.log('Simulation response:', res.status);
       if (res.ok) {
         const data = await res.json();
-        console.log('Simulation data:', data);
         const actionId = data.action_id || 'act_real_1';
         
         if (onSimulationComplete) onSimulationComplete();
@@ -71,8 +63,7 @@ if (decision.allowed) {
         
         // Wait a beat for the user to see the success before redirecting to replay
         setTimeout(() => {
-          console.log('Redirecting to:', `/actions/${actionId}`);
-          router.push(`/actions/${actionId}`);
+          router.push(`/decisions/${actionId}`);
         }, 1500);
       } else {
         const err = await res.json();
@@ -97,7 +88,7 @@ if (decision.allowed) {
         </button>
       )}
       {/* 1. The Onboarding Card */}
-      <Card className="border-brand/20 bg-brand/5" hover={false}>
+      <Card className="border-brand/20 bg-brand/5 overflow-visible" hover={false}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center text-brand">
@@ -105,7 +96,7 @@ if (decision.allowed) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Connect your first agent</h2>
-              <p className="text-sm text-zinc-400">Under 60 seconds to your first governed decision.</p>
+              <p className="text-sm text-zinc-400">See your first governed decision in under 2 minutes.</p>
             </div>
           </div>
 
@@ -136,9 +127,9 @@ if (decision.allowed) {
                 <div className="flex-1 w-px bg-white/10 my-1" />
               </div>
               <div className="flex-1 pb-4">
-                <div className="text-sm font-semibold text-white mb-1">Instrument Decision</div>
+                <div className="text-sm font-semibold text-white mb-1">Run Example</div>
                 <div className="relative group">
-                  <pre className="bg-black/40 p-3 rounded border border-white/5 font-mono text-[10px] text-zinc-400 overflow-x-auto max-h-[120px]">
+                  <pre className="bg-black/40 p-3 rounded border border-white/5 font-mono text-[10px] text-zinc-400 overflow-x-auto max-h-[140px]">
                     {sdkCode}
                   </pre>
                   <button 
@@ -158,9 +149,17 @@ if (decision.allowed) {
                   {step === 3 ? <CheckCircle2 size={14} /> : '3'}
                 </div>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <div className="text-sm font-semibold text-white mb-1">Watch Governance Happen</div>
                 <p className="text-xs text-zinc-500">Mission Control will light up the moment your agent acts.</p>
+                
+                {/* Visual Hint */}
+                <div className="absolute -left-12 -bottom-16 hidden xl:flex items-center gap-2 animate-bounce">
+                  <MousePointer2 size={16} className="text-brand rotate-[-45deg] fill-brand" />
+                  <span className="text-[10px] font-bold text-brand uppercase tracking-tighter whitespace-nowrap bg-brand/10 px-2 py-1 rounded border border-brand/20">
+                    Mission Control lights up here
+                  </span>
+                </div>
               </div>
             </div>
           </div>
