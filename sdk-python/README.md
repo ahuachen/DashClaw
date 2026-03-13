@@ -1,6 +1,6 @@
 # DashClaw Python SDK: Agent Decision Infrastructure
 
-Full-featured decision governance toolkit for the [DashClaw](https://github.com/ucsandman/DashClaw) platform. 177+ methods across 29+ categories. Zero dependencies, requires Python 3.7+.
+Full-featured decision governance toolkit for the [DashClaw](https://github.com/ucsandman/DashClaw) platform. Broad, evolving surface area across action recording, guard enforcement, compliance, routing, messaging, and more. Zero dependencies, requires Python 3.7+.
 
 DashClaw treats every agent action as a governed decision. The SDK provides decision recording, policy enforcement, assumption tracking, and compliance mapping.
 

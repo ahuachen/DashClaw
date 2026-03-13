@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/images/github-social-preview.png" alt="DashClaw" width="240" />
+  <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
   <p><strong>AI Agent Governance, Operations, and Intelligence Platform</strong></p>
   <p>The self-hosted control plane for running serious AI agent fleets.<br/>Govern decisions before agents act, route work to the right agent, score output quality, track learning, manage context and messaging, and generate audit-ready compliance evidence.</p>

@@ -34,7 +34,20 @@
 
 ## 1. Getting Started (First 5 Minutes)
 
-### Step 1: Open The Right Dashboard
+### Step 1: Verify the Instance (Setup & Verify)
+
+Before you connect any agents, make sure the dashboard itself is healthy.
+
+1. From a fresh clone, run the interactive installer:
+   ```bash
+   node scripts/setup.mjs
+   ```
+2. Open the **Setup & Verify** page on your instance:
+   - `YOUR_BASE_URL/setup`
+
+The `/setup` page is the canonical readiness surface. It explains what was checked and what to do next if anything is blocked.
+
+### Step 2: Open The Right Dashboard
 
 If you just want to see what DashClaw looks like, open the demo: **https://dashclaw.io/demo**.
 In the demo, there is **no login** and all data/actions are fake.
@@ -55,7 +68,7 @@ You can sign in with a local admin password, GitHub, or Google.
 
 After signing in, you'll land on the **Dashboard** with a guided onboarding checklist.
 
-### Step 2: Create Your Workspace
+### Step 3: Create Your Workspace
 
 The onboarding checklist walks you through 4 steps. First, create a workspace:
 
@@ -64,7 +77,7 @@ The onboarding checklist walks you through 4 steps. First, create a workspace:
 
 This creates an isolated organization for your data. You become the **admin**.
 
-### Step 3: Generate an API Key
+### Step 4: Generate an API Key
 
 Click the **Generate API Key** button. You'll see a key like:
 
@@ -79,7 +92,7 @@ oc_live_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
 DASHCLAW_API_KEY=oc_live_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
 ```
 
-### Step 4: Install the SDK
+### Step 5: Install the SDK
 
 ```bash
 npm install dashclaw
@@ -87,7 +100,15 @@ npm install dashclaw
 
 Requirements: **Node.js 20+** recommended (uses native `fetch`).
 
-### Step 5: Send Your First Action
+### Step 6: Connect your agent (canonical golden path)
+
+For the shortest trustworthy “first live action” flow (including copy-paste snippets, optional verified pairing, and a validator command), open:
+
+- `YOUR_BASE_URL/connect`
+
+The rest of this guide remains useful for concepts, operator workflows, and troubleshooting.
+
+### Step 7: Send Your First Action (minimal example)
 
 Add this to your agent's code:
 
@@ -129,12 +150,10 @@ npm install dashclaw
 ### Python (pip)
 
 ```bash
-# From the sdk-python directory (until published to PyPI)
-pip install sdk-python/
+pip install dashclaw
 ```
 
-Current Python SDK parity coverage includes `actions`, `approvals`, `guard`, `webhooks`, `context`, `memory`, and `messages`.
-See `docs/sdk-parity.md` for the live gap matrix.
+See `sdk-python/README.md` for the Python SDK reference and current capability notes.
 
 ---
 
@@ -259,7 +278,7 @@ An **action** is anything your agent does that's worth tracking. Each action has
 
 ### Open Loops
 
-An **open loop** is something unresolved â€" a pending follow-up, a question waiting for an answer, a dependency that hasn't been met. Track them to prevent things falling through the cracks.
+An **open loop** is something unresolved — a pending follow-up, a question waiting for an answer, a dependency that hasn't been met. Track them to prevent things falling through the cracks.
 
 Types: `followup`, `question`, `dependency`, `approval`, `review`, `handoff`, `other`
 Priorities: `low`, `medium`, `high`, `critical`
@@ -270,7 +289,7 @@ An **assumption** is something your agent believes to be true. Log assumptions s
 
 ### Risk Signals
 
-DashClaw automatically detects 7 risk patterns (see [Section 8](#8-risk-signals-automatic-signal-detection)). No configuration needed â€" signals fire automatically based on your agent's behavior data.
+DashClaw automatically detects 7 risk patterns (see [Section 8](#8-risk-signals-automatic-signal-detection)). No configuration needed — signals fire automatically based on your agent's behavior data.
 
 ### Guard Policies
 
@@ -284,526 +303,20 @@ Each workspace is fully isolated. API keys are scoped to an organization. Agents
 
 ## 5. SDK Method Reference
 
-The SDK has **60+ methods** across 13+ categories. Every method returns a Promise.
+This guide is intentionally **not** the canonical SDK reference. The SDK surface evolves quickly, and any hard-coded method counts or copied reference blocks will drift.
 
-### Action Recording (7 methods)
+Use these sources instead:
 
-```javascript
-// Create an action
-const { action_id } = await claw.createAction({
-  action_type: 'build',         // required
-  declared_goal: 'Build X',     // required
-  risk_score: 30,               // optional, 0-100
-  systems_touched: ['api'],     // optional
-  reversible: true,             // optional
-  confidence: 80,               // optional, 0-100
-  reasoning: 'Weekly build',    // optional
-  trigger: 'schedule',          // optional
-  authorization_scope: 'read',  // optional
-  input_summary: '...',         // optional
-  parent_action_id: 'act_xxx',  // optional
-});
+- **Node.js SDK reference**: `sdk/README.md`
+- **Python SDK reference**: `sdk-python/README.md`
+- **In-app docs**: `/docs` on any running DashClaw instance
 
-// Update outcome
-await claw.updateOutcome(action_id, {
-  status: 'completed',
-  output_summary: 'Done',
-  side_effects: ['Cache invalidated'],
-  artifacts_created: ['bundle.js'],
-  error_message: null,
-  duration_ms: 12000,
-  cost_estimate: 0.05,
-});
+If you’re just trying to get a first agent connected, you only need:
 
-// List actions
-const { actions, total, stats } = await claw.getActions({
-  agent_id: 'my-agent',  // optional filter
-  status: 'running',     // optional filter
-  action_type: 'deploy', // optional filter
-  risk_min: 50,          // optional, min risk score
-  limit: 50,             // optional, default 50
-  offset: 0,             // optional, pagination
-});
-
-// Get single action (with loops + assumptions)
-const { action, open_loops, assumptions } = await claw.getAction('act_xxx');
-
-// Get root-cause trace
-const { trace } = await claw.getActionTrace('act_xxx');
-
-// Wait for human-in-the-loop approval when action enters pending state
-const approvalResult = await claw.waitForApproval(action_id, {
-  timeout: 300000, // optional, default 5 minutes
-  interval: 5000,  // optional poll interval
-});
-
-// Track: auto-wrap action creation + outcome
-const result = await claw.track(
-  { action_type: 'test', declared_goal: 'Run suite' },
-  async ({ action_id }) => { /* your work */ return 'passed'; }
-);
-```
-
-### Loops & Assumptions (7 methods)
-
-```javascript
-// Register an open loop
-const { loop_id } = await claw.registerOpenLoop({
-  action_id: 'act_xxx',       // required
-  loop_type: 'dependency',     // required
-  description: 'Need API key', // required
-  priority: 'high',            // optional: low|medium|high|critical
-  owner: 'human-ops',          // optional
-});
-
-// Resolve or cancel a loop
-await claw.resolveOpenLoop(loop_id, 'resolved', 'Got the key from admin');
-await claw.resolveOpenLoop(loop_id, 'cancelled');
-
-// List loops
-const { loops, stats } = await claw.getOpenLoops({
-  status: 'open',       // optional
-  loop_type: 'approval', // optional
-  priority: 'critical',  // optional
-  limit: 50,            // optional
-});
-
-// Register an assumption
-const { assumption_id } = await claw.registerAssumption({
-  action_id: 'act_xxx',                      // required
-  assumption: 'API supports batch mode',      // required
-  basis: 'Saw it in the docs 2 months ago',  // optional
-});
-
-// Get a single assumption
-const { assumption } = await claw.getAssumption(assumption_id);
-
-// Validate or invalidate
-await claw.validateAssumption(assumption_id, true);  // confirmed correct
-await claw.validateAssumption(assumption_id, false, 'API removed batch mode in v3');
-
-// Get drift report (assumptions with risk scoring)
-const { assumptions: driftList, drift_summary } = await claw.getDriftReport({
-  action_id: 'act_xxx', // optional
-  limit: 50,            // optional
-});
-```
-
-### Signals (1 method)
-
-```javascript
-const { signals, counts } = await claw.getSignals();
-// counts = { red: 2, amber: 5, total: 7 }
-```
-
-### Heartbeats & Presence (2 methods)
-
-Keep your agent visible on the dashboard by sending periodic heartbeats.
-
-```javascript
-// Start automatic background heartbeat (Recommended)
-// Sends a heartbeat every 60 seconds (default).
-const stopHeartbeat = claw.startHeartbeat({
-  interval: 60000,    // optional (ms)
-  status: 'online',   // optional
-  metadata: { version: '1.2.0', env: 'prod' } // optional extra data
-});
-
-// Update status manually during long tasks
-await claw.heartbeat({
-  status: 'busy',
-  current_task_id: 'task_123'
-});
-
-// Mark as offline on shutdown
-stopHeartbeat();
-await claw.heartbeat({ status: 'offline' });
-```
-
-### Dashboard Data (12 methods)
-
-```javascript
-// Report token usage/cost snapshot
-await claw.reportTokenUsage({
-  tokens_in: 1200,
-  tokens_out: 800,
-  model: 'gpt-4o',
-});
-
-// Record a decision (learning database)
-await claw.recordDecision({
-  decision: 'Use JWT for auth',           // required
-  context: 'Evaluating session strategies', // optional
-  reasoning: 'Edge-compatible, no DB',     // optional
-  outcome: 'success',                      // optional: success|failure|pending
-  confidence: 90,                          // optional, 0-100
-});
-
-// Get adaptive recommendations from scored episodes
-const { recommendations } = await claw.getRecommendations({
-  action_type: 'deploy', // optional
-  limit: 10,             // optional
-});
-
-// Rebuild recommendation set (admin/service role required by API)
-await claw.rebuildRecommendations({
-  lookback_days: 30,
-  min_samples: 5,
-});
-
-// Apply top recommendation hints to an action payload
-const { action: adaptedAction, adapted_fields } = await claw.recommendAction({
-  action_type: 'deploy',
-  declared_goal: 'Ship v1.6',
-  risk_score: 85,
-});
-
-// Create a goal
-await claw.createGoal({
-  title: 'Ship v2 by March',  // required
-  category: 'milestone',       // optional
-  description: '...',          // optional
-  target_date: '2026-03-01',  // optional, ISO string
-  progress: 40,                // optional, 0-100
-  status: 'active',           // optional: active|completed|paused
-});
-
-// Record content
-await claw.recordContent({
-  title: 'API Migration Guide',  // required
-  platform: 'docs',             // optional
-  status: 'published',          // optional: draft|published
-  url: 'https://...',           // optional
-});
-
-// Record a relationship interaction
-await claw.recordInteraction({
-  summary: 'Discussed deployment plan',  // required
-  contact_name: 'Jane Smith',            // optional (auto-resolves to contact_id)
-  direction: 'outbound',                 // optional: inbound|outbound
-  type: 'meeting',                       // optional
-  platform: 'zoom',                      // optional
-});
-
-// Create a calendar event
-await claw.createCalendarEvent({
-  summary: 'Sprint Review',             // required
-  start_time: '2026-02-15T14:00:00Z',  // required, ISO string
-  end_time: '2026-02-15T15:00:00Z',    // optional
-  location: 'Conference Room A',        // optional
-});
-
-// Record an idea
-await claw.recordIdea({
-  title: 'Real-time signal streaming',  // required
-  description: 'WebSocket push...',     // optional
-  category: 'feature',                  // optional
-  score: 85,                            // optional, 0-100
-  status: 'pending',                    // optional
-});
-
-// Report memory health
-await claw.reportMemoryHealth({
-  health: { score: 82, total_files: 12, total_lines: 450 },
-  entities: [{ name: 'auth-service', type: 'system', mention_count: 15 }],
-  topics: [{ name: 'deployment', mention_count: 8 }],
-});
-
-// Report active connections/integrations
-await claw.reportConnections([
-  { provider: 'github', authType: 'oauth', status: 'active' },
-  { provider: 'anthropic', authType: 'api_key', planName: 'Pro', status: 'active' },
-]);
-```
-
-### Session Handoffs (3 methods)
-
-```javascript
-// Create a handoff (end-of-session summary)
-await claw.createHandoff({
-  summary: 'Finished auth refactor, tests passing',  // required
-  session_date: '2026-02-11',                         // optional (defaults to today)
-  key_decisions: ['Switched to JWT', 'Dropped sessions table'],
-  open_tasks: ['Update SDK docs', 'Run load tests'],
-  mood_notes: 'Productive session, no blockers',
-  next_priorities: ['Deploy to staging', 'Update changelog'],
-});
-
-// Get handoffs
-const { handoffs } = await claw.getHandoffs({ date: '2026-02-11', limit: 10 });
-
-// Get latest handoff
-const { handoff } = await claw.getLatestHandoff();
-```
-
-### Context Manager (7 methods)
-
-```javascript
-// Capture a key point
-await claw.captureKeyPoint({
-  content: 'Users prefer dark theme by 4:1 ratio',  // required
-  category: 'insight',    // optional: decision|task|insight|question|general
-  importance: 8,          // optional: 1-10 (default 5)
-  session_date: '2026-02-11',  // optional
-});
-
-// Get key points
-const { points } = await claw.getKeyPoints({
-  category: 'decision',
-  session_date: '2026-02-11',
-  limit: 20,
-});
-
-// Create a thread (tracks a topic across entries)
-const { thread_id } = await claw.createThread({
-  name: 'Auth Architecture',  // required (unique per agent per org)
-  summary: 'Tracking auth design decisions',
-});
-
-// Add entries to a thread
-await claw.addThreadEntry(thread_id, 'Decided on JWT over sessions', 'note');
-await claw.addThreadEntry(thread_id, 'JWT refresh token rotation added', 'note');
-
-// Close a thread
-await claw.closeThread(thread_id, 'Auth shipped to production');
-
-// Get threads
-const { threads } = await claw.getThreads({ status: 'active', limit: 20 });
-
-// Get combined context summary (today's points + active threads)
-const { points, threads } = await claw.getContextSummary();
-```
-
-### Automation Snippets (4 methods)
-
-```javascript
-// Save a reusable snippet (upserts on name)
-await claw.saveSnippet({
-  name: 'api-error-handler',          // required (unique per org)
-  code: 'try { ... } catch (e) { }',  // required
-  description: 'Standard error handler',
-  language: 'javascript',
-  tags: ['error', 'api', 'pattern'],
-});
-
-// Search snippets
-const { snippets } = await claw.getSnippets({
-  search: 'error',    // optional
-  tag: 'api',         // optional
-  language: 'javascript',
-  limit: 20,
-});
-
-// Mark a snippet as used (increments use_count)
-await claw.useSnippet('sn_xxx');
-
-// Delete a snippet
-await claw.deleteSnippet('sn_xxx');
-```
-
-### User Preferences (6 methods)
-
-```javascript
-// Log an observation about the user
-await claw.logObservation({
-  observation: 'User prefers concise responses',  // required
-  category: 'communication',                      // optional
-  importance: 8,                                   // optional, 1-10
-});
-
-// Set a learned preference
-await claw.setPreference({
-  preference: 'Always use TypeScript',  // required
-  category: 'coding',                   // optional
-  confidence: 95,                       // optional, 0-100
-});
-
-// Log mood/energy
-await claw.logMood({
-  mood: 'focused',    // required
-  energy: 'high',     // optional
-  notes: 'Morning session, no distractions',
-});
-
-// Track an approach (success/fail)
-await claw.trackApproach({
-  approach: 'Plan before coding',  // required
-  context: 'Feature development',   // optional
-  success: true,                    // optional boolean
-});
-
-// Get preference summary
-const { summary } = await claw.getPreferenceSummary();
-
-// Get tracked approaches
-const { approaches } = await claw.getApproaches({ limit: 20 });
-```
-
-### Prompt Management (12 methods)
-
-```javascript
-// List prompt templates
-const { templates } = await claw.listPromptTemplates({ category: 'agent' });
-
-// Create a template
-const template = await claw.createPromptTemplate({
-  name: 'Code Reviewer',
-  description: 'Prompt for reviewing PRs',
-  category: 'agent',
-});
-
-// Get template details
-const t = await claw.getPromptTemplate('pt_xxx');
-
-// Update template
-await claw.updatePromptTemplate('pt_xxx', { description: 'Updated desc' });
-
-// Delete template
-await claw.deletePromptTemplate('pt_xxx');
-
-// List versions for a template
-const { versions } = await claw.listPromptVersions('pt_xxx');
-
-// Create a new immutable version
-const version = await claw.createPromptVersion('pt_xxx', {
-  content: 'Review this code: {{code}}',
-  model_hint: 'gpt-4o',
-  changelog: 'Initial version',
-});
-
-// Get a specific version
-const v = await claw.getPromptVersion('pt_xxx', 'pv_yyy');
-
-// Activate a version (sets is_active=true, deactivates others)
-await claw.activatePromptVersion('pt_xxx', 'pv_yyy');
-
-// Render a prompt with variables
-const { rendered, run_id } = await claw.renderPrompt({
-  template_id: 'pt_xxx',
-  variables: { code: 'console.log("hello")' },
-  record: true, // optionally track this usage
-});
-
-// List usage runs
-const { runs } = await claw.listPromptRuns({ template_id: 'pt_xxx', limit: 50 });
-
-// Get usage stats
-const stats = await claw.getPromptStats({ template_id: 'pt_xxx' });
-```
-
-### Daily Digest (1 method)
-
-```javascript
-const { date, digest, summary } = await claw.getDailyDigest('2026-02-11');
-// Aggregates: actions, decisions, lessons, content, ideas, interactions, goals
-```
-
-### Security Scanning (2 methods)
-
-```javascript
-// Scan text for sensitive data (18 regex patterns: API keys, tokens, PII, etc.)
-const { clean, findings_count, findings, redacted_text } = await claw.scanContent(
-  'My API key is sk-1234567890abcdef',
-  'slack-message'  // optional destination context
-);
-
-// Scan + store finding metadata (never stores original content)
-await claw.reportSecurityFinding('Text to audit', 'email');
-```
-
-### Agent Messaging (9 methods)
-
-```javascript
-// Send a message to another agent
-await claw.sendMessage({
-  to: 'other-agent',           // omit for broadcast
-  type: 'question',            // info|action|lesson|question|status
-  subject: 'Need API schema',
-  body: 'Can you share the latest schema?',
-  urgent: true,                // optional
-});
-
-// Broadcast to all agents
-await claw.broadcast({
-  type: 'status',
-  subject: 'Deployment complete',
-  body: 'API v2.1 is live.',
-});
-
-// Get inbox
-const { messages, unread_count } = await claw.getInbox({
-  type: 'question',  // optional filter
-  unread: true,       // optional
-  limit: 50,
-});
-
-// Mark read / archive
-await claw.markRead(['msg_xxx', 'msg_yyy']);
-await claw.archiveMessages(['msg_xxx']);
-
-// Threads (multi-turn conversations)
-const { thread_id } = await claw.createMessageThread({
-  name: 'Deployment Coordination',
-  participants: ['agent-a', 'agent-b'],  // null = open to all
-});
-const { threads } = await claw.getMessageThreads({ status: 'open' });
-await claw.resolveMessageThread(thread_id, 'Deployment completed');
-
-// Shared documents
-await claw.saveSharedDoc({
-  name: 'API Schema v2',   // unique per org, upserts on conflict
-  content: '{ "endpoints": [...] }',
-});
-```
-
-### Behavior Guard (2 methods)
-
-```javascript
-// Check policies before a risky action
-const result = await claw.guard({
-  action_type: 'deploy',
-  risk_score: 85,
-  systems_touched: ['production-api'],
-  reversible: false,
-  declared_goal: 'Deploy auth service v2',
-});
-
-if (result.decision === 'block') {
-  console.log('Blocked:', result.reasons);
-  return; // don't proceed
-}
-
-// Get recent guard decisions (audit log)
-const { decisions, stats } = await claw.getGuardDecisions({
-  decision: 'block',
-  limit: 20,
-});
-```
-
-### Bulk Sync (1 method)
-
-Push all agent state in a single API call:
-
-```javascript
-await claw.syncState({
-  connections: [{ provider: 'github', auth_type: 'oauth', status: 'active' }],
-  memory: { health: { score: 82 }, entities: [], topics: [] },
-  goals: [{ title: 'Ship v2', status: 'active' }],
-  learning: [{ decision: 'Use JWT', reasoning: 'Edge compat' }],
-  content: [{ title: 'API Docs', platform: 'docs' }],
-  inspiration: [{ title: 'Real-time signals', category: 'feature' }],
-  context_points: [{ content: 'Users prefer dark theme', category: 'insight', importance: 8 }],
-  context_threads: [{ name: 'Auth Decisions', summary: 'Tracking auth choices' }],
-  handoffs: [{ summary: 'Finished auth refactor', key_decisions: ['JWT'] }],
-  preferences: {
-    observations: [{ observation: 'Prefers dark mode' }],
-    preferences: [{ preference: 'Concise responses', confidence: 90 }],
-    moods: [{ mood: 'focused', energy: 'high' }],
-    approaches: [{ approach: 'Plan first', success: true }],
-  },
-  snippets: [{ name: 'api-pattern', code: '...', language: 'javascript' }],
-});
-```
+- `createAction(...)`
+- `updateOutcome(actionId, ...)` (optional)
+- `track(...)` (optional convenience wrapper)
+- `guard(...)` (optional, recommended once you start enforcing policies)
 
 ---
 
@@ -815,25 +328,25 @@ After signing in, you have access to these pages via the sidebar:
 
 Your operational overview. Contains 12 widget cards:
 
-- **Onboarding Checklist** â€" 4-step guided setup (auto-hides when complete)
-- **Risk Signals** â€" Active signal count with severity breakdown
-- **Open Loops** â€" Unresolved loops by priority
-- **Recent Actions** â€" Latest agent actions with status badges
-- **Projects** â€" Systems touched across all actions
-- **Goals Chart** â€" Goal completion progress (visual chart)
-- **Learning Stats** â€" Decisions and lessons counts
-- **Follow-ups** â€" Action items and pending tasks
-- **Calendar** â€" Upcoming events
-- **Context** â€" Recent decisions snapshot
-- **Integrations** â€" Active connections per agent
-- **Memory Health** â€" Memory file health score
-- **Inspiration** â€" Ideas tracker
+- **Onboarding Checklist** — 4-step guided setup (auto-hides when complete)
+- **Risk Signals** — Active signal count with severity breakdown
+- **Open Loops** — Unresolved loops by priority
+- **Recent Actions** — Latest agent actions with status badges
+- **Projects** — Systems touched across all actions
+- **Goals Chart** — Goal completion progress (visual chart)
+- **Learning Stats** — Decisions and lessons counts
+- **Follow-ups** — Action items and pending tasks
+- **Calendar** — Upcoming events
+- **Context** — Recent decisions snapshot
+- **Integrations** — Active connections per agent
+- **Memory Health** — Memory file health score
+- **Inspiration** — Ideas tracker
 
 ### Actions (`/actions`)
 
 Table of all action records. Click any action to open the **Post-Mortem Page** which shows:
 - Key metrics (risk score, confidence, reversible, duration, cost)
-- **Trace Graph** â€" visual SVG diagram of parent chain, assumptions, loops
+- **Trace Graph** — visual SVG diagram of parent chain, assumptions, loops
 - Root cause analysis (for failed/completed actions)
 - Interactive assumptions (validate/invalidate with reasons)
 - Interactive loops (resolve/cancel with resolution text)
@@ -850,19 +363,19 @@ Real-time decision integrity signals. Auto-refreshes every 30 seconds.
 
 ### Policies (`/policies`)
 
-Create and manage guard policies. 5 policy types available â€" see [Section 7](#7-behavior-guard-controlling-agent-actions).
+Create and manage guard policies. 5 policy types available — see [Section 7](#7-behavior-guard-controlling-agent-actions).
 
 ### Messages (`/messages`)
 
 Agent-to-agent communication hub with 4 tabs:
-- **Inbox** â€" Received messages with read/unread status
-- **Sent** â€" Outgoing messages
-- **Threads** â€" Multi-turn conversations
-- **Docs** â€" Shared workspace documents
+- **Inbox** — Received messages with read/unread status
+- **Sent** — Outgoing messages
+- **Threads** — Multi-turn conversations
+- **Docs** — Shared workspace documents
 
 ### Workspace (`/workspace`)
 
-Multi-tab agent workspace â€" see [Section 9](#9-agent-workspace).
+Multi-tab agent workspace — see [Section 9](#9-agent-workspace).
 
 ### Content (`/content`)
 
@@ -932,35 +445,35 @@ The Guard system lets you set rules that agents check **before** taking risky ac
 Block or warn when risk score exceeds a threshold.
 
 ```
-Example: Any action with risk >= 80 â†' block
+Example: Any action with risk >= 80 → block
 ```
 
 #### Require Approval
 Require human approval for specific action types.
 
 ```
-Example: deploy, security â†' require_approval
+Example: deploy, security → require_approval
 ```
 
 #### Block Action Type
 Unconditionally block specific action types.
 
 ```
-Example: deploy â†' block (no deploys allowed)
+Example: deploy → block (no deploys allowed)
 ```
 
 #### Rate Limit
 Warn or block when an agent exceeds action frequency.
 
 ```
-Example: Max 20 actions per 60 minutes â†' warn
+Example: Max 20 actions per 60 minutes → warn
 ```
 
 #### Webhook Check
 Call an external HTTPS endpoint for custom decision logic. Your endpoint receives the context and preliminary decision, and can escalate (but never downgrade) the severity.
 
 ```
-Example: POST to https://your-api.com/guard â†' returns { decision: 'block', reasons: ['...'] }
+Example: POST to https://your-api.com/guard → returns { decision: 'block', reasons: ['...'] }
 ```
 
 Webhook check features:
@@ -1534,7 +1047,7 @@ node scripts/create-org.mjs --name "Acme AI" --slug "acme"
 DATABASE_URL=... node scripts/migrate-multi-tenant.mjs
 ```
 
-Idempotent â€" safe to run multiple times.
+Idempotent — safe to run multiple times.
 
 ---
 
@@ -1546,7 +1059,7 @@ Idempotent â€" safe to run multiple times.
 - **Set ENCRYPTION_KEY**: In production, ensure the `ENCRYPTION_KEY` (32 characters) environment variable is set. This key is used to encrypt all sensitive settings (AI provider keys, etc.) at rest in your database.
 - **Rotate keys** if compromised. Revoke from the API Keys page; revocation is instant.
 - **Use separate keys** for each agent or environment.
-- **Key format:** `oc_live_{32_hex_chars}` â€" stored as SHA-256 hash server-side.
+- **Key format:** `oc_live_{32_hex_chars}` — stored as SHA-256 hash server-side.
 
 ### Scan Content Before Sending
 
@@ -1580,10 +1093,10 @@ await claw.createAction({
 
 Set up guard policies to enforce boundaries:
 
-1. **Risk Threshold** â€" block anything above risk 90
-2. **Require Approval** â€" require approval for `deploy`, `security` actions
-3. **Rate Limit** â€" max 30 actions per hour per agent
-4. **Webhook Check** â€" call your own endpoint for custom business rules
+1. **Risk Threshold** — block anything above risk 90
+2. **Require Approval** — require approval for `deploy`, `security` actions
+3. **Rate Limit** — max 30 actions per hour per agent
+4. **Webhook Check** — call your own endpoint for custom business rules
 
 ---
 
@@ -1732,9 +1245,9 @@ MOST USED METHODS:
   claw.syncState({ connections, memory, goals, learning, ... })
 
 GUARD MODES:
-  'off'     â†' no auto-check (default)
-  'warn'    â†' console.warn + proceed
-  'enforce' â†' throw GuardBlockedError on block
+  'off'     → no auto-check (default)
+  'warn'    → console.warn + proceed
+  'enforce' → throw GuardBlockedError on block
 
 PLAN LIMITS (FREE):
   100 actions/mo, 1 agent, 2 members, 2 keys

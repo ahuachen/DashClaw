@@ -10,10 +10,12 @@ import CopyDocsButton from '../components/CopyDocsButton';
 import ConnectAgentButton from '../components/ConnectAgentButton';
 import PublicNavbar from '../components/PublicNavbar';
 import PublicFooter from '../components/PublicFooter';
+import DocsSidebarClient from './DocsSidebarClient';
 
 export const metadata = {
   title: 'DashClaw SDK Documentation',
-  description: 'Full reference for the DashClaw SDK. Install, configure, and govern your AI agents with 177+ methods across 29 categories covering action recording, behavior guard, evaluation framework, scoring profiles, learning analytics, prompt management, feedback loops, behavioral drift, compliance exports, and more.',
+  description:
+    'Canonical, up-to-date reference for the DashClaw SDK. Install, configure, and govern your AI agents across action recording, behavior guard, evaluation framework, scoring profiles, learning analytics, prompt management, feedback loops, behavioral drift, compliance exports, and more.',
 };
 
 /* ─── helpers ─── */
@@ -80,20 +82,7 @@ function MethodEntry({ id, signature, description, params, returns, example, chi
 }
 
 function SectionNav({ items }) {
-  return (
-    <nav className="hidden lg:block sticky top-24 w-52 shrink-0 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-hide hover:scrollbar-default transition-all">
-      <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-3">On this page</div>
-      <ul className="space-y-1.5 text-sm pb-8">
-        {items.map((item) => (
-          <li key={item.href}>
-            <a href={item.href} className={`block text-zinc-400 hover:text-white transition-colors ${item.indent ? 'pl-3 text-xs' : ''}`}>
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
+  return <DocsSidebarClient items={items} />;
 }
 
 /* ─── nav items for sidebar ─── */
@@ -305,10 +294,17 @@ export default function DocsPage() {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Full reference for the DashClaw SDK. 177+ methods across 29 categories to govern your AI agents with
-            action recording, evaluation framework, scoring profiles, learning analytics, prompt management, feedback loops, behavioral drift, compliance exports, and more.
+            This page is the canonical, always-current reference for the DashClaw SDK. Other docs (such as quick-start
+            guides) summarize or point here rather than duplicating the full surface.
           </p>
           <CopyDocsButton />
+          <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.16)] bg-[#111] px-4 py-3 text-xs text-zinc-300">
+            <p className="font-semibold text-zinc-100">Source of truth</p>
+            <p className="mt-1 text-zinc-400">
+              If you ever see mismatched SDK details between this page and other documentation, defer to this page and
+              the in-repo SDK files as the authoritative contract.
+            </p>
+          </div>
         </div>
       </section>
 
