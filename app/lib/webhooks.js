@@ -31,6 +31,13 @@ function isPrivateIp(ip) {
     if (lower === '::' || lower === '::1') return true;
     if (lower.startsWith('fe80:')) return true; // link-local
     if (lower.startsWith('fc') || lower.startsWith('fd')) return true; // unique local
+    
+    // Defend against IPv4-mapped IPv6 addresses (e.g. ::ffff:127.0.0.1)
+    if (lower.startsWith('::ffff:')) {
+      const ipv4Part = lower.substring(7);
+      return isPrivateIp(ipv4Part);
+    }
+    
     return false;
   }
 

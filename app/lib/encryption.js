@@ -26,16 +26,17 @@ function getKeyBytes() {
  * Format:
  *   v2:{ivHex}:{tagHex}:{cipherHex}
  */
-export function encrypt(text) {
+export function encrypt(text, aad = '') {
   const keyBytes = getKeyBytes();
   const iv = crypto.randomBytes(GCM_IV_LENGTH);
   const cipher = crypto.createCipheriv(GCM_ALGORITHM, keyBytes, iv);
+  if (aad) cipher.setAAD(Buffer.from(aad, 'utf8'));
   const ciphertext = Buffer.concat([cipher.update(String(text), 'utf8'), cipher.final()]);
   const tag = cipher.getAuthTag();
   return `${V2_PREFIX}:${iv.toString('hex')}:${tag.toString('hex')}:${ciphertext.toString('hex')}`;
 }
 
-function decryptV2(text) {
+function decryptV2(text, aad = '') {
   const keyBytes = getKeyBytes();
   const parts = String(text).split(':');
   // Expected: v2:iv:tag:cipher
@@ -47,6 +48,7 @@ function decryptV2(text) {
 
   const decipher = crypto.createDecipheriv(GCM_ALGORITHM, keyBytes, iv);
   decipher.setAuthTag(tag);
+  if (aad) decipher.setAAD(Buffer.from(aad, 'utf8'));
   const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   return plaintext.toString('utf8');
 }
@@ -65,13 +67,13 @@ function decryptLegacyCbc(text) {
  * Decrypt a string produced by encrypt().
  * Supports legacy CBC ciphertexts for backward compatibility.
  */
-export function decrypt(text) {
+export function decrypt(text, aad = '') {
   try {
     if (typeof text !== 'string' || text.length === 0) return null;
 
     // v2 AEAD path (preferred)
     if (text.startsWith(`${V2_PREFIX}:`)) {
-      return decryptV2(text);
+      return decryptV2(text, aad);
     }
 
     // legacy v1 CBC path

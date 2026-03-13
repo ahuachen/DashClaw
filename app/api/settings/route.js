@@ -49,7 +49,7 @@ export async function GET(request) {
       if (val !== undefined && val !== null) {
         if (s.encrypted && canDecrypt) {
           try {
-            val = decrypt(val);
+            val = decrypt(val, `${orgId}:${s.key}`);
           } catch (err) {
             console.error('[SETTINGS] Decryption failed for key:', s.key);
             val = '[DECRYPTION_FAILED]';
@@ -101,9 +101,14 @@ export async function POST(request) {
     const isEncrypted = shouldAutoEncrypt(key, shouldEncrypt);
 
     let finalValue = value;
+    // Prevent encrypting and overriding secrets with UI masked strings
+    if (typeof value === 'string' && value.includes('••••••••')) {
+      return NextResponse.json({ success: true, key, agent_id, skipped: true });
+    }
+
     if (isEncrypted && value !== undefined && value !== null) {
       try {
-        finalValue = encrypt(value);
+        finalValue = encrypt(value, `${orgId}:${key}`);
       } catch (err) {
         console.error('[SETTINGS] Encryption failed:', err.message);
         return NextResponse.json({ error: 'Server configuration error: encryption failed' }, { status: 500 });
