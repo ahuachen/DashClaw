@@ -225,6 +225,29 @@ export default function DecisionReplayPage() {
       breadcrumbs={['Governance', 'Decisions', action.action_id]}
       actions={
         <div className="flex items-center gap-3">
+          {action.verified ? (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-500 uppercase tracking-wider" title="Decision cryptographically signed by agent">
+              <ShieldCheck size={12} /> Verified Agent
+            </div>
+          ) : action.signature ? (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-wider" title="Cryptographic signature is invalid">
+              <ShieldAlert size={12} /> Invalid Signature
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-500 uppercase tracking-wider" title="No cryptographic signature provided">
+              <Info size={12} /> Unsigned Decision
+            </div>
+          )}
+          <button 
+            onClick={() => {
+              const url = `${window.location.origin}/replay/${action.action_id}`;
+              navigator.clipboard.writeText(url);
+              alert('Replay link copied to clipboard!');
+            }}
+            className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-semibold text-zinc-300 hover:bg-white/10 hover:text-white transition-all"
+          >
+            <ExternalLink size={14} /> Share
+          </button>
           <Badge variant={getStatusVariant(action.status)}>
             {action.status.toUpperCase()}
           </Badge>

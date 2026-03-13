@@ -31,7 +31,9 @@ const PUBLIC_ROUTES = [
   // Public read-only content endpoints
   '/api/docs/raw',
   '/api/prompts',
+  '/api/actions/[^/]+', // Allow public decision data for replay
   '/practical-systems',
+  '/replay',
 ];
 
 async function getLocalAdminSession(request) {

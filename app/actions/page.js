@@ -359,15 +359,30 @@ export default function ActionsTimeline() {
                         </div>
 
                         {/* 3. Outcome */}
-                        <div className="flex items-center justify-between gap-4 min-w-[160px]">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(action.status)}
-                            <span className={`text-xs font-bold uppercase tracking-wide ${
-                              action.status === 'completed' ? 'text-emerald-400' :
-                              action.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
-                            }`}>
-                              {action.status}
-                            </span>
+                        <div className="flex items-center justify-between gap-4 min-w-[200px]">
+                          <div className="flex flex-col items-end gap-1.5 mr-2">
+                            {action.verified ? (
+                              <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/5 px-1.5 py-0.5 rounded border border-emerald-500/10" title="Cryptographically signed by agent">
+                                <ShieldCheck size={10} /> Verified
+                              </div>
+                            ) : action.signature ? (
+                              <div className="flex items-center gap-1 text-[9px] font-bold text-red-500 uppercase tracking-tighter bg-red-500/5 px-1.5 py-0.5 rounded border border-red-500/10" title="Signature invalid or tampered">
+                                <ShieldAlert size={10} /> Invalid
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase tracking-tighter bg-white/5 px-1.5 py-0.5 rounded border border-white/5" title="No cryptographic signature provided">
+                                <Info size={10} /> Unsigned
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(action.status)}
+                              <span className={`text-xs font-bold uppercase tracking-wide ${
+                                action.status === 'completed' ? 'text-emerald-400' :
+                                action.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                              }`}>
+                                {action.status}
+                              </span>
+                            </div>
                           </div>
                           
                           <div className="flex items-center gap-2">
@@ -472,10 +487,22 @@ export default function ActionsTimeline() {
                           </>
                         )}
 
-                        <div className="pt-2">
+                        <div className="pt-2 flex items-center gap-4">
                           <Link href={`/actions/${action.action_id}`} className="text-sm text-brand hover:text-brand-hover transition-colors duration-150">
                             View full decision record
                           </Link>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const url = `${window.location.origin}/replay/${action.action_id}`;
+                              navigator.clipboard.writeText(url);
+                              alert('Replay link copied to clipboard!');
+                            }}
+                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors"
+                          >
+                            <ExternalLink size={12} />
+                            Share Replay
+                          </button>
                         </div>
                       </div>
                     )}
