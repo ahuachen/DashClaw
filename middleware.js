@@ -3,9 +3,9 @@ import { getToken } from 'next-auth/jwt';
 import { neon } from '@neondatabase/serverless';
 import { getDemoFixtures } from './app/lib/demo/demoFixtures.js';
 import {
-  demoListActions, demoCreateAction, demoAgents, demoActionDetail, demoAssumptions,
+  demoListActions, demoCreateAction, demoAgents, demoAgentDetail, demoActionDetail, demoAssumptions,
   demoLearning, demoLearningRecommendations, demoLearningRecommendationMetrics,
-  demoTokens, demoPolicies, demoGuard, demoMessages, demoMessageThreads,
+  demoTokens, demoPolicies, demoPolicySimulate, demoPolicyProof, demoPolicyTest, demoGuard, demoMessages, demoMessageThreads,
   demoMessageDocs, demoContent, demoTeam, demoTeamInvites, demoActivity,
   demoWebhooks, demoWebhookDeliveries, demoWorkflows, demoSchedules,
   demoDigest, demoContextPoints, demoContextThreads, demoContextThreadDetail,
@@ -364,10 +364,18 @@ export async function middleware(request) {
       // Policy test runs are read-like (no mutation) — allow through demo write-block.
       if (pathname === '/api/policies/test' && method === 'POST') {
         const fixtures = getDemoFixtures();
-        return demoJson(request, fixtures.policyTestResults);
+        return demoJson(request, demoPolicyTest(fixtures));
       }
 
-      if (!isRead) {
+      if (pathname === '/api/policies/simulate' && method === 'POST') {
+        const fixtures = getDemoFixtures();
+        return demoJson(request, demoPolicySimulate(fixtures, {}));
+      }
+
+      // Allow simulated actions in demo mode.
+      const isSimulation = pathname === '/api/actions' && method === 'POST';
+
+      if (!isRead && !isSimulation) {
         return demoJson(request, { error: 'Demo mode: write APIs are disabled.' }, 403);
       }
 
@@ -419,6 +427,13 @@ export async function middleware(request) {
       // Agents + actions
       if (pathname === '/api/agents') {
         return demoJson(request, demoAgents(fixtures));
+      }
+
+      if (segments[0] === 'api' && segments[1] === 'agents' && segments.length === 3) {
+        const agentId = segments[2];
+        const detail = demoAgentDetail(fixtures, agentId);
+        if (!detail) return demoJson(request, { error: 'Agent not found' }, 404);
+        return demoJson(request, detail);
       }
 
       if (pathname === '/api/actions') {

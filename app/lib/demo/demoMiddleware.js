@@ -47,8 +47,6 @@ export function demoCreateAction(fixtures, body) {
     verified: true,
   };
   
-  // In a real middleware we can't persist to fixtures (read-only import), 
-  // but we return the object to simulate success.
   return { 
     action, 
     action_id, 
@@ -70,7 +68,58 @@ export function demoAgents(fixtures) {
   return { agents, lastUpdated: new Date().toISOString() };
 }
 
+export function demoAgentDetail(fixtures, agentId) {
+  const list = demoAgents(fixtures).agents;
+  const agent = list.find(a => a.agent_id === agentId);
+  if (!agent) return null;
+
+  return {
+    agent: {
+      ...agent,
+      governed: true,
+      verified: true,
+      connections: [
+        { id: 'conn_demo_1', type: 'github', status: 'active', updated_at: new Date().toISOString() },
+        { id: 'conn_demo_2', type: 'aws', status: 'active', updated_at: new Date().toISOString() }
+      ],
+      capabilities: ['deployment', 'research', 'code-review'],
+      risk_profile: 'Standard',
+      enforced_policies_count: fixtures.policies.length,
+    }
+  };
+}
+
 export function demoActionDetail(fixtures, actionId) {
+  if (actionId.startsWith('act_sim_')) {
+    return {
+      action: {
+        action_id: actionId,
+        org_id: 'org_demo',
+        agent_id: 'simulator-bot',
+        agent_name: 'Simulator Bot',
+        action_type: 'deploy',
+        declared_goal: 'DEPLOY: production-api rollout',
+        reasoning: 'Deploying latest verified build to production environment.',
+        status: 'completed',
+        risk_score: 15,
+        confidence: 98,
+        reversible: 1,
+        systems_touched: '["production-api", "aws-lambda"]',
+        output_summary: 'Deployment successful. Health checks passed across all regions.',
+        timestamp_start: new Date().toISOString(),
+        timestamp_end: new Date().toISOString(),
+        duration_ms: 12400,
+        cost_estimate: 0.042,
+        verified: true
+      },
+      open_loops: [],
+      assumptions: [
+        { assumption_id: 'asm_sim_1', action_id: actionId, assumption: 'Staging environment is healthy', basis: 'Pre-flight check passed', validated: 1 },
+        { assumption_id: 'asm_sim_2', action_id: actionId, assumption: 'No active critical alerts', basis: 'Security scanner report', validated: 1 }
+      ]
+    };
+  }
+
   const action = fixtures.actions.find(a => a.action_id === actionId) || null;
   if (!action) return null;
   const open_loops = fixtures.loops
@@ -201,12 +250,66 @@ export function demoPolicies(fixtures) {
   return { policies: fixtures.policies, lastUpdated: new Date().toISOString() };
 }
 
+export function demoPolicySimulate(fixtures, body) {
+  return {
+    summary: { total: 124, block: 2, warn: 5, require_approval: 8 },
+    matches: [
+      { goal: 'deploy production hotfix', agent_name: 'deploy-bot', timestamp: new Date().toISOString(), simulated_action: 'require_approval' },
+      { goal: 'delete cloud formation stack', agent_name: 'infra-bot', timestamp: new Date().toISOString(), simulated_action: 'block' }
+    ]
+  };
+}
+
+export function demoPolicyProof(fixtures, format) {
+  if (format === 'json') {
+    return { report: JSON.stringify(fixtures.policyProofReport || { status: 'compliant', policies: fixtures.policies.length }) };
+  }
+  return { report: fixtures.policyProofReport || '# DashClaw Policy Proof\n\nAll policies active and verified.' };
+}
+
+export function demoPolicyTest(fixtures) {
+  return fixtures.policyTestResults || {
+    totalPolicies: fixtures.policies.length,
+    totalTests: fixtures.policies.length * 2,
+    passed: fixtures.policies.length * 2,
+    failed: 0,
+    results: fixtures.policies.map(p => ({
+      policyId: p.id,
+      policyName: p.name,
+      failCount: 0,
+      tests: [
+        { name: 'Allow normal operation', passed: true },
+        { name: 'Block prohibited pattern', passed: true }
+      ]
+    }))
+  };
+}
+
 export function demoGuard(fixtures, url) {
   const sp = url.searchParams;
   const agentId = sp.get('agent_id') || undefined;
   const policyId = sp.get('policy_id') || undefined;
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
+
+  if (agentId === 'simulator-bot') {
+    return {
+      evaluations: [
+        {
+          id: 'gd_sim_1',
+          agent_id: 'simulator-bot',
+          action_type: 'deploy',
+          decision: 'allow',
+          reason: 'Simulation allowed: deployment policies satisfied.',
+          matched_policies: '["Production Deployment Guard", "System Posture Check"]',
+          created_at: new Date().toISOString()
+        }
+      ],
+      total: 1,
+      stats: { total: 1, blocks: 0, permits: 1 },
+      lastUpdated: new Date().toISOString()
+    };
+  }
 
   let reads = (fixtures.guardReads || fixtures.guardDecisions || []).slice();
   if (agentId) reads = reads.filter(r => r.agent_id === agentId);

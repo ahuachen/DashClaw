@@ -19,6 +19,7 @@ DashClaw mirrors the lifecycle of a governed decision:
 ### Core Capabilities
 - **Mission Control** — High-level fleet posture, active interventions, and live decision stream.
 - **Decision Replay** — Visual causal chain visualization of single agent decisions.
+- **Agent Governance Profile** — Dedicated dossiers for every agent (posture, active policies, permissions).
 - **Behavior Guard** — Policy enforcement before agents act (allow / warn / block / require_approval).
 - **Risk Signals** — Automatic detection of dangerous behavior patterns (autonomy spikes, failure loops).
 - **Assumption Tracking** — Log what agents believe; validate or invalidate later to detect drift.
@@ -30,7 +31,7 @@ DashClaw ships as one codebase serving two roles via `DASHCLAW_MODE`:
 
 | Mode | Value | Behavior |
 |------|-------|----------|
-| Marketing/demo site | `DASHCLAW_MODE=demo` | No login, API returns fixtures, simulations enabled |
+| Marketing/demo site | `DASHCLAW_MODE=demo` | No login, API returns fixtures, simulations enabled, policy management enabled. |
 | Self-hosted (default) | `DASHCLAW_MODE=self_host` | GitHub/Google OAuth + real Postgres DB |
 
 ---
@@ -64,11 +65,13 @@ app/
 ├── layout.js                  # Root layout (Inter font, SessionWrapper)
 ├── globals.css                # CSS design tokens + Tailwind
 ├── mission-control/page.js    # Control Tower — Landing page (posture, interventions, live stream)
-├── agents/page.js             # Agent Fleet — Overview, health, and permissions
+├── agents/page.js             # Agent Fleet — Overview, health, and status filtering
+├── agents/[agentId]/page.js   # Agent Profile — Dedicated governance dossier
 ├── actions/page.js            # Decisions Ledger — Global stream of governed actions
 ├── actions/[actionId]/page.js # Decision Replay — Visual causal chain of a decision
+├── replay/[actionId]/page.js  # Public Replay — Shareable, public-safe decision permalink
 ├── security/                  # Risk Signals — Spikes, failure loops, alerts
-├── policies/                  # Guard Policies — Guardrail CRUD + test runner
+├── policies/page.js           # Guard Policies — Full lifecycle (CRUD, simulation, testing, proof)
 ├── compliance/                # Evidence — Control mapping and reports
 ├── activity/                  # Audit Log — Permanent record of platform activity
 ├── setup/                     # Settings — System configuration and verification
@@ -96,10 +99,11 @@ app/
 
 1. **Mission Control as Landing Page**: Post-login, users are always sent to `/mission-control` for immediate operational posture.
 2. **Decision Lineage Everywhere**: The product emphasizes the causal chain (Intent → Policy → Outcome) rather than isolated logs.
-3. **Activation via Simulation**: New instances provide a "Run Simulation" feature to demonstrate governance without requiring an immediate SDK integration.
-4. **No direct SQL in route files.** All queries go in `app/lib/repositories/*.repository.js`. CI blocks violations via `npm run route-sql:check`.
-5. **Org context headers** (`x-org-id`, `x-org-role`, `x-user-id`) are injected by middleware only — never accepted from clients.
-6. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
+3. **Activation via Simulation**: New instances provide a "Run Simulation" feature to demonstrate governance without requiring an immediate SDK integration. Simulations in demo mode return high-fidelity mock replays.
+4. **Shareable Permalinks**: Any decision can be shared via a public-safe `/replay/[id]` link.
+5. **No direct SQL in route files.** All queries go in `app/lib/repositories/*.repository.js`. CI blocks violations via `npm run route-sql:check`.
+6. **Org context headers** (`x-org-id`, `x-org-role`, `x-user-id`) are injected by middleware only — never accepted from clients.
+7. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
 
 ---
 
@@ -131,6 +135,7 @@ app/
 | Change roles | ✓ | — |
 | Configure integrations | ✓ | — |
 | Manage webhooks | ✓ | — |
+| Manage policies | ✓ | — |
 
 ---
 
@@ -165,4 +170,5 @@ Every step is preserved in the **Decision Replay** view, providing a cryptograph
 - **Causal Timeline**: The heart of Decision Replay; visualizes the path from intent to outcome.
 - **Posture Indicator**: Triple-state (Nominal, Elevated, Critical) summary of fleet risk.
 - **QuickStart**: Onboarding card that guides users from SDK installation to their first simulated decision.
-- **Assumption Graph**: Interactive SVG trace visualization of parent/child decision relationships.
+- **Agent Dossier**: Detailed view of a single agent's identity, connections, active policies, and history.
+- **Policy Suite**: Interactive playground for creating, testing, and simulating guardrail impact.

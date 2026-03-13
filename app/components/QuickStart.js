@@ -39,6 +39,7 @@ if (decision.allowed) {
   };
 
   const handleSimulate = async () => {
+    console.log('Starting simulation...');
     setSimulating(true);
     try {
       // Simulate a governed decision by calling the real API
@@ -59,17 +60,23 @@ if (decision.allowed) {
         })
       });
       
+      console.log('Simulation response:', res.status);
       if (res.ok) {
         const data = await res.json();
-        const actionId = data.action_id || 'act_demo_001';
+        console.log('Simulation data:', data);
+        const actionId = data.action_id || 'act_real_1';
         
         if (onSimulationComplete) onSimulationComplete();
         setStep(3);
         
         // Wait a beat for the user to see the success before redirecting to replay
         setTimeout(() => {
+          console.log('Redirecting to:', `/actions/${actionId}`);
           router.push(`/actions/${actionId}`);
         }, 1500);
+      } else {
+        const err = await res.json();
+        console.error('Simulation API error:', err);
       }
     } catch (err) {
       console.error('Simulation failed:', err);

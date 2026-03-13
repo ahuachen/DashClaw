@@ -18,6 +18,8 @@ export default function AgentsFleetPage() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
   const [lastUpdated, setLastUpdated] = useState('');
 
   const fetchAgents = useCallback(async () => {
@@ -39,10 +41,17 @@ export default function AgentsFleetPage() {
     fetchAgents();
   }, [fetchAgents]);
 
-  const filteredAgents = agents.filter(agent =>
-    agent.agent_id.toLowerCase().includes(search.toLowerCase()) ||
-    (agent.name && agent.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredAgents = agents.filter(agent => {
+    const matchesSearch = agent.agent_id.toLowerCase().includes(search.toLowerCase()) ||
+      (agent.name && agent.name.toLowerCase().includes(search.toLowerCase()));
+    
+    if (filterStatus === 'all') return matchesSearch;
+    if (filterStatus === 'online') return matchesSearch && (agent.status === 'active' || agent.status === 'online');
+    if (filterStatus === 'critical') return matchesSearch && (agent.status === 'critical' || agent.status === 'error');
+    if (filterStatus === 'offline') return matchesSearch && (agent.status === 'offline');
+    
+    return matchesSearch;
+  });
 
   const stats = {
     total: agents.length,
@@ -95,7 +104,7 @@ export default function AgentsFleetPage() {
       </div>
 
       {/* Search & Filters */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3 relative">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
           <input
@@ -106,10 +115,39 @@ export default function AgentsFleetPage() {
             className="w-full pl-10 pr-4 py-2 bg-surface-secondary border border-white/5 rounded-lg text-sm text-white focus:outline-none focus:border-brand/50 transition-colors"
           />
         </div>
-        <button className="px-3 py-2 bg-surface-secondary border border-white/5 rounded-lg text-sm text-zinc-400 hover:text-white flex items-center gap-2">
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className={`px-3 py-2 border rounded-lg text-sm transition-colors flex items-center gap-2 ${
+            showFilters || filterStatus !== 'all' 
+              ? 'bg-brand/10 border-brand text-brand' 
+              : 'bg-surface-secondary border-white/5 text-zinc-400 hover:text-white'
+          }`}
+        >
           <Filter size={14} />
-          Filters
+          {filterStatus === 'all' ? 'Filters' : `Status: ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
         </button>
+
+        {showFilters && (
+          <div className="absolute right-0 top-full mt-2 w-48 bg-surface-secondary border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+            {[
+              { id: 'all', label: 'All Agents', icon: Users, color: 'text-zinc-400' },
+              { id: 'online', label: 'Online Only', icon: CheckCircle2, color: 'text-emerald-400' },
+              { id: 'critical', label: 'Critical Only', icon: ShieldAlert, color: 'text-red-400' },
+              { id: 'offline', label: 'Offline Only', icon: XCircle, color: 'text-zinc-500' },
+            ].map((f) => (
+              <button
+                key={f.id}
+                onClick={() => { setFilterStatus(f.id); setShowFilters(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/5 ${
+                  filterStatus === f.id ? 'text-brand bg-brand/5' : 'text-zinc-400'
+                }`}
+              >
+                <f.icon size={14} className={f.color} />
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Agents Table/List */}
@@ -200,7 +238,7 @@ export default function AgentsFleetPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Link
-                          href={`/mission-control?agent_id=${encodeURIComponent(agent.agent_id)}`}
+                          href={`/agents/${encodeURIComponent(agent.agent_id)}`}
                           className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand/80 transition-colors"
                         >
                           View Control <ChevronRight size={14} />

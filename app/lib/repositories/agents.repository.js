@@ -232,6 +232,18 @@ export async function listAgentsForOrg(sql, orgId) {
 }
 
 /**
+ * Retrieve a single agent's detailed profile.
+ */
+export async function getAgentDetail(sql, orgId, agentId) {
+  const agents = await listAgentsForOrg(sql, orgId);
+  const agent = agents.find(a => a.agent_id === agentId);
+  if (!agent) return null;
+
+  await attachAgentConnections(sql, orgId, [agent]);
+  return agent;
+}
+
+/**
  * Update or create an agent's presence record (heartbeat).
  */
 export async function upsertAgentPresence(sql, orgId, payload) {

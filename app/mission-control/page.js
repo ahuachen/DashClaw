@@ -504,7 +504,7 @@ export default function MissionControlPage() {
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Fleet Status</span>
-              <Link href="/swarm" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+              <Link href="/agents" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
                 Manage <ArrowRight size={10} />
               </Link>
             </div>
@@ -518,7 +518,7 @@ export default function MissionControlPage() {
                   return (
                     <Link
                       key={agent.agent_id}
-                      href={`/workspace?agent=${encodeURIComponent(agent.agent_id)}`}
+                      href={`/agents/${encodeURIComponent(agent.agent_id)}`}
                       className="flex items-center gap-2 rounded-lg px-1 py-0.5 transition-colors hover:bg-white/5"
                     >
                       <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-amber-500' : 'bg-emerald-500/40'}`} />
@@ -530,7 +530,7 @@ export default function MissionControlPage() {
                   );
                 })}
                 {agents.length > 5 && (
-                  <Link href="/swarm" className="block px-1 text-[10px] text-zinc-600 transition-colors hover:text-zinc-400">
+                  <Link href="/agents" className="block px-1 text-[10px] text-zinc-600 transition-colors hover:text-zinc-400">
                     +{agents.length - 5} more
                   </Link>
                 )}

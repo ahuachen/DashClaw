@@ -51,6 +51,7 @@ app/
 ├── globals.css                # Design tokens (CSS custom properties) + Tailwind
 ├── mission-control/page.js    # Mission Control — Strategic control tower (posture, interventions, live decision stream)
 ├── agents/page.js             # Agent Fleet — Fleet overview, health, and permission governance
+├── agents/[agentId]/page.js   # Agent Governance Profile — Dedicated agent dossier (posture, policies, permissions, history)
 ├── actions/page.js            # Decisions Ledger — Global stream of governed agent actions (visual causal chain)
 ├── actions/[actionId]/page.js # Decision Replay — Visual causal chain replay (timeline, policies, assumptions, signals)
 ├── dashboard/page.js          # Operations Dashboard (Legacy draggable widget grid)

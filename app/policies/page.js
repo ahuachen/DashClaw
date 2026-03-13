@@ -112,9 +112,9 @@ function formatRules(policy) {
 
 export default function PoliciesPage() {
   const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
+  const isAdmin = session?.user?.role === 'admin' || isDemoMode(); // Allow admin-like actions in demo
   const isDemo = isDemoMode();
-  const canEdit = isAdmin && !isDemo;
+  const canEdit = isAdmin;
 
   const [policies, setPolicies] = useState([]);
   const [decisions, setDecisions] = useState([]);
@@ -947,7 +947,7 @@ export default function PoliciesPage() {
           <h2 className="text-sm font-medium text-white">Policy Test Runner</h2>
           <button
             onClick={handleRunTests}
-            disabled={testRunning || isDemo}
+            disabled={testRunning}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
           >
             <Play size={12} />
@@ -977,8 +977,8 @@ export default function PoliciesPage() {
               {/* Per-policy details */}
               {testResults.results && testResults.results.length > 0 && (
                 <div className="divide-y divide-[rgba(255,255,255,0.04)]">
-                  {testResults.results.map(pr => (
-                    <div key={pr.policyId} className="py-2">
+                  {testResults.results.map((pr, i) => (
+                    <div key={pr.policyId || i} className="py-2">
                       <button
                         type="button"
                         onClick={() => toggleTestExpand(pr.policyId)}
@@ -1037,7 +1037,7 @@ export default function PoliciesPage() {
             </select>
             <button
               onClick={handleGenerateProof}
-              disabled={generatingProof || isDemo}
+              disabled={generatingProof}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
             >
               <FileDown size={12} />
