@@ -115,7 +115,7 @@ app/
 ├── notifications/             # Notification preferences page
 ├── team/                      # Team management page (members, invites, roles)
 ├── invite/[token]/            # Invite accept page (standalone layout)
-├── setup/                     # Redirects to /dashboard (legacy)
+├── setup/                     # Instance status page (DB readiness, auth readiness, exact next actions)
 ├── tokens/                    # Token usage and cost analytics page
 ├── workflows/                 # Workflows/SOPs page
 └── api/
@@ -595,7 +595,7 @@ Token tracking is disabled in the dashboard UI pending a better approach. The AP
 ## Startup & Health Protections
 - **Startup schema check**: On first DB connection, `schemaCheck.js` verifies 6 core tables exist (`action_records`, `guard_decisions`, `api_keys`, `org_members`, `settings`, `policies`). Logs a warning with migration command if any are missing. Fire-and-forget — does not block requests.
 - **Health endpoint** (`GET /api/health`): Checks DB connectivity + core table existence, realtime backend, env vars, embeddings. Returns `degraded` (503) if tables are missing or DB is unreachable.
-- **Setup status** (`GET /api/setup/status`): Reports `configured: false` with `missing_tables` count when core tables are absent. Used by onboarding flow.
+- **Setup status** (`GET /api/setup/status`): Reports `configured: false` with `missing_tables` count when core tables are absent. The `/setup` page consumes this alongside `authConfig` to render a live instance status surface.
 - **Environment validation** (`validateEnv.js`): Imported by `db.js` on module load. Validates required env vars in production, warns in dev.
 
 ## Operational Scripts
