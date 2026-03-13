@@ -49,8 +49,11 @@ app/
 ├── page.js                    # Public landing page (marketing on dashclaw.io, homepage on self-hosted)
 ├── layout.js                  # Root layout (Inter font, SessionWrapper)
 ├── globals.css                # Design tokens (CSS custom properties) + Tailwind
-├── mission-control/page.js    # Mission Control — strategic fleet overview (signals, loops, cost, fleet status, activity timeline)
-├── dashboard/page.js          # Authenticated dashboard (draggable/resizable widget grid)
+├── mission-control/page.js    # Mission Control — Strategic control tower (posture, interventions, live decision stream)
+├── agents/page.js             # Agent Fleet — Fleet overview, health, and permission governance
+├── actions/page.js            # Decisions Ledger — Global stream of governed agent actions (visual causal chain)
+├── actions/[actionId]/page.js # Decision Replay — Visual causal chain replay (timeline, policies, assumptions, signals)
+├── dashboard/page.js          # Operations Dashboard (Legacy draggable widget grid)
 ├── lib/validate.js            # Input validation helpers
 ├── lib/db.js                  # Shared database connection utility (production-safe, triggers startup schema check)
 ├── lib/schemaCheck.js         # Core table verification (CORE_TABLES, checkCoreTables, startupSchemaCheck) — canonical source of truth for required tables
@@ -75,8 +78,9 @@ app/
 ├── lib/scoringProfiles.js     # Rule-based multi-dimensional scoring engine (Phase 7)
 ├── components/
 │   ├── ui/                    # Shared primitives (Card, Badge, Stat, ProgressBar, EmptyState, Skeleton)
-│   ├── Sidebar.js             # Persistent sidebar navigation (links to /dashboard)
+│   ├── Sidebar.js             # Persistent sidebar navigation (Command, Governance, Evidence, System)
 │   ├── PageLayout.js          # Shared page layout (breadcrumbs, title, actions)
+│   ├── QuickStart.js          # Developer activation component (SDK guide + Simulator)
 │   ├── NotificationCenter.js  # Alert bell + notification dropdown
 │   ├── SystemStatusBar.js     # Global risk status bar (STABLE/REVIEWING/DRIFTING/ELEVATED/ALERT state from signal counts, auto-refreshes 30s)
 │   ├── ActivityTimeline.js    # Chronological merged timeline of actions, open loops, and learning events (dashboard card)
@@ -89,60 +93,37 @@ app/
 │   ├── SessionWrapper.js      # NextAuth SessionProvider + AgentFilterProvider wrapper
 │   ├── UserMenu.js            # User avatar + sign-out dropdown (client component)
 │   └── *.js                   # 14 dashboard widget cards
-├── actions/                   # ActionRecord UI pages
+├── actions/                   # Decisions Ledger & Replay
 ├── api-keys/                  # API key management page
 ├── docs/page.js               # Public SDK documentation (server component)
 ├── practical-systems/page.js  # Practical Systems branding and about page (public)
 ├── login/page.js              # Custom login page (GitHub + Google OAuth)
-├── bounty-hunter/             # Bounty hunter page
-├── content/                   # Content tracker page
-├── goals/                     # Goals page
 ├── integrations/              # Integration settings page
-├── learning/                  # Learning database page
-├── relationships/             # Mini-CRM page
-├── security/                  # Security dashboard (signals, high-risk decisions)
+├── security/                  # Signals (risk alerts)
 ├── policies/                  # Guard policies management page (+ import, test runner, proof report)
 ├── routing/                   # Task routing page (agent registry, task queue, health)
 ├── compliance/                # Compliance mapping page (framework controls, gap analysis, evidence, reports)
 ├── approvals/                 # Human-in-the-loop approval queue page
 ├── swarm/                     # Swarm Intelligence dashboard (real-time neural web visualization)
-├── prompts/                   # Prompt template registry & versioning page
-├── scoring/                   # Scoring profiles & risk templates page (Phase 7)
-├── messages/                  # Agent communication hub (smart inbox, thread conversations, shared docs, SSE real-time)
-│   └── _components/           # Extracted sub-components (MessageList, ThreadConversation, SmartInbox, MarkdownBody, etc.)
-├── workspace/                 # Agent workspace (digest, context, handoffs, snippets, preferences, memory)
-├── activity/                  # Activity log page (audit trail)
-├── webhooks/                  # Webhook management page
-├── notifications/             # Notification preferences page
+├── setup/                     # System Settings / Setup page
 ├── team/                      # Team management page (members, invites, roles)
+├── usage/                     # Usage meter page
+├── activity/                  # Audit Log
+├── webhooks/                  # Webhook management page
 ├── invite/[token]/            # Invite accept page (standalone layout)
-├── setup/                     # Instance status page (DB readiness, auth readiness, exact next actions)
-├── tokens/                    # Token usage and cost analytics page
-├── workflows/                 # Workflows/SOPs page
+├── drift/                     # Assumptions / Drift detection page
 └── api/
     ├── auth/[...nextauth]/    # NextAuth route handler (GitHub + Google OAuth)
-    ├── actions/               # ActionRecord Control Plane (CRUD + signals + loops + assumptions + trace)
+    ├── actions/               # Decisions Control Plane (CRUD + signals + loops + assumptions + trace)
     ├── actions/[actionId]/approve # HITL approval decision endpoint (POST)
-    ├── bounties/              # Bounty tracking
     ├── orgs/                  # Organization + API key management (admin only)
-    ├── calendar/              # Calendar events
-    ├── content/               # Content management
-    ├── goals/                 # Goals + milestones
     ├── health/                # DB + core table health check (public)
-    ├── inspiration/           # Ideas + ratings
-    ├── learning/              # Decisions + lessons
-    ├── learning/analytics/    # Learning velocity, curves, summary, maturity
-    ├── memory/                # Memory operations
-    ├── relationships/         # Contacts + interactions
-    ├── schedules/             # Schedule management
     ├── settings/              # Integration credentials (encrypted)
     ├── setup/                 # Setup status + core table check (public)
     ├── keys/                  # API key management (list, generate, revoke - admin only for POST/DELETE)
     ├── team/                  # Team management (members list, invite CRUD, role change, remove)
     ├── invite/[token]/        # Invite accept (public GET for details, POST to accept)
     ├── onboarding/            # Onboarding endpoints (status, workspace, api-key)
-    ├── tokens/                # Token usage snapshots (disabled - API exists but not used by UI)
-    ├── waitlist/              # Waitlist signups (public - no auth required)
     ├── activity/              # Activity log API (GET, paginated)
     ├── webhooks/              # Webhooks CRUD + test + deliveries
     ├── notifications/         # Notification preferences API
@@ -298,8 +279,9 @@ function getSql() {
 - **Tailwind extension** in \`tailwind.config.js\` maps CSS variables to utility classes (\`bg-brand\`, \`bg-surface-secondary\`, \`text-zinc-300\`, etc.)
 - **Shared primitives** in \`app/components/ui/\`: \`Card\`/\`CardHeader\`/\`CardContent\`, \`Badge\` (6 variants), \`Stat\`/\`StatCompact\`, \`ProgressBar\`, \`EmptyState\`, \`Skeleton\`/\`CardSkeleton\`/\`ListSkeleton\`
 - **Icons**: All via \`lucide-react\` - no emoji anywhere in rendered UI
-- **Navigation**: Persistent \`Sidebar.js\` (w-56 desktop, collapsible to w-14, hamburger on mobile)
-- **Page structure**: \`PageLayout.js\` wraps every page (breadcrumbs, sticky header, title/subtitle, action buttons, NotificationCenter, AgentFilterDropdown)
+- **Navigation**: Persistent \`Sidebar.js\` (w-56 desktop, collapsible to w-14, hamburger on mobile) structured by Decision Lifecycle: Command, Governance, Evidence, System.
+- **Landing Page**: The post-login landing page is \`Mission Control\` (\`/mission-control\`), providing high-level fleet posture and a live stream of governed decisions.
+- **Decision Replay**: The \`/actions/[actionId]\` page provides a visual causal chain replay of agent decisions, including intent, policy evaluation, and outcome.
 - **Agent filter**: \`AgentFilterContext.js\` provides global agent filter; \`AgentFilterDropdown.js\` renders in PageLayout header. \`AgentFilterProvider\` is in \`SessionWrapper.js\` (global - persists across all pages). All data pages (Content, Goals, Learning, Relationships, Workflows, Security) pass \`?agent_id=X\` when filter is active.
 - **Agent colors**: \`app/lib/colors.js\` - \`getAgentColor(agentId)\` returns consistent hash-based color from 8-color palette
 - **Typography**: Inter font, \`text-sm text-zinc-300\` body, \`text-xs text-zinc-500\` labels, \`font-mono text-xs\` for timestamps/IDs, stat numbers max \`text-2xl tabular-nums\`

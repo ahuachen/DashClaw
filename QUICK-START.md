@@ -157,7 +157,7 @@ Another app is using that port. Close it, or add `PORT=3001` to `.env.local`.
 
 Once your dashboard is running:
 
-1. Follow the **onboarding checklist** on the dashboard
-2. Install the SDK: `npm install dashclaw` (or `pip install dashclaw`)
-3. Open `/connect` to get the shortest Node or Python path for env vars, starter code, optional pairing, and validator proof
-4. Start tracking your AI agent's activity!
+1. **Run a Simulation**: Use the "Run Simulation" button on Mission Control to see a governed decision replay instantly.
+2. **Follow the Onboarding Guide**: Use the interactive QuickStart card on Mission Control to install the SDK.
+3. **Connect Your First Agent**: Open `/agents` to monitor your fleet, and visit `/connect` for ready-to-use Node and Python integration snippets.
+4. **Watch Governance Happen**: As your agents act, Mission Control will update in real-time with policy evaluations and decision proof.

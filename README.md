@@ -165,10 +165,12 @@ Every governed action generates structured evidence records ready for compliance
 
 ## Core Runtime
 
-DashClaw is built around five primitives that form a decision runtime for autonomous systems:
+DashClaw is built around the **Decision Lifecycle**, providing a runtime for autonomous systems:
 
+- **Mission Control** -- Control tower for fleet posture and real-time governance.
 - **Guard** -- Evaluate policies before an action executes.
-- **Action Records** -- Capture the intent and outcome of every autonomous step.
+- **Decisions Ledger** -- Visual causal chain of intent, policy evaluation, and outcome.
+- **Decision Replay** -- Specialized replay of why a decision was made and how it was governed.
 - **Assumptions** -- Track what the agent believed to be true when making a decision.
 - **Approvals** -- Pause risky actions for human review.
 - **Evidence** -- Produce verifiable, audit-ready decision trails.
@@ -194,12 +196,11 @@ Production Systems
 Once decisions are governed, DashClaw expands into a full control plane for agent fleets:
 
 - **Mission Control dashboard** — operational visibility for agent fleets.
-- **Agent routing and orchestration** — match tasks to the right agent.
-- **Evaluation and scoring** — track quality and accuracy over time.
+- **Decision Replay** — causal chain visualization for every governed action.
+- **Agent Fleet Management** — health, permissions, and health overview.
 - **Compliance evidence** — generate audit-ready reports.
-- **Shared workspace and messaging** — agent-to-agent collaboration.
 
-<img src="screenshots/Mission%20Control3.png" alt="DashClaw Mission Control dashboard" width="2500" />
+<img src="screenshots/Dashboard.png" alt="DashClaw Mission Control dashboard" width="2500" />
 
 ---
 
@@ -209,8 +210,8 @@ DashClaw is a single Next.js codebase that serves two roles:
 
 | | **dashclaw.io** (marketing) | **Your deployment** (self-hosted) |
 |---|---|---|
-| **Landing page** | Marketing site with demo | Same page, "Dashboard" goes to your real dashboard |
-| **Dashboard** | Demo with fixture data, no login | Real dashboard with Password or GitHub/Google/OIDC OAuth |
+| **Landing page** | Marketing site with demo | Same page, "Mission Control" goes to your real dashboard |
+| **Mission Control** | Demo with fixture data, no login | Real dashboard with Password or GitHub/Google/OIDC OAuth |
 | **Data** | Hardcoded fixtures | Your Postgres database |
 | **`DASHCLAW_MODE`** | `demo` | `self_host` (default) |
 
@@ -220,12 +221,13 @@ DashClaw is a single Next.js codebase that serves two roles:
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing page |
-| `/dashboard` | Operations dashboard (requires auth) |
-| `/connect` | Canonical first-agent connection guide for Node and Python |
-| `/swarm` | Real-time swarm intelligence & neural web |
+| `/` | Public landing page |
+| `/mission-control` | Control tower for agent fleet posture (landing page after login) |
+| `/agents` | Fleet overview and agent connection health |
+| `/actions` | Decisions Ledger: the global stream of governed agent actions |
+| `/actions/[id]` | Decision Replay: visual causal chain of a single decision |
+| `/policies` | Guardrail and policy management |
 | `/docs` | SDK + platform documentation |
-| `/self-host` | Getting started guide |
 | `/demo` | Demo sandbox (read-only, no login) |
 
 ---
