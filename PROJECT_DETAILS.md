@@ -97,6 +97,17 @@ app/
 ├── actions/                   # Decisions Ledger & Replay
 ├── api-keys/                  # API key management page
 ├── docs/page.js               # Public SDK documentation (server component)
+├── mission-control/page.js    # Mission Control — Control tower landing page
+├── agents/                    # Agent Fleet
+│   ├── page.js                # Fleet Overview — Health and status filtering
+│   └── [agentId]/page.js      # Agent Dossier — Governance posture and history
+├── decisions/                 # Governance Decisions
+│   ├── page.js                # Decisions Ledger — Global stream of governed actions
+│   └── [actionId]/page.js     # Decision Replay — Visual causal chain of a single decision
+├── activity/page.js           # Activity Stream — Real-time operational telemetry feed
+├── audit-log/page.js          # Audit Log — Permanent record of system/admin events
+├── setup/                     # System Settings / Setup page (Integrated into main layout)
+├── replay/[actionId]/page.js  # Public Replay — Shareable, public-safe decision permalink
 ├── practical-systems/page.js  # Practical Systems branding and about page (public)
 ├── login/page.js              # Custom login page (GitHub + Google OAuth)
 ├── integrations/              # Integration settings page
@@ -106,16 +117,14 @@ app/
 ├── compliance/                # Compliance mapping page (framework controls, gap analysis, evidence, reports)
 ├── approvals/                 # Human-in-the-loop approval queue page
 ├── swarm/                     # Swarm Intelligence dashboard (real-time neural web visualization)
-├── setup/                     # System Settings / Setup page
 ├── team/                      # Team management page (members, invites, roles)
 ├── usage/                     # Usage meter page
-├── activity/                  # Audit Log
 ├── webhooks/                  # Webhook management page
 ├── invite/[token]/            # Invite accept page (standalone layout)
 ├── drift/                     # Assumptions / Drift detection page
 └── api/
     ├── auth/[...nextauth]/    # NextAuth route handler (GitHub + Google OAuth)
-    ├── actions/               # Decisions Control Plane (CRUD + signals + loops + assumptions + trace)
+    ├── actions/               # Decisions Control Plane (GET list, POST simulation, DELETE)
     ├── actions/[actionId]/approve # HITL approval decision endpoint (POST)
     ├── orgs/                  # Organization + API key management (admin only)
     ├── health/                # DB + core table health check (public)

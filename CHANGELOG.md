@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.4.0] - 2026-03-13
+## [2.4.5] - 2026-03-13
+
+### Added
+- **Dedicated Activity Stream**: New `/activity` page providing a unified, real-time feed of agent intents, guard decisions, and system events.
+- **Relocated Decisions Ledger**: Moved actions to `/decisions` to clarify the governance focus.
+- **Integrated Audit Log**: Moved workspace activity to `/audit-log` under the Evidence group.
+
+### Changed
+- **Setup Page Integration**: Migrated the `/setup` page into the main `PageLayout`, ensuring the sidebar and unified header are always present.
+- **High-Fidelity Compliance Reports**: Enhanced the Markdown proof report with realistic framework coverage and enforcement evidence.
+
+### Fixed
+- **Decision Detail 404**: Resolved 404 errors by correctly relocating dynamic decision routes to `/decisions/[actionId]`.
+- **JSX Syntax Fix**: Corrected malformed nesting in the Decision Replay page that caused 500 build failures.
+- **Policy Suite Reliability**: Fixed "Import" button visibility and property mapping in the Policy Test Runner.
+- **Tailwind Build Refresh**: Fixed a race condition in the build system where Tailwind failed to track new files after directory moves.
+
+## [2.4.0] - 2026-03-13 (Earlier today)
 
 ### Added
 - **Agent Governance Transformation**: Pivoted the platform architecture around "Decision Infrastructure," focusing on the causal chain from intent to outcome.
