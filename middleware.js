@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt';
 import { neon } from '@neondatabase/serverless';
 import { getDemoFixtures } from './app/lib/demo/demoFixtures.js';
 import {
-  demoListActions, demoAgents, demoActionDetail, demoAssumptions,
+  demoListActions, demoCreateAction, demoAgents, demoActionDetail, demoAssumptions,
   demoLearning, demoLearningRecommendations, demoLearningRecommendationMetrics,
   demoTokens, demoPolicies, demoGuard, demoMessages, demoMessageThreads,
   demoMessageDocs, demoContent, demoTeam, demoTeamInvites, demoActivity,
@@ -420,6 +420,10 @@ export async function middleware(request) {
       }
 
       if (pathname === '/api/actions') {
+        if (method === 'POST') {
+          // For demo simulations, we don't need the real body, just a success response
+          return demoJson(request, demoCreateAction(fixtures, {}), 201);
+        }
         return demoJson(request, demoListActions(fixtures, url));
       }
 

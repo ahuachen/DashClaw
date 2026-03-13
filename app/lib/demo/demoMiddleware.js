@@ -34,6 +34,29 @@ export function demoListActions(fixtures, url) {
   return { actions: paged, total, stats, lastUpdated: new Date().toISOString() };
 }
 
+export function demoCreateAction(fixtures, body) {
+  const action_id = body.action_id || `act_sim_${Math.random().toString(36).slice(2, 10)}`;
+  const action = {
+    ...body,
+    action_id,
+    org_id: 'org_demo',
+    timestamp_start: body.timestamp_start || new Date().toISOString(),
+    status: body.status || 'completed',
+    risk_score: body.risk_score || 0,
+    confidence: body.confidence || 100,
+    verified: true,
+  };
+  
+  // In a real middleware we can't persist to fixtures (read-only import), 
+  // but we return the object to simulate success.
+  return { 
+    action, 
+    action_id, 
+    decision: { decision: 'allow', reason: 'Demo mode simulation auto-permitted.' },
+    security: { clean: true, findings_count: 0 }
+  };
+}
+
 export function demoAgents(fixtures) {
   const map = new Map();
   for (const a of fixtures.actions) {

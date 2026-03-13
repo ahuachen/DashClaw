@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Rocket, Terminal, Zap, CheckCircle2, Copy, 
   Play, Shield, ArrowRight, Loader2, X
@@ -9,6 +10,7 @@ import { Card, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
 
 export default function QuickStart({ onSimulationComplete, onDismiss }) {
+  const router = useRouter();
   const [copied, setCopying] = useState(false);
   const [simulating, setSimulating] = useState(false);
   const [step, setStep] = useState(1);
@@ -58,13 +60,21 @@ if (decision.allowed) {
       });
       
       if (res.ok) {
+        const data = await res.json();
+        const actionId = data.action_id || 'act_demo_001';
+        
         if (onSimulationComplete) onSimulationComplete();
         setStep(3);
+        
+        // Wait a beat for the user to see the success before redirecting to replay
+        setTimeout(() => {
+          router.push(`/actions/${actionId}`);
+        }, 1500);
       }
     } catch (err) {
       console.error('Simulation failed:', err);
     } finally {
-      setSimulating(false);
+      // Keep simulating true during the redirect pause
     }
   };
 
