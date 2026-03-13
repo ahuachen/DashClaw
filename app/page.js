@@ -151,7 +151,7 @@ export default function LandingPage() {
               <div className="pt-4 border-t border-zinc-800/50">
                 <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">Policy Violation</div>
                 <div className="text-sm text-zinc-400 italic leading-relaxed">
-                  "No production database changes without human approval"
+                  &quot;No production database changes without human approval&quot;
                 </div>
               </div>
               
