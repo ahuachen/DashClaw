@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Users, Activity, ShieldCheck, ShieldAlert, Zap,
   Search, Filter, RotateCw, ChevronRight, Brain,
-  Shield, CheckCircle2, XCircle, Clock
+  Shield, CheckCircle2, XCircle, Clock, Info, Lock
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
