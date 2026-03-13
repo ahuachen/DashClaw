@@ -1,7 +1,9 @@
 <div align="center">
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
-  <p><strong>Decision runtime for AI agents</strong></p>
+  <p><strong>Decision infrastructure for AI agents</strong></p>
+  <p>AI Agent Governance Runtime</p>
+  <p>Intercept. Govern. Verify.</p>
   <p>DashClaw is a policy firewall that intercepts agent actions before they reach real systems.</p>
   <p>MIT Licensed &bull; Self-hosted &bull; Zero-dependency SDK &bull; Node + Python &bull; Open source</p>
   <br />
@@ -15,22 +17,48 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <br /><br />
-
-  <img src="screenshots/decision.png" alt="DashClaw Full Decision Record" width="2500" />
-
+  <img src="screenshots/decision.png" alt="DashClaw Full Decision Record" width="2500" /></div>
 
 <br />
-  <br /><br />
 
-<p>DashClaw is a decision runtime for AI agents.</p>
+---
 
-<p>It sits between agents and the systems they control,</p>
-<p>intercepting actions, enforcing policies, and recording</p>
-<p>decision evidence before execution.</p>
+## 30-Second Quick Start
 
-Think of it as a **firewall for AI agent actions**.
-</div>
+**1. Run DashClaw locally**
+```bash
+git clone https://github.com/ucsandman/DashClaw.git
+cd DashClaw
+node scripts/setup.mjs
+```
+
+**2. Install the SDK**
+```bash
+npm install dashclaw
+```
+
+**3. Guard your agent**
+```javascript
+import { DashClaw } from 'dashclaw';
+
+const claw = new DashClaw({
+  baseUrl: 'http://localhost:3000',
+  apiKey: 'oc_live_...',
+  agentId: 'deployment-bot'
+});
+
+// Intercept before you act
+const { decision } = await claw.guard({
+  actionType: 'deploy',
+  riskScore: 85
+});
+
+if (decision === 'allowed') {
+  // execute real-world action
+}
+```
+
+---
 
 ## Where DashClaw Runs
 
@@ -100,54 +128,9 @@ Frameworks (like LangChain or CrewAI) help you build agents. DashClaw provides t
 
 ## Works With
 
-DashClaw integrates with any agent framework.
-
-- OpenAI agents
-- Claude / Anthropic agents
-- LangChain
-- CrewAI
-- OpenClaw
-- AutoGen
-- custom agents
+OpenAI | Anthropic | LangChain | CrewAI | AutoGen | OpenClaw | Custom Agents
 
 DashClaw works with any agent capable of making API calls.
-
----
-
-## 30-Second Quick Start
-
-**1. Run DashClaw locally**
-```bash
-git clone https://github.com/ucsandman/DashClaw.git
-cd DashClaw
-node scripts/setup.mjs
-```
-
-**2. Install the SDK**
-```bash
-npm install dashclaw
-```
-
-**3. Guard your agent**
-```javascript
-import { DashClaw } from 'dashclaw';
-
-const claw = new DashClaw({
-  baseUrl: 'http://localhost:3000',
-  apiKey: 'oc_live_...',
-  agentId: 'deployment-bot'
-});
-
-// Intercept before you act
-const { decision } = await claw.guard({
-  actionType: 'deploy',
-  riskScore: 85
-});
-
-if (decision === 'allowed') {
-  // execute real-world action
-}
-```
 
 ---
 
