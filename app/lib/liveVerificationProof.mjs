@@ -1,4 +1,5 @@
-import { CompactSign, jwtVerify } from 'jose';
+import crypto from 'node:crypto';
+import { jwtVerify } from 'jose';
 
 const LIVE_PROOF_AUDIENCE = 'dashclaw-setup-live-proof';
 const LIVE_PROOF_ISSUER = 'dashclaw';
@@ -73,7 +74,7 @@ export function normalizeLiveVerificationPayload(payload = {}, options = {}) {
 
 export async function createLiveVerificationProofToken(payload, options = {}) {
   const normalized = normalizeLiveVerificationPayload(payload, options);
-  const secret = getJwtSecret(options.env);
+  const rawSecret = String((options.env || process.env).NEXTAUTH_SECRET || '');
   const issuedAt = Math.floor(Date.now() / 1000);
   const claims = {
     ...normalized,
@@ -82,12 +83,15 @@ export async function createLiveVerificationProofToken(payload, options = {}) {
     iat: issuedAt,
     exp: issuedAt + 7 * 24 * 60 * 60,
   };
-
-  const token = await new CompactSign(
-    new TextEncoder().encode(JSON.stringify(claims))
-  )
-    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-    .sign(secret);
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+  const encodedPayload = Buffer.from(JSON.stringify(claims)).toString('base64url');
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const signature = crypto
+    .createHmac('sha256', rawSecret)
+    .update(signingInput)
+    .digest('base64url');
+  const token = `${signingInput}.${signature}`;
 
   return {
     token,
