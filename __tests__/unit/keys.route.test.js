@@ -80,7 +80,7 @@ describe('/api/keys POST', () => {
     const data = await res.json();
     expect(data.key.raw_key).toMatch(/^oc_live_/);
     expect(data.key.label).toBe('My Agent Key');
-    expect(data.key.warning).toContain('Save this key now');
+    expect(data.key.storageWarning).toContain('this key now');
   });
 
   it('returns 403 for non-admin', async () => {

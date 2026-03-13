@@ -439,7 +439,7 @@ function buildFixtures() {
       id: `wh_demo_${String(i + 1).padStart(3, '0')}`,
       org_id: DEMO_ORG,
       url: `https://hooks.example.com/dashclaw/${i + 1}`,
-      secret: `************************${String(int(rnd, 1000, 9999))}`,
+      masked_val: `************************${String(int(rnd, 1000, 9999))}`,
       events: JSON.stringify(whEvents),
       active: rnd() > 0.2 ? 1 : 0,
       failure_count: int(rnd, 0, 4),

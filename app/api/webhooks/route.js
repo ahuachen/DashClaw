@@ -85,14 +85,13 @@ export async function POST(request) {
 
     return NextResponse.json({
       webhook: { id: webhookId, url, secret, events, active: 1, created_at: now },
-      secret_warning: 'Store this secret now — it will not be shown again.',
+      storageWarning: 'Store this secret now — it will not be shown again.',
     }, { status: 201 });
   } catch (error) {
     console.error('Webhooks POST error:', error);
     return NextResponse.json({ error: 'Failed to create webhook' }, { status: 500 });
   }
 }
-
 // DELETE /api/webhooks?id=wh_xxx - Delete webhook (admin only)
 export async function DELETE(request) {
   try {

@@ -91,7 +91,7 @@ describe('/api/webhooks POST', () => {
     const data = await res.json();
     expect(data.webhook.id).toMatch(/^wh_/);
     expect(data.webhook.url).toBe('https://hooks.example.com/dc');
-    expect(data.secret_warning).toBeDefined();
+    expect(data.storageWarning).toBeDefined();
     // Raw secret is returned on creation only
     expect(data.webhook.secret).toBeDefined();
     expect(data.webhook.secret.length).toBeGreaterThan(20);
