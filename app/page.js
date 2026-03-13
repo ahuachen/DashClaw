@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle } from 'lucide-react';
 import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
@@ -38,9 +38,53 @@ export default function LandingPage() {
             DashClaw is a policy firewall for AI agents.
           </p>
           <p className="mt-4 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            DashClaw sits between AI agents and real-world systems. It intercepts actions, enforces policies, and records decision evidence before execution.
+            DashClaw sits between AI agents and production systems. It intercepts actions, enforces policies, and records decision evidence before execution.
           </p>
-          <p className="mt-4 text-sm text-zinc-500 font-medium">Simple to adopt. Powerful to operate. MIT Licensed.</p>
+          <p className="mt-4 text-sm text-zinc-500 font-medium">
+            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, or any custom agent.
+          </p>
+          <p className="mt-4 text-sm text-zinc-500 font-medium italic opacity-80">Simple to adopt. Powerful to operate. MIT Licensed.</p>
+
+          {/* Tiny Architecture Diagram */}
+          <div className="mt-12 mb-8 flex items-center justify-center gap-3 sm:gap-6 max-w-lg mx-auto">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 shadow-lg">
+                <Bot size={20} />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Agent</span>
+            </div>
+            
+            <div className="flex flex-col justify-center animate-pulse">
+              <ArrowRight className="text-zinc-600" size={24} />
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-brand/10 border border-brand/40 text-brand shadow-[0_0_25px_rgba(249,115,22,0.2)] ring-1 ring-brand/20">
+                <Shield size={28} />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-brand font-extrabold">Guard</span>
+            </div>
+
+            <div className="flex flex-col justify-center animate-pulse delay-75">
+              <ArrowRight className="text-zinc-600" size={24} />
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 shadow-lg">
+                <Database size={20} />
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Systems</span>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm sm:text-base font-mono">
+            <span className="flex items-center gap-2 bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800 shadow-xl text-zinc-300">
+              <Terminal size={14} className="text-zinc-500" /> npm install dashclaw
+            </span>
+            <span className="flex items-center gap-2 bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800 shadow-xl text-zinc-300">
+              <Terminal size={14} className="text-zinc-500" /> pip install dashclaw
+            </span>
+          </div>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
@@ -49,15 +93,6 @@ export default function LandingPage() {
             <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
               <Terminal size={16} /> View Demo
             </Link>
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-4 text-[10px] font-mono text-zinc-500">
-            <span className="flex items-center gap-1.5 bg-zinc-900/50 px-2 py-1 rounded border border-zinc-800">
-              <Terminal size={10} /> npm install dashclaw
-            </span>
-            <span className="flex items-center gap-1.5 bg-zinc-900/50 px-2 py-1 rounded border border-zinc-800">
-              <Terminal size={10} /> pip install dashclaw
-            </span>
           </div>
 
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest">
@@ -90,20 +125,44 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="relative max-w-md mx-auto py-10 px-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#111] overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-brand/30"></div>
-            <div className="space-y-4 text-center">
-              <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] text-sm font-medium text-zinc-300">Agent attempts action</div>
-              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
-              <div className="p-3 rounded-lg bg-brand/10 border border-brand/20 text-sm font-semibold text-brand">DashClaw evaluates guard policies</div>
-              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm font-medium text-red-400">Risk threshold triggered</div>
-              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
-              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm font-medium text-blue-400">Human approval required</div>
-              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm font-medium text-green-400">Action approved or blocked</div>
-              <div className="flex justify-center"><ArrowRight className="rotate-90 text-zinc-600" size={20} /></div>
-              <div className="p-3 rounded-lg bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] text-sm font-medium text-zinc-300">Decision evidence recorded</div>
+          <div className="relative max-w-md mx-auto p-8 rounded-2xl border border-red-500/20 bg-[#111] overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.1)] text-left">
+            <div className="absolute top-0 left-0 w-full h-1 bg-red-500/40"></div>
+            
+            <div className="space-y-6">
+              <div className="flex justify-between items-start border-b border-zinc-800/50 pb-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Agent Action</div>
+                  <div className="text-base font-semibold text-zinc-200">Deploy migration</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Risk Score</div>
+                  <div className="text-lg font-mono font-bold text-red-400">92</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">DashClaw Decision</div>
+                <div className="flex items-center gap-2 text-red-500 font-extrabold text-xl tracking-tight">
+                  <XCircle size={24} />
+                  <span>BLOCKED</span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-zinc-800/50">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">Policy Violation</div>
+                <div className="text-sm text-zinc-400 italic leading-relaxed">
+                  "No production database changes without human approval"
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">Evidence Recorded</div>
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></div>
+                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
+                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -237,8 +296,12 @@ export default function LandingPage() {
                 Zero-dependency Node.js and Python clients. Adding governance requires only a small wrapper around risky actions.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">npm install dashclaw</span>
-                <span className="px-3 py-1 rounded-full bg-[#1a1a1a] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">pip install dashclaw</span>
+                <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-sm font-mono text-zinc-300">
+                  <Terminal size={14} className="text-zinc-500" /> npm install dashclaw
+                </span>
+                <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-sm font-mono text-zinc-300">
+                  <Terminal size={14} className="text-zinc-500" /> pip install dashclaw
+                </span>
               </div>
               <Link href="/docs" className="mt-6 inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
                 View full SDK docs <ArrowRight size={14} />
