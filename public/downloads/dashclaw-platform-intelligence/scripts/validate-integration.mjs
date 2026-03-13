@@ -106,7 +106,7 @@ async function run() {
     log('\nNo API key. Skipping authenticated checks.');
     return printSummary();
   }
-  record('API key configured', 'pass', `Key prefix: ${API_KEY.slice(0, 12)}`);
+  record('API key configured', 'pass', `API key is set (length: ${API_KEY.length} characters)`);
 
   // 3. Authenticated endpoint test
   try {
