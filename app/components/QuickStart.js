@@ -174,7 +174,9 @@ await claw.guard({
               <div className="flex-1 relative">
                 <div className="text-sm font-semibold text-white mb-1">Watch Governance Happen</div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  Mission Control will light up the moment your agent acts.
+                  {isDemoMode() 
+                    ? 'Self-host to connect real agents. In demo mode, use the simulator to see governance.' 
+                    : 'Mission Control will light up the moment your agent acts.'}
                 </p>
                 
                 {/* Visual Hint - Re-anchored to the text for clarity */}
@@ -182,7 +184,7 @@ await claw.guard({
                   <div className="absolute -right-4 top-0 hidden xl:flex items-center gap-2 animate-pulse">
                     <MousePointer2 size={16} className="text-brand rotate-[-90deg] fill-brand" />
                     <span className="text-[10px] font-bold text-brand uppercase tracking-widest whitespace-nowrap bg-brand/10 px-2 py-1 rounded border border-brand/20">
-                      Awaiting agent signal...
+                      {isDemoMode() ? 'Awaiting simulation signal...' : 'Awaiting agent signal...'}
                     </span>
                   </div>
                 )}

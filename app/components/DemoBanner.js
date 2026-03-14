@@ -12,8 +12,8 @@ export default function DemoBanner() {
       <div className="px-6 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex items-center gap-2 text-xs text-zinc-300">
           <ShieldAlert size={14} className="text-brand" />
-          <span className="font-medium text-zinc-100">Live Demo:</span>
-          <span>fake data, read-only. Self-host to connect real agents.</span>
+          <span className="font-bold text-zinc-100 uppercase tracking-tighter">Demo Mode:</span>
+          <span>Simulated data. Deploy your own DashClaw instance to connect real agents.</span>
         </div>
         <div className="flex items-center gap-3 text-xs">
           <Link href="/self-host" className="text-brand hover:text-brand-hover transition-colors">

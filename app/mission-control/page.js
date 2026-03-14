@@ -17,14 +17,7 @@ import ActivityTimeline from '../components/ActivityTimeline';
 import SwarmActivityLog from '../components/SwarmActivityLog';
 import QuickStart from '../components/QuickStart';
 import { isDemoMode } from '../lib/isDemoMode';
-
-/* ---------- System posture: exactly 3 states ---------- */
-
-function computePosture(redCount, amberCount) {
-  if (redCount >= 1) return { label: 'CRITICAL', dot: 'bg-red-500', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: true };
-  if (amberCount >= 1) return { label: 'ELEVATED', dot: 'bg-amber-500', text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', pulse: true };
-  return { label: 'NOMINAL', dot: 'bg-emerald-500', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', pulse: false };
-}
+import { computePosture } from '../components/SystemStatusBar';
 
 /* ---------- Helpers ---------- */
 
@@ -337,10 +330,10 @@ export default function MissionControlPage() {
           <div className="flex flex-wrap items-center gap-y-2 divide-x divide-border/50">
             {/* System Posture */}
             <div className="flex items-center gap-2 pr-5">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">Posture</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Posture</span>
               <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 ${posture.bg} ${posture.border}`}>
-                <span className={`h-2 w-2 rounded-full ${posture.dot} ${posture.pulse ? 'animate-pulse' : ''}`} />
-                <span className={`text-xs font-semibold uppercase tracking-widest ${posture.text}`}>
+                <div className={`h-1.5 w-1.5 rounded-full ${posture.color.replace('text-', 'bg-')} ${posture.pulse ? 'animate-pulse' : ''}`} />
+                <span className={`text-[10px] font-black uppercase tracking-widest ${posture.color}`}>
                   {posture.label}
                 </span>
               </div>
