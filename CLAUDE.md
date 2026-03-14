@@ -1,113 +1,50 @@
 ---
 source-of-truth: false
 owner: maintainers
-last-verified: 2026-02-14
+last-verified: 2026-03-14
 doc-type: handoff
 ---
 
-# DashClaw
+# DashClaw (v2 Governance Runtime)
 
-DashClaw is an AI agent decision infrastructure platform: a Next.js 15 (JavaScript) app that provides a control plane for policy enforcement, decision recording, assumption tracking, compliance mapping, security signals, messaging, and operator workflows.
+DashClaw is AI agent decision infrastructure. It provides a focused control plane for policy enforcement, decision recording, assumption tracking, and risk signals.
 
-For architecture, API inventory, and schema-level behavior, use `PROJECT_DETAILS.md` as the canonical reference.
+## Governance Boundary (CRITICAL)
 
-## Deployment Model
+DashClaw is a **minimal governance runtime**, not an agent platform. We do not provide tools for agents to achieve goals (Calendar, Messaging, CRM). We provide the infrastructure to **govern** those goals.
 
-DashClaw ships as a single codebase that serves two roles depending on `DASHCLAW_MODE`:
+- **Core Runtime**: `app/api/` (Only 7 canonical routes allowed).
+- **Extensions**: `app/(extensions)/` (Modular operational intelligence).
+- **Archived**: `app/api/_archive/` (Legacy platform features).
 
-- **Marketing site** (dashclaw.io) — `DASHCLAW_MODE=demo` + `NEXT_PUBLIC_DASHCLAW_MODE=demo`. The "Dashboard" button links to `/dashboard` which works without login (middleware skips auth, API returns fixtures, SessionWrapper provides a mock session).
-- **Self-hosted instances** — `DASHCLAW_MODE=self_host` (default). The "Dashboard" button links to `/dashboard` which requires GitHub OAuth login and hits the real database.
+**CI Check**: `npm run governance:boundary:check` enforces this boundary. Never add non-governance routes to the root `/api` directory.
 
-Both modes use the same landing page and the same "Dashboard" button (`/dashboard`). The middleware decides what happens based on the mode. No cookies or special env vars needed — `DASHCLAW_MODE` controls everything.
+## Essential Surfaces
 
-## Product Surfaces
-
-- `/` - public landing site (doubles as homepage for self-hosted instances)
-- `/practical-systems` - about the team behind DashClaw (public)
-- `/demo` - demo sandbox UI (fake data, read-only, no login)
-- `/dashboard` - authenticated operations dashboard (real data)
-- `/workspace` - per-agent workspace (digest, context, handoffs, snippets, preferences, memory)
-- `/security` - security dashboard (signals, guard decisions, findings)
-- `/routing` - task routing (agent registry, task queue, health status)
-- `/compliance` - compliance mapping (framework controls, gap analysis, evidence, reports)
+- `/mission-control` - Strategic posture, interventions, and live decision stream.
+- `/decisions` - Visual causal chain ledger of all governed actions.
+- `/setup` - Readiness verification and instance health.
+- `/connect` - The 8-minute path to first governed action.
 
 ## Tech Stack
 
-- Runtime: Node.js 20+ recommended (Next.js 15 requires modern Node)
+- Runtime: Node.js 20+
 - Framework: Next.js 15 (App Router)
-- Language: JavaScript
-- Styling: Tailwind CSS 3
-- Database: Postgres (local via Docker or hosted via Neon), dual adapter (`postgres` for TCP, `@neondatabase/serverless` for Neon)
-- Auth (UI): NextAuth v4 (GitHub + Google OAuth)
-- Auth (agents/tools): `x-api-key` header (DashClaw API keys)
+- Database: Postgres (Neon recommended)
+- SDK: v2 (5-method core surface)
 
 ## Essential Commands
 
 ```bash
-npm install
 npm run dev
-npm run build
 npm run lint
-npm run docs:check
-npm run route-sql:check
+npm run governance:boundary:check  # Enforce runtime boundary
+npm run openapi:check              # Detect API contract drift
 ```
-
-DB bootstrap and migrations (idempotent, safe to re-run):
-
-```bash
-node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs
-node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs
-node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs
-node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs
-```
-
-## Environment Variables (Must Know)
-
-See `.env.example`.
-
-- `DATABASE_URL` (required): Postgres connection string
-- `NEXTAUTH_URL` + `NEXTAUTH_SECRET` (required for UI auth)
-- `GITHUB_ID` + `GITHUB_SECRET` and/or `GOOGLE_ID` + `GOOGLE_SECRET` (required to sign in)
-- `DASHCLAW_API_KEY` (required in production): protects `/api/*` and seeds `org_default`
-
-Rate limiting (optional):
-
-- `DASHCLAW_RATE_LIMIT_MAX`
-- `DASHCLAW_RATE_LIMIT_WINDOW_MS`
-- `DASHCLAW_DISABLE_RATE_LIMIT=true` (dev only)
-
-Security hardening (optional):
-
-- `ENFORCE_AGENT_SIGNATURES` (default: true in prod, false in dev)
-- `DASHCLAW_CLOSED_ENROLLMENT=true` (require pre-registered agents)
-- `TRUST_PROXY=true` (trust x-forwarded-for/x-real-ip for rate limiting)
-- `DASHCLAW_GUARD_FALLBACK=block` (fail-closed when semantic guard LLM unavailable)
-
-OAuth callback URIs (local dev):
-
-- `http://localhost:3000/api/auth/callback/github`
-- `http://localhost:3000/api/auth/callback/google`
-
-If you see "redirect_uri is not associated with this application", your OAuth app is missing the callback URL above.
-
-## Guardrails (Do Not Regress)
-
-- Default-deny for `/api/*` is enforced in `middleware.js` (only explicit `PUBLIC_ROUTES` are unauthenticated).
-- Org context headers (`x-org-id`, `x-org-role`, `x-user-id`) must never be accepted from clients; middleware injects trusted values.
-- Route SQL guardrail: do not introduce new direct SQL usage inside `app/api/**/route.js` handlers. Put query logic in repositories (see `app/lib/repositories/*`). CI blocks new route-level SQL (`npm run route-sql:check`).
-
-## Claude Code Skills
-
-The project includes a Claude Code skill for platform-level operations:
-
-- `.claude/skills/dashclaw-platform-intelligence/` -- DashClaw platform expert skill. Handles agent instrumentation, troubleshooting, API route scaffolding, SDK client generation, policy design, and agent bootstrapping. Includes companion scripts for integration validation and diagnostics.
-- Packaging constraints for Claude skill uploads:
-  - `SKILL.md` frontmatter `description` must be <= 1024 characters.
-  - Build ZIPs with POSIX entry separators (`/`), not Windows backslashes (`\`), or upload may fail with invalid path errors.
 
 ## Where To Look First
 
-- `PROJECT_DETAILS.md` - system map, route list, schema, invariants
-- `docs/agent-bootstrap.md` - importing an existing agent/workspace (CLI scanner + security notes)
-- `docs/client-setup-guide.md` - SDK + operator guide (long-form reference)
-
+- `PROJECT_DETAILS.md` - Canonical system map and boundary rules.
+- `QUICK-START.md` - The 8-minute "Aha! Moment" path.
+- `docs/architecture/runtime-api.md` - The 4-step Governance Loop.
+- `sdk/README.md` - v2 SDK implementation and error handling.

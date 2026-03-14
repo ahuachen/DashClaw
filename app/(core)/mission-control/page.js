@@ -126,7 +126,6 @@ export default function MissionControlPage() {
   const { agentId, agents } = useAgentFilter();
   const [signals, setSignals] = useState(null);
   const [loops, setLoops] = useState(null);
-  const [tokens, setTokens] = useState(null);
   const [health, setHealth] = useState(null);
   const [actions, setActions] = useState([]);
   const [pendingActions, setPendingActions] = useState([]);
@@ -146,10 +145,9 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, tokensRes, healthRes, actionsRes, pendingRes] = await Promise.all([
+      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
         fetch(withParams('/api/actions/loops', ['status=open', 'limit=20'])),
-        fetch(withParams('/api/tokens')),
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
         fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
@@ -157,7 +155,6 @@ export default function MissionControlPage() {
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
       if (loopsRes.ok) setLoops(await loopsRes.json());
-      if (tokensRes.ok) setTokens(await tokensRes.json());
       if (healthRes.ok) setHealth(await healthRes.json());
       if (actionsRes.ok) {
         const actionsJson = await actionsRes.json();
@@ -188,15 +185,6 @@ export default function MissionControlPage() {
         if (source.agent_id && source.agent_id !== agentId) return;
       }
       fetchAll();
-    } else if (event === 'token.usage') {
-      if (agentId && payload.agent_id !== agentId) return;
-      setTokens((prev) => ({
-        ...prev,
-        today: {
-          ...prev?.today,
-          estimatedCost: (prev?.today?.estimatedCost || 0) + (payload.estimated_cost || 0),
-        },
-      }));
     }
   }, [agentId, fetchAll]));
 
@@ -231,25 +219,6 @@ export default function MissionControlPage() {
   const posture = computePosture(signalCounts.red, signalCounts.amber);
 
   const loopList = useMemo(() => loops?.loops || [], [loops]);
-
-  const todayCost = tokens?.today?.estimatedCost || 0;
-  const history = tokens?.history || [];
-  let projectedCost = null;
-  let trendDirection = null;
-
-  if (history.length >= 1) {
-    const costs = history.map((d) => d.estimatedCost || 0).filter((c) => c > 0);
-    if (costs.length > 0) {
-      const avgDailyCost = costs.reduce((a, b) => a + b, 0) / costs.length;
-      const now = new Date();
-      const hoursElapsed = now.getHours() + now.getMinutes() / 60;
-      const todayExtrapolated = hoursElapsed > 1 ? (todayCost / hoursElapsed) * 24 : avgDailyCost;
-      projectedCost = hoursElapsed > 1
-        ? todayExtrapolated * 0.6 + avgDailyCost * 0.4
-        : avgDailyCost;
-      trendDirection = todayCost > avgDailyCost * 1.1 ? 'up' : todayCost < avgDailyCost * 0.9 ? 'down' : null;
-    }
-  }
 
   const healthStatus = health?.status || 'unknown';
   const healthDot = healthStatus === 'healthy' ? 'bg-emerald-500' : healthStatus === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500';
@@ -454,39 +423,6 @@ export default function MissionControlPage() {
                     </span>
                   )}
                 </div>
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* Card 3 — Cost Velocity */}
-        <Card>
-          <div className="p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Cost Velocity</span>
-              <Link href="/usage" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
-                Details <ArrowRight size={10} />
-              </Link>
-            </div>
-            {loading ? <MetricSkeleton /> : (
-              <>
-                <div className="mb-1 text-3xl font-bold tabular-nums text-white">{formatCost(todayCost)}</div>
-                {projectedCost !== null ? (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-500">24h projection</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium tabular-nums text-zinc-300">{formatCost(projectedCost)}</span>
-                      {trendDirection === 'up' && <TrendingUp size={12} className="text-amber-400" />}
-                      {trendDirection === 'down' && <TrendingDown size={12} className="text-emerald-400" />}
-                      {trendDirection === null && <Minus size={12} className="text-zinc-500" />}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-xs text-zinc-600">No projection until data exists</div>
-                )}
-                {trendDirection && (
-                  <div className="mt-1 text-[10px] text-zinc-500">vs 7-day avg</div>
-                )}
               </>
             )}
           </div>

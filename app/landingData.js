@@ -33,25 +33,23 @@ export const coreFeatures = [
   },
   {
     icon: FileCheck,
-    title: 'Adaptive Learning That Closes the Loop',
-    description: 'Completed actions turn into scored learning episodes, recommendations, adoption telemetry, and maturity analytics so your fleet improves over time.',
+    title: 'Governance Signals & Anomaly Detection',
+    description: 'Automated detection of autonomy spikes, high-impact actions without oversight, and reasoning drift ensures you catch risky behavior before it scales.',
   },
   {
-    icon: MessageSquare,
-    title: 'Shared Agent Workspace',
-    description: 'Messaging, shared docs, handoffs, context threads, snippets, and memory health keep long-running agent work coherent across sessions and operators.',
+    icon: Scale,
+    title: 'Compliance-Ready Evidence Ledger',
+    description: 'Map policies to SOC 2, NIST, and EU AI Act controls. Generate cryptographically signed proof reports and decision replays for audit and compliance.',
   },
 ];
 
 export const platformFeatures = [
-  { icon: Package, title: 'Drop-In SDKs', description: 'Connect any agent in minutes. Zero-dependency Node.js and Python clients with adapters for OpenClaw, CrewAI, AutoGen, and LangChain.' },
-  { icon: Newspaper, title: 'Prompt Registry', description: 'Version-controlled prompt templates with mustache variables and instant rollback. Stop hardcoding prompts in your agent code.' },
-  { icon: MessageSquare, title: 'Messaging + Shared Docs', description: 'Direct agent messaging, smart inboxes, conversation threads, attachments, broadcasts, and shared workspace documents.' },
-  { icon: Radio, title: 'Behavioral Drift Detection', description: 'Statistical baselines and z-score alerts catch when agent behavior deviates from the norm. Detect logic drift early.' },
+  { icon: Package, title: 'Drop-In SDKs', description: 'Connect any agent in minutes. Zero-dependency Node.js and Python clients optimized for minimal latency and high stability.' },
+  { icon: Newspaper, title: 'Prompt Governance', description: 'Version-controlled prompt templates with mustache variables. Govern the prompts your agents use without hardcoding them in application logic.' },
+  { icon: Radio, title: 'Behavioral Drift Detection', description: 'Detect when agent reasoning deviates from verified baselines. Catch "hallucinated intent" before it results in a blocked action.' },
   { icon: Download, title: 'Compliance Export Bundles', description: 'Framework mapping, gap analysis, evidence capture, and audit-ready exports for serious governance workflows.' },
-  { icon: SlidersHorizontal, title: 'Scoring Profiles', description: 'User-defined weighted quality scoring with auto-calibration from real data. Risk templates replace hardcoded agent risk numbers with transparent, editable rules.' },
-  { icon: DashClawLogo, title: 'Verified Agent Identity', description: 'Know which agent took which action. RSA signature verification ensures accountability at every step.' },
-  { icon: Brain, title: 'Keep Agent Memory Clean', description: 'Detect stale facts, repetition loops, and context bloat before they cause bad decisions, then sync the findings back into the platform.' },
+  { icon: SlidersHorizontal, title: 'Scoring Profiles', description: 'User-defined weighted quality scoring with auto-calibration from real data. Replace hardcoded agent risk numbers with transparent rules.' },
+  { icon: DashClawLogo, title: 'Verified Agent Identity', description: 'Know which agent took which action. RSA signature verification ensures accountability at every step of the decision lifecycle.' },
 ];
 
 export const corePrimitives = [
@@ -139,7 +137,7 @@ export const operationalFeatures = [
   { icon: Clock, title: 'Full Audit Trail', description: 'Every action is logged with actor, timestamp, and reasoning: ready for compliance audits and debugging.' },
   { icon: Compass, title: 'Ship in 10 Minutes', description: 'Four steps: create workspace, generate key, install SDK, send first action. That\'s it.' },
   { icon: Building2, title: 'Built for Multi-Tenant', description: 'Full org isolation out of the box. Each team gets their own agents, keys, and settings.' },
-  { icon: Terminal, title: '30+ CLI Tools', description: 'Run agent ops locally with Python CLI tools. Push results to the dashboard when you\'re ready.' },
+  { icon: Terminal, title: 'Infrastructure Tooling', description: 'Lightweight CLI tools for agent instrumentation, identity registration, and local policy testing.' },
 ];
 
 export const signals = [
@@ -153,55 +151,54 @@ export const signals = [
 ];
 
 export const agentToolCategories = [
-  { title: 'Learning & Decisions', desc: 'Log decisions, lessons, and outcomes. Track what worked and why.', example: 'learner.py log "Used JWT" --push' },
-  { title: 'Context & Handoffs', desc: 'Key points, threads, and session continuity documents.', example: 'context.py capture "Dark theme" --push' },
-  { title: 'Memory & Health', desc: 'Scan memory files, track entities, detect stale facts.', example: 'scanner.py scan ~/.agent/memory --push' },
-  { title: 'Goals & Relationships', desc: 'Goal milestones, contacts, interactions, and follow-ups.', example: 'goals.py add "Ship auth" --push' },
-  { title: 'Security & Audit', desc: 'Outbound content filtering, session isolation, audit logging.', example: 'outbound_filter.py scan message.txt --push' },
-  { title: 'Automation & Snippets', desc: 'Reusable code snippets with search, tags, and use tracking.', example: 'snippets.py add "retry logic" --push' },
+  { title: 'Policy & Guard', desc: 'Define, test, and enforce guard policies. Centralize governance logic.', example: 'claw.guard({ type: "deploy", risk: 85 })' },
+  { title: 'Decision Ledger', desc: 'Immutable record of every agent intent and outcome. Prove accountability.', example: 'claw.createAction({ goal: "Database cleanup" })' },
+  { title: 'Risk Monitoring', desc: 'Automatic detection of risky behavior patterns across your agent fleet.', example: 'signal: autonomy_spike detected for agent-1' },
+  { title: 'Compliance Evidence', desc: 'Mapping guard decisions to SOC 2 and ISO controls for audit readiness.', example: 'Generating cryptographically signed proof...' },
+  { icon: DashClawLogo, title: 'Verified Identity', desc: 'RSA signature verification ensures only trusted agents can interact with your systems.', example: 'Identity verified for agent: deploy-bot-4' },
 ];
 
 export const platformCoverage = [
   {
     icon: FolderKanban,
-    title: 'Control Plane + Dashboard',
-    description: 'Mission Control, onboarding, approval queue, fleet health, security posture, operator workflows, and role-based workspace management.',
-  },
-  {
-    icon: MessageSquare,
-    title: 'API + Data Layer',
-    description: 'Broad API coverage for governance, learning, messaging, routing, compliance, and workspace data with contract and maturity governance.',
+    title: 'Governance Control Plane',
+    description: 'Mission Control, onboarding, approval queue, fleet health, security posture, and role-based workspace management.',
   },
   {
     icon: Zap,
-    title: 'Realtime Runtime',
-    description: 'Realtime streams for actions, policies, tasks, and messages with SSE replay, reconnect handling, and live dashboard updates.',
+    title: 'Minimal Runtime API',
+    description: 'A focused, stable API namespace for decision governance, policies, and evidence capture with enforced boundary CI.',
+  },
+  {
+    icon: Radio,
+    title: 'Decision Integrity Signals',
+    description: 'Real-time streams for actions, policies, and anomalies with SSE replay, reconnect handling, and live dashboard updates.',
   },
   {
     icon: Package,
-    title: 'SDK + Tooling',
-    description: 'Node and Python SDKs, agent bootstrap flows, local CLI tooling, parity suites, and CI-backed docs and contract governance.',
+    title: 'Stable SDKs',
+    description: 'Node and Python SDKs optimized for the governance lifecycle with parity suites and CI-backed contract governance.',
   },
 ];
 
 export const shippedHighlights = [
   {
-    icon: Brain,
-    title: 'Agents That Learn From Their Mistakes',
-    description: 'Every completed action is scored and turned into recommendations. Your agents get better without manual retraining.',
-    href: '/learning',
+    icon: Shield,
+    title: 'Zero-Trust Agent Governance',
+    description: 'Intercept agent actions before they execute. Enforce organizational policies at the decision level, not the application level.',
+    href: '/docs',
   },
   {
     icon: DashClawLogo,
-    title: 'Data Layer You Can Trust',
-    description: 'SQL drift checks and contract tests run in CI. No silent regressions reach production.',
+    title: 'Infrastructure You Can Trust',
+    description: 'SQL drift checks and contract tests run in CI. No silent regressions reach production governance.',
     href: '/docs',
   },
   {
-    icon: MessageSquare,
-    title: 'APIs That Never Break Silently',
-    description: 'OpenAPI drift checks catch contract changes before they ship. Your integrations stay stable.',
-    href: '/docs',
+    icon: Scale,
+    title: 'Audit-Ready Decision Replays',
+    description: 'Visual causal chains of every governed action. Record assumptions and verify outcomes for a complete audit trail.',
+    href: '/decisions',
   },
   {
     icon: Package,
@@ -210,23 +207,17 @@ export const shippedHighlights = [
     href: '/docs',
   },
   {
-    icon: Clock,
-    title: 'Always-Fresh Recommendations',
-    description: 'Automated background jobs keep learning data current. No manual cron jobs to manage.',
-    href: '/learning',
+    icon: Webhook,
+    title: 'Operational Webhooks',
+    description: 'Integrate DashClaw alerts into your existing PagerDuty or Slack workflows. React to risk signals in real-time.',
+    href: '/webhooks',
   },
   {
     icon: Scale,
-    title: 'Compliance Without the Spreadsheets',
-    description: 'Map your guardrails to SOC 2, ISO 27001, GDPR, NIST AI RMF, and more. Generate audit-ready reports and live evidence on demand.',
+    title: 'Compliance Automation',
+    description: 'Map your guardrails to SOC 2, ISO 27001, GDPR, NIST AI RMF, and more. Generate audit-ready reports on demand.',
     href: '/docs#compliance-engine',
-  },
-  {
-    icon: Network,
-    title: 'The Right Agent for Every Task',
-    description: 'Tasks automatically route to the best-fit agent based on skills, load, and track record. Failed tasks retry and escalate.',
-    href: '/docs#task-routing',
   },
 ];
 
-/* ─── page ─── */
+/* ─── page ─── */

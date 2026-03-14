@@ -41,31 +41,8 @@ export default function NotificationCenter() {
   }, [permission]);
 
   useEffect(() => {
-    const checkAlerts = async () => {
-      try {
-        const tokenRes = await fetch('/api/tokens');
-        const tokenData = await tokenRes.json();
-
-        if (tokenData.dailyPct > 100) {
-          addNotification('error', `Token budget exceeded! ${tokenData.dailyPct.toFixed(0)}% of daily limit used.`, 'Token Alert');
-        } else if (tokenData.dailyPct > 75) {
-          addNotification('warning', `Token budget at ${tokenData.dailyPct.toFixed(0)}%. Consider conservation mode.`, 'Token Warning');
-        }
-
-        const relRes = await fetch('/api/relationships');
-        const relData = await relRes.json();
-
-        if (relData.stats?.followUpsDue > 0) {
-          addNotification('info', `You have ${relData.stats.followUpsDue} follow-up(s) due!`, 'Follow-up Reminder');
-        }
-      } catch (error) {
-        // Silently fail
-      }
-    };
-
-    checkAlerts();
-    const interval = setInterval(checkAlerts, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    // Background alert checks removed to maintain minimal governance runtime.
+    // Real-time governance signals are handled via the Security surface.
   }, [addNotification]);
 
   const markAllRead = () => {

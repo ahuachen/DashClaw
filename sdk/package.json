@@ -1,7 +1,7 @@
 {
   "name": "dashclaw",
-  "version": "2.0.3",
-  "description": "Full-featured agent toolkit for the DashClaw platform. 178+ methods across 30+ categories for governance and orchestration.",
+  "version": "2.1.0",
+  "description": "Minimal governance runtime for AI agents. Intercept, govern, and verify agent actions.",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -18,16 +18,15 @@
     "dashclaw.js",
     "index.cjs",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "legacy/"
   ],
   "keywords": [
     "ai-agent",
     "decision-infrastructure",
-    "agent-toolkit",
-    "dashclaw",
-    "action-recording",
-    "context-management",
-    "security-scanning"
+    "agent-governance",
+    "guardrails",
+    "dashclaw"
   ],
   "author": "DashClaw",
   "license": "MIT",

@@ -1,72 +1,50 @@
 # DashClaw Capability Classification
 
-This document defines the DashClaw product taxonomy. Every capability, route, and SDK method must be assigned to one of these four tiers to maintain focus on **Agent Decision Governance**.
+This document defines the DashClaw product taxonomy. DashClaw is organized into a focused governance runtime with modular extensions.
 
 ---
 
-## Tier 1 — Core (The Product)
-**Rule:** Participates directly in the lifecycle of a governed decision (Intent → Policy → Risk → Approval → Evidence).
+## Tier 1: Core Runtime (`app/(core)`)
+**Rule:** Participates directly in the lifecycle of a governed decision.
 
-| Capability | SDK Golden Path | API Routes | UI Surface |
-|------------|-----------------|------------|------------|
+| Capability | SDK Golden Path | API Namespace | UI Surface |
+|------------|-----------------|---------------|------------|
 | **Policy Engine** | `guard()` | `/api/guard` | Policies |
 | **Action Recording** | `createAction()` | `/api/actions` | Decisions |
-| **Outcome Tracking** | `updateOutcome()` | `/api/actions/[id]` | Replay |
-| **Assumption Ledger** | `recordAssumption()` | `/api/actions/assumptions` | Assumptions |
-| **Approval Gating** | `requestApproval()` | `/api/actions/[id]/approve` | Approvals |
-| **Risk Signals** | `emitSignal()` | `/api/actions/signals` | Signals |
-| **Decision Evidence** | `getProof()` | `/api/policies/proof` | Compliance / Audit |
+| **Approval Gating** | `waitForApproval()` | `/api/approvals` | Approvals |
+| **Assumption Ledger** | `recordAssumption()` | `/api/assumptions` | Decisions |
+| **Risk Signals** | `getSignals()` | `/api/signals` | Mission Control |
+| **Fleet Health** | -- | `/api/health` | Mission Control |
 
 ---
 
-## Tier 2 — Supporting (Infrastructure)
-**Rule:** Supports the operation, integration, or observability of the governance runtime.
+## Tier 2: Extensions (`app/(extensions)`)
+**Rule:** Modular operational intelligence. Not required for core governance.
 
-| Capability | SDK Infrastructure | API Routes | UI Surface |
-|------------|--------------------|------------|------------|
-| **Agent Registry** | `registerAgent()` | `/api/agents` | Agents |
-| **Fleet Presence** | `heartbeat()` | `/api/agents/[id]` | Mission Control |
-| **Operational Feed** | `emitTelemetry()` | `/api/activity` | Activity |
-| **Identity & Auth** | `verifySignature()` | `/api/api-keys` | API Keys / Team |
-| **Usage & Billing** | `trackUsage()` | `/api/tokens` | Usage |
-| **Connectivity** | -- | `/api/webhooks` | Webhooks / Integrations |
-
----
-
-## Tier 3 — Experimental (Expansion)
-**Rule:** Explores adjacent territory (AI safety research, labs) but is not required for decision governance.
-
-| Capability | Focus | Status | UI Location |
-|------------|-------|--------|-------------|
-| **Swarm Intel** | Multi-agent communication maps | Beta | Labs (Swarm) |
-| **Learning Loops** | Performance improvement over time | Research | Labs (Learning) |
-| **Prompt Tracking** | Prompt versioning and version diffs | Research | Labs (Prompts) |
-| **Quality Scoring** | Multi-dimensional quality metrics | Beta | Labs (Scoring) |
-| **Evaluations** | LLM-as-judge scoring | Research | Labs (Evals) |
-| **Task Routing** | Agent capability matchmaking | Alpha | Labs (Routing) |
+| Extension | Focus | API Namespace |
+|-----------|-------|---------------|
+| **Compliance** | Audit evidence and SOC 2 reporting | `/api/compliance` |
+| **Drift** | Detection of reasoning and metric drift | `/api/drift` |
+| **Evaluations** | LLM-as-judge accuracy scoring | `/api/evaluations` |
+| **Prompts** | Versioning and governance of agent prompts | `/api/prompts` |
+| **Scoring** | Multi-dimensional risk profiles | `/api/scoring` |
+| **Webhooks** | Event-driven notifications | `/api/webhooks` |
 
 ---
 
-## Tier 4 — Legacy (Archives)
-**Rule:** Historical artifacts from previous product directions. Hidden from UI, deprecated in SDK.
+## Tier 3: Archived (`app/(archive)`)
+**Rule:** Historical features from the "Agent Platform" era. Physically isolated to prevent bloat.
 
-| Capability | Status | Migration Path |
-|------------|--------|----------------|
-| **Goals System** | Legacy | Use Action Intent |
-| **Workspace/Docs** | Legacy | Use Activity Stream |
-| **Messages** | Legacy | Use Agent Handoffs |
-| **Calendar** | Legacy | None |
-| **Bug Hunter** | Legacy | None |
+- **Messaging:** Agent-to-agent communication.
+- **Workspace:** Calendar, Goals, Relationships, and Task lists.
+- **Orchestration:** Swarm mapping, Workflow SOPs, and Routing.
+- **Intelligence:** Learning loops and Memory maintenance.
 
 ---
 
-## The Classification Test (Decision Tree)
+## The Category Test
 
-1. **Does it directly affect or record an agent decision?**
-   - YES → **Tier 1: Core**
-2. **Does it help operate or integrate DashClaw?**
-   - YES → **Tier 2: Supporting**
-3. **Is it exploring future platform capabilities?**
-   - YES → **Tier 3: Experimental**
-4. **Is it a productivity or general workspace tool?**
-   - YES → **Tier 4: Legacy** (Archive)
+1. **Does it block an agent?** &rarr; **CORE**
+2. **Does it record a decision?** &rarr; **CORE**
+3. **Does it analyze decisions?** &rarr; **EXTENSION**
+4. **Does it help agents "work"?** &rarr; **ARCHIVED**

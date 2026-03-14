@@ -455,7 +455,7 @@ export async function middleware(request) {
         return demoJson(request, demoListActions(fixtures, url));
       }
 
-      if (pathname === '/api/actions/signals') {
+      if (pathname === '/api/actions/signals' || pathname === '/api/signals') {
         const agentId = url.searchParams.get('agent_id');
         const signals = agentId ? fixtures.signals.filter(s => s.agent_id === agentId) : fixtures.signals;
         return demoJson(request, {

@@ -25,29 +25,69 @@
 
 ## Why DashClaw Exists
 
-AI agents don't just generate text — they execute actions.
+AI agents don't just generate text — they execute actions. They deploy code, modify databases, and interact with production systems.
 
-They deploy code, modify databases, call APIs, and interact with production systems.
-
-Traditional observability tools can show **what happened after the fact**.
-
-But they can't answer the most important question:
-
-**Why was the agent allowed to do that?**
-
-DashClaw sits between agents and the systems they interact with.
-
-Every agent action is intercepted, evaluated against guard policies, and recorded with verifiable decision evidence.
+DashClaw provides the **minimal governance infrastructure** to intercept these actions before they happen.
 
 ---
 
-## The Decision Lifecycle
+## The Minimal Governance Loop
 
-DashClaw provides the runtime infrastructure to govern autonomous agents:
+DashClaw sits between your agents and your systems:
 
-1. **Declared Intent** — Agents declare what they want to do via the SDK.
-2. **Policy Evaluation** — Every intent is checked against your organization's guard policies.
-3. **Outcome Gating** — Decisions are **Allowed**, **Blocked**, or sent for **Human Approval**.
+1. **Guard** &rarr; `claw.guard()` checks intent against policy.
+2. **Record** &rarr; `claw.createAction()` logs the attempt.
+3. **Verify** &rarr; `claw.recordAssumption()` tracks the "why" to detect reasoning drift.
+4. **Outcome** &rarr; `claw.updateOutcome()` records the final evidence.
+
+---
+
+## Quick Start (Node.js)
+
+```bash
+npm install dashclaw
+```
+
+```javascript
+import { DashClaw } from 'dashclaw';
+
+const claw = new DashClaw({
+  baseUrl: process.env.DASHCLAW_BASE_URL,
+  apiKey: process.env.DASHCLAW_API_KEY,
+  agentId: 'my-agent'
+});
+
+// 1. Ask for permission
+const decision = await claw.guard({ 
+  action_type: 'deploy', 
+  risk_score: 85 
+});
+
+// 2. Record the action
+const action = await claw.createAction({
+  action_type: 'deploy',
+  declared_goal: 'Deploying latest build'
+});
+
+// 3. Record the result
+await claw.updateOutcome(action.action_id, { 
+  status: 'completed' 
+});
+```
+
+---
+
+## Minimal SDK Surface (v2)
+
+DashClaw v2 is optimized for first-time adoption with only **5 core methods**:
+
+*   `guard(context)` — Policy evaluation ("Can I do X?")
+*   `createAction(action)` — Lifecycle tracking ("I am doing X")
+*   `updateOutcome(id, outcome)` — Result recording ("X finished with Y")
+*   `recordAssumption(assumption)` — Integrity tracking ("I believe Z while doing X")
+*   `waitForApproval(id)` — Polling helper for human-in-the-loop
+
+Legacy features (Calendar, Messages, Workflows) have been moved to **Extensions**.
 4. **Verifiable Evidence** — Cryptographically signed decision replays are recorded for audit.
 
 ---

@@ -4,9 +4,8 @@ import { agents as featureAgents, actions as featureActions } from './fixtures/f
 import { agents as personaAgents, actions as personaActions } from './fixtures/persona-agents.js';
 import { agents as realisticAgents, actions as realisticActions } from './fixtures/realistic-agents.js';
 import { agents as backgroundAgents, actions as backgroundActions } from './fixtures/background-agents.js';
-import { threads as tutorialThreads, messages as tutorialMessages, sharedDocs as tutorialSharedDocs } from './fixtures/tutorial-threads.js';
-import { handoffs as tutorialHandoffs } from './fixtures/tutorial-handoffs.js';
 import { assumptions as tutorialAssumptions } from './fixtures/tutorial-assumptions.js';
+import { handoffs as tutorialHandoffs } from './fixtures/tutorial-handoffs.js';
 import { policies as guardPolicies, guardDecisions as guardDecisionsData } from './fixtures/guard-fixtures.js';
 import { complianceData } from './fixtures/compliance-fixtures.js';
 
@@ -15,7 +14,7 @@ let _cached = null;
 function buildFixtures() {
   const rnd = lcg(0xD15C1A57);
 
-  // ── Merge agents and actions from all modules ──
+  // ── Governance Core: Agents and Actions ──
   const agents = [
     ...journeyAgents,
     ...featureAgents,
@@ -32,19 +31,17 @@ function buildFixtures() {
     ...backgroundActions,
   ];
 
-  const actionTypes = ['deploy', 'research', 'security', 'message', 'build', 'review', 'monitor', 'fix', 'sync', 'test'];
-
-  // ── Loops ──
+  // ── Governance Primitives: Loops and Assumptions ──
   const loops = Array.from({ length: 10 }).map((_, i) => {
     const action = pick(rnd, actions);
-    const loopType = pick(rnd, ['followup', 'question', 'dependency', 'approval', 'review', 'handoff']);
-    const priority = pick(rnd, ['low', 'medium', 'high', 'critical']);
+    const loopType = pick(rnd, ['approval', 'review', 'dependency']);
+    const priority = pick(rnd, ['high', 'critical']);
     return {
       org_id: DEMO_ORG,
       loop_id: stableId('loop_demo', i + 1),
       action_id: action.action_id,
       loop_type: loopType,
-      description: `${loopType}: ${pick(rnd, ['confirm results', 'get approval', 'validate assumption', 'coordinate rollout', 'review logs'])}`,
+      description: `${loopType}: ${pick(rnd, ['get approval', 'validate integrity', 'coordinate rollout', 'review security logs'])}`,
       status: 'open',
       priority,
       owner: null,
@@ -58,49 +55,47 @@ function buildFixtures() {
     };
   });
 
-  // ── Assumptions (from tutorial module) ──
   const assumptions = tutorialAssumptions;
 
-  // ── Decisions ──
+  // ── Governance Decisions ──
   const decisions = Array.from({ length: 18 }).map((_, i) => {
     const agent = pick(rnd, agents);
-    const outcome = pick(rnd, ['success', 'failure', 'pending', 'mixed']);
+    const outcome = pick(rnd, ['success', 'failure', 'pending']);
     const minutesAgo = 30 + i * 17;
     return {
       id: stableId('dec_demo', i + 1),
       org_id: DEMO_ORG,
       agent_id: agent.agent_id,
       decision: pick(rnd, [
-        'Switch to canonical JSON signing to prevent drift.',
         'Require pairing approvals for verified agents.',
         'Throttle risky actions behind HITL.',
         'Prefer read-only scopes for integrations by default.',
-        'Enable replay window for SSE.',
+        'Policy block: risk score exceeded threshold.',
+        'Decision allowed: context verified by operator.',
       ]),
       context: pick(rnd, [
-        'Observed inconsistent signatures across SDKs.',
-        'New user onboarding needs to be painless.',
-        'Auditability is a must for production agents.',
+        'Production environment access requested.',
+        'High risk score detected (85).',
+        'Auditability is mandatory for this scope.',
         '',
       ]),
       reasoning: null,
       outcome,
       confidence: int(rnd, 45, 95),
       timestamp: isoFromNow(minutesAgo * 60 * 1000),
-      tags: pick(rnd, ['security,signing', 'onboarding,ux', 'reliability,sse', 'governance,hitl', '']),
+      tags: pick(rnd, ['security', 'governance', 'reliability', 'compliance']),
     };
   });
 
-  // ── Lessons ──
+  // ── Governance Lessons ──
   const lessons = Array.from({ length: 10 }).map((_, i) => ({
     id: stableId('les_demo', i + 1),
     org_id: DEMO_ORG,
     lesson: pick(rnd, [
-      'Sign canonical JSON, not raw JSON.stringify output.',
       'Pairing beats manual key upload for beginners.',
-      'Block writes in demo mode to avoid leaking secrets.',
-      'Make server env vs agent env painfully explicit.',
       'Bulk approvals are essential for 50+ agents.',
+      'Explicit risk scoring prevents autonomy spikes.',
+      'Decision evidence must be immutable.',
     ]),
     confidence: int(rnd, 65, 96),
     times_validated: int(rnd, 0, 12),
@@ -108,1159 +103,141 @@ function buildFixtures() {
     timestamp: isoFromNow((12 + i * 29) * 60 * 1000),
   }));
 
-  // ── Goals ──
-  const goals = Array.from({ length: 6 }).map((_, i) => ({
-    id: stableId('goal_demo', i + 1),
-    org_id: DEMO_ORG,
-    title: pick(rnd, [
-      'Bring 50 agents online safely',
-      'Reduce invalid signatures to zero',
-      'Ship demo mode without a database',
-      'Add local admin login for self-host',
-      'Add pairing inbox + approve all',
-      'Improve guard policy explainability',
-    ]),
-    progress: int(rnd, 10, 95),
-    status: 'active',
-    cost_estimate: Math.round((rnd() * 35) * 100) / 100,
-    created_at: isoFromNow(int(rnd, 1, 14) * 24 * 60 * 60 * 1000),
-    agent_id: null,
-    milestones: [],
-    total_cost: Math.round((rnd() * 35) * 100) / 100,
-  }));
+  // ── PRUNED: Tier 4 Legacy Arrays ──
+  const goals = [];
+  const contacts = [];
+  const interactions = [];
+  const events = [];
+  const ideas = [];
+  const tokenHistory = [];
+  const tokensCurrent = null;
+  const tokensToday = { estimatedCost: 0 };
+  const content = [];
+  const messageThreads = [];
+  const sharedDocs = [];
+  const messages = [];
+  const contextPoints = [];
+  const contextThreads = [];
+  const contextEntries = [];
+  const snippets = [];
+  const preferences = { preferences: [], recent_moods: [], top_approaches: [] };
+  const workflows = [];
+  const executions = [];
+  const schedules = [];
+  const webhooks = [];
+  const webhookDeliveries = {};
+  const activityLogs = [];
 
-  // ── Contacts ──
-  const contacts = Array.from({ length: 10 }).map((_, i) => {
-    const daysAhead = int(rnd, -2, 10);
-    const due = new Date(BASE_NOW + daysAhead * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    return {
-      id: stableId('ct_demo', i + 1),
-      name: pick(rnd, ['Alex', 'Morgan', 'Sam', 'Riley', 'Jordan', 'Taylor', 'Casey', 'Jamie']) + ` ${pick(rnd, ['K.', 'S.', 'L.', 'R.'])}`,
-      platform: pick(rnd, ['email', 'slack', 'discord', 'github']),
-      temperature: pick(rnd, ['HOT', 'WARM', 'COLD']),
-      context: pick(rnd, ['Pilot customer', 'Security review', 'Integration help', 'Feedback loop']),
-      lastContact: isoFromNow(int(rnd, 1, 20) * 24 * 60 * 60 * 1000),
-      interactions: int(rnd, 0, 12),
-      followUpDate: rnd() > 0.3 ? due : null,
-    };
-  });
-
-  // ── Events ──
-  const events = Array.from({ length: 6 }).map((_, i) => {
-    const hoursAhead = 2 + i * 18;
-    const start = isoInFuture(hoursAhead * 60 * 60 * 1000);
-    const end = isoInFuture((hoursAhead * 60 + 45) * 60 * 1000);
-    return {
-      id: stableId('evt_demo', i + 1),
-      summary: pick(rnd, ['Release window', 'Security review', 'Ops sync', 'Incident drill', 'Pairing approvals batch']),
-      start_time: start,
-      end_time: end,
-      location: pick(rnd, ['Zoom', 'HQ', 'Discord', '']),
-      description: null,
-    };
-  });
-
-  // ── Ideas ──
-  const ideas = Array.from({ length: 10 }).map((_, i) => {
-    const fun = int(rnd, 4, 10);
-    const learn = int(rnd, 4, 10);
-    const income = int(rnd, 4, 10);
-    return {
-      id: stableId('idea_demo', i + 1),
-      title: pick(rnd, ['Agent pairing QR', 'Guardrail templates', 'Fleet heatmap', 'One-click self-host', 'Audit export']),
-      description: pick(rnd, ['Make onboarding instant.', 'Reduce support burden.', 'Make risks visible.', 'Make it fun to explore.']),
-      fun_factor: fun,
-      learning_potential: learn,
-      income_potential: income,
-      score: fun + learn + income,
-      status: pick(rnd, ['pending', 'shipped']),
-      category: pick(rnd, ['product', 'security', 'ux', 'ops']),
-      source: 'demo',
-      captured_at: isoFromNow(int(rnd, 1, 30) * 24 * 60 * 60 * 1000),
-    };
-  });
-
-  // ── Interactions ──
-  const interactions = Array.from({ length: 10 }).map((_, i) => {
-    const agent = pick(rnd, agents);
-    const minutesAgo = 90 + i * 53;
-    return {
-      id: stableId('ix_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: agent.agent_id,
-      contact_name: pick(rnd, ['Alex', 'Morgan', 'Sam', 'Riley', 'Jordan', 'Taylor']),
-      summary: pick(rnd, [
-        'Followed up on onboarding blockers.',
-        'Scheduled a pilot walkthrough.',
-        'Clarified base URL vs demo.',
-        'Reviewed pairing flow and approval inbox.',
-      ]),
-      direction: pick(rnd, ['outbound', 'inbound']),
-      created_at: isoFromNow(minutesAgo * 60 * 1000),
-    };
-  });
-
-  // ── Token analytics ──
-  const tokenHistory = Array.from({ length: 7 }).map((_, i) => {
-    const dayAgo = 6 - i;
-    const date = new Date(BASE_NOW - dayAgo * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const tokensIn = int(rnd, 20_000, 120_000);
-    const tokensOut = int(rnd, 15_000, 90_000);
-    const totalTokens = tokensIn + tokensOut;
-    return {
-      date,
-      tokensIn,
-      tokensOut,
-      totalTokens,
-      snapshots: int(rnd, 10, 120),
-      estimatedCost: Math.round((0.2 + rnd() * 6) * 100) / 100,
-    };
-  });
-
-  const tokensCurrent = {
-    tokensIn: int(rnd, 200, 3500),
-    tokensOut: int(rnd, 150, 2400),
-    compactions: int(rnd, 0, 8),
-    model: pick(rnd, ['gpt-4o-mini', 'gpt-4o', 'claude-3.5-sonnet', 'o3-mini']),
-    session: 'demo',
-    agentId: null,
-    updatedAt: isoFromNow(int(rnd, 1, 8) * 60 * 1000),
-  };
-
-  const tokensToday = {
-    date: new Date(BASE_NOW).toISOString().slice(0, 10),
-    tokensIn: int(rnd, 10_000, 80_000),
-    tokensOut: int(rnd, 10_000, 65_000),
-    totalTokens: 0,
-    snapshots: int(rnd, 25, 180),
-    estimatedCost: Math.round((0.2 + rnd() * 4.5) * 100) / 100,
-  };
-  tokensToday.totalTokens = tokensToday.tokensIn + tokensToday.tokensOut;
-
-  // ── Content ──
-  const content = Array.from({ length: 14 }).map((_, i) => {
-    const agent = pick(rnd, agents);
-    const platform = pick(rnd, ['Docs', 'LinkedIn', 'Twitter', 'Blog', 'Internal']);
-    const status = pick(rnd, ['draft', 'published']);
-    return {
-      id: stableId('cnt_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: agent.agent_id,
-      title: pick(rnd, [
-        'Swarm map: what it means',
-        'Why verified agents matter',
-        'How approvals stop bad deploys',
-        'Demo mode architecture overview',
-        'Runbooks: guardrails that stick',
-      ]) + ` (#${i + 1})`,
-      platform,
-      status,
-      url: rnd() > 0.6 ? `https://example.com/post/${i + 1}` : null,
-      body: null,
-      created_at: isoFromNow(int(rnd, 2, 240) * 60 * 1000),
-    };
-  });
-
-  // ── Policies & Guard Decisions (from guard module) ──
+  // ── Governance Setup and Infrastructure ──
   const policies = guardPolicies;
   const guardDecisions = guardDecisionsData;
-
-  // ── Messages & Threads (from tutorial module) ──
-  const messageThreads = tutorialThreads;
-  const sharedDocs = tutorialSharedDocs;
-  const messages = tutorialMessages;
-
-  // ── Context points ──
-  const contextPoints = Array.from({ length: 14 }).map((_, i) => {
-    const agent = rnd() > 0.5 ? pick(rnd, agents).agent_id : null;
-    const importance = int(rnd, 2, 10);
-    const createdAt = isoFromNow((30 + i * 41) * 60 * 1000);
-    return {
-      id: stableId('cp_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: agent,
-      content: pick(rnd, [
-        'Prefer one-click pairing to avoid PEM confusion.',
-        'Demo mode must be read-only and must not accept secrets.',
-        'Treat base URL vs API key as separate mental models.',
-        'Bulk approvals are required for fleet onboarding.',
-      ]),
-      category: pick(rnd, ['insight', 'decision', 'task', 'question', 'general']),
-      importance,
-      session_date: createdAt.slice(0, 10),
-      created_at: createdAt,
-    };
-  });
-
-  // ── Context threads ──
-  const contextThreads = Array.from({ length: 4 }).map((_, i) => {
-    const agent = rnd() > 0.5 ? pick(rnd, agents).agent_id : null;
-    const createdAt = isoFromNow((400 + i * 120) * 60 * 1000);
-    const updatedAt = isoFromNow((40 + i * 30) * 60 * 1000);
-    return {
-      id: stableId('cth_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: agent,
-      name: pick(rnd, ['Onboarding', 'Guardrails', 'Swarm', 'Incidents']) + ` Thread ${i + 1}`,
-      summary: pick(rnd, [
-        'Tracking decisions and follow-ups.',
-        'Notes on reliability and controls.',
-        'Open questions and next steps.',
-      ]),
-      status: rnd() > 0.25 ? 'active' : 'closed',
-      created_at: createdAt,
-      updated_at: updatedAt,
-    };
-  });
-
-  // ── Context entries ──
-  const contextEntries = [];
-  for (let i = 0; i < contextThreads.length; i++) {
-    const t = contextThreads[i];
-    const n = 3 + (i % 3);
-    for (let j = 0; j < n; j++) {
-      contextEntries.push({
-        id: stableId('ce_demo', contextEntries.length + 1),
-        org_id: DEMO_ORG,
-        thread_id: t.id,
-        content: pick(rnd, [
-          'Decision: ship demo as real UI with fixture APIs.',
-          'Open loop: add SDK helper pairIfNeeded().',
-          'Assumption: users will self-host; keep costs user-owned.',
-          'Lesson: block writes in demo mode to prevent secret ingestion.',
-        ]),
-        created_at: isoFromNow((300 + j * 25 + i * 70) * 60 * 1000),
-      });
-    }
-  }
-
-  // ── Handoffs (from tutorial module) ──
   const handoffs = tutorialHandoffs;
 
-  // ── Snippets ──
-  const snippets = Array.from({ length: 10 }).map((_, i) => {
-    const createdAt = isoFromNow((900 + i * 140) * 60 * 1000);
-    const tags = [pick(rnd, ['onboarding', 'security', 'guard', 'sse', 'pairing']), pick(rnd, ['sdk', 'ui', 'ops', 'docs'])];
-    return {
-      id: stableId('sn_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: rnd() > 0.6 ? pick(rnd, agents).agent_id : null,
-      name: pick(rnd, ['pairIfNeeded', 'createAction', 'guard', 'webhookVerify', 'sseSubscribe']) + `_${i + 1}`,
-      description: pick(rnd, ['Common pattern', 'Safe default', 'Ops snippet', 'Template']),
-      code: [
-        '// Demo snippet',
-        'export function example() {',
-        '  return "hello";',
-        '}',
-      ].join('\n'),
-      language: pick(rnd, ['javascript', 'typescript', 'python']),
-      tags: JSON.stringify(tags),
-      use_count: int(rnd, 0, 42),
-      created_at: createdAt,
-    };
-  });
-
-  // ── Preferences ──
-  const preferences = {
-    observations_count: 12,
-    preferences: [
-      { id: stableId('up_demo', 1), preference: 'Prefer clear, copy/paste instructions', category: 'docs', confidence: 90, created_at: isoFromNow(6 * 60 * 60 * 1000) },
-      { id: stableId('up_demo', 2), preference: 'Default to read-only demo safety', category: 'security', confidence: 85, created_at: isoFromNow(12 * 60 * 60 * 1000) },
-    ],
-    recent_moods: [
-      { id: stableId('um_demo', 1), mood: 'focused', energy: 7, notes: null, created_at: isoFromNow(2 * 60 * 60 * 1000) },
-      { id: stableId('um_demo', 2), mood: 'stressed', energy: 5, notes: 'Onboarding friction detected', created_at: isoFromNow(26 * 60 * 60 * 1000) },
-    ],
-    top_approaches: [
-      { id: stableId('ua_demo', 1), approach: 'Ship the simplest safe thing', context: 'demo mode', success_count: 8, fail_count: 1, created_at: isoFromNow(10 * 24 * 60 * 60 * 1000), updated_at: isoFromNow(2 * 24 * 60 * 60 * 1000) },
-      { id: stableId('ua_demo', 2), approach: 'One-click over docs', context: 'pairing', success_count: 6, fail_count: 0, created_at: isoFromNow(18 * 24 * 60 * 60 * 1000), updated_at: isoFromNow(1 * 24 * 60 * 60 * 1000) },
-    ],
-  };
-
-  // ── Workflows ──
-  const workflows = Array.from({ length: 6 }).map((_, i) => {
-    const enabled = rnd() > 0.25 ? 1 : 0;
-    const runCount = int(rnd, 0, 55);
-    const lastRun = runCount ? isoFromNow(int(rnd, 10, 800) * 60 * 1000) : null;
-    const steps = Array.from({ length: int(rnd, 3, 9) }).map((__, j) => pick(rnd, ['scan', 'guard', 'approve', 'deploy', 'verify', 'notify', 'rollback']) + `_${j + 1}`);
-    return {
-      id: stableId('wf_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: rnd() > 0.6 ? pick(rnd, agents).agent_id : null,
-      name: pick(rnd, ['Release', 'Security Audit', 'Daily Digest', 'Webhook Test', 'Fleet Sync']) + ` ${i + 1}`,
-      description: pick(rnd, ['Automated chain', 'Ops workflow', 'Safety-first run', 'Maintenance']),
-      enabled,
-      steps: JSON.stringify(steps),
-      run_count: runCount,
-      last_run: lastRun,
-    };
-  });
-
-  // ── Executions ──
-  const executions = Array.from({ length: 14 }).map((_, i) => {
-    const wf = pick(rnd, workflows);
-    const total = int(rnd, 3, 9);
-    const completed = int(rnd, 0, total);
-    const status = completed === total ? (rnd() > 0.15 ? 'success' : 'failed') : 'running';
-    return {
-      id: stableId('ex_demo', i + 1),
-      org_id: DEMO_ORG,
-      agent_id: wf.agent_id,
-      workflow_id: wf.id,
-      workflow_name: wf.name,
-      status,
-      steps_completed: completed,
-      total_steps: total,
-      started_at: isoFromNow((10 + i * 37) * 60 * 1000),
-      error: status === 'failed' ? 'Step 3 failed: permission denied (demo)' : null,
-    };
-  });
-
-  // ── Schedules ──
-  const schedules = Array.from({ length: 6 }).map((_, i) => {
-    const wf = workflows[i % workflows.length];
-    return {
-      id: stableId('sj_demo', i + 1),
-      org_id: DEMO_ORG,
-      workflow_name: wf.name,
-      schedule: pick(rnd, ['0 * * * *', '*/15 * * * *', '0 9 * * 1-5', '0 0 * * 0']),
-      description: pick(rnd, ['Runs periodically', 'Ops cadence', 'Weekly maintenance', 'Alert sweep']),
-      enabled: rnd() > 0.2 ? 1 : 0,
-      next_run: isoInFuture((30 + i * 45) * 60 * 1000),
-      run_count: int(rnd, 0, 120),
-    };
-  });
-
-  // ── Webhooks ──
-  const webhooks = Array.from({ length: 3 }).map((_, i) => {
-    const createdAt = isoFromNow((1200 + i * 220) * 60 * 1000);
-    const whEvents = rnd() > 0.5 ? ['all'] : [pick(rnd, ['high_impact_low_oversight', 'repeated_failures', 'stale_loop'])];
-    return {
-      id: `wh_demo_${String(i + 1).padStart(3, '0')}`,
-      org_id: DEMO_ORG,
-      url: `https://hooks.example.com/dashclaw/${i + 1}`,
-      masked_val: `************************${String(int(rnd, 1000, 9999))}`,
-      events: JSON.stringify(whEvents),
-      active: rnd() > 0.2 ? 1 : 0,
-      failure_count: int(rnd, 0, 4),
-      last_triggered_at: isoFromNow(int(rnd, 5, 900) * 60 * 1000),
-      created_at: createdAt,
-      created_by: 'demo_user',
-    };
-  });
-
-  // ── Webhook deliveries ──
-  const webhookDeliveries = {};
-  for (const wh of webhooks) {
-    webhookDeliveries[wh.id] = Array.from({ length: int(rnd, 3, 10) }).map((_, i) => ({
-      id: stableId('wd_demo', int(rnd, 1, 9999)) + `_${wh.id}`,
-      org_id: DEMO_ORG,
-      webhook_id: wh.id,
-      event_type: pick(rnd, ['test', 'high_impact_low_oversight', 'repeated_failures', 'stale_loop']),
-      status: rnd() > 0.2 ? 'success' : 'failed',
-      response_status: pick(rnd, [200, 200, 204, 500, 502]),
-      attempted_at: isoFromNow((8 + i * 45) * 60 * 1000),
-      duration_ms: int(rnd, 40, 900),
-    }));
-  }
-
-  // ── Activity logs ──
-  const activityLogs = Array.from({ length: 90 }).map((_, i) => {
-    const actorType = pick(rnd, ['user', 'system', 'api_key', 'cron']);
-    const actorId = actorType === 'user' ? 'demo_user' : actorType === 'api_key' ? 'ak_demo_001' : actorType;
-    const action = pick(rnd, [
-      'key.created', 'invite.created', 'invite.revoked', 'role.changed',
-      'webhook.created', 'webhook.deleted', 'webhook.tested',
-      'signal.detected', 'alert.email_sent',
-      'action.allowed', 'action.denied',
-    ]);
-    const createdAt = isoFromNow((2 + i * 13) * 60 * 1000);
-    const details = JSON.stringify({ demo: true, note: pick(rnd, ['seeded', 'simulated', 'fixture']) });
-    return {
-      id: stableId('al_demo', i + 1),
-      org_id: DEMO_ORG,
-      actor_id: actorId,
-      actor_type: actorType,
-      actor_name: actorType === 'user' ? 'Demo Viewer' : null,
-      actor_image: null,
-      action,
-      resource_type: pick(rnd, ['webhook', 'invite', 'action', 'policy', 'key']),
-      resource_id: pick(rnd, [stableId('act_demo', int(rnd, 1, 220)), webhooks[0].id, policies[0].id]),
-      details,
-      ip_address: '203.0.113.10',
-      created_at: createdAt,
-    };
-  });
-
-  // ── Team ──
   const teamOrg = {
     id: DEMO_ORG,
-    name: 'Demo Workspace',
+    name: 'Demo Governance Workspace',
     plan: 'open_source',
     created_at: isoFromNow(60 * 24 * 60 * 60 * 1000),
   };
 
   const teamMembers = [
-    { id: 'demo_user', email: 'demo@dashclaw.io', name: 'Demo Viewer', image: null, role: 'admin' },
-    { id: 'usr_demo_002', email: 'ops@example.com', name: 'Ops Lead', image: null, role: 'admin' },
-    { id: 'usr_demo_003', email: 'security@example.com', name: 'Security', image: null, role: 'member' },
-    { id: 'usr_demo_004', email: 'eng@example.com', name: 'Engineer', image: null, role: 'member' },
-  ].map((m, i) => ({
-    ...m,
-    org_id: DEMO_ORG,
-    created_at: isoFromNow((80 + i * 300) * 60 * 1000),
-    last_login_at: isoFromNow(int(rnd, 2, 4000) * 60 * 1000),
-    is_self: m.id === 'demo_user',
-  }));
-
-  const teamInvites = Array.from({ length: 2 }).map((_, i) => ({
-    id: `inv_demo_${String(i + 1).padStart(3, '0')}`,
-    email: i === 0 ? 'new.user@example.com' : null,
-    role: i === 0 ? 'member' : 'admin',
-    status: 'pending',
-    expires_at: isoInFuture((12 + i * 36) * 60 * 60 * 1000),
-    created_at: isoFromNow((180 + i * 90) * 60 * 1000),
-  }));
-
-  // ── Usage ──
-  const usage = {
-    plan: 'open_source',
-    limits: {
-      actions_per_month: Infinity,
-      agents: Infinity,
-      members: Infinity,
-      api_keys: Infinity,
-    },
-    usage: {
-      actions_per_month: actions.length,
-      agents: agents.length,
-      members: 4,
-      api_keys: 3,
-    },
-    subscription: {
-      status: 'n/a',
-      current_period_end: null,
-      trial_ends_at: null,
-      has_stripe: false,
-    },
-    stripe_configured: false,
-  };
-
-  // ── Settings ──
-  const settings = [
-    { key: 'OPENAI_API_KEY', hasValue: true },
-    { key: 'ANTHROPIC_API_KEY', hasValue: true },
-    { key: 'GITHUB_TOKEN', hasValue: false },
-    { key: 'SLACK_BOT_TOKEN', hasValue: false },
-    { key: 'DISCORD_BOT_TOKEN', hasValue: true },
-    { key: 'RESEND_API_KEY', hasValue: false },
-    { key: 'LINEAR_API_KEY', hasValue: false },
-    { key: 'CLOUDFLARE_API_TOKEN', hasValue: false },
-  ].map((s, i) => ({
-    id: i + 1,
-    org_id: DEMO_ORG,
-    agent_id: null,
-    key: s.key,
-    value: s.hasValue ? '****' : null,
-    category: 'integration',
-    encrypted: true,
-    updated_at: isoFromNow(int(rnd, 5, 500) * 60 * 1000),
-    is_inherited: false,
-    hasValue: s.hasValue,
-  }));
-
-  // ── Connections ──
-  const connections = [
-    { agent_id: 'agent_01', provider: 'github', status: 'active', auth_type: 'oauth' },
-    { agent_id: 'agent_02', provider: 'slack', status: 'inactive', auth_type: 'api_key' },
-    { agent_id: 'agent_03', provider: 'neon', status: 'active', auth_type: 'environment' },
-    { agent_id: 'agent_04', provider: 'notion', status: 'active', auth_type: 'api_key' },
-  ].map((c, i) => ({
-    id: stableId('conn_demo', i + 1),
-    org_id: DEMO_ORG,
-    agent_id: c.agent_id,
-    provider: c.provider,
-    auth_type: c.auth_type,
-    plan_name: null,
-    status: c.status,
-    metadata: null,
-    reported_at: isoFromNow(int(rnd, 30, 900) * 60 * 1000),
-    updated_at: isoFromNow(int(rnd, 5, 120) * 60 * 1000),
-  }));
-
-  // ── Pairings ──
-  const pairings = Array.from({ length: 12 }).map((_, i) => {
-    const agent = agents[i % agents.length];
-    return {
-      id: `pair_demo_${String(i + 1).padStart(3, '0')}`,
-      agent_id: agent.agent_id,
-      agent_name: agent.agent_name,
-      algorithm: 'RSASSA-PKCS1-v1_5',
-      status: 'pending',
-      created_at: isoFromNow((5 + i * 7) * 60 * 1000),
-      updated_at: isoFromNow((5 + i * 7) * 60 * 1000),
-      expires_at: isoInFuture((15 + i) * 60 * 1000),
-    };
-  });
-
-  // ── Memory ──
-  const memory = {
-    health: {
-      score: int(rnd, 68, 96),
-      totalFiles: int(rnd, 12, 80),
-      totalLines: int(rnd, 12_000, 160_000),
-      totalSizeKb: int(rnd, 500, 24_000),
-      memoryMdLines: int(rnd, 400, 8_000),
-      oldestDaily: '2026-01-06',
-      newestDaily: '2026-02-14',
-      daysWithNotes: int(rnd, 18, 44),
-      avgLinesPerDay: int(rnd, 50, 900),
-      duplicates: int(rnd, 0, 12),
-      staleCount: int(rnd, 0, 5),
-      updatedAt: isoFromNow(int(rnd, 2, 50) * 60 * 1000),
-    },
-    entities: [
-      { name: 'DashClaw', type: 'service', mentions: 42 },
-      { name: 'Cinder', type: 'person', mentions: 18 },
-      { name: 'Vercel', type: 'service', mentions: 15 },
-      { name: 'Neon', type: 'service', mentions: 12 },
-      { name: 'pairIfNeeded()', type: 'tool', mentions: 9 },
-      { name: 'middleware.js', type: 'file', mentions: 7 },
-    ],
-    topics: [
-      { name: 'pairing', mentions: 21 },
-      { name: 'signatures', mentions: 18 },
-      { name: 'onboarding', mentions: 16 },
-      { name: 'guardrails', mentions: 11 },
-    ],
-    entityBreakdown: [
-      { type: 'service', count: 2, totalMentions: 57 },
-      { type: 'person', count: 1, totalMentions: 18 },
-      { type: 'tool', count: 1, totalMentions: 9 },
-      { type: 'file', count: 1, totalMentions: 7 },
-    ],
-  };
-
-  // ── Security signals ──
-  const signals = [
-    {
-      severity: 'red',
-      type: 'high_impact_low_oversight',
-      label: 'High Impact, Low Oversight',
-      detail: 'A high-risk action executed without a matching authorization scope.',
-      agent_id: 'agent_07',
-      action_id: actions.find(a => a.risk_score >= 85)?.action_id || actions[0].action_id,
-    },
-    {
-      severity: 'amber',
-      type: 'repeated_failures',
-      label: 'Repeated Failures',
-      detail: 'Same action type failed multiple times in the last hour.',
-      agent_id: 'agent_12',
-      action_id: actions.find(a => a.status === 'failed')?.action_id || actions[3].action_id,
-    },
-    {
-      severity: 'amber',
-      type: 'stale_loop',
-      label: 'Stale Loop',
-      detail: 'An open loop has exceeded its expected timeline.',
-      agent_id: loops[0].agent_id,
-      loop_id: loops[0].loop_id,
-      action_id: loops[0].action_id,
-    },
+    { id: 'demo_user', org_id: DEMO_ORG, email: 'viewer@example.com', name: 'Demo Viewer', image: null, role: 'admin', created_at: isoFromNow(60 * 24 * 60 * 60 * 1000) },
   ];
 
-  // ── Recommendations ──
-  const recommendations = Array.from({ length: 12 }).map((_, i) => ({
+  const teamInvites = [];
+
+  const usage = {
+    actions_count: 220,
+    agents_count: agents.length,
+    members_count: teamMembers.length,
+    keys_count: 1,
+  };
+
+  const settings = [
+    { org_id: DEMO_ORG, key: 'demo_mode', value: 'true', encrypted: 0 },
+    { org_id: DEMO_ORG, key: 'governance_runtime', value: 'v2', encrypted: 0 },
+  ];
+
+  const memory = {
+    health: { score: 92, status: 'healthy', issues: [] },
+    entities: [
+      { name: 'DashClaw v2', type: 'system', mentions: 45 },
+      { name: 'Guard Policy', type: 'concept', mentions: 32 },
+      { name: 'Evidence Ledger', type: 'concept', mentions: 28 },
+    ],
+    topics: ['governance', 'security', 'compliance', 'reliability'],
+  };
+
+  const recommendations = Array.from({ length: 6 }).map((_, i) => ({
     id: stableId('lrec', i + 1),
     org_id: DEMO_ORG,
-    agent_id: pick(rnd, agents).agent_id,
-    action_type: pick(rnd, actionTypes),
-    confidence: int(rnd, 55, 96),
-    sample_size: int(rnd, 5, 80),
-    active: rnd() > 0.25,
-    created_at: isoFromNow(int(rnd, 1, 30) * 24 * 60 * 60 * 1000),
-    updated_at: isoFromNow(int(rnd, 1, 4) * 24 * 60 * 60 * 1000),
+    action_type: pick(rnd, ['deploy', 'security', 'monitor']),
+    recommendation: pick(rnd, [
+      'Increase risk score for prod deploys.',
+      'Require approval for all security scans.',
+      'Enable read-only enforcement for this agent.',
+    ]),
+    basis: 'Observed variance in manual risk scoring.',
+    confidence: int(rnd, 70, 95),
+    created_at: isoFromNow(int(rnd, 1, 10) * 24 * MS_HOUR),
   }));
 
-  // ── Metrics ──
-  const metrics = recommendations.map((rec) => ({
-    recommendation_id: rec.id,
-    org_id: DEMO_ORG,
-    agent_id: rec.agent_id,
-    action_type: rec.action_type,
-    active: rec.active,
-    telemetry: {
-      fetched: int(rnd, 10, 180),
-      applied: int(rnd, 0, 120),
-      overridden: int(rnd, 0, 30),
-      adoption_rate: rnd() * 0.9,
-    },
-    deltas: {
-      success_lift: (rnd() - 0.3) * 0.5,
-    },
-  }));
-
+  const metrics = [];
   const metricsSummary = {
-    active_recommendations: recommendations.filter(r => r.active).length,
-    avg_adoption_rate: metrics.reduce((s, m) => s + (m.telemetry?.adoption_rate || 0), 0) / Math.max(1, metrics.length),
-    avg_success_lift: metrics.reduce((s, m) => s + (m.deltas?.success_lift || 0), 0) / Math.max(1, metrics.length),
+    total_actions: 220,
+    avg_risk: 42,
+    blocks_count: 12,
+    approvals_count: 8,
   };
 
-  // ── Security status ──
   const securityStatus = {
-    score: 93,
-    checks: [
-      { id: 'demo_read_only', status: 'ok', label: 'Demo Read-Only', detail: 'All write APIs are disabled in demo mode.' },
-      { id: 'secret_ingest_blocked', status: 'ok', label: 'Secret Ingestion Blocked', detail: 'Demo does not store real keys or credentials.' },
-      { id: 'signature_optional', status: 'info', label: 'Verified Agents Optional', detail: 'Signatures are optional unless enforcement is enabled.' },
-      { id: 'cors', status: 'ok', label: 'CORS', detail: 'Restricted to the demo origin.' },
-    ],
-    timestamp: new Date(BASE_NOW).toISOString(),
+    active_signals: 4,
+    high_risk_actions: 12,
+    unscoped_actions: 8,
+    invalid_assumptions: 2,
   };
 
-  // ── Routing fixtures ──
-  const routingHealth = {
-    status: 'healthy',
-    router_version: '1.0.0',
-    uptime_seconds: 86400,
-    last_decision_at: isoFromNow(120 * 1000),
-  };
-
-  const routingStats = {
-    total_agents: 8,
-    available_agents: 5,
-    busy_agents: 3,
-    pending_tasks: 4,
-    completed_tasks: 127,
-    routing_decisions: 284,
-  };
-
-  const routingAgentDefs = [
-    { name: 'code-reviewer', capabilities: ['code_review', 'static_analysis', 'security_audit'], status: 'available', max_concurrent: 5, current_load: 2 },
-    { name: 'deploy-bot', capabilities: ['deployment', 'rollback', 'infrastructure'], status: 'busy', max_concurrent: 3, current_load: 3 },
-    { name: 'security-scanner', capabilities: ['vulnerability_scan', 'dependency_audit', 'secret_detection'], status: 'available', max_concurrent: 4, current_load: 1 },
-    { name: 'docs-writer', capabilities: ['documentation', 'api_specs', 'changelog'], status: 'available', max_concurrent: 6, current_load: 0 },
-    { name: 'test-runner', capabilities: ['unit_tests', 'integration_tests', 'e2e_tests'], status: 'busy', max_concurrent: 4, current_load: 4 },
-    { name: 'data-analyst', capabilities: ['data_pipeline', 'analytics', 'reporting'], status: 'available', max_concurrent: 3, current_load: 1 },
-    { name: 'incident-responder', capabilities: ['incident_triage', 'root_cause_analysis', 'escalation'], status: 'offline', max_concurrent: 2, current_load: 0 },
-    { name: 'refactor-agent', capabilities: ['refactoring', 'code_review', 'performance_optimization'], status: 'busy', max_concurrent: 3, current_load: 2 },
+  const signals = [
+    { severity: 'red', type: 'autonomy_spike', agent_id: 'deploy-bot', created_at: isoFromNow(MS_HOUR) },
+    { severity: 'amber', type: 'stale_action', agent_id: 'security-scanner', created_at: isoFromNow(2 * MS_HOUR) },
   ];
-  const routingAgents = routingAgentDefs.map((def, i) => ({
-    id: stableId('ra', i + 1),
-    org_id: DEMO_ORG,
-    name: def.name,
-    capabilities: JSON.stringify(def.capabilities),
-    status: def.status,
-    max_concurrent: def.max_concurrent,
-    current_load: def.current_load,
-    endpoint: `https://agents.example.com/${def.name}`,
-    created_at: isoFromNow((30 - i) * 24 * 60 * 60 * 1000),
-  }));
 
-  const routingTaskDefs = [
-    { title: 'Review PR #482 — auth refactor', required_skills: ['code_review', 'security_audit'], urgency: 'high', status: 'assigned', agent_idx: 0 },
-    { title: 'Deploy staging v2.14.0', required_skills: ['deployment'], urgency: 'normal', status: 'assigned', agent_idx: 1 },
-    { title: 'Scan npm dependencies for CVEs', required_skills: ['vulnerability_scan', 'dependency_audit'], urgency: 'high', status: 'completed', agent_idx: 2 },
-    { title: 'Update API changelog for Q4', required_skills: ['documentation', 'api_specs'], urgency: 'low', status: 'pending', agent_idx: null },
-    { title: 'Run regression suite on payments', required_skills: ['integration_tests', 'e2e_tests'], urgency: 'critical', status: 'assigned', agent_idx: 4 },
-    { title: 'Analyze error rate spike in /api/actions', required_skills: ['data_pipeline', 'analytics'], urgency: 'high', status: 'assigned', agent_idx: 5 },
-    { title: 'Triage PagerDuty alert #9102', required_skills: ['incident_triage', 'escalation'], urgency: 'critical', status: 'failed', agent_idx: 6 },
-    { title: 'Refactor token billing module', required_skills: ['refactoring', 'performance_optimization'], urgency: 'normal', status: 'assigned', agent_idx: 7 },
-    { title: 'Review PR #479 — SSE reconnect', required_skills: ['code_review'], urgency: 'normal', status: 'completed', agent_idx: 0 },
-    { title: 'Secret scan on new env vars', required_skills: ['secret_detection'], urgency: 'high', status: 'pending', agent_idx: null },
-    { title: 'Generate coverage report', required_skills: ['unit_tests'], urgency: 'low', status: 'pending', agent_idx: null },
-    { title: 'Deploy production v2.13.2 hotfix', required_skills: ['deployment', 'rollback'], urgency: 'critical', status: 'completed', agent_idx: 1 },
-  ];
-  const routingTasks = routingTaskDefs.map((def, i) => ({
-    id: stableId('rt', i + 1),
-    org_id: DEMO_ORG,
-    title: def.title,
-    description: `Task: ${def.title}`,
-    required_skills: JSON.stringify(def.required_skills),
-    urgency: def.urgency,
-    status: def.status,
-    assigned_agent_id: def.agent_idx !== null ? routingAgents[def.agent_idx].id : null,
-    created_at: isoFromNow((24 - i * 2) * 60 * 60 * 1000),
-    completed_at: def.status === 'completed' ? isoFromNow((12 - i) * 60 * 60 * 1000) : null,
-  }));
+  const routingHealth = { status: 'healthy' };
+  const routingStats = { total_tasks: 0, completed: 0, pending: 0 };
+  const routingAgents = [];
+  const routingTasks = [];
 
-  // ── Compliance (from module) ──
   const complianceFrameworks = complianceData.frameworks;
-
-  // Build complianceMap and complianceGaps from the compliance module controls
-  const complianceMap = {};
-  const complianceGaps = {};
-  for (const fw of complianceFrameworks) {
-    const fwControls = complianceData.controls.filter(c => c.framework_id === fw.id);
-    const covered = fwControls.filter(c => c.status === 'covered').length;
-    const partial = fwControls.filter(c => c.status === 'partial').length;
-    const gaps = fwControls.filter(c => c.status === 'gap').length;
-
-    // Transform controls to match expected complianceMap shape
-    const mappedControls = fwControls.map(c => ({
-      id: c.id,
-      control_id: c.control_id,
-      title: c.name,
-      description: c.description,
-      status: c.status,
-      matched_policies: JSON.parse(c.policy_ids || '[]'),
-      recommendations: c.status === 'gap' ? [`Address ${c.name} gap`] : c.status === 'partial' ? [`Strengthen ${c.name} coverage`] : [],
-    }));
-
-    complianceMap[fw.id] = {
-      controls: mappedControls,
-      coverage: { total: fwControls.length, covered, partial, gaps },
-    };
-
-    const gapControls = mappedControls.filter(c => c.status === 'gap');
-    const partialControls = mappedControls.filter(c => c.status === 'partial');
-    const riskLevel = gapControls.length > 2 ? 'high' : gapControls.length > 0 ? 'medium' : 'low';
-    complianceGaps[fw.id] = {
-      risk_level: riskLevel,
-      narrative: `${fw.name} compliance analysis: ${covered} controls fully covered, ${partial} partially covered, ${gaps} gaps identified.`,
-      quick_wins: partialControls.length > 0
-        ? `Address partial controls first: ${partialControls.map(c => c.control_id).join(', ')}`
-        : 'No quick wins — all controls are either covered or need full implementation.',
-      gaps: gapControls.map(c => ({ control_id: c.control_id, title: c.title, recommendations: c.recommendations })),
-      remediations: gapControls.flatMap(c => c.recommendations.map(r => ({ action: r, effort: r.length > 40 ? 'high' : 'medium' }))),
-    };
-  }
-
+  const complianceMap = complianceData.map;
+  const complianceGaps = complianceData.gaps;
   const complianceEvidence = complianceData.evidence;
-  const policyTestResults = complianceData.policyTestResults;
-  const policyProofReport = complianceData.policyProofReport;
 
-  // ── Eval scorers ──
-  const evalScorers = [
-    {
-      id: 'es_demo_001',
-      org_id: DEMO_ORG,
-      name: 'Goal Completion Check',
-      scorer_type: 'regex',
-      config: JSON.stringify({ pattern: 'completed|success|done', flags: 'i', match_score: 1.0, no_match_score: 0.0 }),
-      description: 'Checks if action outcome indicates completion',
-      total_scores: 142,
-      avg_score: 0.83,
-      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'es_demo_002',
-      org_id: DEMO_ORG,
-      name: 'Risk Score Threshold',
-      scorer_type: 'numeric_range',
-      config: JSON.stringify({ field: 'risk_score', min: 0, max: 50, in_range_score: 1.0, out_of_range_score: 0.2 }),
-      description: 'Flags actions with risk score above safe threshold',
-      total_scores: 89,
-      avg_score: 0.71,
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'es_demo_003',
-      org_id: DEMO_ORG,
-      name: 'Safety Keywords',
-      scorer_type: 'contains',
-      config: JSON.stringify({ keywords: ['verified', 'safe', 'approved'], mode: 'any', match_score: 1.0, no_match_score: 0.3 }),
-      description: 'Checks for safety-related keywords in outcomes',
-      total_scores: 64,
-      avg_score: 0.67,
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
+  const policyTestResults = { passed: 12, failed: 0 };
+  const policyProofReport = { org_id: DEMO_ORG, status: 'valid', verified_at: isoFromNow(0) };
 
-  const evalScores = Array.from({ length: 30 }).map((_, i) => ({
-    id: `ev_demo_${String(i).padStart(3, '0')}`,
-    org_id: DEMO_ORG,
-    action_id: `act_demo_${String(i % 10).padStart(3, '0')}`,
-    scorer_name: ['Goal Completion Check', 'Risk Score Threshold', 'Safety Keywords'][i % 3],
-    score: Math.round((0.3 + Math.random() * 0.7) * 100) / 100,
-    label: Math.random() > 0.3 ? 'pass' : 'fail',
-    reasoning: ['Outcome matched completion pattern', 'Risk score within safe range', 'Safety keyword found in output', 'Outcome did not match expected pattern', 'Risk score exceeded threshold'][i % 5],
-    evaluated_by: i % 4 === 0 ? 'human' : 'auto',
-    created_at: new Date(Date.now() - (30 - i) * 2 * 60 * 60 * 1000).toISOString(),
-  }));
+  const evalScorers = [];
+  const evalScores = [];
+  const evalRuns = [];
+  const evalStats = { total_runs: 0, avg_score: 0 };
 
-  const evalRuns = [
-    {
-      id: 'er_demo_001',
-      org_id: DEMO_ORG,
-      name: 'Weekly Quality Check',
-      scorer_id: 'es_demo_001',
-      scorer_name: 'Goal Completion Check',
-      scorer_type: 'regex',
-      status: 'completed',
-      total_actions: 50,
-      scored_count: 48,
-      avg_score: 0.82,
-      started_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      completed_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 45000).toISOString(),
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'er_demo_002',
-      org_id: DEMO_ORG,
-      name: 'Risk Audit Run',
-      scorer_id: 'es_demo_002',
-      scorer_name: 'Risk Score Threshold',
-      scorer_type: 'numeric_range',
-      status: 'completed',
-      total_actions: 30,
-      scored_count: 30,
-      avg_score: 0.71,
-      started_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      completed_at: new Date(Date.now() - 24 * 60 * 60 * 1000 + 12000).toISOString(),
-      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
+  const promptTemplates = [];
+  const promptVersions = [];
+  const promptRuns = [];
+  const promptStats = { total_templates: 0, total_runs: 0 };
 
-  const evalStats = {
-    overall: { total_scores: 295, avg_score: 0.74, unique_scorers: 3, today_count: 12 },
-    by_scorer: [
-      { scorer_name: 'Goal Completion Check', avg_score: 0.83, total_scores: 142 },
-      { scorer_name: 'Risk Score Threshold', avg_score: 0.71, total_scores: 89 },
-      { scorer_name: 'Safety Keywords', avg_score: 0.67, total_scores: 64 },
-    ],
-    distribution: [
-      { bucket: 'excellent', count: 148 },
-      { bucket: 'acceptable', count: 89 },
-      { bucket: 'poor', count: 58 },
-    ],
-    trends: [],
-  };
+  const feedbackEntries = [];
+  const feedbackStats = { total_entries: 0, avg_sentiment: 0 };
 
-  // ── Prompt templates ──
-  const promptTemplates = [
-    {
-      id: 'pt_demo_001',
-      org_id: DEMO_ORG,
-      name: 'Decision Analysis',
-      description: 'Evaluates agent decision quality against defined criteria',
-      category: 'evaluation',
-      version_count: 3,
-      active_version: 3,
-      created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'pt_demo_002',
-      org_id: DEMO_ORG,
-      name: 'Risk Assessment',
-      description: 'Scores action risk level based on context and history',
-      category: 'system',
-      version_count: 2,
-      active_version: 2,
-      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'pt_demo_003',
-      org_id: DEMO_ORG,
-      name: 'Task Delegation',
-      description: 'Generates task breakdown and delegation instructions for agents',
-      category: 'agent',
-      version_count: 1,
-      active_version: 1,
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
+  const driftAlerts = [];
+  const driftStats = { active_alerts: 0 };
+  const driftSnapshots = [];
 
-  const promptVersions = {
-    'pt_demo_001': [
-      { id: 'pv_demo_001_3', org_id: DEMO_ORG, template_id: 'pt_demo_001', version: 3, content: 'Analyze the following agent decision and rate quality 1-10.\n\nAgent: {{agent_name}}\nAction: {{action_type}}\nGoal: {{declared_goal}}\nOutcome: {{outcome}}\n\nCriteria:\n- Goal alignment\n- Risk awareness\n- Efficiency\n\nProvide a structured assessment.', model_hint: 'gpt-4o-mini', parameters: '["agent_name","action_type","declared_goal","outcome"]', changelog: 'Added efficiency criterion', is_active: true, created_by: 'user', created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-      { id: 'pv_demo_001_2', org_id: DEMO_ORG, template_id: 'pt_demo_001', version: 2, content: 'Analyze the following agent decision and rate quality 1-10.\n\nAgent: {{agent_name}}\nAction: {{action_type}}\nGoal: {{declared_goal}}\nOutcome: {{outcome}}\n\nCriteria:\n- Goal alignment\n- Risk awareness', model_hint: 'gpt-4o-mini', parameters: '["agent_name","action_type","declared_goal","outcome"]', changelog: 'Added risk awareness', is_active: false, created_by: 'user', created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
-      { id: 'pv_demo_001_1', org_id: DEMO_ORG, template_id: 'pt_demo_001', version: 1, content: 'Analyze the following agent decision.\n\nAgent: {{agent_name}}\nAction: {{action_type}}\nGoal: {{declared_goal}}', model_hint: '', parameters: '["agent_name","action_type","declared_goal"]', changelog: 'Initial version', is_active: false, created_by: 'user', created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() },
-    ],
-    'pt_demo_002': [
-      { id: 'pv_demo_002_2', org_id: DEMO_ORG, template_id: 'pt_demo_002', version: 2, content: 'Assess the risk level of this agent action.\n\nAction: {{action_type}}\nRisk Score: {{risk_score}}\nSystems: {{systems_touched}}\n\nClassify as: low, medium, high, critical.', model_hint: '', parameters: '["action_type","risk_score","systems_touched"]', changelog: 'Added systems touched', is_active: true, created_by: 'user', created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
-    ],
-    'pt_demo_003': [
-      { id: 'pv_demo_003_1', org_id: DEMO_ORG, template_id: 'pt_demo_003', version: 1, content: 'Break down this task for agent delegation.\n\nTask: {{task_description}}\nAvailable Agents: {{agent_list}}\nPriority: {{priority}}\n\nAssign subtasks and set deadlines.', model_hint: '', parameters: '["task_description","agent_list","priority"]', changelog: 'Initial version', is_active: true, created_by: 'user', created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-    ],
-  };
+  const learningVelocity = [];
+  const learningCurves = [];
+  const learningAnalyticsSummary = { total_lessons: 10, total_decisions: 18 };
 
-  const promptRuns = Array.from({ length: 20 }).map((_, i) => ({
-    id: `pr_demo_${String(i).padStart(3, '0')}`,
-    org_id: DEMO_ORG,
-    template_name: ['Decision Analysis', 'Risk Assessment', 'Task Delegation'][i % 3],
-    version: [3, 2, 1][i % 3],
-    agent_id: ['clawdbot', 'research-agent', ''][i % 3],
-    tokens_used: 150 + Math.floor(Math.random() * 300),
-    latency_ms: 50 + Math.floor(Math.random() * 200),
-    created_at: new Date(Date.now() - (20 - i) * 3 * 60 * 60 * 1000).toISOString(),
-  }));
+  const scoringProfiles = [];
 
-  const promptStats = {
-    overall: { total_runs: 847, unique_templates: 3, avg_tokens: 234, avg_latency_ms: 120, today_count: 18 },
-    by_template: [
-      { template_name: 'Decision Analysis', total_runs: 412, avg_tokens: 280, avg_latency_ms: 145 },
-      { template_name: 'Risk Assessment', total_runs: 289, avg_tokens: 195, avg_latency_ms: 98 },
-      { template_name: 'Task Delegation', total_runs: 146, avg_tokens: 210, avg_latency_ms: 115 },
-    ],
-    by_version: [],
-  };
-
-  // ── Feedback ──
-  const feedbackEntries = Array.from({ length: 25 }).map((_, i) => {
-    const sentiments = ['positive', 'positive', 'positive', 'neutral', 'negative'];
-    const categories = ['quality', 'performance', 'accuracy', 'general', 'safety', 'ux'];
-    const comments = [
-      'Agent handled the deployment perfectly, zero issues',
-      'Response was a bit slow but accurate',
-      'Wrong file was modified, had to roll back',
-      'Good job on the risk assessment',
-      'Confusing output format, hard to parse',
-      'Fast and reliable, exactly what I needed',
-      'Security check missed an obvious vulnerability',
-      'Great improvement over last week',
-      'Token usage seems excessive for this simple task',
-      'Crashed midway through the operation',
-    ];
-    const tagSets = [
-      ['accuracy', 'reliability'], ['performance'], ['accuracy'],
-      ['accuracy'], ['ux'], ['performance', 'reliability'],
-      ['security'], ['accuracy'], ['cost'], ['reliability'],
-    ];
-    const rating = [5, 4, 2, 4, 3, 5, 1, 5, 3, 1][i % 10];
-    return {
-      id: `fb_demo_${String(i).padStart(3, '0')}`,
-      org_id: DEMO_ORG,
-      action_id: i % 3 === 0 ? `act_demo_${String(i % 10).padStart(3, '0')}` : '',
-      agent_id: ['clawdbot', 'research-agent', 'deploy-bot'][i % 3],
-      source: 'user',
-      rating,
-      sentiment: sentiments[i % 5],
-      category: categories[i % 6],
-      comment: comments[i % 10],
-      tags: JSON.stringify(tagSets[i % 10]),
-      metadata: '{}',
-      resolved: i < 10,
-      resolved_at: i < 10 ? new Date(Date.now() - (10 - i) * 60 * 60 * 1000).toISOString() : null,
-      resolved_by: i < 10 ? 'user' : '',
-      created_by: 'user',
-      created_at: new Date(Date.now() - (25 - i) * 3 * 60 * 60 * 1000).toISOString(),
-    };
-  });
-
-  const feedbackStats = {
-    overall: {
-      total_feedback: 156,
-      avg_rating: 3.72,
-      positive_count: 82,
-      negative_count: 31,
-      neutral_count: 43,
-      unresolved_count: 15,
-      today_count: 8,
-    },
-    by_category: [
-      { category: 'quality', count: 42, avg_rating: 4.1 },
-      { category: 'performance', count: 35, avg_rating: 3.5 },
-      { category: 'accuracy', count: 28, avg_rating: 3.2 },
-      { category: 'general', count: 22, avg_rating: 3.8 },
-      { category: 'safety', count: 16, avg_rating: 3.9 },
-      { category: 'ux', count: 13, avg_rating: 3.1 },
-    ],
-    by_agent: [
-      { agent_id: 'clawdbot', count: 68, avg_rating: 4.0, positive: 40, negative: 8 },
-      { agent_id: 'research-agent', count: 52, avg_rating: 3.6, positive: 25, negative: 12 },
-      { agent_id: 'deploy-bot', count: 36, avg_rating: 3.4, positive: 17, negative: 11 },
-    ],
-    rating_distribution: [
-      { rating: 5, count: 38 },
-      { rating: 4, count: 44 },
-      { rating: 3, count: 32 },
-      { rating: 2, count: 24 },
-      { rating: 1, count: 18 },
-    ],
-    top_tags: [
-      { tag: 'accuracy', count: 45 },
-      { tag: 'performance', count: 38 },
-      { tag: 'reliability', count: 32 },
-      { tag: 'ux', count: 18 },
-      { tag: 'security', count: 14 },
-      { tag: 'cost', count: 9 },
-    ],
-  };
-
-  // ── Drift alerts ──
-  const driftAlerts = [
-    {
-      id: 'da_demo_001', org_id: DEMO_ORG, agent_id: 'clawdbot', metric: 'risk_score', severity: 'critical',
-      drift_type: 'shift', baseline_mean: 28.5, baseline_stddev: 8.2, current_mean: 52.3, current_stddev: 12.1,
-      z_score: 2.9, pct_change: 83.5, sample_count: 24, direction: 'increasing',
-      description: 'Risk Score for clawdbot has increased by 83.5% (z-score: 2.9). Baseline mean: 28.5, current mean: 52.3.',
-      acknowledged: false, created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'da_demo_002', org_id: DEMO_ORG, agent_id: 'research-agent', metric: 'duration_ms', severity: 'warning',
-      drift_type: 'shift', baseline_mean: 1250, baseline_stddev: 340, current_mean: 2100, current_stddev: 520,
-      z_score: 2.5, pct_change: 68.0, sample_count: 18, direction: 'increasing',
-      description: 'Duration (ms) for research-agent has increased by 68.0% (z-score: 2.5). Baseline mean: 1250, current mean: 2100.',
-      acknowledged: false, created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'da_demo_003', org_id: DEMO_ORG, agent_id: 'clawdbot', metric: 'confidence', severity: 'warning',
-      drift_type: 'shift', baseline_mean: 72.0, baseline_stddev: 10.5, current_mean: 51.0, current_stddev: 15.3,
-      z_score: -2.0, pct_change: -29.2, sample_count: 30, direction: 'decreasing',
-      description: 'Confidence for clawdbot has decreased by 29.2% (z-score: -2.0). Baseline mean: 72.0, current mean: 51.0.',
-      acknowledged: true, acknowledged_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: 'da_demo_004', org_id: DEMO_ORG, agent_id: 'deploy-bot', metric: 'tokens_total', severity: 'info',
-      drift_type: 'shift', baseline_mean: 850, baseline_stddev: 200, current_mean: 1180, current_stddev: 280,
-      z_score: 1.65, pct_change: 38.8, sample_count: 15, direction: 'increasing',
-      description: 'Total Tokens for deploy-bot has increased by 38.8% (z-score: 1.65). Baseline mean: 850, current mean: 1180.',
-      acknowledged: false, created_at: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
-
-  const driftStats = {
-    overall: {
-      total_alerts: 47, critical_count: 8, warning_count: 21, info_count: 18,
-      unacknowledged: 12, today_count: 4,
-    },
-    by_metric: [
-      { metric: 'risk_score', count: 14, avg_z_score: 2.4 },
-      { metric: 'duration_ms', count: 11, avg_z_score: 2.1 },
-      { metric: 'confidence', count: 9, avg_z_score: 1.9 },
-      { metric: 'tokens_total', count: 7, avg_z_score: 1.7 },
-      { metric: 'cost_estimate', count: 4, avg_z_score: 2.6 },
-      { metric: 'learning_score', count: 2, avg_z_score: 1.6 },
-    ],
-    by_agent: [
-      { agent_id: 'clawdbot', count: 22, critical: 5, warning: 10 },
-      { agent_id: 'research-agent', count: 15, critical: 2, warning: 8 },
-      { agent_id: 'deploy-bot', count: 10, critical: 1, warning: 3 },
-    ],
-    recent_baselines: [
-      { agent_id: 'clawdbot', metric: 'risk_score', mean: 28.5, stddev: 8.2, sample_count: 156, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-      { agent_id: 'clawdbot', metric: 'confidence', mean: 72.0, stddev: 10.5, sample_count: 156, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-      { agent_id: 'clawdbot', metric: 'duration_ms', mean: 980, stddev: 290, sample_count: 156, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-      { agent_id: 'research-agent', metric: 'duration_ms', mean: 1250, stddev: 340, sample_count: 98, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-      { agent_id: 'research-agent', metric: 'tokens_total', mean: 1100, stddev: 250, sample_count: 98, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-    ],
-  };
-
-  const driftSnapshots = Array.from({ length: 14 }).map((_, i) => ({
-    id: `ds_demo_${String(i).padStart(3, '0')}`,
-    org_id: DEMO_ORG,
-    agent_id: ['clawdbot', 'research-agent'][i % 2],
-    metric: ['risk_score', 'duration_ms', 'confidence'][i % 3],
-    period: 'daily',
-    period_start: new Date(Date.now() - (14 - i) * 24 * 60 * 60 * 1000).toISOString(),
-    mean: [28 + i * 1.5, 1200 + i * 60, 72 - i * 1.2][i % 3],
-    stddev: [8 + i * 0.3, 300 + i * 15, 10 + i * 0.4][i % 3],
-    sample_count: 10 + Math.floor(Math.random() * 15),
-  }));
-
-  // ── Learning velocity ──
-  const learningVelocity = [
-    {
-      id: 'lv_demo_001', org_id: DEMO_ORG, agent_id: 'clawdbot', period: 'daily',
-      period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      period_end: new Date().toISOString(),
-      episode_count: 247, avg_score: 71.5, success_rate: 0.82, score_delta: 12.3,
-      velocity: 1.8, acceleration: 0.3, maturity_score: 68, maturity_level: 'proficient',
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: 'lv_demo_002', org_id: DEMO_ORG, agent_id: 'research-agent', period: 'daily',
-      period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      period_end: new Date().toISOString(),
-      episode_count: 89, avg_score: 63.2, success_rate: 0.71, score_delta: 8.1,
-      velocity: 0.9, acceleration: -0.1, maturity_score: 51, maturity_level: 'competent',
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: 'lv_demo_003', org_id: DEMO_ORG, agent_id: 'deploy-bot', period: 'daily',
-      period_start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      period_end: new Date().toISOString(),
-      episode_count: 156, avg_score: 58.9, success_rate: 0.65, score_delta: -3.2,
-      velocity: -0.4, acceleration: -0.6, maturity_score: 45, maturity_level: 'developing',
-      created_at: new Date().toISOString(),
-    },
-  ];
-
-  // ── Learning curves ──
-  const learningCurves = Array.from({ length: 18 }).map((_, i) => {
-    const lcAgents = ['clawdbot', 'clawdbot', 'research-agent'];
-    const types = ['deploy', 'security-check', 'research'];
-    const baseScores = [65, 70, 55];
-    return {
-      id: `lc_demo_${String(i).padStart(3, '0')}`,
-      org_id: DEMO_ORG,
-      agent_id: lcAgents[i % 3],
-      action_type: types[i % 3],
-      window_start: new Date(Date.now() - (18 - i) * 7 * 24 * 60 * 60 * 1000).toISOString(),
-      window_end: new Date(Date.now() - (17 - i) * 7 * 24 * 60 * 60 * 1000).toISOString(),
-      episode_count: 5 + Math.floor(Math.random() * 10),
-      avg_score: baseScores[i % 3] + i * 0.8,
-      success_rate: 0.6 + i * 0.015,
-      avg_duration_ms: 1200 - i * 30,
-      avg_cost: 0.05 - i * 0.001,
-      p25_score: baseScores[i % 3] - 10 + i * 0.5,
-      p75_score: baseScores[i % 3] + 10 + i * 0.9,
-      created_at: new Date(Date.now() - (18 - i) * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    };
-  });
-
-  // ── Learning analytics summary ──
-  const learningAnalyticsSummary = {
-    overall: {
-      total_episodes: 492, avg_score: 65.2, success_count: 342, failure_count: 98,
-      pending_count: 52, avg_duration_ms: 1840, total_cost: 12.47, success_rate: 0.777,
-    },
-    by_agent: [
-      { agent_id: 'clawdbot', episode_count: 247, avg_score: 71.5, success_count: 203, failure_count: 30, avg_duration_ms: 1520, total_cost: 5.23, success_rate: 0.871, velocity: 1.8, acceleration: 0.3, maturity_level: 'proficient', maturity_score: 68 },
-      { agent_id: 'deploy-bot', episode_count: 156, avg_score: 58.9, success_count: 95, failure_count: 45, avg_duration_ms: 2100, total_cost: 4.81, success_rate: 0.679, velocity: -0.4, acceleration: -0.6, maturity_level: 'developing', maturity_score: 45 },
-      { agent_id: 'research-agent', episode_count: 89, avg_score: 63.2, success_count: 58, failure_count: 23, avg_duration_ms: 2340, total_cost: 2.43, success_rate: 0.716, velocity: 0.9, acceleration: -0.1, maturity_level: 'competent', maturity_score: 51 },
-    ],
-    by_action_type: [
-      { action_type: 'deploy', episode_count: 124, avg_score: 68.3, success_count: 98, failure_count: 18, success_rate: 0.845 },
-      { action_type: 'research', episode_count: 89, avg_score: 63.1, success_count: 58, failure_count: 23, success_rate: 0.716 },
-      { action_type: 'security-check', episode_count: 67, avg_score: 72.8, success_count: 59, failure_count: 5, success_rate: 0.922 },
-      { action_type: 'api', episode_count: 54, avg_score: 61.2, success_count: 35, failure_count: 14, success_rate: 0.714 },
-      { action_type: 'message', episode_count: 48, avg_score: 59.5, success_count: 30, failure_count: 12, success_rate: 0.714 },
-      { action_type: 'config', episode_count: 42, avg_score: 55.0, success_count: 24, failure_count: 13, success_rate: 0.649 },
-    ],
-    recommendations: {
-      total_recommendations: 23, active_recommendations: 18, avg_success_rate: 0.72, avg_rec_score: 64.5, avg_confidence: 71,
-    },
-    velocity: [
-      { agent_id: 'clawdbot', velocity: 1.8, acceleration: 0.3, maturity_score: 68, maturity_level: 'proficient', score_delta: 12.3 },
-      { agent_id: 'research-agent', velocity: 0.9, acceleration: -0.1, maturity_score: 51, maturity_level: 'competent', score_delta: 8.1 },
-      { agent_id: 'deploy-bot', velocity: -0.4, acceleration: -0.6, maturity_score: 45, maturity_level: 'developing', score_delta: -3.2 },
-    ],
-  };
-
-  // ── Scoring profiles ──
-  const scoringProfiles = [
-    {
-      id: 'sp_demo001', org_id: DEMO_ORG, name: 'Production Deploy Quality', action_type: 'deploy', status: 'active',
-      composite_method: 'weighted_average',
-      dimensions: [
-        { id: 'sd_demo001', name: 'Speed', weight: 0.3, data_source: 'duration_ms', scale: [
-          { label: 'excellent', operator: 'lt', value: 30000, score: 100 },
-          { label: 'good', operator: 'lt', value: 60000, score: 75 },
-          { label: 'acceptable', operator: 'lt', value: 120000, score: 50 },
-          { label: 'poor', operator: 'gte', value: 120000, score: 20 },
-        ]},
-        { id: 'sd_demo002', name: 'Cost', weight: 0.3, data_source: 'cost_estimate', scale: [
-          { label: 'excellent', operator: 'lt', value: 0.01, score: 100 },
-          { label: 'good', operator: 'lt', value: 0.05, score: 75 },
-          { label: 'poor', operator: 'gte', value: 0.05, score: 30 },
-        ]},
-        { id: 'sd_demo003', name: 'Reliability', weight: 0.4, data_source: 'confidence', scale: [
-          { label: 'excellent', operator: 'gte', value: 90, score: 100 },
-          { label: 'good', operator: 'gte', value: 70, score: 75 },
-          { label: 'poor', operator: 'lt', value: 70, score: 25 },
-        ]},
-      ],
-    },
-  ];
-
-  // ── Risk templates ──
   const riskTemplates = [
     {
       id: 'rt_demo001', org_id: DEMO_ORG, name: 'Production Safety', action_type: null, status: 'active',
@@ -1311,8 +288,6 @@ function buildFixtures() {
     teamInvites,
     usage,
     settings,
-    connections,
-    pairings,
     memory,
     signals,
     recommendations,

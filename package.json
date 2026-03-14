@@ -1,6 +1,6 @@
 {
   "name": "dashclaw-platform",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -13,6 +13,7 @@
     "openapi:check": "node scripts/check-openapi-diff.mjs",
     "api:inventory:generate": "node scripts/generate-api-inventory.mjs",
     "api:inventory:check": "node scripts/check-api-inventory-diff.mjs",
+    "governance:boundary:check": "node scripts/check-api-boundary.mjs",
     "route-sql:baseline:generate": "node scripts/generate-route-sql-baseline.mjs",
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
     "sdk:integration": "node scripts/check-sdk-cross-integration.mjs",

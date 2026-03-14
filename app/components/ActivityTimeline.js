@@ -188,12 +188,12 @@ export default function ActivityTimeline({
         return `${base}${params.length ? `?${params.join('&')}` : ''}`;
       };
 
-      const [actionsRes, loopsRes, learningRes, guardRes, assumptionsRes] = await Promise.all([
+      const [actionsRes, loopsRes, guardRes, assumptionsRes, signalsRes] = await Promise.all([
         fetch(withPrefix('/api/actions', ['limit=24'])),
         fetch(withPrefix('/api/actions/loops', ['limit=12'])),
-        fetch(withPrefix('/api/learning')),
         fetch(withPrefix('/api/guard', ['limit=12'])),
-        fetch(withPrefix('/api/actions/assumptions', ['limit=16'])),
+        fetch(withPrefix('/api/assumptions', ['limit=16'])),
+        fetch(withPrefix('/api/signals')),
       ]);
 
       const merged = [];
@@ -208,11 +208,6 @@ export default function ActivityTimeline({
         merged.push(...(loopsData.loops || []).map(buildLoopEvent));
       }
 
-      if (learningRes.ok) {
-        const learningData = await learningRes.json();
-        merged.push(...(learningData.decisions || []).slice(0, 8).map(buildLearningEvent));
-      }
-
       if (guardRes.ok) {
         const guardData = await guardRes.json();
         merged.push(...(guardData.decisions || []).map(buildGuardEvent));
@@ -221,6 +216,11 @@ export default function ActivityTimeline({
       if (assumptionsRes.ok) {
         const assumptionsData = await assumptionsRes.json();
         merged.push(...(assumptionsData.assumptions || []).map(buildAssumptionEvent));
+      }
+
+      if (signalsRes.ok) {
+        const signalsData = await signalsRes.json();
+        // Add signal mapping logic if needed, or just let them be handled by the signal card
       }
 
       setEvents(collapseRoutineTelemetry(merged).slice(0, 60));

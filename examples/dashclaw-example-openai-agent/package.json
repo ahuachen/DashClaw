@@ -1,0 +1,10 @@
+{
+  "name": "dashclaw-example-openai-agent",
+  "version": "1.0.0",
+  "description": "DashClaw: Intercept and govern your first agent action.",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "dashclaw": "file:../../sdk"
+  }
+}
