@@ -45,8 +45,13 @@ async function main() {
       console.error("\n❌ DASHCLAW BLOCKED THIS ACTION.");
       console.error(`Reason: ${error.message || 'Risk score exceeded organization threshold'}`);
       
+      const actionId = error.decision?.action_id;
       console.log("\nReview the decision record at:");
-      console.log(`${process.env.DASHCLAW_BASE_URL}/mission-control\n`);
+      if (actionId) {
+        console.log(`${process.env.DASHCLAW_BASE_URL}/replay/${actionId}\n`);
+      } else {
+        console.log(`${process.env.DASHCLAW_BASE_URL}/mission-control\n`);
+      }
     } else {
       console.error("Error:", error.message);
     }

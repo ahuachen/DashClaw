@@ -90,15 +90,18 @@ async function main() {
     if (code === 0) {
       console.log('✅ Demo completed successfully.');
       console.log('   The agent action was blocked by DashClaw policy as expected.');
+      console.log(`\n======================================================`);
+      console.log(`🚀 DashClaw is still running!`);
+      console.log(`   Keep this terminal open and click the link above`);
+      console.log(`   to view the live decision record in Mission Control.`);
+      console.log(`   Press Ctrl+C to exit when you're done.`);
+      console.log(`======================================================\n`);
+      // DO NOT call cleanup() or process.exit() here. Keep the server alive!
     } else {
       console.error(`❌ Example agent exited with code ${code}`);
+      cleanup();
+      process.exit(code);
     }
-    
-    console.log(`\nTo explore the dashboard, run: DASHCLAW_MODE=demo npm run dev`);
-    console.log(`Then open ${DASHCLAW_BASE_URL}/mission-control`);
-    
-    cleanup();
-    process.exit(code);
   });
 }
 

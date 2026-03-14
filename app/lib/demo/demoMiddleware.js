@@ -110,6 +110,21 @@ export function demoAgentDetail(fixtures, agentId) {
 }
 
 export function demoActionDetail(fixtures, actionId) {
+  // Check live session data first so the terminal demo run works in the replay view
+  const sessionAction = sessionActions.find(a => a.action_id === actionId);
+  if (sessionAction) {
+    const sessionEval = sessionEvaluations.find(e => e.action_id === actionId);
+    return {
+      action: sessionAction,
+      open_loops: [],
+      assumptions: [
+        { assumption_id: `asm_demo_${Math.random().toString(36).slice(2, 10)}`, action_id: actionId, assumption: 'Demo environment is active', basis: 'Local run', validated: 1 }
+      ],
+      decision: sessionEval ? sessionEval.decision : undefined,
+      decision_reason: sessionEval ? sessionEval.reason : undefined
+    };
+  }
+
   if (actionId.startsWith('act_sim_')) {
     return {
       action: {
