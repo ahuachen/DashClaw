@@ -2,9 +2,11 @@
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
   <p><strong>The policy firewall for AI agents.</strong></p>
+  <p>Run your first governed agent action in under 60 seconds.</p>
   <p>Intercept decisions. Enforce policies. Record evidence.</p>
   <br />
   <p><strong>Agent &rarr; DashClaw (Policy Engine) &rarr; External Systems</strong></p>
+  <p>DashClaw evaluates policies before an agent action executes and records evidence after it completes.</p>
   <br />
   <p><a href="https://www.dashclaw.io/mission-control">View Live Demo</a></p>
 
@@ -34,6 +36,19 @@ DashClaw provides the **minimal governance infrastructure** to intercept these a
 
 ---
 
+## The Governance Loop
+
+DashClaw sits between your agents and your systems:
+
+**Agent &rarr; guard() &rarr; createAction() &rarr; recordAssumption() &rarr; updateOutcome()**
+
+1.  **Guard** &rarr; "Can I do X?" (Policy check)
+2.  **Record** &rarr; "I am doing X." (Lifecycle tracking)
+3.  **Verify** &rarr; "I believe Y is true while doing X." (Reasoning ledger)
+4.  **Outcome** &rarr; "X finished with result Z." (Verifiable evidence)
+
+---
+
 ## ⚡ 1-Minute Governance Test
 
 Run your first governed agent action in under 60 seconds.
@@ -49,19 +64,6 @@ node index.js
 ```
 
 **The Wow Moment:** You will see the agent attempt a "High Risk" action, which is instantly intercepted and blocked by the DashClaw policy firewall. The agent is forced to stop before any real system is touched.
-
----
-
-## The Governance Loop
-
-DashClaw sits between your agents and your systems:
-
-**Agent &rarr; guard() &rarr; createAction() &rarr; recordAssumption() &rarr; updateOutcome()**
-
-1.  **Guard** &rarr; "Can I do X?" (Policy check)
-2.  **Record** &rarr; "I am doing X." (Lifecycle tracking)
-3.  **Verify** &rarr; "I believe Y is true while doing X." (Reasoning ledger)
-4.  **Outcome** &rarr; "X finished with result Z." (Verifiable evidence)
 
 ---
 
@@ -93,9 +95,9 @@ const decision = await claw.guard({
 
 ## Works With
 
-**LangChain • CrewAI • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
+DashClaw works with any agent framework.
 
-DashClaw is runtime-agnostic decision infrastructure.
+**LangChain • CrewAI • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
 
 ---
 
