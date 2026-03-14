@@ -106,8 +106,30 @@ export default function PublicReplayPage() {
     );
   }
 
-  const decisionType = guardDecision?.decision || 'allow';
   const isSuccess = action.status === 'completed';
+  const riskScore = parseInt(action.risk_score || 0, 10);
+  
+  // High-fidelity decision inference if correlation is missing in demo/edge cases
+  const decisionType = guardDecision?.decision || (
+    action.status === 'failed' && riskScore >= 70 ? 'block' :
+    action.status === 'pending' && riskScore >= 60 ? 'require_approval' :
+    'allow'
+  );
+
+  const getResultText = () => {
+    if (isSuccess) return 'Action Successful';
+    if (decisionType === 'block') return 'Action Prevented';
+    if (decisionType === 'require_approval') return 'Approval Required';
+    return 'Action Failed';
+  };
+
+  const getResultSummary = () => {
+    if (action.output_summary) return action.output_summary;
+    if (isSuccess) return 'No policy violations detected. Decision chain verified.';
+    if (decisionType === 'block') return 'Governance runtime successfully intercepted high-risk intent.';
+    if (decisionType === 'require_approval') return 'Action paused. Awaiting human operator intervention.';
+    return 'Action failed during execution. See execution trace for details.';
+  };
 
   // ─── Render ───
   return (
@@ -216,20 +238,20 @@ export default function PublicReplayPage() {
               {/* 3. THE OUTCOME */}
               <div className="relative flex gap-6">
                 <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {isSuccess ? <Check size={20} /> : <X size={20} />}
+                  {isSuccess ? <Check size={20} /> : (decisionType === 'block' ? <ShieldAlert size={20} /> : <X size={20} />)}
                 </div>
                 <div className="flex-1">
                   <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Final Result</div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`text-lg font-bold tracking-tight ${isSuccess ? 'text-emerald-400' : 'text-red-400'} uppercase`}>
-                      {isSuccess ? 'Action Successful' : 'Action Prevented'}
+                      {getResultText()}
                     </span>
                     {action.duration_ms && (
                       <span className="text-xs text-zinc-600 font-mono">in {(action.duration_ms/1000).toFixed(2)}s</span>
                     )}
                   </div>
                   <div className="text-xs text-zinc-300 font-mono bg-black/40 p-3 rounded-lg border border-white/5 leading-relaxed">
-                    {action.output_summary || (isSuccess ? 'No policy violations detected. Decision chain verified.' : 'Governance runtime successfully intercepted high-risk intent.')}
+                    {getResultSummary()}
                   </div>
                 </div>
               </div>
