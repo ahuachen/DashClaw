@@ -5,9 +5,8 @@
   <p>AI Agent Governance Runtime</p>
   <p>Intercept. Govern. Verify.</p>
   <p>DashClaw is a policy firewall that intercepts agent actions before they reach real systems.</p>
-  <p>MIT Licensed &bull; Self-hosted &bull; Zero-dependency SDK &bull; Node + Python &bull; Open source</p>
   <br />
-  <p><strong>Agents &rarr; DashClaw &rarr; External Systems</strong></p>
+  <p><strong>Agent &rarr; DashClaw (Policy Engine) &rarr; External Systems</strong></p>
   <br />
   <p><a href="https://www.dashclaw.io/mission-control">View Demo</a></p>
 
@@ -17,165 +16,32 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <img src="screenshots/decision2.png" alt="DashClaw Full Decision Record" width="2500" /></div>
+  <img src="screenshots/Dashboard.png" alt="DashClaw Mission Control" width="2500" />
+</div>
 
 <br />
 
 ---
 
-## 30-Second Quick Start
+## The Decision Lifecycle
 
-**1. Run DashClaw locally**
-```bash
-git clone https://github.com/ucsandman/DashClaw.git
-cd DashClaw
-node scripts/setup.mjs
-```
+DashClaw provides the runtime infrastructure to govern autonomous agents:
 
-**2. Install the SDK**
-```bash
-npm install dashclaw
-```
-
-**3. Guard your agent**
-```javascript
-import { DashClaw } from 'dashclaw';
-
-const claw = new DashClaw({
-  baseUrl: 'http://localhost:3000',
-  apiKey: 'oc_live_...',
-  agentId: 'deployment-bot'
-});
-
-// Intercept before you act
-const { decision } = await claw.guard({
-  actionType: 'deploy',
-  riskScore: 85
-});
-
-if (decision === 'allowed') {
-  // execute real-world action
-}
-```
+1. **Declared Intent** — Agents declarar what they want to do via the SDK.
+2. **Policy Evaluation** — Every intent is checked against your organization's guard policies.
+3. **Outcome Gating** — Decisions are **Allowed**, **Blocked**, or sent for **Human Approval**.
+4. **Verifiable Evidence** — Cryptographically signed decision replays are recorded for audit.
 
 ---
 
-## Where DashClaw Runs
+## Core Capabilities
 
-DashClaw intercepts agent actions before they reach real systems.
-
-```
-AI Agent
-(OpenAI, Claude, CrewAI, OpenClaw)
-        │
-        │ actions
-        ▼
-     DashClaw
- Decision Runtime
-        │
-        ├ Policy evaluation
-        ├ Approval workflows
-        └ Decision evidence
-        │
-        ▼
-External Systems
-GitHub • APIs • Databases • Infrastructure
-```
-
-DashClaw becomes the enforcement layer between agent intent and real-world execution.
-
----
-
-## Category
-
-DashClaw introduces **Decision Infrastructure for AI agents**.
-
-Traditional infrastructure governs code execution. DashClaw governs autonomous agent decisions. It ensures that when an LLM decides to take an action, that action is evaluated against organizational policies before it reaches production systems.
-
----
-
-## Why This Exists
-
-Most observability tools tell you *what* your agents did. 
-
-**Observability shows what agents did. DashClaw governs what they are allowed to do.**
-
-DashClaw tells you *what they decided, why, whether they should have, and how to prevent the next bad decision.*
-
----
-
-## How DashClaw Is Different
-
-Most tools today focus on **observability** (logs and traces after the fact). DashClaw focuses on **governing agent decisions before execution**.
-
-| Tool Category | What It Does | When It Runs |
-|---------------|--------------|--------------|
-| Observability tools | Logs, traces, monitoring | After an action |
-| Agent frameworks | Plan and execute tasks | During execution |
-| Evaluation tools | Score outputs | After execution |
-| **DashClaw** | **Enforce policies and approvals** | **Before execution** |
-
-### DashClaw vs Agent Observability
-Observability tools answer "What happened?". DashClaw answers "Should the agent have been allowed to do that?"
-
-### DashClaw vs Guardrails
-Guardrails typically validate prompts and LLM outputs. DashClaw governs real-world actions and side effects.
-
-### DashClaw vs Agent Frameworks
-Frameworks (like LangChain or CrewAI) help you build agents. DashClaw provides the infrastructure to govern them in production.
-
----
-
-## Works With
-
-OpenAI | Anthropic | LangChain | CrewAI | AutoGen | OpenClaw | Custom Agents
-
-DashClaw works with any agent capable of making API calls.
-
----
-
-## What Developers Use DashClaw For
-
-### Prevent risky deployments
-Intercept deploy commands from agents and require manual approval when risk thresholds are exceeded.
-```js
-await claw.guard({
-  actionType: "deploy",
-  environment: "production"
-});
-```
-
-### Control autonomous API usage
-Limit spending and prevent dangerous actions when agents interact with third-party APIs like Stripe or AWS.
-```js
-await claw.guard({
-  actionType: "external_api_call",
-  provider: "stripe",
-  amount: 2000
-});
-```
-
-### Detect reasoning drift
-Track the assumptions agents rely on and automatically flag when those assumptions diverge from reality.
-
-### Produce audit trails
-Every governed action generates structured evidence records ready for compliance review and debugging.
-
----
-
-## Core Runtime
-
-DashClaw is built around the **Decision Lifecycle**, providing a runtime for autonomous systems:
-
-- **Mission Control** -- Control tower for fleet posture and real-time governance.
-- **Guard** -- Evaluate policies before an action executes.
-- **Decisions Ledger** -- Global stream of governed agent decisions.
-- **Agent Governance Dossier** -- Dedicated profile for every agent (posture, active policies, history).
-- **Decision Replay** -- Specialized causal chain visualization of a single decision.
-- **Public Permalinks** -- Shareable, public-safe decision stories for audit and storytelling.
-- **Assumptions** -- Track what the agent believed to be true when making a decision.
-- **Approvals** -- Pause risky actions for human review.
-- **Evidence** -- Produce verifiable, audit-ready decision trails.
+- **Mission Control** — High-level control tower for fleet posture and active interventions.
+- **Guard Engine** — Zero-latency policy enforcement before agents reach external systems.
+- **Decision Replay** — Visual, shareable causal chains of every governed action.
+- **Agent Dossiers** — Dedicated governance profiles tracking posture, policies, and history.
+- **Risk Signals** — Automated detection of autonomy spikes and failure loops.
+- **Compliance Evidence** — Generate audit-ready reports for SOC 2, GDPR, and EU AI Act.
 
 ---
 
