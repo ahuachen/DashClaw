@@ -57,10 +57,12 @@ class DashClaw {
     const data = await res.json();
 
     if (!res.ok) {
-      const err = new Error(data.error || `Request failed with status ${res.status}`);
+      // Prioritize reason (from governance blocks) over generic error field
+      const errorMessage = data.reason || data.error || `Request failed with status ${res.status}`;
+      const err = new Error(errorMessage);
       err.status = res.status;
       err.details = data.details;
-      err.decision = data.decision;
+      err.decision = data;
       throw err;
     }
 
