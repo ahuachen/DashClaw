@@ -87,15 +87,6 @@ const DEFAULT_LAYOUTS = {
     { i: 'eval-scores',       x: 2, y: 11, w: 1, h: 2, ...SHARED_CONSTRAINTS },
     { i: 'prompt-stats',      x: 3, y: 11, w: 1, h: 2, ...SHARED_CONSTRAINTS },
   ],
-};
-    { i: 'memory-health',     x: 2, y: 18, w: 1, h: 2, ...SHARED_CONSTRAINTS },
-    { i: 'calendar',          x: 3, y: 18, w: 1, h: 3, ...SHARED_CONSTRAINTS },
-
-    // Row 9: Supplemental
-    { i: 'token-chart',       x: 0, y: 20, w: 2, h: 2, ...SHARED_CONSTRAINTS, minW: 2 },
-    { i: 'inspiration',       x: 2, y: 20, w: 1, h: 2, ...SHARED_CONSTRAINTS },
-    { i: 'integrations',      x: 3, y: 20, w: 1, h: 2, ...SHARED_CONSTRAINTS },
-  ],
   md: [
     { i: 'fleet-presence',    x: 0, y: 0,  w: 2, h: 4, ...SHARED_CONSTRAINTS },
     { i: 'risk-signals',      x: 0, y: 4,  w: 1, h: 3, ...SHARED_CONSTRAINTS },
