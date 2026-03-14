@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { getActionTraceData } from '../../../lib/repositories/actions.repository.js';
+import { getSql as getDbSql } from '../../../../lib/db.js';
+import { getOrgId } from '../../../../lib/org.js';
+import { getActionTraceData } from '../../../../lib/repositories/actions.repository.js';
 
 let _sql;
 function getSql() {

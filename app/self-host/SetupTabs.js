@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Database, Cloud, Github, Zap, KeyRound } from 'lucide-react';
-import SecretGenerator from '../../components/SecretGenerator';
-import CopyMarkdownButton from '../../components/CopyMarkdownButton';
-import CopyableCodeBlock from '../../components/CopyableCodeBlock';
+import SecretGenerator from '../components/SecretGenerator';
+import CopyMarkdownButton from '../components/CopyMarkdownButton';
+import CopyableCodeBlock from '../components/CopyableCodeBlock';
 
 function StepCard({ n, title, desc, icon: Icon, children }) {
   return (

@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../lib/db.js';
-import { getOrgId } from '../../lib/org.js';
-import { getGuardDecisionEvidence, getActionRecordEvidence } from '../../lib/repositories/compliance.repository.js';
+import { getSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
+import { getGuardDecisionEvidence, getActionRecordEvidence } from '../../../lib/repositories/compliance.repository.js';
 
 /**
  * GET /api/compliance/evidence?framework=soc2&window=30d — Pull live enforcement evidence

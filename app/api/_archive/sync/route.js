@@ -5,11 +5,11 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getOrgId } from '../../lib/org';
-import { getSql } from '../../lib/db.js';
+import { getOrgId } from '../../../lib/org';
+import { getSql } from '../../../lib/db.js';
 import crypto from 'crypto';
-import { syncSchema } from '../../lib/validators/sync';
-import { scanSensitiveData } from '../../lib/security';
+import { syncSchema } from '../../../lib/validators/sync';
+import { scanSensitiveData } from '../../../lib/security';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

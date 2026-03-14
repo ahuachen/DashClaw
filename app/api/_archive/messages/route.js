@@ -2,10 +2,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getOrgId } from '../../lib/org.js';
-import { enforceFieldLimits } from '../../lib/validate.js';
-import { getSql } from '../../lib/db.js';
-import { scanSensitiveData } from '../../lib/security.js';
+import { getOrgId } from '../../../lib/org.js';
+import { enforceFieldLimits } from '../../../lib/validate.js';
+import { getSql } from '../../../lib/db.js';
+import { scanSensitiveData } from '../../../lib/security.js';
 import {
   archiveMessage,
   batchArchiveMessages,
@@ -22,8 +22,8 @@ import {
   markMessageRead,
   touchMessageThread,
   updateMessageReadBy,
-} from '../../lib/repositories/messagesContext.repository.js';
-import { EVENTS, publishOrgEvent } from '../../lib/events.js';
+} from '../../../lib/repositories/messagesContext.repository.js';
+import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { randomUUID } from 'node:crypto';
 
 const VALID_TYPES = ['action', 'info', 'lesson', 'question', 'status'];

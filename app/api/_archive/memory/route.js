@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../lib/db.js';
-import { getOrgId } from '../../lib/org.js';
+import { getSql as getDbSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

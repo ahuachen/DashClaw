@@ -1,6 +1,6 @@
-import { getSql } from '../../lib/db.js';
-import { getOrgId } from '../../lib/org.js';
-import { createProfile, listProfiles } from '../../lib/scoringProfiles.js';
+import { getSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
+import { createProfile, listProfiles } from '../../../lib/scoringProfiles.js';
 
 export async function GET(request) {
   try {
@@ -34,7 +34,7 @@ export async function POST(request) {
 
     // If dimensions are provided inline, add them
     if (Array.isArray(body.dimensions) && body.dimensions.length > 0) {
-      const { addDimension } = await import('../../lib/scoringProfiles.js');
+      const { addDimension } = await import('../../../lib/scoringProfiles.js');
       const dims = [];
       for (let i = 0; i < body.dimensions.length; i++) {
         const dim = await addDimension(sql, orgId, profile.id, {

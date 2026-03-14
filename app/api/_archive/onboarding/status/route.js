@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../lib/db.js';
-import { getOnboardingStatusForUserId } from '../../lib/onboardingState.mjs';
+import { getSql as getDbSql } from '../../../../lib/db.js';
+import { getOnboardingStatusForUserId } from '../../../../lib/onboardingState.mjs';
 
 let _sql;
 function getSql() {

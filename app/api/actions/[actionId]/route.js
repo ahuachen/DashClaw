@@ -2,19 +2,19 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../lib/db.js';
-import { validateActionOutcome } from '../../lib/validate.js';
-import { getOrgId } from '../../lib/org.js';
-import { EVENTS, publishOrgEvent } from '../../lib/events.js';
-import { scanSensitiveData } from '../../lib/security.js';
+import { getSql as getDbSql } from '../../../lib/db.js';
+import { validateActionOutcome } from '../../../lib/validate.js';
+import { getOrgId } from '../../../lib/org.js';
+import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
+import { scanSensitiveData } from '../../../lib/security.js';
 import {
   getActionWithRelations,
   updateActionOutcome,
-} from '../../lib/repositories/actions.repository.js';
+} from '../../../lib/repositories/actions.repository.js';
 import {
   recordLearningRecommendationEvents,
   scoreAndStoreActionEpisode,
-} from '../../lib/learningLoop.service.js';
+} from '../../../lib/learningLoop.service.js';
 
 function isRecommendationApplied(value) {
   return value === true || value === 1 || value === '1';

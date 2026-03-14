@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { acknowledgeAlert, deleteAlert } from '../../../lib/drift.js';
+import { acknowledgeAlert, deleteAlert } from '../../../../lib/drift.js';
 
 export async function PATCH(request, { params }) {
   try {

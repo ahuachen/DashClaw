@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Github, Key } from 'lucide-react';
-import DashClawLogo from '../../components/DashClawLogo';
+import DashClawLogo from '../components/DashClawLogo';
 import LocalPasswordForm from './LocalPasswordForm';
 
 export default function LoginClient({ localAuthEnabled }) {

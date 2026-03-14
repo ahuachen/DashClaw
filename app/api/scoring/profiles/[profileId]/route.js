@@ -1,6 +1,6 @@
-import { getSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { getProfile, updateProfile, deleteProfile } from '../../../lib/scoringProfiles.js';
+import { getSql } from '../../../../lib/db.js';
+import { getOrgId } from '../../../../lib/org.js';
+import { getProfile, updateProfile, deleteProfile } from '../../../../lib/scoringProfiles.js';
 
 export async function GET(request, { params }) {
   try {

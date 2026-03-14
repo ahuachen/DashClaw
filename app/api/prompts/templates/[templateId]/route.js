@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getTemplate, updateTemplate, deleteTemplate } from '../../../lib/prompt.js';
+import { getTemplate, updateTemplate, deleteTemplate } from '../../../../lib/prompt.js';
 
 export async function GET(request, { params }) {
   try {

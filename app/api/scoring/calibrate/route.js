@@ -1,6 +1,6 @@
-import { getSql } from '../../lib/db.js';
-import { getOrgId } from '../../lib/org.js';
-import { autoCalibrate } from '../../lib/scoringProfiles.js';
+import { getSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
+import { autoCalibrate } from '../../../lib/scoringProfiles.js';
 
 export async function POST(request) {
   try {

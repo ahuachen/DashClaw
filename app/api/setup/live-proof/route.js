@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import { createLiveVerificationProofToken } from '../../lib/liveVerificationProof.mjs';
+import { createLiveVerificationProofToken } from '../../../lib/liveVerificationProof.mjs';
 
 export async function POST(request) {
   try {

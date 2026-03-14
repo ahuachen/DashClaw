@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAnalyticsSummary } from '../../../lib/learningAnalytics.js';
+import { getAnalyticsSummary } from '../../../../lib/learningAnalytics.js';
 
 export async function GET(request) {
   try {

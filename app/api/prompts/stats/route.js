@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPromptStats } from '../../lib/prompt.js';
+import { getPromptStats } from '../../../lib/prompt.js';
 
 export async function GET(request) {
   try {

@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../lib/db.js';
-import { getOrgId, getOrgRole } from '../../lib/org.js';
+import { getSql } from '../../../lib/db.js';
+import { getOrgId, getOrgRole } from '../../../lib/org.js';
 
 export async function POST(request) {
   try {
