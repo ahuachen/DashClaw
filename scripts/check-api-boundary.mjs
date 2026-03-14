@@ -31,6 +31,8 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'prompts',
   'scoring',
   'webhooks',
+  'swarm',
+  'learning',
 
   // Tier 3: Essential Infrastructure
   'auth',
@@ -43,6 +45,8 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'activity',
   'stream',
   'cron',
+  'settings',
+  'security',
   
   // The Quarantine Zone
   '_archive',

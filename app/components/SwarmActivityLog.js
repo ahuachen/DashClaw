@@ -94,9 +94,8 @@ export default function SwarmActivityLog({
           return `${base}${params.length ? `?${params.join('&')}` : ''}`;
         };
 
-        const [actionsRes, msgsRes, guardRes, loopsRes] = await Promise.all([
+        const [actionsRes, guardRes, loopsRes] = await Promise.all([
           fetch(withPrefix('/api/actions', ['limit=12'])),
-          fetch(withPrefix('/api/messages', ['limit=10'])),
           fetch(withPrefix('/api/guard', ['limit=10'])),
           fetch(withPrefix('/api/actions/loops', ['limit=8'])),
         ]);
@@ -106,20 +105,6 @@ export default function SwarmActivityLog({
         if (actionsRes.ok) {
           const d = await actionsRes.json();
           merged.push(...(d.actions || []).map(buildActionEvent).map(toLogEntry));
-        }
-
-        if (msgsRes.ok) {
-          const d = await msgsRes.json();
-          merged.push(...(d.messages || []).map((message) => ({
-            id: `message:${message.id}`,
-            kind: 'message',
-            category: 'decision',
-            agentId: message.from_agent_id,
-            text: `Message: ${message.subject || message.body?.substring(0, 48) || 'No subject'}`,
-            timestamp: message.created_at,
-            lowSignal: false,
-            status: null,
-          })));
         }
 
         if (guardRes.ok) {

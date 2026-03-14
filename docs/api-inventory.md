@@ -14,9 +14,9 @@ doc-type: architecture
 ## Summary
 
 - Total routes: `148`
-- Stable routes: `23`
-- Beta routes: `11`
-- Experimental routes: `114`
+- Stable routes: `26`
+- Beta routes: `14`
+- Experimental routes: `108`
 
 ## Routes
 
@@ -41,15 +41,6 @@ doc-type: architecture
 | `/api/_archive/identities` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/identities/route.js` |
 | `/api/_archive/inspiration` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/inspiration/route.js` |
 | `/api/_archive/invite/{token}` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/invite/[token]/route.js` |
-| `/api/_archive/learning` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/learning/route.js` |
-| `/api/_archive/learning/analytics/curves` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/learning/analytics/curves/route.js` |
-| `/api/_archive/learning/analytics/maturity` | `GET` | `experimental` | `(default)` | `app/api/_archive/learning/analytics/maturity/route.js` |
-| `/api/_archive/learning/analytics/summary` | `GET` | `experimental` | `(default)` | `app/api/_archive/learning/analytics/summary/route.js` |
-| `/api/_archive/learning/analytics/velocity` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/learning/analytics/velocity/route.js` |
-| `/api/_archive/learning/recommendations` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/learning/recommendations/route.js` |
-| `/api/_archive/learning/recommendations/events` | `POST` | `experimental` | `(default)` | `app/api/_archive/learning/recommendations/events/route.js` |
-| `/api/_archive/learning/recommendations/metrics` | `GET` | `experimental` | `(default)` | `app/api/_archive/learning/recommendations/metrics/route.js` |
-| `/api/_archive/learning/recommendations/{recommendationId}` | `PATCH` | `experimental` | `(default)` | `app/api/_archive/learning/recommendations/[recommendationId]/route.js` |
 | `/api/_archive/memory` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/memory/route.js` |
 | `/api/_archive/messages` | `GET, PATCH, POST` | `experimental` | `(default)` | `app/api/_archive/messages/route.js` |
 | `/api/_archive/messages/attachments` | `GET` | `experimental` | `(default)` | `app/api/_archive/messages/attachments/route.js` |
@@ -72,17 +63,9 @@ doc-type: architecture
 | `/api/_archive/routing/tasks/{taskId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/_archive/routing/tasks/[taskId]/route.js` |
 | `/api/_archive/routing/tasks/{taskId}/complete` | `POST` | `experimental` | `(default)` | `app/api/_archive/routing/tasks/[taskId]/complete/route.js` |
 | `/api/_archive/schedules` | `GET` | `experimental` | `(default)` | `app/api/_archive/schedules/route.js` |
-| `/api/_archive/security/prompt-injection` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/security/prompt-injection/route.js` |
-| `/api/_archive/security/scan` | `POST` | `experimental` | `(default)` | `app/api/_archive/security/scan/route.js` |
-| `/api/_archive/security/status` | `GET` | `experimental` | `(default)` | `app/api/_archive/security/status/route.js` |
-| `/api/_archive/settings` | `DELETE, GET, POST` | `experimental` | `(default)` | `app/api/_archive/settings/route.js` |
-| `/api/_archive/settings/llm-status` | `GET` | `experimental` | `(default)` | `app/api/_archive/settings/llm-status/route.js` |
-| `/api/_archive/settings/test` | `POST` | `experimental` | `(default)` | `app/api/_archive/settings/test/route.js` |
 | `/api/_archive/snippets` | `DELETE, GET, POST` | `experimental` | `(default)` | `app/api/_archive/snippets/route.js` |
 | `/api/_archive/snippets/{snippetId}` | `GET` | `experimental` | `(default)` | `app/api/_archive/snippets/[snippetId]/route.js` |
 | `/api/_archive/snippets/{snippetId}/use` | `POST` | `experimental` | `(default)` | `app/api/_archive/snippets/[snippetId]/use/route.js` |
-| `/api/_archive/swarm/graph` | `GET` | `experimental` | `(default)` | `app/api/_archive/swarm/graph/route.js` |
-| `/api/_archive/swarm/link` | `GET` | `experimental` | `(default)` | `app/api/_archive/swarm/link/route.js` |
 | `/api/_archive/sync` | `POST` | `experimental` | `(default)` | `app/api/_archive/sync/route.js` |
 | `/api/_archive/tokens` | `GET, POST` | `experimental` | `(default)` | `app/api/_archive/tokens/route.js` |
 | `/api/_archive/tokens/budget` | `GET, PUT` | `experimental` | `(default)` | `app/api/_archive/tokens/budget/route.js` |
@@ -132,6 +115,15 @@ doc-type: architecture
 | `/api/guard` | `GET, POST` | `stable` | `/api/guard` | `app/api/guard/route.js` |
 | `/api/health` | `GET` | `stable` | `/api/health` | `app/api/health/route.js` |
 | `/api/keys` | `DELETE, GET, POST` | `stable` | `/api/keys` | `app/api/keys/route.js` |
+| `/api/learning` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/route.js` |
+| `/api/learning/analytics/curves` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/analytics/curves/route.js` |
+| `/api/learning/analytics/maturity` | `GET` | `experimental` | `/api/learning` | `app/api/learning/analytics/maturity/route.js` |
+| `/api/learning/analytics/summary` | `GET` | `experimental` | `/api/learning` | `app/api/learning/analytics/summary/route.js` |
+| `/api/learning/analytics/velocity` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/analytics/velocity/route.js` |
+| `/api/learning/recommendations` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/recommendations/route.js` |
+| `/api/learning/recommendations/events` | `POST` | `experimental` | `/api/learning` | `app/api/learning/recommendations/events/route.js` |
+| `/api/learning/recommendations/metrics` | `GET` | `experimental` | `/api/learning` | `app/api/learning/recommendations/metrics/route.js` |
+| `/api/learning/recommendations/{recommendationId}` | `PATCH` | `experimental` | `/api/learning` | `app/api/learning/recommendations/[recommendationId]/route.js` |
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
 | `/api/orgs/{orgId}` | `GET, PATCH` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/route.js` |
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
@@ -158,11 +150,19 @@ doc-type: architecture
 | `/api/scoring/risk-templates` | `GET, POST` | `experimental` | `(default)` | `app/api/scoring/risk-templates/route.js` |
 | `/api/scoring/risk-templates/{templateId}` | `DELETE, PATCH` | `experimental` | `(default)` | `app/api/scoring/risk-templates/[templateId]/route.js` |
 | `/api/scoring/score` | `GET, POST` | `experimental` | `(default)` | `app/api/scoring/score/route.js` |
+| `/api/security/prompt-injection` | `GET, POST` | `beta` | `/api/security` | `app/api/security/prompt-injection/route.js` |
+| `/api/security/scan` | `POST` | `beta` | `/api/security` | `app/api/security/scan/route.js` |
+| `/api/security/status` | `GET` | `beta` | `/api/security` | `app/api/security/status/route.js` |
+| `/api/settings` | `DELETE, GET, POST` | `stable` | `/api/settings` | `app/api/settings/route.js` |
+| `/api/settings/llm-status` | `GET` | `stable` | `/api/settings` | `app/api/settings/llm-status/route.js` |
+| `/api/settings/test` | `POST` | `stable` | `/api/settings` | `app/api/settings/test/route.js` |
 | `/api/setup/live-proof` | `POST` | `beta` | `/api/setup` | `app/api/setup/live-proof/route.js` |
 | `/api/setup/proof` | `GET` | `beta` | `/api/setup` | `app/api/setup/proof/route.js` |
 | `/api/setup/status` | `GET` | `beta` | `/api/setup` | `app/api/setup/status/route.js` |
 | `/api/signals` | `GET` | `experimental` | `(default)` | `app/api/signals/route.js` |
 | `/api/stream` | `GET` | `experimental` | `(default)` | `app/api/stream/route.js` |
+| `/api/swarm/graph` | `GET` | `experimental` | `/api/swarm` | `app/api/swarm/graph/route.js` |
+| `/api/swarm/link` | `GET` | `experimental` | `/api/swarm` | `app/api/swarm/link/route.js` |
 | `/api/team` | `GET` | `stable` | `/api/team` | `app/api/team/route.js` |
 | `/api/team/invite` | `DELETE, GET, POST` | `stable` | `/api/team` | `app/api/team/invite/route.js` |
 | `/api/team/{userId}` | `DELETE, PATCH` | `stable` | `/api/team` | `app/api/team/[userId]/route.js` |
