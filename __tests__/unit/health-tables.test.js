@@ -14,7 +14,7 @@ const {
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
 vi.mock('@/lib/embeddings.js', () => ({ isEmbeddingsEnabled: mockIsEmbeddingsEnabled }));
 vi.mock('@/lib/events.js', () => ({ getRealtimeHealth: mockGetRealtimeHealth }));
-vi.mock('../../../package.json', () => ({ version: '1.0.0-test' }), { virtual: true });
+vi.mock('../../package.json', () => ({ version: '1.0.0-test' }), { virtual: true });
 
 import { GET } from '@/api/health/route.js';
 
