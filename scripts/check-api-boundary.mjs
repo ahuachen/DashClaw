@@ -15,6 +15,7 @@ const __dirname = dirname(__filename);
  */
 
 const ALLOWED_RUNTIME_ROUTES = new Set([
+  // Tier 1: Core Governance
   'guard',
   'actions',
   'approvals',
@@ -22,16 +23,29 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'policies',
   'signals',
   'health',
-  'agents',      // Essential infrastructure (presence)
-  'webhooks',    // Essential infrastructure (alerts)
-  '_archive', // The quarantine zone
-  'auth',     // Essential infrastructure
-  'keys',     // Essential infrastructure
-  'orgs',     // Essential infrastructure
-  'team',     // Essential infrastructure (admin)
-  'usage',    // Essential infrastructure (meters)
-  'setup',    // Readiness surface
-  'events',   // Real-time events (SSE)
+
+  // Tier 2: Governance Extensions (Active)
+  'compliance',
+  'drift',
+  'evaluations',
+  'prompts',
+  'scoring',
+  'webhooks',
+
+  // Tier 3: Essential Infrastructure
+  'auth',
+  'keys',
+  'orgs',
+  'team',
+  'usage',
+  'setup',
+  'agents',
+  'activity',
+  'stream',
+  'cron',
+  
+  // The Quarantine Zone
+  '_archive',
 ]);
 
 const apiDir = join(__dirname, '../app/api');
@@ -48,7 +62,7 @@ function checkBoundary() {
     // Only check directories (API routes)
     if (statSync(fullPath).isDirectory()) {
       if (!ALLOWED_RUNTIME_ROUTES.has(item)) {
-        console.error(`❌ BOUNDARY VIOLATION: '${item}' is not a core governance route.`);
+        console.error(`❌ BOUNDARY VIOLATION: '${item}' is not an approved governance route.`);
         console.error(`   Move 'app/api/${item}' to 'app/api/_archive/${item}' to maintain the minimal runtime.`);
         violations++;
       }
@@ -57,7 +71,7 @@ function checkBoundary() {
 
   if (violations > 0) {
     console.error(`\n🚫 Boundary check failed with ${violations} violations.`);
-    console.error(`DashClaw is infrastructure, not a platform. Keep the runtime small.`);
+    console.error(`DashClaw is infrastructure, not a platform. Keep the runtime focused.`);
     process.exit(1);
   }
 
