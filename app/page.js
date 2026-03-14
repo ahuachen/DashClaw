@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle, Radar } from 'lucide-react';
 import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
@@ -14,6 +14,7 @@ import {
   agentToolCategories,
   platformCoverage,
   shippedHighlights,
+  frameworkQuickstarts,
 } from './landingData';
 
 /* ─── page ─── */
@@ -256,33 +257,70 @@ export default function LandingPage() {
       </section>
 
       {/* ── 5. The Decision Runtime ── */}
-      <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0d0d0d]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">The Decision Runtime</h2>
-            <p className="mt-3 text-zinc-400">DashClaw is built around five primitives that form a decision runtime for autonomous systems.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {corePrimitives.map((primitive) => {
+      <section className="py-24 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0d0d0d]">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-4">The Decision Runtime</h2>
+          <p className="mt-3 text-zinc-400 mb-16">DashClaw is built around five primitives that form a decision runtime for autonomous systems.</p>
+          
+          <div className="relative flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+            {/* Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand/30 to-transparent -translate-y-1/2 z-0"></div>
+            
+            {corePrimitives.map((primitive, idx) => {
               const Icon = primitive.icon;
               return (
-                <div key={primitive.title} className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] p-5 flex flex-col items-center text-center">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[rgba(249,115,22,0.1)]">
-                    <Icon size={18} className="text-brand" />
+                <div key={primitive.title} className="relative z-10 flex flex-col items-center group w-full md:w-1/5">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111] border border-white/5 shadow-xl group-hover:border-brand/40 transition-all group-hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] ring-4 ring-[#0d0d0d]">
+                    <Icon size={24} className="text-brand" />
                   </div>
-                  <h3 className="text-base font-semibold text-white">{primitive.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">{primitive.description}</p>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-tighter mb-2">{primitive.title}</h3>
+                  <p className="text-xs text-zinc-500 max-w-[140px] leading-relaxed mx-auto">{primitive.description}</p>
+                  
+                  {/* Visual Arrow (Desktop) */}
+                  {idx < corePrimitives.length - 1 && (
+                    <div className="hidden md:block absolute top-7 -right-4 translate-x-1/2">
+                      <ArrowRight size={16} className="text-zinc-800" />
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-          <p className="mt-10 text-center text-zinc-500 text-sm italic">
+          
+          <p className="mt-20 text-zinc-500 text-sm italic font-medium">
             Governance logic belongs in the runtime, not hardcoded in your agents.
           </p>
         </div>
       </section>
 
-      {/* ── 6. Quickstart ── */}
+      {/* ── 6. Framework Quickstarts ── */}
+      <section className="py-24 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-4">Works with your agent stack</h2>
+            <p className="text-zinc-400">DashClaw is the governance layer for existing agent frameworks.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {frameworkQuickstarts.map(qs => (
+              <div key={qs.id} className="flex flex-col rounded-2xl border border-white/5 bg-[#111] overflow-hidden shadow-2xl group/qs">
+                <div className="px-5 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-brand"></div>
+                    <span className="text-xs font-bold text-white tracking-tight uppercase">{qs.name}</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 font-medium group-hover/qs:text-brand transition-colors">{qs.label}</span>
+                </div>
+                <div className="p-5 font-mono text-[11px] leading-relaxed text-zinc-300 overflow-x-auto bg-black/40 h-full">
+                  <pre>{qs.code}</pre>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. Quickstart ── */}
       <section id="sdk" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0c0c0c]">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -465,88 +503,31 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 8. Platform Expansion ── */}
-      <section id="features" className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
+      {/* ── 8. Platform Visibility ── */}
+      <section id="features" className="py-24 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">When governance becomes operations</h2>
-            <p className="mt-4 text-zinc-400 max-w-2xl mx-auto">
-              Once decisions are governed, DashClaw expands into a full operational control plane for agent fleets.
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-4">When governance becomes operations</h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              Once decisions are governed, DashClaw provides the operational visibility required to run agent fleets at scale.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 mb-16 text-left">
-            <div>
-              <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Core Platform</div>
-              <div className="space-y-12">
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <FolderKanban size={20} className="text-brand" /> Fleet Operations
-                  </h3>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {['Mission Control', 'Swarm views', 'Routing', 'Schedules', 'Notifications'].map(f => (
-                      <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <BarChart3 size={20} className="text-brand" /> Quality and Learning
-                  </h3>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {['Scoring profiles', 'Calibration', 'Evaluations', 'Learning recommendations'].map(f => (
-                      <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-12">
-              <div>
-                <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Developer Tools</div>
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <MessageSquare size={20} className="text-brand" /> Agent Workspace
-                </h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {['Messaging', 'Shared docs', 'Handoffs', 'Threads', 'Memory health', 'SDKs', 'Prompt Registry', 'CLI tools'].map(f => (
-                    <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <div className="text-xs text-brand font-bold uppercase tracking-widest mb-4">Trust Infrastructure</div>
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <Shield size={20} className="text-brand" /> Compliance and Security
-                </h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {['Framework mapping', 'Risk signals', 'Policy testing', 'Audit evidence', 'Evidence', 'Identity', 'Drift Detection'].map(f => (
-                    <li key={f} className="text-sm text-zinc-400 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand"></div> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
-            {platformFeatures.map((feature) => {
+            {[
+              { icon: Radar, title: 'Mission Control', description: 'Real-time control tower for fleet posture and active interventions.' },
+              { icon: Zap, title: 'Decision Replay', description: 'Visual causal chains that explain exactly why an agent chose an action.' },
+              { icon: Shield, title: 'Policy Engine', description: 'Semantic guardrails that evolve with your organization without code changes.' },
+              { icon: Activity, title: 'Risk Signals', description: 'Automated detection of autonomy spikes, drift, and failure loops.' },
+            ].map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors text-left">
-                  <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center mb-3">
-                    <Icon size={16} className="text-brand" />
+                <div key={feature.title} className="p-6 rounded-2xl bg-[#111] border border-white/5 hover:border-brand/30 transition-all text-left group">
+                  <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Icon size={20} className="text-brand" />
                   </div>
-                  <h3 className="text-sm font-semibold text-white mb-1">{feature.title}</h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-sm font-bold text-white mb-2 uppercase tracking-tight">{feature.title}</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}

@@ -56,30 +56,81 @@ export const platformFeatures = [
 
 export const corePrimitives = [
   {
+    icon: Compass,
+    title: 'Intent',
+    description: 'Agents declare what they want to do.',
+  },
+  {
     icon: Shield,
     title: 'Guard',
     description: 'Evaluate policies before agents act.',
   },
   {
-    icon: FileCheck,
-    title: 'Action Records',
-    description: 'Capture intent, reasoning, and outcomes.',
-  },
-  {
-    icon: Compass,
-    title: 'Assumptions',
-    description: 'Track what the agent believed and detect drift.',
-  },
-  {
     icon: UsersRound,
-    title: 'Approvals',
+    title: 'Approval',
     description: 'Pause risky decisions for human review.',
+  },
+  {
+    icon: Zap,
+    title: 'Action',
+    description: 'The governed decision is executed.',
   },
   {
     icon: Scale,
     title: 'Evidence',
-    description: 'Generate audit-ready decision trails automatically.',
+    description: 'A signed replay is recorded for audit.',
   },
+];
+
+export const frameworkQuickstarts = [
+  {
+    id: 'langchain',
+    name: 'LangChain',
+    label: 'Python tool guard',
+    code: `from dashclaw import DashClaw
+
+claw = DashClaw(api_key="...")
+
+# Intercept tool execution
+decision = claw.guard(
+    action_type="deploy",
+    risk_score=82
+)
+
+if decision == "allowed":
+    run_agent_tool()`
+  },
+  {
+    id: 'crewai',
+    name: 'CrewAI',
+    label: 'Agent task guard',
+    code: `# Wrap sensitive agent tasks
+decision = claw.guard(
+    action_type="external_api_call",
+    provider="stripe",
+    risk_score=88
+)
+
+if decision == "allowed":
+    crew.kickoff()`
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI Tools',
+    label: 'Node.js function guard',
+    code: `import { DashClaw } from 'dashclaw'
+const claw = new DashClaw()
+
+// Guard before calling the tool
+const { decision } = await claw.guard({
+  actionType: "deploy",
+  riskScore: 90
+})
+
+if (decision === 'allowed') {
+  await openai.chat.completions.create(...)
+}`
+  }
 ];
 
 export const operationalFeatures = [
