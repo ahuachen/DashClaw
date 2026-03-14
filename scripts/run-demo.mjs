@@ -105,7 +105,8 @@ async function main() {
       console.log(`   to view the live decision record in Mission Control.`);
       console.log(`   Press Ctrl+C to exit when you're done.`);
       console.log(`======================================================\n`);
-      // DO NOT call cleanup() or process.exit() here. Keep the server alive!
+      // Keep the script running to prevent terminal from returning to prompt
+      setInterval(() => {}, 1000 * 60 * 60); 
     } else {
       console.error(`❌ Example agent exited with code ${code}`);
       cleanup();
