@@ -2,7 +2,6 @@
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
   <p><strong>Decision infrastructure for AI agents</strong></p>
-  <p>AI Agent Governance Runtime</p>
   <p>Intercept. Govern. Verify.</p>
   <p>DashClaw is a policy firewall that intercepts agent actions before they reach real systems.</p>
   <br />
@@ -12,6 +11,7 @@
 
   <a href="https://dashclaw.io"><img src="https://img.shields.io/badge/website-dashclaw.io-orange?style=flat-square" alt="Website" /></a>
   <a href="https://dashclaw.io/docs"><img src="https://img.shields.io/badge/docs-SDK%20%26%20API-blue?style=flat-square" alt="Docs" /></a>
+  <a href="https://github.com/ucsandman/DashClaw/stargazers"><img src="https://img.shields.io/github/stars/ucsandman/DashClaw?style=flat-square&color=yellow" alt="GitHub stars" /></a>
   <a href="https://github.com/ucsandman/DashClaw/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" /></a>
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
@@ -23,14 +23,40 @@
 
 ---
 
+## Why DashClaw Exists
+
+AI agents don't just generate text — they execute actions.
+
+They deploy code, modify databases, call APIs, and interact with production systems.
+
+Traditional observability tools can show **what happened after the fact**.
+
+But they can't answer the most important question:
+
+**Why was the agent allowed to do that?**
+
+DashClaw sits between agents and the systems they interact with.
+
+Every agent action is intercepted, evaluated against guard policies, and recorded with verifiable decision evidence.
+
+---
+
 ## The Decision Lifecycle
 
 DashClaw provides the runtime infrastructure to govern autonomous agents:
 
-1. **Declared Intent** — Agents declarar what they want to do via the SDK.
+1. **Declared Intent** — Agents declare what they want to do via the SDK.
 2. **Policy Evaluation** — Every intent is checked against your organization's guard policies.
 3. **Outcome Gating** — Decisions are **Allowed**, **Blocked**, or sent for **Human Approval**.
 4. **Verifiable Evidence** — Cryptographically signed decision replays are recorded for audit.
+
+---
+
+## What DashClaw Solves
+
+AI agents can execute actions with real-world consequences.
+
+DashClaw sits between agents and external systems, enforcing guard policies before actions execute and recording verifiable decision evidence afterward.
 
 ---
 
@@ -62,7 +88,7 @@ node first-governed-action.js
 ```
 
 The example sends a governed decision to the DashClaw demo instance. 
-Open **[Mission Control](https://www.dashclaw.io/mission-control)** to watch it appear in real time.
+Open **[Mission Control](https://www.dashclaw.io/mission-control)** to watch the intercepted decision appear in real time.
 
 > **Running your own instance?**  
 > If you're running DashClaw locally or on Vercel, set `DASHCLAW_BASE_URL` to your deployment URL first.  
@@ -73,9 +99,24 @@ Open **[Mission Control](https://www.dashclaw.io/mission-control)** to watch it 
 
 ---
 
+## Works With Your Agent Stack
+
+DashClaw can govern decisions from any agent runtime.
+
+Common integrations include:
+
+• LangChain agents  
+• CrewAI agents  
+• OpenAI tool agents  
+• Anthropic tool agents  
+• OpenClaw agents  
+• Custom agent frameworks
+
+---
+
 ## Platform Expansion
 
-Once decisions are governed, DashClaw expands into a full control plane for agent fleets:
+Once decisions are governed, DashClaw provides operational visibility for agent fleets.
 
 - **Mission Control dashboard** — operational visibility for agent fleets.
 - **Decision Replay** — causal chain visualization for every governed action.
