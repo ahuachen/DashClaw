@@ -1,6 +1,33 @@
-// In-memory store for runs during the current server session
-const sessionEvaluations = [];
-const sessionActions = [];
+// Deterministic demo data for the 1-Minute Governance Test
+const DEMO_TEST_ACTION_ID = 'ar_demo_deploy_block_001';
+const demoTestAction = {
+  action_id: DEMO_TEST_ACTION_ID,
+  org_id: 'org_demo',
+  agent_id: 'openai-deployer-1',
+  agent_name: 'OpenAI Deployer',
+  action_type: 'deploy',
+  declared_goal: 'Deploy latest build to production',
+  status: 'failed',
+  risk_score: 85,
+  confidence: 100,
+  timestamp_start: new Date().toISOString(),
+  timestamp_end: new Date().toISOString(),
+  verified: true,
+};
+
+const demoTestEval = {
+  id: `gd_demo_deploy_001`,
+  agent_id: 'openai-deployer-1',
+  agent_name: 'OpenAI Deployer',
+  action_type: 'deploy',
+  decision: 'block',
+  action_id: DEMO_TEST_ACTION_ID,
+  reason: 'High-risk production action requires explicit approval per Demo Policy.',
+  matched_policies: ['Demo Production Guard'],
+  risk_score: 85,
+  created_at: new Date().toISOString(),
+  signals: []
+};
 
 export function demoListActions(fixtures, url) {
   const sp = url.searchParams;
@@ -12,8 +39,8 @@ export function demoListActions(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  // Combine static fixtures with live session data
-  let items = [...sessionActions, ...fixtures.actions];
+  // Combine deterministic demo test action with fixtures
+  let items = [demoTestAction, ...fixtures.actions];
 
   if (agentId) items = items.filter(a => a.agent_id === agentId);
   if (status) items = items.filter(a => a.status === status);
@@ -58,9 +85,6 @@ export function demoCreateAction(fixtures, body) {
     verified: true,
   };
 
-  // PERSIST: Save to session memory
-  sessionActions.unshift(action);
-  
   return { 
     action, 
     action_id, 
@@ -77,7 +101,9 @@ export function demoCreateAction(fixtures, body) {
 
 export function demoAgents(fixtures) {
   const map = new Map();
-  for (const a of fixtures.actions) {
+  // Include our synthetic demo test action
+  const allActions = [demoTestAction, ...fixtures.actions];
+  for (const a of allActions) {
     const prev = map.get(a.agent_id) || { agent_id: a.agent_id, agent_name: a.agent_name, action_count: 0, last_active: null };
     prev.action_count += 1;
     const ts = a.timestamp_start || null;
@@ -110,18 +136,16 @@ export function demoAgentDetail(fixtures, agentId) {
 }
 
 export function demoActionDetail(fixtures, actionId) {
-  // Check live session data first so the terminal demo run works in the replay view
-  const sessionAction = sessionActions.find(a => a.action_id === actionId);
-  if (sessionAction) {
-    const sessionEval = sessionEvaluations.find(e => e.action_id === actionId);
+  // Always return the deterministic demo test action so the replay works flawlessly
+  if (actionId === DEMO_TEST_ACTION_ID) {
     return {
-      action: sessionAction,
+      action: demoTestAction,
       open_loops: [],
       assumptions: [
-        { assumption_id: `asm_demo_${Math.random().toString(36).slice(2, 10)}`, action_id: actionId, assumption: 'Demo environment is active', basis: 'Local run', validated: 1 }
+        { assumption_id: `asm_demo_1`, action_id: actionId, assumption: 'Demo environment is active', basis: 'Local run', validated: 1 }
       ],
-      decision: sessionEval ? sessionEval.decision : undefined,
-      decision_reason: sessionEval ? sessionEval.reason : undefined
+      decision: demoTestEval.decision,
+      decision_reason: demoTestEval.reason
     };
   }
 
@@ -422,12 +446,12 @@ export function demoGuardPost(fixtures, body) {
   const shouldBlock = isDemoAgent && riskScore >= 80;
 
   const evaluation = {
-    id: `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
+    id: isDemoAgent ? 'gd_demo_deploy_001' : `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
     agent_id: agentId,
     agent_name: isDemoAgent ? 'OpenAI Deployer' : 'Unknown Agent',
     action_type: body.action_type || 'unknown',
     decision: shouldBlock ? 'block' : 'allow',
-    action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
+    action_id: isDemoAgent ? DEMO_TEST_ACTION_ID : `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
     reason: shouldBlock 
       ? 'High-risk production action requires explicit approval per Demo Policy.'
       : 'Action permitted under default demo policy.',
