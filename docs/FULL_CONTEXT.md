@@ -59,59 +59,54 @@ DashClaw ships as one codebase serving two roles via `DASHCLAW_MODE`:
 
 ## 3. Architecture Overview
 
+DashClaw is organized into a lean governance runtime with modular extensions using Next.js Route Groups.
+
 ```
 app/
-├── mission-control/page.js    # Control Tower — Landing page (posture, interventions, live stream)
-│
-├── Tier 1 — Core (Governance Runtime)
+├── (core)/                    # Tier 1 — Governance Runtime UI
+│   ├── mission-control/       # Control Tower (posture, interventions, live stream)
 │   ├── decisions/             # Decisions Ledger & Replay (Visual causal chain)
-│   ├── policies/page.js       # Guard Policies — Full lifecycle (CRUD, simulation, testing, proof)
+│   ├── policies/              # Guard Policies — Full lifecycle (CRUD, simulation, testing)
 │   ├── approvals/             # Human-in-the-loop approval queue
-│   ├── security/              # Risk Signals — Spikes, failure loops, alerts
-│   ├── drift/                 # Assumptions — Track what agents believe
-│   ├── compliance/            # Evidence — Control mapping and reports
-│   └── audit-log/page.js      # Permanent record of system/admin events
-│
-├── Tier 2 — Supporting (Infrastructure)
+│   ├── audit-log/             # Permanent record of system/admin events
+│   ├── activity/              # Real-time operational telemetry feed
 │   ├── agents/                # Agent Fleet & Dossiers (Health and filtering)
-│   ├── activity/page.js       # Activity Stream — Real-time operational telemetry feed
-│   ├── setup/                 # Settings — System configuration (Integrated)
-│   ├── team/                  # Team — Members, roles, and invites
-│   └── usage/                 # Usage — Token velocity and cost tracking
+│   ├── security/              # Risk Signals — Spikes, failure loops, alerts
+│   ├── compliance/            # Evidence — Control mapping and reports
+│   └── usage/                 # Token velocity and cost tracking
 │
-├── labs/                      # Tier 3 — Experimental (AI Safety Research)
+├── (extensions)/              # Tier 3 — Experimental (AI Safety Research)
+│   ├── drift/                 # Behavioral Drift — Assumptions and reasoning tracking
+│   ├── learning/              # Learning Loops — Performance analytics over time
+│   ├── routing/               # Task Routing — Agent-to-agent delegation maps
 │   ├── swarm/                 # Swarm Intel — Multi-agent communication maps
-│   ├── learning/              # Learning — Performance analytics over time
-│   └── prompts/               # Prompts — Template versioning and stats
+│   └── prompts/               # Prompt Management — Template versioning and stats
 │
-├── archives/                  # Tier 4 — Legacy (Archives)
+├── (archive)/                 # Tier 4 — Legacy Artifacts
 │   ├── goals/                 # Replaced by Action Intent
+│   ├── messages/              # Replaced by Activity Stream
 │   └── workspace/             # Replaced by Activity Stream
 │
-├── components/
-│   ├── Sidebar.js             # Core Navigation (Grouped by Capability Tier)
-│   ├── QuickStart.js          # Onboarding component (SDK guide + Decision Simulator)
-│   ├── PageLayout.js          # Unified page shell
-│   ├── AssumptionGraph.js     # Decision lineage visualization
-│   └── ui/                    # Design system primitives
+├── api/                       # The Stable Runtime API (Decision Control Plane)
+│   ├── guard/                 # POST /guard — "Can I do X?"
+│   ├── actions/               # POST /actions — "I am attempting X."
+│   ├── approvals/             # POST /approvals/:id — "Operator decision"
+│   ├── assumptions/           # POST /assumptions — "I believe Z"
+│   └── signals/               # GET /signals — "Risk indicators"
 │
-├── lib/
-│   ├── guard.js               # Guard evaluation engine
-│   ├── signals.js             # Risk signal computation
-│   └── audit.js               # Activity logging
-│
-└── api/                       # Decision Control Plane
+├── components/                # Shared UI Components
+├── lib/                       # Core Business Logic & Repositories
+└── hooks/                     # Shared React Hooks
 ```
 
 ### Key Invariants
 
 1. **Mission Control as Landing Page**: Post-login, users are always sent to `/mission-control` for immediate operational posture.
 2. **Decision Lineage Everywhere**: The product emphasizes the causal chain (Intent → Policy → Outcome) rather than isolated logs.
-3. **Activation via Simulation**: New instances provide a "Run Simulation" feature to demonstrate governance without requiring an immediate SDK integration. Simulations in demo mode return high-fidelity mock replays.
-4. **Shareable Permalinks**: Any decision can be shared via a public-safe `/replay/[id]` link.
-5. **No direct SQL in route files.** All queries go in `app/lib/repositories/*.repository.js`. CI blocks violations via `npm run route-sql:check`.
-6. **Org context headers** (`x-org-id`, `x-org-role`, `x-user-id`) are injected by middleware only — never accepted from clients.
-7. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
+3. **Minimal Runtime API**: The entire platform maps to five idempotent primitives (Guard, Actions, Outcomes, Assumptions, Approvals).
+4. **No direct SQL in route files.** All queries go in `app/lib/repositories/*.repository.js`.
+5. **Org context headers** (`x-org-id`, `x-org-role`, `x-user-id`) are injected by middleware only — never accepted from clients.
+6. **Default-deny** for all `/api/*` routes — only explicit `PUBLIC_ROUTES` skip auth.
 
 ---
 

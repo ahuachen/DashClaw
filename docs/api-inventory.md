@@ -14,22 +14,18 @@ doc-type: architecture
 ## Summary
 
 - Total routes: `148`
-- Stable routes: `44`
+- Stable routes: `40`
 - Beta routes: `19`
-- Experimental routes: `85`
+- Experimental routes: `89`
 
 ## Routes
 
 | Path | Methods | Maturity | Rule Prefix | File |
 |---|---|---|---|---|
 | `/api/actions` | `DELETE, GET, POST` | `stable` | `/api/actions` | `app/api/actions/route.js` |
-| `/api/actions/assumptions` | `GET, POST` | `stable` | `/api/actions` | `app/api/actions/assumptions/route.js` |
-| `/api/actions/assumptions/{assumptionId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/assumptions/[assumptionId]/route.js` |
 | `/api/actions/loops` | `GET, POST` | `stable` | `/api/actions` | `app/api/actions/loops/route.js` |
 | `/api/actions/loops/{loopId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/loops/[loopId]/route.js` |
-| `/api/actions/signals` | `GET` | `stable` | `/api/actions` | `app/api/actions/signals/route.js` |
 | `/api/actions/{actionId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/[actionId]/route.js` |
-| `/api/actions/{actionId}/approve` | `POST` | `stable` | `/api/actions` | `app/api/actions/[actionId]/approve/route.js` |
 | `/api/actions/{actionId}/trace` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/trace/route.js` |
 | `/api/activity` | `GET` | `beta` | `/api/activity` | `app/api/activity/route.js` |
 | `/api/agent-schedules` | `GET, POST` | `experimental` | `(default)` | `app/api/agent-schedules/route.js` |
@@ -37,6 +33,9 @@ doc-type: architecture
 | `/api/agents/connections` | `GET, POST` | `experimental` | `/api/agents` | `app/api/agents/connections/route.js` |
 | `/api/agents/heartbeat` | `POST` | `experimental` | `/api/agents` | `app/api/agents/heartbeat/route.js` |
 | `/api/agents/{agentId}` | `GET` | `experimental` | `/api/agents` | `app/api/agents/[agentId]/route.js` |
+| `/api/approvals/{actionId}` | `POST` | `experimental` | `(default)` | `app/api/approvals/[actionId]/route.js` |
+| `/api/assumptions` | `GET, POST` | `experimental` | `(default)` | `app/api/assumptions/route.js` |
+| `/api/assumptions/{assumptionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/assumptions/[assumptionId]/route.js` |
 | `/api/auth/config` | `GET` | `beta` | `/api/auth` | `app/api/auth/config/route.js` |
 | `/api/auth/local` | `DELETE, POST` | `beta` | `/api/auth` | `app/api/auth/local/route.js` |
 | `/api/bounties` | `GET` | `experimental` | `/api/bounties` | `app/api/bounties/route.js` |
@@ -153,6 +152,7 @@ doc-type: architecture
 | `/api/setup/live-proof` | `POST` | `beta` | `/api/setup` | `app/api/setup/live-proof/route.js` |
 | `/api/setup/proof` | `GET` | `beta` | `/api/setup` | `app/api/setup/proof/route.js` |
 | `/api/setup/status` | `GET` | `beta` | `/api/setup` | `app/api/setup/status/route.js` |
+| `/api/signals` | `GET` | `experimental` | `(default)` | `app/api/signals/route.js` |
 | `/api/snippets` | `DELETE, GET, POST` | `stable` | `/api/snippets` | `app/api/snippets/route.js` |
 | `/api/snippets/{snippetId}` | `GET` | `stable` | `/api/snippets` | `app/api/snippets/[snippetId]/route.js` |
 | `/api/snippets/{snippetId}/use` | `POST` | `stable` | `/api/snippets` | `app/api/snippets/[snippetId]/use/route.js` |

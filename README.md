@@ -60,6 +60,65 @@ DashClaw sits between agents and external systems, enforcing guard policies befo
 
 ---
 
+## Project Structure
+
+DashClaw is organized into a lean governance runtime with modular extensions.
+
+- **`/app/(core)`** — **The Governance Runtime UI**. Mission Control, Decisions, Policies, and Approvals.
+- **`/app/(extensions)`** — **Labs & Experimental Infrastructure**. Behavioral drift, learning loops, and task routing.
+- **`/app/(archive)`** — **Legacy Artifacts**. Preserved historical features (Goals, Messages, etc.).
+- **`/app/api`** — **The Stable Runtime API**. Small, idempotent primitives for agent integration.
+- **`/sdk`** — **Lightweight SDKs**. Node and Python clients for the governance lifecycle.
+
+---
+
+## Minimal Runtime API
+
+DashClaw provides a small, stable API surface for governing any agent:
+
+1. **`POST /api/guard`** — "Can I do X?" (Policy check)
+2. **`POST /api/actions`** — "I am attempting X." (Action registration)
+3. **`PATCH /api/actions/:id`** — "X finished with result Y." (Outcome recording)
+4. **`POST /api/assumptions`** — "I believe Z is true while doing X." (Reasoning ledger)
+5. **`POST /api/approvals/:id`** — "Operator says Allow/Deny for X." (Human-in-the-loop)
+
+Everything else (UI, Analytics, Extensions) maps back to these five primitives.
+
+---
+
+## SDK v2 (Alpha)
+
+The new **DashClaw SDK v2** focuses on the minimal runtime API for better stability and lower latency.
+
+```javascript
+import { DashClaw } from './sdk/dashclaw-v2.js';
+
+const claw = new DashClaw({
+  baseUrl: 'https://your-dashclaw.com',
+  apiKey: 'key_...',
+  agentId: 'my-agent'
+});
+
+// 1. Guard
+const decision = await claw.guard({
+  action: 'deploy',
+  intent: 'deploy latest commit to production'
+});
+
+if (decision.decision === 'block') throw new Error('Policy blocked action');
+
+// 2. Act
+const { action_id } = await claw.createAction({
+  action_type: 'deploy',
+  declared_goal: 'deploy latest commit to production'
+});
+
+// 3. Result
+await claw.updateOutcome(action_id, { status: 'completed' });
+```
+
+---
+
 ## Core Capabilities
 
 - **Mission Control** — High-level control tower for fleet posture and active interventions.

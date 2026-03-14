@@ -106,7 +106,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
   const evaluated_at = new Date().toISOString();
 
   // Log decision fire-and-forget
-  const decisionId = `gd_${randomUUID().replace(/-/g, '').slice(0, 24)}`;
+  const decisionId = `act_gd_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
 
   // SECURITY: do not store raw secrets in guard decision context.
   // This keeps the evaluation logic unchanged; only the logged context is redacted.
@@ -152,11 +152,15 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
 
   return {
     decision: highestDecision,
-    reasons,
-    warnings,
+    action_id: decisionId, // Standardized ID for the evaluation
+    reason: reasons.join('; ') || null, // Primary reason string
+    signals: [...warnings, ...reasons], // Combined signals for the SDK
     matched_policies: matchedPolicies,
     risk_score: context.risk_score != null ? context.risk_score : null,
     evaluated_at,
+    // Backward compatibility
+    reasons,
+    warnings,
   };
 }
 

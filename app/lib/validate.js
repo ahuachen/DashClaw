@@ -194,11 +194,13 @@ export function validateAssumptionUpdate(body) {
 
 const GUARD_INPUT_SCHEMA = {
   action_type:     { type: 'string', required: true, maxLength: 128 },
+  action:          { type: 'string', alias: 'action_type' }, // Alias for action_type
   risk_score:      { type: 'integer', min: 0, max: 100 },
   agent_id:        { type: 'string', maxLength: 128 },
   systems_touched: { type: 'array', maxItems: 50 },
   reversible:      { type: 'boolean' },
   declared_goal:   { type: 'string', maxLength: 2000 },
+  intent:          { type: 'string', alias: 'declared_goal' }, // Alias for declared_goal
 };
 
 const POLICY_TYPES = ['risk_threshold', 'require_approval', 'block_action_type', 'rate_limit', 'webhook_check', 'behavioral_anomaly', 'semantic_check'];
@@ -212,7 +214,12 @@ const POLICY_SCHEMA = {
 };
 
 export function validateGuardInput(body) {
-  return validate(body, GUARD_INPUT_SCHEMA);
+  // Normalize aliases before validation
+  const normalized = { ...body };
+  if (body.action && !body.action_type) normalized.action_type = body.action;
+  if (body.intent && !body.declared_goal) normalized.declared_goal = body.intent;
+  
+  return validate(normalized, GUARD_INPUT_SCHEMA);
 }
 
 export function validatePolicy(body) {

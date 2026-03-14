@@ -64,6 +64,15 @@ const nextConfig = {
       },
     ];
   },
+  // API Rewrites for backward compatibility with older SDKs
+  async rewrites() {
+    return [
+      { source: '/api/actions/:actionId/approve', destination: '/api/approvals/:actionId' },
+      { source: '/api/actions/assumptions', destination: '/api/assumptions' },
+      { source: '/api/actions/assumptions/:assumptionId', destination: '/api/assumptions/:assumptionId' },
+      { source: '/api/actions/signals', destination: '/api/signals' },
+    ];
+  },
 }
 
 module.exports = nextConfig

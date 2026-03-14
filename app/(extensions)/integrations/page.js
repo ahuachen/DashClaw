@@ -1,0 +1,894 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
+import {
+  Plug, Bot, Database, MessageSquare, FileText, Wrench, Globe, CreditCard,
+  Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings, Users, ChevronDown
+} from 'lucide-react';
+import { getAgentColor } from '../../lib/colors';
+import PageLayout from '../../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { StatCompact } from '../../components/ui/Stat';
+
+// Integration configurations with their settings fields
+const INTEGRATION_CONFIGS = {
+  // === AI PROVIDERS ===
+  openai: {
+    name: 'OpenAI',
+    category: 'AI',
+    description: 'GPT models & embeddings',
+    fields: [
+      { key: 'OPENAI_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'OPENAI_ORG_ID', label: 'Organization ID', type: 'text', required: false }
+    ]
+  },
+  anthropic: {
+    name: 'Anthropic',
+    category: 'AI',
+    description: 'Claude models',
+    fields: [
+      { key: 'ANTHROPIC_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  groq: {
+    name: 'Groq',
+    category: 'AI',
+    description: 'Ultra-fast LLM inference',
+    fields: [
+      { key: 'GROQ_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  together: {
+    name: 'Together AI',
+    category: 'AI',
+    description: 'Open source model hosting',
+    fields: [
+      { key: 'TOGETHER_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  replicate: {
+    name: 'Replicate',
+    category: 'AI',
+    description: 'Run ML models in the cloud',
+    fields: [
+      { key: 'REPLICATE_API_TOKEN', label: 'API Token', type: 'password', required: true }
+    ]
+  },
+  huggingface: {
+    name: 'Hugging Face',
+    category: 'AI',
+    description: 'Models, datasets, spaces',
+    fields: [
+      { key: 'HUGGINGFACE_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  perplexity: {
+    name: 'Perplexity',
+    category: 'AI',
+    description: 'AI-powered search',
+    fields: [
+      { key: 'PERPLEXITY_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  elevenlabs: {
+    name: 'ElevenLabs',
+    category: 'AI',
+    description: 'Text-to-speech voice generation',
+    fields: [
+      { key: 'ELEVENLABS_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'ELEVENLABS_VOICE_ID', label: 'Default Voice ID', type: 'text', required: false }
+    ]
+  },
+
+  // === DATABASES ===
+  neon: {
+    name: 'Neon',
+    category: 'Database',
+    description: 'Serverless PostgreSQL',
+    fields: [
+      { key: 'DATABASE_URL', label: 'Connection String', type: 'password', required: true, placeholder: 'postgresql://user:pass@host/db' }
+    ]
+  },
+  supabase: {
+    name: 'Supabase',
+    category: 'Database',
+    description: 'Postgres + Auth + Storage',
+    fields: [
+      { key: 'SUPABASE_URL', label: 'Project URL', type: 'text', required: true },
+      { key: 'SUPABASE_ANON_KEY', label: 'Anon Key', type: 'password', required: true },
+      { key: 'SUPABASE_SERVICE_KEY', label: 'Service Key', type: 'password', required: false }
+    ]
+  },
+  planetscale: {
+    name: 'PlanetScale',
+    category: 'Database',
+    description: 'Serverless MySQL',
+    fields: [
+      { key: 'PLANETSCALE_URL', label: 'Connection String', type: 'password', required: true }
+    ]
+  },
+  mongodb: {
+    name: 'MongoDB',
+    category: 'Database',
+    description: 'NoSQL document database',
+    fields: [
+      { key: 'MONGODB_URI', label: 'Connection URI', type: 'password', required: true }
+    ]
+  },
+  redis: {
+    name: 'Redis',
+    category: 'Database',
+    description: 'In-memory cache & data store',
+    fields: [
+      { key: 'REDIS_URL', label: 'Connection URL', type: 'password', required: true }
+    ]
+  },
+  pinecone: {
+    name: 'Pinecone',
+    category: 'Database',
+    description: 'Vector database for AI',
+    fields: [
+      { key: 'PINECONE_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'PINECONE_ENVIRONMENT', label: 'Environment', type: 'text', required: true }
+    ]
+  },
+
+  // === COMMUNICATION ===
+  telegram: {
+    name: 'Telegram',
+    category: 'Communication',
+    description: 'Chat bot interface',
+    fields: [
+      { key: 'TELEGRAM_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
+      { key: 'TELEGRAM_CHAT_ID', label: 'Chat ID', type: 'text', required: false }
+    ]
+  },
+  discord: {
+    name: 'Discord',
+    category: 'Communication',
+    description: 'Community & bot platform',
+    fields: [
+      { key: 'DISCORD_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
+      { key: 'DISCORD_CLIENT_ID', label: 'Client ID', type: 'text', required: false },
+      { key: 'DISCORD_GUILD_ID', label: 'Server ID', type: 'text', required: false }
+    ]
+  },
+  slack: {
+    name: 'Slack',
+    category: 'Communication',
+    description: 'Workspace messaging',
+    fields: [
+      { key: 'SLACK_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
+      { key: 'SLACK_SIGNING_SECRET', label: 'Signing Secret', type: 'password', required: false },
+      { key: 'SLACK_APP_TOKEN', label: 'App Token', type: 'password', required: false }
+    ]
+  },
+  twilio: {
+    name: 'Twilio',
+    category: 'Communication',
+    description: 'SMS & voice APIs',
+    fields: [
+      { key: 'TWILIO_ACCOUNT_SID', label: 'Account SID', type: 'text', required: true },
+      { key: 'TWILIO_AUTH_TOKEN', label: 'Auth Token', type: 'password', required: true },
+      { key: 'TWILIO_PHONE_NUMBER', label: 'Phone Number', type: 'text', required: false }
+    ]
+  },
+  resend: {
+    name: 'Resend',
+    category: 'Communication',
+    description: 'Developer-first email API',
+    fields: [
+      { key: 'RESEND_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  sendgrid: {
+    name: 'SendGrid',
+    category: 'Communication',
+    description: 'Email delivery service',
+    fields: [
+      { key: 'SENDGRID_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+
+  // === PRODUCTIVITY ===
+  google: {
+    name: 'Google Workspace',
+    category: 'Productivity',
+    description: 'Calendar, Gmail, Drive',
+    fields: [
+      { key: 'GOOGLE_ACCOUNT', label: 'Account Email', type: 'email', required: true },
+      { key: 'GOOGLE_CREDENTIALS_PATH', label: 'Credentials Path', type: 'text', required: false }
+    ]
+  },
+  notion: {
+    name: 'Notion',
+    category: 'Productivity',
+    description: 'Workspace & documentation',
+    fields: [
+      { key: 'NOTION_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'NOTION_PARENT_PAGE_ID', label: 'Parent Page ID', type: 'text', required: false }
+    ]
+  },
+  linear: {
+    name: 'Linear',
+    category: 'Productivity',
+    description: 'Issue tracking for teams',
+    fields: [
+      { key: 'LINEAR_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  airtable: {
+    name: 'Airtable',
+    category: 'Productivity',
+    description: 'Spreadsheet-database hybrid',
+    fields: [
+      { key: 'AIRTABLE_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'AIRTABLE_BASE_ID', label: 'Base ID', type: 'text', required: false }
+    ]
+  },
+  calendly: {
+    name: 'Calendly',
+    category: 'Productivity',
+    description: 'Scheduling automation',
+    fields: [
+      { key: 'CALENDLY_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+
+  // === DEV & HOSTING ===
+  github: {
+    name: 'GitHub',
+    category: 'Development',
+    description: 'Code repos & version control',
+    fields: [
+      { key: 'GITHUB_TOKEN', label: 'Personal Access Token', type: 'password', required: true },
+      { key: 'GITHUB_USERNAME', label: 'Username', type: 'text', required: false }
+    ]
+  },
+  vercel: {
+    name: 'Vercel',
+    category: 'Development',
+    description: 'Frontend deployment',
+    fields: [
+      { key: 'VERCEL_TOKEN', label: 'API Token', type: 'password', required: true },
+      { key: 'VERCEL_PROJECT_ID', label: 'Project ID', type: 'text', required: false }
+    ]
+  },
+  railway: {
+    name: 'Railway',
+    category: 'Development',
+    description: 'Full-stack deployment',
+    fields: [
+      { key: 'RAILWAY_TOKEN', label: 'API Token', type: 'password', required: true }
+    ]
+  },
+  cloudflare: {
+    name: 'Cloudflare',
+    category: 'Development',
+    description: 'CDN, DNS, Workers',
+    fields: [
+      { key: 'CLOUDFLARE_API_TOKEN', label: 'API Token', type: 'password', required: true },
+      { key: 'CLOUDFLARE_ACCOUNT_ID', label: 'Account ID', type: 'text', required: false }
+    ]
+  },
+  sentry: {
+    name: 'Sentry',
+    category: 'Development',
+    description: 'Error detection & reporting',
+    fields: [
+      { key: 'SENTRY_DSN', label: 'DSN', type: 'password', required: true },
+      { key: 'SENTRY_AUTH_TOKEN', label: 'Auth Token', type: 'password', required: false }
+    ]
+  },
+
+  // === SOCIAL & SEARCH ===
+  twitter: {
+    name: 'Twitter/X',
+    category: 'Social',
+    description: 'Social media integration',
+    fields: [
+      { key: 'TWITTER_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'TWITTER_API_SECRET', label: 'API Secret', type: 'password', required: true },
+      { key: 'TWITTER_ACCESS_TOKEN', label: 'Access Token', type: 'password', required: false },
+      { key: 'TWITTER_ACCESS_SECRET', label: 'Access Secret', type: 'password', required: false }
+    ]
+  },
+  brave: {
+    name: 'Brave Search',
+    category: 'Social',
+    description: 'Web search API',
+    fields: [
+      { key: 'BRAVE_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+  moltbook: {
+    name: 'Moltbook',
+    category: 'Social',
+    description: 'AI social platform',
+    fields: [
+      { key: 'MOLTBOOK_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  },
+
+  // === PAYMENTS ===
+  stripe: {
+    name: 'Stripe',
+    category: 'Payments',
+    description: 'Payment processing',
+    fields: [
+      { key: 'STRIPE_SECRET_KEY', label: 'Secret Key', type: 'password', required: true },
+      { key: 'STRIPE_PUBLISHABLE_KEY', label: 'Publishable Key', type: 'text', required: false },
+      { key: 'STRIPE_WEBHOOK_SECRET', label: 'Webhook Secret', type: 'password', required: false }
+    ]
+  },
+  lemonsqueezy: {
+    name: 'Lemon Squeezy',
+    category: 'Payments',
+    description: 'Merchant of record',
+    fields: [
+      { key: 'LEMONSQUEEZY_API_KEY', label: 'API Key', type: 'password', required: true }
+    ]
+  }
+};
+
+const CATEGORY_ICONS = {
+  all: Plug,
+  AI: Bot,
+  Database: Database,
+  Communication: MessageSquare,
+  Productivity: FileText,
+  Development: Wrench,
+  Social: Globe,
+  Payments: CreditCard
+};
+
+const CATEGORIES = [
+  { id: 'all', name: 'All' },
+  { id: 'AI', name: 'AI Providers' },
+  { id: 'Database', name: 'Databases' },
+  { id: 'Communication', name: 'Communication' },
+  { id: 'Productivity', name: 'Productivity' },
+  { id: 'Development', name: 'Dev & Hosting' },
+  { id: 'Social', name: 'Social & Search' },
+  { id: 'Payments', name: 'Payments' }
+];
+
+export default function IntegrationsPage() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'admin';
+
+  const [settings, setSettings] = useState({});
+  const [agentConnections, setAgentConnections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingIntegration, setEditingIntegration] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [showValues, setShowValues] = useState({});
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [agents, setAgents] = useState([]);
+  const [selectedAgentId, setSelectedAgentId] = useState(null); // null = "All Agents (Org Default)"
+  const [agentDropdownOpen, setAgentDropdownOpen] = useState(false);
+
+  const fetchAgents = useCallback(async () => {
+    try {
+      const res = await fetch('/api/agents');
+      if (!res.ok) return;
+      const data = await res.json();
+      setAgents(data.agents || []);
+    } catch (error) {
+      console.error('Failed to fetch agents:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
+
+  const fetchConnections = useCallback(async () => {
+    try {
+      let url = '/api/agents/connections';
+      if (selectedAgentId) {
+        url += `?agent_id=${encodeURIComponent(selectedAgentId)}`;
+      }
+      const res = await fetch(url);
+      if (!res.ok) {
+        setAgentConnections([]);
+        return;
+      }
+      const data = await res.json();
+      setAgentConnections(data.connections || []);
+    } catch (error) {
+      console.error('Failed to fetch agent connections:', error);
+      setAgentConnections([]);
+    }
+  }, [selectedAgentId]);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      let url = '/api/settings?category=integration';
+      if (selectedAgentId) {
+        url += `&agent_id=${encodeURIComponent(selectedAgentId)}`;
+      }
+      const res = await fetch(url);
+      const data = await res.json();
+      const settingsMap = {};
+      (data.settings || []).forEach(s => {
+        settingsMap[s.key] = s;
+      });
+      setSettings(settingsMap);
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedAgentId]);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchSettings(), fetchConnections()]);
+  }, [fetchSettings, fetchConnections]);
+
+  // Build a map of provider -> connections for quick lookup
+  const connectionsByProvider = {};
+  for (const conn of agentConnections) {
+    const key = conn.provider.toLowerCase();
+    if (!connectionsByProvider[key]) connectionsByProvider[key] = [];
+    connectionsByProvider[key].push(conn);
+  }
+
+  const getIntegrationStatus = (integrationKey) => {
+    const config = INTEGRATION_CONFIGS[integrationKey];
+    const requiredFields = config.fields.filter(f => f.required);
+    const hasAllRequired = requiredFields.every(f => settings[f.key]?.hasValue);
+
+    if (hasAllRequired) return 'connected';
+    if (config.fields.some(f => settings[f.key]?.hasValue)) return 'configured';
+    if (connectionsByProvider[integrationKey]?.some(c => c.status === 'active')) return 'agent_connected';
+    return 'not_configured';
+  };
+
+  // Check if any field for an integration is inherited from org defaults
+  const isIntegrationInherited = (integrationKey) => {
+    const config = INTEGRATION_CONFIGS[integrationKey];
+    return selectedAgentId && config.fields.some(f => settings[f.key]?.is_inherited && settings[f.key]?.hasValue);
+  };
+
+  const openEditor = (integrationKey) => {
+    const config = INTEGRATION_CONFIGS[integrationKey];
+    const initialData = {};
+    config.fields.forEach(f => {
+      initialData[f.key] = settings[f.key]?.value || '';
+    });
+    setFormData(initialData);
+    setEditingIntegration(integrationKey);
+    setTestResult(null);
+  };
+
+  const closeEditor = () => {
+    setEditingIntegration(null);
+    setFormData({});
+    setTestResult(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const config = INTEGRATION_CONFIGS[editingIntegration];
+
+      for (const field of config.fields) {
+        if (formData[field.key] !== undefined) {
+          const payload = {
+            key: field.key,
+            value: formData[field.key],
+            category: 'integration',
+            encrypted: field.type === 'password'
+          };
+          if (selectedAgentId) {
+            payload.agent_id = selectedAgentId;
+          }
+          await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+      }
+
+      await fetchSettings();
+      closeEditor();
+    } catch (error) {
+      console.error('Save failed:', error);
+      alert('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const testConnection = async () => {
+    setTestResult({ status: 'testing', message: 'Testing connection...' });
+
+    try {
+      const res = await fetch('/api/settings/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          integration: editingIntegration,
+          credentials: formData
+        })
+      });
+      const data = await res.json();
+      setTestResult({
+        status: data.success ? 'success' : 'error',
+        message: data.success ? data.message : data.message
+      });
+    } catch (error) {
+      setTestResult({ status: 'error', message: `Test failed: ${error.message}` });
+    }
+  };
+
+  const toggleShowValue = (key) => {
+    setShowValues(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const getStatusDot = (status) => {
+    switch (status) {
+      case 'connected':
+        return <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />;
+      case 'agent_connected':
+        return <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />;
+      case 'configured':
+        return <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block" />;
+      default:
+        return <span className="w-2 h-2 rounded-full bg-zinc-500 inline-block" />;
+    }
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'connected': return 'Connected';
+      case 'agent_connected': return 'Agent Connected';
+      case 'configured': return 'Partial';
+      default: return 'Not Set';
+    }
+  };
+
+  const allIntegrations = Object.entries(INTEGRATION_CONFIGS);
+
+  // Filter by category and search
+  const integrationsList = allIntegrations.filter(([key, config]) => {
+    const matchesCategory = activeCategory === 'all' || config.category === activeCategory;
+    const matchesSearch = !searchQuery ||
+      config.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      config.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const connectedCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'connected').length;
+  const agentConnectedCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'agent_connected').length;
+  const configuredCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'configured').length;
+
+  if (loading) {
+    return (
+      <PageLayout
+        title="Integrations & Settings"
+        subtitle="Configure your connected services"
+        breadcrumbs={['Dashboard', 'Integrations']}
+      >
+        <div className="flex items-center justify-center py-20">
+          <div className="text-sm text-zinc-500">Loading integrations...</div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout
+      title="Integrations & Settings"
+      subtitle={selectedAgentId
+        ? `Per-agent settings for ${agents.find(a => a.agent_id === selectedAgentId)?.agent_name || selectedAgentId}`
+        : 'Configure your connected services'
+      }
+      breadcrumbs={['Dashboard', 'Integrations']}
+    >
+      {/* Agent Selector */}
+      {agents.length > 0 && (
+        <div className="mb-6 relative">
+          <label className="block text-xs text-zinc-500 mb-1.5">Viewing settings for</label>
+          <button
+            onClick={() => setAgentDropdownOpen(!agentDropdownOpen)}
+            className="w-full max-w-xs flex items-center justify-between gap-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm text-white hover:border-[rgba(255,255,255,0.12)] transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              {selectedAgentId ? (
+                <>
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: getAgentColor(selectedAgentId) }}
+                  />
+                  <span className="truncate">{agents.find(a => a.agent_id === selectedAgentId)?.agent_name || selectedAgentId}</span>
+                </>
+              ) : (
+                <>
+                  <Users size={14} className="text-zinc-400 shrink-0" />
+                  <span>All Agents (Org Default)</span>
+                </>
+              )}
+            </span>
+            <ChevronDown size={14} className={`text-zinc-400 transition-transform ${agentDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {agentDropdownOpen && (
+            <div className="absolute z-30 mt-1 w-full max-w-xs bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-lg shadow-xl overflow-hidden">
+              <button
+                onClick={() => { setSelectedAgentId(null); setAgentDropdownOpen(false); }}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-surface-tertiary ${
+                  !selectedAgentId ? 'text-brand' : 'text-zinc-300'
+                }`}
+              >
+                <Users size={14} className="text-zinc-400 shrink-0" />
+                All Agents (Org Default)
+              </button>
+              {agents.map(agent => (
+                <button
+                  key={agent.agent_id}
+                  onClick={() => { setSelectedAgentId(agent.agent_id); setAgentDropdownOpen(false); }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-surface-tertiary ${
+                    selectedAgentId === agent.agent_id ? 'text-brand' : 'text-zinc-300'
+                  }`}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: getAgentColor(agent.agent_id) }}
+                  />
+                  {agent.agent_name || agent.agent_id}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <Card hover={false}>
+          <CardContent className="pt-4 pb-4">
+            <StatCompact label="Available" value={allIntegrations.length} color="text-white" />
+          </CardContent>
+        </Card>
+        <Card hover={false}>
+          <CardContent className="pt-4 pb-4">
+            <StatCompact label="Connected" value={connectedCount} color="text-green-400" />
+          </CardContent>
+        </Card>
+        <Card hover={false}>
+          <CardContent className="pt-4 pb-4">
+            <StatCompact label="Agent Connected" value={agentConnectedCount} color="text-blue-400" />
+          </CardContent>
+        </Card>
+        <Card hover={false}>
+          <CardContent className="pt-4 pb-4">
+            <StatCompact label="Partial" value={configuredCount} color="text-yellow-400" />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4 relative">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+        <input
+          type="text"
+          placeholder="Search integrations..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg pl-10 pr-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
+        />
+      </div>
+
+      {/* Category Tabs */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {CATEGORIES.map((cat) => {
+          const CatIcon = CATEGORY_ICONS[cat.id];
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 flex items-center gap-1.5 ${
+                activeCategory === cat.id
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-tertiary text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
+              }`}
+            >
+              <CatIcon size={14} />
+              {cat.name}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Results count */}
+      {(activeCategory !== 'all' || searchQuery) && (
+        <p className="text-xs text-zinc-500 mb-4">
+          Showing {integrationsList.length} of {allIntegrations.length} integrations
+        </p>
+      )}
+
+      {/* Integrations Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {integrationsList.map(([key, config]) => {
+          const status = getIntegrationStatus(key);
+          return (
+            <Card
+              key={key}
+              className={isAdmin ? 'cursor-pointer group' : 'group'}
+              hover={isAdmin}
+            >
+              <div className="p-5" onClick={() => isAdmin ? openEditor(key) : null}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-surface-tertiary rounded-lg flex items-center justify-center">
+                      <Plug size={16} className="text-zinc-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-white">{config.name}</div>
+                      <div className="text-xs text-zinc-500">{config.description}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-2">
+                    {getStatusDot(status)}
+                    <span className="text-xs text-zinc-500">{getStatusLabel(status)}</span>
+                    {isIntegrationInherited(key) && (
+                      <span className="text-[10px] text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">inherited</span>
+                    )}
+                  </div>
+                  {isAdmin && (
+                    <span className="text-xs text-zinc-500 group-hover:text-brand transition-colors">
+                      Configure
+                    </span>
+                  )}
+                </div>
+                {/* Agent connection details */}
+                {connectionsByProvider[key]?.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.04)] space-y-1.5">
+                    {connectionsByProvider[key].map((conn) => (
+                      <div key={conn.id} className="flex items-center gap-2 text-xs">
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: getAgentColor(conn.agent_id) }}
+                        />
+                        <span className="text-zinc-400 truncate">{conn.agent_id}</span>
+                        <span className="text-zinc-600">via {conn.auth_type.replace('_', ' ')}</span>
+                        {conn.plan_name && (
+                          <span className="text-[10px] text-blue-400 border border-blue-500/20 rounded px-1 py-0.5">{conn.plan_name}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Edit Modal (admin only) */}
+      {editingIntegration && isAdmin && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-surface-tertiary rounded-lg flex items-center justify-center">
+                    <Plug size={16} className="text-zinc-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-white">
+                      {INTEGRATION_CONFIGS[editingIntegration].name}
+                    </h2>
+                    <p className="text-sm text-zinc-400">
+                      {INTEGRATION_CONFIGS[editingIntegration].description}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={closeEditor}
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {INTEGRATION_CONFIGS[editingIntegration].fields.map((field) => (
+                  <div key={field.key}>
+                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                      {field.label}
+                      {field.required && <span className="text-red-400 ml-1">*</span>}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showValues[field.key] ? 'text' : field.type}
+                        value={formData[field.key] || ''}
+                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                        className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
+                      />
+                      {field.type === 'password' && (
+                        <button
+                          type="button"
+                          onClick={() => toggleShowValue(field.key)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+                        >
+                          {showValues[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-1">
+                      {field.key}
+                      {selectedAgentId && settings[field.key]?.is_inherited && settings[field.key]?.hasValue && (
+                        <span className="ml-2 text-zinc-600">Inherited from org default</span>
+                      )}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Test Result */}
+              {testResult && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  testResult.status === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                  testResult.status === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                  'bg-surface-tertiary text-zinc-300'
+                }`}>
+                  {testResult.message}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={testConnection}
+                  className="flex-1 px-3 py-2.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 font-medium"
+                >
+                  Test Connection
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex-1 bg-brand hover:bg-brand/90 text-white py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save Settings'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info Section */}
+      <Card hover={false} className="mt-8">
+        <CardHeader title="About Settings" icon={Info} />
+        <CardContent>
+          <div className="text-sm text-zinc-300 space-y-2">
+            <p className="flex items-center gap-2">
+              <Shield size={14} className="text-zinc-400 shrink-0" />
+              <span><strong className="text-white">Security:</strong> Sensitive values are encrypted and masked in the UI</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <Cloud size={14} className="text-zinc-400 shrink-0" />
+              <span><strong className="text-white">Cloud Sync:</strong> Settings are stored in your Neon database</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <Settings size={14} className="text-zinc-400 shrink-0" />
+              <span><strong className="text-white">Environment:</strong> For agent gateway settings, update your config file</span>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </PageLayout>
+  );
+}
