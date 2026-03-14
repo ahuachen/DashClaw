@@ -1,3 +1,6 @@
+// In-memory store for runs during the current server session
+const sessionEvaluations = [];
+const sessionActions = [];
 
 export function demoListActions(fixtures, url) {
   const sp = url.searchParams;
@@ -9,7 +12,9 @@ export function demoListActions(fixtures, url) {
   const limit = Math.min(parseInt(sp.get('limit') || '50', 10), 200);
   const offset = parseInt(sp.get('offset') || '0', 10);
 
-  let items = fixtures.actions.slice();
+  // Combine static fixtures with live session data
+  let items = [...sessionActions, ...fixtures.actions];
+
   if (agentId) items = items.filter(a => a.agent_id === agentId);
   if (status) items = items.filter(a => a.status === status);
   if (actionType) items = items.filter(a => a.action_type === actionType);
@@ -39,28 +44,32 @@ export function demoCreateAction(fixtures, body) {
   
   // Use a high-impact blocked story for simulator bot
   const isSimulator = body.agent_id === 'simulator-bot';
+  const isDemoAgent = body.agent_id === 'openai-deployer-1';
   
   const action = {
     ...body,
     action_id,
     org_id: 'org_demo',
     timestamp_start: body.timestamp_start || new Date().toISOString(),
-    status: isSimulator ? 'failed' : (body.status || 'completed'),
+    status: (isSimulator || isDemoAgent) ? 'failed' : (body.status || 'completed'),
     risk_score: isSimulator ? 92 : (body.risk_score || 0),
     confidence: isSimulator ? 88 : (body.confidence || 100),
     declared_goal: isSimulator ? 'CHARGE: Stripe Customer sub_12345 -- $12,000.00' : (body.declared_goal || 'Routine Task'),
     verified: true,
   };
+
+  // PERSIST: Save to session memory
+  sessionActions.unshift(action);
   
   return { 
     action, 
     action_id, 
     decision: { 
-      decision: isSimulator ? 'block' : 'allow', 
+      decision: (isSimulator || isDemoAgent) ? 'block' : 'allow', 
       reason: isSimulator 
         ? 'Risk score 92 exceeds automation threshold for financial operations.' 
-        : 'Demo mode simulation auto-permitted.',
-      matched_policies: isSimulator ? ['financial-escalation-v2', 'high-risk-intercept'] : []
+        : (isDemoAgent ? 'High-risk production action requires explicit approval per Demo Policy.' : 'Demo mode simulation auto-permitted.'),
+      matched_policies: (isSimulator || isDemoAgent) ? ['Demo Production Guard'] : []
     },
     security: { clean: true, findings_count: 0 }
   };
@@ -375,7 +384,9 @@ export function demoGuard(fixtures, url) {
     };
   }
 
-  let reads = (fixtures.guardReads || fixtures.guardDecisions || []).slice();
+  // Combine static fixtures with live session data
+  let reads = [...sessionEvaluations, ...(fixtures.guardReads || fixtures.guardDecisions || [])];
+  
   if (agentId) reads = reads.filter(r => r.agent_id === agentId);
   if (policyId) reads = reads.filter(r => r.policy_id === policyId);
 
@@ -395,25 +406,26 @@ export function demoGuardPost(fixtures, body) {
   const isDemoAgent = agentId === 'openai-deployer-1';
   const shouldBlock = isDemoAgent && riskScore >= 80;
 
-  if (shouldBlock) {
-    return {
-      decision: 'block',
-      action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
-      reason: 'High-risk production action requires explicit approval per Demo Policy.',
-      matched_policies: ['Demo Production Guard'],
-      risk_score: riskScore,
-      signals: []
-    };
-  }
-
-  return {
-    decision: 'allow',
+  const evaluation = {
+    id: `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
+    agent_id: agentId,
+    agent_name: isDemoAgent ? 'OpenAI Deployer' : 'Unknown Agent',
+    action_type: body.action_type || 'unknown',
+    decision: shouldBlock ? 'block' : 'allow',
     action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
-    reason: 'Action permitted under default demo policy.',
-    matched_policies: [],
+    reason: shouldBlock 
+      ? 'High-risk production action requires explicit approval per Demo Policy.'
+      : 'Action permitted under default demo policy.',
+    matched_policies: shouldBlock ? ['Demo Production Guard'] : [],
     risk_score: riskScore,
+    created_at: new Date().toISOString(),
     signals: []
   };
+
+  // PERSIST: Save to session memory so it shows up in the dashboard
+  sessionEvaluations.unshift(evaluation);
+
+  return evaluation;
 }
 
 export function demoMessages(fixtures, url) {
