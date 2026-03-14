@@ -16,7 +16,7 @@ import { DashClaw, GuardBlockedError } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL || 'http://localhost:3000',
-  apiKey: process.env.DASHCLAW_API_KEY,
+  apiKey: process.env.DASHCLAW_API_KEY || 'demo-key',
   agentId: 'openai-deployer-1',
 });
 

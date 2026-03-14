@@ -5,7 +5,7 @@ import { getDemoFixtures } from './app/lib/demo/demoFixtures.js';
 import {
   demoListActions, demoCreateAction, demoAgents, demoAgentDetail, demoActionDetail, demoAssumptions,
   demoLearning, demoLearningRecommendations, demoLearningRecommendationMetrics,
-  demoTokens, demoPolicies, demoPolicySimulate, demoPolicyProof, demoPolicyTest, demoGuard, demoMessages, demoMessageThreads,
+  demoTokens, demoPolicies, demoPolicySimulate, demoPolicyProof, demoPolicyTest, demoGuard, demoGuardPost, demoMessages, demoMessageThreads,
   demoMessageDocs, demoContent, demoTeam, demoTeamInvites, demoActivity,
   demoWebhooks, demoWebhookDeliveries, demoWorkflows, demoSchedules,
   demoDigest, demoContextPoints, demoContextThreads, demoContextThreadDetail,
@@ -383,8 +383,8 @@ export async function middleware(request) {
         return demoJson(request, demoPolicySimulate(fixtures, {}));
       }
 
-      // Allow simulated actions in demo mode.
-      const isSimulation = pathname === '/api/actions' && method === 'POST';
+      // Allow simulated actions and guard checks in demo mode.
+      const isSimulation = (pathname === '/api/actions' || pathname === '/api/guard') && method === 'POST';
 
       if (!isRead && !isSimulation) {
         return demoJson(request, { error: 'Demo mode: write APIs are disabled.' }, 403);
@@ -772,6 +772,16 @@ export async function middleware(request) {
       }
 
       if (pathname === '/api/guard') {
+        if (method === 'POST') {
+          try {
+            const body = await request.json();
+            const result = demoGuardPost(fixtures, body);
+            const status = (result.decision === 'block' || result.decision === 'require_approval') ? 403 : 200;
+            return demoJson(request, result, status);
+          } catch (e) {
+            return demoJson(request, { error: 'Invalid request body' }, 400);
+          }
+        }
         return demoJson(request, demoGuard(fixtures, url));
       }
 

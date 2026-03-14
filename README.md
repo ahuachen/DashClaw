@@ -51,19 +51,23 @@ DashClaw sits between your agents and your systems:
 
 ## ⚡ 1-Minute Governance Test
 
-Run your first governed agent action in under 60 seconds.
+Run your first governed agent action in under 60 seconds with **zero configuration**.
 
 ```bash
 # 1. Clone the repo
 git clone https://github.com/ucsandman/DashClaw
-cd DashClaw/examples/dashclaw-example-openai-agent
+cd DashClaw
 
-# 2. Run the example
+# 2. Start the Demo
 npm install
-node index.js
+npm run demo
 ```
 
-**The Wow Moment:** You will see the agent attempt a "High Risk" action, which is instantly intercepted and blocked by the DashClaw policy firewall. The agent is forced to stop before any real system is touched.
+**What happens?**
+1. DashClaw starts a local governance runtime automatically.
+2. The example agent attempts a high-risk "Production Deploy".
+3. DashClaw **intercepts** and **blocks** the action based on policy.
+4. You see the "wow moment" of agent governance in your terminal.
 
 ---
 

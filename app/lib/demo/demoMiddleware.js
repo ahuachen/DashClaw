@@ -387,6 +387,35 @@ export function demoGuard(fixtures, url) {
   return { evaluations: paged, total, stats, lastUpdated: new Date().toISOString() };
 }
 
+export function demoGuardPost(fixtures, body) {
+  const agentId = body.agent_id;
+  const riskScore = body.risk_score || 0;
+  
+  // Deterministic block for the 1-Minute Governance Test
+  const isDemoAgent = agentId === 'openai-deployer-1';
+  const shouldBlock = isDemoAgent && riskScore >= 80;
+
+  if (shouldBlock) {
+    return {
+      decision: 'block',
+      action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
+      reason: 'High-risk production action requires explicit approval per Demo Policy.',
+      matched_policies: ['Demo Production Guard'],
+      risk_score: riskScore,
+      signals: []
+    };
+  }
+
+  return {
+    decision: 'allow',
+    action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
+    reason: 'Action permitted under default demo policy.',
+    matched_policies: [],
+    risk_score: riskScore,
+    signals: []
+  };
+}
+
 export function demoMessages(fixtures, url) {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);

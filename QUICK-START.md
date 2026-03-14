@@ -2,11 +2,25 @@
 
 DashClaw is a policy firewall for AI agents. This guide will get you from zero to your first **governed agent action** in under 8 minutes.
 
+## ⚡ The 1-Minute Governance Test (Fastest Path)
+
+The absolute fastest way to see DashClaw in action with **zero configuration**:
+
+```bash
+# 1. Clone and install
+git clone https://github.com/ucsandman/DashClaw.git
+cd DashClaw
+npm install
+
+# 2. Start the Demo
+npm run demo
+```
+
+**What happens?** DashClaw starts a local demo runtime, waits for it to be ready, runs an example agent, and intercepts a high-risk deployment action—all in one command.
+
 ---
 
-## Step 1: Deploy DashClaw
-
-### Option A: Local Development
+## Step 1: Deploy DashClaw (Full Local Environment)
 1. **Clone the repo**:
    ```bash
    git clone https://github.com/ucsandman/DashClaw.git
