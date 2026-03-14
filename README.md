@@ -97,7 +97,7 @@ const decision = await claw.guard({
 
 DashClaw works with any agent framework.
 
-**LangChain • CrewAI • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
+**LangChain • CrewAI • OpenClaw • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
 
 ---
 
