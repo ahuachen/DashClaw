@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { getSql as getDbSql } from '../../../lib/db.js';
 import { getOrgId } from '../../../lib/org.js';
 import { scanSensitiveData } from '../../../lib/security.js';
+import { getAssumption, updateAssumption } from '../../../lib/repositories/assumptions.repository.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -34,18 +35,13 @@ export async function GET(request, { params }) {
     const orgId = getOrgId(request);
     const { assumptionId } = await params;
 
-    const assumptions = await sql`
-      SELECT a.*, ar.agent_id, ar.agent_name, ar.declared_goal, ar.action_type, ar.status as action_status
-      FROM assumptions a
-      LEFT JOIN action_records ar ON a.action_id = ar.action_id
-      WHERE a.assumption_id = ${assumptionId} AND a.org_id = ${orgId}
-    `;
+    const assumption = await getAssumption(sql, orgId, assumptionId);
 
-    if (assumptions.length === 0) {
+    if (!assumption) {
       return NextResponse.json({ error: 'Assumption not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ assumption: assumptions[0] });
+    return NextResponse.json({ assumption });
   } catch (error) {
     console.error('Assumption detail GET error:', error);
     return NextResponse.json({ error: 'An error occurred while fetching the assumption' }, { status: 500 });
@@ -83,12 +79,12 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const existing = await sql`SELECT assumption_id, validated, invalidated FROM assumptions WHERE assumption_id = ${assumptionId} AND org_id = ${orgId}`;
-    if (existing.length === 0) {
+    const existing = await getAssumption(sql, orgId, assumptionId);
+    if (!existing) {
       return NextResponse.json({ error: 'Assumption not found' }, { status: 404 });
     }
 
-    if (existing[0].invalidated === 1) {
+    if (existing.invalidated === 1) {
       return NextResponse.json({ error: 'Assumption is already invalidated' }, { status: 409 });
     }
 
@@ -96,29 +92,23 @@ export async function PATCH(request, { params }) {
 
     if (validated === true) {
       // Validate the assumption
-      const result = await sql`
-        UPDATE assumptions
-        SET validated = 1,
-            validated_at = ${now}
-        WHERE assumption_id = ${assumptionId} AND org_id = ${orgId}
-        RETURNING *
-      `;
-      return NextResponse.json({ assumption: result[0] });
+      const result = await updateAssumption(sql, orgId, assumptionId, {
+        validated: true,
+        validated_at: now
+      });
+      return NextResponse.json({ assumption: result });
     } else {
       // Invalidate the assumption
       // SECURITY: redact likely secrets before storing invalidation reason.
       const dlpFindings = [];
       const safeReason = redactAny(invalidated_reason.trim(), dlpFindings);
-      const result = await sql`
-        UPDATE assumptions
-        SET invalidated = 1,
-            invalidated_reason = ${safeReason},
-            invalidated_at = ${now}
-        WHERE assumption_id = ${assumptionId} AND org_id = ${orgId}
-        RETURNING *
-      `;
+      const result = await updateAssumption(sql, orgId, assumptionId, {
+        invalidated: true,
+        invalidated_reason: safeReason,
+        invalidated_at: now
+      });
       return NextResponse.json({
-        assumption: result[0],
+        assumption: result,
         security: {
           clean: dlpFindings.length === 0,
           findings_count: dlpFindings.length,

@@ -1,11 +1,10 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { NextResponse } from 'next/server';
 import { getSql as getDbSql } from '../../lib/db.js';
 import { validateAssumption } from '../../lib/validate.js';
 import { getOrgId } from '../../lib/org.js';
 import { scanSensitiveData } from '../../lib/security.js';
+import { listAssumptions, createAssumption } from '../../lib/repositories/assumptions.repository.js';
+import { hasAction } from '../../lib/repositories/actions.repository.js';
 import crypto from 'crypto';
 
 function redactAny(value, findings) {
@@ -41,50 +40,15 @@ export async function GET(request) {
     const drift = searchParams.get('drift');
     const action_id = searchParams.get('action_id');
     const agent_id = searchParams.get('agent_id');
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 200);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const limit = searchParams.get('limit');
+    const offset = searchParams.get('offset');
 
-    let paramIdx = 1;
-    const conditions = [`a.org_id = $${paramIdx++}`];
-    const params = [orgId];
+    const result = await listAssumptions(sql, orgId, {
+      validated, stale, action_id, agent_id, limit, offset
+    });
 
-    if (validated === 'true') {
-      conditions.push(`a.validated = 1`);
-    } else if (validated === 'false') {
-      conditions.push(`a.validated = 0 AND a.invalidated = 0`);
-    }
-    if (stale === 'true') {
-      // Unvalidated assumptions older than 7 days
-      conditions.push(`a.validated = 0 AND a.invalidated = 0 AND a.created_at < NOW() - INTERVAL '7 days'`);
-    }
-    if (action_id) {
-      conditions.push(`a.action_id = $${paramIdx++}`);
-      params.push(action_id);
-    }
-    if (agent_id) {
-      conditions.push(`ar.agent_id = $${paramIdx++}`);
-      params.push(agent_id);
-    }
-
-    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
-    const query = `
-      SELECT a.*, ar.agent_id, ar.agent_name, ar.declared_goal
-      FROM assumptions a
-      LEFT JOIN action_records ar ON a.action_id = ar.action_id AND ar.org_id = a.org_id
-      ${where}
-      ORDER BY a.created_at DESC
-      LIMIT $${paramIdx++} OFFSET $${paramIdx++}
-    `;
-    params.push(limit, offset);
-
-    const countQuery = `SELECT COUNT(*) as total FROM assumptions a ${where}`;
-    const countParams = params.slice(0, -2);
-
-    const [assumptions, countResult] = await Promise.all([
-      sql.query(query, params),
-      sql.query(countQuery, countParams)
-    ]);
+    const assumptions = result.assumptions;
+    const total = result.total;
 
     // Drift scoring: calculate per-assumption risk score based on age and validation state
     if (drift === 'true') {
@@ -104,7 +68,6 @@ export async function GET(request) {
         }
       }
 
-      const total = parseInt(countResult[0]?.total || '0', 10);
       return NextResponse.json({
         assumptions,
         total,
@@ -121,7 +84,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       assumptions,
-      total: parseInt(countResult[0]?.total || '0', 10),
+      total,
       lastUpdated: new Date().toISOString()
     });
   } catch (error) {
@@ -151,33 +114,18 @@ export async function POST(request) {
     }
 
     // Verify parent action exists
-    const action = await sql`SELECT action_id FROM action_records WHERE action_id = ${data.action_id} AND org_id = ${orgId}`;
-    if (action.length === 0) {
+    const actionExists = await hasAction(sql, orgId, data.action_id);
+    if (!actionExists) {
       return NextResponse.json({ error: 'Parent action not found' }, { status: 404 });
     }
 
-    const assumption_id = data.assumption_id || `asm_${crypto.randomUUID()}`;
+    data.assumption_id = data.assumption_id || `asm_${crypto.randomUUID()}`;
 
-    const result = await sql`
-      INSERT INTO assumptions (
-        org_id, assumption_id, action_id, assumption, basis,
-        validated, invalidated, invalidated_reason
-      ) VALUES (
-        ${orgId},
-        ${assumption_id},
-        ${data.action_id},
-        ${data.assumption},
-        ${data.basis || null},
-        ${data.validated ? 1 : 0},
-        ${data.invalidated ? 1 : 0},
-        ${data.invalidated_reason || null}
-      )
-      RETURNING *
-    `;
+    const newAssumption = await createAssumption(sql, orgId, data);
 
     return NextResponse.json({
-      assumption: result[0],
-      assumption_id,
+      assumption: newAssumption,
+      assumption_id: newAssumption.assumption_id,
       security: {
         clean: dlpFindings.length === 0,
         findings_count: dlpFindings.length,

@@ -1,5 +1,39 @@
 import { OUTCOME_FIELDS } from '../validate.js';
 
+export async function hasAction(sql, orgId, actionId) {
+  const rows = await sql`
+    SELECT 1 FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1
+  `;
+  return rows.length > 0;
+}
+
+export async function getActionStatus(sql, orgId, actionId) {
+  const rows = await sql`
+    SELECT status, agent_id FROM action_records 
+    WHERE action_id = ${actionId} AND org_id = ${orgId}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function recordApproval(sql, orgId, actionId, data) {
+  const { newStatus, errorMessage, decision, userId, safeReasoning } = data;
+
+  const result = await sql`
+    UPDATE action_records
+    SET status = ${newStatus},
+        error_message = ${errorMessage},
+        reasoning = COALESCE(reasoning, '') || '
+
+[HITL Decision: ' || ${decision.toUpperCase()} || ' by ' || ${userId} || ']' || 
+                    CASE WHEN ${safeReasoning || ''} != '' THEN '
+Reason: ' || ${safeReasoning} ELSE '' END
+    WHERE action_id = ${actionId} AND org_id = ${orgId}
+    RETURNING *
+  `;
+  return result[0] || null;
+}
+
 export async function listActions(sql, orgId, filters = {}) {
   const {
     agent_id,

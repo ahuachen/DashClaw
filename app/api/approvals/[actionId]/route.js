@@ -4,6 +4,7 @@ import { getOrgId, getOrgRole, getUserId } from '../../../lib/org.js';
 import { logActivity } from '../../../lib/audit.js';
 import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { scanSensitiveData } from '../../../lib/security.js';
+import { recordApproval, getActionStatus } from '../../../lib/repositories/actions.repository.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -47,17 +48,13 @@ export async function POST(request, { params }) {
     const sql = getSql();
 
     // Verify action is in pending_approval state
-    const action = await sql`
-      SELECT status, agent_id FROM action_records 
-      WHERE action_id = ${actionId} AND org_id = ${orgId}
-      LIMIT 1
-    `;
+    const action = await getActionStatus(sql, orgId, actionId);
 
-    if (action.length === 0) {
+    if (!action) {
       return NextResponse.json({ error: 'Action not found' }, { status: 404 });
     }
 
-    if (action[0].status !== 'pending_approval') {
+    if (action.status !== 'pending_approval') {
       return NextResponse.json({ error: 'Action is not pending approval' }, { status: 400 });
     }
 
@@ -68,18 +65,13 @@ export async function POST(request, { params }) {
     const newStatus = decision === 'allow' ? 'running' : 'failed';
     const errorMessage = decision === 'deny' ? (safeReasoning || 'Denied by human operator') : null;
 
-    const result = await sql`
-      UPDATE action_records
-      SET status = ${newStatus},
-          error_message = ${errorMessage},
-          reasoning = COALESCE(reasoning, '') || '
-
-[HITL Decision: ' || ${decision.toUpperCase()} || ' by ' || ${userId} || ']' || 
-                      CASE WHEN ${safeReasoning || ''} != '' THEN '
-Reason: ' || ${safeReasoning} ELSE '' END
-      WHERE action_id = ${actionId} AND org_id = ${orgId}
-      RETURNING *
-    `;
+    const updatedAction = await recordApproval(sql, orgId, actionId, {
+      newStatus,
+      errorMessage,
+      decision,
+      userId,
+      safeReasoning
+    });
 
     logActivity({
       orgId, actorId: userId, action: `action.${decision}ed`,
@@ -90,12 +82,12 @@ Reason: ' || ${safeReasoning} ELSE '' END
     // Emit event for real-time updates
     void publishOrgEvent(EVENTS.ACTION_UPDATED, {
       orgId, 
-      action: result[0] 
+      action: updatedAction 
     });
 
     return NextResponse.json({ 
       success: true, 
-      action: result[0],
+      action: updatedAction,
       security: {
         clean: dlpFindings.length === 0,
         findings_count: dlpFindings.length,
