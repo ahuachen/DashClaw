@@ -14,26 +14,20 @@ import DashClawLogo from './DashClawLogo';
 
 const navGroups = [
   {
-    label: 'Command',
-    items: [
-      { href: '/mission-control', icon: Radar, label: 'Mission Control' },
-      { href: '/agents', icon: Users, label: 'Agents' },
-      { href: '/activity', icon: Activity, label: 'Activity' },
-    ],
-  },
-  {
     label: 'Governance',
     items: [
+      { href: '/mission-control', icon: Radar, label: 'Mission Control' },
       { href: '/decisions', icon: Zap, label: 'Decisions' },
       { href: '/policies', icon: Shield, label: 'Policies' },
       { href: '/approvals', icon: Clock, label: 'Approvals' },
-      { href: '/security', icon: ShieldAlert, label: 'Signals' },
-      { href: '/drift', icon: Activity, label: 'Assumptions' },
     ],
   },
   {
-    label: 'Evidence',
+    label: 'Operations',
     items: [
+      { href: '/agents', icon: Users, label: 'Agents' },
+      { href: '/security', icon: ShieldAlert, label: 'Signals' },
+      { href: '/activity', icon: Activity, label: 'Activity' },
       { href: '/compliance', icon: Scale, label: 'Compliance' },
       { href: '/audit-log', icon: Clock, label: 'Audit Log' },
     ],
@@ -42,19 +36,19 @@ const navGroups = [
     label: 'Labs',
     items: [
       { href: '/swarm', icon: Network, label: 'Swarm Intel' },
-      { href: '/scoring', icon: BarChart3, label: 'Quality Scoring' },
+      { href: '/drift', icon: Microscope, label: 'Assumptions' },
       { href: '/learning', icon: Microscope, label: 'Learning' },
       { href: '/prompts', icon: Terminal, label: 'Prompts' },
       { href: '/evaluations', icon: Search, label: 'Evaluations' },
+      { href: '/scoring', icon: BarChart3, label: 'Quality Scoring' },
+      { href: '/integrations', icon: Plug, label: 'Integrations' },
+      { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
     ],
   },
   {
-    label: 'System',
+    label: 'Configuration',
     items: [
-      { href: '/integrations', icon: Plug, label: 'Integrations' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
-      { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
-      { href: '/team', icon: UsersRound, label: 'Team' },
       { href: '/usage', icon: DollarSign, label: 'Usage' },
       { href: '/setup', icon: Settings, label: 'Settings' },
     ],
