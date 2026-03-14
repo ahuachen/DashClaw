@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle, Radar } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle, Radar, Zap, Compass } from 'lucide-react';
 import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';

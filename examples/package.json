@@ -1,0 +1,10 @@
+{
+  "name": "dashclaw-examples",
+  "version": "1.0.0",
+  "description": "Runnable examples for DashClaw governance",
+  "type": "module",
+  "main": "first-governed-action.js",
+  "dependencies": {
+    "dashclaw": "latest"
+  }
+}

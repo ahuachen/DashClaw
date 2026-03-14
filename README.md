@@ -45,17 +45,24 @@ DashClaw provides the runtime infrastructure to govern autonomous agents:
 
 ---
 
-## Example Architecture
+## 🚀 1-Minute Path to Governance
 
+Experience the magic of autonomous governance in under 60 seconds.
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/ucsandman/DashClaw
+cd DashClaw/examples
+
+# 2. Install dependencies
+npm install
+
+# 3. Run the first governed action
+# (Make sure DashClaw is running locally or use DASHCLAW_BASE_URL=https://www.dashclaw.io)
+node first-governed-action.js
 ```
-LLM Agent
-   │
-LangChain / CrewAI
-   │
-DashClaw Guard
-   │
-Production Systems
-```
+
+When you run this, **Mission Control** will light up with a new intercepted decision.
 
 ---
 
