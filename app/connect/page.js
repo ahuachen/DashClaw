@@ -2,10 +2,10 @@ import { headers } from 'next/headers';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
-import PublicNavbar from '../../components/PublicNavbar';
-import PublicFooter from '../../components/PublicFooter';
+import PublicNavbar from '../components/PublicNavbar';
+import PublicFooter from '../components/PublicFooter';
 import ConnectGuideClient from './ConnectGuideClient';
-import { getConnectGuideContent } from '../../lib/connectGuide.js';
+import { getConnectGuideContent } from '../lib/connectGuide.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,3 +42,4 @@ export default async function ConnectPage() {
     </div>
   );
 }
+

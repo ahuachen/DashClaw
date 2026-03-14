@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Target, Briefcase, DollarSign, Building, BookOpen, Pin, RotateCw, CheckCircle2, Circle, Search, Plus, BarChart3 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { ProgressBar } from '../../components/ui/ProgressBar';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { EmptyState } from '../components/ui/EmptyState';
+import { useAgentFilter } from '../lib/AgentFilterContext';
 
 export default function GoalsDashboard() {
   const { agentId } = useAgentFilter();
@@ -254,3 +254,4 @@ export default function GoalsDashboard() {
     </PageLayout>
   );
 }
+

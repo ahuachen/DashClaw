@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { KeyRound, Plus, Copy, Check, Ban, AlertTriangle, ArrowRight } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import ConnectAgentButton from '../../components/ConnectAgentButton';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import ConnectAgentButton from '../components/ConnectAgentButton';
 
 export default function ApiKeysPage() {
   const { data: session } = useSession();
@@ -402,3 +402,4 @@ export default function ApiKeysPage() {
     </PageLayout>
   );
 }
+

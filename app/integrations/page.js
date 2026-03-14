@@ -6,11 +6,11 @@ import {
   Plug, Bot, Database, MessageSquare, FileText, Wrench, Globe, CreditCard,
   Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings, Users, ChevronDown
 } from 'lucide-react';
-import { getAgentColor } from '../../lib/colors';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
+import { getAgentColor } from '../lib/colors';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
 
 // Integration configurations with their settings fields
 const INTEGRATION_CONFIGS = {
@@ -892,3 +892,4 @@ export default function IntegrationsPage() {
     </PageLayout>
   );
 }
+

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { listVersions, createVersion, getTemplate } from '../../../../../lib/prompt.js';
+import { listVersions, createVersion, getTemplate } from '../../../lib/prompt.js';
 
 export async function GET(request, { params }) {
   try {

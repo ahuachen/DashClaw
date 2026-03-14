@@ -5,14 +5,14 @@ import {
   BarChart3, Plus, Play, Trash2, ChevronRight, ChevronDown,
   AlertCircle, CheckCircle, XCircle, Clock, Filter, RefreshCw,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { Stat, StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Stat, StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const TABS = [
   { id: 'scores', label: 'Scores' },
@@ -401,3 +401,4 @@ export default function EvaluationsPage() {
     </PageLayout>
   );
 }
+

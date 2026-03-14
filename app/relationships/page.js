@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Users, Contact, MessageSquare, Zap, Calendar, Search, ArrowUpRight, ArrowDownLeft, RotateCw, X } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { useAgentFilter } from '../lib/AgentFilterContext';
 
 export default function RelationshipsDashboard() {
   const { agentId } = useAgentFilter();
@@ -381,3 +381,4 @@ export default function RelationshipsDashboard() {
     </PageLayout>
   );
 }
+

@@ -7,8 +7,8 @@ import {
   ShieldCheck, ShieldAlert, Zap, Clock, Info, ExternalLink,
   ChevronRight, ArrowRight, Code, Copy, Check, X
 } from 'lucide-react';
-import { Badge } from '../../../components/ui/Badge';
-import { Card, CardContent } from '../../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { Card, CardContent } from '../../components/ui/Card';
 
 // Shared components for the replay story
 const DashClawLogo = ({ size = 20, className = "" }) => (

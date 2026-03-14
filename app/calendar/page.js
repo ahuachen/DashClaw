@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, MapPin, Clock, RotateCw, Plus, Users, Target, Shield, X } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
 
 export default function CalendarPage() {
   const [events, setEvents] = useState([]);
@@ -355,3 +355,4 @@ export default function CalendarPage() {
     </PageLayout>
   );
 }
+

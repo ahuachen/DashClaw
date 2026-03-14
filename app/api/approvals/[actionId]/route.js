@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId, getOrgRole, getUserId } from '../../../lib/org.js';
-import { logActivity } from '../../../lib/audit.js';
-import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
-import { scanSensitiveData } from '../../../lib/security.js';
-import { recordApproval, getActionStatus } from '../../../lib/repositories/actions.repository.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId, getOrgRole, getUserId } from '../../lib/org.js';
+import { logActivity } from '../../lib/audit.js';
+import { EVENTS, publishOrgEvent } from '../../lib/events.js';
+import { scanSensitiveData } from '../../lib/security.js';
+import { recordApproval, getActionStatus } from '../../lib/repositories/actions.repository.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {

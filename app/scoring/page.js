@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import PageLayout from '../../components/PageLayout';
-import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
+import PageLayout from '../components/PageLayout';
+import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const TABS = ['Profiles', 'Score Explorer', 'Risk Templates', 'Calibrate'];
 
@@ -564,3 +564,4 @@ export default function ScoringPage() {
     </PageLayout>
   );
 }
+

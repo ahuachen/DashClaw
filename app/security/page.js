@@ -6,16 +6,16 @@ import {
   ChevronRight, CircleAlert, X as XIcon, EyeOff, Undo2,
   ShieldCheck, ShieldX, Info
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import SecurityDetailPanel from '../../components/SecurityDetailPanel';
-import { HelpIcon } from '../../components/HelpIcon';
-import { HELP_TIPS } from '../../lib/demo/fixtures/help-tips.js';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { getAgentColor } from '../../lib/colors';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import SecurityDetailPanel from '../components/SecurityDetailPanel';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { getAgentColor } from '../lib/colors';
 
 export default function SecurityDashboard() {
   const { agentId } = useAgentFilter();
@@ -528,3 +528,4 @@ export default function SecurityDashboard() {
     </PageLayout>
   );
 }
+

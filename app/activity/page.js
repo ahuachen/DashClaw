@@ -1,18 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { Skeleton } from '../../components/ui/Skeleton';
-import { useRealtime } from '../../hooks/useRealtime';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
+import { useRealtime } from '../hooks/useRealtime';
 import { 
   Activity, Zap, Shield, Clock, Search, Terminal,
   ChevronRight, Box, Cpu, AlertTriangle, CheckCircle2,
   Info, KeyRound, Settings, Webhook, UsersRound
 } from 'lucide-react';
-import { getAgentColor } from '../../lib/colors';
+import { getAgentColor } from '../lib/colors';
 
 const categoryIconMap = {
   decision: Zap,
@@ -225,3 +225,4 @@ export default function GlobalActivityFeed() {
     </PageLayout>
   );
 }
+

@@ -7,17 +7,17 @@ import {
   ArrowRight, TrendingUp, TrendingDown, Users, Clock,
   CheckCircle2, AlertTriangle, Minus,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { useRealtime } from '../../hooks/useRealtime';
-import { getAgentColor } from '../../lib/colors';
-import ActivityTimeline from '../../components/ActivityTimeline';
-import SwarmActivityLog from '../../components/SwarmActivityLog';
-import QuickStart from '../../components/QuickStart';
-import { isDemoMode } from '../../lib/isDemoMode';
-import { computePosture } from '../../components/SystemStatusBar';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { useRealtime } from '../hooks/useRealtime';
+import { getAgentColor } from '../lib/colors';
+import ActivityTimeline from '../components/ActivityTimeline';
+import SwarmActivityLog from '../components/SwarmActivityLog';
+import QuickStart from '../components/QuickStart';
+import { isDemoMode } from '../lib/isDemoMode';
+import { computePosture } from '../components/SystemStatusBar';
 
 /* ---------- Helpers ---------- */
 
@@ -494,3 +494,4 @@ export default function MissionControlPage() {
     </PageLayout>
   );
 }
+

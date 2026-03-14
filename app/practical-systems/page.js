@@ -3,9 +3,9 @@ import {
   Building2, UsersRound, Zap, ArrowRight, ExternalLink,
   Activity, CheckCircle2, ChevronRight, Rocket, Code, Laptop, Shield
 } from 'lucide-react';
-import DashClawLogo from '../../components/DashClawLogo';
-import PublicNavbar from '../../components/PublicNavbar';
-import PublicFooter from '../../components/PublicFooter';
+import DashClawLogo from '../components/DashClawLogo';
+import PublicNavbar from '../components/PublicNavbar';
+import PublicFooter from '../components/PublicFooter';
 
 export const metadata = {
   title: 'Practical Systems — The Team Behind DashClaw',
@@ -191,3 +191,4 @@ export default function PracticalSystemsPage() {
     </div>
   );
 }
+

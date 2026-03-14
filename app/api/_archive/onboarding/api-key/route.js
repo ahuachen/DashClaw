@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
+import { getSql } from '../../lib/db.js';
 import crypto from 'crypto';
 
 function hashKey(key) {
@@ -52,7 +52,7 @@ export async function POST(request) {
 
     // SECURITY: Check API key quota (same as POST /api/keys)
     // OSS edition defaults to Infinity, but keep correct call signature for future enforcement.
-    const { getOrgPlan, checkQuotaFast } = require('../../../lib/usage');
+    const { getOrgPlan, checkQuotaFast } = require('../../lib/usage');
     const plan = await getOrgPlan(orgId, sql);
     const quotaCheck = await checkQuotaFast(orgId, 'api_keys', plan, sql);
     if (!quotaCheck.allowed) {

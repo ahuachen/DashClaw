@@ -8,17 +8,17 @@ import {
   ArrowLeft, X, Clock, Zap, BookOpen, FileText, Lightbulb,
   Users, Target, MessageSquare, ShieldAlert, CalendarClock,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { ProgressBar } from '../../components/ui/ProgressBar';
-import { HelpIcon } from '../../components/HelpIcon';
-import { HELP_TIPS } from '../../lib/demo/fixtures/help-tips.js';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { getAgentColor } from '../../lib/colors';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { getAgentColor } from '../lib/colors';
 
 // --- Helpers ---
 
@@ -1181,3 +1181,4 @@ export default function WorkspacePage() {
     </PageLayout>
   );
 }
+

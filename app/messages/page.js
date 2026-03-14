@@ -4,12 +4,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Archive, CheckCheck, X, ArrowLeft,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { StatCompact } from '../../components/ui/Stat';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { isDemoMode } from '../../lib/isDemoMode';
-import { useRealtime } from '../../hooks/useRealtime';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { StatCompact } from '../components/ui/Stat';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { isDemoMode } from '../lib/isDemoMode';
+import { useRealtime } from '../hooks/useRealtime';
 
 import { TABS } from './_components/helpers';
 import MessageList from './_components/MessageList';
@@ -578,3 +578,4 @@ export default function MessagesPage() {
     </PageLayout>
   );
 }
+

@@ -2,10 +2,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../../../lib/db.js';
-import { getOrgId } from '../../../../lib/org.js';
-import { scanSensitiveData } from '../../../../lib/security.js';
-import { publishOrgEvent, EVENTS } from '../../../../lib/events.js';
+import { getSql as getDbSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
+import { scanSensitiveData } from '../../../lib/security.js';
+import { publishOrgEvent, EVENTS } from '../../../lib/events.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {

@@ -1,7 +1,7 @@
 import { Hash, ChevronRight } from 'lucide-react';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { EmptyState } from '../../../components/ui/EmptyState';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { timeAgo } from './helpers';
 
 export default function ThreadList({ threads, onSelect, selectedId }) {

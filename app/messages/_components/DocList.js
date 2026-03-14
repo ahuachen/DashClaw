@@ -1,6 +1,6 @@
 import { FileText, ChevronRight } from 'lucide-react';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { EmptyState } from '../../../components/ui/EmptyState';
+import { Card, CardContent } from '../../components/ui/Card';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { timeAgo } from './helpers';
 
 export default function DocList({ docs, onSelect, selectedId }) {

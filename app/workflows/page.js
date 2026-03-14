@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { GitBranch, ClipboardList, ScrollText, Clock, CheckCircle2, XCircle, Loader2, HelpCircle, Play, Inbox, RotateCw, Plus } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { Stat } from '../../components/ui/Stat';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Stat } from '../components/ui/Stat';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { useAgentFilter } from '../lib/AgentFilterContext';
 
 const WORKFLOW_TEMPLATES = [
   {
@@ -444,3 +444,4 @@ export default function WorkflowsDashboard() {
     </PageLayout>
   );
 }
+

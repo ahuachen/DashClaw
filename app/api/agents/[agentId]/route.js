@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { getAgentDetail } from '../../../lib/repositories/agents.repository.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId } from '../../lib/org.js';
+import { getAgentDetail } from '../../lib/repositories/agents.repository.js';
 
 export async function GET(request, { params }) {
   try {

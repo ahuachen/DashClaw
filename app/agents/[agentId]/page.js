@@ -9,10 +9,10 @@ import {
   BarChart3, RefreshCw, KeyRound, Globe, Brain,
   ChevronRight, CheckCircle2, XCircle, HelpCircle, Fingerprint
 } from 'lucide-react';
-import PageLayout from '../../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { StatCompact } from '../../../components/ui/Stat';
+import PageLayout from '../../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { StatCompact } from '../../components/ui/Stat';
 
 export default function AgentProfilePage() {
   const params = useParams();

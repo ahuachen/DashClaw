@@ -7,13 +7,13 @@ import {
   Upload, Play, FileDown, Copy, Check, ChevronUp,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { isDemoMode } from '../../lib/isDemoMode';
-import { useRealtime } from '../../hooks/useRealtime';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { isDemoMode } from '../lib/isDemoMode';
+import { useRealtime } from '../hooks/useRealtime';
 
 const POLICY_TYPES = [
   { value: 'risk_threshold', label: 'Risk Threshold', desc: 'Block or warn when risk score exceeds a threshold' },
@@ -1084,3 +1084,4 @@ export default function PoliciesPage() {
     </PageLayout>
   );
 }
+

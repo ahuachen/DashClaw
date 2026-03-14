@@ -2,11 +2,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { convertPolicies } from '../../../lib/guardrails/converter.js';
-import { mapPolicies, loadFramework, listFrameworks } from '../../../lib/compliance/mapper.js';
-import { getActivePolicies } from '../../../lib/repositories/guardrails.repository.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId } from '../../lib/org.js';
+import { convertPolicies } from '../../lib/guardrails/converter.js';
+import { mapPolicies, loadFramework, listFrameworks } from '../../lib/compliance/mapper.js';
+import { getActivePolicies } from '../../lib/repositories/guardrails.repository.js';
 
 /**
  * GET /api/compliance/map?framework=soc2 — Map policies to a framework

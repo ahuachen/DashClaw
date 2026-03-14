@@ -8,14 +8,14 @@ import {
   History, Target, Shield, Cpu, X, AlertCircle, CheckCircle2,
   Clock, Terminal, FileText, ChevronRight, Maximize2
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { isDemoMode } from '../../lib/isDemoMode';
-import { useRealtime } from '../../hooks/useRealtime';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { isDemoMode } from '../lib/isDemoMode';
+import { useRealtime } from '../hooks/useRealtime';
 import { useForceSimulation } from './useForceSimulation';
-import SwarmActivityLog from '../../components/SwarmActivityLog';
+import SwarmActivityLog from '../components/SwarmActivityLog';
 
 export default function SwarmIntelligencePage() {
   const router = useRouter();
@@ -774,3 +774,4 @@ export default function SwarmIntelligencePage() {
     </PageLayout>
   );
 }
+

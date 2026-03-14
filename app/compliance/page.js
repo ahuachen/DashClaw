@@ -7,16 +7,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { ProgressBar } from '../../components/ui/ProgressBar';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { HelpIcon } from '../../components/HelpIcon';
-import { HELP_TIPS } from '../../lib/demo/fixtures/help-tips.js';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const FRAMEWORK_LABELS = {
   'soc2': 'SOC 2',
@@ -508,3 +508,4 @@ export default function CompliancePage() {
     </PageLayout>
   );
 }
+

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Gauge, BarChart3, DollarSign, AlertTriangle, Inbox, RotateCw, Settings } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { ProgressBar } from '../../components/ui/ProgressBar';
-import { Stat } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { Stat } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
 
 const DEFAULT_BUDGET = { daily_limit: 18000, weekly_limit: 126000, monthly_limit: 540000 };
 
@@ -379,3 +379,4 @@ export default function TokensDashboard() {
     </PageLayout>
   );
 }
+

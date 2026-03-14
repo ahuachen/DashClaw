@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { ChevronRight, Terminal, ArrowRight, Shield, Server, Cloud, Download, Sparkles } from 'lucide-react';
-import PublicNavbar from '../../components/PublicNavbar';
-import PublicFooter from '../../components/PublicFooter';
-import CopyMarkdownButton from '../../components/CopyMarkdownButton';
-import CopyableCodeBlock from '../../components/CopyableCodeBlock';
+import PublicNavbar from '../components/PublicNavbar';
+import PublicFooter from '../components/PublicFooter';
+import CopyMarkdownButton from '../components/CopyMarkdownButton';
+import CopyableCodeBlock from '../components/CopyableCodeBlock';
 import SetupTabs from './SetupTabs';
 
 export const metadata = {
@@ -377,4 +377,5 @@ ENFORCE_AGENT_SIGNATURES=true`}</CopyableCodeBlock>
     </div>
   );
 }
+
 

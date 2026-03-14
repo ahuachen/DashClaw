@@ -1,6 +1,6 @@
-import { getSql } from '../../../../../../lib/db.js';
-import { getOrgId } from '../../../../../../lib/org.js';
-import { updateDimension, deleteDimension } from '../../../../../../lib/scoringProfiles.js';
+import { getSql } from '../../../lib/db.js';
+import { getOrgId } from '../../../lib/org.js';
+import { updateDimension, deleteDimension } from '../../../lib/scoringProfiles.js';
 
 export async function PATCH(request, { params }) {
   try {

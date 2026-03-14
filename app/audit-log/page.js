@@ -6,11 +6,11 @@ import {
   ShieldAlert, Webhook, Bell, Filter, ChevronDown, User, Cog
 } from 'lucide-react';
 import Image from 'next/image';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState([]);
@@ -348,3 +348,4 @@ export default function AuditLogPage() {
     </PageLayout>
   );
 }
+

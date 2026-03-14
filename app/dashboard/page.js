@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { RotateCcw, Save, ChevronDown, Layout, Trash2 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { clearLayouts, loadLayouts, saveLayouts, loadNamedLayouts, saveNamedLayout, deleteNamedLayout } from '../../lib/dashboardLayoutState';
+import PageLayout from '../components/PageLayout';
+import { clearLayouts, loadLayouts, saveLayouts, loadNamedLayouts, saveNamedLayout, deleteNamedLayout } from '../lib/dashboardLayoutState';
 
 const PRESET_NAMES = ['Operations Focus', 'Analytics Focus', 'Compact Overview', 'Developer'];
 
-const DraggableDashboard = dynamic(() => import('../../components/DraggableDashboard'), {
+const DraggableDashboard = dynamic(() => import('../components/DraggableDashboard'), {
   ssr: false,
   loading: () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -185,3 +185,4 @@ export default function Dashboard() {
     </PageLayout>
   );
 }
+

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Download, Copy, ChevronDown, FileText, FileSpreadsheet } from 'lucide-react';
-import { Badge } from '../../../components/ui/Badge';
+import { Badge } from '../../components/ui/Badge';
 import { timeAgo, copyToClipboard } from './helpers';
 import MarkdownBody from './MarkdownBody';
 
@@ -34,7 +34,7 @@ export default function DocDetail({ doc }) {
 
     setExporting(true);
     try {
-      const { exportToPdf, exportToWord, exportToExcel } = await import('../../../lib/docExport');
+      const { exportToPdf, exportToWord, exportToExcel } = await import('../../lib/docExport');
       if (format === 'pdf') await exportToPdf(docContent, safeFilename);
       else if (format === 'docx') await exportToWord(docContent, safeFilename);
       else if (format === 'xlsx') await exportToExcel(docContent, safeFilename);

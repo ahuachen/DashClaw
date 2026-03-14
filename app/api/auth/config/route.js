@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAuthConfig, getMissingAuthMessage } from '../../../lib/authConfig.mjs';
+import { getAuthConfig, getMissingAuthMessage } from '../../lib/authConfig.mjs';
 
 export const dynamic = 'force-dynamic';
 

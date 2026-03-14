@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import { getReadinessReport, projectReadinessReport } from '../../../lib/readiness.mjs';
-import { readLiveVerificationProofToken } from '../../../lib/liveVerificationProof.mjs';
-import { getViewerContextFromCookieHeader } from '../../../lib/sessionViewer.mjs';
+import { getReadinessReport, projectReadinessReport } from '../../lib/readiness.mjs';
+import { readLiveVerificationProofToken } from '../../lib/liveVerificationProof.mjs';
+import { getViewerContextFromCookieHeader } from '../../lib/sessionViewer.mjs';
 
 function buildResponse(artifact, download) {
   const body = JSON.stringify(artifact, null, 2);

@@ -7,15 +7,15 @@ import {
   RefreshCw, Send,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { HelpIcon } from '../../components/HelpIcon';
-import { HELP_TIPS } from '../../lib/demo/fixtures/help-tips.js';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { HelpIcon } from '../components/HelpIcon';
+import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const URGENCY_BADGE = {
   critical: 'error',
@@ -580,3 +580,4 @@ export default function TaskRoutingPage() {
     </PageLayout>
   );
 }
+

@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { FileText, RotateCw } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { useAgentFilter } from '../lib/AgentFilterContext';
 
 export default function ContentDashboard() {
   const { agentId } = useAgentFilter();
@@ -159,3 +159,4 @@ export default function ContentDashboard() {
     </PageLayout>
   );
 }
+

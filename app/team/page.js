@@ -6,12 +6,12 @@ import {
   ArrowRight, Shield, UserMinus, LogOut, Link2, Mail, Clock,
 } from 'lucide-react';
 import Image from 'next/image';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { isDemoMode } from '../lib/isDemoMode';
 
 export default function TeamPage() {
   const isDemo = isDemoMode();
@@ -587,3 +587,4 @@ export default function TeamPage() {
     </PageLayout>
   );
 }
+

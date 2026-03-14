@@ -2,10 +2,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getUserId } from '../../../lib/org.js';
-import { incrementMeter } from '../../../lib/usage.js';
-import { logActivity } from '../../../lib/audit.js';
-import { getSql } from '../../../lib/db.js';
+import { getUserId } from '../../lib/org.js';
+import { incrementMeter } from '../../lib/usage.js';
+import { logActivity } from '../../lib/audit.js';
+import { getSql } from '../../lib/db.js';
 
 // GET /api/invite/[token] - Get invite details (public-ish — for the accept page)
 export async function GET(request, { params }) {

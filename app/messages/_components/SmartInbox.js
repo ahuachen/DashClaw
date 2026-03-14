@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { MessageCircleQuestion, AlertTriangle, Inbox, ChevronDown, ChevronRight, MessageSquare, AlertCircle, Users, Paperclip } from 'lucide-react';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { EmptyState } from '../../../components/ui/EmptyState';
-import { getAgentColor } from '../../../lib/colors';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { getAgentColor } from '../../lib/colors';
 import { timeAgo, TYPE_VARIANTS } from './helpers';
 import MessageActionMenu from './MessageActionMenu';
 

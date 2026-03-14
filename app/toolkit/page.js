@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Github, Terminal, ArrowLeft, Zap, Brain, Shield, Rocket, HeartPulse, Search, MessageSquare, ClipboardCheck, History } from 'lucide-react';
-import PublicNavbar from '../../components/PublicNavbar';
-import PublicFooter from '../../components/PublicFooter';
+import PublicNavbar from '../components/PublicNavbar';
+import PublicFooter from '../components/PublicFooter';
 
 const toolCategories = [
   {
@@ -111,3 +111,4 @@ export default function ToolkitPage() {
     </div>
   );
 }
+

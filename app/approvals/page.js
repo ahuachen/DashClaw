@@ -5,12 +5,12 @@ import {
   ShieldAlert, Check, X, Clock, User, Zap, 
   RefreshCw, MessageCircle, Info, AlertTriangle
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { EmptyState } from '../../components/ui/EmptyState';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { EmptyState } from '../components/ui/EmptyState';
 import { useSession } from 'next-auth/react';
-import { isDemoMode } from '../../lib/isDemoMode';
+import { isDemoMode } from '../lib/isDemoMode';
 
 export default function ApprovalsPage() {
   const [pendingActions, setPendingActions] = useState([]);
@@ -189,3 +189,4 @@ export default function ApprovalsPage() {
     </PageLayout>
   );
 }
+

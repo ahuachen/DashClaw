@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Hash, Send, MessageSquare, AlertCircle, Copy, Paperclip, X } from 'lucide-react';
-import { Badge } from '../../../components/ui/Badge';
-import { getAgentColor } from '../../../lib/colors';
-import { isDemoMode } from '../../../lib/isDemoMode';
+import { Badge } from '../../components/ui/Badge';
+import { getAgentColor } from '../../lib/colors';
+import { isDemoMode } from '../../lib/isDemoMode';
 import { timeAgo, TYPE_VARIANTS, copyToClipboard, formatDateGroup } from './helpers';
 import MarkdownBody from './MarkdownBody';
 import AttachmentChips from './AttachmentChips';

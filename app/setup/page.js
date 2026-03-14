@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
-import { getSql } from '../../lib/db.js';
-import { getReadinessReport, projectConnectNextStep, projectReadinessReport } from '../../lib/readiness.mjs';
-import { readLiveVerificationProofToken } from '../../lib/liveVerificationProof.mjs';
-import { getViewerContextFromCookieHeader } from '../../lib/sessionViewer.mjs';
-import { createFallbackOnboardingStatus, getOnboardingStatusForUserId, getViewerUserId } from '../../lib/onboardingState.mjs';
+import { getSql } from '../lib/db.js';
+import { getReadinessReport, projectConnectNextStep, projectReadinessReport } from '../lib/readiness.mjs';
+import { readLiveVerificationProofToken } from '../lib/liveVerificationProof.mjs';
+import { getViewerContextFromCookieHeader } from '../lib/sessionViewer.mjs';
+import { createFallbackOnboardingStatus, getOnboardingStatusForUserId, getViewerUserId } from '../lib/onboardingState.mjs';
 
 import { ModeBadge } from './components/Common.js';
 import { TopSummary } from './components/TopSummary.js';
@@ -14,7 +14,7 @@ import { VerificationSection } from './components/VerificationSection.js';
 import { RecommendedSteps } from './components/RecommendedSteps.js';
 import { ProofPanel } from './components/ProofPanel.js';
 import { FooterLinks } from './components/FooterLinks.js';
-import PageLayout from '../../components/PageLayout';
+import PageLayout from '../components/PageLayout';
 import { LogIn } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -125,3 +125,4 @@ export default async function SetupPage({ searchParams }) {
     </PageLayout>
   );
 }
+

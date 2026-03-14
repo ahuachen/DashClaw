@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import PublicNavbar from '../../components/PublicNavbar';
-import PublicFooter from '../../components/PublicFooter';
-import ImageLightbox from '../../components/ImageLightbox';
+import PublicNavbar from '../components/PublicNavbar';
+import PublicFooter from '../components/PublicFooter';
+import ImageLightbox from '../components/ImageLightbox';
 import Image from 'next/image';
 import { useMemo, useState, useEffect, Suspense } from 'react';
 
@@ -138,3 +138,4 @@ export default function GalleryPage() {
     </Suspense>
   );
 }
+

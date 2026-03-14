@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSetupStatus } from '../../../lib/setupStatus.mjs';
+import { getSetupStatus } from '../../lib/setupStatus.mjs';
 
 export const dynamic = 'force-dynamic';
 

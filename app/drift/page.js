@@ -6,14 +6,14 @@ import {
   RefreshCw, Play, Zap, TrendingUp, TrendingDown, Minus,
   XCircle, BarChart3, Shield,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const TABS = [
   { id: 'alerts', label: 'Alerts' },
@@ -351,3 +351,4 @@ export default function DriftPage() {
     </PageLayout>
   );
 }
+

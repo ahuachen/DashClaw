@@ -2,11 +2,11 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { convertPolicies } from '../../../lib/guardrails/converter.js';
-import { generateMarkdownReport, generateJsonReport } from '../../../lib/guardrails/report.js';
-import { getActivePolicies } from '../../../lib/repositories/guardrails.repository.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId } from '../../lib/org.js';
+import { convertPolicies } from '../../lib/guardrails/converter.js';
+import { generateMarkdownReport, generateJsonReport } from '../../lib/guardrails/report.js';
+import { getActivePolicies } from '../../lib/repositories/guardrails.repository.js';
 
 /**
  * GET /api/policies/proof?format=md|json — Generate proof report

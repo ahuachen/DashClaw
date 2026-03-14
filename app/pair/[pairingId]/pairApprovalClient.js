@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { CheckCircle2, Clock, AlertTriangle, RefreshCw, Link as LinkIcon } from 'lucide-react';
-import PageLayout from '../../../components/PageLayout';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
+import PageLayout from '../../components/PageLayout';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
 
 function formatDate(dateStr) {
   if (!dateStr) return 'Unknown';

@@ -7,12 +7,12 @@ import {
   Search, Filter, RotateCw, ChevronRight, Brain,
   Shield, CheckCircle2, XCircle, Clock, Info, Lock
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { Skeleton } from '../../components/ui/Skeleton';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
 
 export default function AgentsFleetPage() {
   const [agents, setAgents] = useState([]);
@@ -255,3 +255,4 @@ export default function AgentsFleetPage() {
     </PageLayout>
   );
 }
+

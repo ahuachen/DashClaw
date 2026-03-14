@@ -7,13 +7,13 @@ import {
   ChevronDown, ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
-import PageLayout from '../../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { StatCompact } from '../../../components/ui/Stat';
-import { EmptyState } from '../../../components/ui/EmptyState';
-import { ListSkeleton } from '../../../components/ui/Skeleton';
-import { isDemoMode } from '../../../lib/isDemoMode';
+import PageLayout from '../../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { StatCompact } from '../../components/ui/Stat';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { ListSkeleton } from '../../components/ui/Skeleton';
+import { isDemoMode } from '../../lib/isDemoMode';
 
 const FRAMEWORKS = [
   { id: 'soc2', label: 'SOC 2' },
@@ -421,3 +421,4 @@ export default function ComplianceExportsPage() {
     </PageLayout>
   );
 }
+

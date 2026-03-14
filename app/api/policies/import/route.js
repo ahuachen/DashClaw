@@ -5,9 +5,9 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId, getOrgRole } from '../../../lib/org.js';
-import { findPolicyByName, insertPolicy } from '../../../lib/repositories/guardrails.repository.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId, getOrgRole } from '../../lib/org.js';
+import { findPolicyByName, insertPolicy } from '../../lib/repositories/guardrails.repository.js';
 
 const VALID_PACKS = ['enterprise-strict', 'smb-safe', 'startup-growth', 'development'];
 

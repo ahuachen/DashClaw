@@ -1,8 +1,8 @@
 import { MessageSquare, Send, Inbox, AlertCircle, ChevronRight, Users, Reply } from 'lucide-react';
-import { Card, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import { EmptyState } from '../../../components/ui/EmptyState';
-import { getAgentColor } from '../../../lib/colors';
+import { Card, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { getAgentColor } from '../../lib/colors';
 import { timeAgo, TYPE_VARIANTS } from './helpers';
 
 export default function MessageList({ messages, onSelect, selectedId, isSent, onReply }) {

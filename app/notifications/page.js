@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Bell, Mail, Check, ShieldAlert, AlertCircle } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
 
 const SIGNAL_TYPES = [
   { value: 'all', label: 'All Signal Types' },
@@ -240,3 +240,4 @@ export default function NotificationsPage() {
     </PageLayout>
   );
 }
+

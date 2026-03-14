@@ -5,14 +5,14 @@ import {
   FileCode, Plus, ChevronRight, ChevronDown, Trash2,
   CheckCircle, Copy, Eye, RefreshCw, Play, Tag,
 } from 'lucide-react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { ListSkeleton } from '../../components/ui/Skeleton';
-import { useAgentFilter } from '../../lib/AgentFilterContext';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ListSkeleton } from '../components/ui/Skeleton';
+import { useAgentFilter } from '../lib/AgentFilterContext';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const CATEGORIES = ['general', 'system', 'agent', 'tool', 'evaluation'];
 
@@ -464,3 +464,4 @@ export default function PromptsPage() {
     </PageLayout>
   );
 }
+

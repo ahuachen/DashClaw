@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Check, Clock, AlertTriangle, Ban, Users, Shield } from 'lucide-react';
-import DashClawLogo from '../../../components/DashClawLogo';
+import DashClawLogo from '../../components/DashClawLogo';
 
 export default function InviteAcceptPage() {
   const { token } = useParams();

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { listAlerts, detectDrift, computeBaselines, recordSnapshots } from '../../../lib/drift.js';
+import { listAlerts, detectDrift, computeBaselines, recordSnapshots } from '../../lib/drift.js';
 
 export async function GET(request) {
   try {

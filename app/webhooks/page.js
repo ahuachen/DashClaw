@@ -6,12 +6,12 @@ import {
   AlertTriangle, ArrowRight,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import PageLayout from '../../components/PageLayout';
-import { Card, CardContent } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { StatCompact } from '../../components/ui/Stat';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { isDemoMode } from '../../lib/isDemoMode';
+import PageLayout from '../components/PageLayout';
+import { Card, CardContent } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { StatCompact } from '../components/ui/Stat';
+import { EmptyState } from '../components/ui/EmptyState';
+import { isDemoMode } from '../lib/isDemoMode';
 
 const WEBHOOK_TEMPLATES = [
   {
@@ -604,3 +604,4 @@ export default function WebhooksPage() {
     </PageLayout>
   );
 }
+

@@ -9,10 +9,10 @@ import {
   Link2, AlertTriangle, ShieldCheck, ShieldAlert, Scale, FileText,
   Activity, Info, ChevronRight, Fingerprint, Database, LayoutPanelLeft, ExternalLink
 } from 'lucide-react';
-import PageLayout from '../../../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
-import AssumptionGraph from '../../../components/AssumptionGraph';
+import PageLayout from '../../components/PageLayout';
+import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
+import AssumptionGraph from '../../components/AssumptionGraph';
 
 export default function DecisionReplayPage() {
   const params = useParams();

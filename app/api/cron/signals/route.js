@@ -2,14 +2,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { computeSignals } from '../../../lib/signals.js';
-import { fireWebhooksForOrg } from '../../../lib/webhooks.js';
-import { sendSignalAlertEmail } from '../../../lib/notifications.js';
-import { logActivity } from '../../../lib/audit.js';
-import { getSql } from '../../../lib/db.js';
+import { computeSignals } from '../../lib/signals.js';
+import { fireWebhooksForOrg } from '../../lib/webhooks.js';
+import { sendSignalAlertEmail } from '../../lib/notifications.js';
+import { logActivity } from '../../lib/audit.js';
+import { getSql } from '../../lib/db.js';
 import crypto from 'crypto';
-import { timingSafeCompare } from '../../../lib/timing-safe.js';
-import { publishOrgEvent, EVENTS } from '../../../lib/events.js';
+import { timingSafeCompare } from '../../lib/timing-safe.js';
+import { publishOrgEvent, EVENTS } from '../../lib/events.js';
 
 /**
  * Hash a signal into a stable identifier for deduplication.

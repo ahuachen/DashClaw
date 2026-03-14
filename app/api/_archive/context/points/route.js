@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql } from '../../../lib/db.js';
-import { getOrgId } from '../../../lib/org.js';
-import { enforceFieldLimits } from '../../../lib/validate.js';
+import { getSql } from '../../lib/db.js';
+import { getOrgId } from '../../lib/org.js';
+import { enforceFieldLimits } from '../../lib/validate.js';
 import { randomUUID } from 'node:crypto';
 
 const VALID_CATEGORIES = ['decision', 'task', 'insight', 'question', 'general'];
