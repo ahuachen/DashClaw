@@ -10,6 +10,7 @@ import {
 import { Card, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
 import { useRealtime } from '../hooks/useRealtime';
+import { isDemoMode } from '../lib/isDemoMode';
 
 export default function QuickStart({ onSimulationComplete, onDismiss }) {
   const router = useRouter();
