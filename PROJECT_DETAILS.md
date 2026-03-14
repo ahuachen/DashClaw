@@ -98,30 +98,49 @@ app/
 ├── api-keys/                  # API key management page
 ├── docs/page.js               # Public SDK documentation (server component)
 ├── mission-control/page.js    # Mission Control — Control tower landing page
-├── agents/                    # Agent Fleet
-│   ├── page.js                # Fleet Overview — Health and status filtering
-│   └── [agentId]/page.js      # Agent Dossier — Governance posture and history
-├── decisions/                 # Governance Decisions
-│   ├── page.js                # Decisions Ledger — Global stream of governed actions
-│   └── [actionId]/page.js     # Decision Replay — Visual causal chain of a single decision
-├── activity/page.js           # Activity Stream — Real-time operational telemetry feed
-├── audit-log/page.js          # Audit Log — Permanent record of system/admin events
-├── setup/                     # System Settings / Setup page (Integrated into main layout)
+│
+├── Tier 1 — Core (Governance Runtime)
+│   ├── decisions/             # Governance Decisions Ledger and Replay
+│   ├── policies/              # Guard policies management, test runner, and proof report
+│   ├── approvals/             # Human-in-the-loop approval queue
+│   ├── security/              # Risk Signals and alerts
+│   ├── drift/                 # Assumptions and drift detection
+│   ├── compliance/            # Compliance mapping and reporting
+│   └── audit-log/page.js      # Immutable Audit Log
+│
+├── Tier 2 — Supporting (Infrastructure)
+│   ├── agents/                # Agent Fleet and Dossiers
+│   ├── activity/page.js       # Activity Stream — Real-time telemetry feed
+│   ├── setup/                 # System Settings / Setup (Integrated)
+│   ├── team/                  # Team management (members, invites, roles)
+│   ├── usage/                 # Usage meter and token cost velocity
+│   ├── webhooks/              # Webhook management
+│   ├── integrations/          # Integration settings
+│   └── api-keys/              # API key management UI
+│
+├── labs/                      # Tier 3 — Experimental (Expansion)
+│   ├── swarm/                 # Swarm Intelligence dashboard
+│   ├── learning/              # Learning analytics
+│   ├── prompts/               # Prompt management
+│   ├── evaluations/           # LLM-as-judge scoring
+│   ├── scoring/               # Quality scoring profiles
+│   └── routing/               # Task routing
+│
+├── archives/                  # Tier 4 — Legacy (Archives)
+│   ├── goals/                 # Goals system
+│   ├── workspace/             # Collaborative workspace
+│   ├── messages/              # Agent messaging
+│   ├── calendar/              # Agent calendar
+│   ├── bug-hunter/            # Bug tracking
+│   ├── content/               # Knowledge management
+│   ├── relationships/         # Agent relationship mapping
+│   ├── toolkit/               # Agent tool inventory
+│   └── gallery/               # Result visualization gallery
+│
 ├── replay/[actionId]/page.js  # Public Replay — Shareable, public-safe decision permalink
 ├── practical-systems/page.js  # Practical Systems branding and about page (public)
 ├── login/page.js              # Custom login page (GitHub + Google OAuth)
-├── integrations/              # Integration settings page
-├── security/                  # Signals (risk alerts)
-├── policies/                  # Guard policies management page (+ import, test runner, proof report)
-├── routing/                   # Task routing page (agent registry, task queue, health)
-├── compliance/                # Compliance mapping page (framework controls, gap analysis, evidence, reports)
-├── approvals/                 # Human-in-the-loop approval queue page
-├── swarm/                     # Swarm Intelligence dashboard (real-time neural web visualization)
-├── team/                      # Team management page (members, invites, roles)
-├── usage/                     # Usage meter page
-├── webhooks/                  # Webhook management page
 ├── invite/[token]/            # Invite accept page (standalone layout)
-├── drift/                     # Assumptions / Drift detection page
 └── api/
     ├── auth/[...nextauth]/    # NextAuth route handler (GitHub + Google OAuth)
     ├── actions/               # Decisions Control Plane (GET list, POST simulation, DELETE)

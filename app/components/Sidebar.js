@@ -5,12 +5,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { isDemoMode } from '../lib/isDemoMode';
 import {
-  LayoutDashboard, Radar, Zap, CircleDot, ShieldAlert, MessageSquare,
-  FileText, Users, UsersRound, BookOpen, Target, Plug, KeyRound,
-  GitBranch, Settings, Bug, Calendar, BarChart3, Coins,
-  Clock, Webhook, Bell, FolderKanban, Network, Scale, FileCode,
-  PanelLeftClose, PanelLeft, Menu, X, MessageCircle, Activity, SlidersHorizontal,
-  Shield,
+  Radar, Zap, ShieldAlert, Users, UsersRound, Plug, KeyRound,
+  Settings, BarChart3, Clock, Webhook, Scale, PanelLeftClose, 
+  PanelLeft, Menu, X, Activity, Shield, Network, Microscope, Search, 
+  Terminal, LayoutPanelLeft, DollarSign
 } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
 
@@ -41,13 +39,23 @@ const navGroups = [
     ],
   },
   {
+    label: 'Labs',
+    items: [
+      { href: '/swarm', icon: Network, label: 'Swarm Intel' },
+      { href: '/scoring', icon: BarChart3, label: 'Quality Scoring' },
+      { href: '/learning', icon: Microscope, label: 'Learning' },
+      { href: '/prompts', icon: Terminal, label: 'Prompts' },
+      { href: '/evaluations', icon: Search, label: 'Evaluations' },
+    ],
+  },
+  {
     label: 'System',
     items: [
       { href: '/integrations', icon: Plug, label: 'Integrations' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
       { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
       { href: '/team', icon: UsersRound, label: 'Team' },
-      { href: '/usage', icon: BarChart3, label: 'Usage' },
+      { href: '/usage', icon: DollarSign, label: 'Usage' },
       { href: '/setup', icon: Settings, label: 'Settings' },
     ],
   },
@@ -137,7 +145,7 @@ export default function Sidebar() {
       <div className="border-t border-[rgba(255,255,255,0.06)] px-4 py-3">
         {!collapsed && (
           <div className="space-y-2">
-            <div className="text-[10px] text-zinc-600">DashClaw v1.0</div>
+            <div className="text-[10px] text-zinc-600">DashClaw v2.5</div>
             <div className="text-[10px] text-zinc-600">
               Powered by <Link href="/practical-systems" className="hover:text-brand transition-colors">Practical Systems</Link>
             </div>

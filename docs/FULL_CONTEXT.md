@@ -61,24 +61,35 @@ DashClaw ships as one codebase serving two roles via `DASHCLAW_MODE`:
 
 ```
 app/
-├── page.js                    # Public landing page
-├── layout.js                  # Root layout (Inter font, SessionWrapper)
-├── globals.css                # CSS design tokens + Tailwind
 ├── mission-control/page.js    # Control Tower — Landing page (posture, interventions, live stream)
-├── agents/page.js             # Agent Fleet — Overview, health, and status filtering
-├── agents/[agentId]/page.js   # Agent Dossier — Governance posture and history
-├── activity/page.js           # Activity Stream — Real-time operational telemetry feed
-├── decisions/page.js          # Decisions Ledger — Global stream of governed actions
-├── decisions/[actionId]/page.js # Decision Replay — Visual causal chain of a decision
-├── replay/[actionId]/page.js  # Public Replay — Shareable, public-safe decision permalink
-├── audit-log/page.js          # Audit Log — Permanent record of system/admin events
-├── security/                  # Risk Signals — Spikes, failure loops, alerts
-├── policies/page.js           # Guard Policies — Full lifecycle (CRUD, simulation, testing, proof)
-├── compliance/                # Evidence — Control mapping and reports
-├── setup/                     # Settings — System configuration and verification (Integrated)
+│
+├── Tier 1 — Core (Governance Runtime)
+│   ├── decisions/             # Decisions Ledger & Replay (Visual causal chain)
+│   ├── policies/page.js       # Guard Policies — Full lifecycle (CRUD, simulation, testing, proof)
+│   ├── approvals/             # Human-in-the-loop approval queue
+│   ├── security/              # Risk Signals — Spikes, failure loops, alerts
+│   ├── drift/                 # Assumptions — Track what agents believe
+│   ├── compliance/            # Evidence — Control mapping and reports
+│   └── audit-log/page.js      # Permanent record of system/admin events
+│
+├── Tier 2 — Supporting (Infrastructure)
+│   ├── agents/                # Agent Fleet & Dossiers (Health and filtering)
+│   ├── activity/page.js       # Activity Stream — Real-time operational telemetry feed
+│   ├── setup/                 # Settings — System configuration (Integrated)
+│   ├── team/                  # Team — Members, roles, and invites
+│   └── usage/                 # Usage — Token velocity and cost tracking
+│
+├── labs/                      # Tier 3 — Experimental (AI Safety Research)
+│   ├── swarm/                 # Swarm Intel — Multi-agent communication maps
+│   ├── learning/              # Learning — Performance analytics over time
+│   └── prompts/               # Prompts — Template versioning and stats
+│
+├── archives/                  # Tier 4 — Legacy (Archives)
+│   ├── goals/                 # Replaced by Action Intent
+│   └── workspace/             # Replaced by Activity Stream
 │
 ├── components/
-│   ├── Sidebar.js             # Core Navigation (Command, Governance, Evidence, System)
+│   ├── Sidebar.js             # Core Navigation (Grouped by Capability Tier)
 │   ├── QuickStart.js          # Onboarding component (SDK guide + Decision Simulator)
 │   ├── PageLayout.js          # Unified page shell
 │   ├── AssumptionGraph.js     # Decision lineage visualization
@@ -87,13 +98,9 @@ app/
 ├── lib/
 │   ├── guard.js               # Guard evaluation engine
 │   ├── signals.js             # Risk signal computation
-│   ├── security.js            # DLP / sensitive data scanning
-│   ├── billing.js             # Token → USD cost estimation
-│   └── audit.js               # Fire-and-forget activity logging
+│   └── audit.js               # Activity logging
 │
-├── lib/repositories/          # All SQL queries live here (route-SQL guardrail)
-│
-└── api/                       # All API routes (Decision Control Plane)
+└── api/                       # Decision Control Plane
 ```
 
 ### Key Invariants
@@ -167,11 +174,12 @@ Every step is preserved in the **Decision Replay** view, providing a cryptograph
 
 ## 6. Key UI Components
 
-- **Sidebar**: Collapsible navigation grouped by decision lifecycle (Command, Governance, Evidence, System).
+- **Sidebar**: Tier-based navigation (Command, Governance, Evidence, Labs, System).
 - **Activity Stream**: Unified real-time feed of all agent intents, guard decisions, and system events.
 - **Causal Timeline**: The heart of Decision Replay; visualizes the path from intent to outcome.
-- **Posture Indicator**: Triple-state (Nominal, Elevated, Critical) summary of fleet risk.
-- **QuickStart**: Onboarding card that guides users from SDK installation to their first simulated decision.
-- **Agent Dossier**: Detailed view of a single agent's identity, active policies, and governance history.
-- **Audit Log**: Permanent, immutable record of administrative actions and system changes.
-- **Policy Suite**: Interactive playground for creating, testing, and simulating guardrail impact.
+- **Posture Indicator**: Standardized triple-state (Nominal, Elevated, Critical) fleet risk summary.
+- **QuickStart**: Smart onboarding card with real-time progression and simulator bot.
+- **Agent Dossier**: Detailed view of a single agent's identity and governance history.
+- **Audit Log**: Immutable record of administrative actions and system changes.
+- **Policy Suite**: Full lifecycle management: create, test, simulate, and generate proof.
+- **Labs**: Experimental workspace for swarm intelligence, learning loops, and prompt tracking.

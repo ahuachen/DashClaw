@@ -221,16 +221,16 @@ DashClaw is a single Next.js codebase that serves two roles:
 
 ## Product Surfaces
 
-| Route | Description |
-|-------|-------------|
-| `/` | Public landing page |
-| `/mission-control` | Control tower for agent fleet posture (landing page after login) |
-| `/agents` | Fleet overview and agent connection health |
-| `/actions` | Decisions Ledger: the global stream of governed agent actions |
-| `/actions/[id]` | Decision Replay: visual causal chain of a single decision |
-| `/policies` | Guardrail and policy management |
-| `/docs` | SDK + platform documentation |
-| `/demo` | Demo sandbox (read-only, no login) |
+| Route | Description | Tier |
+|-------|-------------|------|
+| `/mission-control` | Control tower for agent fleet posture | Core |
+| `/decisions` | Decisions Ledger: global stream of governed actions | Core |
+| `/decisions/[id]` | Decision Replay: visual causal chain of a decision | Core |
+| `/policies` | Guardrail and policy management | Core |
+| `/agents` | Fleet overview and agent dossiers | Supporting |
+| `/activity` | Real-time operational telemetry feed | Supporting |
+| `/labs` | Experimental safety research (Swarm, Learning, Prompts) | Experimental |
+| `/audit-log` | Immutable record of system/admin changes | Core |
 
 ---
 
