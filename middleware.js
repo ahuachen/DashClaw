@@ -52,9 +52,20 @@ function isDemoCookieSet(request) {
   return request.cookies.get('dashclaw_demo')?.value === '1';
 }
 
-function addSecurityHeaders(response) {
+function addSecurityHeaders(response, request) {
+  const pathname = request?.nextUrl?.pathname || '';
+  const isPublicReplay = pathname.startsWith('/replay/');
+
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
+  
+  if (isPublicReplay) {
+    // Allow embedding for public replays
+    response.headers.delete('X-Frame-Options');
+    response.headers.set('Content-Security-Policy', "frame-ancestors *;");
+  } else {
+    response.headers.set('X-Frame-Options', 'DENY');
+  }
+
   response.headers.set('X-XSS-Protection', '1; mode=block');
   // SECURITY: Apply HSTS in production to prevent protocol downgrade attacks
   if (process.env.NODE_ENV === 'production') {
