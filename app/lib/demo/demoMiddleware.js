@@ -423,8 +423,8 @@ export function demoGuard(fixtures, url) {
     };
   }
 
-  // Combine static fixtures with live session data
-  let reads = [...sessionEvaluations, ...(fixtures.guardReads || fixtures.guardDecisions || [])];
+  // Combine static fixtures with the deterministic demo evaluation
+  let reads = [demoTestEval, ...(fixtures.guardReads || fixtures.guardDecisions || [])];
   
   if (agentId) reads = reads.filter(r => r.agent_id === agentId);
   if (policyId) reads = reads.filter(r => r.policy_id === policyId);
@@ -445,13 +445,17 @@ export function demoGuardPost(fixtures, body) {
   const isDemoAgent = agentId === 'openai-deployer-1';
   const shouldBlock = isDemoAgent && riskScore >= 80;
 
+  if (isDemoAgent) {
+    return demoTestEval;
+  }
+
   const evaluation = {
-    id: isDemoAgent ? 'gd_demo_deploy_001' : `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
+    id: `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
     agent_id: agentId,
-    agent_name: isDemoAgent ? 'OpenAI Deployer' : 'Unknown Agent',
+    agent_name: 'Unknown Agent',
     action_type: body.action_type || 'unknown',
     decision: shouldBlock ? 'block' : 'allow',
-    action_id: isDemoAgent ? DEMO_TEST_ACTION_ID : `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
+    action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
     reason: shouldBlock 
       ? 'High-risk production action requires explicit approval per Demo Policy.'
       : 'Action permitted under default demo policy.',
@@ -460,9 +464,6 @@ export function demoGuardPost(fixtures, body) {
     created_at: new Date().toISOString(),
     signals: []
   };
-
-  // PERSIST: Save to session memory so it shows up in the dashboard
-  sessionEvaluations.unshift(evaluation);
 
   return evaluation;
 }

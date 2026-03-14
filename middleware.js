@@ -774,12 +774,14 @@ export async function middleware(request) {
       if (pathname === '/api/guard') {
         if (method === 'POST') {
           try {
-            const body = await request.json();
+            const bodyText = await request.text();
+            const body = bodyText ? JSON.parse(bodyText) : {};
             const result = demoGuardPost(fixtures, body);
             const status = (result.decision === 'block' || result.decision === 'require_approval') ? 403 : 200;
             return demoJson(request, result, status);
           } catch (e) {
-            return demoJson(request, { error: 'Invalid request body' }, 400);
+            console.error('[DEMO GUARD ERROR]', e);
+            return demoJson(request, { error: `Invalid request body: ${e.message}`, details: e.stack }, 400);
           }
         }
         return demoJson(request, demoGuard(fixtures, url));
