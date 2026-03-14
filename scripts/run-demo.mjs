@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,10 +45,19 @@ async function main() {
     }
   });
 
-  // Handle cleanup on exit
+  // Handle cleanup on exit to prevent orphaned servers
   const cleanup = () => {
-    app.kill();
+    try {
+      if (process.platform === 'win32') {
+        execSync(`taskkill /pid ${app.pid} /T /F 2>nul`);
+      } else {
+        app.kill('SIGINT');
+      }
+    } catch (e) {
+      // process already dead
+    }
   };
+  
   process.on('exit', cleanup);
   process.on('SIGINT', () => { cleanup(); process.exit(); });
   process.on('SIGTERM', () => { cleanup(); process.exit(); });
