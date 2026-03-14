@@ -404,20 +404,27 @@ export default function AgentProfilePage() {
             <CardHeader title="Connected Integrations" icon={Globe} />
             <CardContent>
               <div className="space-y-3">
-                {parseJsonArray(agent.connections).map(conn => (
-                  <div key={conn.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-white">
-                        {conn.type.substring(0, 1).toUpperCase()}
+                {parseJsonArray(agent.connections || []).map((conn, idx) => {
+                  const type = conn?.type || 'unknown';
+                  const id = conn?.id || `conn-${idx}`;
+                  return (
+                    <div key={id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-white font-bold">
+                          {type.substring(0, 1).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-white uppercase">{type}</div>
+                          <div className="text-[9px] text-zinc-500 font-mono">ID: {id.substring(0, 8)}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-xs font-bold text-white uppercase">{conn.type}</div>
-                        <div className="text-[9px] text-zinc-500 font-mono">ID: {conn.id.substring(0, 8)}</div>
-                      </div>
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                     </div>
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                  </div>
-                ))}
+                  );
+                })}
+                {parseJsonArray(agent.connections || []).length === 0 && (
+                  <div className="text-center py-4 text-xs text-zinc-600 italic">No integrations connected.</div>
+                )}
               </div>
             </CardContent>
           </Card>
