@@ -186,6 +186,30 @@ export default function DecisionReplayPage() {
     setPendingOps(prev => { const n = { ...prev }; delete n[loopId]; return n; });
   };
 
+  if (loading) {
+    return (
+      <PageLayout title="Loading..." breadcrumbs={['Governance', 'Decisions']}>
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error || !action) {
+    return (
+      <PageLayout title="Decision Not Found" breadcrumbs={['Governance', 'Decisions', actionId]}>
+        <Card hover={false} className="max-w-md mx-auto mt-12 text-center">
+          <CardContent className="pt-8">
+            <Search size={32} className="text-zinc-600 mx-auto mb-3" />
+            <div className="text-lg font-medium text-white mb-2">{error || 'Decision not found'}</div>
+            <div className="text-sm text-zinc-500">Decision ID: {actionId}</div>
+          </CardContent>
+        </Card>
+      </PageLayout>
+    );
+  }
+
   const isSuccess = action.status === 'completed';
   const riskScore = parseInt(action.risk_score || 0, 10);
 
@@ -210,30 +234,6 @@ export default function DecisionReplayPage() {
     if (decisionType === 'require_approval') return 'Action paused. Awaiting human operator intervention.';
     return 'Action failed during execution. See execution trace for details.';
   };
-
-  if (loading) {
-    return (
-      <PageLayout title="Loading..." breadcrumbs={['Governance', 'Decisions']}>
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageLayout title="Decision Not Found" breadcrumbs={['Governance', 'Decisions', actionId]}>
-        <Card hover={false} className="max-w-md mx-auto mt-12 text-center">
-          <CardContent className="pt-8">
-            <Search size={32} className="text-zinc-600 mx-auto mb-3" />
-            <div className="text-lg font-medium text-white mb-2">{error}</div>
-            <div className="text-sm text-zinc-500">Decision ID: {actionId}</div>
-          </CardContent>
-        </Card>
-      </PageLayout>
-    );
-  }
 
   const tabs = [
     { id: 'timeline', label: 'Timeline', icon: Clock },
