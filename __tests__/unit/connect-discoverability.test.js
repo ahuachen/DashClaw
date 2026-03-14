@@ -14,7 +14,7 @@ describe('connect page discoverability', () => {
   });
 
   it('exposes /connect from the self-host page source', () => {
-    const source = readRepoFile('app/self-host/page.js');
+    const source = readRepoFile('app/(archive)/self-host/page.js');
 
     expect(source).toContain('href="/connect"');
   });
