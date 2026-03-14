@@ -7,7 +7,7 @@ async def run():
     # In "demo" mode, it sends telemetry to the public DashClaw demo.
     claw = DashClaw(
         api_key=os.getenv("DASHCLAW_API_KEY", "demo"),
-        base_url=os.getenv("DASHCLAW_BASE_URL", "http://localhost:3000")
+        base_url=os.getenv("DASHCLAW_BASE_URL", "https://www.dashclaw.io")
     )
 
     print("🚀 Agent attempting high-risk action...")

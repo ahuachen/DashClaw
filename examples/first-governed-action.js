@@ -5,7 +5,7 @@ import { DashClaw } from "dashclaw";
 // In "demo" mode, it sends telemetry to the public DashClaw demo.
 const claw = new DashClaw({
   apiKey: process.env.DASHCLAW_API_KEY || "demo",
-  baseUrl: process.env.DASHCLAW_BASE_URL || "http://localhost:3000"
+  baseUrl: process.env.DASHCLAW_BASE_URL || "https://www.dashclaw.io"
 });
 
 async function run() {

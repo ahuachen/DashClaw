@@ -58,11 +58,18 @@ cd DashClaw/examples
 npm install
 
 # 3. Run the first governed action
-# (Make sure DashClaw is running locally or use DASHCLAW_BASE_URL=https://www.dashclaw.io)
 node first-governed-action.js
 ```
 
-When you run this, **Mission Control** will light up with a new intercepted decision.
+The example sends a governed decision to the DashClaw demo instance. 
+Open **[Mission Control](https://www.dashclaw.io/mission-control)** to watch it appear in real time.
+
+> **Running your own instance?**  
+> If you're running DashClaw locally or on Vercel, set `DASHCLAW_BASE_URL` to your deployment URL first.  
+>  
+> Examples:  
+> `DASHCLAW_BASE_URL=http://localhost:3000 node first-governed-action.js`  
+> `DASHCLAW_BASE_URL=https://your-app.vercel.app node first-governed-action.js`
 
 ---
 
