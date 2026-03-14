@@ -16,7 +16,7 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <img src="screenshots/Dashboard.png" alt="DashClaw Mission Control" width="2500" />
+  <img src="screenshots/replay.png" alt="DashClaw Replay" width="2500" />
 </div>
 
 <br />
@@ -75,7 +75,7 @@ Once decisions are governed, DashClaw expands into a full control plane for agen
 - **Agent Fleet Management** — health, permissions, and health overview.
 - **Compliance evidence** — generate audit-ready reports.
 
-<img src="screenshots/Dashboard.png" alt="DashClaw Mission Control dashboard" width="2500" />
+<img src="screenshots/decision4.png" alt="DashClaw Decisions" width="2500" />
 
 ---
 
