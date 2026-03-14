@@ -83,13 +83,17 @@ DashClaw uses standard HTTP status codes and custom error classes:
 
 ## Legacy SDK (v1)
 
-If you require legacy features (Calendar, Messages, Workflows, etc.), the v1 SDK is still available in the `legacy/` directory:
+If you require legacy features (Calendar, Messages, Workflows, etc.), the v1 SDK is available via the `legacy` sub-path:
 
 ```javascript
-import { DashClaw } from 'dashclaw/legacy/dashclaw-v1.js';
+// ESM
+import { DashClaw } from 'dashclaw/legacy';
+
+// CommonJS
+const { DashClaw } = require('dashclaw/legacy');
 ```
 
-*Note: Legacy features are now considered "Extensions" and may require additional server configuration.*
+*Note: Legacy features are now considered "Extensions" and require these routes to be enabled on your DashClaw server.*
 
 ---
 

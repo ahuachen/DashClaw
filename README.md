@@ -87,28 +87,11 @@ DashClaw v2 is optimized for first-time adoption with only **5 core methods**:
 *   `recordAssumption(assumption)` — Integrity tracking ("I believe Z while doing X")
 *   `waitForApproval(id)` — Polling helper for human-in-the-loop
 
-Legacy features (Calendar, Messages, Workflows) have been moved to **Extensions**.
-4. **Verifiable Evidence** — Cryptographically signed decision replays are recorded for audit.
-
----
-
-## What DashClaw Solves
-
-AI agents can execute actions with real-world consequences.
-
-DashClaw sits between agents and external systems, enforcing guard policies before actions execute and recording verifiable decision evidence afterward.
-
----
-
-## Project Structure
-
-DashClaw is organized into a lean governance runtime with modular extensions.
-
-- **`/app/(core)`** — **The Governance Runtime UI**. Mission Control, Decisions, Policies, and Approvals.
-- **`/app/(extensions)`** — **Labs & Experimental Infrastructure**. Behavioral drift, learning loops, and task routing.
-- **`/app/(archive)`** — **Legacy Artifacts**. Preserved historical features (Goals, Messages, etc.).
-- **`/app/api`** — **The Stable Runtime API**. Small, idempotent primitives for agent integration.
-- **`/sdk`** — **Lightweight SDKs**. Node and Python clients for the governance lifecycle.
+### Legacy SDK (v1)
+The original 178-method SDK remains available via the legacy sub-path for users who require experimental platform features:
+```javascript
+import { DashClaw } from 'dashclaw/legacy';
+```
 
 ---
 
@@ -116,46 +99,11 @@ DashClaw is organized into a lean governance runtime with modular extensions.
 
 DashClaw provides a small, stable API surface for governing any agent:
 
-1. **`POST /api/guard`** — "Can I do X?" (Policy check)
-2. **`POST /api/actions`** — "I am attempting X." (Action registration)
-3. **`PATCH /api/actions/:id`** — "X finished with result Y." (Outcome recording)
-4. **`POST /api/assumptions`** — "I believe Z is true while doing X." (Reasoning ledger)
-5. **`POST /api/approvals/:id`** — "Operator says Allow/Deny for X." (Human-in-the-loop)
-
-Everything else (UI, Analytics, Extensions) maps back to these five primitives.
-
----
-
-## SDK v2 (Alpha)
-
-The new **DashClaw SDK v2** focuses on the minimal runtime API for better stability and lower latency.
-
-```javascript
-import { DashClaw } from './sdk/dashclaw-v2.js';
-
-const claw = new DashClaw({
-  baseUrl: 'https://your-dashclaw.com',
-  apiKey: 'key_...',
-  agentId: 'my-agent'
-});
-
-// 1. Guard
-const decision = await claw.guard({
-  action: 'deploy',
-  intent: 'deploy latest commit to production'
-});
-
-if (decision.decision === 'block') throw new Error('Policy blocked action');
-
-// 2. Act
-const { action_id } = await claw.createAction({
-  action_type: 'deploy',
-  declared_goal: 'deploy latest commit to production'
-});
-
-// 3. Result
-await claw.updateOutcome(action_id, { status: 'completed' });
-```
+1. **`POST /api/guard`** — Policy check.
+2. **`POST /api/actions`** — Action registration.
+3. **`PATCH /api/actions/:id`** — Outcome recording.
+4. **`POST /api/assumptions`** — Reasoning ledger.
+5. **`POST /api/approvals/:id`** — Human-in-the-loop.
 
 ---
 
@@ -164,93 +112,43 @@ await claw.updateOutcome(action_id, { status: 'completed' });
 - **Mission Control** — High-level control tower for fleet posture and active interventions.
 - **Guard Engine** — Zero-latency policy enforcement before agents reach external systems.
 - **Decision Replay** — Visual, shareable causal chains of every governed action.
-- **Agent Dossiers** — Dedicated governance profiles tracking posture, policies, and history.
 - **Risk Signals** — Automated detection of autonomy spikes and failure loops.
 - **Compliance Evidence** — Generate audit-ready reports for SOC 2, GDPR, and EU AI Act.
 
 ---
 
-## 🚀 1-Minute Path to Governance
+## 🚀 8-Minute Path to Governance
 
-Experience the magic of autonomous governance in under 60 seconds.
+Experience the magic of autonomous governance in minutes.
 
 ```bash
 # 1. Clone the repo
 git clone https://github.com/ucsandman/DashClaw
-cd DashClaw/examples
+cd DashClaw
 
-# 2. Install dependencies
+# 2. Run the example
+cd examples/dashclaw-example-openai-agent
 npm install
-
-# 3. Run the first governed action
-node first-governed-action.js
+node index.js
 ```
-
-The example sends a governed decision to the DashClaw demo instance. 
-Open **[Mission Control](https://www.dashclaw.io/mission-control)** to watch the intercepted decision appear in real time.
-
-> **Running your own instance?**  
-> If you're running DashClaw locally or on Vercel, set `DASHCLAW_BASE_URL` to your deployment URL first.  
->  
-> Examples:  
-> `DASHCLAW_BASE_URL=http://localhost:3000 node first-governed-action.js`  
-> `DASHCLAW_BASE_URL=https://your-app.vercel.app node first-governed-action.js`
 
 ---
 
 ## Works With Your Agent Stack
 
-DashClaw can govern decisions from any agent runtime.
-
-Common integrations include:
-
-• LangChain agents  
-• CrewAI agents  
-• OpenAI tool agents  
-• Anthropic tool agents  
-• OpenClaw agents  
-• Custom agent frameworks
-
----
-
-## Platform Expansion
-
-Once decisions are governed, DashClaw provides operational visibility for agent fleets.
-
-- **Mission Control dashboard** — operational visibility for agent fleets.
-- **Decision Replay** — causal chain visualization for every governed action.
-- **Agent Fleet Management** — health, permissions, and health overview.
-- **Compliance evidence** — generate audit-ready reports.
-
-<img src="screenshots/decision4.png" alt="DashClaw Decisions" width="2500" />
+DashClaw can govern decisions from any agent runtime:
+• LangChain • CrewAI • OpenAI Tools • Anthropic Tools • Custom Frameworks
 
 ---
 
 ## How It Works
 
-DashClaw is a single Next.js codebase that serves two roles:
+DashClaw is a single Next.js codebase that serves as both a marketing site and a self-hosted governance control plane.
 
-| | **dashclaw.io** (marketing) | **Your deployment** (self-hosted) |
+| Feature | **dashclaw.io** (demo) | **Your deployment** (self-host) |
 |---|---|---|
-| **Landing page** | Marketing site with demo | Same page, "Mission Control" goes to your real dashboard |
-| **Mission Control** | Demo with fixture data, no login | Real dashboard with Password or GitHub/Google/OIDC OAuth |
 | **Data** | Hardcoded fixtures | Your Postgres database |
 | **`DASHCLAW_MODE`** | `demo` | `self_host` (default) |
-
----
-
-## Product Surfaces
-
-| Route | Description | Tier |
-|-------|-------------|------|
-| `/mission-control` | Control tower for agent fleet posture | Core |
-| `/decisions` | Decisions Ledger: global stream of governed actions | Core |
-| `/decisions/[id]` | Decision Replay: visual causal chain of a decision | Core |
-| `/policies` | Guardrail and policy management | Core |
-| `/agents` | Fleet overview and agent dossiers | Supporting |
-| `/activity` | Real-time operational telemetry feed | Supporting |
-| `/labs` | Experimental safety research (Swarm, Learning, Prompts) | Experimental |
-| `/audit-log` | Immutable record of system/admin changes | Core |
 
 ---
 
@@ -261,29 +159,15 @@ The fastest path: **Vercel free tier + Neon free tier**.
 1. Create a free database at [neon.tech](https://neon.tech)
 2. Fork this repo to your GitHub
 3. Import at [vercel.com/new](https://vercel.com/new)
-4. Generate secrets and set environment variables (see [docs/client-setup-guide.md](docs/client-setup-guide.md)).
-5. Deploy. Tables are created automatically on first request.
+4. Set environment variables (see [docs/client-setup-guide.md](docs/client-setup-guide.md)).
 
 ---
 
 ## Security
 
 - API surface fails closed with `503` if `DASHCLAW_API_KEY` is not set.
-- Rate limiting enforced on all `/api/*` routes.
 - AES-256 encryption for sensitive settings.
 - Multi-tenant isolation by default.
-
-See [docs/SECURITY.md](docs/SECURITY.md).
-
----
-
-## Community
-
-<div align="center">
-  <a href="https://dashclaw.io">Website</a> &bull;
-  <a href="https://dashclaw.io/docs">Documentation</a> &bull;
-  <a href="https://github.com/ucsandman/DashClaw/issues">Issues</a>
-</div>
 
 ---
 

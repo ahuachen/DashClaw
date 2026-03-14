@@ -70,7 +70,19 @@ decision = claw.guard(action_type='deploy', risk_score=85)
 
 ---
 
-## 4. Core Concepts
+## 4. Legacy Compatibility (v1)
+
+For developers migrating from DashClaw v1 or those who require experimental platform features (Messaging, Calendar, Workflows), the full original SDK is available via the `legacy` sub-path:
+
+```javascript
+import { DashClaw } from 'dashclaw/legacy';
+```
+
+*Warning: Legacy methods will return 404 errors if the corresponding API routes have not been restored from the `_archive` directory on the server.*
+
+---
+
+## 5. Core Concepts
 
 ### Guard Policies
 Defined in the **Policies** page. Policies can **Allow**, **Block**, or **Require Approval** based on risk scores, action types, or frequency.
