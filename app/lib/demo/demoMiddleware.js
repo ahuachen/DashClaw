@@ -36,21 +36,32 @@ export function demoListActions(fixtures, url) {
 
 export function demoCreateAction(fixtures, body) {
   const action_id = body.action_id || `act_sim_${Math.random().toString(36).slice(2, 10)}`;
+  
+  // Use a high-impact blocked story for simulator bot
+  const isSimulator = body.agent_id === 'simulator-bot';
+  
   const action = {
     ...body,
     action_id,
     org_id: 'org_demo',
     timestamp_start: body.timestamp_start || new Date().toISOString(),
-    status: body.status || 'completed',
-    risk_score: body.risk_score || 0,
-    confidence: body.confidence || 100,
+    status: isSimulator ? 'failed' : (body.status || 'completed'),
+    risk_score: isSimulator ? 92 : (body.risk_score || 0),
+    confidence: isSimulator ? 88 : (body.confidence || 100),
+    declared_goal: isSimulator ? 'CHARGE: Stripe Customer sub_12345 -- $12,000.00' : (body.declared_goal || 'Routine Task'),
     verified: true,
   };
   
   return { 
     action, 
     action_id, 
-    decision: { decision: 'allow', reason: 'Demo mode simulation auto-permitted.' },
+    decision: { 
+      decision: isSimulator ? 'block' : 'allow', 
+      reason: isSimulator 
+        ? 'Risk score 92 exceeds automation threshold for financial operations.' 
+        : 'Demo mode simulation auto-permitted.',
+      matched_policies: isSimulator ? ['financial-escalation-v2', 'high-risk-intercept'] : []
+    },
     security: { clean: true, findings_count: 0 }
   };
 }

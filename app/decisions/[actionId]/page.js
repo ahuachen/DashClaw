@@ -238,6 +238,21 @@ export default function DecisionReplayPage() {
               <Info size={12} /> Unsigned Decision
             </div>
           )}
+          
+          {/* Dominant Decision Signal */}
+          <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border font-black text-xs tracking-tighter ${
+            guardDecision?.decision === 'block' ? 'bg-red-500/20 border-red-500/40 text-red-400' :
+            guardDecision?.decision === 'require_approval' ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' :
+            'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+          }`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${
+              guardDecision?.decision === 'block' ? 'bg-red-500' :
+              guardDecision?.decision === 'require_approval' ? 'bg-amber-500' :
+              'bg-emerald-500'
+            }`} />
+            {(guardDecision?.decision || 'allow').toUpperCase()}
+          </div>
+
           <button 
             onClick={() => {
               const url = `${window.location.origin}/replay/${action.action_id}`;
@@ -248,9 +263,6 @@ export default function DecisionReplayPage() {
           >
             <ExternalLink size={14} /> Share
           </button>
-          <Badge variant={getStatusVariant(action.status)}>
-            {action.status.toUpperCase()}
-          </Badge>
         </div>
       }
     >

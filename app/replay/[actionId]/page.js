@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   ShieldCheck, ShieldAlert, Zap, Clock, Info, ExternalLink,
-  ChevronRight, ArrowRight, Code, Copy, Check
+  ChevronRight, ArrowRight, Code, Copy, Check, X
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -32,7 +32,6 @@ export default function PublicReplayPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch public-safe action data
       const res = await fetch(`/api/actions/${actionId}`);
       if (!res.ok) {
         if (res.status === 404) { setError('Decision not found'); return; }
@@ -40,7 +39,6 @@ export default function PublicReplayPage() {
       }
       const data = await res.json();
       
-      // In public view, we strictly white-list what we show
       setAction({
         action_id: data.action.action_id,
         declared_goal: data.action.declared_goal,
@@ -56,7 +54,6 @@ export default function PublicReplayPage() {
         output_summary: data.action.output_summary
       });
 
-      // Try to find governance data
       if (data.action.agent_id) {
         try {
           const guardRes = await fetch(`/api/guard?agent_id=${encodeURIComponent(data.action.agent_id)}&limit=10`);
@@ -109,18 +106,8 @@ export default function PublicReplayPage() {
     );
   }
 
-  const getStatusColor = (status) => {
-    if (status === 'completed' || status === 'allow') return 'text-emerald-400';
-    if (status === 'failed' || status === 'block') return 'text-red-400';
-    if (status === 'require_approval' || status === 'running') return 'text-amber-400';
-    return 'text-zinc-400';
-  };
-
-  const getRiskColor = (score) => {
-    if (score >= 70) return 'text-red-400';
-    if (score >= 40) return 'text-amber-400';
-    return 'text-emerald-400';
-  };
+  const decisionType = guardDecision?.decision || 'allow';
+  const isSuccess = action.status === 'completed';
 
   // ─── Render ───
   return (
@@ -161,9 +148,6 @@ export default function PublicReplayPage() {
             {/* Header / ID */}
             <div className="px-6 py-4 border-b border-white/[0.04] flex items-center justify-between bg-white/[0.01]">
               <div className="flex items-center gap-3">
-                <Badge variant={action.status === 'completed' ? 'success' : 'error'} size="xs" className="font-black uppercase tracking-tighter">
-                  {action.status}
-                </Badge>
                 <span className="text-[10px] font-mono text-zinc-600 tracking-tight">{action.action_id}</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -200,22 +184,25 @@ export default function PublicReplayPage() {
 
               {/* 2. THE GOVERNANCE */}
               <div className="relative flex gap-6">
-                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)] ${
-                  guardDecision?.decision === 'block' ? 'text-red-400 bg-red-500/10 border-red-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-emerald-400'
+                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] ${
+                  decisionType === 'block' ? 'text-red-400 border-red-500/30 bg-red-500/10' : 
+                  decisionType === 'require_approval' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
+                  'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
                 }`}>
-                  <ShieldCheck size={20} className="fill-current/20" />
+                  {decisionType === 'block' ? <ShieldAlert size={20} /> : <ShieldCheck size={20} />}
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Governance Check</div>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                      <span className={`text-xs font-bold uppercase ${getStatusColor(guardDecision?.decision || 'allow')}`}>
-                        {guardDecision?.decision?.toUpperCase() || 'ALLOWED'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Risk Score:</span>
-                      <span className={`text-xs font-bold ${getRiskColor(action.risk_score)}`}>{action.risk_score || 0}</span>
+                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Governance Decision</div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-2xl font-black tracking-tighter ${
+                      decisionType === 'block' ? 'text-red-400' : 
+                      decisionType === 'require_approval' ? 'text-amber-400' :
+                      'text-emerald-400'
+                    }`}>
+                      {decisionType.toUpperCase()}
+                    </span>
+                    <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-500 uppercase">
+                      Risk: {action.risk_score || 0}
                     </div>
                   </div>
                   {guardDecision?.reason && (
@@ -228,24 +215,22 @@ export default function PublicReplayPage() {
 
               {/* 3. THE OUTCOME */}
               <div className="relative flex gap-6">
-                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${getStatusColor(action.status)} shadow-[0_0_15px_rgba(255,255,255,0.05)]`}>
-                  <Check size={20} />
+                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {isSuccess ? <Check size={20} /> : <X size={20} />}
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Result</div>
+                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Final Result</div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className={`text-xl font-black tracking-tight ${getStatusColor(action.status)} uppercase`}>
-                      {action.status}
+                    <span className={`text-lg font-bold tracking-tight ${isSuccess ? 'text-emerald-400' : 'text-red-400'} uppercase`}>
+                      {isSuccess ? 'Action Successful' : 'Action Prevented'}
                     </span>
                     {action.duration_ms && (
                       <span className="text-xs text-zinc-600 font-mono">in {(action.duration_ms/1000).toFixed(2)}s</span>
                     )}
                   </div>
-                  {action.output_summary && (
-                    <div className="text-xs text-zinc-300 font-mono bg-black/40 p-3 rounded-lg border border-white/5 max-h-[100px] overflow-auto leading-relaxed">
-                      {action.output_summary}
-                    </div>
-                  )}
+                  <div className="text-xs text-zinc-300 font-mono bg-black/40 p-3 rounded-lg border border-white/5 leading-relaxed">
+                    {action.output_summary || (isSuccess ? 'No policy violations detected. Decision chain verified.' : 'Governance runtime successfully intercepted high-risk intent.')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -256,8 +241,8 @@ export default function PublicReplayPage() {
                 <DashClawLogo size={14} className="grayscale opacity-50" />
                 <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Verified by DashClaw Runtime</span>
               </div>
-              <div className="text-[9px] font-mono text-zinc-700">
-                {new Date(action.timestamp_start).toUTCString()}
+              <div className="text-[9px] font-mono text-zinc-700 uppercase tracking-tighter">
+                {new Date(action.timestamp_start).toLocaleDateString()} {new Date(action.timestamp_start).toLocaleTimeString()}
               </div>
             </div>
           </div>
