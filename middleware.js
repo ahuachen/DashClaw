@@ -1104,7 +1104,7 @@ export async function middleware(request) {
 
         requestHeaders.set('x-org-id', orgId);
         requestHeaders.set('x-org-role', role);
-        requestHeaders.set('x-user-id', sessionToken.userId || '');
+        requestHeaders.set('x-user-id', userId);
         const response = NextResponse.next({ request: { headers: requestHeaders } });
         response.headers.set('X-Content-Type-Options', 'nosniff');
         response.headers.set('X-Frame-Options', 'DENY');
