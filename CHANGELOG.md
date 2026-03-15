@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Local Admin Approval Bug**: Fixed an issue in `middleware.js` where the `x-user-id` header was incorrectly set to an empty string instead of the resolved local-admin fallback value (`usr_local_admin`). This prevented the `approved_by` metadata from being correctly recorded in the database when an action was approved locally, causing the strict SDK parity checks to reject the approval as invalid.
+- **Unified SDK Versioning**: Bumped both Node.js and Python SDKs to `2.1.5` to stay in sync with the platform and confirm they are tested against the middleware fix.
 
 ## [2.1.4] - 2026-03-15
 
