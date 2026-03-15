@@ -729,3 +729,10 @@ export function demoSwarmGraph(fixtures, url) {
     total_links: links.length,
   };
 }
+
+export function demoDecisionMetrics(fixtures) {
+  return {
+    ...fixtures.decisionMetrics,
+    lastUpdated: new Date().toISOString()
+  };
+}

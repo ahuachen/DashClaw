@@ -9,7 +9,8 @@ import {
   demoMessageDocs, demoContent, demoTeam, demoTeamInvites, demoActivity,
   demoWebhooks, demoWebhookDeliveries, demoWorkflows, demoSchedules,
   demoDigest, demoContextPoints, demoContextThreads, demoContextThreadDetail,
-  demoHandoffs, demoSnippets, demoPreferences, demoSwarmGraph, demoAgentConnections, demoActionTrace
+  demoHandoffs, demoSnippets, demoPreferences, demoSwarmGraph, demoAgentConnections, demoActionTrace,
+  demoDecisionMetrics
 } from './app/lib/demo/demoMiddleware.js';
 import { getViewerContextFromCookieHeader } from './app/lib/sessionViewer.mjs';
 
@@ -886,6 +887,10 @@ export async function middleware(request) {
 
       if (pathname === '/api/usage') {
         return demoJson(request, fixtures.usage);
+      }
+
+      if (pathname === '/api/metrics/decisions') {
+        return demoJson(request, demoDecisionMetrics(fixtures));
       }
 
       if (pathname === '/api/swarm/graph') {

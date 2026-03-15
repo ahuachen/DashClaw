@@ -197,6 +197,15 @@ function buildFixtures() {
     invalid_assumptions: 2,
   };
 
+  const decisionMetrics = {
+    total: 142,
+    completed: 118,
+    failed: 12,
+    cancelled: 6,
+    approval: 6,
+    change_percent: 18,
+  };
+
   const signals = [
     { severity: 'red', type: 'autonomy_spike', agent_id: 'deploy-bot', created_at: isoFromNow(MS_HOUR) },
     { severity: 'amber', type: 'stale_action', agent_id: 'security-scanner', created_at: isoFromNow(2 * MS_HOUR) },
@@ -312,6 +321,7 @@ function buildFixtures() {
     settings,
     memory,
     signals,
+    decisionMetrics,
     recommendations,
     metrics,
     metricsSummary,
