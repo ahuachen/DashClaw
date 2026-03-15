@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Decision Throughput Tile**: New 24-hour action metrics on Mission Control (`/api/actions/stats`) showing decision volume, success rates, and real-time trends across the agent fleet.
+- **Action-Native Metrics**: Specialized throughput tracking for Completed, Failed, Cancelled, and Pending Approval statuses directly from the `action_records` governance layer.
+
 ## [2.1.0] - 2026-03-14
 
 ### Added

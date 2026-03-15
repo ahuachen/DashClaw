@@ -277,7 +277,7 @@ export default function MissionControlPage() {
 
   const actionButton = (
     <Link
-      href="/actions"
+      href="/decisions"
       className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm text-brand transition-colors hover:bg-brand/20"
     >
       View Decisions <ArrowRight size={14} />
@@ -476,7 +476,7 @@ export default function MissionControlPage() {
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Decisions (24h)</span>
-              <Link href="/actions" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+              <Link href="/decisions" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
                 History <ArrowRight size={10} />
               </Link>
             </div>
