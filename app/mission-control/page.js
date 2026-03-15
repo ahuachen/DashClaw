@@ -129,6 +129,7 @@ export default function MissionControlPage() {
   const [health, setHealth] = useState(null);
   const [actions, setActions] = useState([]);
   const [pendingActions, setPendingActions] = useState([]);
+  const [decisionMetrics, setDecisionMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('priority');
   const [showTelemetry, setShowTelemetry] = useState(false);
@@ -145,17 +146,19 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes] = await Promise.all([
+      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes, metricsRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
         fetch(withParams('/api/actions/loops', ['status=open', 'limit=20'])),
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
         fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
+        fetch('/api/metrics/decisions'),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
       if (loopsRes.ok) setLoops(await loopsRes.json());
       if (healthRes.ok) setHealth(await healthRes.json());
+      if (metricsRes.ok) setDecisionMetrics(await metricsRes.json());
       if (actionsRes.ok) {
         const actionsJson = await actionsRes.json();
         setActions(actionsJson.actions || []);
@@ -464,6 +467,49 @@ export default function MissionControlPage() {
                   </Link>
                 )}
               </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Card 4 — Decisions (24h) */}
+        <Card>
+          <div className="p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Decisions (24h)</span>
+              <Link href="/actions" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                History <ArrowRight size={10} />
+              </Link>
+            </div>
+            {loading || !decisionMetrics ? <MetricSkeleton /> : (
+              <>
+                <div className="mb-1 flex items-baseline gap-2">
+                  <div className="text-3xl font-bold tabular-nums text-white">{decisionMetrics.total}</div>
+                  <div className={`flex items-center gap-0.5 text-xs font-medium ${decisionMetrics.change_percent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {decisionMetrics.change_percent >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                    {decisionMetrics.change_percent >= 0 ? '+' : ''}{decisionMetrics.change_percent}%
+                  </div>
+                </div>
+                <div className="mb-4 text-[10px] text-zinc-500">vs yesterday</div>
+                
+                <div className="grid grid-cols-2 gap-y-2">
+                  <div className="flex items-center justify-between pr-4">
+                    <span className="text-[10px] text-zinc-500">Completed</span>
+                    <span className="text-[10px] font-medium text-emerald-400">{decisionMetrics.completed}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-zinc-500">Failed</span>
+                    <span className="text-[10px] font-medium text-red-400">{decisionMetrics.failed}</span>
+                  </div>
+                  <div className="flex items-center justify-between pr-4 border-t border-white/[0.03] pt-2">
+                    <span className="text-[10px] text-zinc-500">Cancelled</span>
+                    <span className="text-[10px] font-medium text-amber-400">{decisionMetrics.cancelled}</span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-white/[0.03] pt-2">
+                    <span className="text-[10px] text-zinc-500">Approval</span>
+                    <span className="text-[10px] font-medium text-brand">{decisionMetrics.approval}</span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </Card>

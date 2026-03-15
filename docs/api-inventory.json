@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 148,
+    "total_routes": 149,
     "stable_routes": 26,
     "beta_routes": 14,
-    "experimental_routes": 108
+    "experimental_routes": 109
   },
   "routes": [
     {
@@ -1030,6 +1030,15 @@
       "maturity": "experimental",
       "matched_prefix": "/api/learning",
       "file": "app/api/learning/recommendations/[recommendationId]/route.js"
+    },
+    {
+      "path": "/api/metrics/decisions",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/metrics/decisions/route.js"
     },
     {
       "path": "/api/orgs",
