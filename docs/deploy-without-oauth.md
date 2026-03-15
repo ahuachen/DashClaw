@@ -115,19 +115,21 @@ npm install dashclaw
 Create a file called `agent.js`:
 
 ```javascript
-import DashClaw from 'dashclaw';
+import { DashClaw } from 'dashclaw';
 
-const dc = new DashClaw({
+const claw = new DashClaw({
   baseUrl: 'https://your-app.vercel.app',
-  apiKey: 'oc_live_...' // the key from Step 5
+  apiKey: 'oc_live_...', // the key from Step 5
+  agentId: 'my-first-agent'
 });
 
-await dc.createAction({
-  agentId: 'my-first-agent',
-  type: 'api_call',
+const action = await claw.createAction({
+  action_type: 'api_call',
   declared_goal: 'Fetch user data from CRM',
   risk_score: 20,
 });
+
+await claw.updateOutcome(action.action_id, { status: 'completed' });
 
 console.log('Action recorded. Check your dashboard.');
 ```

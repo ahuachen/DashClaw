@@ -1,8 +1,8 @@
 <div align="center">
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
-  <p><strong>The policy firewall for AI agents.</strong></p>
-  <p>Run your first governed agent action in under 60 seconds.</p>
+  <p><strong>Decision Infrastructure for AI agents.</strong></p>
+  <p>Govern AI agents before they act.</p>
   <br />
   <p>Try it instantly:</p>
   <code>npx dashclaw-demo</code>
@@ -10,8 +10,8 @@
   <br />
   <p>Intercept decisions. Enforce policies. Record evidence.</p>
   <br />
-  <p><strong>Agent &rarr; DashClaw (Policy Engine) &rarr; External Systems</strong></p>
-  <p>DashClaw evaluates policies before an agent action executes and records evidence after it completes.</p>
+  <p><strong>Agent &rarr; DashClaw &rarr; External Systems</strong></p>
+  <p>DashClaw sits between your agents and your external systems. It evaluates policies before an agent action executes and records verifiable evidence of every decision.</p>
   <br />
   <p><a href="https://www.dashclaw.io/mission-control">View Live Demo</a></p>
 
@@ -29,32 +29,19 @@
 
 ---
 
-## Why DashClaw?
+## What is DashClaw?
 
-AI agents make decisions instead of executing deterministic code. When an agent deploys code, modifies a database, or sends an email, you need to know:
+AI agents generate actions from goals and context. They do not follow deterministic code paths. Therefore debugging alone is insufficient. **Agents require governance.**
 
-*   **Who** allowed that decision?
-*   **Why** was it allowed?
-*   **Did it follow policy?**
-
-DashClaw provides the **minimal governance infrastructure** to intercept these actions before they reach real systems.
-
----
-
-## The Governance Loop
-
-DashClaw sits between your agents and your systems:
-
-**Agent &rarr; guard() &rarr; createAction() &rarr; recordAssumption() &rarr; updateOutcome()**
-
-1.  **Guard** &rarr; "Can I do X?" (Policy check)
-2.  **Record** &rarr; "I am doing X." (Lifecycle tracking)
-3.  **Verify** &rarr; "I believe Y is true while doing X." (Reasoning ledger)
-4.  **Outcome** &rarr; "X finished with result Z." (Verifiable evidence)
+DashClaw provides decision infrastructure to:
+* Intercept risky agent actions.
+* Enforce policy checks before execution.
+* Require human approval (HITL) for sensitive operations.
+* Record verifiable decision evidence to detect reasoning drift.
 
 ---
 
-## ⚡ 1-Minute Governance Test
+## ⚡ 1-Minute Governance Demo
 
 Run DashClaw instantly with **one command**.
 
@@ -63,96 +50,109 @@ npx dashclaw-demo
 ```
 
 What happens:
-
 1. A local DashClaw demo runtime starts automatically.
 2. A demo agent attempts a **high-risk production deploy**.
 3. DashClaw intercepts the decision and **blocks the action before execution**.
 4. Your browser opens directly to the **Decision Replay** showing the governance trail.
 
-Replay example:
-
-```
-http://localhost:3000/replay/ar_demo_deploy_block_001
-```
-
-This page shows the full decision evidence:
-
-*   guard evaluation
-*   risk score
-*   policy decision
-*   blocked outcome
-*   causal replay chain
-
-No repo clone.
-No environment variables.
-No configuration.
-
-Just one command.
+No repo clone. No environment variables. No configuration. Just one command.
 
 ---
 
-## Local Demo (from repo)
+## Quickstart
 
-If you prefer running the demo directly from the repository:
+### 1. Install the SDK
 
-```bash
-git clone https://github.com/ucsandman/DashClaw
-cd DashClaw
-npm install
-npm run demo
-```
-
-This starts the same local DashClaw runtime used in the NPX demo.
-
----
-
-## Quick Start (Node.js)
-
+**Node.js:**
 ```bash
 npm install dashclaw
 ```
 
+**Python:**
+```bash
+pip install dashclaw
+```
+
+### 2. Create the Client
+
+**Node.js:**
 ```javascript
-import { DashClaw } from 'dashclaw';
+import { DashClaw, GuardBlockedError, ApprovalDeniedError } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: process.env.DASHCLAW_BASE_URL,
+  baseUrl: 'http://localhost:3000', // or your DashClaw instance URL
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
 });
+```
 
-// 1. Intercept & Check Policy
-const decision = await claw.guard({ 
-  action_type: 'deploy', 
-  risk_score: 85 
+**Python:**
+```python
+from dashclaw.client import DashClaw, GuardBlockedError, ApprovalDeniedError
+import os
+
+claw = DashClaw(
+    base_url='http://localhost:3000',
+    api_key=os.environ.get('DASHCLAW_API_KEY'),
+    agent_id='my-agent'
+)
+```
+
+### 3. Run Your First Governed Action
+
+The minimal governance loop wraps your agent's real-world actions:
+
+```javascript
+// 1. Guard -> "Can I do X?"
+const decision = await claw.guard({
+  action_type: 'database_query',
+  risk_score: 50
 });
 
-// If policy blocks, this throws a GuardBlockedError, stopping the agent.
+// 2. Record -> "I am attempting X."
+const action = await claw.createAction({
+  action_type: 'database_query',
+  declared_goal: 'Extract user statistics'
+});
+
+// 3. Verify -> "I believe Y is true while doing X."
+await claw.recordAssumption({
+  action_id: action.action_id,
+  assumption: 'The database is read-only for this credentials'
+});
+
+try {
+  // Execute the real action here...
+  // ...
+
+  // 4. Outcome -> "X finished with result Z."
+  await claw.updateOutcome(action.action_id, { status: 'completed' });
+} catch (error) {
+  await claw.updateOutcome(action.action_id, { status: 'failed', error_message: error.message });
+}
 ```
 
 ---
 
-## Works With
+## Local SDK Testing
 
-DashClaw works with any agent framework.
+DashClaw includes a standalone Python integration test agent that exercises the major DashClaw SDK methods directly against a running instance.
 
-**LangChain • CrewAI • OpenClaw • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
+To run it locally:
+```bash
+export DASHCLAW_API_KEY="your-api-key"
+export DASHCLAW_BASE_URL="http://localhost:3000"
 
----
-
-## Core Capabilities
-
-*   **Policy Enforcement** — Stop risky actions at the edge before execution.
-*   **Decision Replays** — Visual causal chains of every governed action.
-*   **Human Approval Gates** — Pause high-risk actions for operator sign-off.
-*   **Integrity Monitoring** — Detect reasoning drift and autonomy spikes.
-*   **Compliance Trails** — Audit-ready evidence for SOC2, GDPR, and AI regulations.
+# Run the full SDK test agent
+python scripts/test-sdk-agent.py --full
+```
+See the script comments for more flags and usage.
 
 ---
 
-## Deploy to Cloud
+## Deploy to Cloud (Self-Host)
 
-The fastest path: **Vercel + Neon**.
+The fastest path to self-host DashClaw is via **Vercel + Neon**.
 
 1. Create a free database at [neon.tech](https://neon.tech).
 2. Fork this repo.
@@ -161,33 +161,12 @@ The fastest path: **Vercel + Neon**.
 
 ---
 
-## Legacy SDK (v1)
+## Full SDK Documentation
 
-The original experimental SDK remains available for compatibility:
-`import { DashClaw } from 'dashclaw/legacy'`
-
----
-
-## 🛠 Migration (v2.1.3)
-
-If you are an existing user upgrading to `v2.1.3` with a manual Neon database, you must add the new HITL metadata columns:
-
-```sql
-ALTER TABLE action_records ADD COLUMN IF NOT EXISTS approved_by TEXT;
-ALTER TABLE action_records ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP;
-```
-
-New installations via `npm run setup` will handle this automatically.
+For the complete API surface, check out the [SDK Reference](./docs/sdk-reference.md).
 
 ---
 
 ## License
 
 [MIT](LICENSE)
-
-<div align="center">
-  <br />
-  <img src="public/images/github-social-preview-ps.png" alt="Practical Systems" width="600" />
-  <br />
-  <sub>Built by <a href="https://practicalsystems.io">Practical Systems</a></sub>
-</div>
