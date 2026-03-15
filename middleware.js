@@ -492,6 +492,10 @@ export async function middleware(request) {
         return demoJson(request, demoAssumptions(fixtures, url));
       }
 
+      if (pathname === '/api/actions/stats') {
+        return demoJson(request, demoDecisionMetrics(fixtures));
+      }
+
       if (segments[0] === 'api' && segments[1] === 'actions' && segments.length === 4 && segments[3] === 'trace') {
         const actionId = segments[2];
         const trace = demoActionTrace(fixtures, actionId);
@@ -1191,6 +1195,8 @@ export const config = {
     '/approvals/:path*',
     '/actions',
     '/actions/:path*',
+    '/decisions',
+    '/decisions/:path*',
     '/goals',
     '/goals/:path*',
     '/learning',
