@@ -333,14 +333,21 @@ export async function middleware(request) {
   // /demo is always a public entrypoint: it sets a non-secret cookie and forwards into the dashboard.
   // This makes the live demo work even if the deployment forgot to set DASHCLAW_MODE=demo.
   if (pathname === '/demo') {
+    const leave = request.nextUrl.searchParams.get('leave') === '1';
     const response = NextResponse.redirect(new URL('/mission-control', request.url));
-    response.cookies.set('dashclaw_demo', '1', {
-      path: '/',
-      maxAge: 60 * 60 * 24, // 24h
-      sameSite: 'lax',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-    });
+    
+    if (leave) {
+      response.cookies.delete('dashclaw_demo');
+    } else {
+      response.cookies.set('dashclaw_demo', '1', {
+        path: '/',
+        maxAge: 60 * 60 * 24, // 24h
+        sameSite: 'lax',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+      });
+    }
+    
     addSecurityHeaders(response);
     return response;
   }
@@ -351,7 +358,9 @@ export async function middleware(request) {
   // - Block all writes (no secrets, no mutations).
   // Demo sandbox: cookie or explicit DASHCLAW_MODE=demo. Cookie only provides fixture data, never real data.
   // SECURITY: Only honor demo cookie when DASHCLAW_MODE=demo or on dashclaw.io to prevent self-host bypass
-  if (mode === 'demo' || demoCookie) {
+  const host = request.headers.get('host') || '';
+  const isMarketingHost = host.includes('dashclaw.io');
+  if (mode === 'demo' || (demoCookie && isMarketingHost)) {
     if (pathname.startsWith('/api/')) {
       if (request.method === 'OPTIONS') {
         return new NextResponse(null, { status: 204, headers: getCorsHeaders(request) });

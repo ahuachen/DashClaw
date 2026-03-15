@@ -4,7 +4,14 @@ export function isDemoMode() {
 
   // Fallback: cookie set by /demo (works even if env wasn't set on the deployment).
   if (typeof document !== 'undefined') {
-    return document.cookie.split(';').some(c => c.trim() === 'dashclaw_demo=1');
+    const isDemoCookie = document.cookie.split(';').some(c => c.trim() === 'dashclaw_demo=1');
+    if (!isDemoCookie) return false;
+
+    // SECURITY: Only honor demo cookie on dashclaw.io to prevent accidental self-host lockout/confusion.
+    const host = window.location.hostname;
+    const isMarketingHost = host.includes('dashclaw.io');
+    
+    return isMarketingHost;
   }
 
   return false;
