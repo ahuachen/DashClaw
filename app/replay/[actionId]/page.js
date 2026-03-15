@@ -199,14 +199,24 @@ export default function PublicReplayPage() {
                   <h1 className="text-xl font-bold text-white leading-tight mb-2">{action.declared_goal}</h1>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-zinc-500 font-medium">Actor:</span>
-                    <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-zinc-300 uppercase tracking-wider">{action.agent_name}</span>
+                    <Link 
+                      href={`/agents/${action.agent_id}`}
+                      target={isEmbed ? "_blank" : "_self"}
+                      className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-zinc-300 uppercase tracking-wider hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {action.agent_name}
+                    </Link>
                   </div>
                 </div>
               </div>
 
               {/* 2. THE GOVERNANCE */}
-              <div className="relative flex gap-6">
-                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] ${
+              <Link 
+                href={`/decisions/${actionId}`}
+                target={isEmbed ? "_blank" : "_self"}
+                className="relative flex gap-6 group/decision cursor-pointer"
+              >
+                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all group-hover/decision:scale-105 group-hover/decision:border-white/20 ${
                   decisionType === 'block' ? 'text-red-400 border-red-500/30 bg-red-500/10' : 
                   decisionType === 'require_approval' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
                   'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
@@ -214,9 +224,15 @@ export default function PublicReplayPage() {
                   {decisionType === 'block' ? <ShieldAlert size={20} /> : <ShieldCheck size={20} />}
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Governance Decision</div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Governance Decision</div>
+                    <div className="h-px flex-1 bg-white/5" />
+                    <div className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 uppercase tracking-widest opacity-0 group-hover/decision:opacity-100 transition-opacity">
+                      View Details <ExternalLink size={8} />
+                    </div>
+                  </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-2xl font-black tracking-tighter ${
+                    <span className={`text-2xl font-black tracking-tighter transition-transform group-hover/decision:translate-x-0.5 ${
                       decisionType === 'block' ? 'text-red-400' : 
                       decisionType === 'require_approval' ? 'text-amber-400' :
                       'text-emerald-400'
@@ -228,12 +244,12 @@ export default function PublicReplayPage() {
                     </div>
                   </div>
                   {guardDecision?.reason && (
-                    <p className="mt-3 text-sm text-zinc-400 italic border-l-2 border-white/5 pl-3 leading-relaxed">
+                    <p className="mt-3 text-sm text-zinc-400 italic border-l-2 border-white/5 pl-3 leading-relaxed group-hover/decision:text-zinc-300 transition-colors">
                       &ldquo;{guardDecision.reason}&rdquo;
                     </p>
                   )}
                 </div>
-              </div>
+              </Link>
 
               {/* 3. THE OUTCOME */}
               <div className="relative flex gap-6">
