@@ -81,4 +81,4 @@ If `guard()` returns `require_approval`, use `waitForApproval()` to pause execut
 ---
 
 ## 4. Legacy "Importing"
-Feature sets related to importing memory, goals, and messaging have been moved to **Extensions**. If your workflow requires these, refer to the [Extensions Guide](docs/architecture/capabilities.md).
+Feature sets related to importing memory, goals, and messaging have been moved to **Extensions**. If your workflow requires these, refer to the [Extensions Guide](architecture/capabilities.md).
