@@ -7,16 +7,14 @@ DashClaw is a policy firewall for AI agents. This guide will get you from zero t
 The absolute fastest way to see DashClaw in action with **zero configuration**:
 
 ```bash
-# 1. Clone and install
-git clone https://github.com/ucsandman/DashClaw.git
-cd DashClaw
-npm install
-
-# 2. Start the Demo
-npm run demo
+npx dashclaw-demo
 ```
 
-**What happens?** DashClaw starts a local demo runtime, waits for it to be ready, runs an example agent, and intercepts a high-risk deployment action—all in one command.
+**What happens?**
+1. A local DashClaw demo runtime starts automatically.
+2. An example agent attempts a high-risk deployment action.
+3. DashClaw **intercepts** and **blocks** it.
+4. Your browser will open directly to the Decision Replay.
 
 ---
 

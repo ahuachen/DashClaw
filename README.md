@@ -3,6 +3,11 @@
   <h1>DashClaw</h1>
   <p><strong>The policy firewall for AI agents.</strong></p>
   <p>Run your first governed agent action in under 60 seconds.</p>
+  <br />
+  <p>Try it instantly:</p>
+  <code>npx dashclaw-demo</code>
+  <br />
+  <br />
   <p>Intercept decisions. Enforce policies. Record evidence.</p>
   <br />
   <p><strong>Agent &rarr; DashClaw (Policy Engine) &rarr; External Systems</strong></p>
@@ -51,23 +56,53 @@ DashClaw sits between your agents and your systems:
 
 ## ⚡ 1-Minute Governance Test
 
-Run your first governed agent action in under 60 seconds with **zero configuration**.
+Run DashClaw instantly with **one command**.
 
 ```bash
-# 1. Clone the repo
+npx dashclaw-demo
+```
+
+What happens:
+
+1. A local DashClaw demo runtime starts automatically.
+2. A demo agent attempts a **high-risk production deploy**.
+3. DashClaw intercepts the decision and **blocks the action before execution**.
+4. Your browser opens directly to the **Decision Replay** showing the governance trail.
+
+Replay example:
+
+```
+http://localhost:3000/replay/ar_demo_deploy_block_001
+```
+
+This page shows the full decision evidence:
+
+*   guard evaluation
+*   risk score
+*   policy decision
+*   blocked outcome
+*   causal replay chain
+
+No repo clone.
+No environment variables.
+No configuration.
+
+Just one command.
+
+---
+
+## Local Demo (from repo)
+
+If you prefer running the demo directly from the repository:
+
+```bash
 git clone https://github.com/ucsandman/DashClaw
 cd DashClaw
-
-# 2. Start the Demo
 npm install
 npm run demo
 ```
 
-**What happens?**
-1. DashClaw starts a local governance runtime automatically.
-2. The example agent attempts a high-risk "Production Deploy".
-3. DashClaw **intercepts** and **blocks** the action based on policy.
-4. You see the "wow moment" of agent governance in your terminal.
+This starts the same local DashClaw runtime used in the NPX demo.
 
 ---
 

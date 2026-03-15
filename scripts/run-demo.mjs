@@ -101,10 +101,23 @@ async function main() {
       console.log('   The agent action was blocked by DashClaw policy as expected.');
       console.log(`\n======================================================`);
       console.log(`🚀 DashClaw is still running!`);
-      console.log(`   Keep this terminal open and click the link above`);
-      console.log(`   to view the live decision record in Mission Control.`);
-      console.log(`   Press Ctrl+C to exit when you're done.`);
+      
+      const replayUrl = `${DASHCLAW_BASE_URL}/replay/ar_demo_deploy_block_001`;
+      console.log(`   Opening Decision Replay...`);
+      console.log(`   Replay: ${replayUrl}`);
+      console.log(`\nDashClaw blocked a high risk agent action.`);
+      console.log(`Inspect the replay in your browser.`);
+      console.log(`\nPress Ctrl+C to exit when you're done.`);
       console.log(`======================================================\n`);
+
+      // Open browser cross-platform
+      const startCmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
+      try {
+        execSync(`${startCmd} ${replayUrl}`);
+      } catch (e) {
+        console.log(`Could not automatically open browser. Please visit the link above.`);
+      }
+
       // Keep the script running to prevent terminal from returning to prompt
       setInterval(() => {}, 1000 * 60 * 60); 
     } else {
