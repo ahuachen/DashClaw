@@ -36,7 +36,7 @@ describe('missionControl normalization', () => {
     });
 
     expect(event.category).toBe('governance');
-    expect(event.status).toBe('pending');
+    expect(event.status).toBe('unresolved_assumption');
     expect(event.outputSummary).toContain('Schema matches the rollout plan');
   });
 
