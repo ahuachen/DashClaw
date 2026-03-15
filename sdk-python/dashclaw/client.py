@@ -322,6 +322,12 @@ class DashClaw:
             "agent_id": self.agent_id,
             **kwargs
         }
+        
+        # Identity Verification: Sign the payload if a private key is available.
+        signature = self._sign_payload(payload)
+        if signature:
+            payload["_signature"] = signature
+            
         return self._request("/api/actions", "POST", json=payload)
 
     def record_assumption(self, assumption):
@@ -347,10 +353,13 @@ class DashClaw:
         raise TimeoutError(f"[DashClaw] Timed out waiting for approval of action {action_id}")
 
     def update_outcome(self, action_id, status=None, **kwargs):
-        payload = {
-            "status": status,
-            **kwargs
-        }
+        """Update the outcome of an action."""
+        if isinstance(status, dict):
+            payload = dict(status)
+            payload.update(kwargs)
+        else:
+            payload = {"status": status, **kwargs}
+            
         if "timestamp_end" not in payload:
             payload["timestamp_end"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         return self._request(f"/api/actions/{action_id}", method="PATCH", body=payload)
@@ -458,14 +467,17 @@ class DashClaw:
         path = f"/api/actions/loops?{query}" if query else "/api/actions/loops"
         return self._request(path)
 
-    def register_assumption(self, action_id, assumption, **kwargs):
-        """Register assumptions underlying a decision. Assumptions are the decision basis — validate or invalidate to maintain decision integrity."""
-        payload = {
-            "action_id": action_id,
-            "assumption": assumption,
-            **kwargs
-        }
-        return self._request("/api/actions/assumptions", method="POST", body=payload)
+    def register_assumption(self, action_id, assumption=None, **kwargs):
+        """Register assumptions underlying a decision."""
+        if isinstance(action_id, dict) and assumption is None:
+            payload = action_id
+        else:
+            payload = {
+                "action_id": action_id,
+                "assumption": assumption,
+                **kwargs
+            }
+        return self._request("/api/assumptions", "POST", json=payload)
 
     def get_assumption(self, assumption_id):
         return self._request(f"/api/actions/assumptions/{assumption_id}")
