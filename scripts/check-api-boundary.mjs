@@ -47,6 +47,7 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'cron',
   'settings',
   'security',
+  'docs',
   
   // The Quarantine Zone
   '_archive',
