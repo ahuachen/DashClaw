@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-03-15
+
+### Added
+- **HITL Metadata Tracking**: Added `approved_by` and `approved_at` columns to the platform and SDKs to provide a machine-readable source of truth for human approval decisions.
+- **SDK v2 Parity (HITL Hardening)**: Synchronized Node.js and Python SDKs with strict approval metadata verification. `waitForApproval` now explicitly requires `approved_by` to be present before resolving.
+- **Migration Scripts for HITL**: Added `scripts/migrate-hitl-metadata.mjs` and updated the setup flow to automatically ensure existing databases have the required columns for metadata tracking.
+
+### Changed
+- **Mission Control Visual Hierarchy**: Renamed unresolved assumption status to `unresolved_assumption` (labeled "Awaiting Validation") to visually distinguish them from pending approvals.
+- **SDK Safety Rails**: Both Node and Python SDKs now throw descriptive errors if an action leaves the `pending_approval` state without explicit approval metadata, preventing "auto-approval" bugs.
+
 ## [2.1.1] - 2026-03-15
 
 ### Changed

@@ -168,6 +168,19 @@ The original experimental SDK remains available for compatibility:
 
 ---
 
+## 🛠 Migration (v2.1.3)
+
+If you are an existing user upgrading to `v2.1.3` with a manual Neon database, you must add the new HITL metadata columns:
+
+```sql
+ALTER TABLE action_records ADD COLUMN IF NOT EXISTS approved_by TEXT;
+ALTER TABLE action_records ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP;
+```
+
+New installations via `npm run setup` will handle this automatically.
+
+---
+
 ## License
 
 [MIT](LICENSE)
