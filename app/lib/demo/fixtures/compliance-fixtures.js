@@ -170,6 +170,67 @@ function generateControls() {
   return controls;
 }
 
+// ── Generate map and gaps objects from definitions ──
+
+function generateMap() {
+  const map = {};
+  for (const fw of frameworkDefs) {
+    const controls = controlDefs[fw.id] || [];
+    map[fw.id] = {
+      framework_id: fw.id,
+      coverage: {
+        total: fw.controls_total,
+        covered: fw.controls_covered,
+        partial: fw.controls_partial,
+        gaps: fw.controls_gap,
+      },
+      controls: controls.map((c, i) => ({
+        id: `ctrl_${fw.id}_${i + 1}`,
+        control_id: c.control_id,
+        title: c.name,
+        description: c.description,
+        status: c.status,
+        matched_policies: c.policy_ids,
+        evidence_count: c.evidence_count,
+        recommendations: c.status === 'gap' ? ['Implement baseline policy for ' + c.name] : [],
+      })),
+    };
+  }
+  return map;
+}
+
+function generateGaps() {
+  const gaps = {};
+  for (const fw of frameworkDefs) {
+    const fwControls = controlDefs[fw.id] || [];
+    const fwGaps = fwControls.filter((c) => c.status === 'gap');
+    const fwPartials = fwControls.filter((c) => c.status === 'partial');
+
+    gaps[fw.id] = {
+      framework_id: fw.id,
+      risk_level: fw.coverage_pct > 80 ? 'low' : fw.coverage_pct > 60 ? 'medium' : 'high',
+      narrative: `Continuous monitoring shows ${fw.coverage_pct}% coverage against ${fw.name} requirements.`,
+      quick_wins: `Remediating ${fwGaps.length} critical gaps would increase coverage to ${Math.min(100, fw.coverage_pct + 15)}%.`,
+      gaps: fwGaps.map((g) => ({
+        control: g.control_id,
+        title: g.name,
+        description: g.description,
+      })),
+      remediations: fwGaps.concat(fwPartials).map((r) => ({
+        action: `Review and enforce ${r.name} policy`,
+        effort: pickEffort(r.control_id),
+      })),
+    };
+  }
+  return gaps;
+}
+
+function pickEffort(id) {
+  const charSum = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const efforts = ['low', 'medium', 'high'];
+  return efforts[charSum % efforts.length];
+}
+
 // ── Build frameworks array ──
 
 const frameworks = frameworkDefs.map((fw) => ({
@@ -283,6 +344,8 @@ The failing test (pt_15) involves the After-Hours Escalation policy: high-risk d
 export const complianceData = {
   frameworks,
   controls: generateControls(),
+  map: generateMap(),
+  gaps: generateGaps(),
   evidence,
   policyTestResults,
   policyProofReport,

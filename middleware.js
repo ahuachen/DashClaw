@@ -9,7 +9,7 @@ import {
   demoMessageDocs, demoContent, demoTeam, demoTeamInvites, demoActivity,
   demoWebhooks, demoWebhookDeliveries, demoWorkflows, demoSchedules,
   demoDigest, demoContextPoints, demoContextThreads, demoContextThreadDetail,
-  demoHandoffs, demoSnippets, demoPreferences, demoSwarmGraph
+  demoHandoffs, demoSnippets, demoPreferences, demoSwarmGraph, demoAgentConnections, demoActionTrace
 } from './app/lib/demo/demoMiddleware.js';
 import { getViewerContextFromCookieHeader } from './app/lib/sessionViewer.mjs';
 
@@ -349,8 +349,8 @@ export async function middleware(request) {
   // - Back /api/* reads with deterministic fixtures.
   // - Block all writes (no secrets, no mutations).
   // Demo sandbox: cookie or explicit DASHCLAW_MODE=demo. Cookie only provides fixture data, never real data.
-  // SECURITY: Only honor demo cookie when DASHCLAW_MODE=demo to prevent self-host bypass
-  if (mode === 'demo') {
+  // SECURITY: Only honor demo cookie when DASHCLAW_MODE=demo or on dashclaw.io to prevent self-host bypass
+  if (mode === 'demo' || demoCookie) {
     if (pathname.startsWith('/api/')) {
       if (request.method === 'OPTIONS') {
         return new NextResponse(null, { status: 204, headers: getCorsHeaders(request) });
@@ -391,7 +391,7 @@ export async function middleware(request) {
       }
 
       // Allow NextAuth internals and raw markdown passthrough (these do not write data).
-      if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/docs/raw') || pathname.startsWith('/api/prompts/')) {
+      if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/docs/raw')) {
         const response = NextResponse.next();
         addSecurityHeaders(response);
         withCors(request, response);
@@ -487,8 +487,15 @@ export async function middleware(request) {
         return demoJson(request, { loops: paged, total, stats, lastUpdated: new Date().toISOString() });
       }
 
-      if (pathname === '/api/actions/assumptions') {
+      if (pathname === '/api/actions/assumptions' || pathname === '/api/assumptions') {
         return demoJson(request, demoAssumptions(fixtures, url));
+      }
+
+      if (segments[0] === 'api' && segments[1] === 'actions' && segments.length === 4 && segments[3] === 'trace') {
+        const actionId = segments[2];
+        const trace = demoActionTrace(fixtures, actionId);
+        if (!trace) return demoJson(request, { error: 'Action not found' }, 404);
+        return demoJson(request, trace);
       }
 
       if (segments[0] === 'api' && segments[1] === 'actions' && segments.length === 3) {
@@ -573,13 +580,13 @@ export async function middleware(request) {
         return demoJson(request, { frameworks: fixtures.complianceFrameworks });
       }
       if (pathname === '/api/compliance/map') {
-        const framework = url.searchParams.get('framework') || 'soc2';
+        const framework = url.searchParams.get('framework') || 'fw_soc2';
         const mapped = fixtures.complianceMap[framework];
         if (!mapped) return demoJson(request, { error: `Unknown framework: ${framework}` }, 404);
         return demoJson(request, mapped);
       }
       if (pathname === '/api/compliance/gaps') {
-        const framework = url.searchParams.get('framework') || 'soc2';
+        const framework = url.searchParams.get('framework') || 'fw_soc2';
         const gaps = fixtures.complianceGaps[framework];
         if (!gaps) return demoJson(request, { error: `Unknown framework: ${framework}` }, 404);
         return demoJson(request, gaps);
@@ -804,9 +811,7 @@ export async function middleware(request) {
       }
 
       if (pathname === '/api/agents/connections') {
-        const agentId = url.searchParams.get('agent_id');
-        const connections = agentId ? fixtures.connections.filter(c => c.agent_id === agentId) : fixtures.connections;
-        return demoJson(request, { connections, total: connections.length });
+        return demoJson(request, demoAgentConnections(fixtures, url));
       }
 
       if (pathname === '/api/team') {

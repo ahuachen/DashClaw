@@ -99,6 +99,33 @@ export function demoCreateAction(fixtures, body) {
   };
 }
 
+export function demoAgentConnections(fixtures, url) {
+  const agentId = url.searchParams.get('agent_id');
+  const now = new Date().toISOString();
+  
+  // Default static connections for demo
+  const staticConnections = [
+    { id: 'conn_demo_1', agent_id: 'deploy-bot', type: 'github', status: 'active', updated_at: now },
+    { id: 'conn_demo_2', agent_id: 'deploy-bot', type: 'aws', status: 'active', updated_at: now },
+    { id: 'conn_demo_3', agent_id: 'security-scanner', type: 'snyk', status: 'active', updated_at: now },
+    { id: 'conn_demo_4', agent_id: 'security-scanner', type: 'github', status: 'active', updated_at: now },
+    { id: 'conn_demo_5', agent_id: 'code-reviewer', type: 'github', status: 'active', updated_at: now },
+    { id: 'conn_demo_6', agent_id: 'data-analyst', type: 'snowflake', status: 'active', updated_at: now },
+    { id: 'conn_demo_7', agent_id: 'api-monitor', type: 'datadog', status: 'active', updated_at: now },
+  ];
+
+  let connections = staticConnections;
+  if (agentId) {
+    connections = staticConnections.filter(c => c.agent_id === agentId);
+    // If no specific connections defined for this agent, give them a generic one so the UI isn't empty
+    if (connections.length === 0) {
+      connections = [{ id: `conn_gen_${agentId}`, agent_id: agentId, type: 'api_key', status: 'active', updated_at: now }];
+    }
+  }
+
+  return { connections, total: connections.length, lastUpdated: now };
+}
+
 export function demoAgents(fixtures) {
   const map = new Map();
   // Include our synthetic demo test action
@@ -621,6 +648,38 @@ export function demoPreferences(fixtures, url) {
   return { scope, preferences: fixtures.preferences[scope] || {}, lastUpdated: new Date().toISOString() };
 }
 
+export function demoActionTrace(fixtures, actionId) {
+  const detail = demoActionDetail(fixtures, actionId);
+  if (!detail) return null;
+
+  const { action, assumptions, open_loops } = detail;
+  const loops = open_loops || [];
+
+  return {
+    action,
+    trace: {
+      assumptions: {
+        total: assumptions.length,
+        validated: assumptions.filter(a => a.validated === 1).length,
+        invalidated: assumptions.filter(a => a.invalidated === 1).length,
+        unvalidated: assumptions.filter(a => a.validated === 0 && a.invalidated === 0).length,
+        items: assumptions
+      },
+      loops: {
+        total: loops.length,
+        open: loops.filter(l => l.status === 'open').length,
+        resolved: loops.filter(l => l.status === 'resolved').length,
+        cancelled: loops.filter(l => l.status === 'cancelled').length,
+        items: loops
+      },
+      parent_chain: [],
+      sub_actions: [],
+      related_actions: [],
+      root_cause_indicators: []
+    }
+  };
+}
+
 export function demoSwarmGraph(fixtures, url) {
   const nodes = [];
   const links = [];
@@ -628,9 +687,22 @@ export function demoSwarmGraph(fixtures, url) {
 
   for (const a of fixtures.actions) {
     if (!agentMap.has(a.agent_id)) {
-      agentMap.set(a.agent_id, { id: a.agent_id, group: 1, label: a.agent_name || a.agent_id, val: 1 });
+      agentMap.set(a.agent_id, { 
+        id: a.agent_id, 
+        name: a.agent_name || a.agent_id,
+        group: 1, 
+        label: a.agent_name || a.agent_id, 
+        val: 1,
+        risk: (parseInt(a.risk_score, 10) || 0),
+        actions: 1,
+        cost: (parseFloat(a.cost_estimate) || 0)
+      });
     } else {
-      agentMap.get(a.agent_id).val += 0.5;
+      const node = agentMap.get(a.agent_id);
+      node.val += 0.5;
+      node.actions += 1;
+      node.risk = Math.max(node.risk, (parseInt(a.risk_score, 10) || 0));
+      node.cost += (parseFloat(a.cost_estimate) || 0);
     }
   }
 
