@@ -68,4 +68,24 @@ describe('HITL Approval Flow', () => {
     await expect(claw.waitForApproval('act_1', { interval: 1, timeout: 100 }))
       .rejects.toThrow(ApprovalDeniedError);
   });
+
+  it('ApprovalDeniedError includes decision property', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ 
+        action: { 
+          action_id: 'act_1', 
+          status: 'cancelled',
+          error_message: 'Operator cancelled.'
+        } 
+      })
+    });
+
+    try {
+      await claw.waitForApproval('act_1', { interval: 1, timeout: 100 });
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApprovalDeniedError);
+      expect(error.decision).toBe('cancelled');
+    }
+  });
 });

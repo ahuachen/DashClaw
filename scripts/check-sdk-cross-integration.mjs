@@ -59,7 +59,7 @@ async function captureNodeCalls() {
     calls.push({ path: finalPath, method, body });
     // Mock response for waitForApproval
     if (pathName.startsWith('/api/actions/')) {
-        return { action: { status: 'completed' } };
+        return { action: { status: 'running', approved_by: 'operator' } };
     }
     return { ok: true };
   };

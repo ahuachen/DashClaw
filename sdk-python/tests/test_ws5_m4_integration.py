@@ -26,7 +26,7 @@ class RecordingDashClaw(DashClaw):
         self.calls.append({"path": path, "method": method, "body": payload})
         # Mock response for wait_for_approval (which calls get_action)
         if path.startswith("/api/actions/"):
-            return {"action": {"status": "running"}}
+            return {"action": {"status": "running", "approved_by": "operator"}}
         return {"ok": True}
 
 

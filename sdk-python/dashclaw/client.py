@@ -28,8 +28,9 @@ class GuardBlockedError(DashClawError):
 
 class ApprovalDeniedError(DashClawError):
     """Thrown when a human operator denies an action."""
-    def __init__(self, message):
+    def __init__(self, message, decision=None):
         super().__init__(message, status=403)
+        self.decision = decision
 
 class DashClaw:
     def __init__(
@@ -341,12 +342,23 @@ class DashClaw:
             res = self.get_action(action_id)
             action = res.get("action", {})
             
-            if action.get("status") == "running":
-                print(f"[DashClaw] Action {action_id} approved by operator.")
+            # Explicitly unblocked by approval metadata
+            if action.get("approved_by"):
+                print(f"[DashClaw] Action {action_id} approved by operator: {action.get('approved_by')}")
                 return res
                 
+            # Denial cases
             if action.get("status") in ["failed", "cancelled"]:
-                raise ApprovalDeniedError(action.get("error_message") or "Operator denied the action.")
+                raise ApprovalDeniedError(
+                    action.get("error_message") or "Operator denied the action.",
+                    decision=action.get("status")
+                )
+            
+            # Requirement 4 parity: If an action leaves pending_approval without approval metadata, throw an error.
+            if action.get("status") != "pending_approval":
+                raise DashClawError(
+                    f"Action {action_id} left pending_approval state without explicit approval metadata (Status: {action.get('status')})"
+                )
                 
             time.sleep(interval)
             
