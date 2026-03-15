@@ -889,7 +889,7 @@ export async function middleware(request) {
         return demoJson(request, fixtures.usage);
       }
 
-      if (pathname === '/api/metrics/decisions') {
+      if (pathname === '/api/actions/stats') {
         return demoJson(request, demoDecisionMetrics(fixtures));
       }
 

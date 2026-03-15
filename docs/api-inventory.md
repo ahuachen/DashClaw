@@ -14,9 +14,9 @@ doc-type: architecture
 ## Summary
 
 - Total routes: `149`
-- Stable routes: `26`
+- Stable routes: `27`
 - Beta routes: `14`
-- Experimental routes: `109`
+- Experimental routes: `108`
 
 ## Routes
 
@@ -73,6 +73,7 @@ doc-type: architecture
 | `/api/actions` | `DELETE, GET, POST` | `stable` | `/api/actions` | `app/api/actions/route.js` |
 | `/api/actions/loops` | `GET, POST` | `stable` | `/api/actions` | `app/api/actions/loops/route.js` |
 | `/api/actions/loops/{loopId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/loops/[loopId]/route.js` |
+| `/api/actions/stats` | `GET` | `stable` | `/api/actions` | `app/api/actions/stats/route.js` |
 | `/api/actions/{actionId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/[actionId]/route.js` |
 | `/api/actions/{actionId}/trace` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/trace/route.js` |
 | `/api/activity` | `GET` | `beta` | `/api/activity` | `app/api/activity/route.js` |
@@ -124,7 +125,6 @@ doc-type: architecture
 | `/api/learning/recommendations/events` | `POST` | `experimental` | `/api/learning` | `app/api/learning/recommendations/events/route.js` |
 | `/api/learning/recommendations/metrics` | `GET` | `experimental` | `/api/learning` | `app/api/learning/recommendations/metrics/route.js` |
 | `/api/learning/recommendations/{recommendationId}` | `PATCH` | `experimental` | `/api/learning` | `app/api/learning/recommendations/[recommendationId]/route.js` |
-| `/api/metrics/decisions` | `GET` | `experimental` | `(default)` | `app/api/metrics/decisions/route.js` |
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
 | `/api/orgs/{orgId}` | `GET, PATCH` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/route.js` |
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
