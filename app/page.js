@@ -4,6 +4,8 @@ import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
 import HeroScreenshot from './components/HeroScreenshot';
+import InlineCopyCommand from './components/InlineCopyCommand';
+import GuardSimulation from './components/GuardSimulation';
 
 import {
   coreFeatures,
@@ -42,7 +44,7 @@ export default function LandingPage() {
             DashClaw sits between AI agents and production systems. It intercepts actions, enforces policies, and records decision evidence before execution.
           </p>
           <p className="mt-4 text-sm text-zinc-500 font-medium">
-            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, or any custom agent.
+            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, OpenClaw, or any custom agent.
           </p>
           <p className="mt-4 text-sm text-zinc-500 font-medium italic opacity-80">Simple to adopt. Powerful to operate. MIT Licensed.</p>
 
@@ -78,13 +80,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm sm:text-base font-mono">
-            <span className="flex items-center gap-2 bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800 shadow-xl text-zinc-300">
-              <Terminal size={14} className="text-zinc-500" /> npm install dashclaw
-            </span>
-            <span className="flex items-center gap-2 bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800 shadow-xl text-zinc-300">
-              <Terminal size={14} className="text-zinc-500" /> pip install dashclaw
-            </span>
+          <div className="mt-10 flex flex-wrap items-start justify-center gap-4">
+            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} />
+            <div className="flex flex-col gap-3">
+              <InlineCopyCommand command="npm install dashclaw" />
+              <InlineCopyCommand command="docker compose up -d" />
+            </div>
+            <InlineCopyCommand command="pip install dashclaw" />
           </div>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -94,6 +96,11 @@ export default function LandingPage() {
             <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
               <Terminal size={16} /> View Demo
             </Link>
+          </div>
+
+          <div className="mt-24 mb-12">
+            <h3 className="text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-8 animate-pulse">Live Interception Demo</h3>
+            <GuardSimulation />
           </div>
 
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest">
@@ -270,8 +277,85 @@ export default function LandingPage() {
               const Icon = primitive.icon;
               return (
                 <div key={primitive.title} className="relative z-10 flex flex-col items-center group w-full md:w-1/5">
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111] border border-white/5 shadow-xl group-hover:border-brand/40 transition-all group-hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] ring-4 ring-[#0d0d0d]">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#111] border border-white/5 shadow-xl group-hover:border-brand/40 transition-all group-hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] ring-4 ring-[#0d0d0d] relative">
                     <Icon size={24} className="text-brand" />
+                    
+                    {/* Hover Cards for all Primitives */}
+                    <div className="absolute -top-36 left-1/2 -translate-x-1/2 w-52 p-3 rounded-xl bg-black border border-zinc-800 shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 scale-90 group-hover:scale-100 origin-bottom">
+                      
+                      {primitive.title === 'Intent' && (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Agent Intent</span>
+                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                          </div>
+                          <div className="text-[11px] font-bold text-zinc-200 mb-1 leading-tight">Sync local data to Neon dashboard</div>
+                          <div className="text-[9px] text-zinc-500 mb-2">Actor: moltfire</div>
+                          <div className="flex justify-between items-center pt-2 border-t border-zinc-800/50">
+                            <span className="text-[9px] text-zinc-500 italic">Confidence: 50%</span>
+                          </div>
+                        </>
+                      )}
+
+                      {primitive.title === 'Guard' && (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Guard Policy</span>
+                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-green-400 font-bold uppercase tracking-tighter">active</span>
+                          </div>
+                          <div className="text-[11px] font-bold text-zinc-200 mb-1 leading-tight">Block if risk &gt; 80</div>
+                          <div className="text-[10px] font-mono text-brand mb-2">Risk &gt;= 80 → block</div>
+                          <div className="text-[8px] font-mono text-zinc-600 truncate">gp_0423d9749de847b8be38ff3a</div>
+                        </>
+                      )}
+
+                      {primitive.title === 'Approval' && (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase tracking-tighter">Human Approval</span>
+                            <span className="px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-[8px] text-orange-400 font-bold uppercase tracking-tighter">pending</span>
+                          </div>
+                          <div className="text-[11px] font-bold text-zinc-200 mb-1 leading-tight">REVIEW: data alerting</div>
+                          <div className="text-[9px] text-zinc-500 mb-2">Agent: api-monitor</div>
+                          <div className="flex justify-between items-center pt-2 border-t border-zinc-800/50">
+                            <span className="text-[10px] font-bold text-red-400 font-mono">96% RISK</span>
+                            <div className="flex gap-1">
+                              <div className="w-3 h-3 rounded bg-green-500/20 border border-green-500/40"></div>
+                              <div className="w-3 h-3 rounded bg-red-500/20 border border-red-500/40"></div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {primitive.title === 'Action' && (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Execution</span>
+                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[8px] text-blue-400 font-bold uppercase tracking-tighter">success</span>
+                          </div>
+                          <div className="text-[11px] font-bold text-green-400 mb-1 tracking-tight">ACTION SUCCESSFUL</div>
+                          <div className="text-[9px] text-zinc-400 mb-2 leading-tight italic">Synced 80 rows + 6 calendar events</div>
+                          <div className="pt-2 border-t border-zinc-800/50 text-[9px] text-zinc-500">
+                            Duration: 6.25s
+                          </div>
+                        </>
+                      )}
+
+                      {primitive.title === 'Evidence' && (
+                        <>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Decision Proof</span>
+                            <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[8px] text-cyan-400 font-bold uppercase tracking-tighter">verified</span>
+                          </div>
+                          <div className="text-[11px] font-bold text-zinc-200 mb-1 leading-tight">Cryptographically Signed</div>
+                          <div className="text-[8px] font-mono text-zinc-500 mb-2 truncate">act_1386c4ee-2529-4c79-9455</div>
+                          <div className="pt-2 border-t border-zinc-800/50">
+                            <div className="text-[7px] font-mono text-zinc-600 break-all leading-[8px]">dc_sig_v1_eyJpZCI6I...</div>
+                          </div>
+                        </>
+                      )}
+
+                    </div>
                   </div>
                   <h3 className="text-sm font-bold text-white uppercase tracking-tighter mb-2">{primitive.title}</h3>
                   <p className="text-xs text-zinc-500 max-w-[140px] leading-relaxed mx-auto">{primitive.description}</p>
@@ -279,7 +363,7 @@ export default function LandingPage() {
                   {/* Visual Arrow (Desktop) */}
                   {idx < corePrimitives.length - 1 && (
                     <div className="hidden md:block absolute top-7 -right-4 translate-x-1/2">
-                      <ArrowRight size={16} className="text-zinc-800" />
+                      <ArrowRight size={24} className="text-zinc-700" />
                     </div>
                   )}
                 </div>
@@ -334,12 +418,11 @@ export default function LandingPage() {
                 Zero-dependency Node.js and Python clients. Adding governance requires only a small wrapper around risky actions.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-sm font-mono text-zinc-300">
-                  <Terminal size={14} className="text-zinc-500" /> npm install dashclaw
-                </span>
-                <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-sm font-mono text-zinc-300">
-                  <Terminal size={14} className="text-zinc-500" /> pip install dashclaw
-                </span>
+                <InlineCopyCommand command="npx dashclaw-demo" highlight={true} className="px-3 py-1.5" />
+                <InlineCopyCommand command="npm install dashclaw" className="px-3 py-1.5" />
+                <InlineCopyCommand command="pip install dashclaw" className="px-3 py-1.5" />
+                <div className="w-full h-px bg-zinc-800/50 my-1"></div>
+                <InlineCopyCommand command="docker compose up -d" className="px-3 py-1.5" />
               </div>
               <Link href="/docs" className="mt-6 inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
                 View full SDK docs <ArrowRight size={14} />
