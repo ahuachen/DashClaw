@@ -617,7 +617,7 @@ export default function SwarmIntelligencePage() {
               <Info size={14} className="text-zinc-600" /> Decision Rationale
             </div>
             <div className="p-6 rounded-2xl bg-[#0a0a0a] border border-white/5 text-[15px] text-zinc-300 leading-relaxed italic font-medium">
-              "{action.reasoning || "Autonomous decision based on current swarm goals and policy constraints."}"
+              &quot;{action.reasoning || "Autonomous decision based on current swarm goals and policy constraints."}&quot;
             </div>
           </div>
 
