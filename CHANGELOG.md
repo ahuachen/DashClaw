@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.4] - 2026-03-15
+
+### Fixed
+- **SDK `waitForApproval` Bypass Bug**: Fixed a bug where calling `wait_for_approval` on an action that was allowed directly by the guard (never entered `pending_approval`) would crash the SDK instead of acting as a no-op. The strict metadata check is now correctly scoped only to actions that were actually intercepted.
+
 ## [2.1.3] - 2026-03-15
 
 ### Added

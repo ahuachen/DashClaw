@@ -338,10 +338,15 @@ class DashClaw:
     def wait_for_approval(self, action_id, timeout=300, interval=5):
         """Poll for human approval of a pending action."""
         start_time = time.time()
+        was_pending = False
+        
         while (time.time() - start_time) < timeout:
             res = self.get_action(action_id)
             action = res.get("action", {})
             
+            if action.get("status") == "pending_approval":
+                was_pending = True
+
             # Explicitly unblocked by approval metadata
             if action.get("approved_by"):
                 print(f"[DashClaw] Action {action_id} approved by operator: {action.get('approved_by')}")
@@ -355,11 +360,15 @@ class DashClaw:
                 )
             
             # Requirement 4 parity: If an action leaves pending_approval without approval metadata, throw an error.
-            if action.get("status") != "pending_approval":
+            if was_pending and action.get("status") != "pending_approval":
                 raise DashClawError(
                     f"Action {action_id} left pending_approval state without explicit approval metadata (Status: {action.get('status')})"
                 )
-                
+
+            # If allowed directly (never intercepted), return immediately
+            if not was_pending and action.get("status") == "running":
+                return res
+
             time.sleep(interval)
             
         raise TimeoutError(f"[DashClaw] Timed out waiting for approval of action {action_id}")

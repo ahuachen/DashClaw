@@ -113,9 +113,15 @@ class DashClaw {
    */
   async waitForApproval(actionId, { timeout = 300000, interval = 5000 } = {}) {
     const startTime = Date.now();
+    let wasPending = false;
+
     while (Date.now() - startTime < timeout) {
       const { action } = await this._request(`/api/actions/${actionId}`, 'GET');
       
+      if (action.status === 'pending_approval') {
+        wasPending = true;
+      }
+
       // Explicitly unblocked by approval metadata
       if (action.approved_by) return action;
 
@@ -126,8 +132,13 @@ class DashClaw {
 
       // Requirement 4: If an action leaves pending_approval without approval metadata, throw an error.
       // This prevents "auto-approval" bugs where status is changed by non-approval paths.
-      if (action.status !== 'pending_approval') {
+      if (wasPending && action.status !== 'pending_approval') {
         throw new Error(`Action ${actionId} left pending_approval state without explicit approval metadata (Status: ${action.status})`);
+      }
+
+      // If allowed directly (never intercepted), return immediately
+      if (!wasPending && action.status === 'running') {
+        return { action };
       }
 
       await new Promise(r => setTimeout(r, interval));
