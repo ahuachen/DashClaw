@@ -69,15 +69,38 @@ claw.update_outcome(action_id, status="completed")
 
 ---
 
-## SDK Surface Area (v2)
+## SDK Surface Area (v2.1.1)
 
-The v2 SDK is optimized for stability and zero-overhead governance:
+The v2.1.1 SDK is optimized for stability and zero-overhead governance:
 
+### Core Runtime
 - `guard(context)` — Policy evaluation ("Can I do X?")
 - `createAction(action)` — Lifecycle tracking ("I am doing X")
 - `updateOutcome(id, outcome)` — Result recording ("X finished with Y")
 - `recordAssumption(assumption)` — Integrity tracking ("I believe Z while doing X")
 - `waitForApproval(id)` — Polling helper for human-in-the-loop approvals
+
+### Decision Integrity
+- `registerOpenLoop(actionId, type, desc)` — Register unresolved dependencies.
+- `resolveOpenLoop(loopId, status, res)` — Resolve pending loops.
+- `getSignals()` — Get current risk signals across all agents.
+
+### Swarm & Connectivity
+- `heartbeat(status, metadata)` — Report agent presence and health.
+- `reportConnections(connections)` — Report active provider connections.
+
+### Learning & Optimization
+- `getLearningVelocity()` — Track agent improvement rate.
+- `getLearningCurves()` — Measure efficiency gains per action type.
+- `renderPrompt(context)` — Fetch rendered prompt templates from DashClaw.
+
+### Compliance & Audit
+- `createScorer(name, type, config)` — Define automated evaluations.
+- `createScoringProfile(profile)` — Weighted quality scoring.
+- `mapCompliance(framework)` — Map behavior to regulatory controls.
+- `getProofReport(format)` — Generate audit-ready evidence exports.
+- `getActivityLogs(filters)` — Query the immutable audit trail.
+- `createWebhook(url, events)` — Real-time event exfiltration.
 
 ---
 

@@ -72,9 +72,6 @@ class DashClaw {
   /**
    * POST /api/guard — "Can I do X?"
    * @param {Object} context
-   * @param {string} context.action - Action type (e.g. "deploy")
-   * @param {string} [context.intent] - What the action aims to do
-   * @param {number} [context.risk_score] - Risk score 0-100
    * @returns {Promise<{decision: 'allow'|'block'|'require_approval', action_id: string, reason: string, signals: string[]}>}
    */
   async guard(context) {
@@ -86,23 +83,16 @@ class DashClaw {
 
   /**
    * POST /api/actions — "I am attempting X."
-   * @param {Object} action
-   * @param {string} action.action_type - e.g. "deploy"
-   * @param {string} action.declared_goal - e.g. "deploy to production"
-   * @returns {Promise<{action: Object, action_id: string}>}
    */
   async createAction(action) {
-    const res = await this._request('/api/actions', 'POST', {
+    return this._request('/api/actions', 'POST', {
       ...action,
       agent_id: this.agentId,
     });
-    return res;
   }
 
   /**
    * PATCH /api/actions/:id — "X finished with result Y."
-   * @param {string} actionId
-   * @param {Object} outcome
    */
   async updateOutcome(actionId, outcome) {
     return this._request(`/api/actions/${actionId}`, 'PATCH', {
@@ -113,7 +103,6 @@ class DashClaw {
 
   /**
    * POST /api/assumptions — "I believe Z is true while doing X."
-   * @param {Object} assumption
    */
   async recordAssumption(assumption) {
     return this._request('/api/assumptions', 'POST', assumption);
@@ -133,6 +122,139 @@ class DashClaw {
       await new Promise(r => setTimeout(r, interval));
     }
     throw new Error(`Timed out waiting for approval of action ${actionId}`);
+  }
+
+  /**
+   * POST /api/agents/heartbeat
+   */
+  async heartbeat(status = 'online', metadata = null) {
+    return this._request('/api/agents/heartbeat', 'POST', {
+      agent_id: this.agentId,
+      status,
+      metadata
+    });
+  }
+
+  /**
+   * POST /api/agents/connections
+   */
+  async reportConnections(connections) {
+    return this._request('/api/agents/connections', 'POST', {
+      agent_id: this.agentId,
+      connections
+    });
+  }
+
+  /**
+   * POST /api/actions/loops
+   */
+  async registerOpenLoop(actionId, loopType, description, metadata = null) {
+    return this._request('/api/actions/loops', 'POST', {
+      action_id: actionId,
+      loop_type: loopType,
+      description,
+      metadata
+    });
+  }
+
+  /**
+   * PATCH /api/actions/loops/:id
+   */
+  async resolveOpenLoop(loopId, status, resolution = null) {
+    return this._request(`/api/actions/loops/${loopId}`, 'PATCH', {
+      status,
+      resolution
+    });
+  }
+
+  /**
+   * GET /api/actions/signals
+   */
+  async getSignals() {
+    return this._request('/api/actions/signals');
+  }
+
+  /**
+   * GET /api/learning/analytics/velocity
+   */
+  async getLearningVelocity(lookbackDays = 30) {
+    return this._request('/api/learning/analytics/velocity', 'GET', null, {
+      agent_id: this.agentId,
+      lookback_days: lookbackDays
+    });
+  }
+
+  /**
+   * GET /api/learning/analytics/curves
+   */
+  async getLearningCurves(lookbackDays = 60) {
+    return this._request('/api/learning/analytics/curves', 'GET', null, {
+      agent_id: this.agentId,
+      lookback_days: lookbackDays
+    });
+  }
+
+  /**
+   * POST /api/prompts/render
+   */
+  async renderPrompt({ template_id, version_id, variables, record = false }) {
+    return this._request('/api/prompts/render', 'POST', {
+      template_id,
+      version_id,
+      variables,
+      agent_id: this.agentId,
+      record
+    });
+  }
+
+  /**
+   * POST /api/evaluations/scorers
+   */
+  async createScorer(name, scorer_type, config = null, description = null) {
+    return this._request('/api/evaluations/scorers', 'POST', {
+      name,
+      scorer_type,
+      config,
+      description
+    });
+  }
+
+  /**
+   * POST /api/scoring/profiles
+   */
+  async createScoringProfile(profile) {
+    return this._request('/api/scoring/profiles', 'POST', profile);
+  }
+
+  /**
+   * GET /api/compliance/map
+   */
+  async mapCompliance(framework) {
+    return this._request(`/api/compliance/map`, 'GET', null, { framework });
+  }
+
+  /**
+   * GET /api/policies/proof
+   */
+  async getProofReport(format = 'json') {
+    return this._request('/api/policies/proof', 'GET', null, { format });
+  }
+
+  /**
+   * GET /api/activity
+   */
+  async getActivityLogs(filters = {}) {
+    return this._request('/api/activity', 'GET', null, filters);
+  }
+
+  /**
+   * POST /api/webhooks
+   */
+  async createWebhook(url, events = null) {
+    return this._request('/api/webhooks', 'POST', {
+      url,
+      events
+    });
   }
 }
 

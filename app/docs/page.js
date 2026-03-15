@@ -420,7 +420,42 @@ except Exception as e:
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Swarm Intelligence</h2>
             </div>
-            <p className="text-sm text-zinc-400">Map your entire fleet as a neural web, highlighting high-risk nodes and message flows.</p>
+            <p className="text-sm text-zinc-400 mb-6">Map your entire fleet as a neural web, highlighting high-risk nodes and message flows.</p>
+            
+            <MethodEntry
+              id="heartbeat"
+              signature="claw.heartbeat(status, metadata) / claw.heartbeat(status=...)"
+              description="Report agent presence and health to the control plane."
+              params={[
+                { name: 'status', type: 'string', required: false, desc: 'Agent status (online, busy, offline)' },
+                { name: 'metadata', type: 'object', required: false, desc: 'Additional agent state' },
+              ]}
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="await claw.heartbeat('online', { task: 'monitoring' });"
+                  pythonSnippet="claw.heartbeat(status='online', metadata={'task': 'monitoring'})"
+                />
+              }
+            />
+
+            <MethodEntry
+              id="reportConnections"
+              signature="claw.reportConnections(connections) / claw.report_connections(connections)"
+              description="Report active provider connections and their status."
+              params={[
+                { name: 'connections', type: 'Array<Object>', required: true, desc: 'List of provider connection objects' },
+              ]}
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.reportConnections([
+  { provider: 'openai', status: 'active', plan_name: 'enterprise' }
+]);`}
+                  pythonSnippet={`claw.report_connections([
+    {'provider': 'openai', 'status': 'active', 'plan_name': 'enterprise'}
+])`}
+                />
+              }
+            />
           </section>
 
           {/* ── Loops & Assumptions ── */}
@@ -431,8 +466,47 @@ except Exception as e:
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Loops & Assumptions</h2>
             </div>
-            <MethodEntry id="registerOpenLoop" signature="claw.registerOpenLoop() / claw.register_open_loop()" description="Register unresolved dependencies." />
-            <MethodEntry id="resolveOpenLoop" signature="claw.resolveOpenLoop() / claw.resolve_open_loop()" description="Resolve pending items." />
+            
+            <MethodEntry
+              id="registerOpenLoop"
+              signature="claw.registerOpenLoop(actionId, type, desc) / claw.register_open_loop(...)"
+              description="Register an unresolved dependency for a decision. Open loops track work that must be completed before the decision is fully resolved."
+              params={[
+                { name: 'action_id', type: 'string', required: true, desc: 'Associated action' },
+                { name: 'loop_type', type: 'string', required: true, desc: 'The category of the loop' },
+                { name: 'description', type: 'string', required: true, desc: 'What needs to be resolved' },
+              ]}
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.registerOpenLoop(action_id, 'validation', 'Waiting for PR review');`}
+                  pythonSnippet={`claw.register_open_loop(action_id, 'validation', 'Waiting for PR review')`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="resolveOpenLoop"
+              signature="claw.resolveOpenLoop(loopId, status, res) / claw.resolve_open_loop(...)"
+              description="Resolve a pending loop."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.resolveOpenLoop(loop_id, 'completed', 'Approved');`}
+                  pythonSnippet={`claw.resolve_open_loop(loop_id, 'completed', 'Approved')`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="recordAssumption"
+              signature="claw.recordAssumption(asm) / claw.record_assumption(asm)"
+              description="Record what the agent believed to be true when making a decision."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.recordAssumption({ action_id, assumption: 'User is authenticated' });`}
+                  pythonSnippet={`claw.record_assumption({'action_id': action_id, 'assumption': 'User is authenticated'})`}
+                />
+              }
+            />
           </section>
 
           {/* ── Learning Analytics ── */}
@@ -443,7 +517,31 @@ except Exception as e:
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Learning Analytics</h2>
             </div>
-            <MethodEntry id="getLearningVelocity" signature="claw.getLearningVelocity() / claw.get_learning_velocity()" description="Track agent improvement rate." />
+            
+            <MethodEntry
+              id="getLearningVelocity"
+              signature="claw.getLearningVelocity() / claw.get_learning_velocity()"
+              description="Compute learning velocity (rate of score improvement) for agents."
+              returns="Promise<{ velocity: Array<Object> }>"
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`const { velocity } = await claw.getLearningVelocity();`}
+                  pythonSnippet={`velocity = claw.get_learning_velocity()`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="getLearningCurves"
+              signature="claw.getLearningCurves() / claw.get_learning_curves()"
+              description="Compute learning curves per action type to measure efficiency gains."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`const curves = await claw.getLearningCurves();`}
+                  pythonSnippet={`curves = claw.get_learning_curves()`}
+                />
+              }
+            />
           </section>
 
           {/* ── Prompt Management ── */}
@@ -482,7 +580,23 @@ rendered = res["rendered"]`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Evaluation Framework</h2>
             </div>
-            <MethodEntry id="createScorer" signature="claw.createScorer() / claw.create_scorer()" description="Create a new scorer." />
+            
+            <MethodEntry
+              id="createScorer"
+              signature="claw.createScorer(name, type, config) / claw.create_scorer(...)"
+              description="Create a reusable scorer definition for automated evaluation."
+              params={[
+                { name: 'name', type: 'string', required: true, desc: 'Scorer name' },
+                { name: 'scorer_type', type: 'string', required: true, desc: 'Type (llm_judge, regex, range)' },
+                { name: 'config', type: 'object', required: false, desc: 'Scorer configuration' },
+              ]}
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.createScorer('toxicity', 'regex', { pattern: 'bad-word' });`}
+                  pythonSnippet={`claw.create_scorer('toxicity', 'regex', config={'pattern': 'bad-word'})`}
+                />
+              }
+            />
           </section>
 
           {/* ── Scoring Profiles ── */}
@@ -493,7 +607,24 @@ rendered = res["rendered"]`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Scoring Profiles</h2>
             </div>
-            <MethodEntry id="createScoringProfile" signature="claw.createScoringProfile() / claw.create_scoring_profile()" description="Define weighted quality scores." />
+            
+            <MethodEntry
+              id="createScoringProfile"
+              signature="claw.createScoringProfile(config) / claw.create_scoring_profile(...)"
+              description="Define weighted quality scoring profiles across multiple scorers."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.createScoringProfile({ 
+  name: 'prod-quality', 
+  dimensions: [{ scorer: 'toxicity', weight: 0.5 }] 
+});`}
+                  pythonSnippet={`claw.create_scoring_profile(
+    name='prod-quality', 
+    dimensions=[{'scorer': 'toxicity', 'weight': 0.5}]
+)`}
+                />
+              }
+            />
           </section>
 
           {/* ── Compliance Engine ── */}
@@ -504,7 +635,30 @@ rendered = res["rendered"]`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Compliance Engine</h2>
             </div>
-            <MethodEntry id="mapCompliance" signature="claw.mapCompliance() / claw.map_compliance()" description="Map policies to frameworks." />
+            
+            <MethodEntry
+              id="mapCompliance"
+              signature="claw.mapCompliance(framework) / claw.map_compliance(framework)"
+              description="Map active policies to a compliance framework's controls."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.mapCompliance('SOC2');`}
+                  pythonSnippet={`claw.map_compliance('SOC2')`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="getProofReport"
+              signature="claw.getProofReport(format) / claw.get_proof_report(format)"
+              description="Generate a compliance proof report from active policies."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`const report = await claw.getProofReport('json');`}
+                  pythonSnippet={`report = claw.get_proof_report(format='json')`}
+                />
+              }
+            />
           </section>
 
           {/* ── Activity Logs ── */}
@@ -515,7 +669,18 @@ rendered = res["rendered"]`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Activity Logs</h2>
             </div>
-            <MethodEntry id="getActivityLogs" signature="claw.getActivityLogs() / claw.get_activity_logs()" description="Query audit logs." />
+            
+            <MethodEntry
+              id="getActivityLogs"
+              signature="claw.getActivityLogs(filters) / claw.get_activity_logs(**filters)"
+              description="Query the immutable audit trail of all workspace changes and administrative events."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`const logs = await claw.getActivityLogs({ limit: 10 });`}
+                  pythonSnippet={`logs = claw.get_activity_logs(limit=10)`}
+                />
+              }
+            />
           </section>
 
           {/* ── Webhooks ── */}
@@ -526,7 +691,18 @@ rendered = res["rendered"]`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Webhooks</h2>
             </div>
-            <MethodEntry id="createWebhook" signature="claw.createWebhook() / claw.create_webhook()" description="Register webhook." />
+            
+            <MethodEntry
+              id="createWebhook"
+              signature="claw.createWebhook(url, events) / claw.create_webhook(url, events)"
+              description="Register an HMAC-signed webhook for real-time exfiltration of governance events."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`await claw.createWebhook('https://api.myapp.com/hooks', ['action.blocked']);`}
+                  pythonSnippet={`claw.create_webhook('https://api.myapp.com/hooks', events=['action.blocked'])`}
+                />
+              }
+            />
           </section>
 
           {/* ── Error Handling ── */}
