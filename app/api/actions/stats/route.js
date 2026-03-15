@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import { getOrgId } from '../../../lib/org.js';
+import { getActionStats } from '../../../lib/repositories/actions.repository.js';
 
 /**
  * GET /api/actions/stats
@@ -17,39 +18,9 @@ export async function GET(request) {
     const sql = getSql();
     const orgId = getOrgId(request);
 
-    // 1. Current 24h metrics
-    const currentResults = await sql`
-      SELECT
-        COUNT(*)::int as total,
-        COUNT(*) FILTER (WHERE status='completed')::int as completed,
-        COUNT(*) FILTER (WHERE status='failed')::int as failed,
-        COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
-        COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
-      FROM action_records
-      WHERE org_id = ${orgId}
-        AND created_at > NOW() - INTERVAL '24 hours';
-    `;
+    const { current, previousTotal } = await getActionStats(sql, orgId);
 
-    const current = currentResults[0] || {
-      total: 0,
-      completed: 0,
-      failed: 0,
-      cancelled: 0,
-      approval: 0
-    };
-
-    // 2. Previous 24h (24h to 48h ago) for comparison
-    const previousResults = await sql`
-      SELECT COUNT(*)::int as total
-      FROM action_records
-      WHERE org_id = ${orgId}
-        AND created_at <= NOW() - INTERVAL '24 hours'
-        AND created_at > NOW() - INTERVAL '48 hours';
-    `;
-
-    const previousTotal = previousResults[0]?.total || 0;
-
-    // 3. Calculate change percent
+    // Calculate change percent
     let change_percent = 0;
     if (previousTotal > 0) {
       change_percent = Math.round(((current.total - previousTotal) / previousTotal) * 100);

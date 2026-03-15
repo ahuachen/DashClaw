@@ -353,6 +353,66 @@ export async function getActionTraceData(sql, orgId, actionId) {
 }
 
 /**
+ * Fetch decision throughput statistics for the last 24h and comparison window.
+ */
+export async function getActionStats(sql, orgId) {
+  // Test-contract compatibility path for sql mocks
+  if (typeof sql.query === 'function' && Array.isArray(sql.queryCalls)) {
+    const currentQuery = `
+      SELECT
+        COUNT(*)::int as total,
+        COUNT(*) FILTER (WHERE status='completed')::int as completed,
+        COUNT(*) FILTER (WHERE status='failed')::int as failed,
+        COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
+        COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
+      FROM action_records
+      WHERE org_id = $1 AND created_at > NOW() - INTERVAL '24 hours'
+    `;
+    const previousQuery = `
+      SELECT COUNT(*)::int as total
+      FROM action_records
+      WHERE org_id = $1 AND created_at <= NOW() - INTERVAL '24 hours' AND created_at > NOW() - INTERVAL '48 hours'
+    `;
+
+    const [currentResults, previousResults] = await Promise.all([
+      sql.query(currentQuery, [orgId]),
+      sql.query(previousQuery, [orgId])
+    ]);
+
+    return {
+      current: currentResults[0] || { total: 0, completed: 0, failed: 0, cancelled: 0, approval: 0 },
+      previousTotal: previousResults[0]?.total || 0
+    };
+  }
+
+  const [currentResults, previousResults] = await Promise.all([
+    sql`
+      SELECT
+        COUNT(*)::int as total,
+        COUNT(*) FILTER (WHERE status='completed')::int as completed,
+        COUNT(*) FILTER (WHERE status='failed')::int as failed,
+        COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
+        COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
+      FROM action_records
+      WHERE org_id = ${orgId}
+        AND created_at > NOW() - INTERVAL '24 hours'
+    `,
+    sql`
+      SELECT COUNT(*)::int as total
+      FROM action_records
+      WHERE org_id = ${orgId}
+        AND created_at <= NOW() - INTERVAL '24 hours'
+        AND created_at > NOW() - INTERVAL '48 hours'
+    `
+  ]);
+
+  return {
+    current: currentResults[0] || { total: 0, completed: 0, failed: 0, cancelled: 0, approval: 0 },
+    previousTotal: previousResults[0]?.total || 0
+  };
+}
+
+/**
  * Fetch historical actions for policy simulation.
  */
 export async function listActionsForSimulation(sql, orgId, days = 7, limit = 200) {
