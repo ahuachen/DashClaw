@@ -1,4 +1,4 @@
-# DashClaw SDK (v2)
+# DashClaw SDK (v2.1.1)
 
 **Minimal governance runtime for AI agents.**
 
@@ -6,56 +6,65 @@ The DashClaw SDK provides the infrastructure to intercept, govern, and verify ag
 
 ## Installation
 
+### Node.js
 ```bash
 npm install dashclaw
+```
+
+### Python
+```bash
+pip install dashclaw
 ```
 
 ## The Governance Loop
 
 DashClaw v2 is designed around a single 4-step loop.
 
+### Node.js
 ```javascript
-import { DashClaw, GuardBlockedError } from 'dashclaw';
+import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: process.env.DASHCLAW_BASE_URL,
+  baseUrl: 'https://dashclaw.io',
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
 });
 
-async function runAgentTask() {
-  // 1. GUARD: Ask for permission
-  // Intercepts intent and evaluates vs. organization policies.
-  const decision = await claw.guard({ 
-    action_type: 'deploy', 
-    risk_score: 85 
-  });
+// 1. Ask permission
+const res = await claw.guard({ action_type: 'deploy' });
 
-  // 2. RECORD: Log the attempt
-  // Promotes guarded intent into a recorded action record.
-  const action = await claw.createAction({
-    action_type: 'deploy',
-    declared_goal: 'Deploying latest build'
-  });
+// 2. Log intent
+const { action_id } = await claw.createAction({ action_type: 'deploy' });
 
-  try {
-    // 3. VERIFY: Record assumptions
-    // Tracks beliefs to detect reasoning drift later.
-    await claw.recordAssumption({
-      action_id: action.action_id,
-      assumption: 'The staging tests passed.'
-    });
+// 3. Log evidence
+await claw.recordAssumption({ action_id, assumption: 'Tests passed' });
 
-    // Execute the real-world action here...
-    // await deploy();
+// 4. Update result
+await claw.updateOutcome(action_id, { status: 'completed' });
+```
 
-    // 4. OUTCOME: Log the evidence
-    await claw.updateOutcome(action.action_id, { status: 'completed' });
+### Python
+```python
+from dashclaw import DashClaw
 
-  } catch (err) {
-    await claw.updateOutcome(action.action_id, { status: 'failed', error: err.message });
-  }
-}
+claw = DashClaw(
+    base_url="https://dashclaw.io",
+    api_key="your_api_key",
+    agent_id="my-agent"
+)
+
+# 1. Ask permission
+res = claw.guard({"action_type": "deploy"})
+
+# 2. Log intent
+action = claw.create_action(action_type="deploy")
+action_id = action["action_id"]
+
+# 3. Log evidence
+claw.record_assumption({"action_id": action_id, "assumption": "Tests passed"})
+
+# 4. Update result
+claw.update_outcome(action_id, status="completed")
 ```
 
 ---
@@ -83,17 +92,7 @@ DashClaw uses standard HTTP status codes and custom error classes:
 
 ## Legacy SDK (v1)
 
-If you require legacy features (Calendar, Messages, Workflows, etc.), the v1 SDK is available via the `legacy` sub-path:
-
-```javascript
-// ESM
-import { DashClaw } from 'dashclaw/legacy';
-
-// CommonJS
-const { DashClaw } = require('dashclaw/legacy');
-```
-
-*Note: Legacy features are now considered "Extensions" and require these routes to be enabled on your DashClaw server.*
+If you require legacy features (Calendar, Messages, Workflows, etc.), the v1 SDK is available via the `legacy` sub-path in Node.js or via the full client in Python.
 
 ---
 

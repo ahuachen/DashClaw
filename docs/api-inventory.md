@@ -13,9 +13,9 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `149`
+- Total routes: `150`
 - Stable routes: `27`
-- Beta routes: `14`
+- Beta routes: `15`
 - Experimental routes: `108`
 
 ## Routes
@@ -102,6 +102,7 @@ doc-type: architecture
 | `/api/cron/memory-maintenance` | `GET` | `beta` | `/api/cron` | `app/api/cron/memory-maintenance/route.js` |
 | `/api/cron/routing-maintenance` | `POST` | `beta` | `/api/cron` | `app/api/cron/routing-maintenance/route.js` |
 | `/api/cron/signals` | `GET` | `beta` | `/api/cron` | `app/api/cron/signals/route.js` |
+| `/api/docs/raw` | `GET` | `beta` | `/api/docs` | `app/api/docs/raw/route.js` |
 | `/api/drift/alerts` | `GET, POST` | `experimental` | `(default)` | `app/api/drift/alerts/route.js` |
 | `/api/drift/alerts/{alertId}` | `DELETE, PATCH` | `experimental` | `(default)` | `app/api/drift/alerts/[alertId]/route.js` |
 | `/api/drift/metrics` | `GET` | `experimental` | `(default)` | `app/api/drift/metrics/route.js` |
