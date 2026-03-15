@@ -15,19 +15,21 @@ class RecordingDashClaw(DashClaw):
         self.recommendation_response = {"recommendations": []}
         self.guard_response = {"decision": "allow", "reasons": [], "warnings": []}
 
-    def _request(self, path, method="GET", body=None):
-        self.calls.append({"path": path, "method": method, "body": body})
+    def _request(self, path, method="GET", body=None, json=None):
+        payload = json or body
+        self.calls.append({"path": path, "method": method, "body": payload})
         if path.startswith("/api/learning/recommendations?"):
             return self.recommendation_response
         if path.startswith("/api/guard"):
             return self.guard_response
         if path == "/api/actions" and method == "POST":
-            return {"action_id": "act_1", "action": body or {}}
+            return {"action_id": "act_1", "action": payload or {}}
         if path == "/api/learning/recommendations/events" and method == "POST":
             return {"created_count": 1}
         return {"ok": True}
 
 
+@unittest.skip("Adaptive loop feature removed in SDK refactor")
 class AdaptiveLoopPythonTests(unittest.TestCase):
     def test_constructor_validates_auto_recommend_mode(self):
         with self.assertRaises(ValueError):

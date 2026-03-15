@@ -12,9 +12,10 @@ class RecordingDashClaw(DashClaw):
         )
         self.calls = []
 
-    def _request(self, path, method="GET", body=None):
-        self.calls.append({"path": path, "method": method, "body": body})
-        return {"ok": True, "path": path, "method": method, "body": body}
+    def _request(self, path, method="GET", body=None, json=None):
+        payload = json or body
+        self.calls.append({"path": path, "method": method, "body": payload})
+        return {"ok": True, "path": path, "method": method, "body": payload}
 
 
 class WS5M2ParityTests(unittest.TestCase):

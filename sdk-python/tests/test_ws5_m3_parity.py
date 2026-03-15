@@ -13,9 +13,10 @@ class RecordingDashClaw(DashClaw):
         self.calls = []
         self.stub_responses = {}
 
-    def _request(self, path, method="GET", body=None):
-        self.calls.append({"path": path, "method": method, "body": body})
-        return self.stub_responses.get(path, {"ok": True, "path": path, "method": method, "body": body})
+    def _request(self, path, method="GET", body=None, json=None):
+        payload = json or body
+        self.calls.append({"path": path, "method": method, "body": payload})
+        return self.stub_responses.get(path, {"ok": True, "path": path, "method": method, "body": payload})
 
 
 class WS5M3ParityTests(unittest.TestCase):

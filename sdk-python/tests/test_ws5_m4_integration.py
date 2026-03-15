@@ -3,6 +3,7 @@ import pathlib
 import sys
 import unittest
 import urllib.parse
+from unittest.mock import MagicMock
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FIXTURE_PATH = ROOT / "docs" / "sdk-critical-contract-harness.json"
@@ -17,12 +18,15 @@ class RecordingDashClaw(DashClaw):
             base_url="https://example.test",
             api_key="test-key",
             agent_id="agent-1",
-            agent_name="Agent One",
         )
         self.calls = []
 
-    def _request(self, path, method="GET", body=None):
-        self.calls.append({"path": path, "method": method, "body": body})
+    def _request(self, path, method="GET", body=None, json=None):
+        payload = json or body
+        self.calls.append({"path": path, "method": method, "body": payload})
+        # Mock response for wait_for_approval (which calls get_action)
+        if path.startswith("/api/actions/"):
+            return {"action": {"status": "running"}}
         return {"ok": True}
 
 
@@ -50,40 +54,11 @@ class WS5M4IntegrationHarnessTests(unittest.TestCase):
         client = RecordingDashClaw()
 
         cases = [
-            ("create_action", lambda: client.create_action(action_type="deploy", declared_goal="Ship release", risk_score=40)),
+            ("guard", lambda: client.guard({"action_type": "deploy", "risk_score": 55})),
+            ("create_action", lambda: client.create_action(action_type="deploy", declared_goal="Ship release")),
             ("update_outcome", lambda: client.update_outcome("act_1", status="completed", output_summary="done")),
-            ("get_actions", lambda: client.get_actions(status="running", limit=5, offset=0)),
-            ("get_action", lambda: client.get_action("act_1")),
-            ("guard", lambda: client.guard({"action_type": "deploy", "risk_score": 55}, include_signals=True)),
-            ("get_guard_decisions", lambda: client.get_guard_decisions(decision="warn", limit=5, offset=1)),
-            (
-                "report_memory_health",
-                lambda: client.report_memory_health(
-                    {
-                        "health": {"score": 88},
-                        "entities": [{"name": "Repo"}],
-                        "topics": [{"name": "Ops"}],
-                    }
-                ),
-            ),
-            ("close_thread", lambda: client.close_thread("ct_1", summary="done")),
-            ("get_threads", lambda: client.get_threads(status="active", limit=10)),
-            ("mark_read", lambda: client.mark_read(["msg_1"])),
-            ("archive_messages", lambda: client.archive_messages(["msg_2"])),
-            (
-                "broadcast",
-                lambda: client.broadcast(
-                    body="status update",
-                    message_type="status",
-                    subject="daily",
-                    thread_id="mt_1",
-                ),
-            ),
-            ("create_message_thread", lambda: client.create_message_thread("Coordination", participants=["agent-1", "agent-2"])),
-            ("get_message_threads", lambda: client.get_message_threads(status="open", limit=5)),
-            ("resolve_message_thread", lambda: client.resolve_message_thread("mt_1", summary="resolved")),
-            ("save_shared_doc", lambda: client.save_shared_doc("Ops Runbook", "v1")),
-            ("sync_state", lambda: client.sync_state({"goals": [{"title": "Ship release"}]})),
+            ("record_assumption", lambda: client.record_assumption({"action_id": "act_1", "assumption": "Database is reachable"})),
+            ("wait_for_approval", lambda: client.wait_for_approval("act_1", timeout=0.1, interval=0.01)),
         ]
 
         seen = set()

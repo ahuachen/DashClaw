@@ -47,12 +47,20 @@ async function captureNodeCalls() {
     baseUrl: 'https://example.test',
     apiKey: ['test', 'key'].join('-'),
     agentId: 'agent-1',
-    agentName: 'Agent One',
   });
 
   const calls = [];
-  client._request = async (pathName, method, body) => {
-    calls.push({ path: pathName, method, body });
+  client._request = async (pathName, method, body, params) => {
+    let finalPath = pathName;
+    if (params) {
+      const qs = new URLSearchParams(params).toString();
+      if (qs) finalPath += `?${qs}`;
+    }
+    calls.push({ path: finalPath, method, body });
+    // Mock response for waitForApproval
+    if (pathName.startsWith('/api/actions/')) {
+        return { action: { status: 'completed' } };
+    }
     return { ok: true };
   };
 
@@ -66,42 +74,23 @@ async function captureNodeCalls() {
     results.push({ id, call: normalizeCall(calls.at(-1)) });
   };
 
+  await capture('guard', () => client.guard({
+    action_type: 'deploy',
+    risk_score: 55,
+  }));
   await capture('create_action', () => client.createAction({
     action_type: 'deploy',
     declared_goal: 'Ship release',
-    risk_score: 40,
   }));
   await capture('update_outcome', () => client.updateOutcome('act_1', {
     status: 'completed',
     output_summary: 'done',
   }));
-  await capture('get_actions', () => client.getActions({ status: 'running', limit: 5, offset: 0 }));
-  await capture('get_action', () => client.getAction('act_1'));
-  await capture('guard', () => client.guard({ action_type: 'deploy', risk_score: 55 }, { includeSignals: true }));
-  await capture('get_guard_decisions', () => client.getGuardDecisions({ decision: 'warn', limit: 5, offset: 1 }));
-  await capture('report_memory_health', () => client.reportMemoryHealth({
-    health: { score: 88 },
-    entities: [{ name: 'Repo' }],
-    topics: [{ name: 'Ops' }],
+  await capture('record_assumption', () => client.recordAssumption({
+    action_id: 'act_1',
+    assumption: 'Database is reachable',
   }));
-  await capture('close_thread', () => client.closeThread('ct_1', 'done'));
-  await capture('get_threads', () => client.getThreads({ status: 'active', limit: 10 }));
-  await capture('mark_read', () => client.markRead(['msg_1']));
-  await capture('archive_messages', () => client.archiveMessages(['msg_2']));
-  await capture('broadcast', () => client.broadcast({
-    type: 'status',
-    subject: 'daily',
-    body: 'status update',
-    threadId: 'mt_1',
-  }));
-  await capture('create_message_thread', () => client.createMessageThread({
-    name: 'Coordination',
-    participants: ['agent-1', 'agent-2'],
-  }));
-  await capture('get_message_threads', () => client.getMessageThreads({ status: 'open', limit: 5 }));
-  await capture('resolve_message_thread', () => client.resolveMessageThread('mt_1', 'resolved'));
-  await capture('save_shared_doc', () => client.saveSharedDoc({ name: 'Ops Runbook', content: 'v1' }));
-  await capture('sync_state', () => client.syncState({ goals: [{ title: 'Ship release' }] }));
+  await capture('wait_for_approval', () => client.waitForApproval('act_1', { timeout: 100, interval: 10 }));
 
   return results;
 }

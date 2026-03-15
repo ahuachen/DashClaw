@@ -75,22 +75,11 @@ class DashClaw:
         if auto_recommend not in ["off", "warn", "enforce"]:
             raise ValueError("auto_recommend must be one of: off, warn, enforce")
 
-    def _request(self, path_or_method, method_or_path=None, body=None, params=None, json_payload=None, **kwargs):
+    def _request(self, path, method="GET", body=None, params=None, json_payload=None, **kwargs):
         # Support 'method' as an explicit keyword arg so callers can write
         # _request("/path", method="POST", body=...) without positional ambiguity.
         if "method" in kwargs:
-            if method_or_path is None:
-                method_or_path = kwargs.pop("method")
-            else:
-                kwargs.pop("method")  # positional takes precedence
-
-        # Support both (path, method, body) and (method, path, json=...) signatures
-        if path_or_method.startswith("/"):
-            path = path_or_method
-            method = method_or_path or "GET"
-        else:
-            method = path_or_method
-            path = method_or_path
+            method = kwargs.pop("method")
 
         # Support 'json' as a keyword argument (renamed to json_payload in signature to avoid conflict with json module)
         if "json" in kwargs:
@@ -326,35 +315,18 @@ class DashClaw:
             return None
 
     def create_action(self, action_type, declared_goal, **kwargs):
-        """Record a governed decision with full audit trail — goal, reasoning, assumptions, and policy compliance."""
-        action_def = {
+        """I am attempting X."""
+        payload = {
             "action_type": action_type,
             "declared_goal": declared_goal,
+            "agent_id": self.agent_id,
             **kwargs
         }
-        recommendation_result = self._auto_recommend(action_def)
-        final_action = recommendation_result.get("action") or action_def
-        self._guard_check(final_action)
-        
-        payload = {
-            "agent_id": self.agent_id,
-            "agent_name": self.agent_name,
-            "swarm_id": self.swarm_id,
-            **final_action
-        }
+        return self._request("/api/actions", "POST", json=payload)
 
-        signature = self._sign_payload(payload)
-        if signature:
-            payload["_signature"] = signature
-
-        res = self._request("/api/actions", method="POST", body=payload)
-        
-        # Handle HITL Approval
-        if res.get("action", {}).get("status") == "pending_approval" and self.hitl_mode == "wait":
-            print(f"[DashClaw] Action {res.get('action_id')} requires human approval. Waiting...")
-            return self.wait_for_approval(res.get("action_id"))
-            
-        return res
+    def record_assumption(self, assumption):
+        """Record what the agent believed to be true when making a decision."""
+        return self._request("/api/assumptions", "POST", json=assumption)
 
     def wait_for_approval(self, action_id, timeout=300, interval=5):
         """Poll for human approval of a pending action."""
@@ -1034,13 +1006,13 @@ class DashClaw:
 
     # --- Category 13: Policy Enforcement (Guard) ---
 
-    def guard(self, context, include_signals=False):
-        """Enforce policies before a decision executes. Guard intercepts intent and returns allow/warn/block/require_approval."""
-        params = {"include_signals": "true"} if include_signals else {}
-        query = urllib.parse.urlencode(params)
-        path = f"/api/guard?{query}" if query else "/api/guard"
-        body = {**context, "agent_id": context.get("agent_id", self.agent_id)}
-        return self._request(path, method="POST", body=body)
+    def guard(self, context):
+        """Can I do X?"""
+        payload = {
+            **context,
+            "agent_id": context.get("agent_id", self.agent_id)
+        }
+        return self._request("/api/guard", "POST", json=payload)
 
     def get_guard_decisions(self, decision=None, limit=20, offset=0, agent_id=None):
         params = {

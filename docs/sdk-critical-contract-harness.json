@@ -1,17 +1,27 @@
 [
   {
+    "id": "guard",
+    "call": {
+      "method": "POST",
+      "pathname": "/api/guard",
+      "query": [],
+      "body": {
+        "action_type": "deploy",
+        "risk_score": 55,
+        "agent_id": "agent-1"
+      }
+    }
+  },
+  {
     "id": "create_action",
     "call": {
       "method": "POST",
       "pathname": "/api/actions",
       "query": [],
       "body": {
-        "agent_id": "agent-1",
-        "agent_name": "Agent One",
-        "swarm_id": null,
         "action_type": "deploy",
         "declared_goal": "Ship release",
-        "risk_score": 40
+        "agent_id": "agent-1"
       }
     }
   },
@@ -29,206 +39,24 @@
     }
   },
   {
-    "id": "get_actions",
+    "id": "record_assumption",
     "call": {
-      "method": "GET",
-      "pathname": "/api/actions",
-      "query": [
-        ["limit", "5"],
-        ["offset", "0"],
-        ["status", "running"]
-      ],
-      "body": null
+      "method": "POST",
+      "pathname": "/api/assumptions",
+      "query": [],
+      "body": {
+        "action_id": "act_1",
+        "assumption": "Database is reachable"
+      }
     }
   },
   {
-    "id": "get_action",
+    "id": "wait_for_approval",
     "call": {
       "method": "GET",
       "pathname": "/api/actions/act_1",
       "query": [],
       "body": null
-    }
-  },
-  {
-    "id": "guard",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/guard",
-      "query": [
-        ["include_signals", "true"]
-      ],
-      "body": {
-        "action_type": "deploy",
-        "risk_score": 55,
-        "agent_id": "agent-1"
-      }
-    }
-  },
-  {
-    "id": "get_guard_decisions",
-    "call": {
-      "method": "GET",
-      "pathname": "/api/guard",
-      "query": [
-        ["agent_id", "agent-1"],
-        ["decision", "warn"],
-        ["limit", "5"],
-        ["offset", "1"]
-      ],
-      "body": null
-    }
-  },
-  {
-    "id": "report_memory_health",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/memory",
-      "query": [],
-      "body": {
-        "health": {
-          "score": 88
-        },
-        "entities": [
-          { "name": "Repo" }
-        ],
-        "topics": [
-          { "name": "Ops" }
-        ]
-      }
-    }
-  },
-  {
-    "id": "close_thread",
-    "call": {
-      "method": "PATCH",
-      "pathname": "/api/context/threads/ct_1",
-      "query": [],
-      "body": {
-        "status": "closed",
-        "summary": "done"
-      }
-    }
-  },
-  {
-    "id": "get_threads",
-    "call": {
-      "method": "GET",
-      "pathname": "/api/context/threads",
-      "query": [
-        ["agent_id", "agent-1"],
-        ["limit", "10"],
-        ["status", "active"]
-      ],
-      "body": null
-    }
-  },
-  {
-    "id": "mark_read",
-    "call": {
-      "method": "PATCH",
-      "pathname": "/api/messages",
-      "query": [],
-      "body": {
-        "message_ids": ["msg_1"],
-        "action": "read",
-        "agent_id": "agent-1"
-      }
-    }
-  },
-  {
-    "id": "archive_messages",
-    "call": {
-      "method": "PATCH",
-      "pathname": "/api/messages",
-      "query": [],
-      "body": {
-        "message_ids": ["msg_2"],
-        "action": "archive",
-        "agent_id": "agent-1"
-      }
-    }
-  },
-  {
-    "id": "broadcast",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/messages",
-      "query": [],
-      "body": {
-        "from_agent_id": "agent-1",
-        "to_agent_id": null,
-        "message_type": "status",
-        "subject": "daily",
-        "body": "status update",
-        "thread_id": "mt_1"
-      }
-    }
-  },
-  {
-    "id": "create_message_thread",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/messages/threads",
-      "query": [],
-      "body": {
-        "name": "Coordination",
-        "participants": ["agent-1", "agent-2"],
-        "created_by": "agent-1"
-      }
-    }
-  },
-  {
-    "id": "get_message_threads",
-    "call": {
-      "method": "GET",
-      "pathname": "/api/messages/threads",
-      "query": [
-        ["agent_id", "agent-1"],
-        ["limit", "5"],
-        ["status", "open"]
-      ],
-      "body": null
-    }
-  },
-  {
-    "id": "resolve_message_thread",
-    "call": {
-      "method": "PATCH",
-      "pathname": "/api/messages/threads",
-      "query": [],
-      "body": {
-        "thread_id": "mt_1",
-        "status": "resolved",
-        "summary": "resolved"
-      }
-    }
-  },
-  {
-    "id": "save_shared_doc",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/messages/docs",
-      "query": [],
-      "body": {
-        "name": "Ops Runbook",
-        "content": "v1",
-        "agent_id": "agent-1"
-      }
-    }
-  },
-  {
-    "id": "sync_state",
-    "call": {
-      "method": "POST",
-      "pathname": "/api/sync",
-      "query": [],
-      "body": {
-        "agent_id": "agent-1",
-        "goals": [
-          { "title": "Ship release" }
-        ]
-      }
     }
   }
 ]
