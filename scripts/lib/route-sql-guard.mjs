@@ -23,6 +23,7 @@ async function walkRouteFiles(dir) {
   const files = [];
 
   for (const entry of entries) {
+    if (entry.name === '_archive') continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       files.push(...(await walkRouteFiles(full)));

@@ -10,38 +10,14 @@
       "label": "sql.query call"
     }
   ],
-  "files_scanned": 78,
-  "files_with_direct_sql": 60,
+  "files_scanned": 101,
+  "files_with_direct_sql": 22,
   "totals": {
-    "tagged_template": 249,
-    "query_call": 21,
-    "total": 270
+    "tagged_template": 61,
+    "query_call": 11,
+    "total": 72
   },
   "files": [
-    {
-      "file": "app/api/actions/[actionId]/approve/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/actions/[actionId]/trace/route.js",
-      "tagged_template": 5,
-      "query_call": 0,
-      "total": 5
-    },
-    {
-      "file": "app/api/actions/assumptions/[assumptionId]/route.js",
-      "tagged_template": 4,
-      "query_call": 0,
-      "total": 4
-    },
-    {
-      "file": "app/api/actions/assumptions/route.js",
-      "tagged_template": 2,
-      "query_call": 2,
-      "total": 4
-    },
     {
       "file": "app/api/actions/loops/[loopId]/route.js",
       "tagged_template": 3,
@@ -67,42 +43,6 @@
       "total": 2
     },
     {
-      "file": "app/api/agents/connections/route.js",
-      "tagged_template": 4,
-      "query_call": 1,
-      "total": 5
-    },
-    {
-      "file": "app/api/calendar/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/content/route.js",
-      "tagged_template": 3,
-      "query_call": 0,
-      "total": 3
-    },
-    {
-      "file": "app/api/context/points/route.js",
-      "tagged_template": 1,
-      "query_call": 1,
-      "total": 2
-    },
-    {
-      "file": "app/api/context/threads/[threadId]/entries/route.js",
-      "tagged_template": 3,
-      "query_call": 0,
-      "total": 3
-    },
-    {
-      "file": "app/api/context/threads/[threadId]/route.js",
-      "tagged_template": 3,
-      "query_call": 1,
-      "total": 4
-    },
-    {
       "file": "app/api/cron/memory-maintenance/route.js",
       "tagged_template": 1,
       "query_call": 0,
@@ -115,52 +55,10 @@
       "total": 4
     },
     {
-      "file": "app/api/digest/route.js",
-      "tagged_template": 14,
-      "query_call": 0,
-      "total": 14
-    },
-    {
-      "file": "app/api/goals/route.js",
-      "tagged_template": 5,
-      "query_call": 0,
-      "total": 5
-    },
-    {
       "file": "app/api/guard/route.js",
       "tagged_template": 1,
       "query_call": 2,
       "total": 3
-    },
-    {
-      "file": "app/api/handoffs/route.js",
-      "tagged_template": 7,
-      "query_call": 0,
-      "total": 7
-    },
-    {
-      "file": "app/api/health/route.js",
-      "tagged_template": 1,
-      "query_call": 0,
-      "total": 1
-    },
-    {
-      "file": "app/api/identities/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/inspiration/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/invite/[token]/route.js",
-      "tagged_template": 5,
-      "query_call": 0,
-      "total": 5
     },
     {
       "file": "app/api/keys/route.js",
@@ -173,48 +71,6 @@
       "tagged_template": 4,
       "query_call": 0,
       "total": 4
-    },
-    {
-      "file": "app/api/memory/route.js",
-      "tagged_template": 10,
-      "query_call": 0,
-      "total": 10
-    },
-    {
-      "file": "app/api/messages/docs/route.js",
-      "tagged_template": 3,
-      "query_call": 1,
-      "total": 4
-    },
-    {
-      "file": "app/api/messages/threads/route.js",
-      "tagged_template": 3,
-      "query_call": 1,
-      "total": 4
-    },
-    {
-      "file": "app/api/notifications/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/onboarding/api-key/route.js",
-      "tagged_template": 3,
-      "query_call": 0,
-      "total": 3
-    },
-    {
-      "file": "app/api/onboarding/status/route.js",
-      "tagged_template": 3,
-      "query_call": 0,
-      "total": 3
-    },
-    {
-      "file": "app/api/onboarding/workspace/route.js",
-      "tagged_template": 3,
-      "query_call": 0,
-      "total": 3
     },
     {
       "file": "app/api/orgs/[orgId]/keys/route.js",
@@ -235,46 +91,10 @@
       "total": 3
     },
     {
-      "file": "app/api/pairings/[pairingId]/approve/route.js",
-      "tagged_template": 4,
-      "query_call": 0,
-      "total": 4
-    },
-    {
-      "file": "app/api/pairings/[pairingId]/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
-      "file": "app/api/pairings/route.js",
-      "tagged_template": 2,
-      "query_call": 0,
-      "total": 2
-    },
-    {
       "file": "app/api/policies/route.js",
       "tagged_template": 4,
       "query_call": 2,
       "total": 6
-    },
-    {
-      "file": "app/api/preferences/route.js",
-      "tagged_template": 20,
-      "query_call": 0,
-      "total": 20
-    },
-    {
-      "file": "app/api/relationships/route.js",
-      "tagged_template": 7,
-      "query_call": 0,
-      "total": 7
-    },
-    {
-      "file": "app/api/schedules/route.js",
-      "tagged_template": 1,
-      "query_call": 0,
-      "total": 1
     },
     {
       "file": "app/api/security/scan/route.js",
@@ -289,76 +109,22 @@
       "total": 1
     },
     {
-      "file": "app/api/settings/route.js",
-      "tagged_template": 11,
-      "query_call": 0,
-      "total": 11
-    },
-    {
       "file": "app/api/settings/test/route.js",
       "tagged_template": 1,
       "query_call": 0,
       "total": 1
     },
     {
-      "file": "app/api/setup/live-proof/route.js",
-      "tagged_template": 0,
-      "query_call": 0,
-      "total": 0
-    },
-    {
-      "file": "app/api/setup/proof/route.js",
-      "tagged_template": 0,
-      "query_call": 0,
-      "total": 0
-    },
-    {
-      "file": "app/api/setup/status/route.js",
-      "tagged_template": 1,
-      "query_call": 0,
-      "total": 1
-    },
-    {
-      "file": "app/api/snippets/[snippetId]/use/route.js",
-      "tagged_template": 1,
-      "query_call": 0,
-      "total": 1
-    },
-    {
-      "file": "app/api/snippets/route.js",
-      "tagged_template": 2,
-      "query_call": 1,
-      "total": 3
-    },
-    {
       "file": "app/api/swarm/graph/route.js",
-      "tagged_template": 5,
+      "tagged_template": 4,
       "query_call": 0,
-      "total": 5
-    },
-    {
-      "file": "app/api/sync/route.js",
-      "tagged_template": 21,
-      "query_call": 0,
-      "total": 21
+      "total": 4
     },
     {
       "file": "app/api/team/[userId]/route.js",
       "tagged_template": 6,
       "query_call": 0,
       "total": 6
-    },
-    {
-      "file": "app/api/team/invite/route.js",
-      "tagged_template": 8,
-      "query_call": 0,
-      "total": 8
-    },
-    {
-      "file": "app/api/tokens/route.js",
-      "tagged_template": 10,
-      "query_call": 2,
-      "total": 12
     },
     {
       "file": "app/api/usage/route.js",
@@ -383,12 +149,6 @@
       "tagged_template": 4,
       "query_call": 0,
       "total": 4
-    },
-    {
-      "file": "app/api/workflows/route.js",
-      "tagged_template": 5,
-      "query_call": 0,
-      "total": 5
     }
   ]
 }
