@@ -205,6 +205,8 @@ async function run() {
         tokens_out INTEGER DEFAULT 0,
         signature TEXT,
         verified BOOLEAN DEFAULT FALSE,
+        approved_by TEXT,
+        approved_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
