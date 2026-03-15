@@ -14,7 +14,7 @@ vi.mock('@/lib/events.js', () => ({
   publishOrgEvent: mockPublishOrgEvent,
 }));
 
-import { POST } from '@/api/routing/tasks/[taskId]/complete/route.js';
+import { POST } from '@/api/_archive/routing/tasks/[taskId]/complete/route.js';
 
 const params = Promise.resolve({ taskId: 'rt_1' });
 

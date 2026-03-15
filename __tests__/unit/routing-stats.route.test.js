@@ -9,7 +9,7 @@ const { mockSql, mockGetRoutingStats } = vi.hoisted(() => ({
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
 vi.mock('@/lib/repositories/routing.repository.js', () => ({ getRoutingStats: mockGetRoutingStats }));
 
-import { GET } from '@/api/routing/stats/route.js';
+import { GET } from '@/api/_archive/routing/stats/route.js';
 
 describe('/api/routing/stats GET', () => {
   beforeEach(() => {

@@ -15,7 +15,7 @@ vi.mock('@/lib/repositories/routing.repository.js', () => ({
   unregisterAgent: mockUnregisterAgent,
 }));
 
-import { GET, PATCH, DELETE } from '@/api/routing/agents/[agentId]/route.js';
+import { GET, PATCH, DELETE } from '@/api/_archive/routing/agents/[agentId]/route.js';
 
 const params = Promise.resolve({ agentId: 'a1' });
 

@@ -13,7 +13,7 @@ vi.mock('@/lib/repositories/routing.repository.js', () => ({
   listAgents: mockListAgents,
 }));
 
-import { GET, POST } from '@/api/routing/agents/route.js';
+import { GET, POST } from '@/api/_archive/routing/agents/route.js';
 
 describe('/api/routing/agents', () => {
   beforeEach(() => {

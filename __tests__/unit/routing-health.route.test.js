@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GET } from '@/api/routing/health/route.js';
+import { GET } from '@/api/_archive/routing/health/route.js';
 
 describe('/api/routing/health GET', () => {
   it('returns ok status', async () => {

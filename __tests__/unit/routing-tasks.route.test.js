@@ -18,7 +18,7 @@ vi.mock('@/lib/events.js', () => ({
   publishOrgEvent: mockPublishOrgEvent,
 }));
 
-import { GET, POST } from '@/api/routing/tasks/route.js';
+import { GET, POST } from '@/api/_archive/routing/tasks/route.js';
 
 describe('/api/routing/tasks', () => {
   beforeEach(() => {

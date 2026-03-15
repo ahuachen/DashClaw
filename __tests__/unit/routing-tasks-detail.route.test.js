@@ -13,7 +13,7 @@ vi.mock('@/lib/repositories/routing.repository.js', () => ({
   deleteTask: mockDeleteTask,
 }));
 
-import { GET, DELETE } from '@/api/routing/tasks/[taskId]/route.js';
+import { GET, DELETE } from '@/api/_archive/routing/tasks/[taskId]/route.js';
 
 const params = Promise.resolve({ taskId: 'rt_1' });
 
