@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Clock, KeyRound, Mail, UsersRound, Settings, CreditCard,
-  ShieldAlert, Webhook, Bell, Filter, ChevronDown, User, Cog
+  ShieldAlert, Webhook, Bell, Filter, ChevronDown, User, Cog, BarChart3
 } from 'lucide-react';
 import Image from 'next/image';
 import PageLayout from '../components/PageLayout';
@@ -11,6 +11,8 @@ import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
+import { isDemoMode } from '../lib/isDemoMode';
+import { demoAuditLogs, demoAuditStats } from '../lib/demoAuditData';
 
 export default function AuditLogPage() {
   const [logs, setLogs] = useState([]);
@@ -35,6 +37,25 @@ export default function AuditLogPage() {
         setOffset(0);
       } else {
         setLoadingMore(true);
+      }
+
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 600));
+        let filteredLogs = [...demoAuditLogs];
+        if (actionFilter !== 'all') {
+          filteredLogs = filteredLogs.filter(l => l.action === actionFilter);
+        }
+        
+        if (reset) {
+          setLogs(filteredLogs);
+        } else {
+          setLogs((prev) => [...prev, ...filteredLogs]);
+        }
+        setStats(demoAuditStats);
+        setHasMore(false);
+        setLoading(false);
+        setLoadingMore(false);
+        return;
       }
 
       const currentOffset = reset ? 0 : offset;

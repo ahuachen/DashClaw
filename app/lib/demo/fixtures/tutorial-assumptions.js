@@ -466,6 +466,34 @@ const assumptions = [
     agent_name: agent(4).name,
     declared_goal: 'Understanding agent growth trajectories',
   },
+
+  // ── Active assumptions (unvalidated) ────────────────────────────────
+  {
+    org_id: DEMO_ORG,
+    assumption_id: stableId('asm_active', 1),
+    action_id: 'act_demo_current_1',
+    assumption: 'Database connection pool is sufficient for high-concurrency rollout',
+    basis: 'Static config review',
+    validated: 0,
+    invalidated: 0,
+    created_at: isoFromNow(10 * 60 * 1000), // 10m ago
+    agent_id: 'agent_deployment_bot_01',
+    agent_name: 'Deployment Bot',
+    declared_goal: 'Rolling out production-api v2.4.1',
+  },
+  {
+    org_id: DEMO_ORG,
+    assumption_id: stableId('asm_active', 2),
+    action_id: 'act_demo_current_2',
+    assumption: 'No breaking changes in the latest API spec upstream',
+    basis: 'CI pipeline check passed',
+    validated: 0,
+    invalidated: 0,
+    created_at: isoFromNow(25 * 60 * 1000), // 25m ago
+    agent_id: 'api_monitor_02',
+    agent_name: 'API Monitor',
+    declared_goal: 'Verifying upstream dependencies',
+  },
 ];
 
 export { assumptions };

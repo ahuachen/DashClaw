@@ -12,6 +12,7 @@ import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
+import { demoWebhooks, demoWebhookDeliveries } from '../lib/demoWebhooksData';
 
 const WEBHOOK_TEMPLATES = [
   {
@@ -87,6 +88,12 @@ export default function WebhooksPage() {
 
   const fetchWebhooks = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 600));
+        setWebhooks(demoWebhooks);
+        setLoading(false);
+        return;
+      }
       const res = await fetch('/api/webhooks');
       const json = await res.json();
       if (!res.ok) {
@@ -169,6 +176,12 @@ export default function WebhooksPage() {
   };
 
   const handleTest = async (id) => {
+    if (isDemoMode()) {
+      setTestResults({ ...testResults, [id]: 'testing' });
+      await new Promise((r) => setTimeout(r, 1000));
+      setTestResults({ ...testResults, [id]: { success: true, status: 200 } });
+      return;
+    }
     setTestResults({ ...testResults, [id]: 'testing' });
     try {
       const res = await fetch(`/api/webhooks/${id}/test`, { method: 'POST' });
@@ -194,6 +207,11 @@ export default function WebhooksPage() {
 
     setLoadingDeliveries(true);
     try {
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 400));
+        setDeliveries({ ...deliveries, [webhookId]: demoWebhookDeliveries[webhookId] || [] });
+        return;
+      }
       const res = await fetch(`/api/webhooks/${webhookId}/deliveries`);
       const json = await res.json();
       if (res.ok) {

@@ -5,6 +5,8 @@ import PageLayout from '../components/PageLayout';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
+import { isDemoMode } from '../lib/isDemoMode';
+import { demoScoringProfiles, demoRiskTemplates, demoScoringScores, demoCalibration } from '../lib/demoScoringData';
 
 const TABS = ['Profiles', 'Score Explorer', 'Risk Templates', 'Calibrate'];
 
@@ -54,6 +56,10 @@ export default function ScoringPage() {
 
   const fetchProfiles = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        setProfiles(demoScoringProfiles);
+        return;
+      }
       const res = await fetch('/api/scoring/profiles');
       if (res.ok) {
         const data = await res.json();
@@ -64,6 +70,10 @@ export default function ScoringPage() {
 
   const fetchRiskTemplates = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        setRiskTemplates(demoRiskTemplates);
+        return;
+      }
       const res = await fetch('/api/scoring/risk-templates');
       if (res.ok) {
         const data = await res.json();
@@ -74,6 +84,11 @@ export default function ScoringPage() {
 
   const fetchScores = useCallback(async (profileId) => {
     try {
+      if (isDemoMode()) {
+        await new Promise(r => setTimeout(r, 400));
+        setScores(demoScoringScores);
+        return;
+      }
       const url = profileId
         ? `/api/scoring/score?profile_id=${profileId}&limit=50`
         : '/api/scoring/score?limit=50';
@@ -123,6 +138,12 @@ export default function ScoringPage() {
   };
 
   const handleCalibrate = async () => {
+    if (isDemoMode()) {
+      setCalibration(null);
+      await new Promise(r => setTimeout(r, 1200));
+      setCalibration(demoCalibration);
+      return;
+    }
     setCalibration(null);
     const res = await fetch('/api/scoring/calibrate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

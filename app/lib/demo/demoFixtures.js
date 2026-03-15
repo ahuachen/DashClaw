@@ -224,10 +224,41 @@ function buildFixtures() {
   const policyTestResults = { passed: 12, failed: 0 };
   const policyProofReport = { org_id: DEMO_ORG, status: 'valid', verified_at: isoFromNow(0) };
 
-  const evalScorers = [];
-  const evalScores = [];
-  const evalRuns = [];
-  const evalStats = { total_runs: 0, avg_score: 0 };
+  const evalScorers = [
+    { id: 'scr_01', name: 'Success Regex', scorer_type: 'regex', description: 'Checks if output contains success markers', total_scores: 142, avg_score: 0.92, config: { pattern: 'success|completed|ok' } },
+    { id: 'scr_02', name: 'Risk Auditor', scorer_type: 'numeric_range', description: 'Ensures risk score is within acceptable bounds', total_scores: 85, avg_score: 0.78, config: { min: 0, max: 70, field: 'risk_score' } },
+    { id: 'scr_03', name: 'LLM Quality Judge', scorer_type: 'llm_judge', description: 'AI-based reasoning and quality assessment', total_scores: 24, avg_score: 0.85, config: { model: 'gpt-4o' } },
+  ];
+
+  const evalScores = Array.from({ length: 20 }).map((_, i) => ({
+    id: `evs_${i}`,
+    action_id: actions[i % actions.length].action_id,
+    scorer_id: evalScorers[i % evalScorers.length].id,
+    scorer_name: evalScorers[i % evalScorers.length].name,
+    score: 0.5 + (lcg(0xABC123 + i)() % 50) / 100,
+    label: i % 5 === 0 ? 'fail' : 'pass',
+    evaluated_by: i % 3 === 0 ? 'system' : 'human',
+    created_at: isoFromNow(i * 4 * MS_HOUR),
+  }));
+
+  const evalRuns = [
+    { id: 'run_01', name: 'Weekly Compliance Audit', scorer_id: 'scr_02', scorer_name: 'Risk Auditor', status: 'completed', scored_count: 50, total_actions: 50, avg_score: 0.82, created_at: isoFromNow(MS_DAY) },
+    { id: 'run_02', name: 'Production Quality Check', scorer_id: 'scr_03', scorer_name: 'LLM Quality Judge', status: 'running', scored_count: 12, total_actions: 45, avg_score: 0.88, created_at: isoFromNow(2 * MS_HOUR) },
+  ];
+
+  const evalStats = {
+    overall: {
+      total_scores: 251,
+      avg_score: 0.84,
+      unique_scorers: 3,
+      today_count: 14,
+    },
+    distribution: [
+      { bucket: 'poor', count: 12 },
+      { bucket: 'acceptable', count: 45 },
+      { bucket: 'excellent', count: 194 },
+    ],
+  };
 
   const promptTemplates = [
     { id: 'pt_demo_001', org_id: DEMO_ORG, name: 'Agent Quality Auditor', slug: 'agent-quality-auditor', description: 'Evaluates agent decisions based on goal alignment and risk.', current_version: 3, total_runs: 124, created_at: isoFromNow(30 * MS_DAY) },
@@ -259,9 +290,60 @@ function buildFixtures() {
   const feedbackEntries = [];
   const feedbackStats = { total_entries: 0, avg_sentiment: 0 };
 
-  const driftAlerts = [];
-  const driftStats = { active_alerts: 0 };
-  const driftSnapshots = [];
+  const driftAlerts = [
+    {
+      id: 'dr_01', severity: 'critical', metric: 'autonomy_score', agent_id: 'agent_deployment_bot_01',
+      description: 'Significant spike in autonomy score detected. Agent is executing high-risk actions without manual intervention.',
+      z_score: 4.2, direction: 'increasing', pct_change: 125,
+      baseline_mean: 42.5, baseline_stddev: 5.2, current_mean: 95.6, current_stddev: 12.4,
+      sample_count: 48, acknowledged: false, created_at: isoFromNow(15 * 60 * 1000)
+    },
+    {
+      id: 'dr_02', severity: 'warning', metric: 'action_frequency', agent_id: 'api_monitor_02',
+      description: 'Higher than normal action frequency. Agent may be in a loop or experiencing unexpected triggers.',
+      z_score: 2.8, direction: 'increasing', pct_change: 64,
+      baseline_mean: 12.0, baseline_stddev: 2.1, current_mean: 19.7, current_stddev: 3.5,
+      sample_count: 120, acknowledged: false, created_at: isoFromNow(3 * 60 * 60 * 1000)
+    },
+    {
+      id: 'dr_03', severity: 'info', metric: 'reasoning_length', agent_id: 'customer_support_03',
+      description: 'Slight increase in reasoning token length. Agent is providing more detailed explanations than historical baseline.',
+      z_score: 1.5, direction: 'increasing', pct_change: 12,
+      baseline_mean: 150.0, baseline_stddev: 25.0, current_mean: 168.0, current_stddev: 30.0,
+      sample_count: 250, acknowledged: true, created_at: isoFromNow(24 * 60 * 60 * 1000)
+    }
+  ];
+
+  const driftStats = {
+    overall: {
+      total_alerts: 3,
+      critical_count: 1,
+      warning_count: 1,
+      info_count: 1,
+      unacknowledged: 2,
+    },
+    recent_baselines: [
+      { agent_id: 'agent_deployment_bot_01', metric: 'autonomy_score', mean: 42.5, stddev: 5.2, sample_count: 500 },
+      { agent_id: 'api_monitor_02', metric: 'action_frequency', mean: 12.0, stddev: 2.1, sample_count: 1200 },
+      { agent_id: 'customer_support_03', metric: 'reasoning_length', mean: 150.0, stddev: 25.0, sample_count: 3500 },
+    ],
+    by_metric: [
+      { metric: 'autonomy_score', count: 1, avg_z_score: 4.2 },
+      { metric: 'action_frequency', count: 1, avg_z_score: 2.8 },
+      { metric: 'reasoning_length', count: 1, avg_z_score: 1.5 },
+    ],
+    by_agent: [
+      { agent_id: 'agent_deployment_bot_01', count: 1, critical: 1, warning: 0 },
+      { agent_id: 'api_monitor_02', count: 1, critical: 0, warning: 1 },
+      { agent_id: 'customer_support_03', count: 1, critical: 0, warning: 0 },
+    ],
+  };
+
+  const driftSnapshots = [
+    { metric: 'autonomy_score', agent_id: 'agent_deployment_bot_01', mean: 42.5, stddev: 5.2, sample_count: 500, period_start: isoFromNow(7 * 24 * 60 * 60 * 1000) },
+    { metric: 'autonomy_score', agent_id: 'agent_deployment_bot_01', mean: 44.2, stddev: 5.5, sample_count: 520, period_start: isoFromNow(6 * 24 * 60 * 60 * 1000) },
+    { metric: 'autonomy_score', agent_id: 'agent_deployment_bot_01', mean: 95.6, stddev: 12.4, sample_count: 48, period_start: isoFromNow(0) },
+  ];
 
   const learningVelocity = [];
   const learningCurves = [];

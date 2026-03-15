@@ -14,6 +14,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { isDemoMode } from '../lib/isDemoMode';
+import { demoDriftAlerts, demoDriftStats, demoDriftSnapshots } from '../lib/demoDriftData';
 
 const TABS = [
   { id: 'alerts', label: 'Alerts' },
@@ -62,6 +63,15 @@ export default function DriftPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 800));
+        setAlerts(demoDriftAlerts);
+        setStats(demoDriftStats);
+        setSnapshots(demoDriftSnapshots);
+        setLoading(false);
+        return;
+      }
+
       const params = agentId ? `?agent_id=${agentId}` : '';
       const [alertsRes, statsRes, snapshotsRes] = await Promise.all([
         fetch(`/api/drift/alerts${params}${params ? '&' : '?'}limit=50`),

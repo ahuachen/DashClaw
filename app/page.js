@@ -6,6 +6,7 @@ import PublicFooter from './components/PublicFooter';
 import HeroScreenshot from './components/HeroScreenshot';
 import InlineCopyCommand from './components/InlineCopyCommand';
 import GuardSimulation from './components/GuardSimulation';
+import { allScreenshots } from './screenshotData';
 
 import {
   coreFeatures,
@@ -35,18 +36,18 @@ export default function LandingPage() {
             Open-source AI governance runtime
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            Govern AI agents before they act.
+            Intercept agent actions before they reach production.
           </h1>
           <p className="mt-6 text-brand font-semibold text-xl sm:text-2xl">
-            DashClaw is a policy firewall for AI agents.
+            DashClaw is the policy firewall for AI agents.
           </p>
           <p className="mt-4 text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            DashClaw sits between AI agents and production systems. It intercepts actions, enforces policies, and records decision evidence before execution.
+            DashClaw governs the moment agent intent becomes real-world action. Enforce policies, require human approval, and record verifiable evidence in one runtime.
           </p>
           <p className="mt-4 text-sm text-zinc-500 font-medium">
-            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, OpenClaw, or any custom agent.
+            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, or any custom agent.
           </p>
-          <p className="mt-4 text-sm text-zinc-500 font-medium italic opacity-80">Simple to adopt. Powerful to operate. MIT Licensed.</p>
+          <p className="mt-4 text-sm text-zinc-500 font-medium italic opacity-80">MIT Licensed. Self-host in seconds.</p>
 
           {/* Tiny Architecture Diagram */}
           <div className="mt-12 mb-8 flex items-center justify-center gap-3 sm:gap-6 max-w-lg mx-auto">
@@ -54,7 +55,7 @@ export default function LandingPage() {
               <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 shadow-lg">
                 <Bot size={20} />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Agent</span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Agent Intent</span>
             </div>
             
             <div className="flex flex-col justify-center animate-pulse">
@@ -65,7 +66,7 @@ export default function LandingPage() {
               <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-brand/10 border border-brand/40 text-brand shadow-[0_0_25px_rgba(249,115,22,0.2)] ring-1 ring-brand/20">
                 <Shield size={28} />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-brand font-extrabold">Guard</span>
+              <span className="text-[10px] uppercase tracking-wider text-brand font-extrabold">DashClaw Guard</span>
             </div>
 
             <div className="flex flex-col justify-center animate-pulse delay-75">
@@ -76,30 +77,31 @@ export default function LandingPage() {
               <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 shadow-lg">
                 <Database size={20} />
               </div>
-              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Systems</span>
+              <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold">Production System</span>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-start justify-center gap-4">
-            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} />
-            <div className="flex flex-col gap-3">
-              <InlineCopyCommand command="npm install dashclaw" />
-              <InlineCopyCommand command="docker compose up -d" />
+          <div className="mt-10 flex flex-col items-center gap-6">
+            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} className="scale-110 shadow-[0_0_30px_rgba(249,115,22,0.15)]" />
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/demo" className="px-8 py-3 rounded-lg bg-brand text-white text-sm font-bold hover:bg-brand-hover transition-all hover:scale-105 inline-flex items-center gap-2 shadow-xl shadow-brand/20">
+                <Terminal size={18} /> Run 1-Minute Demo
+              </Link>
+              <Link href="/self-host" className="px-8 py-3 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-all inline-flex items-center gap-2">
+                Deploy Your Own
+              </Link>
             </div>
+          </div>
+
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 opacity-40 hover:opacity-100 transition-opacity">
+            <InlineCopyCommand command="npm install dashclaw" />
             <InlineCopyCommand command="pip install dashclaw" />
+            <InlineCopyCommand command="docker compose up -d" />
           </div>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/self-host" className="px-6 py-2.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors inline-flex items-center gap-2">
-              Deploy DashClaw
-            </Link>
-            <Link href="/demo" className="px-6 py-2.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors inline-flex items-center gap-2">
-              <Terminal size={16} /> View Demo
-            </Link>
-          </div>
-
-          <div className="mt-24 mb-12">
-            <h3 className="text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-8 animate-pulse">Live Interception Demo</h3>
+          <div className="mt-20 mb-12">
+            <h3 className="text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-8 animate-pulse">Decision Interception Demo</h3>
             <GuardSimulation />
           </div>
 
@@ -133,45 +135,13 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="relative max-w-md mx-auto p-8 rounded-2xl border border-red-500/20 bg-[#111] overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.1)] text-left">
-            <div className="absolute top-0 left-0 w-full h-1 bg-red-500/40"></div>
-            
-            <div className="space-y-6">
-              <div className="flex justify-between items-start border-b border-zinc-800/50 pb-4">
-                <div>
-                  <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Agent Action</div>
-                  <div className="text-base font-semibold text-zinc-200">Deploy migration</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-1">Risk Score</div>
-                  <div className="text-lg font-mono font-bold text-red-400">92</div>
-                </div>
-              </div>
-
-              <div>
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">DashClaw Decision</div>
-                <div className="flex items-center gap-2 text-red-500 font-extrabold text-xl tracking-tight">
-                  <XCircle size={24} />
-                  <span>BLOCKED</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-zinc-800/50">
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">Policy Violation</div>
-                <div className="text-sm text-zinc-400 italic leading-relaxed">
-                  &quot;No production database changes without human approval&quot;
-                </div>
-              </div>
-              
-              <div className="pt-2">
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-2">Evidence Recorded</div>
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></div>
-                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
-                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
-                </div>
-              </div>
-            </div>
+          <div className="max-w-2xl mx-auto">
+            <HeroScreenshot
+              src="/images/screenshots/replay2.png"
+              alt="DashClaw Interception Replay - detailed evidence of a governed decision"
+              className="shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]"
+              items={allScreenshots}
+            />
           </div>
 
           <div className="mt-12 text-center max-w-2xl mx-auto">
@@ -717,6 +687,7 @@ export default function LandingPage() {
                 src="/images/screenshots/Mission Control.png"
                 alt="DashClaw Mission Control - strategic overview of your agent fleet"
                 className="shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]"
+                items={allScreenshots}
               />
             </div>
           </div>

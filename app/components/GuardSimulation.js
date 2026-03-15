@@ -138,17 +138,17 @@ export default function GuardSimulation() {
                     )}
 
                     {step === 'finished' && (
-                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/5 border-green-500/20 text-green-400' : 'bg-red-500/5 border-red-500/20 text-red-400'} animate-in zoom-in-95 duration-300`}>
-                        <div className="flex items-center gap-3 mb-1">
-                          {decision === 'allowed' ? <CheckCircle2 size={18} /> : <ShieldAlert size={18} />}
-                          <span className="font-bold text-sm tracking-tight text-white uppercase">
-                            {decision === 'allowed' ? 'Execution Permitted' : 'Execution Blocked'}
+                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'} animate-in zoom-in-95 duration-300 shadow-lg`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          {decision === 'allowed' ? <ShieldCheck size={20} className="text-green-400" /> : <ShieldAlert size={20} className="text-red-400" />}
+                          <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-green-400' : 'text-red-400'}`}>
+                            {decision === 'allowed' ? 'APPROVED' : 'BLOCKED'}
                           </span>
                         </div>
-                        <p className="text-[10px] opacity-80 pl-7 leading-relaxed text-zinc-400">
+                        <p className="text-[11px] font-medium pl-8 leading-relaxed text-zinc-300">
                           {decision === 'allowed' 
-                            ? 'The agent has proceeded with the action. Evidence record act_9283... has been signed.' 
-                            : 'Policy violation detected. The runtime prevented the agent from executing this action.'}
+                            ? 'Action permitted under governance. Decision evidence recorded and signed.' 
+                            : 'Action blocked by policy. The agent was prevented from reaching production.'}
                         </p>
                       </div>
                     )}
@@ -239,11 +239,11 @@ export default function GuardSimulation() {
                     <div className="p-5 rounded-2xl bg-gradient-to-b from-brand/10 to-transparent border border-brand/20 shadow-2xl h-full flex flex-col">
                       <div className="flex items-center gap-2 mb-4">
                         <Clock size={14} className="text-brand animate-spin-slow" />
-                        <span className="text-[10px] font-extrabold text-white uppercase tracking-widest">Operator Authorization</span>
+                        <span className="text-[10px] font-extrabold text-white uppercase tracking-widest">Awaiting Approval</span>
                       </div>
                       
                       <p className="text-[11px] text-zinc-400 mb-5 leading-relaxed">
-                        This action exceeds the autonomy threshold. A manual override is required to proceed.
+                        High-risk action detected. Human intervention required before execution.
                       </p>
 
                       <div className="mt-auto flex gap-2">

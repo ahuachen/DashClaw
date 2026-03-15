@@ -4,20 +4,32 @@ import { useState } from 'react';
 import Image from 'next/image';
 import ImageLightbox from './ImageLightbox';
 
-export default function HeroScreenshot({ src, alt, className = '' }) {
+export default function HeroScreenshot({ src, alt, className = '', items = [] }) {
   const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const item = { src, alt, title: '' };
+  const galleryItems = items.length > 0 ? items : [{ src, alt, title: '' }];
+  
+  const handleOpen = () => {
+    // If items provided, find initial index
+    if (items.length > 0) {
+      const idx = items.findIndex(item => item.src === src);
+      setCurrentIndex(idx !== -1 ? idx : 0);
+    } else {
+      setCurrentIndex(0);
+    }
+    setOpen(true);
+  };
 
   return (
     <>
       <div
         className={`relative aspect-[16/10] overflow-hidden rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#111] cursor-zoom-in ${className}`}
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         role="button"
         tabIndex={0}
         aria-label="View fullscreen"
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setOpen(true); }}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); }}
       >
         <Image
           src={src}
@@ -32,9 +44,9 @@ export default function HeroScreenshot({ src, alt, className = '' }) {
 
       {open && (
         <ImageLightbox
-          items={[item]}
-          index={0}
-          onChangeIndex={() => {}}
+          items={galleryItems}
+          index={currentIndex}
+          onChangeIndex={setCurrentIndex}
           onClose={() => setOpen(false)}
         />
       )}

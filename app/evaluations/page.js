@@ -13,6 +13,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { isDemoMode } from '../lib/isDemoMode';
+import { demoEvalScorers, demoEvalScores, demoEvalRuns, demoEvalStats } from '../lib/demoEvaluationsData';
 
 const TABS = [
   { id: 'scores', label: 'Scores' },
@@ -73,6 +74,17 @@ export default function EvaluationsPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 800));
+        setScores(demoEvalScores);
+        setScorers(demoEvalScorers);
+        setRuns(demoEvalRuns);
+        setStats(demoEvalStats);
+        setLlmAvailable(true);
+        setLoading(false);
+        return;
+      }
+
       const params = agentId ? `?agent_id=${agentId}` : '';
       const [scoresRes, scorersRes, runsRes, statsRes] = await Promise.all([
         fetch(`/api/evaluations${params}${params ? '&' : '?'}limit=50`),

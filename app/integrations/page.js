@@ -11,6 +11,8 @@ import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
+import { isDemoMode } from '../lib/isDemoMode';
+import { demoAgents, demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
 
 // Integration configurations with their settings fields
 const INTEGRATION_CONFIGS = {
@@ -375,6 +377,10 @@ export default function IntegrationsPage() {
 
   const fetchAgents = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        setAgents(demoAgents);
+        return;
+      }
       const res = await fetch('/api/agents');
       if (!res.ok) return;
       const data = await res.json();
@@ -390,6 +396,14 @@ export default function IntegrationsPage() {
 
   const fetchConnections = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        let conns = [...demoIntegrationsConnections];
+        if (selectedAgentId) {
+          conns = conns.filter(c => c.agent_id === selectedAgentId);
+        }
+        setAgentConnections(conns);
+        return;
+      }
       let url = '/api/agents/connections';
       if (selectedAgentId) {
         url += `?agent_id=${encodeURIComponent(selectedAgentId)}`;
@@ -409,6 +423,14 @@ export default function IntegrationsPage() {
 
   const fetchSettings = useCallback(async () => {
     try {
+      if (isDemoMode()) {
+        const settingsMap = {};
+        demoIntegrationsSettings.forEach(s => {
+          settingsMap[s.key] = s;
+        });
+        setSettings(settingsMap);
+        return;
+      }
       let url = '/api/settings?category=integration';
       if (selectedAgentId) {
         url += `&agent_id=${encodeURIComponent(selectedAgentId)}`;
