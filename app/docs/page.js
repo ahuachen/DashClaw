@@ -11,6 +11,7 @@ import ConnectAgentButton from '../components/ConnectAgentButton';
 import PublicNavbar from '../components/PublicNavbar';
 import PublicFooter from '../components/PublicFooter';
 import DocsSidebarClient from './DocsSidebarClient';
+import DocsCodeTabs from './DocsCodeTabs';
 
 export const metadata = {
   title: 'DashClaw SDK Documentation',
@@ -73,7 +74,7 @@ function MethodEntry({ id, signature, description, params, returns, example, chi
       )}
       {example && (
         <div className="mt-4">
-          <CodeBlock>{example}</CodeBlock>
+          {example}
         </div>
       )}
       {children}
@@ -157,7 +158,7 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK. Core governance features are visible by default.
+            Canonical reference for the DashClaw SDK (v2.1.1). Node.js and Python parity across all core governance features.
           </p>
           <CopyDocsButton />
         </div>
@@ -181,7 +182,12 @@ export default async function DocsPage({ searchParams }) {
                   <h3 className="text-base font-semibold">Install</h3>
                 </div>
                 <div className="pl-10">
-                  <CodeBlock title="terminal">{`npm install dashclaw`}</CodeBlock>
+                  <DocsCodeTabs 
+                    nodeSnippet="npm install dashclaw"
+                    pythonSnippet="pip install dashclaw"
+                    nodeTitle="npm"
+                    pythonTitle="pip"
+                  />
                 </div>
               </div>
 
@@ -192,13 +198,23 @@ export default async function DocsPage({ searchParams }) {
                   <h3 className="text-base font-semibold">Initialize</h3>
                 </div>
                 <div className="pl-10">
-                  <CodeBlock title="agent.js">{`import { DashClaw } from 'dashclaw';
+                  <DocsCodeTabs 
+                    nodeSnippet={`import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: 'https://dashclaw.io',
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
-});`}</CodeBlock>
+});`}
+                    pythonSnippet={`from dashclaw import DashClaw
+import os
+
+claw = DashClaw(
+    base_url="https://dashclaw.io",
+    api_key=os.getenv("DASHCLAW_API_KEY"),
+    agent_id="my-agent"
+)`}
+                  />
                 </div>
               </div>
 
@@ -209,45 +225,69 @@ const claw = new DashClaw({
                   <h3 className="text-base font-semibold">Governance Loop</h3>
                 </div>
                 <div className="pl-10">
-                  <CodeBlock title="agent.js">{`// 1. Ask permission before a risky action
+                  <DocsCodeTabs 
+                    nodeSnippet={`// 1. Ask permission
 const result = await claw.guard({
   action_type: 'deploy',
   risk_score: 85,
-  declared_goal: 'Update authentication service to v2.1.1'
+  declared_goal: 'Update auth service to v2.1.1'
 });
 
 if (result.decision === 'block') {
-  throw new Error(\`Action blocked by policy: \${result.reasons.join(', ')}\`);
+  throw new Error(\`Blocked: \${result.reasons.join(', ')}\`);
 }
 
-// 2. Log intent once permitted
+// 2. Log intent
 const { action_id } = await claw.createAction({
   action_type: 'deploy',
-  declared_goal: 'Update authentication service to v2.1.1',
-  reasoning: 'Critical security patch for session management'
+  declared_goal: 'Update auth service to v2.1.1'
 });
 
 try {
-  // 3. Log evidence/assumptions during execution
+  // 3. Log evidence
   await claw.recordAssumption({
     action_id,
-    assumption: 'All unit tests and staging integration tests passed.'
+    assumption: 'Tests passed'
   });
 
-  // ... perform the actual deployment logic ...
+  // ... deploy ...
 
-  // 4. Record the final outcome
-  await claw.updateOutcome(action_id, {
-    status: 'completed',
-    output_summary: 'Service successfully updated to v2.1.1'
-  });
-
+  // 4. Record outcome
+  await claw.updateOutcome(action_id, { status: 'completed' });
 } catch (err) {
-  await claw.updateOutcome(action_id, {
-    status: 'failed',
-    error_message: err.message
-  });
-}`}</CodeBlock>
+  await claw.updateOutcome(action_id, { status: 'failed', error_message: err.message });
+}`}
+                    pythonSnippet={`# 1. Ask permission
+result = claw.guard({
+    "action_type": "deploy",
+    "risk_score": 85,
+    "declared_goal": "Update auth service to v2.1.1"
+})
+
+if result["decision"] == "block":
+    raise Exception(f"Blocked: {', '.join(result['reasons'])}")
+
+# 2. Log intent
+action = claw.create_action(
+    action_type="deploy",
+    declared_goal="Update auth service to v2.1.1"
+)
+action_id = action["action_id"]
+
+try:
+    # 3. Log evidence
+    claw.record_assumption({
+        "action_id": action_id,
+        "assumption": "Tests passed"
+    })
+
+    # ... deploy ...
+
+    # 4. Record outcome
+    claw.update_outcome(action_id, status="completed")
+except Exception as e:
+    claw.update_outcome(action_id, status="failed", error_message=str(e))`}
+                  />
                 </div>
               </div>
             </div>
@@ -256,12 +296,15 @@ try {
           {/* ── Constructor ── */}
           <section id="constructor" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
             <h2 className="text-2xl font-bold tracking-tight mb-2">Constructor</h2>
-            <CodeBlock>{`const claw = new DashClaw({ baseUrl, apiKey, agentId });`}</CodeBlock>
+            <DocsCodeTabs 
+              nodeSnippet="const claw = new DashClaw({ baseUrl, apiKey, agentId });"
+              pythonSnippet='claw = DashClaw(base_url="...", api_key="...", agent_id="...")'
+            />
             <div className="mt-6">
               <ParamTable params={[
-                { name: 'baseUrl', type: 'string', required: true, desc: 'Dashboard URL' },
-                { name: 'apiKey', type: 'string', required: true, desc: 'API Key' },
-                { name: 'agentId', type: 'string', required: true, desc: 'Unique Agent ID' },
+                { name: 'baseUrl / base_url', type: 'string', required: true, desc: 'Dashboard URL' },
+                { name: 'apiKey / api_key', type: 'string', required: true, desc: 'API Key' },
+                { name: 'agentId / agent_id', type: 'string', required: true, desc: 'Unique Agent ID' },
               ]} />
             </div>
           </section>
@@ -274,56 +317,22 @@ try {
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Behavior Guard</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">
-              Check org-level policies before executing risky actions. Returns allow, warn, block, or require_approval based on configured guard policies.
-            </p>
-
             <MethodEntry
               id="guard"
               signature="claw.guard(context)"
-              description="Evaluate guard policies for a proposed action. Call this before risky operations to get a go/no-go decision. The agent_id is auto-attached from the SDK constructor."
+              description="Evaluate guard policies for a proposed action. Call this before risky operations."
               params={[
-                { name: 'context.action_type', type: 'string', required: true, desc: 'The type of action being proposed' },
-                { name: 'context.risk_score', type: 'number', required: false, desc: 'Risk score 0-100' },
-                { name: 'context.systems_touched', type: 'string[]', required: false, desc: 'Systems this action will affect' },
-                { name: 'context.reversible', type: 'boolean', required: false, desc: 'Whether the action can be undone' },
-                { name: 'context.declared_goal', type: 'string', required: false, desc: 'What the action accomplishes' },
+                { name: 'action_type', type: 'string', required: true, desc: 'Proposed action type' },
+                { name: 'risk_score', type: 'number', required: false, desc: '0-100' },
               ]}
-              returns="Promise<{ decision: string, reasons: string[], warnings: string[], matched_policies: string[], evaluated_at: string }>"
-              example={`const result = await claw.guard({
-  action_type: 'deploy',
-  risk_score: 85,
-  systems_touched: ['production-api'],
-  reversible: false,
-  declared_goal: 'Deploy auth service v2',
-});
-
-if (result.decision === 'block') {
-  console.log('Blocked:', result.reasons);
-  return; // abort the action
-}
-
-// proceed with the action
-await claw.createAction({ action_type: 'deploy', ... });`}
+              returns="Promise<{ decision: string, reasons: string[] }>"
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="const result = await claw.guard({ action_type: 'deploy', risk_score: 85 });"
+                  pythonSnippet='result = claw.guard({"action_type": "deploy", "risk_score": 85})'
+                />
+              }
             />
-
-            <div className="mt-6 p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h4 className="text-sm font-semibold text-white mb-3">Policy Types</h4>
-              <div className="space-y-2">
-                {[
-                  { name: 'risk_threshold', desc: 'Block or warn when an action\'s risk score exceeds a configured threshold' },
-                  { name: 'require_approval', desc: 'Require human approval for specific action types (e.g., deploy, security)' },
-                  { name: 'block_action_type', desc: 'Unconditionally block specific action types from executing' },
-                  { name: 'rate_limit', desc: 'Warn or block when an agent exceeds a configured action frequency' },
-                  { name: 'webhook_check', desc: 'Call an external HTTPS endpoint for custom decision logic (can only escalate severity, never downgrade)' },
-                ].map((s) => (
-                  <div key={s.name} className="flex items-start gap-3">
-                    <code className="font-mono text-xs text-brand shrink-0 pt-0.5">{s.name}</code>
-                    <span className="text-xs text-zinc-400">{s.desc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </section>
 
           {/* ── Action Recording ── */}
@@ -334,77 +343,50 @@ await claw.createAction({ action_type: 'deploy', ... });`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Action Recording</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">Create, update, and query action records. Every agent action gets a full audit trail.</p>
-
             <MethodEntry
               id="createAction"
-              signature="claw.createAction(action)"
-              description="Create a new action record. The agent's agentId, agentName, and swarmId are automatically attached."
-              params={[
-                { name: 'action_type', type: 'string', required: true, desc: 'One of: build, deploy, post, apply, security, message, api, calendar, research, review, fix, refactor, test, config, monitor, alert, cleanup, sync, migrate, other' },
-                { name: 'declared_goal', type: 'string', required: true, desc: 'What this action aims to accomplish' },
-                { name: 'action_id', type: 'string', required: false, desc: 'Custom action ID (auto-generated act_ UUID if omitted)' },
-                { name: 'reasoning', type: 'string', required: false, desc: 'Why the agent decided to take this action' },
-                { name: 'systems_touched', type: 'string[]', required: false, desc: 'Systems this action interacts with' },
-                { name: 'reversible', type: 'boolean', required: false, desc: 'Whether this action can be undone (default: true)' },
-                { name: 'risk_score', type: 'number', required: false, desc: 'Risk score 0-100 (default: 0)' },
-                { name: 'confidence', type: 'number', required: false, desc: 'Confidence level 0-100 (default: 50)' },
-              ]}
-              returns="Promise<{ action: Object, action_id: string }>"
-              example={`const { action_id } = await claw.createAction({
-  action_type: 'deploy',
-  declared_goal: 'Deploy auth service to production',
-  risk_score: 70,
-  systems_touched: ['kubernetes', 'auth-service'],
-  reasoning: 'Scheduled release after QA approval',
-});`}
+              signature="claw.createAction(action) / claw.create_action(**kwargs)"
+              description="Create a new action record."
+              returns="Promise<{ action_id: string }>"
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="const { action_id } = await claw.createAction({ action_type: 'deploy' });"
+                  pythonSnippet='action = claw.create_action(action_type="deploy")'
+                />
+              }
             />
-
             <MethodEntry
               id="waitForApproval"
-              signature="claw.waitForApproval(actionId, options?)"
-              description="Poll for human approval when an action enters pending_approval status."
-              params={[
-                { name: 'actionId', type: 'string', required: true, desc: 'The pending action_id to poll' },
-                { name: 'options.timeout', type: 'number', required: false, desc: 'Maximum wait in ms (default: 300000)' },
-                { name: 'options.interval', type: 'number', required: false, desc: 'Polling interval in ms (default: 5000)' },
-              ]}
-              returns="Promise<{ action: Object, action_id: string }>"
-              example={`const approval = await claw.waitForApproval(action_id);`}
+              signature="claw.waitForApproval(id) / claw.wait_for_approval(id)"
+              description="Poll for human approval."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="await claw.waitForApproval(action_id);"
+                  pythonSnippet="claw.wait_for_approval(action_id)"
+                />
+              }
             />
-
             <MethodEntry
               id="updateOutcome"
-              signature="claw.updateOutcome(actionId, outcome)"
-              description="Update the outcome of an existing action."
-              params={[
-                { name: 'actionId', type: 'string', required: true, desc: 'The action_id to update' },
-                { name: 'status', type: 'string', required: false, desc: 'New status: completed, failed, cancelled' },
-                { name: 'output_summary', type: 'string', required: false, desc: 'What happened' },
-                { name: 'error_message', type: 'string', required: false, desc: 'Error details if failed' },
-                { name: 'duration_ms', type: 'number', required: false, desc: 'How long it took in milliseconds' },
-              ]}
-              returns="Promise<{ action: Object }>"
-              example={`await claw.updateOutcome(action_id, {
-  status: 'completed',
-  output_summary: 'Auth service deployed successfully',
-  duration_ms: 45000,
-});`}
+              signature="claw.updateOutcome(id, outcome) / claw.update_outcome(id, **kwargs)"
+              description="Log final results."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="await claw.updateOutcome(action_id, { status: 'completed' });"
+                  pythonSnippet='claw.update_outcome(action_id, status="completed")'
+                />
+              }
             />
-
             <MethodEntry
               id="recordAssumption"
-              signature="claw.recordAssumption(assumption)"
-              description="Register an assumption made during an action. Track what your agent believes to be true so you can validate or invalidate later."
-              params={[
-                { name: 'action_id', type: 'string', required: true, desc: 'Parent action ID' },
-                { name: 'assumption', type: 'string', required: true, desc: 'The assumption being made' },
-              ]}
-              returns="Promise<{ assumption: Object, assumption_id: string }>"
-              example={`const { assumption_id } = await claw.recordAssumption({
-  action_id: 'act_abc123',
-  assumption: 'Database schema is unchanged since last deploy',
-});`}
+              signature="claw.recordAssumption(asm) / claw.record_assumption(asm)"
+              description="Track agent beliefs."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="await claw.recordAssumption({ action_id, assumption: '...' });"
+                  pythonSnippet='claw.record_assumption({"action_id": action_id, "assumption": "..."})'
+                />
+              }
             />
           </section>
 
@@ -416,39 +398,18 @@ await claw.createAction({ action_type: 'deploy', ... });`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Signals</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">
-              Automatic detection of problematic agent behavior. Seven signal types fire based on action patterns.
-            </p>
-
             <MethodEntry
               id="getSignals"
-              signature="claw.getSignals()"
-              description="Get current risk signals across all agents. Returns 7 signal types: autonomy_spike, high_impact_low_oversight, repeated_failures, stale_loop, assumption_drift, stale_assumption, and stale_running_action."
-              params={[]}
-              returns="Promise<{ signals: Object[], counts: { red: number, amber: number, total: number } }>"
-              example={`const { signals, counts } = await claw.getSignals();
-console.log(\`\${counts.red} red signals detected\`);`}
+              signature="claw.getSignals() / claw.get_signals()"
+              description="Get current risk signals across all agents."
+              returns="Promise<{ signals: Object[] }>"
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet="const { signals } = await claw.getSignals();"
+                  pythonSnippet="signals = claw.get_signals()"
+                />
+              }
             />
-
-            <div className="mt-6 p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h4 className="text-sm font-semibold text-white mb-3">Signal Types</h4>
-              <div className="space-y-2">
-                {[
-                  { name: 'autonomy_spike', desc: 'Agent taking too many actions without human checkpoints' },
-                  { name: 'high_impact_low_oversight', desc: 'Critical actions without sufficient review' },
-                  { name: 'repeated_failures', desc: 'Same action type failing multiple times' },
-                  { name: 'stale_loop', desc: 'Open loops unresolved past their expected timeline' },
-                  { name: 'assumption_drift', desc: 'Assumptions becoming stale or contradicted by outcomes' },
-                  { name: 'stale_assumption', desc: 'Assumptions not validated within expected timeframe' },
-                  { name: 'stale_running_action', desc: 'Actions stuck in running state for over 4 hours' },
-                ].map((s) => (
-                  <div key={s.name} className="flex items-start gap-3">
-                    <code className="font-mono text-xs text-brand shrink-0 pt-0.5">{s.name}</code>
-                    <span className="text-xs text-zinc-400">{s.desc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </section>
 
           {/* ── Swarm Intelligence ── */}
@@ -459,17 +420,7 @@ console.log(\`\${counts.red} red signals detected\`);`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Swarm Intelligence</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">Visualize multi-agent communication and operational drift in real-time.</p>
-            <div className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
-              <h4 className="text-sm font-semibold text-white mb-3">Swarm Grouping</h4>
-              <p className="text-xs text-zinc-400 mb-3">
-                Use the <code className="font-mono text-brand">swarmId</code> constructor parameter to group related agents together in the neural web.
-              </p>
-              <CodeBlock>{`const claw = new DashClaw({
-  agentId: 'researcher-1',
-  swarmId: 'research-fleet-alpha',
-});`}</CodeBlock>
-            </div>
+            <p className="text-sm text-zinc-400">Map your entire fleet as a neural web, highlighting high-risk nodes and message flows.</p>
           </section>
 
           {/* ── Loops & Assumptions ── */}
@@ -480,42 +431,8 @@ console.log(\`\${counts.red} red signals detected\`);`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Loops & Assumptions</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">Track unresolved dependencies and log what your agents assume.</p>
-
-            <MethodEntry
-              id="registerOpenLoop"
-              signature="claw.registerOpenLoop(loop)"
-              description="Register an open loop (unresolved dependency, pending approval, etc.) for an action."
-              params={[
-                { name: 'action_id', type: 'string', required: true, desc: 'Parent action ID' },
-                { name: 'loop_type', type: 'string', required: true, desc: 'followup, question, dependency, approval, review, handoff, other' },
-                { name: 'description', type: 'string', required: true, desc: 'What needs to be resolved' },
-              ]}
-              returns="Promise<{ loop_id: string }>"
-              example={`// Example: Blocking deployment until manual human review is complete
-await claw.registerOpenLoop({
-  action_id: 'act_deploy_99',
-  loop_type: 'approval',
-  description: 'Manager approval required for production database schema migration'
-});`}
-            />
-
-            <MethodEntry
-              id="resolveOpenLoop"
-              signature="claw.resolveOpenLoop(loopId, status, resolution?)"
-              description="Resolve or cancel an open loop."
-              params={[
-                { name: 'loopId', type: 'string', required: true, desc: 'Loop ID' },
-                { name: 'status', type: 'string', required: true, desc: '"resolved" or "cancelled"' },
-                { name: 'resolution', type: 'string', required: false, desc: 'Resolution description' },
-              ]}
-              example={`// Example: Closing the loop once approval is received
-await claw.resolveOpenLoop(
-  'loop_123', 
-  'resolved', 
-  'Approved by @eng-manager via Slack #deploy-approvals'
-);`}
-            />
+            <MethodEntry id="registerOpenLoop" signature="claw.registerOpenLoop() / claw.register_open_loop()" description="Register unresolved dependencies." />
+            <MethodEntry id="resolveOpenLoop" signature="claw.resolveOpenLoop() / claw.resolve_open_loop()" description="Resolve pending items." />
           </section>
 
           {/* ── Learning Analytics ── */}
@@ -526,13 +443,7 @@ await claw.resolveOpenLoop(
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Learning Analytics</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-4">Track agent improvement velocity and maturity levels.</p>
-            <MethodEntry
-              id="getLearningVelocity"
-              signature="claw.getLearningVelocity({ agent_id })"
-              description="Get agent improvement rate over time."
-              returns="Promise<Object>"
-            />
+            <MethodEntry id="getLearningVelocity" signature="claw.getLearningVelocity() / claw.get_learning_velocity()" description="Track agent improvement rate." />
           </section>
 
           {/* ── Prompt Management ── */}
@@ -543,44 +454,23 @@ await claw.resolveOpenLoop(
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Prompt Management</h2>
             </div>
-            <MethodEntry
-              id="createPromptTemplate"
-              signature="claw.createPromptTemplate({ name, content })"
-              description="Create a new version-controlled prompt template."
-              params={[
-                { name: 'name', type: 'string', required: true, desc: 'Template name' },
-                { name: 'content', type: 'string', required: true, desc: 'Mustache template string' },
-              ]}
-              returns="Promise<Object>"
-              example={`// Example: Managing a support agent prompt
-await claw.createPromptTemplate({
-  name: 'customer-support-v1',
-  content: 'You are a helpful assistant for {{company}}. The user name is {{user_name}}.'
+            <MethodEntry 
+              id="renderPrompt" 
+              signature="claw.renderPrompt() / claw.render_prompt()" 
+              description="Fetch rendered prompt from DashClaw."
+              example={
+                <DocsCodeTabs 
+                  nodeSnippet={`const { rendered } = await claw.renderPrompt({
+  template_id: 'marketing',
+  variables: { company: 'Apple' }
 });`}
-            />
-            <MethodEntry
-              id="renderPrompt"
-              signature="claw.renderPrompt({ template_id, variables })"
-              description="Fetch a rendered prompt from the DashClaw server. This allows you to manage prompt strings, personas, and system instructions in the dashboard rather than hardcoding them in your agent's source code. Supports versioning and instant rollbacks."
-              params={[
-                { name: 'template_id', type: 'string', required: true, desc: 'The ID or slug of the template stored in DashClaw' },
-                { name: 'variables', type: 'object', required: true, desc: 'Key-value pairs to inject into the template {{tags}}' },
-              ]}
-              returns="Promise<{ rendered: string, version_id: string }>"
-              example={`// 1. You store a template in DashClaw called "marketing-persona"
-// Content: "You are a marketing expert for {{company}}. Generate a tweet about {{product}}."
-
-// 2. Your agent calls it dynamically:
-const { rendered } = await claw.renderPrompt({
-  template_id: 'marketing-persona',
-  variables: { 
-    company: 'Apple', 
-    product: 'iPhone 16 Pro' 
-  }
-});
-
-// rendered = "You are a marketing expert for Apple. Generate a tweet about iPhone 16 Pro."
-const response = await llm.generate(rendered);`}
+                  pythonSnippet={`res = claw.render_prompt(
+    template_id="marketing",
+    variables={"company": "Apple"}
+)
+rendered = res["rendered"]`}
+                />
+              }
             />
           </section>
 
@@ -592,22 +482,7 @@ const response = await llm.generate(rendered);`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Evaluation Framework</h2>
             </div>
-            <MethodEntry
-              id="createScorer"
-              signature="claw.createScorer({ name, scorerType, config })"
-              description="Create a new evaluation scorer."
-              params={[
-                { name: 'name', type: 'string', required: true, desc: 'Scorer name' },
-                { name: 'scorerType', type: 'string', required: true, desc: 'regex, keywords, numeric_range, llm_judge' },
-              ]}
-              example={`// Example: Creating a JSON validity scorer
-await claw.createScorer({
-  name: 'Valid JSON',
-  scorerType: 'regex',
-  config: { pattern: '^\\\\{.*\\\\}$' }
-});`}
-            />
-            <MethodEntry id="listScorers" signature="claw.getScorers()" description="List all available scorers." />
+            <MethodEntry id="createScorer" signature="claw.createScorer() / claw.create_scorer()" description="Create a new scorer." />
           </section>
 
           {/* ── Scoring Profiles ── */}
@@ -618,23 +493,7 @@ await claw.createScorer({
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Scoring Profiles</h2>
             </div>
-            <MethodEntry
-              id="createScoringProfile"
-              signature="claw.createScoringProfile({ name, dimensions })"
-              description="Define weighted quality scoring rules."
-              params={[
-                { name: 'name', type: 'string', required: true, desc: 'Profile name' },
-                { name: 'dimensions', type: 'array', required: true, desc: 'Weighted scoring dimensions' },
-              ]}
-              example={`// Example: Weighted profile for code reviews
-await claw.createScoringProfile({
-  name: 'Code Review Quality',
-  dimensions: [
-    { name: 'Security', weight: 0.6, scorer_id: 'sc_sec_99' },
-    { name: 'Style', weight: 0.4, scorer_id: 'sc_lint_11' }
-  ]
-});`}
-            />
+            <MethodEntry id="createScoringProfile" signature="claw.createScoringProfile() / claw.create_scoring_profile()" description="Define weighted quality scores." />
           </section>
 
           {/* ── Compliance Engine ── */}
@@ -645,15 +504,7 @@ await claw.createScoringProfile({
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Compliance Engine</h2>
             </div>
-            <MethodEntry
-              id="mapCompliance"
-              signature="claw.mapCompliance(framework)"
-              description="Map active policies to compliance controls."
-              params={[{ name: 'framework', type: 'string', required: true, desc: 'nist-ai-rmf, eu-ai-act, etc.' }]}
-              example={`// Example: Mapping policies to NIST AI RMF
-const { map } = await claw.mapCompliance('nist-ai-rmf');
-console.log(\`Coverage: \${map.coverage_percentage}%\`);`}
-            />
+            <MethodEntry id="mapCompliance" signature="claw.mapCompliance() / claw.map_compliance()" description="Map policies to frameworks." />
           </section>
 
           {/* ── Activity Logs ── */}
@@ -664,17 +515,7 @@ console.log(\`Coverage: \${map.coverage_percentage}%\`);`}
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Activity Logs</h2>
             </div>
-            <MethodEntry
-              id="getActivityLogs"
-              signature="claw.getActivityLogs(filters?)"
-              description="Query the organization activity audit log."
-              params={[{ name: 'limit', type: 'number', required: false, desc: 'Max results' }]}
-              example={`// Example: Auditing recent admin changes
-const { logs } = await claw.getActivityLogs({ 
-  limit: 10, 
-  resource_type: 'policy' 
-});`}
-            />
+            <MethodEntry id="getActivityLogs" signature="claw.getActivityLogs() / claw.get_activity_logs()" description="Query audit logs." />
           </section>
 
           {/* ── Webhooks ── */}
@@ -685,20 +526,7 @@ const { logs } = await claw.getActivityLogs({
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Webhooks</h2>
             </div>
-            <MethodEntry
-              id="createWebhook"
-              signature="claw.createWebhook({ url, events })"
-              description="Register a new webhook endpoint."
-              params={[
-                { name: 'url', type: 'string', required: true },
-                { name: 'events', type: 'string[]', required: false },
-              ]}
-              example={`// Example: Notifying Slack on blocked actions
-await claw.createWebhook({
-  url: 'https://hooks.slack.com/services/...',
-  events: ['guard.block', 'action.failed']
-});`}
-            />
+            <MethodEntry id="createWebhook" signature="claw.createWebhook() / claw.create_webhook()" description="Register webhook." />
           </section>
 
           {/* ── Error Handling ── */}
