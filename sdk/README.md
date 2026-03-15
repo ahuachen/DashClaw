@@ -1,4 +1,4 @@
-# DashClaw SDK (v2.1.1)
+# DashClaw SDK (v2.1.2)
 
 **Minimal governance runtime for AI agents.**
 
@@ -69,9 +69,9 @@ claw.update_outcome(action_id, status="completed")
 
 ---
 
-## SDK Surface Area (v2.1.1)
+## SDK Surface Area (v2.1.2)
 
-The v2.1.1 SDK is optimized for stability and zero-overhead governance:
+The v2.1.2 SDK is optimized for stability and zero-overhead governance:
 
 ### Core Runtime
 - `guard(context)` — Policy evaluation ("Can I do X?")
