@@ -489,24 +489,24 @@ export default function MissionControlPage() {
                     {decisionMetrics.change_percent >= 0 ? '+' : ''}{decisionMetrics.change_percent}%
                   </div>
                 </div>
-                <div className="mb-4 text-[10px] text-zinc-500">vs yesterday</div>
+                <div className="mb-4 text-xs text-zinc-500">vs yesterday</div>
                 
-                <div className="grid grid-cols-2 gap-y-2">
+                <div className="grid grid-cols-2 gap-y-3">
                   <div className="flex items-center justify-between pr-4">
-                    <span className="text-[10px] text-zinc-500">Completed</span>
-                    <span className="text-[10px] font-medium text-emerald-400">{decisionMetrics.completed}</span>
+                    <span className="text-xs text-zinc-500">Completed</span>
+                    <span className="text-xs font-semibold text-emerald-400">{decisionMetrics.completed}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-zinc-500">Failed</span>
-                    <span className="text-[10px] font-medium text-red-400">{decisionMetrics.failed}</span>
+                    <span className="text-xs text-zinc-500">Failed</span>
+                    <span className="text-xs font-semibold text-red-400">{decisionMetrics.failed}</span>
                   </div>
-                  <div className="flex items-center justify-between pr-4 border-t border-white/[0.03] pt-2">
-                    <span className="text-[10px] text-zinc-500">Cancelled</span>
-                    <span className="text-[10px] font-medium text-amber-400">{decisionMetrics.cancelled}</span>
+                  <div className="flex items-center justify-between pr-4 border-t border-white/[0.03] pt-3">
+                    <span className="text-xs text-zinc-500">Cancelled</span>
+                    <span className="text-xs font-semibold text-amber-400">{decisionMetrics.cancelled}</span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-white/[0.03] pt-2">
-                    <span className="text-[10px] text-zinc-500">Approval</span>
-                    <span className="text-[10px] font-medium text-brand">{decisionMetrics.approval}</span>
+                  <div className="flex items-center justify-between border-t border-white/[0.03] pt-3">
+                    <span className="text-xs text-zinc-500">Approval</span>
+                    <span className="text-xs font-semibold text-brand">{decisionMetrics.approval}</span>
                   </div>
                 </div>
               </>
