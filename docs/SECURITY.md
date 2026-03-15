@@ -156,6 +156,12 @@ Please do not open a public issue for security vulnerabilities. Email `practical
 
 ## Recent Hardening (2026-03)
 
+- **HITL Approval Flow Hardening**:
+  - **Explicit Metadata tracking**: Added `approved_by` and `approved_at` columns to the `action_records` table to provide a machine-readable source of truth for human decisions, moving away from relying solely on status transitions.
+  - **SDK Verification**: Refactored `waitForApproval` in the DashClaw SDK (`sdk/dashclaw.js`) to strictly require `approved_by` metadata before resolving. The SDK now throws an error if an action leaves the `pending_approval` state without explicit approval metadata, preventing "auto-approval" bugs.
+  - **Visual Distinction**: Renamed the status for unresolved assumptions to `unresolved_assumption` (labeled "Awaiting Validation") in the Mission Control UI to prevent visual conflation with pending approvals.
+  - **Redaction**: Integrated DLP redaction into the approval reasoning flow to ensure human operators do not accidentally persist secrets when documenting approval decisions.
+
 - Fixed SSRF vulnerability in `app/lib/webhooks.js` by ensuring IPv4-mapped IPv6 addresses (e.g. `::ffff:127.0.0.1`) are properly detected and blocked by the `isPrivateIp` check.
 - Fixed False Encryption vulnerability in `app/api/settings/route.js` by explicitly preventing frontend mask placeholders (`••••••••`) from overriding real secrets.
 - Added cryptographic context binding (AAD) to the AES-256-GCM encryption in `app/lib/encryption.js` and `app/api/settings/route.js` to prevent database-level ciphertext swapping across different settings.

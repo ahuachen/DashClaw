@@ -82,9 +82,9 @@ function getCategoryBorder(event) {
 }
 
 function getStatusVariant(status) {
-  if (['completed', 'resolved', 'allow', 'success'].includes(status)) return 'success';
-  if (['failed', 'block', 'failure'].includes(status)) return 'error';
-  if (['running', 'pending', 'pending_approval', 'warn', 'open', 'require_approval'].includes(status)) return 'warning';
+  if (['completed', 'resolved', 'allow', 'success', 'validated'].includes(status)) return 'success';
+  if (['failed', 'block', 'failure', 'invalidated'].includes(status)) return 'error';
+  if (['running', 'pending', 'pending_approval', 'unresolved_assumption', 'warn', 'open', 'require_approval'].includes(status)) return 'warning';
   return 'default';
 }
 

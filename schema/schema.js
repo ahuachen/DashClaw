@@ -86,6 +86,8 @@ export const actionRecords = pgTable('action_records', {
   tokensOut: integer('tokens_out').default(0),
   signature: text('signature'),
   verified: boolean('verified').default(false),
+  approvedBy: text('approved_by'),
+  approvedAt: timestamp('approved_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

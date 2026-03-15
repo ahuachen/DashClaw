@@ -28,11 +28,11 @@ const typeIconMap = {
 };
 
 const statusIconMap = {
-  completed: CheckCircle2, failed: XCircle, pending: Clock, running: Loader2, cancelled: Ban,
+  completed: CheckCircle2, failed: XCircle, pending: Clock, running: Loader2, cancelled: Ban, blocked: Ban,
 };
 
 const statusVariantMap = {
-  completed: 'success', failed: 'error', running: 'warning', cancelled: 'default', pending: 'info',
+  completed: 'success', failed: 'error', running: 'warning', cancelled: 'default', pending: 'info', blocked: 'error',
 };
 
 export default function DecisionsLedger() {
@@ -265,7 +265,7 @@ export default function DecisionsLedger() {
             </select>
             <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }} className={selectClass}>
               <option value="">All Statuses</option>
-              {['running','completed','failed','cancelled','pending'].map(s => <option key={s} value={s}>{s}</option>)}
+              {['running','completed','failed','cancelled','pending','blocked'].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
             <select value={filterRiskMin} onChange={(e) => { setFilterRiskMin(e.target.value); setPage(0); }} className={selectClass}>
               <option value="">Any Risk</option>
@@ -379,7 +379,7 @@ export default function DecisionsLedger() {
                               {getStatusIcon(action.status)}
                               <span className={`text-xs font-bold uppercase tracking-wide ${
                                 action.status === 'completed' ? 'text-emerald-400' :
-                                action.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                                action.status === 'failed' || action.status === 'blocked' ? 'text-red-400' : 'text-zinc-400'
                               }`}>
                                 {action.status}
                               </span>

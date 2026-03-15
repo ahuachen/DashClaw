@@ -5,6 +5,7 @@ const STATUS_LABELS = {
   'in-progress': 'Running',
   pending: 'Pending',
   pending_approval: 'Awaiting approval',
+  unresolved_assumption: 'Awaiting Validation',
   resolved: 'Resolved',
   cancelled: 'Cancelled',
   allow: 'Allowed',
@@ -172,7 +173,7 @@ export function buildAssumptionEvent(assumption) {
   const driftScore = asNumber(assumption.drift_score, null);
   const unresolved = !invalidated && !validated;
   const lowSignal = validated && !invalidated;
-  const status = invalidated ? 'invalidated' : validated ? 'validated' : 'pending';
+  const status = invalidated ? 'invalidated' : validated ? 'validated' : 'unresolved_assumption';
   const emphasis =
     invalidated ? 94 :
     driftScore >= 70 ? 86 :

@@ -23,6 +23,8 @@ export async function recordApproval(sql, orgId, actionId, data) {
     UPDATE action_records
     SET status = ${newStatus},
         error_message = ${errorMessage},
+        approved_by = ${decision.toUpperCase() === 'ALLOW' ? userId : null},
+        approved_at = ${decision.toUpperCase() === 'ALLOW' ? sql`CURRENT_TIMESTAMP` : null},
         reasoning = COALESCE(reasoning, '') || '
 
 [HITL Decision: ' || ${decision.toUpperCase()} || ' by ' || ${userId} || ']' || 
@@ -71,7 +73,7 @@ export async function listActions(sql, orgId, filters = {}) {
     }
 
     const where = `WHERE ${conditions.join(' AND ')}`;
-    const listCols = 'action_id, agent_id, agent_name, swarm_id, action_type, declared_goal, reasoning, authorization_scope, systems_touched, status, reversible, risk_score, confidence, output_summary, error_message, side_effects, artifacts_created, duration_ms, cost_estimate, timestamp_start, timestamp_end, created_at, verified';
+    const listCols = 'action_id, agent_id, agent_name, swarm_id, action_type, declared_goal, reasoning, authorization_scope, systems_touched, status, reversible, risk_score, confidence, output_summary, error_message, side_effects, artifacts_created, duration_ms, cost_estimate, timestamp_start, timestamp_end, created_at, verified, approved_by, approved_at';
     const query = `SELECT ${listCols} FROM action_records ${where} ORDER BY timestamp_start DESC LIMIT $${params.push(parsedLimit)} OFFSET $${params.push(parsedOffset)}`;
     const countQuery = `SELECT COUNT(*) as total FROM action_records ${where}`;
     const statsQuery = `
@@ -80,6 +82,7 @@ export async function listActions(sql, orgId, filters = {}) {
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) FILTER (WHERE status = 'failed') as failed,
         COUNT(*) FILTER (WHERE status = 'running') as running,
+        COUNT(*) FILTER (WHERE status = 'blocked') as blocked,
         COUNT(*) FILTER (WHERE risk_score >= 70) as high_risk,
         COALESCE(AVG(risk_score), 0) as avg_risk,
         COALESCE(SUM(cost_estimate), 0) as total_cost
@@ -102,7 +105,7 @@ export async function listActions(sql, orgId, filters = {}) {
   const [actions, countResult, stats] = await Promise.all([
     sql`
       SELECT
-        action_id, agent_id, agent_name, swarm_id, action_type, declared_goal, reasoning, authorization_scope, systems_touched, status, reversible, risk_score, confidence, output_summary, error_message, side_effects, artifacts_created, duration_ms, cost_estimate, timestamp_start, timestamp_end, created_at, verified
+        action_id, agent_id, agent_name, swarm_id, action_type, declared_goal, reasoning, authorization_scope, systems_touched, status, reversible, risk_score, confidence, output_summary, error_message, side_effects, artifacts_created, duration_ms, cost_estimate, timestamp_start, timestamp_end, created_at, verified, approved_by, approved_at
       FROM action_records
       WHERE org_id = ${orgId}
         ${agent_id ? sql`AND agent_id = ${agent_id}` : sql``}
@@ -130,6 +133,7 @@ export async function listActions(sql, orgId, filters = {}) {
         COUNT(*) FILTER (WHERE status = 'completed') as completed,
         COUNT(*) FILTER (WHERE status = 'failed') as failed,
         COUNT(*) FILTER (WHERE status = 'running') as running,
+        COUNT(*) FILTER (WHERE status = 'blocked') as blocked,
         COUNT(*) FILTER (WHERE risk_score >= 70) as high_risk,
         COALESCE(AVG(risk_score), 0) as avg_risk,
         COALESCE(SUM(cost_estimate), 0) as total_cost
@@ -209,6 +213,79 @@ export async function createActionRecord(sql, payload) {
       ${data.timestamp_end || null},
       ${data.duration_ms || null},
       ${costEstimate},
+      ${data.tokens_in || 0},
+      ${data.tokens_out || 0},
+      ${signature},
+      ${verified}
+    )
+    RETURNING *
+  `;
+
+  return rows[0] || null;
+}
+
+/**
+ * Create a blocked action record for governance visibility.
+ * Blocked actions are persisted to ensure they appear in the Decisions Ledger
+ * and contribute to agent discovery, even though the action was not executed.
+ */
+export async function createBlockedActionRecord(sql, payload) {
+  const {
+    orgId,
+    action_id,
+    data,
+    guardDecision,
+    signature,
+    verified,
+    timestamp_start,
+  } = payload;
+
+  // Build error message from guard decision
+  const blockedReason = guardDecision?.reason 
+    || guardDecision?.reasons?.join('; ') 
+    || 'Action blocked by policy';
+  const matchedPolicies = guardDecision?.matched_policies || [];
+
+  const rows = await sql`
+    INSERT INTO action_records (
+      org_id, action_id, agent_id, agent_name, swarm_id, parent_action_id,
+      action_type, declared_goal, reasoning, authorization_scope,
+      trigger, systems_touched, input_summary,
+      status, reversible, risk_score, confidence,
+      recommendation_id, recommendation_applied, recommendation_override_reason,
+      output_summary, side_effects, artifacts_created, error_message,
+      timestamp_start, timestamp_end, duration_ms, cost_estimate,
+      tokens_in, tokens_out,
+      signature, verified
+    ) VALUES (
+      ${orgId},
+      ${action_id},
+      ${data.agent_id},
+      ${data.agent_name || null},
+      ${data.swarm_id || null},
+      ${data.parent_action_id || null},
+      ${data.action_type},
+      ${data.declared_goal},
+      ${data.reasoning || null},
+      ${data.authorization_scope || null},
+      ${data.trigger || null},
+      ${JSON.stringify(data.systems_touched || [])},
+      ${data.input_summary || null},
+      ${'blocked'},
+      ${data.reversible !== undefined ? (data.reversible ? 1 : 0) : 1},
+      ${data.risk_score || 0},
+      ${data.confidence || 50},
+      ${data.recommendation_id || null},
+      ${data.recommendation_applied ? 1 : 0},
+      ${data.recommendation_override_reason || null},
+      ${null},
+      ${'[]'},
+      ${'[]'},
+      ${'Blocked by policy: ' + blockedReason + (matchedPolicies.length > 0 ? ' [Policies: ' + matchedPolicies.join(', ') + ']' : '')},
+      ${timestamp_start},
+      ${timestamp_start},
+      ${0},
+      ${0},
       ${data.tokens_in || 0},
       ${data.tokens_out || 0},
       ${signature},
@@ -363,6 +440,7 @@ export async function getActionStats(sql, orgId) {
         COUNT(*)::int as total,
         COUNT(*) FILTER (WHERE status='completed')::int as completed,
         COUNT(*) FILTER (WHERE status='failed')::int as failed,
+        COUNT(*) FILTER (WHERE status='blocked')::int as blocked,
         COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
         COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
       FROM action_records
@@ -380,7 +458,7 @@ export async function getActionStats(sql, orgId) {
     ]);
 
     return {
-      current: currentResults[0] || { total: 0, completed: 0, failed: 0, cancelled: 0, approval: 0 },
+      current: currentResults[0] || { total: 0, completed: 0, failed: 0, blocked: 0, cancelled: 0, approval: 0 },
       previousTotal: previousResults[0]?.total || 0
     };
   }
@@ -391,6 +469,7 @@ export async function getActionStats(sql, orgId) {
         COUNT(*)::int as total,
         COUNT(*) FILTER (WHERE status='completed')::int as completed,
         COUNT(*) FILTER (WHERE status='failed')::int as failed,
+        COUNT(*) FILTER (WHERE status='blocked')::int as blocked,
         COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
         COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
       FROM action_records
@@ -407,7 +486,7 @@ export async function getActionStats(sql, orgId) {
   ]);
 
   return {
-    current: currentResults[0] || { total: 0, completed: 0, failed: 0, cancelled: 0, approval: 0 },
+    current: currentResults[0] || { total: 0, completed: 0, failed: 0, blocked: 0, cancelled: 0, approval: 0 },
     previousTotal: previousResults[0]?.total || 0
   };
 }

@@ -14,6 +14,7 @@ import { evaluateGuard } from '../../lib/guard.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import {
   createActionRecord,
+  createBlockedActionRecord,
   hasAgentAction,
   insertActionEmbedding,
   listActions,
@@ -180,8 +181,27 @@ export async function POST(request) {
     }, sql);
 
     if (guardDecision.decision === 'block') {
+      // Create a blocked action record for ledger visibility
+      // This ensures blocked decisions appear in Decisions Ledger and contribute to agent discovery
+      const blockedAction = await createBlockedActionRecord(sql, {
+        orgId,
+        action_id,
+        data,
+        guardDecision,
+        signature,
+        verified,
+        timestamp_start,
+      });
+
+      // Emit real-time event so Mission Control feed shows the blocked decision
+      void publishOrgEvent(EVENTS.ACTION_CREATED, {
+        orgId,
+        action: blockedAction,
+      });
+
       return NextResponse.json({ 
         error: 'Action blocked by policy', 
+        action: blockedAction,
         decision: guardDecision 
       }, { status: 403 });
     }

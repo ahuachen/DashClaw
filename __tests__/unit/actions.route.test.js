@@ -6,6 +6,7 @@ const {
   mockValidateActionRecord,
   mockListActions,
   mockCreateActionRecord,
+  mockCreateBlockedActionRecord,
   mockHasAgentAction,
   mockInsertActionEmbedding,
   mockEvaluateGuard,
@@ -23,6 +24,7 @@ const {
   mockValidateActionRecord: vi.fn(),
   mockListActions: vi.fn(),
   mockCreateActionRecord: vi.fn(),
+  mockCreateBlockedActionRecord: vi.fn(),
   mockHasAgentAction: vi.fn(),
   mockInsertActionEmbedding: vi.fn(),
   mockEvaluateGuard: vi.fn(),
@@ -42,6 +44,7 @@ vi.mock('@/lib/validate.js', () => ({ validateActionRecord: mockValidateActionRe
 vi.mock('@/lib/repositories/actions.repository.js', () => ({
   listActions: mockListActions,
   createActionRecord: mockCreateActionRecord,
+  createBlockedActionRecord: mockCreateBlockedActionRecord,
   hasAgentAction: mockHasAgentAction,
   insertActionEmbedding: mockInsertActionEmbedding,
 }));
@@ -199,13 +202,14 @@ describe('/api/actions POST', () => {
     expect(data.code).toBe('QUOTA_EXCEEDED');
   });
 
-  it('returns 403 when guard blocks the action', async () => {
+  it('returns 403 when guard blocks the action and creates blocked action record', async () => {
     mockEvaluateGuard.mockResolvedValue({
       decision: 'block',
       reasons: ['Policy violation'],
       warnings: [],
       matched_policies: ['gp_1'],
     });
+    mockCreateBlockedActionRecord.mockResolvedValue({ ...validBody, action_id: 'act_blocked', status: 'blocked' });
 
     const res = await POST(makeRequest('http://localhost/api/actions', {
       headers: { 'x-org-id': 'org_1' },
@@ -215,6 +219,9 @@ describe('/api/actions POST', () => {
     expect(res.status).toBe(403);
     const data = await res.json();
     expect(data.decision.decision).toBe('block');
+    expect(data.action).toBeDefined();
+    expect(data.action.status).toBe('blocked');
+    expect(mockCreateBlockedActionRecord).toHaveBeenCalled();
   });
 
   it('returns 202 when guard requires approval', async () => {

@@ -115,10 +115,21 @@ class DashClaw {
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
       const { action } = await this._request(`/api/actions/${actionId}`, 'GET');
-      if (action.status === 'running' || action.status === 'completed') return action;
+      
+      // Explicitly unblocked by approval metadata
+      if (action.approved_by) return action;
+
+      // Denial cases
       if (action.status === 'failed' || action.status === 'cancelled') {
         throw new ApprovalDeniedError(action.error_message || 'Operator denied the action.', action.status);
       }
+
+      // Requirement 4: If an action leaves pending_approval without approval metadata, throw an error.
+      // This prevents "auto-approval" bugs where status is changed by non-approval paths.
+      if (action.status !== 'pending_approval') {
+        throw new Error(`Action ${actionId} left pending_approval state without explicit approval metadata (Status: ${action.status})`);
+      }
+
       await new Promise(r => setTimeout(r, interval));
     }
     throw new Error(`Timed out waiting for approval of action ${actionId}`);
