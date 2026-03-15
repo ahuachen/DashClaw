@@ -77,13 +77,25 @@ export function demoCreateAction(fixtures, body) {
     ...body,
     action_id,
     org_id: 'org_demo',
+    agent_name: body.agent_name || body.agent_id || 'refund-support-agent',
     timestamp_start: body.timestamp_start || new Date().toISOString(),
     status: (isSimulator || isDemoAgent) ? 'failed' : (body.status || 'completed'),
     risk_score: isSimulator ? 92 : (body.risk_score || 0),
     confidence: isSimulator ? 88 : (body.confidence || 100),
-    declared_goal: isSimulator ? 'CHARGE: Stripe Customer sub_12345 -- $12,000.00' : (body.declared_goal || 'Routine Task'),
+    declared_goal: isSimulator ? 'CHARGE: Stripe Customer sub_12345 -- $12,000.00' : (body.declared_goal || 'Send refund confirmation email'),
     verified: true,
   };
+
+  // Persist it in the demo fixtures so the replay page can read it back
+  if (fixtures.actions) {
+    // Check if it already exists to avoid duplicates
+    const exists = fixtures.actions.findIndex(a => a.action_id === action_id);
+    if (exists !== -1) {
+      fixtures.actions[exists] = { ...fixtures.actions[exists], ...action };
+    } else {
+      fixtures.actions.unshift(action);
+    }
+  }
 
   return { 
     action, 
@@ -144,11 +156,18 @@ export function demoAgents(fixtures) {
 export function demoAgentDetail(fixtures, agentId) {
   const list = demoAgents(fixtures).agents;
   const agent = list.find(a => a.agent_id === agentId);
-  if (!agent) return null;
+  
+  // If not found in the list, but they just created an action, provide a fallback profile
+  const baseAgent = agent || {
+    agent_id: agentId,
+    agent_name: agentId === 'refund-support-agent' ? 'Refund Support Agent' : agentId,
+    action_count: 1,
+    last_active: new Date().toISOString()
+  };
 
   return {
     agent: {
-      ...agent,
+      ...baseAgent,
       governed: true,
       verified: true,
       connections: [
@@ -174,6 +193,28 @@ export function demoActionDetail(fixtures, actionId) {
       decision: demoTestEval.decision,
       decision_reason: demoTestEval.reason
     };
+  }
+
+  // Check if we dynamically created this action in the current demo session
+  const dynamicAction = fixtures.actions.find(a => a.action_id === actionId);
+  if (dynamicAction) {
+    const open_loops = fixtures.loops
+      .filter(l => l.action_id === actionId)
+      .map(({ agent_id, agent_name, declared_goal, action_type, ...rest }) => rest);
+    const assumptions = fixtures.assumptions.filter(a => a.action_id === actionId);
+    
+    // Attempt to match an evaluation (guard check) for this action
+    let decision = 'allow';
+    let decision_reason = 'Action permitted under default demo policy.';
+    if (fixtures.guardDecisions) {
+      const evalMatch = fixtures.guardDecisions.find(g => g.action_id === actionId);
+      if (evalMatch) {
+         decision = evalMatch.decision;
+         decision_reason = evalMatch.reason;
+      }
+    }
+
+    return { action: dynamicAction, open_loops, assumptions, decision, decision_reason };
   }
 
   if (actionId.startsWith('act_sim_')) {

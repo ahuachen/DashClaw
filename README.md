@@ -59,6 +59,38 @@ No repo clone. No environment variables. No configuration. Just one command.
 
 ---
 
+## 🏗️ First Real Agent (5-Minute Integration)
+
+Ready to connect your own agent? Use the **OpenAI Governed Agent Starter** to see DashClaw in a real customer communication workflow.
+
+```bash
+# 1. Enter the starter directory
+cd examples/openai-governed-agent
+
+# 2. Install and run
+npm install
+cp .env.example .env
+# Add your DASHCLAW_API_KEY to .env
+node index.js
+```
+
+What it proves:
+- **Governance Before Execution**: `claw.guard()` checks policies *before* the action.
+- **Permissioned Autonomy**: Pausing for human approval (HITL) on high-risk actions.
+- **Verifiable Evidence**: Intent, assumptions, and outcomes recorded in your dashboard.
+
+[View the Starter Source](./examples/openai-governed-agent)
+
+---
+
+## Works With
+
+DashClaw works with any agent framework.
+
+**LangChain • CrewAI • OpenClaw • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
+
+---
+
 ## Quickstart
 
 ### 1. Install the SDK
@@ -170,3 +202,10 @@ For the complete API surface, check out the [SDK Reference](./docs/sdk-reference
 ## License
 
 [MIT](LICENSE)
+
+<div align="center">
+  <br />
+  <img src="public/images/github-social-preview-ps.png" alt="Practical Systems" width="600" />
+  <br />
+  <sub>Built by <a href="https://practicalsystems.io">Practical Systems</a></sub>
+</div>

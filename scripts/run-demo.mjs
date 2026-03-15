@@ -72,7 +72,7 @@ async function main() {
   }
 
   // Ensure example dependencies are installed (specifically the linked SDK)
-  const exampleDir = join(ROOT, 'examples', 'dashclaw-example-openai-agent');
+  const exampleDir = join(ROOT, 'examples', 'openai-governed-agent');
   console.log('[3/4] Ensuring example agent environment is ready...');
   await new Promise((resolve) => {
     const install = spawn('npm', ['install'], { cwd: exampleDir, stdio: 'ignore', shell: true });
@@ -82,10 +82,10 @@ async function main() {
   console.log('[4/4] Running governed agent action...');
   console.log('');
 
-  const agentScript = join(ROOT, 'examples', 'dashclaw-example-openai-agent', 'index.js');
+  const agentScript = join(ROOT, 'examples', 'openai-governed-agent', 'index.js');
   const agent = spawn('node', [agentScript], {
     cwd: ROOT,
-    stdio: 'inherit',
+    stdio: ['inherit', 'pipe', 'pipe'],
     shell: true,
     env: {
       ...process.env,
@@ -94,19 +94,36 @@ async function main() {
     }
   });
 
+  let agentOutput = '';
+
+  agent.stdout.on('data', (data) => {
+    const text = data.toString();
+    agentOutput += text;
+    process.stdout.write(text);
+  });
+
+  agent.stderr.on('data', (data) => {
+    const text = data.toString();
+    agentOutput += text;
+    process.stderr.write(text);
+  });
+
   agent.on('close', (code) => {
     console.log('');
     if (code === 0) {
       console.log('✅ Demo completed successfully.');
-      console.log('   The agent action was blocked by DashClaw policy as expected.');
+      console.log('   The agent action was governed by DashClaw policies.');
       console.log(`\n======================================================`);
       console.log(`🚀 DashClaw is still running!`);
       
-      const replayUrl = `${DASHCLAW_BASE_URL}/replay/ar_demo_deploy_block_001`;
+      // Extract the replay URL from the agent's output
+      const urlMatch = agentOutput.match(new RegExp(`${DASHCLAW_BASE_URL}/replay/[a-zA-Z0-9_]+`));
+      const replayUrl = urlMatch ? urlMatch[0] : `${DASHCLAW_BASE_URL}/mission-control`;
+
       console.log(`   Opening Decision Replay...`);
       console.log(`   Replay: ${replayUrl}`);
-      console.log(`\nDashClaw blocked a high risk agent action.`);
-      console.log(`Inspect the replay in your browser.`);
+      console.log(`\nDashClaw monitored and governed the agent action.`);
+      console.log(`Inspect the decision evidence in your browser.`);
       console.log(`\nPress Ctrl+C to exit when you're done.`);
       console.log(`======================================================\n`);
 

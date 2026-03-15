@@ -393,8 +393,13 @@ export async function middleware(request) {
         return demoJson(request, demoPolicySimulate(fixtures, {}));
       }
 
-      // Allow simulated actions and guard checks in demo mode.
-      const isSimulation = (pathname === '/api/actions' || pathname === '/api/guard') && method === 'POST';
+      // Allow simulated actions, assumptions, and guard checks in demo mode.
+      const isSimulation = (
+        pathname === '/api/guard' || 
+        pathname === '/api/actions' || 
+        pathname === '/api/assumptions' ||
+        pathname.startsWith('/api/actions/')
+      ) && (method === 'POST' || method === 'PATCH');
 
       if (!isRead && !isSimulation) {
         return demoJson(request, { error: 'Demo mode: write APIs are disabled.' }, 403);
@@ -450,8 +455,8 @@ export async function middleware(request) {
         return demoJson(request, demoAgents(fixtures));
       }
 
-      if (segments[0] === 'api' && segments[1] === 'agents' && segments.length === 3) {
-        const agentId = segments[2];
+      if (segments[segments.length - 3] === 'api' && segments[segments.length - 2] === 'agents') {
+        const agentId = segments[segments.length - 1];
         const detail = demoAgentDetail(fixtures, agentId);
         if (!detail) return demoJson(request, { error: 'Agent not found' }, 404);
         return demoJson(request, detail);
@@ -459,8 +464,15 @@ export async function middleware(request) {
 
       if (pathname === '/api/actions') {
         if (method === 'POST') {
-          // For demo simulations, we don't need the real body, just a success response
-          return demoJson(request, demoCreateAction(fixtures, {}), 201);
+          // For demo simulations, we try to use the real body if provided
+          let body = {};
+          try {
+            const text = await request.text();
+            body = text ? JSON.parse(text) : {};
+          } catch (e) {
+            // fallback to empty
+          }
+          return demoJson(request, demoCreateAction(fixtures, body), 201);
         }
         return demoJson(request, demoListActions(fixtures, url));
       }

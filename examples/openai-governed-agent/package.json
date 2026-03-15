@@ -1,0 +1,14 @@
+{
+  "name": "openai-governed-agent",
+  "version": "1.0.0",
+  "description": "DashClaw Starter: OpenAI Governed Agent",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dashclaw": "file:../../sdk",
+    "dotenv": "^16.4.5",
+    "openai": "^4.28.0"
+  }
+}

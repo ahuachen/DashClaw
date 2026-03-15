@@ -198,7 +198,7 @@ export default function PublicReplayPage() {
                   <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Agent Intent</div>
                   <h1 className="text-xl font-bold text-white leading-tight mb-2">{action.declared_goal}</h1>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500 font-medium">Actor:</span>
+                    <span className="text-xs text-zinc-500 font-medium">Agent:</span>
                     <Link 
                       href={`/agents/${action.agent_id}`}
                       target={isEmbed ? "_blank" : "_self"}
