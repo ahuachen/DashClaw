@@ -74,8 +74,16 @@ def main():
     })
 
     print("Waiting for approval in DashClaw...")
-    claw.wait_for_approval(action_id)
-    print("Approval received.\n")
+    try:
+        # 1. This now polls and returns the approved action object (including approved_by)
+        approved_action = claw.wait_for_approval(action_id, timeout=300, interval=5)
+        print(f"Approval received from {approved_action.get('action', {}).get('approved_by')}.\n")
+    except DashClawError as e:
+        print(f"Action DENIED or failed: {e}")
+        return
+    except TimeoutError:
+        print("Timed out waiting for approval.")
+        return
 
     try:
         result = rotate_payments_api_keys()
