@@ -113,7 +113,14 @@ class DashClaw:
                 error_data = json.loads(e.read().decode("utf-8"))
                 message = error_data.get("error", str(e))
                 details = error_data.get("details")
-            except:
+                decision = error_data.get("decision")
+                
+                # Check for governance block
+                if e.code == 403 and decision and decision.get("decision") == "block":
+                    raise GuardBlockedError(decision)
+            except GuardBlockedError:
+                raise
+            except Exception:
                 message = str(e)
                 details = None
             raise DashClawError(message, status=e.code, details=details)

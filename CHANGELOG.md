@@ -5,18 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.2.0] - 2026-03-16
+
+### Added
+- **CLI Approval Client (`@dashclaw/cli`)**: New terminal package with an interactive approval inbox and `approve`/`deny` commands, enabling terminal-first governance workflows without opening a browser.
+- **Structured Approval Block in SDK**: `waitForApproval()` now prints a formatted, boxed approval block on first poll showing action ID, agent, risk score, goal, and replay URL — giving operators all the context needed to act from the terminal.
+- **SDK Approval Methods (Node)**: Added `getAction()`, `getPendingApprovals()`, and `approveAction()` to the Node SDK, completing the full CLI approval channel surface.
+- **Claude Code Hooks**: New `hooks/dashclaw_pretool.py` and `hooks/dashclaw_posttool.py` Python hooks for Claude Code governance. Pre-tool hook calls the guard before every tool use; post-tool hook records the outcome.
+- **Anthropic Claude SDK Governed Demo**: New `examples/anthropic-governed-agent/` showing the four-step governance loop with HITL approval using the Anthropic Claude SDK.
+- **OpenAI Agents SDK Governed Demo**: New `examples/openai-agents-governed/` showing governance integration with the OpenAI Agents SDK, including a guard gate and approval wait.
+- **CLI Governance Examples**: `examples/claude-code-review-agent/`, `examples/openai-deploy-pipeline/`, and `examples/python-research-agent/` with a shared `examples/README.md` and two-terminal demo instructions.
+- **`npx dashclaw-demo`**: New one-command local demo. Starts the runtime in demo mode, runs the governed agent, extracts the replay URL from agent output, and opens the browser to the decision evidence automatically.
+- **GitHub Traffic Polling**: `npm run traffic:poll` (`scripts/poll-github-traffic.mjs`) persists GitHub clone and view data to Neon for historical adoption signals beyond the 14-day API window.
+
+### Changed
+- **Prompt Injection Scanning Default**: Prompt injection scanning is now on by default for all guard evaluations. Opt out with `DISABLE_PROMPT_INJECTION_SCAN=true`. Aligns with the platform's security-first posture.
+- **Platform Skill v2.3**: Updated `dashclaw-platform-intelligence` skill with CLI approval channel and Claude Code hooks workflows. Skill description trimmed for better trigger matching.
+- **Demo Replay Correlation**: `openai-governed-agent` example now uses `openai-deployer-1` agent ID and `deploy` action type, matching the demo middleware fixture data so the replay page always loads with full context after `npx dashclaw-demo`.
+- **SDK Documentation**: Replaced hardcoded `dashclaw.io` references with env vars. Added CLI Approval Channel and Claude Code Hooks sections. `?legacy=true` toggle for Copy as Markdown / View raw.
+- **Connect Prompt**: Uses the four-step governance loop and CLI approval channel pattern in the generated onboarding prompt.
+- **Marketing Site**: Added terminal-first agent frameworks (Claude Code, OpenClaw) to the Works With section. New quickstart uses env vars instead of hardcoded keys.
+
+### Fixed
+- **Demo Guard Evaluations**: `app/api/guard/route.js` and `middleware.js` now always return a `200 OK` for all guard evaluations (including blocks and approvals). This prevents the SDK from throwing generic errors and properly exposes the `decision` object to agents.
+- **SDK `GuardBlockedError` Propagation**: Updated both JS and Python SDKs so that if `_request()` encounters a `403` status due to a policy block, it explicitly raises `GuardBlockedError` instead of a generic `Error`/`DashClawError`.
+- **Demo Replay Action States**: Updated the hardcoded `demoTestEval` mock to return `require_approval` instead of `block` so `npx dashclaw-demo` successfully triggers the Human-In-The-Loop terminal wait flow.
+- **Demo Replay URL Extraction**: `run-demo.mjs` now parses the replay URL directly from agent stdout using a regex match, ensuring the correct `act_*` ID is opened in the browser every time.
+- **Python Examples**: Fixed `first-governed-action.py` to pass a dict to `guard()` instead of kwargs, add missing `agent_id`, remove incorrect `async/await` (Python SDK is sync), and correct `"allowed"` → `"allow"`. Fixed `loop-monitoring.py` to use `register_open_loop`/`resolve_open_loop` instead of non-existent `create_loop`/`update_loop`.
+- **CJS Legacy Bridge**: Fixed `sdk/index-v1.cjs` which was importing the wrong file after the v2 SDK refactor.
+- **SDK Method Names**: Corrected examples and skill files that referenced removed v1 method names (`registerAssumption` → `recordAssumption`, `createLoop` → `registerOpenLoop`).
+- **Dead SDK File**: Deleted diverged `sdk/dashclaw-v2.js` to eliminate confusion between the v2 SDK and the live `sdk/dashclaw.js`.
+- **jsdom Vulnerability**: Upgraded `jsdom` 28→29 to resolve three undici CVEs (undici <7.24.0).
 
 ### Security
 - **Race Condition Fix (Team DELETE)**: `DELETE /api/team/:userId` now uses an atomic CTE query to prevent concurrent requests from removing the last admin.
 - **Cross-Tenant Write Fix (createVersion)**: `POST /api/prompts/templates/:templateId/versions` now verifies template ownership before inserting, preventing cross-org writes.
 - **ENCRYPTION_KEY Enforcement**: Missing `ENCRYPTION_KEY` in production is now a hard error (was a warning), ensuring encryption is never silently disabled.
 
-### Changed
-- **Prompt Injection Scanning Default**: Prompt injection scanning is now enabled by default for all guard evaluations. Set `DISABLE_PROMPT_INJECTION_SCAN=true` to opt out. This aligns with the platform's security-first posture.
-
-### Added
-- **GitHub Traffic Polling**: New `npm run traffic:poll` script that persists GitHub clone/view data to Neon for historical adoption signals beyond the 14-day API window.
+### Tests
+- **Python SDK v2 Surface Tests**: Added `sdk-python/tests/test_sdk_v2_surface.py` mirroring the Node `sdk-v2.test.js` test suite for cross-language parity verification.
+- **HITL Edge Case Coverage**: Expanded `waitForApproval` tests to cover the bypass path (action never entered `pending_approval`), the denial path, and the timeout path.
+- **v2 SDK Unit Tests**: Added 41 unit tests covering all 19 public methods of the v2 Node SDK.
 
 ## [2.1.5] - 2026-03-15
 

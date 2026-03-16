@@ -44,7 +44,7 @@ describe('/api/guard', () => {
       expect(data.decision).toBe('allow');
     });
 
-    it('returns 403 for block decision', async () => {
+    it('returns 200 for block decision', async () => {
       mockValidateGuardInput.mockReturnValue({ valid: true, data: { action_type: 'delete' }, errors: [] });
       mockEvaluateGuard.mockResolvedValue({ decision: 'block', reasons: ['Blocked'], warnings: [], matched_policies: ['gp_1'] });
 
@@ -52,10 +52,10 @@ describe('/api/guard', () => {
         headers: { 'x-org-id': 'org_1' },
         body: { action_type: 'delete' },
       }));
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(200);
     });
 
-    it('returns 403 for require_approval decision', async () => {
+    it('returns 200 for require_approval decision', async () => {
       mockValidateGuardInput.mockReturnValue({ valid: true, data: { action_type: 'deploy' }, errors: [] });
       mockEvaluateGuard.mockResolvedValue({ decision: 'require_approval', reasons: ['Needs approval'], warnings: [], matched_policies: [] });
 
@@ -63,7 +63,7 @@ describe('/api/guard', () => {
         headers: { 'x-org-id': 'org_1' },
         body: { action_type: 'deploy' },
       }));
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(200);
     });
 
     it('returns 200 for warn decision', async () => {

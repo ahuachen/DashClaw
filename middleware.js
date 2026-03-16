@@ -810,8 +810,7 @@ export async function middleware(request) {
             const bodyText = await request.text();
             const body = bodyText ? JSON.parse(bodyText) : {};
             const result = demoGuardPost(fixtures, body);
-            const status = (result.decision === 'block' || result.decision === 'require_approval') ? 403 : 200;
-            return demoJson(request, result, status);
+            return demoJson(request, result, 200);
           } catch (e) {
             console.error('[DEMO GUARD ERROR]', e);
             return demoJson(request, { error: `Invalid request body: ${e.message}`, details: e.stack }, 400);

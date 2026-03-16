@@ -38,8 +38,7 @@ export async function POST(request) {
       computeSignals: computeSignalsFn,
     });
 
-    const status = (result.decision === 'block' || result.decision === 'require_approval') ? 403 : 200;
-    return NextResponse.json(result, { status });
+    return NextResponse.json(result, { status: 200 });
   } catch (err) {
     console.error('[GUARD] POST error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

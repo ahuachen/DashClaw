@@ -20,8 +20,7 @@ def test_sdk():
 
     try:
         # 1. Test Action Tracking (Context Manager)
-        print("
-1. Testing track()...")
+        print("\n1. Testing track()...")
         with claw.track(action_type="test", declared_goal="Verify Python SDK track()") as ctx:
             print(f"   Started action: {ctx['action_id']}")
             # Simulate work
@@ -29,35 +28,29 @@ def test_sdk():
         print("   ✅ track() completed")
 
         # 2. Test Goal Creation
-        print("
-2. Testing create_goal()...")
+        print("\n2. Testing create_goal()...")
         goal = claw.create_goal(title="Finish Python SDK", status="active", progress=90)
         print(f"   ✅ Goal created")
 
         # 3. Test Learning
-        print("
-3. Testing record_decision()...")
+        print("\n3. Testing record_decision()...")
         claw.record_decision(decision="Used urllib for zero-deps", reasoning="Keep SDK lightweight", outcome="success")
         print("   ✅ Decision recorded")
 
         # 4. Test Signals (Read)
-        print("
-4. Testing get_signals()...")
+        print("\n4. Testing get_signals()...")
         signals = claw.get_signals()
         print(f"   ✅ Fetched {len(signals.get('signals', []))} signals")
 
-        print("
-🎉 All local tests passed (assuming server reachable)!")
+        print("\n🎉 All local tests passed (assuming server reachable)!")
 
     except DashClawError as e:
-        print(f"
-❌ SDK Error: {e}")
+        print(f"\n❌ SDK Error: {e}")
         if e.status == 401:
             print("   (Note: This likely means your API key is invalid or server is not running)")
         sys.exit(1)
     except Exception as e:
-        print(f"
-❌ Unexpected Error: {e}")
+        print(f"\n❌ Unexpected Error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

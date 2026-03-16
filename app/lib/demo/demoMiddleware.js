@@ -14,13 +14,12 @@ const demoTestAction = {
   timestamp_end: new Date().toISOString(),
   verified: true,
 };
-
 const demoTestEval = {
   id: `gd_demo_deploy_001`,
   agent_id: 'openai-deployer-1',
   agent_name: 'OpenAI Deployer',
   action_type: 'deploy',
-  decision: 'block',
+  decision: 'require_approval',
   action_id: DEMO_TEST_ACTION_ID,
   reason: 'High-risk production action requires explicit approval per Demo Policy.',
   matched_policies: ['Demo Production Guard'],

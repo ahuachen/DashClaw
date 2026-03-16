@@ -57,6 +57,10 @@ class DashClaw {
     const data = await res.json();
 
     if (!res.ok) {
+      if (res.status === 403 && data.decision && data.decision.decision === 'block') {
+        throw new GuardBlockedError(data.decision);
+      }
+
       // Prioritize reason (from governance blocks) over generic error field
       const errorMessage = data.reason || data.error || `Request failed with status ${res.status}`;
       const err = new Error(errorMessage);
