@@ -50,6 +50,8 @@ export const platformFeatures = [
   { icon: Download, title: 'Compliance Export Bundles', description: 'Framework mapping, gap analysis, evidence capture, and audit-ready exports for serious governance workflows.' },
   { icon: SlidersHorizontal, title: 'Scoring Profiles', description: 'User-defined weighted quality scoring with auto-calibration from real data. Replace hardcoded agent risk numbers with transparent rules.' },
   { icon: DashClawLogo, title: 'Verified Agent Identity', description: 'Know which agent took which action. RSA signature verification ensures accountability at every step of the decision lifecycle.' },
+  { icon: Terminal, title: 'CLI Approval Channel', description: 'Approve or deny agent actions from the terminal without opening a browser. Works with Claude Code, Codex, Gemini CLI, and any terminal-first workflow.' },
+  { icon: Webhook, title: 'Claude Code Hooks', description: 'Govern Claude Code tool calls via PreToolUse and PostToolUse hooks. No SDK instrumentation required. Drop two Python scripts into .claude/hooks/ and every Bash, Edit, Write, and MultiEdit call is governed.' },
 ];
 
 export const corePrimitives = [
@@ -128,7 +130,26 @@ const { decision } = await claw.guard({
 if (decision === 'allowed') {
   await openai.chat.completions.create(...)
 }`
-  }
+  },
+  {
+    id: 'claude-code',
+    name: 'Claude Code',
+    label: 'PreToolUse hook',
+    code: `# .claude/hooks/dashclaw_pretool.py
+# Governs Bash, Edit, Write, MultiEdit
+# No pip installs required
+
+import json, sys, urllib.request, os
+
+payload = json.loads(sys.stdin.read())
+tool = payload.get("tool_name", "")
+
+if tool not in ["Bash","Edit","Write","MultiEdit"]:
+    sys.exit(0)  # not governed
+
+# Guard check via DashClaw API
+# block/approve/allow based on policy`
+  },
 ];
 
 export const operationalFeatures = [
@@ -137,7 +158,7 @@ export const operationalFeatures = [
   { icon: Clock, title: 'Full Audit Trail', description: 'Every action is logged with actor, timestamp, and reasoning: ready for compliance audits and debugging.' },
   { icon: Compass, title: 'Ship in 10 Minutes', description: 'Four steps: create workspace, generate key, install SDK, send first action. That\'s it.' },
   { icon: Building2, title: 'Built for Multi-Tenant', description: 'Full org isolation out of the box. Each team gets their own agents, keys, and settings.' },
-  { icon: Terminal, title: 'Infrastructure Tooling', description: 'Lightweight CLI tools for agent instrumentation, identity registration, and local policy testing.' },
+  { icon: Terminal, title: 'Infrastructure Tooling', description: 'Terminal CLI for approving agent actions, viewing the approval inbox, and querying decision replays. Works with Claude Code, Codex, and any terminal-first agent workflow.' },
 ];
 
 export const signals = [

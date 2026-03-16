@@ -13,7 +13,7 @@
   <p><strong>Agent &rarr; DashClaw &rarr; External Systems</strong></p>
   <p>DashClaw sits between your agents and your external systems. It evaluates policies before an agent action executes and records verifiable evidence of every decision.</p>
   <br />
-  <p><a href="https://www.dashclaw.io/mission-control">View Live Demo</a></p>
+  <p><a href="https://dashclaw.io/demo">View Live Demo</a></p>
 
   <a href="https://dashclaw.io"><img src="https://img.shields.io/badge/website-dashclaw.io-orange?style=flat-square" alt="Website" /></a>
   <a href="https://dashclaw.io/docs"><img src="https://img.shields.io/badge/docs-SDK%20%26%20API-blue?style=flat-square" alt="Docs" /></a>
@@ -87,7 +87,7 @@ What it proves:
 
 DashClaw works with any agent framework.
 
-**LangChain • CrewAI • OpenClaw • OpenAI Tools • Anthropic Tools • Autogen • Custom Agents**
+**LangChain • CrewAI • OpenAI Tools • Anthropic Tools • AutoGen • Claude Code • Codex • Gemini CLI • Custom Agents**
 
 ---
 
@@ -112,7 +112,7 @@ pip install dashclaw
 import { DashClaw, GuardBlockedError, ApprovalDeniedError } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: 'http://localhost:3000', // or your DashClaw instance URL
+  baseUrl: process.env.DASHCLAW_BASE_URL, // or your DashClaw instance URL
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
 });
@@ -124,7 +124,7 @@ from dashclaw.client import DashClaw, GuardBlockedError, ApprovalDeniedError
 import os
 
 claw = DashClaw(
-    base_url='http://localhost:3000',
+    base_url=os.environ["DASHCLAW_BASE_URL"],
     api_key=os.environ.get('DASHCLAW_API_KEY'),
     agent_id='my-agent'
 )
@@ -166,6 +166,30 @@ try {
 
 ---
 
+## CLI Approval Channel
+
+Approve agent actions from the terminal without opening a browser. This is the primary interface for developers using Claude Code, Codex, Gemini CLI, or any terminal-first workflow.
+
+```bash
+npm install -g @dashclaw/cli
+```
+
+```bash
+dashclaw approvals              # interactive inbox for all pending actions
+dashclaw approve <actionId>     # approve a specific action
+dashclaw deny <actionId> --reason "Outside change window"
+```
+
+When an agent calls `waitForApproval()`, the SDK prints a structured block to stdout showing the action ID, policy name, risk score, declared goal, and a replay link. Approve from any terminal and the agent unblocks instantly via SSE. The browser dashboard reflects the same decision within one second.
+
+Every governed action has a permanent replay URL:
+
+```
+<DASHCLAW_BASE_URL>/replay/<actionId>
+```
+
+---
+
 ## Local SDK Testing
 
 DashClaw includes a standalone Python integration test agent that exercises the major DashClaw SDK methods directly against a running instance.
@@ -182,14 +206,41 @@ See the script comments for more flags and usage.
 
 ---
 
+## Claude Code Hooks
+
+Govern Claude Code tool calls without any SDK instrumentation. Drop two Python scripts into `.claude/hooks/` and every Bash, Edit, Write, and MultiEdit call Claude makes is governed by your DashClaw policies.
+
+```bash
+# Copy hooks into your project
+cp path/to/DashClaw/hooks/dashclaw_pretool.py  .claude/hooks/
+cp path/to/DashClaw/hooks/dashclaw_posttool.py .claude/hooks/
+```
+
+Merge the `hooks` block from `hooks/settings.json` into your `.claude/settings.json`, then set three environment variables:
+
+```bash
+export DASHCLAW_BASE_URL=https://your-dashclaw-instance.com
+export DASHCLAW_API_KEY=your_api_key
+export DASHCLAW_HOOK_MODE=enforce   # or "observe" to log without blocking
+```
+
+The hooks require no pip installs and exit silently when DashClaw is unreachable. Claude Code is never blocked because your governance layer is down.
+
+See `hooks/README.md` for the full installation guide and action type mapping.
+
+---
+
 ## Deploy to Cloud (Self-Host)
 
 The fastest path to self-host DashClaw is via **Vercel + Neon**.
 
-1. Create a free database at [neon.tech](https://neon.tech).
-2. Fork this repo.
-3. Deploy to Vercel and set `DATABASE_URL`.
-4. Your instance is live instantly.
+1. Fork this repo.
+2. Deploy to Vercel and connect a free [Neon](https://neon.tech) Postgres database.
+3. Run the interactive setup to configure secrets and run migrations:
+   ```bash
+   node scripts/setup.mjs
+   ```
+4. Your instance is live. Grab your API key from the dashboard and point your first agent at it.
 
 ---
 

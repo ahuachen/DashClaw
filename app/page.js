@@ -393,6 +393,7 @@ export default function LandingPage() {
                 <InlineCopyCommand command="pip install dashclaw" className="px-3 py-1.5" />
                 <div className="w-full h-px bg-zinc-800/50 my-1"></div>
                 <InlineCopyCommand command="docker compose up -d" className="px-3 py-1.5" />
+                <InlineCopyCommand command="npm install -g @dashclaw/cli" className="px-3 py-1.5" />
               </div>
               <Link href="/docs" className="mt-6 inline-flex items-center gap-1.5 text-sm text-brand hover:text-brand-hover transition-colors">
                 View full SDK docs <ArrowRight size={14} />
@@ -572,6 +573,8 @@ export default function LandingPage() {
               { icon: Zap, title: 'Decision Replay', description: 'Visual causal chains that explain exactly why an agent chose an action.' },
               { icon: Shield, title: 'Policy Engine', description: 'Semantic guardrails that evolve with your organization without code changes.' },
               { icon: Activity, title: 'Risk Signals', description: 'Automated detection of autonomy spikes, drift, and failure loops.' },
+              { icon: Terminal, title: 'CLI Approval Channel', description: 'Approve or deny agent actions from the terminal. Works with Claude Code, Codex, and any terminal-first workflow.' },
+              { icon: Zap, title: 'Claude Code Hooks', description: 'Govern Claude Code tool calls via lifecycle hooks. No SDK instrumentation required.' },
             ].map((feature) => {
               const Icon = feature.icon;
               return (
@@ -645,8 +648,8 @@ export default function LandingPage() {
             {/* Agent Tools Merge */}
             <div className="max-w-5xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Local Agent Toolkit</h2>
-                <p className="mt-3 text-zinc-400">DashClaw also ships local tools that run alongside agents to manage memory, goals, and security.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Integration Surfaces</h2>
+                <p className="mt-3 text-zinc-400">DashClaw provides multiple integration surfaces: SDK instrumentation, a CLI approval channel, and Claude Code lifecycle hooks.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
                 {agentToolCategories.slice(0, 3).map((cat) => (
