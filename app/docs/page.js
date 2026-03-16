@@ -729,21 +729,301 @@ rendered = res["rendered"]`}
 
               {/* Real-Time Events */}
               <section id="real-time-events" className="scroll-mt-20 pt-12">
-                <h3 className="text-lg font-semibold text-white mb-2">Real-Time Events</h3>
-                <MethodEntry id="events" signature="claw.events()" description="Low-level SSE connection handle." />
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Real-Time Events</h3>
+                <MethodEntry 
+                  id="events" 
+                  signature="claw.events(options?)" 
+                  description="Subscribe to real-time SSE events from the DashClaw server. Uses fetch-based SSE parsing for Node 18+ compatibility (no native EventSource required)."
+                  params={[
+                    { name: 'reconnect', type: 'boolean', required: false, desc: 'Auto-reconnect on disconnect (resumes from last event ID). Default: true.' },
+                    { name: 'maxRetries', type: 'number', required: false, desc: 'Max reconnection attempts.' },
+                    { name: 'retryInterval', type: 'number', required: false, desc: 'Milliseconds between reconnection attempts. Default: 3000.' },
+                  ]}
+                  example={
+                    <CodeBlock title="Subscribing to updates">
+{`const stream = client.events();
+stream
+  .on('action.created', (data) => console.log('New action:', data))
+  .on('action.updated', (data) => console.log('Action updated:', data))
+  .on('goal.created', (data) => console.log('New goal:', data))
+  .on('policy.updated', (data) => console.log('Policy changed:', data))
+  .on('error', (err) => console.error('Stream error:', err));`}
+                    </CodeBlock>
+                  }
+                />
               </section>
 
               {/* User Feedback */}
               <section id="user-feedback" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2">User Feedback</h3>
-                <MethodEntry id="submitFeedback" signature="claw.submitFeedback(...)" />
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Feedback</h3>
+                <MethodEntry 
+                  id="submitFeedback" 
+                  signature="claw.submitFeedback(params)" 
+                  description="Submit feedback for a specific agent action. Used for human evaluation of agent performance."
+                  params={[
+                    { name: 'action_id', type: 'string', required: true, desc: 'Target action ID' },
+                    { name: 'rating', type: 'number', required: true, desc: '1-5 star rating' },
+                    { name: 'comment', type: 'string', required: false, desc: 'Textual feedback' },
+                    { name: 'category', type: 'string', required: false, desc: 'Grouping tag' },
+                  ]}
+                  example={
+                    <CodeBlock title="Reporting feedback">
+{`await claw.submitFeedback({
+  action_id: 'act_4b2s8...',
+  rating: 4,
+  comment: 'Action was safe and effective but took longer than expected.',
+  category: 'performance_review'
+});`}
+                    </CodeBlock>
+                  }
+                />
               </section>
 
-              {/* Dashboard Data (Misc recording) */}
+              {/* Dashboard Data */}
               <section id="dashboard-data" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2">Dashboard Data</h3>
-                <MethodEntry id="reportTokenUsage" signature="claw.reportTokenUsage(...)" />
-                <MethodEntry id="createGoal" signature="claw.createGoal(...)" />
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Dashboard Data</h3>
+                <MethodEntry 
+                  id="reportTokenUsage" 
+                  signature="claw.reportTokenUsage(usage)" 
+                  description="Record a point-in-time token usage snapshot for this agent."
+                  params={[
+                    { name: 'tokens_in', type: 'number', required: true, desc: 'Input/Prompt tokens' },
+                    { name: 'tokens_out', type: 'number', required: true, desc: 'Output/Completion tokens' },
+                    { name: 'model', type: 'string', required: false, desc: 'LLM model used' },
+                  ]}
+                  example={
+                    <CodeBlock>
+{`await claw.reportTokenUsage({
+  tokens_in: 850,
+  tokens_out: 215,
+  model: 'claude-3-5-sonnet-20250514'
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="createGoal" 
+                  signature="claw.createGoal(goal)" 
+                  description="Register a high-level goal in the Mission Control UI."
+                  params={[
+                    { name: 'title', type: 'string', required: true, desc: 'Short name for the goal' },
+                    { name: 'status', type: 'string', required: false, desc: 'active|completed|paused' },
+                    { name: 'progress', type: 'number', required: false, desc: '0-100 percentage' },
+                  ]}
+                  example={
+                    <CodeBlock>
+{`await claw.createGoal({
+  title: 'Refactor Auth Layer',
+  progress: 75,
+  status: 'active'
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="wrapClient" 
+                  signature="claw.wrapClient(llmClient, options?)" 
+                  description="Wrap an Anthropic or OpenAI client to automatically report token usage after each API call."
+                  example={
+                    <CodeBlock title="Auto-telemetry wrapping">
+{`const anthropic = claw.wrapClient(new Anthropic());
+// usage is auto-reported after this call:
+const msg = await anthropic.messages.create({ 
+  model: 'claude-3-5-sonnet-20250514', 
+  max_tokens: 1024, 
+  messages: [{ role: 'user', content: 'Hello' }] 
+});`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Behavior Guard (v1) */}
+              <section id="legacy-guard" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Behavior Guard (v1)</h3>
+                <MethodEntry 
+                  id="guard" 
+                  signature="claw.guard(context)" 
+                  description="Intercept intent and check it against current safety and governance policies."
+                  params={[
+                    { name: 'action_type', type: 'string', required: true, desc: 'Intent category (deploy, post, build, etc)' },
+                    { name: 'risk_score', type: 'number', required: false, desc: '0-100 estimate' },
+                    { name: 'declared_goal', type: 'string', required: false, desc: 'Human-readable justification' },
+                  ]}
+                  example={
+                    <CodeBlock title="Checking a dangerous intent">
+{`const decision = await claw.guard({
+  action_type: 'production_deployment',
+  risk_score: 95,
+  declared_goal: 'Updating API endpoints for new feature'
+});
+
+if (decision.decision === 'block') {
+  console.error('Safety policy blocked action:', decision.reasons);
+}`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Agent Messaging */}
+              <section id="agent-messaging" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Agent Messaging</h3>
+                <MethodEntry 
+                  id="sendMessage" 
+                  signature="claw.sendMessage(params)" 
+                  description="Send a point-to-point message or broadcast to all agents in the organization."
+                  params={[
+                    { name: 'to', type: 'string', required: false, desc: 'Target agent ID (omit for broadcast)' },
+                    { name: 'body', type: 'string', required: true, desc: 'Message content' },
+                    { name: 'type', type: 'string', required: false, desc: 'action|info|lesson|question' },
+                    { name: 'urgent', type: 'boolean', required: false, desc: 'Mark as high priority' },
+                  ]}
+                  example={
+                    <CodeBlock title="Direct agent-to-agent communication">
+{`await claw.sendMessage({
+  to: 'scout-agent-01',
+  body: 'I have finished indexing the repository. You can start the analysis.',
+  type: 'status'
+});`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Session Handoffs */}
+              <section id="session-handoffs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Session Handoffs</h3>
+                <MethodEntry 
+                  id="createHandoff" 
+                  signature="claw.createHandoff(handoff)" 
+                  description="Create a session handoff document to persist state between agent sessions or transfer context to another agent."
+                  example={
+                    <CodeBlock title="Persisting session context">
+{`await claw.createHandoff({
+  summary: 'Completed initial data collection from Jira.',
+  key_decisions: ['Prioritize high-severity bugs', 'Ignore closed tickets'],
+  open_tasks: ['Run security scan on src/', 'Draft fix for #123'],
+  next_priorities: ['Security audit']
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="getLatestHandoff" 
+                  signature="claw.getLatestHandoff()" 
+                  description="Retrieve the most recent handoff for the current agent."
+                  returns="Promise<Object|null>"
+                />
+              </section>
+
+              {/* User Preferences */}
+              <section id="user-preferences" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Preferences</h3>
+                <MethodEntry 
+                  id="logObservation" 
+                  signature="claw.logObservation(obs)" 
+                  description="Log a behavioral observation about the user to improve future interactions."
+                  example={
+                    <CodeBlock>
+{`await claw.logObservation({
+  observation: 'User prefers concise, bulleted summaries over long paragraphs.',
+  importance: 8,
+  category: 'communication_style'
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="setPreference" 
+                  signature="claw.setPreference(pref)" 
+                  description="Explicitly set a learned user preference."
+                  example={
+                    <CodeBlock>
+{`await claw.setPreference({
+  preference: 'Always use tabs for indentation in generated Python code.',
+  confidence: 100
+});`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Security Scanning */}
+              <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Security Scanning</h3>
+                <MethodEntry 
+                  id="scanContent" 
+                  signature="claw.scanContent(text, destination?)" 
+                  description="Scan text for sensitive data (API keys, tokens, PII) before it leaves the secure environment."
+                  returns="Promise<{clean: boolean, findings: Object[], redacted_text: string}>"
+                  example={
+                    <CodeBlock title="Safe-guarding outbound data">
+{`const { clean, redacted_text } = await claw.scanContent(userOutput, 'slack-webhook');
+if (!clean) {
+  console.warn('Sensitive data detected and redacted.');
+}
+await sendToSlack(redacted_text);`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="scanPromptInjection" 
+                  signature="claw.scanPromptInjection(text)" 
+                  description="Scan untrusted input for potential prompt injection or jailbreak attempts."
+                  returns="Promise<{clean: boolean, risk_level: string, recommendation: string}>"
+                />
+              </section>
+
+              {/* Context Manager */}
+              <section id="context-manager" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Context Manager</h3>
+                <MethodEntry 
+                  id="captureKeyPoint" 
+                  signature="claw.captureKeyPoint(point)" 
+                  description="Capture a high-importance insight or decision point during a session."
+                  example={
+                    <CodeBlock>
+{`await claw.captureKeyPoint({
+  content: 'Switched to using PostgreSQL for the vector store due to performance issues.',
+  category: 'decision',
+  importance: 9
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="getContextSummary" 
+                  signature="claw.getContextSummary()" 
+                  description="Get a combined context summary: today's key points + active threads."
+                  returns="Promise<{points: Object[], threads: Object[]}>"
+                />
+              </section>
+
+              {/* Automation Snippets */}
+              <section id="automation-snippets" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Automation Snippets</h3>
+                <MethodEntry 
+                  id="saveSnippet" 
+                  signature="claw.saveSnippet(snippet)" 
+                  description="Save or update a reusable code snippet or automation script."
+                  example={
+                    <CodeBlock>
+{`await claw.saveSnippet({
+  name: 'backup-config',
+  code: 'cp /etc/app/config.json /backup/config.json',
+  language: 'bash',
+  tags: ['utility', 'backup']
+});`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry 
+                  id="useSnippet" 
+                  signature="claw.useSnippet(snippetId)" 
+                  description="Mark a snippet as used (increments telemetry use_count)."
+                  returns="Promise<{snippet: Object}>"
+                />
               </section>
             </div>
           )}
