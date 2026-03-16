@@ -1,6 +1,6 @@
 {
   "name": "@dashclaw/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DashClaw terminal approval client",
   "type": "module",
   "bin": {
@@ -9,7 +9,10 @@
   "files": ["bin/", "lib/"],
   "engines": { "node": ">=18.0.0" },
   "dependencies": {
-    "dashclaw": "*"
+    "dashclaw": "^2.2.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
