@@ -88,4 +88,99 @@ describe('HITL Approval Flow', () => {
       expect(error.decision).toBe('cancelled');
     }
   });
+
+  it('throws timeout error when action stays pending_approval', async () => {
+    fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ action: { action_id: 'act_2', status: 'pending_approval' } })
+    });
+
+    await expect(claw.waitForApproval('act_2', { interval: 1, timeout: 25 }))
+      .rejects.toThrow(/Timed out waiting for approval of action act_2/);
+  });
+
+  it('returns immediately when action is already running (never pending)', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ action: { action_id: 'act_3', status: 'running' } })
+    });
+
+    const result = await claw.waitForApproval('act_3', { interval: 1, timeout: 100 });
+    expect(result.action.status).toBe('running');
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('polls multiple cycles before resolving on approval', async () => {
+    const pending = {
+      ok: true,
+      json: async () => ({ action: { action_id: 'act_4', status: 'pending_approval' } })
+    };
+
+    fetch
+      .mockResolvedValueOnce(pending)
+      .mockResolvedValueOnce(pending)
+      .mockResolvedValueOnce(pending)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          action: { action_id: 'act_4', status: 'running', approved_by: 'usr_456' }
+        })
+      });
+
+    const action = await claw.waitForApproval('act_4', { interval: 1, timeout: 5000 });
+    expect(action.approved_by).toBe('usr_456');
+    expect(fetch).toHaveBeenCalledTimes(4);
+  });
+
+  it('propagates network errors from fetch', async () => {
+    fetch.mockRejectedValueOnce(new Error('Network failure'));
+
+    await expect(claw.waitForApproval('act_5', { interval: 1, timeout: 100 }))
+      .rejects.toThrow('Network failure');
+  });
+
+  it('throws ApprovalDeniedError with custom message on cancelled status', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        action: {
+          action_id: 'act_6',
+          status: 'cancelled',
+          error_message: 'Budget limit exceeded'
+        }
+      })
+    });
+
+    await expect(claw.waitForApproval('act_6', { interval: 1, timeout: 100 }))
+      .rejects.toThrow(ApprovalDeniedError);
+
+    try {
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          action: {
+            action_id: 'act_6',
+            status: 'cancelled',
+            error_message: 'Budget limit exceeded'
+          }
+        })
+      });
+      await claw.waitForApproval('act_6', { interval: 1, timeout: 100 });
+    } catch (error) {
+      expect(error.message).toBe('Budget limit exceeded');
+      expect(error.decision).toBe('cancelled');
+    }
+  });
+
+  it('works with default options when no options object is provided', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        action: { action_id: 'act_7', status: 'running' }
+      })
+    });
+
+    const result = await claw.waitForApproval('act_7');
+    expect(result.action.status).toBe('running');
+  });
 });
