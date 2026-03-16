@@ -1,0 +1,15 @@
+{
+  "name": "openai-agents-governed",
+  "version": "1.0.0",
+  "description": "DashClaw + OpenAI Agents SDK: PII Cleanup Agent with Human-in-the-Loop",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.7.0",
+    "dashclaw": "file:../../sdk",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.0"
+  }
+}
