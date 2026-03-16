@@ -1,0 +1,15 @@
+{
+  "name": "@dashclaw/cli",
+  "version": "0.1.0",
+  "description": "DashClaw terminal approval client",
+  "type": "module",
+  "bin": {
+    "dashclaw": "./bin/dashclaw.js"
+  },
+  "files": ["bin/", "lib/"],
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": {
+    "dashclaw": "*"
+  },
+  "license": "MIT"
+}

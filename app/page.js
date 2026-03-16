@@ -45,7 +45,7 @@ export default function LandingPage() {
             DashClaw governs the moment agent intent becomes real-world action. Enforce policies, require human approval, and record verifiable evidence in one runtime.
           </p>
           <p className="mt-4 text-sm text-zinc-500 font-medium">
-            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, or any custom agent.
+            Works with OpenAI, Claude, CrewAI, LangChain, AutoGen, OpenClaw, or any custom agent.
           </p>
           <p className="mt-4 text-sm text-zinc-500 font-medium italic opacity-80">MIT Licensed. Self-host in seconds.</p>
 

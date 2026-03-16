@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 /**
- * 🚀 DASHCLAW STARTER: OPENAI GOVERNED AGENT
- * 
- * Scenario: A customer support agent wants to send a refund notification email.
- * 
+ * 🚀 DASHCLAW STARTER: OPENAI GOVERNED DEPLOY AGENT
+ *
+ * Scenario: A deployment agent wants to push auth-service-v2 to production.
+ *
  * This example shows the 5-minute path to governance:
  * 1. Guard (Policy Check)
  * 2. Action (Intent Declaration)
@@ -26,17 +26,17 @@ async function main() {
   const claw = new DashClaw({
     baseUrl: process.env.DASHCLAW_BASE_URL || 'http://localhost:3000',
     apiKey: apiKey,
-    agentId: 'refund-support-agent',
+    agentId: 'openai-deployer-1',
   });
 
   // Initialize OpenAI (Optional but shown for "Real Agent" flow)
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'sk-fake-key',
-  });
+  const openaiKey = process.env.OPENAI_API_KEY;
+  const hasOpenAI = openaiKey && openaiKey !== 'sk-fake-key';
+  const openai = hasOpenAI ? new OpenAI({ apiKey: openaiKey }) : null;
 
-  const customerEmail = 'jane@example.com';
-  const orderId = '#1234';
-  const goal = `Send refund confirmation email to ${customerEmail} for order ${orderId}`;
+  const deployTarget = 'production';
+  const serviceName = 'auth-service-v2';
+  const goal = `Deploy ${serviceName} to ${deployTarget}`;
 
   console.log(`\n🤖 Agent Goal: ${goal}`);
 
@@ -44,16 +44,16 @@ async function main() {
     // 🛡️ 1. GUARD: Ask DashClaw if this action is safe
     console.log("🛡️  Checking policies via DashClaw Guard...");
     const decision = await claw.guard({
-      action_type: 'email_customer',
+      action_type: 'deploy',
       declared_goal: goal,
-      risk_score: 45, // Moderate risk for financial comms
-      systems_touched: ['smtp', 'stripe'],
+      risk_score: 85,
+      reversible: false,
+      systems_touched: ['kubernetes', 'production-api'],
     });
 
     if (decision.decision === 'block') {
       console.error(`\n❌ ACTION BLOCKED: ${decision.reason}`);
       console.log(`View decision at: ${process.env.DASHCLAW_BASE_URL}/replay/${decision.action_id}\n`);
-      return;
     }
 
     if (decision.decision === 'require_approval') {
@@ -61,41 +61,56 @@ async function main() {
       console.log(`Approve here: ${process.env.DASHCLAW_BASE_URL}/approvals\n`);
       await claw.waitForApproval(decision.action_id);
       console.log("✅ Approved! Proceeding...");
-    } else {
+    } else if (decision.decision !== 'block') {
       console.log("✅ Guard: Allowed.");
     }
 
     // 📝 2. ACTION: Declare intent to record evidence
     const { action } = await claw.createAction({
-      action_type: 'email_customer',
+      action_type: 'deploy',
       declared_goal: goal,
-      reasoning: 'Refund was processed in Stripe; customer must be notified per SLA.',
-      risk_score: 45,
+      reasoning: 'Scheduled release window. QA sign-off received.',
+      risk_score: 85,
+      reversible: false,
+      systems_touched: ['kubernetes', 'production-api'],
     });
     const actionId = action.action_id;
     console.log(`📝 Action Recorded: ${actionId}`);
+    console.log(`📋 Decision Replay: ${process.env.DASHCLAW_BASE_URL}/replay/${actionId}`);
 
     // 💭 3. ASSUMPTION: Record what the agent believes to be true
     await claw.recordAssumption({
       action_id: actionId,
-      assumption: 'Stripe refund transaction is successful.',
-      basis: 'API call returned status: succeeded'
+      assumption: 'All integration tests passed in staging environment.',
+      basis: 'CI pipeline result: 847 tests passed, 0 failed'
     });
 
-    // 🚀 4. EXECUTE: The actual "Real World" side effect
-    console.log(`\n📧 Sending email to ${customerEmail}...`);
-    // Example: const response = await openai.chat.completions.create(...)
-    // For this starter, we simulate the synthetic side effect:
-    await new Promise(r => setTimeout(r, 1000));
-    console.log("✨ Email sent successfully.");
+    // 🚀 4. EXECUTE: The actual deployment
+    if (openai) {
+      console.log(`\n🚀 Deploying ${serviceName} to ${deployTarget}...`);
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        max_tokens: 100,
+        messages: [
+          { role: 'system', content: 'You are a deployment agent. Respond with a short deployment status message.' },
+          { role: 'user', content: `Simulate deploying ${serviceName} to ${deployTarget}. Respond in one sentence.` },
+        ],
+      });
+      console.log(`🤖 ${response.choices[0].message.content}`);
+    } else {
+      console.log(`\n🤖 Simulating agent reasoning (no OPENAI_API_KEY set)...`);
+      console.log(`🚀 Deploying ${serviceName} to ${deployTarget}...`);
+      await new Promise(r => setTimeout(r, 1000));
+      console.log(`✨ ${serviceName} deployed to ${deployTarget} successfully.`);
+    }
 
     // ✅ 5. OUTCOME: Report final result to DashClaw
     await claw.updateOutcome(actionId, {
       status: 'completed',
-      output_summary: `Refund email for ${orderId} delivered to ${customerEmail}.`
+      output_summary: `Deployed ${serviceName} to ${deployTarget}. All health checks passing.`
     });
 
-    console.log(`\n🎉 Workflow complete. Trace recorded in DashClaw.`);
+    console.log(`\n🎉 Deployment complete. Trace recorded in DashClaw.`);
     console.log(`Review Evidence: ${process.env.DASHCLAW_BASE_URL}/replay/${actionId}\n`);
 
   } catch (error) {

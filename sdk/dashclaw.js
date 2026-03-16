@@ -102,6 +102,36 @@ class DashClaw {
   }
 
   /**
+   * GET /api/actions/:id — Fetch a single action by ID.
+   */
+  async getAction(actionId) {
+    return this._request(`/api/actions/${actionId}`, 'GET');
+  }
+
+  /**
+   * GET /api/actions?status=pending_approval — List actions awaiting approval.
+   */
+  async getPendingApprovals(limit = 20, offset = 0) {
+    return this._request('/api/actions', 'GET', null, {
+      status: 'pending_approval',
+      limit,
+      offset,
+    });
+  }
+
+  /**
+   * POST /api/actions/:id/approve — Approve or deny an action.
+   * @param {string} actionId
+   * @param {'allow'|'deny'} decision
+   * @param {string} [reasoning]
+   */
+  async approveAction(actionId, decision, reasoning) {
+    const body = { decision };
+    if (reasoning) body.reasoning = reasoning;
+    return this._request(`/api/actions/${actionId}/approve`, 'POST', body);
+  }
+
+  /**
    * POST /api/assumptions — "I believe Z is true while doing X."
    */
   async recordAssumption(assumption) {
@@ -114,9 +144,40 @@ class DashClaw {
   async waitForApproval(actionId, { timeout = 300000, interval = 5000 } = {}) {
     const startTime = Date.now();
     let wasPending = false;
+    let printedBlock = false;
 
     while (Date.now() - startTime < timeout) {
       const { action } = await this._request(`/api/actions/${actionId}`, 'GET');
+
+      // Print structured approval block on first fetch
+      if (!printedBlock) {
+        printedBlock = true;
+        try {
+          const actionType = action.action_type || 'unknown';
+          const riskScore = action.risk_score != null ? String(action.risk_score) : '-';
+          const goal = action.declared_goal || '-';
+          const agent = action.agent_id || this.agentId;
+          const replayUrl = `${this.baseUrl}/replay/${actionId}`;
+
+          const lines = [
+            '\u2554\u2550\u2550 DashClaw Approval Required \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557',
+            `  Action ID:   ${actionId}`,
+            `  Agent:       ${agent}`,
+            `  Action:      ${actionType}`,
+            '  Policy:      require_approval',
+            `  Risk Score:  ${riskScore}`,
+            `  Goal:        ${goal}`,
+            '',
+            `  Replay:      ${replayUrl}`,
+            '',
+            '  Waiting for approval... (Ctrl+C to abort)',
+            '\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d',
+          ];
+          process.stdout.write('\n' + lines.join('\n') + '\n\n');
+        } catch (_) {
+          // Rendering failure must not prevent the wait from proceeding
+        }
+      }
       
       if (action.status === 'pending_approval') {
         wasPending = true;
