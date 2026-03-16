@@ -131,6 +131,15 @@ export async function getActiveVersion(request, templateId) {
 export async function createVersion(request, templateId, { content, model_hint, parameters, changelog }) {
   const sql = getSql();
   const orgId = getOrgId(request);
+
+  // SECURITY: Verify template belongs to this org before writing
+  const ownerCheck = await sql`
+    SELECT id FROM prompt_templates WHERE id = ${templateId} AND org_id = ${orgId} LIMIT 1
+  `;
+  if (ownerCheck.length === 0) {
+    return null; // caller treats null as 404
+  }
+
   const id = 'pv_' + crypto.randomBytes(12).toString('hex');
 
   // Get next version number

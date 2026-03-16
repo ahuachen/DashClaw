@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Terminal, ArrowRight, Shield, Server, Cloud, Download, Sparkles } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
@@ -92,7 +93,9 @@ export default function SelfHostPage() {
       {/* Cloud path */}
       <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <SetupTabs />
+          <Suspense fallback={null}>
+            <SetupTabs />
+          </Suspense>
         </div>
       </section>
 
@@ -334,11 +337,13 @@ export default function SelfHostPage() {
             The installer generates secrets, writes .env.local, installs dependencies, and prints the API key your agents should use.
           </p>
           <div className="mb-4">
-            <CopyMarkdownButton
-              href="/api/prompts/server-setup/raw"
-              label="Copy Server Setup Prompt"
-              rawLabel="View prompt"
-            />
+            <Suspense fallback={null}>
+              <CopyMarkdownButton
+                href="/api/prompts/server-setup/raw"
+                label="Copy Server Setup Prompt"
+                rawLabel="View prompt"
+              />
+            </Suspense>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CopyableCodeBlock title="Windows (PowerShell)">{`./install-windows.bat`}</CopyableCodeBlock>

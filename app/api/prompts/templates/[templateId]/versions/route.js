@@ -27,6 +27,9 @@ export async function POST(request, { params }) {
       parameters: body.parameters,
       changelog: body.changelog,
     });
+    if (!version) {
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+    }
     return NextResponse.json(version, { status: 201 });
   } catch (err) {
     console.error('[prompts/versions] POST error:', err);

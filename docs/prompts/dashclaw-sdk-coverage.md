@@ -20,7 +20,8 @@ Execution checklist:
 - Enumerate public methods in:
   - `sdk/dashclaw.js`
   - `sdk-python/dashclaw/client.py`
-- Group by domain (actions, presence, loops, assumptions, approvals, guard, learning, drift, scoring, prompts, feedback, routing, messaging, webhooks, compliance, etc.).
+  - `sdk/legacy/dashclaw-v1.js` (v1 legacy surface -- 178+ methods across 30 categories, available via `dashclaw/legacy`)
+- Group by domain (actions, presence, loops, assumptions, approvals, guard, learning, drift, scoring, prompts, feedback, routing, messaging, webhooks, compliance, CLI approval channel, Claude Code hooks, etc.).
 
 2. Build a coverage matrix
 - For each method, map:
@@ -57,6 +58,7 @@ Deliverables:
 - Updated coverage matrix committed to the repo
 - Updated docs/changelog
 - Passing tests
+- Confirm hooks/ directory scripts are consistent with current guard API response format
 - Final summary with:
   - root causes found
   - what changed

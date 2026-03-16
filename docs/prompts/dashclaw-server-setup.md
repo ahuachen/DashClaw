@@ -82,7 +82,9 @@ Visit the login page and sign in with your password.
 npm run dev
 ```
 
-Open `http://localhost:3000` — redirects to login. Sign in with GitHub.
+Note: `npm run dev` uses Turbopack and is for development. For production, run `npm run build` followed by `npm start`.
+
+Open `http://localhost:3000` -- redirects to login. Sign in with GitHub.
 
 ## Step 6: Capture The Two Values Agents Need
 
@@ -92,12 +94,15 @@ The setup script prints these at the end, but you can also find them in `.env.lo
 # Put these on each agent machine
 DASHCLAW_BASE_URL=http://localhost:3000  # or https://your-app.vercel.app
 DASHCLAW_API_KEY=oc_live_...
+DASHCLAW_AGENT_ID=<unique-per-agent>  # optional but recommended
 ```
 
 ## Step 7: Sanity Check
 
 From any machine that can reach the dashboard host:
 - `GET {DASHCLAW_BASE_URL}/api/health` should return healthy JSON.
+
+You can also install the CLI to verify: `npm install -g @dashclaw/cli && dashclaw help`
 
 If the dashboard is deployed publicly:
 - Ensure `DASHCLAW_API_KEY` is set on the server.

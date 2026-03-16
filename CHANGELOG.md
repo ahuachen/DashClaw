@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Race Condition Fix (Team DELETE)**: `DELETE /api/team/:userId` now uses an atomic CTE query to prevent concurrent requests from removing the last admin.
+- **Cross-Tenant Write Fix (createVersion)**: `POST /api/prompts/templates/:templateId/versions` now verifies template ownership before inserting, preventing cross-org writes.
+- **ENCRYPTION_KEY Enforcement**: Missing `ENCRYPTION_KEY` in production is now a hard error (was a warning), ensuring encryption is never silently disabled.
+
+### Changed
+- **Prompt Injection Scanning Default**: Prompt injection scanning is now enabled by default for all guard evaluations. Set `DISABLE_PROMPT_INJECTION_SCAN=true` to opt out. This aligns with the platform's security-first posture.
+
+### Added
+- **GitHub Traffic Polling**: New `npm run traffic:poll` script that persists GitHub clone/view data to Neon for historical adoption signals beyond the 14-day API window.
+
 ## [2.1.5] - 2026-03-15
 
 ### Fixed

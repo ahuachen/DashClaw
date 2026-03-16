@@ -18,10 +18,10 @@ On the agent machine, set:
 ```bash
 DASHCLAW_BASE_URL=...
 DASHCLAW_API_KEY=...
-DASHCLAW_AGENT_ID=...
+DASHCLAW_AGENT_ID=...   # optional but recommended; uniquely identifies this agent process
 ```
 
-## Step 2: Send A Smoke-Test Action (Node)
+## Step 2: Send a Smoke-Test Action
 
 If the agent is Node/TypeScript:
 
@@ -37,22 +37,60 @@ import { DashClaw } from 'dashclaw';
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL,
   apiKey: process.env.DASHCLAW_API_KEY,
-  agentId: process.env.DASHCLAW_AGENT_ID,
-  agentName: process.env.DASHCLAW_AGENT_ID,
+  agentId: process.env.DASHCLAW_AGENT_ID || 'my-agent',
 });
 
+// 1. Check policy before acting
+const decision = await claw.guard({
+  action_type: 'test',
+  declared_goal: 'Verify DashClaw connection',
+  risk_score: 5,
+});
+
+// 2. Record the action
 const { action_id } = await claw.createAction({
-  action_type: 'monitor',
-  declared_goal: 'Smoke test: agent connected',
-  risk_score: 1,
+  action_type: 'test',
+  declared_goal: 'Verify DashClaw connection',
+  risk_score: 5,
 });
 
-console.log('DashClaw action created:', action_id);
+// 3. Record what you assumed
+await claw.recordAssumption({
+  action_id,
+  assumption: 'DashClaw instance is reachable',
+});
+
+// 4. Close the loop
+await claw.updateOutcome(action_id, { status: 'completed' });
+
+console.log('DashClaw action recorded:', action_id);
 ```
 
-Run it and confirm you can see the action in the dashboard (`/actions`).
+Run it and confirm you can see the action in the dashboard (`/decisions`).
 
-## Step 3 (Recommended): One-Click Pairing For Verified (Signed) Agents
+## Step 3 (Optional): Terminal Approval Channel
+
+Install the DashClaw CLI to approve agent actions without opening a browser:
+
+```bash
+npm install -g @dashclaw/cli
+```
+
+Set env vars (same API key, no extra config needed):
+
+```bash
+export DASHCLAW_BASE_URL=...
+export DASHCLAW_API_KEY=...
+```
+
+Commands:
+- `dashclaw approvals` -- interactive inbox for pending actions
+- `dashclaw approve <actionId>` -- approve a specific action
+- `dashclaw deny <actionId>` -- deny a specific action
+
+When an agent calls `waitForApproval()`, the SDK prints the action ID and a replay link to stdout. Approve from any terminal and the agent unblocks instantly via SSE.
+
+## Step 4: One-Click Agent Pairing (Verified Signatures)
 
 If the user wants cryptographic verification, do NOT make them copy/paste PEMs.
 
@@ -73,7 +111,7 @@ await claw.waitForPairing(pairing.id);
 
 After approval, send a signed action and confirm the dashboard marks it verified.
 
-## Step 4: Scaling To 50+ Agents
+## Step 5: Scaling to 50+ Agents
 
 Best practice:
 - Keep one shared `DASHCLAW_API_KEY` per workspace.

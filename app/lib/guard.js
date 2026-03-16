@@ -8,6 +8,7 @@ import { deliverGuardWebhook } from './webhooks.js';
 import { checkSemanticGuardrail } from './llm.js';
 import { generateActionEmbedding, isEmbeddingsEnabled } from './embeddings.js';
 import { scanSensitiveData } from './security.js';
+import { scanForPromptInjection } from './promptInjection.js';
 import { EVENTS, publishOrgEvent } from './events.js';
 
 const DECISION_SEVERITY = { allow: 0, warn: 1, require_approval: 2, block: 3 };
@@ -63,6 +64,26 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       applyResult(result, policy, reasons, warnings, matchedPolicies);
       if (DECISION_SEVERITY[result.action] > DECISION_SEVERITY[highestDecision]) {
         highestDecision = result.action;
+      }
+    }
+  }
+
+  // Default-on prompt injection scanning (opt-out via DISABLE_PROMPT_INJECTION_SCAN=true)
+  if (process.env.DISABLE_PROMPT_INJECTION_SCAN !== 'true') {
+    const textFields = [context.declared_goal, context.action_type].filter(Boolean);
+    for (const text of textFields) {
+      const scan = scanForPromptInjection(text);
+      if (!scan.clean) {
+        const reason = `Prompt injection detected (${scan.risk_level}): ${scan.categories.join(', ')}`;
+        if (scan.recommendation === 'block') {
+          reasons.push(reason);
+          matchedPolicies.push('builtin:prompt_injection_scan');
+          if (DECISION_SEVERITY.block > DECISION_SEVERITY[highestDecision]) {
+            highestDecision = 'block';
+          }
+        } else if (scan.recommendation === 'warn') {
+          warnings.push(reason);
+        }
       }
     }
   }

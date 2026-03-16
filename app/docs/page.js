@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight, Github, ExternalLink, BookOpen,
@@ -158,9 +159,11 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK (v2.1.2). Node.js and Python parity across all core governance features.
+            Canonical reference for the DashClaw SDK (v2.1.5). Node.js and Python parity across all core governance features.
           </p>
-          <CopyDocsButton />
+          <Suspense fallback={null}>
+            <CopyDocsButton />
+          </Suspense>
         </div>
       </section>
 

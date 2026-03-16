@@ -10,13 +10,14 @@ DashClaw is your AI agent decision infrastructure. It tracks decisions, enforces
 - **Dashboard**: ${baseUrl}/dashboard
 - **Workspace**: ${orgName}
 
-## 1. Set your API key
+## 1. Set your environment variables
 
-Before doing anything else, set \`DASHCLAW_API_KEY\` in your environment (shell, \`.env\`, etc.).
+Before doing anything else, set these in your environment (shell, \`.env\`, etc.).
 Do NOT paste the key into this chat.
 
 \`\`\`bash
 export DASHCLAW_API_KEY="<your-key>"
+export DASHCLAW_AGENT_ID="my-agent"  # optional but recommended; uniquely identifies this agent process
 \`\`\`
 
 ## 2. Install the SDK
@@ -29,7 +30,7 @@ npm install dashclaw
 pip install dashclaw
 \`\`\`
 
-## 3. Initialize the client
+## 3. Run the four-step governance loop
 
 \`\`\`js
 import { DashClaw } from 'dashclaw';
@@ -37,44 +38,63 @@ import { DashClaw } from 'dashclaw';
 const claw = new DashClaw({
   baseUrl: '${baseUrl}',
   apiKey: process.env.DASHCLAW_API_KEY,
-  agentId: 'my-agent',
-  agentName: 'My Agent',
+  agentId: process.env.DASHCLAW_AGENT_ID || 'my-agent',
 });
-\`\`\`
 
-## 4. Smoke test
-
-\`\`\`js
-await claw.createAction({
+// 1. Check policy before acting
+const decision = await claw.guard({
   action_type: 'test',
   declared_goal: 'Verify DashClaw connection',
-  risk_score: 10,
+  risk_score: 5,
 });
+
+// 2. Record the action
+const { action_id } = await claw.createAction({
+  action_type: 'test',
+  declared_goal: 'Verify DashClaw connection',
+  risk_score: 5,
+});
+
+// 3. Record what you assumed
+await claw.recordAssumption({
+  action_id,
+  assumption: 'DashClaw instance is reachable',
+});
+
+// 4. Close the loop
+await claw.updateOutcome(action_id, { status: 'completed' });
+
+console.log('DashClaw action recorded:', action_id);
 \`\`\`
 
-## 5. Optional: Bootstrap existing state
+## 4. Verify in the dashboard
 
-Clone the repo and run the scanner to import integrations, goals, and memory:
+Open \`${baseUrl}/decisions\` and confirm the action appears.
+
+## 5. Optional: Install the CLI approval channel
 
 \`\`\`bash
-git clone https://github.com/ucsandman/DashClaw.git /tmp/dashclaw
-node /tmp/dashclaw/scripts/bootstrap-agent.mjs \\
-  --dir . --agent-id my-agent \\
-  --api-key "$DASHCLAW_API_KEY" \\
-  --base-url ${baseUrl}
+npm install -g @dashclaw/cli
 \`\`\`
+
+Approve pending actions from the terminal:
+
+\`\`\`bash
+dashclaw approvals          # interactive inbox
+dashclaw approve <actionId> # approve a specific action
+\`\`\`
+
+When a policy gate fires, the agent prints the action ID and replay link to your terminal and blocks until you approve.
 
 ## What to report
 
-Use the SDK to report:
-- **Actions**: tool calls, file writes, deployments
-- **Learning / Decisions**: why you chose an approach
-- **Goals**: what you're trying to achieve
-- **Context**: handoff notes, memory, preferences
+Use the SDK to instrument any action your agent takes: file writes, API calls, deployments, decisions. Every governed action creates a replayable evidence record at \`${baseUrl}/replay/<actionId>\`.
 
 ## Reference
 
 Full SDK docs: ${baseUrl}/docs
+Decision replays: ${baseUrl}/replay/<actionId>
+CLI approval inbox: ${baseUrl}/approvals
 `;
 }
 

@@ -1,4 +1,4 @@
-# DashClaw SDK (v2.1.2)
+# DashClaw SDK (v2.1.5)
 
 **Minimal governance runtime for AI agents.**
 
@@ -25,7 +25,7 @@ DashClaw v2 is designed around a single 4-step loop.
 import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: 'https://dashclaw.io',
+  baseUrl: process.env.DASHCLAW_BASE_URL,
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
 });
@@ -45,11 +45,12 @@ await claw.updateOutcome(action_id, { status: 'completed' });
 
 ### Python
 ```python
+import os
 from dashclaw import DashClaw
 
 claw = DashClaw(
-    base_url="https://dashclaw.io",
-    api_key="your_api_key",
+    base_url=os.environ["DASHCLAW_BASE_URL"],
+    api_key=os.environ["DASHCLAW_API_KEY"],
     agent_id="my-agent"
 )
 
@@ -69,38 +70,40 @@ claw.update_outcome(action_id, status="completed")
 
 ---
 
-## SDK Surface Area (v2.1.2)
+## SDK Surface Area (v2.1.5)
 
-The v2.1.2 SDK is optimized for stability and zero-overhead governance:
+The v2.1.5 SDK is optimized for stability and zero-overhead governance:
 
 ### Core Runtime
-- `guard(context)` — Policy evaluation ("Can I do X?")
-- `createAction(action)` — Lifecycle tracking ("I am doing X")
-- `updateOutcome(id, outcome)` — Result recording ("X finished with Y")
-- `recordAssumption(assumption)` — Integrity tracking ("I believe Z while doing X")
-- `waitForApproval(id)` — Polling helper for human-in-the-loop approvals
+- `guard(context)` -- Policy evaluation ("Can I do X?")
+- `createAction(action)` -- Lifecycle tracking ("I am doing X")
+- `updateOutcome(id, outcome)` -- Result recording ("X finished with Y")
+- `recordAssumption(assumption)` -- Integrity tracking ("I believe Z while doing X")
+- `waitForApproval(id)` -- Polling helper for human-in-the-loop approvals
+- `approveAction(id, decision, reasoning?)` -- Submit approval decisions from code
+- `getPendingApprovals()` -- List actions awaiting human review
 
 ### Decision Integrity
-- `registerOpenLoop(actionId, type, desc)` — Register unresolved dependencies.
-- `resolveOpenLoop(loopId, status, res)` — Resolve pending loops.
-- `getSignals()` — Get current risk signals across all agents.
+- `registerOpenLoop(actionId, type, desc)` -- Register unresolved dependencies.
+- `resolveOpenLoop(loopId, status, res)` -- Resolve pending loops.
+- `getSignals()` -- Get current risk signals across all agents.
 
 ### Swarm & Connectivity
-- `heartbeat(status, metadata)` — Report agent presence and health.
-- `reportConnections(connections)` — Report active provider connections.
+- `heartbeat(status, metadata)` -- Report agent presence and health.
+- `reportConnections(connections)` -- Report active provider connections.
 
 ### Learning & Optimization
-- `getLearningVelocity()` — Track agent improvement rate.
-- `getLearningCurves()` — Measure efficiency gains per action type.
-- `renderPrompt(context)` — Fetch rendered prompt templates from DashClaw.
+- `getLearningVelocity()` -- Track agent improvement rate.
+- `getLearningCurves()` -- Measure efficiency gains per action type.
+- `renderPrompt(context)` -- Fetch rendered prompt templates from DashClaw.
 
 ### Compliance & Audit
-- `createScorer(name, type, config)` — Define automated evaluations.
-- `createScoringProfile(profile)` — Weighted quality scoring.
-- `mapCompliance(framework)` — Map behavior to regulatory controls.
-- `getProofReport(format)` — Generate audit-ready evidence exports.
-- `getActivityLogs(filters)` — Query the immutable audit trail.
-- `createWebhook(url, events)` — Real-time event exfiltration.
+- `createScorer(name, type, config)` -- Define automated evaluations.
+- `createScoringProfile(profile)` -- Weighted quality scoring.
+- `mapCompliance(framework)` -- Map behavior to regulatory controls.
+- `getProofReport(format)` -- Generate audit-ready evidence exports.
+- `getActivityLogs(filters)` -- Query the immutable audit trail.
+- `createWebhook(url, events)` -- Real-time event exfiltration.
 
 ---
 
@@ -108,8 +111,38 @@ The v2.1.2 SDK is optimized for stability and zero-overhead governance:
 
 DashClaw uses standard HTTP status codes and custom error classes:
 
-- `GuardBlockedError` — Thrown when `claw.guard()` returns a `block` decision.
-- `ApprovalDeniedError` — Thrown when an operator denies an action during `waitForApproval()`.
+- `GuardBlockedError` -- Thrown when `claw.guard()` returns a `block` decision.
+- `ApprovalDeniedError` -- Thrown when an operator denies an action during `waitForApproval()`.
+
+---
+
+## CLI Approval Channel
+
+Install the DashClaw CLI to approve agent actions from the terminal:
+
+```bash
+npm install -g @dashclaw/cli
+```
+
+```bash
+dashclaw approvals              # interactive approval inbox
+dashclaw approve <actionId>     # approve a specific action
+dashclaw deny <actionId>        # deny a specific action
+```
+
+When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal or the dashboard, and the agent unblocks instantly.
+
+## Claude Code Hooks
+
+Govern Claude Code tool calls without any SDK instrumentation. Copy two files from the `hooks/` directory in the repo into your `.claude/hooks/` folder:
+
+```bash
+# In your project directory
+cp path/to/DashClaw/hooks/dashclaw_pretool.py .claude/hooks/
+cp path/to/DashClaw/hooks/dashclaw_posttool.py .claude/hooks/
+```
+
+Then merge the hooks block from `hooks/settings.json` into your `.claude/settings.json`. Set `DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, and optionally `DASHCLAW_HOOK_MODE=enforce`.
 
 ---
 

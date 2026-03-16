@@ -111,31 +111,42 @@ export async function DELETE(request, { params }) {
 
     const sql = getSql();
 
-    // Verify target user is in the same org
-    const targetUser = await sql`
-      SELECT id, role FROM users WHERE id = ${userId} AND org_id = ${orgId}
+    // Atomic check-and-update: prevents race condition where concurrent requests
+    // could both pass the admin count check and remove the last admin(s).
+    const result = await sql`
+      WITH admin_check AS (
+        SELECT COUNT(*) as admin_count
+        FROM users
+        WHERE org_id = ${orgId} AND role = 'admin'
+      ),
+      target AS (
+        SELECT id, role FROM users WHERE id = ${userId} AND org_id = ${orgId}
+      )
+      UPDATE users
+      SET org_id = 'org_default', role = 'member'
+      WHERE id = ${userId}
+        AND org_id = ${orgId}
+        AND (
+          (SELECT role FROM target) != 'admin'
+          OR (SELECT admin_count FROM admin_check) > 1
+        )
+      RETURNING id
     `;
-    if (targetUser.length === 0) {
-      return NextResponse.json({ error: 'User not found in this workspace' }, { status: 404 });
-    }
 
-    // Guard: cannot remove/leave as last admin
-    if (targetUser[0].role === 'admin') {
-      const adminCount = await sql`
-        SELECT COUNT(*) as count FROM users WHERE org_id = ${orgId} AND role = 'admin'
+    if (result.length === 0) {
+      // Determine whether the user was not found or the admin check prevented removal
+      const targetUser = await sql`
+        SELECT id, role FROM users WHERE id = ${userId} AND org_id = ${orgId}
       `;
-      if (parseInt(adminCount[0].count) <= 1) {
-        return NextResponse.json(
-          { error: isSelfLeave ? 'Cannot leave as the last admin. Promote another member first.' : 'Cannot remove the last admin.' },
-          { status: 409 }
-        );
+      if (targetUser.length === 0) {
+        return NextResponse.json({ error: 'User not found in this workspace' }, { status: 404 });
       }
+      // User exists but is the last admin — the atomic query prevented removal
+      return NextResponse.json(
+        { error: isSelfLeave ? 'Cannot leave as the last admin. Promote another member first.' : 'Cannot remove the last admin.' },
+        { status: 409 }
+      );
     }
-
-    // Move user back to org_default with role member
-    await sql`
-      UPDATE users SET org_id = 'org_default', role = 'member' WHERE id = ${userId} AND org_id = ${orgId}
-    `;
 
     // Fire-and-forget meter decrement
     incrementMeter(orgId, 'members', sql, -1).catch((err) => {

@@ -26,7 +26,7 @@ if (isProd) {
   }
 
   if (!process.env.ENCRYPTION_KEY) {
-    warnings.push('ENCRYPTION_KEY is not set — sensitive settings cannot be encrypted');
+    errors.push('ENCRYPTION_KEY must be set in production — sensitive settings cannot be stored securely');
   } else if (process.env.ENCRYPTION_KEY.length !== 32) {
     errors.push('ENCRYPTION_KEY must be exactly 32 characters');
   }
@@ -61,6 +61,11 @@ if (isProd) {
   if (!process.env.ALLOWED_ORIGIN) {
     warnings.push('ALLOWED_ORIGIN is not set — CORS will block cross-origin API requests');
   }
+}
+
+// Informational notices
+if (process.env.DISABLE_PROMPT_INJECTION_SCAN === 'true') {
+  console.info('[ENV] INFO: Prompt injection scanning is disabled (DISABLE_PROMPT_INJECTION_SCAN=true)');
 }
 
 // Log warnings
