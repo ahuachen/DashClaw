@@ -2,18 +2,19 @@
 name: dashclaw-platform-intelligence
 description: >
   DashClaw platform expert for integration, troubleshooting, and governance. Use when working
-  with DashClaw APIs/SDKs or related concepts: instrumenting agents, action recording,
-  guard/policy checks, SSE real-time events, org/workspace context, auth headers (`x-api-key`),
-  and common errors (401/403/429/503). Also use for building DashClaw API routes, generating
-  SDK/client methods, bootstrapping agent data, configuring evaluations/scorers, prompt
-  templates/versioning, feedback capture, compliance exports, drift monitoring, learning
-  analytics/velocity, and scoring profiles or risk templates. Trigger on requests like
-  "instrument my agent", "connect my agent", "why am I getting a 403", "set up monitoring",
-  "evaluate or score outputs", "manage prompts", "collect feedback", "export compliance",
-  "detect drift", or "track learning".
+  with DashClaw APIs/SDKs: instrumenting agents, action recording, guard/policy checks, SSE
+  real-time events, org/workspace context, auth headers (x-api-key), errors (401/403/429/503),
+  building API routes, generating SDK/client methods, bootstrapping agent data, configuring
+  evaluations/scorers, prompt templates/versioning, feedback capture, compliance exports, drift
+  monitoring, learning analytics/velocity, scoring profiles, risk templates, CLI approval
+  channel, terminal approvals, dashclaw approve, dashclaw approvals, dashclaw deny, Claude Code
+  hooks, PreToolUse, PostToolUse, governed tool calls, DASHCLAW_HOOK_MODE, terminal governance.
+  Trigger on: "instrument my agent", "connect my agent", "403 error", "set up monitoring",
+  "evaluate outputs", "manage prompts", "collect feedback", "export compliance", "detect drift",
+  "track learning", "approve from terminal", "govern Claude Code".
 ---
 
-# DashClaw Platform Intelligence (v2.1)
+# DashClaw Platform Intelligence (v2.3)
 
 You are a DashClaw platform expert. You know every API route, both SDKs, the security model,
 compliance frameworks, evaluation engine, prompt registry, feedback loop, drift detection,
@@ -41,6 +42,8 @@ Determine which workflow to follow:
 **Monitoring for behavioral drift?** --> "Monitor Drift" below
 **Tracking learning progress?** --> "Track Learning" below
 **Defining quality scoring or risk templates?** --> "Configure Scoring" below
+**Approving agent actions from the terminal?** --> "CLI Approval Channel" below
+**Governing Claude Code tool calls with DashClaw?** --> "Claude Code Hooks" below
 **General question about the platform?** --> Read [references/platform-knowledge.md](references/platform-knowledge.md)
 **Need the full API surface?** --> Read [references/api-surface.md](references/api-surface.md)
 
@@ -623,6 +626,172 @@ console.log(`${results.passed} passed, ${results.failed} failed`);
 // Generate compliance proof report
 const proof = await dc.getProofReport({ format: 'json' });
 ```
+
+## CLI Approval Channel
+
+The DashClaw CLI lets operators approve, deny, and monitor agent actions from the terminal without opening a browser. This is the primary interface for developers using Claude Code, Codex, Gemini CLI, or any terminal-first workflow.
+
+### Package
+
+The CLI is published as `@dashclaw/cli` and installed globally:
+
+```bash
+npm install -g @dashclaw/cli
+```
+
+### Required environment variables
+
+```bash
+export DASHCLAW_BASE_URL=https://your-dashclaw-instance.com
+export DASHCLAW_API_KEY=your_operator_api_key
+export DASHCLAW_AGENT_ID=cli-operator  # optional, default is "cli-operator"
+```
+
+### Commands
+
+**Interactive approval inbox:**
+```bash
+dashclaw approvals
+```
+Opens a live terminal inbox showing all pending actions. Navigate with arrow keys. Press A to approve, D to deny, R to open the replay URL in a browser, Q to quit. The browser dashboard updates in real time via SSE when you approve or deny from the terminal.
+
+**Non-interactive single approval:**
+```bash
+dashclaw approve <actionId> [--reason "Reviewed and safe to proceed"]
+```
+Approves a specific action and prints the replay URL to stdout.
+
+**Non-interactive denial:**
+```bash
+dashclaw deny <actionId> [--reason "Outside approved change window"]
+```
+
+### Terminal approval output block
+
+When an agent calls `waitForApproval()`, the Node SDK prints a structured block to stdout immediately before blocking:
+
+```
++== DashClaw Approval Required =====================+
+  Action ID:   act_01j9z7k2m8n3p4q5r6s7t8u9v0
+  Agent:       deploy-bot
+  Action:      deploy
+  Policy:      require_approval
+  Risk Score:  85
+  Goal:        Deploy auth service v2 to production
+
+  Replay:      https://your-instance.com/replay/act_01j9z...
+
+  Waiting for approval... (Ctrl+C to abort)
++===================================================+
+```
+
+The agent process blocks until an operator approves or denies from any channel (terminal or browser). The SSE stream syncs the decision instantly across all connected clients.
+
+### How approval sync works
+
+The approval flows through a single path regardless of channel:
+
+1. Agent calls `waitForApproval(actionId)` and blocks
+2. Operator approves via `dashclaw approve <id>` or the /approvals dashboard
+3. `POST /api/actions/:id/approve` commits the decision to Postgres
+4. An `action.updated` event is published to the Redis SSE stream
+5. The SDK's SSE listener unblocks the agent within milliseconds
+6. The browser dashboard reflects the change on the next SSE heartbeat
+
+### Replay links
+
+Every governed action has a permanent replay URL:
+```
+<DASHCLAW_BASE_URL>/replay/<actionId>
+```
+
+This URL is printed in the terminal approval block, in the `dashclaw approve` output, and in the `dashclaw approvals` inbox. It opens a full decision evidence page showing the policy that triggered the gate, the agent's declared goal, assumptions, risk score, and outcome.
+
+## Claude Code Hooks
+
+The DashClaw hooks for Claude Code intercept tool calls before and after execution, enforcing guard policies without any SDK instrumentation in your agent code. Drop two Python scripts into `.claude/hooks/` and every Bash, Edit, Write, and MultiEdit call Claude makes is governed by your DashClaw policies.
+
+### Files
+
+```
+hooks/
+  dashclaw_pretool.py    # PreToolUse hook: guard check + block/approve
+  dashclaw_posttool.py   # PostToolUse hook: record outcome as evidence
+  settings.json          # Snippet to merge into .claude/settings.json
+  README.md
+```
+
+Download from the DashClaw repo at `hooks/` in the root directory.
+
+### Installation
+
+1. Copy `dashclaw_pretool.py` and `dashclaw_posttool.py` to `.claude/hooks/` in your project
+2. Merge the `hooks` block from `hooks/settings.json` into your `.claude/settings.json`
+3. Set the three required environment variables:
+   ```bash
+   export DASHCLAW_BASE_URL=https://your-dashclaw-instance.com
+   export DASHCLAW_API_KEY=your_operator_api_key
+   export DASHCLAW_HOOK_MODE=enforce  # or "observe" to log only
+   ```
+
+### Environment variables
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| DASHCLAW_BASE_URL | Yes | none | Your DashClaw instance URL |
+| DASHCLAW_API_KEY | Yes | none | Operator API key |
+| DASHCLAW_AGENT_ID | No | claude-code | Agent ID recorded in decisions |
+| DASHCLAW_HOOK_MODE | No | enforce | enforce blocks on policy violations; observe logs only |
+| DASHCLAW_RISK_THRESHOLD | No | 60 | Base risk threshold for elevated scoring |
+
+### Governed tools
+
+The hooks intercept: `Bash`, `Edit`, `Write`, `MultiEdit`. All other tools pass through ungoverned.
+
+### Decision behavior
+
+| Guard Decision | enforce mode | observe mode |
+|---|---|---|
+| allow | Tool proceeds silently | Tool proceeds silently |
+| warn | Warning printed to stderr, tool proceeds | Same |
+| block | Tool blocked (exit 2), reason shown | Warning only, tool proceeds |
+| require_approval | Action created as pending, polls for 30s, blocks if not approved | Warning only |
+
+### Action type mapping
+
+The hooks map tool calls to DashClaw action types automatically:
+
+**Bash commands:**
+- `git push`, `git merge`, `git rebase` -> `deploy`, risk 80, irreversible
+- `npm run deploy`, `vercel`, `kubectl`, `terraform` -> `deploy`, risk 75-85, irreversible
+- `rm -rf`, `DROP TABLE`, `DELETE FROM` -> `security`, risk 90, irreversible
+- `curl`, `wget` -> `api`, risk 40
+- default -> `other`, risk 20
+
+**File edits (Edit/Write/MultiEdit):**
+- Path matches `.env`, `secret`, `credential`, `private_key` -> `security`, risk 85
+- Path matches `migration`, `schema` -> `migrate`, risk 70, irreversible
+- Path matches `deploy`, `terraform`, `kubernetes` -> `deploy`, risk 75
+- Path matches `auth`, `jwt`, `token`, `password` -> `security`, risk 75
+- default -> `other`, risk 15
+
+### Failure safety
+
+If `DASHCLAW_BASE_URL` or `DASHCLAW_API_KEY` are not set, both scripts exit 0 silently. If the DashClaw API is unreachable (timeout, network error), the hooks exit 0 and print `[DashClaw] Guard unavailable, proceeding` to stderr. Claude Code is never blocked because DashClaw is down.
+
+### Approving from the terminal
+
+When a hook enters approval-required state, it prints the action ID and replay URL. Approve from a second terminal:
+
+```bash
+dashclaw approve act_01j9z7k2m8n3p4q5r6s7t8u9v0 --reason "Reviewed, safe to proceed"
+```
+
+The hook polling loop detects the approval within 3 seconds and unblocks Claude Code.
+
+### Evidence trail
+
+After every governed tool execution, `dashclaw_posttool.py` records the outcome as a DashClaw action. This means every file edit and bash command Claude runs in your project becomes a replayable evidence record at `<DASHCLAW_BASE_URL>/replay/<actionId>`.
 
 ## Bootstrap Agent
 

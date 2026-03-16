@@ -252,7 +252,7 @@ export default function SelfHostPage() {
               <h3 className="text-sm font-semibold text-zinc-200 mb-2">What&apos;s inside</h3>
               <pre className="text-xs text-zinc-400 font-mono overflow-x-auto leading-relaxed">
 {`dashclaw-platform-intelligence/
-|-- SKILL.md                          # 13 guided workflows (v2.1)
+|-- SKILL.md                          # 15 guided workflows (v2.3)
 |-- scripts/
 |   |-- validate-integration.mjs      # End-to-end connectivity test
 |   |-- diagnose.mjs                  # 5-phase platform diagnostics
@@ -266,7 +266,7 @@ export default function SelfHostPage() {
 
           <h3 className="text-sm font-semibold text-white mt-8 mb-3">Skill workflows</h3>
           <p className="text-xs text-zinc-400 mb-4">
-            The skill includes 13 guided workflows. Your agent picks the right one from the decision tree based on what you ask:
+            The skill includes 15 guided workflows. Your agent picks the right one from the decision tree based on what you ask:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
@@ -283,6 +283,8 @@ export default function SelfHostPage() {
               { title: 'Bootstrap Agent', desc: 'Auto-discover and import existing agent workspace data' },
               { title: 'Add a Capability', desc: 'Full-stack scaffold guide for adding new API routes' },
               { title: 'Generate Client', desc: 'Generate a DashClaw SDK in any language from OpenAPI' },
+              { title: 'CLI Approval Channel', desc: 'Approve and deny agent actions from the terminal with dashclaw approvals' },
+              { title: 'Claude Code Hooks', desc: 'Govern Claude Code tool calls via PreToolUse and PostToolUse lifecycle hooks' },
               { title: 'Troubleshoot', desc: 'Guided error resolution for auth and rate limits' },
             ].map((item) => (
               <div key={item.title} className="p-3 rounded-lg bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)]">
@@ -309,7 +311,7 @@ export default function SelfHostPage() {
             >
               <Download size={16} /> Download Skill
             </a>
-            <span className="text-xs text-zinc-500">~28 KB · open standard, works with any skill-compatible agent</span>
+            <span className="text-xs text-zinc-500">~32 KB · v2.3 · includes CLI approval channel and Claude Code hooks</span>
           </div>
         </div>
 

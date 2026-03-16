@@ -146,6 +146,18 @@ Client request hits middleware.js
 | `/learning/analytics` |
 | `/scoring` | Learning analytics (velocity, maturity, curves, summary) |
 
+## CLI and Hooks Layer
+
+DashClaw has three integration surfaces beyond the SDK:
+
+**CLI (`@dashclaw/cli`)**: A terminal approval client installed via `npm install -g @dashclaw/cli`. Provides `dashclaw approvals` (interactive inbox), `dashclaw approve <id>`, and `dashclaw deny <id>`. Uses the same `POST /api/actions/:id/approve` endpoint as the browser dashboard. Decisions sync in real time via the Redis SSE stream.
+
+**Claude Code Hooks (`hooks/`)**: Two Python scripts for `PreToolUse` and `PostToolUse` lifecycle events. Require only stdlib, no pip installs. Governed tools: Bash, Edit, Write, MultiEdit. Safe to install even without DashClaw configured (silent no-op when env vars are missing).
+
+**SDK terminal output**: The Node SDK's `waitForApproval()` method prints a structured approval block to stdout before blocking. The block includes the action ID, policy name, risk score, declared goal, and the replay URL. This gives terminal-first workflows full governance visibility without a browser.
+
+**Approval sync architecture**: All three surfaces (browser, CLI, SDK polling) converge at `POST /api/actions/:id/approve`. The API commits to Neon Postgres, publishes `action.updated` to the Redis stream, and every connected SSE listener receives the decision. The browser dashboard, the SDK polling loop, and the CLI inbox all stay in sync within the SSE heartbeat window (~1 second).
+
 ## Key Reference Files
 
 When you need current data from the codebase, read these:
