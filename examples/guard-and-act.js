@@ -37,7 +37,7 @@ async function main() {
   console.log(`Action record created: ${action.action_id}`);
 
   // 3. Register assumptions
-  await claw.registerAssumption({
+  await claw.recordAssumption({
     action_id: action.action_id,
     assumption: 'User bank account has sufficient funds.',
     basis: 'Previous balance check passed.'

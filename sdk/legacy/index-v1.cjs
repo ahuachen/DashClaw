@@ -1,14 +1,14 @@
 /**
- * DashClaw SDK: CommonJS compatibility wrapper.
- * For ESM: import { DashClaw } from 'dashclaw'
- * For CJS: const { DashClaw } = require('dashclaw')
+ * DashClaw SDK v1 (Legacy): CommonJS compatibility wrapper.
+ * For ESM: import { DashClaw } from 'dashclaw/legacy'
+ * For CJS: const { DashClaw } = require('dashclaw/legacy')
  */
 
 let _module;
 
 async function loadModule() {
   if (!_module) {
-    _module = await import('./dashclaw.js');
+    _module = await import('./dashclaw-v1.js');
   }
   return _module;
 }

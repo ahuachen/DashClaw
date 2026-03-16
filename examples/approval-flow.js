@@ -6,7 +6,6 @@ const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL || 'http://localhost:3000',
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'node-approval-agent',
-  agentName: 'Node Approval Agent'
 });
 
 async function main() {

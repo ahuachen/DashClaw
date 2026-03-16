@@ -4,7 +4,7 @@ dotenv.config();
 
 /**
  * Integrated SDK Example
- * Demonstrates: guard -> createAction -> registerAssumption -> updateOutcome
+ * Demonstrates: guard -> createAction -> recordAssumption -> updateOutcome
  */
 
 const claw = new DashClaw({
@@ -46,13 +46,13 @@ async function main() {
   console.log(`Action created: ${actionId}`);
 
   // 3. Register Assumptions
-  await claw.registerAssumption({
+  await claw.recordAssumption({
     action_id: actionId,
     assumption: 'Slack webhook is active.',
     basis: 'Integration test passed 10 minutes ago.'
   });
 
-  await claw.registerAssumption({
+  await claw.recordAssumption({
     action_id: actionId,
     assumption: 'Recipient channel #incidents exists.',
     basis: 'Workspace settings validated.'

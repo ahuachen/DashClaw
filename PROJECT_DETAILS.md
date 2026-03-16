@@ -60,7 +60,7 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 
 ## SDK Surface Area (v2)
 
-The canonical entry point for all agents is `sdk/dashclaw-v2.js` (exported as `dashclaw`). It has a 96% smaller surface area than the legacy SDK.
+The canonical entry point for all agents is `sdk/dashclaw.js` (exported as `dashclaw`). It has a 96% smaller surface area than the legacy SDK (`sdk/legacy/dashclaw-v1.js`).
 
 **Methods:**
 1. `guard(context)` — Intercept intent.

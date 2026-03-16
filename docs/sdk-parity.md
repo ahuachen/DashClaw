@@ -1,112 +1,59 @@
 ---
 source-of-truth: false
 owner: SDK Lead
-last-verified: 2026-02-19
+last-verified: 2026-03-16
 doc-type: architecture
 ---
 
 # SDK Parity Matrix (Node vs Python)
 
-Baseline parity for critical SDK capabilities, derived from:
+## SDK Tiers
 
-- `sdk/dashclaw.js`
-- `sdk-python/dashclaw/client.py`
+As of v2.1.5, the Node SDK is split into two tiers:
 
-## Snapshot Summary
+| Tier | Entry Point | Import | Methods | Purpose |
+|------|------------|--------|---------|---------|
+| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | ~20 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, compliance, webhooks |
+| **v1 (Legacy)** | `sdk/legacy/dashclaw-v1.js` | `import { DashClaw } from 'dashclaw/legacy'` | 177+ | Full platform surface: everything in v2 plus swarm, SSE events, context, messaging, handoffs, pairing, identity, preferences, and more |
 
-- Node public methods: `177+`
+**New integrations should use v2.** v1 is preserved for existing agents that depend on the full surface.
+
+The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 177+ method surface in a single module. Python parity is tracked against v1.
+
+## v2 Stable Surface (Node)
+
+20 public methods organized by governance concern:
+
+| Category | Methods | Count |
+|----------|---------|------:|
+| Policy Enforcement | `guard` | 1 |
+| Action Recording | `createAction`, `updateOutcome` | 2 |
+| Assumption Tracking | `recordAssumption` | 1 |
+| Human-in-the-Loop | `waitForApproval` | 1 |
+| Agent Lifecycle | `heartbeat`, `reportConnections` | 2 |
+| Loop Tracking | `registerOpenLoop`, `resolveOpenLoop` | 2 |
+| Signals | `getSignals` | 1 |
+| Learning Analytics | `getLearningVelocity`, `getLearningCurves` | 2 |
+| Prompt Registry | `renderPrompt` | 1 |
+| Evaluations | `createScorer` | 1 |
+| Scoring Profiles | `createScoringProfile` | 1 |
+| Compliance | `mapCompliance`, `getProofReport` | 2 |
+| Activity | `getActivityLogs` | 1 |
+| Webhooks | `createWebhook` | 1 |
+| **Total** | | **19** |
+
+Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
+
+Constructor: `new DashClaw({ baseUrl, apiKey, agentId })`.
+
+## v1 Legacy Surface (Node ↔ Python Parity)
+
+v1 parity between Node and Python is **100%** as of February 19, 2026.
+
+- Node v1 public methods: `177+`
 - Python public methods: `177+`
-- Current parity (method-level, normalized by Node surface): `100%`
 
-## Parity Fix (February 19, 2026)
-
-Four methods were missing from one SDK or the other. Identified by running a normalized camelCase/snake_case diff across both SDK source files.
-
-Node SDK additions:
-- Agent Pairing:
-  - `getPairing` (was missing; Python had `get_pairing`)
-- Actions/Approvals:
-  - `approveAction` (was missing; Python had `approve_action`)
-  - `getPendingApprovals` (was missing; Python had `get_pending_approvals`)
-
-Python SDK additions:
-- Agent Pairing:
-  - `create_pairing_from_private_jwk` (was missing; Node had `createPairingFromPrivateJwk`)
-  - Derives public PEM from JWK dict. Tries `jwcrypto` first, falls back to manual RSA component extraction via `cryptography` hazmat layer.
-
-## WS5 M2 Critical Domain Delta (February 14, 2026)
-
-Python SDK additions shipped for critical domains:
-
-- Actions/Approvals:
-  - `approve_action`
-  - `get_pending_approvals`
-- Guard:
-  - `get_guard_decisions`
-- Webhooks:
-  - `get_webhooks`
-  - `create_webhook`
-  - `delete_webhook`
-  - `test_webhook`
-  - `get_webhook_deliveries`
-
-Validation coverage:
-
-- `sdk-python/tests/test_ws5_m2_parity.py`
-
-## WS5 M3 Context/Memory/Messages Delta (February 14, 2026)
-
-Python SDK additions shipped for WS5 M3 domains:
-
-- Context:
-  - `close_thread`
-  - `get_threads`
-  - `get_context_summary`
-- Messages:
-  - `mark_read`
-  - `archive_messages`
-  - `broadcast`
-  - `create_message_thread`
-  - `get_message_threads`
-  - `resolve_message_thread`
-  - `save_shared_doc`
-- Memory:
-  - `report_memory_health` now accepts both composed report payload and split arguments.
-
-Validation coverage:
-
-- `sdk-python/tests/test_ws5_m3_parity.py`
-
-## WS5 M4 Cross-SDK Integration Suite (February 14, 2026)
-
-Cross-SDK critical-domain contract coverage is now validated against a shared harness:
-
-- Shared fixture: `docs/sdk-critical-contract-harness.json`
-- Node harness runner: `scripts/check-sdk-cross-integration.mjs` (`npm run sdk:integration`)
-- Python harness test: `sdk-python/tests/test_ws5_m4_integration.py` (`npm run sdk:integration:python`)
-- CI workflow steps: `.github/workflows/ci.yml` (`Run cross-SDK integration suite`, `Run cross-SDK Python contract suite`)
-
-Current shared contract cases covered by the harness:
-
-- `create_action`
-- `update_outcome`
-- `get_actions`
-- `get_action`
-- `guard`
-- `get_guard_decisions`
-- `report_memory_health`
-- `close_thread`
-- `get_threads`
-- `mark_read`
-- `archive_messages`
-- `broadcast`
-- `create_message_thread`
-- `get_message_threads`
-- `resolve_message_thread`
-- `save_shared_doc`
-- `sync_state`
-
-## Category Matrix
+### Category Matrix (v1)
 
 | Category | Node | Python | Status |
 |---|---:|---:|---|
@@ -136,52 +83,42 @@ Current shared contract cases covered by the harness:
 | User Feedback | 6 | 6 | Full parity |
 | Real-Time Events | 1 | 0 | Node only |
 
-## Confirmed Missing Python Methods
+### Cross-SDK Integration Suite
 
-None — full parity confirmed as of February 19, 2026.
+Critical-domain contract coverage is validated against a shared harness:
 
-## Full Parity Milestone (February 15, 2026)
+- Shared fixture: `docs/sdk-critical-contract-harness.json`
+- Node harness runner: `scripts/check-sdk-cross-integration.mjs` (`npm run sdk:integration`)
+- Python harness test: `sdk-python/tests/test_ws5_m4_integration.py` (`npm run sdk:integration:python`)
 
-Python SDK additions shipped to reach 100% parity:
+## v1 Parity Changelog
 
-- Dashboard Data:
-  - `report_token_usage`, `create_calendar_event`, `record_idea`
-- User Preferences (6 methods):
-  - `log_observation`, `set_preference`, `log_mood`, `track_approach`, `get_preference_summary`, `get_approaches`
-- Daily Digest:
-  - `get_daily_digest`
-- Security Scanning:
-  - `scan_content`, `report_security_finding`, `scan_prompt_injection`
-- Agent Pairing:
-  - `create_pairing`, `wait_for_pairing`, `get_pairing`
-- Identity Binding:
-  - `register_identity`, `get_identities`
-- Organization Management:
-  - `get_org`, `create_org`, `get_org_by_id`, `update_org`, `get_org_keys`
-- Activity Logs:
-  - `get_activity_logs`
+### Parity Fix (February 19, 2026)
 
-New Node SDK methods added in the same release:
-- Identity Binding: `registerIdentity`, `getIdentities`
-- Organization Management: `getOrg`, `createOrg`, `getOrgById`, `updateOrg`, `getOrgKeys`
-- Activity Logs: `getActivityLogs`
-- Webhooks: `getWebhooks`, `createWebhook`, `deleteWebhook`, `testWebhook`, `getWebhookDeliveries`
+Four methods were missing from one SDK or the other. Identified by running a normalized camelCase/snake_case diff across both SDK source files.
+
+Node SDK additions:
+- Agent Pairing: `getPairing`
+- Actions/Approvals: `approveAction`, `getPendingApprovals`
+
+Python SDK additions:
+- Agent Pairing: `create_pairing_from_private_jwk`
+
+### Full Parity Milestone (February 15, 2026)
+
+Python SDK additions shipped to reach 100% parity across Dashboard Data, User Preferences, Daily Digest, Security Scanning, Agent Pairing, Identity Binding, Organization Management, Activity Logs.
+
+Node SDK methods added in the same release: Identity Binding, Organization Management, Activity Logs, Webhooks.
+
+## Version Compatibility Policy
+
+- v2 Node SDK (`sdk/dashclaw.js`): stable governance runtime. Breaking changes require RFC + release note.
+- v1 Node SDK (`sdk/legacy/dashclaw-v1.js`): legacy maintenance only. No new methods will be added.
+- Python SDK (`sdk-python/dashclaw/client.py`): full surface, contract-compatible with v1 Node SDK.
+- Node SDK requires Node 18+. Python SDK supports Python 3.7+.
 
 ## Notes
 
 - Python method naming uses `snake_case`; Node uses `camelCase`.
-- Critical-domain payload/path contract parity is validated by the shared integration harness listed above.
-- All 21 categories now have full parity between Node and Python SDKs.
-
-## Version Compatibility Policy
-
-- Compatibility guarantee scope:
-  - Node `sdk/dashclaw.js` and Python `sdk-python/dashclaw/client.py` remain contract-compatible for the WS5 critical domains listed in the integration harness.
-- Breaking changes policy:
-  - Any critical-domain request-path or payload-shape breaking change requires:
-    - RFC entry in `docs/rfcs/`
-    - parity harness update
-    - release note entry in `docs/releases/`
-- Support floor:
-  - Node SDK requires Node 18+.
-  - Python SDK supports Python 3.7+.
+- v2 `waitForApproval` has stricter approval validation than v1 (requires `approved_by` metadata).
+- v1's `registerAssumption` was renamed to `recordAssumption` in v2.

@@ -11,31 +11,43 @@ const claw = new DashClaw({
 async function main() {
   console.log('Starting background loop...');
 
-  // 1. Create a loop
-  const { loop_id } = await claw.createLoop({
-    loop_type: 'background_indexing',
-    description: 'Indexing new documentation for RAG',
-    priority: 'medium'
+  // 1. Create a parent action for the loop to attach to
+  const { action } = await claw.createAction({
+    action_type: 'indexing',
+    declared_goal: 'Index new documentation for RAG',
+    risk_score: 15
   });
+
+  const actionId = action.action_id;
+  console.log(`Action created: ${actionId}`);
+
+  // 2. Register an open loop against the action
+  const { loop_id } = await claw.registerOpenLoop(
+    actionId,
+    'background_indexing',
+    'Indexing new documentation for RAG',
+    { priority: 'medium' }
+  );
 
   console.log(`Loop created: ${loop_id}`);
 
-  // 2. Update progress
+  // 3. Simulate work
   await new Promise(r => setTimeout(r, 1000));
-  await claw.updateLoop(loop_id, {
-    status: 'active',
-    description: 'Processed 15 files...'
-  });
+  console.log('Processed 15 files...');
 
-  // 3. Resolve loop
+  // 4. Resolve the loop
   await new Promise(r => setTimeout(r, 1000));
-  await claw.updateLoop(loop_id, {
-    status: 'resolved',
-    resolution: 'Successfully indexed 42 files.',
-    description: 'Indexing complete.'
-  });
+  await claw.resolveOpenLoop(loop_id, 'resolved', 'Successfully indexed 42 files.');
 
   console.log('Loop resolved.');
+
+  // 5. Close out the parent action
+  await claw.updateOutcome(actionId, {
+    status: 'completed',
+    output_summary: 'Indexed 42 files for RAG.'
+  });
+
+  console.log('Action complete.');
 }
 
 main();

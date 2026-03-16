@@ -5,7 +5,7 @@ dotenv.config();
 
 /**
  * Node.js Parity for Kimi/Moonshot Example
- * Demonstrates: guard -> createAction -> registerAssumption -> updateOutcome
+ * Demonstrates: guard -> createAction -> recordAssumption -> updateOutcome
  */
 
 const moonshot = new OpenAI({
@@ -74,7 +74,7 @@ async function main() {
   console.log('Action response:', actionId);
 
   // 3. Register Assumption
-  await claw.registerAssumption({
+  await claw.recordAssumption({
     action_id: actionId,
     assumption: 'The recipient is a valid business contact and outreach is authorized.',
     basis: 'User initiated the request and provided the business context.',

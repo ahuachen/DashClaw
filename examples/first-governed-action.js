@@ -5,7 +5,8 @@ import { DashClaw } from "dashclaw";
 // In "demo" mode, it sends telemetry to the public DashClaw demo.
 const claw = new DashClaw({
   apiKey: process.env.DASHCLAW_API_KEY || "demo",
-  baseUrl: process.env.DASHCLAW_BASE_URL || "https://www.dashclaw.io"
+  baseUrl: process.env.DASHCLAW_BASE_URL || "https://www.dashclaw.io",
+  agentId: process.env.DASHCLAW_AGENT_ID || "first-action-agent"
 });
 
 async function run() {
@@ -13,21 +14,21 @@ async function run() {
 
   // 2. Intercept before you act
   // This sends the intent to DashClaw for policy evaluation.
-  const { decision, actionId } = await claw.guard({
-    actionType: "deploy",
-    riskScore: 92,
-    declaredGoal: "Deploy build v2.1.0 to production environment",
+  const { decision, action_id } = await claw.guard({
+    action_type: "deploy",
+    risk_score: 92,
+    declared_goal: "Deploy build v2.1.0 to production environment",
     reasoning: "The build has passed all CI checks and is ready for release."
   });
 
   console.log(`⚖️ DashClaw decision: ${decision.toUpperCase()}`);
   
-  if (actionId) {
-    console.log(`🔗 View decision replay: http://localhost:3000/decisions/${actionId}`);
+  if (action_id) {
+    console.log(`🔗 View decision replay: http://localhost:3000/decisions/${action_id}`);
   }
 
   // 3. Follow the decision
-  if (decision === "allowed") {
+  if (decision === "allow") {
     console.log("✅ Action permitted. Proceeding with deployment.");
   } else if (decision === "require_approval") {
     console.log("⏳ Action paused. Awaiting human operator approval in Mission Control.");
