@@ -5,7 +5,6 @@ import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
 import HeroScreenshot from './components/HeroScreenshot';
 import InlineCopyCommand from './components/InlineCopyCommand';
-import GuardSimulation from './components/GuardSimulation';
 import { allScreenshots } from './screenshotData';
 
 import {
@@ -102,7 +101,13 @@ export default function LandingPage() {
 
           <div className="mt-20 mb-12">
             <h3 className="text-xs font-mono text-zinc-500 uppercase tracking-[0.2em] mb-8 animate-pulse">Decision Interception Demo</h3>
-            <GuardSimulation />
+            <div className="overflow-hidden rounded-xl border border-[rgba(255,255,255,0.08)] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]">
+              <img
+                src="/images/demo-gif2.gif"
+                alt="DashClaw decision interception in action"
+                className="w-full h-auto block"
+              />
+            </div>
           </div>
 
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-widest">
@@ -135,13 +140,71 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="max-w-2xl mx-auto">
-            <HeroScreenshot
-              src="/images/screenshots/replay2.png"
-              alt="DashClaw Interception Replay - detailed evidence of a governed decision"
-              className="shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]"
-              items={allScreenshots}
-            />
+          {/* Flow Diagram */}
+          <div className="max-w-3xl mx-auto mb-10">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+              <div className="flex flex-col items-center gap-2">
+                <div className="px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-sm font-mono font-medium shadow-lg whitespace-nowrap">
+                  Agent Intent
+                </div>
+              </div>
+
+              <div className="text-zinc-600 font-mono text-lg">→</div>
+
+              <div className="flex flex-col items-center gap-2">
+                <div className="px-5 py-3 rounded-xl bg-brand/10 border border-brand/40 text-brand text-sm font-mono font-bold shadow-[0_0_20px_rgba(249,115,22,0.15)] whitespace-nowrap">
+                  DashClaw Guard
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 items-start">
+                <div className="flex items-center gap-2">
+                  <div className="text-zinc-600 font-mono">→</div>
+                  <div className="px-4 py-2 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-400 text-xs font-mono font-bold tracking-wider">
+                    ALLOW
+                  </div>
+                  <div className="text-zinc-600 font-mono">→</div>
+                  <div className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-mono whitespace-nowrap">
+                    Production
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-zinc-600 font-mono">→</div>
+                  <div className="px-4 py-2 rounded-lg bg-red-950 border border-red-900 text-red-400 text-xs font-mono font-bold tracking-wider">
+                    BLOCK
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Code Split */}
+          <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#111] overflow-hidden">
+              <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-red-500/60"></div>
+                <span className="text-xs font-mono text-zinc-500">without DashClaw</span>
+              </div>
+              <pre className="p-4 text-xs font-mono text-zinc-400 leading-relaxed overflow-x-auto">{`await deleteFiles({
+  path: "/prod/data"
+});
+// No check. No record.
+// No way back.`}</pre>
+            </div>
+
+            <div className="rounded-xl border border-brand/20 bg-[#111] overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.05)]">
+              <div className="px-4 py-2 border-b border-brand/20 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500/60"></div>
+                <span className="text-xs font-mono text-brand">with DashClaw</span>
+              </div>
+              <pre className="p-4 text-xs font-mono text-zinc-300 leading-relaxed overflow-x-auto">{`const { decision } = await dc.guard({
+  action: "delete_files",
+  resource: "/prod/data"
+});
+if (decision === "allow") {
+  await deleteFiles({ path: "/prod/data" });
+}`}</pre>
+            </div>
           </div>
 
           <div className="mt-12 text-center max-w-2xl mx-auto">
@@ -222,13 +285,64 @@ export default function LandingPage() {
 
       {/* ── 4. The Runtime Problem ── */}
       <section className="py-20 px-6 border-t border-[rgba(255,255,255,0.06)] bg-[#0c0c0c]">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">AI agents introduce a new runtime problem</h2>
-          <div className="mt-8 space-y-4 text-lg text-zinc-400 leading-relaxed text-left max-w-2xl mx-auto">
-            <p>Traditional software executes deterministic code paths.</p>
-            <p>AI agents generate actions from goals and context.</p>
-            <p>Debugging alone is no longer enough.</p>
-            <p>Developers need governance over agent decisions.</p>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-center mb-12">AI agents introduce a new runtime problem</h2>
+
+          {/* Contrast Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            {/* Traditional Software */}
+            <div className="p-6 rounded-2xl bg-[#111] border border-[rgba(255,255,255,0.06)]">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                  <Terminal size={18} className="text-zinc-400" />
+                </div>
+                <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">Traditional Software</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Deterministic code paths',
+                  'Predictable outputs',
+                  'Traceable call stacks',
+                  'Debuggers work',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-zinc-400">
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* AI Agents */}
+            <div className="p-6 rounded-2xl bg-[#111] border border-brand/20 shadow-[0_0_30px_rgba(249,115,22,0.05)]">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center">
+                  <Bot size={18} className="text-brand" />
+                </div>
+                <span className="text-sm font-semibold text-brand uppercase tracking-wider">AI Agents</span>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  'Actions generated from goals',
+                  'Non-deterministic outputs',
+                  'No call stack to trace',
+                  'Debuggers are not enough',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-zinc-300">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand/60 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Conclusion */}
+          <div className="text-center border-t border-[rgba(255,255,255,0.06)] pt-10">
+            <p className="text-xl sm:text-2xl font-semibold text-white leading-snug">
+              Developers need <span className="text-brand">governance</span> over agent decisions.
+            </p>
+            <p className="mt-3 text-zinc-500 text-sm">Not just logs. Not just traces. A runtime that governs the decision itself.</p>
           </div>
         </div>
       </section>
