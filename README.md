@@ -31,6 +31,20 @@
 
 <br />
 
+## Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fucsandman%2FDashClaw&env=DATABASE_URL,DASHCLAW_API_KEY,ENCRYPTION_KEY,NEXTAUTH_SECRET,NEXTAUTH_URL,CRON_SECRET,DASHCLAW_LOCAL_ADMIN_PASSWORD&envDescription=Required%20DashClaw%20configuration.%20See%20.env.example%20for%20details.&envLink=https%3A%2F%2Fgithub.com%2Fucsandman%2FDashClaw%2Fblob%2Fmain%2F.env.example&project-name=my-dashclaw&repository-name=my-dashclaw&products=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D&skippable-integrations=1)
+
+**$0 to deploy** — Vercel free tier + Neon free tier.
+
+### After deploy (3 steps)
+
+1. **Set NEXTAUTH_URL** — In Vercel → Project → Settings → Environment Variables, set `NEXTAUTH_URL` to your deployment URL (e.g., `https://my-dashclaw.vercel.app`). Redeploy once.
+2. **Enable live stream (optional)** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Required for Mission Control live decision stream on serverless.
+3. **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
+
+For a manual deploy path (local Docker, custom domain), see [Deploy without OAuth](docs/deploy-without-oauth.md).
+
 ---
 
 ## What is DashClaw?
