@@ -154,7 +154,9 @@ const INTEGRATION_CONFIGS = {
     fields: [
       { key: 'DISCORD_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
       { key: 'DISCORD_CLIENT_ID', label: 'Client ID', type: 'text', required: false },
-      { key: 'DISCORD_GUILD_ID', label: 'Server ID', type: 'text', required: false }
+      { key: 'DISCORD_GUILD_ID', label: 'Server ID', type: 'text', required: false },
+      { key: 'DISCORD_WEBHOOK_URL', label: 'Webhook URL (for alerts)', type: 'password', required: false },
+      { key: 'DASHCLAW_ALERTS_DISCORD', label: 'Enable governance alerts', type: 'toggle', required: false }
     ]
   },
   slack: {
@@ -164,7 +166,10 @@ const INTEGRATION_CONFIGS = {
     fields: [
       { key: 'SLACK_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
       { key: 'SLACK_SIGNING_SECRET', label: 'Signing Secret', type: 'password', required: false },
-      { key: 'SLACK_APP_TOKEN', label: 'App Token', type: 'password', required: false }
+      { key: 'SLACK_APP_TOKEN', label: 'App Token', type: 'password', required: false },
+      { key: 'SLACK_WEBHOOK_URL', label: 'Webhook URL (for alerts)', type: 'password', required: false },
+      { key: 'SLACK_CHANNEL_ID', label: 'Alert Channel ID', type: 'text', required: false },
+      { key: 'DASHCLAW_ALERTS_SLACK', label: 'Enable governance alerts', type: 'toggle', required: false }
     ]
   },
   twilio: {
@@ -182,7 +187,9 @@ const INTEGRATION_CONFIGS = {
     category: 'Communication',
     description: 'Developer-first email API',
     fields: [
-      { key: 'RESEND_API_KEY', label: 'API Key', type: 'password', required: true }
+      { key: 'RESEND_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'DASHCLAW_ALERT_EMAIL', label: 'Alert recipient email', type: 'email', required: false },
+      { key: 'DASHCLAW_ALERTS_EMAIL', label: 'Enable governance alerts', type: 'toggle', required: false }
     ]
   },
   sendgrid: {
@@ -190,7 +197,10 @@ const INTEGRATION_CONFIGS = {
     category: 'Communication',
     description: 'Email delivery service',
     fields: [
-      { key: 'SENDGRID_API_KEY', label: 'API Key', type: 'password', required: true }
+      { key: 'SENDGRID_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'SENDGRID_DEFAULT_TO', label: 'Alert recipient email', type: 'email', required: false },
+      { key: 'SENDGRID_FROM_EMAIL', label: 'Sender email', type: 'email', required: false },
+      { key: 'DASHCLAW_ALERTS_EMAIL', label: 'Enable governance alerts', type: 'toggle', required: false }
     ]
   },
 
@@ -218,7 +228,8 @@ const INTEGRATION_CONFIGS = {
     category: 'Productivity',
     description: 'Issue tracking for teams',
     fields: [
-      { key: 'LINEAR_API_KEY', label: 'API Key', type: 'password', required: true }
+      { key: 'LINEAR_API_KEY', label: 'API Key', type: 'password', required: true },
+      { key: 'DASHCLAW_ALERTS_LINEAR', label: 'Enable governance alerts (creates issues)', type: 'toggle', required: false }
     ]
   },
   airtable: {
@@ -246,7 +257,9 @@ const INTEGRATION_CONFIGS = {
     description: 'Code repos & version control',
     fields: [
       { key: 'GITHUB_TOKEN', label: 'Personal Access Token', type: 'password', required: true },
-      { key: 'GITHUB_USERNAME', label: 'Username', type: 'text', required: false }
+      { key: 'GITHUB_USERNAME', label: 'Username', type: 'text', required: false },
+      { key: 'GITHUB_REPO', label: 'Alert Repo (owner/repo)', type: 'text', required: false },
+      { key: 'DASHCLAW_ALERTS_GITHUB', label: 'Enable governance alerts (creates issues)', type: 'toggle', required: false }
     ]
   },
   vercel: {
@@ -857,34 +870,53 @@ export default function IntegrationsPage() {
               <div className="space-y-4">
                 {INTEGRATION_CONFIGS[editingIntegration].fields.map((field) => (
                   <div key={field.key}>
-                    <label className="block text-sm font-medium text-zinc-300 mb-1">
-                      {field.label}
-                      {field.required && <span className="text-red-400 ml-1">*</span>}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showValues[field.key] ? 'text' : field.type}
-                        value={formData[field.key] || ''}
-                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                        className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
-                      />
-                      {field.type === 'password' && (
+                    {field.type === 'toggle' ? (
+                      <div className="flex items-center justify-between py-1">
+                        <label className="text-sm font-medium text-zinc-300">{field.label}</label>
                         <button
                           type="button"
-                          onClick={() => toggleShowValue(field.key)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+                          onClick={() => setFormData({ ...formData, [field.key]: formData[field.key] === 'true' ? 'false' : 'true' })}
+                          className={`relative w-10 h-5 rounded-full transition-colors ${
+                            formData[field.key] === 'true' ? 'bg-brand' : 'bg-zinc-600'
+                          }`}
                         >
-                          {showValues[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                          <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                            formData[field.key] === 'true' ? 'translate-x-5' : ''
+                          }`} />
                         </button>
-                      )}
-                    </div>
-                    <p className="text-xs text-zinc-500 mt-1">
-                      {field.key}
-                      {selectedAgentId && settings[field.key]?.is_inherited && settings[field.key]?.hasValue && (
-                        <span className="ml-2 text-zinc-600">Inherited from org default</span>
-                      )}
-                    </p>
+                      </div>
+                    ) : (
+                      <>
+                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                          {field.label}
+                          {field.required && <span className="text-red-400 ml-1">*</span>}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showValues[field.key] ? 'text' : field.type}
+                            value={formData[field.key] || ''}
+                            onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                            className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
+                          />
+                          {field.type === 'password' && (
+                            <button
+                              type="button"
+                              onClick={() => toggleShowValue(field.key)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+                            >
+                              {showValues[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          {field.key}
+                          {selectedAgentId && settings[field.key]?.is_inherited && settings[field.key]?.hasValue && (
+                            <span className="ml-2 text-zinc-600">Inherited from org default</span>
+                          )}
+                        </p>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

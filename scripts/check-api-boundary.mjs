@@ -46,6 +46,7 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'stream',
   'cron',
   'settings',
+  'integrations',
   'security',
   'docs',
   

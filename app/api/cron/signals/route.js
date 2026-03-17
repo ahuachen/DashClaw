@@ -40,7 +40,7 @@ export async function GET(request) {
     }
 
     const sql = getSql();
-    const summary = { orgs_processed: 0, new_signals: 0, emails_sent: 0, webhooks_fired: 0 };
+    const summary = { orgs_processed: 0, new_signals: 0, emails_sent: 0, webhooks_fired: 0, native_notifications: 0 };
 
     // Load active orgs
     const orgs = await sql`
@@ -107,6 +107,26 @@ export async function GET(request) {
             action: 'webhook.fired', resourceType: 'webhook',
             details: { count: whFired, signal_count: cleanSignals.length },
           }, sql);
+        }
+
+        // Native notifications via configured integrations
+        try {
+          const { deliverNativeNotifications } = await import('../../../lib/notification-adapters/index.js');
+          const { getSettings } = await import('../../../lib/repositories/settings.repository.js');
+          const settings = await getSettings(sql, org.id, { category: 'integration' });
+          const nativeResults = await deliverNativeNotifications(org.id, cleanSignals, settings, sql);
+          for (const r of nativeResults) {
+            if (r.success) {
+              summary.native_notifications++;
+              logActivity({
+                orgId: org.id, actorId: 'system', actorType: 'system',
+                action: `notification.${r.provider}.sent`, resourceType: 'notification',
+                details: { provider: r.provider, signals: cleanSignals.length, message: r.message },
+              }, sql);
+            }
+          }
+        } catch (nativeErr) {
+          console.error(`[CRON] Native notification error for ${org.id}:`, nativeErr.message);
         }
 
         // Publish SSE events for realtime UI updates
