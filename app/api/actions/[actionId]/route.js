@@ -12,6 +12,7 @@ import {
   updateActionOutcome,
 } from '../../../lib/repositories/actions.repository.js';
 import {
+  maybeRebuildRecommendations,
   recordLearningRecommendationEvents,
   scoreAndStoreActionEpisode,
 } from '../../../lib/learningLoop.service.js';
@@ -113,6 +114,8 @@ export async function PATCH(request, { params }) {
           },
         ]);
       }
+      // Auto-rebuild recommendations if enough new episodes have accumulated
+      void maybeRebuildRecommendations(sql, orgId).catch(() => {});
     } catch (learningError) {
       console.warn('[LEARNING] Failed to score action episode:', learningError.message);
     }

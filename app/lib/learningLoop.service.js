@@ -1,6 +1,7 @@
 import { buildRecommendationsFromEpisodes, scoreActionEpisode, toNumber, average } from './learning-loop.js';
 import {
   clearLearningRecommendations,
+  countEpisodesSinceLastRebuild,
   createLearningRecommendationEvents,
   getActionEpisodeSource,
   listLearningEpisodes,
@@ -16,6 +17,19 @@ export async function scoreAndStoreActionEpisode(sql, orgId, actionId) {
 
   const scored = scoreActionEpisode(source);
   return upsertLearningEpisode(sql, orgId, source, scored);
+}
+
+/**
+ * Auto-rebuild recommendations when enough new episodes have accumulated.
+ * Called inline after episode scoring — replaces the need for a cron job.
+ * Returns null if not enough episodes, or the rebuild result.
+ */
+const REBUILD_THRESHOLD = 10;
+
+export async function maybeRebuildRecommendations(sql, orgId) {
+  const newCount = await countEpisodesSinceLastRebuild(sql, orgId);
+  if (newCount < REBUILD_THRESHOLD) return null;
+  return rebuildLearningRecommendations(sql, orgId, { lookbackDays: 90, minSamples: 3 });
 }
 
 export async function rebuildLearningRecommendations(sql, orgId, options = {}) {

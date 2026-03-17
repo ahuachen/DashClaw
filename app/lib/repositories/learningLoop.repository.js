@@ -413,3 +413,20 @@ export async function listLearningRecommendationEvents(sql, orgId, filters = {})
     details: parseJson(row.details, {}),
   }));
 }
+
+/**
+ * Count episodes created after the most recent recommendation rebuild.
+ * Used to decide whether to trigger an automatic rebuild.
+ */
+export async function countEpisodesSinceLastRebuild(sql, orgId) {
+  const rows = await sql`
+    SELECT COUNT(*)::int AS cnt
+    FROM learning_episodes le
+    WHERE le.org_id = ${orgId}
+      AND le.created_at > COALESCE(
+        (SELECT MAX(computed_at) FROM learning_recommendations WHERE org_id = ${orgId}),
+        '1970-01-01'::timestamptz
+      )
+  `;
+  return rows[0]?.cnt || 0;
+}

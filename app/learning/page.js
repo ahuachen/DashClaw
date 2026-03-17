@@ -26,6 +26,8 @@ export default function LearningDashboard() {
   const [decisionForm, setDecisionForm] = useState({ decision: '', category: 'general', context: '', outcome: 'pending' });
   const [lessonForm, setLessonForm] = useState({ lesson: '', category: 'general', confidence: 80, tags: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [rebuilding, setRebuilding] = useState(false);
+  const [rebuildResult, setRebuildResult] = useState(null);
 
   useRealtime((event, payload) => {
     if (event === 'decision.created') {
@@ -215,6 +217,27 @@ export default function LearningDashboard() {
     }
   };
 
+  const handleRebuildRecommendations = async () => {
+    setRebuilding(true);
+    setRebuildResult(null);
+    setRecommendationError('');
+    try {
+      const res = await fetch('/api/learning/recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lookback_days: 90, min_samples: 3 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Rebuild failed');
+      setRebuildResult(`Built ${data.recommendations?.length || 0} recommendations from ${data.episodes_scanned || 0} episodes`);
+      fetchData();
+    } catch (err) {
+      setRecommendationError(err.message || 'Rebuild failed');
+    } finally {
+      setRebuilding(false);
+    }
+  };
+
   return (
     <PageLayout
       title="Learning Database"
@@ -369,6 +392,19 @@ export default function LearningDashboard() {
         <Card>
           <CardHeader title="Recommendation Ops" icon={Power} count={recommendations.length} />
           <CardContent>
+            <div className="flex items-center gap-2 mb-3">
+              <button
+                onClick={handleRebuildRecommendations}
+                disabled={rebuilding}
+                className="px-3 py-1.5 text-xs font-medium text-zinc-300 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-brand/40 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Sparkles size={12} />
+                {rebuilding ? 'Rebuilding...' : 'Rebuild Now'}
+              </button>
+              {rebuildResult && (
+                <span className="text-xs text-emerald-400">{rebuildResult}</span>
+              )}
+            </div>
             {recommendationError ? (
               <div className="mb-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
                 {recommendationError}
@@ -379,7 +415,7 @@ export default function LearningDashboard() {
                 <EmptyState
                   icon={Power}
                   title="No recommendations yet"
-                  description="Rebuild recommendations after enough scored episodes are available."
+                  description="Click 'Rebuild Now' to generate recommendations from your action history."
                 />
               ) : (
                 recommendations.map((rec) => (
