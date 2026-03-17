@@ -40,6 +40,14 @@ These 7 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/policies` | Policy management | -- |
 | `/api/health` | System readiness | -- |
 
+### Infrastructure Routes
+
+| Route | Purpose | Schedule |
+|:---|:---|:---|
+| `/api/integrations/health` | Integration credential health status | On demand |
+| `/api/cron/signals` | Signal detection + notification pipeline | Every 5 min |
+| `/api/cron/integration-health` | Credential validation for all orgs | Every 6 hours |
+
 ### Tier 2: Extensions (`app/(extensions)/`)
 Modular intelligence features that consume runtime data.
 - **Compliance**: Audit evidence and reporting.
@@ -57,6 +65,8 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `signals.js`: Anomaly computation (Autonomy Spikes, Stale Actions).
 - `readiness.mjs`: Instance verification for the `/setup` page.
 - `org.js`: Multi-tenant scoping and role helpers.
+- `integration-health.js`: Per-provider credential validation (OpenAI, Anthropic, Slack, etc).
+- `notification-adapters/`: Native governance alert delivery (Slack, Discord, Linear, GitHub, Email).
 
 ## SDK Surface Area (v2)
 
