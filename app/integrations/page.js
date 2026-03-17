@@ -150,12 +150,9 @@ const INTEGRATION_CONFIGS = {
   discord: {
     name: 'Discord',
     category: 'Communication',
-    description: 'Community & bot platform',
+    description: 'Post governance alerts to a Discord channel',
     fields: [
-      { key: 'DISCORD_BOT_TOKEN', label: 'Bot Token', type: 'password', required: true },
-      { key: 'DISCORD_CLIENT_ID', label: 'Client ID', type: 'text', required: false },
-      { key: 'DISCORD_GUILD_ID', label: 'Server ID', type: 'text', required: false },
-      { key: 'DISCORD_WEBHOOK_URL', label: 'Webhook URL (for alerts)', type: 'password', required: false },
+      { key: 'DISCORD_WEBHOOK_URL', label: 'Webhook URL', type: 'password', required: true, placeholder: 'https://discord.com/api/webhooks/...' },
       { key: 'DASHCLAW_ALERTS_DISCORD', label: 'Enable governance alerts', type: 'toggle', required: false }
     ]
   },

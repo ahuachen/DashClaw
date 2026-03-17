@@ -20,6 +20,32 @@ import urllib.request
 import urllib.error
 
 # ---------------------------------------------------------------------------
+# Load .env file (C:/Projects/DashClaw/.env) before reading config.
+# Values already in the environment take precedence.
+# ---------------------------------------------------------------------------
+
+def _load_dotenv():
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    try:
+        with open(env_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                key = key.strip()
+                val = val.strip().strip('"').strip("'")
+                # Strip inline comments (e.g. value  # comment)
+                if " #" in val:
+                    val = val[:val.index(" #")].strip()
+                if key and key not in os.environ:
+                    os.environ[key] = val
+    except FileNotFoundError:
+        pass
+
+_load_dotenv()
+
+# ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 

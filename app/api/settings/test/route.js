@@ -335,14 +335,20 @@ async function testReplicate(credentials) {
 
 async function testDiscord(credentials) {
   try {
-    const res = await safeFetch('https://discord.com/api/v10/users/@me', {
-      headers: { 'Authorization': `Bot ${credentials.DISCORD_BOT_TOKEN}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json({ success: true, message: `Connected as ${data.username}` });
+    const webhookUrl = credentials.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl || !webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
+      return NextResponse.json({ success: false, message: 'Enter a Discord webhook URL (https://discord.com/api/webhooks/...)' });
     }
-    return NextResponse.json({ success: false, message: 'Invalid Discord bot token' });
+    const res = await safeFetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: '✅ DashClaw governance alerts connected!' }),
+    });
+    // Discord returns 204 No Content on success
+    if (res.status === 204 || res.ok) {
+      return NextResponse.json({ success: true, message: 'Test message sent to Discord!' });
+    }
+    return NextResponse.json({ success: false, message: `Discord returned ${res.status} — check the webhook URL` });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Connection test failed' });
   }
