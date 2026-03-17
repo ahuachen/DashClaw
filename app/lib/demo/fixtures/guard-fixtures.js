@@ -25,6 +25,16 @@ const agentIds = agentPool.map((a) => a.id);
 
 const policies = [
   {
+    id: stableId('pol_demo', 0),
+    org_id: DEMO_ORG,
+    name: 'PRODUCTION_DATA_PROTECTION',
+    type: 'risk_threshold',
+    config: JSON.stringify({ threshold: 75, reversible: false, systems: ['customer-data', 'postgres-prod'] }),
+    active: true,
+    description: 'Irreversible operations on customer data require explicit approval. Blocks any action with risk score > 75.',
+    created_at: isoFromNow(45 * MS_DAY),
+  },
+  {
     id: stableId('pol_demo', 1),
     org_id: DEMO_ORG,
     name: 'High Risk Action Gate',

@@ -215,7 +215,7 @@ export default function DecisionReplayPage() {
 
   // High-fidelity decision inference if correlation is missing in demo/edge cases
   const decisionType = guardDecision?.decision || (
-    action.status === 'failed' && riskScore >= 70 ? 'block' :
+    (action.status === 'failed' || action.status === 'blocked') && riskScore >= 70 ? 'block' :
     action.status === 'pending' && riskScore >= 60 ? 'require_approval' :
     'allow'
   );

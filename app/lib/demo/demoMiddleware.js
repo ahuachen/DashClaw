@@ -67,17 +67,19 @@ export function demoListActions(fixtures, url) {
 
 export function demoCreateAction(fixtures, body) {
   const action_id = body.action_id || `act_sim_${Math.random().toString(36).slice(2, 10)}`;
-  
+
   // Use a high-impact blocked story for simulator bot
   const isSimulator = body.agent_id === 'simulator-bot';
   const isDemoAgent = body.agent_id === 'openai-deployer-1';
-  
+  const isPipelineAgent = body.agent_id === 'pipeline-agent';
+
+  const now = new Date().toISOString();
   const action = {
     ...body,
     action_id,
     org_id: 'org_demo',
     agent_name: body.agent_name || body.agent_id || 'refund-support-agent',
-    timestamp_start: body.timestamp_start || new Date().toISOString(),
+    timestamp_start: body.timestamp_start || now,
     status: (isSimulator || isDemoAgent) ? 'failed' : (body.status || 'completed'),
     risk_score: isSimulator ? 92 : (body.risk_score || 0),
     confidence: isSimulator ? 88 : (body.confidence || 100),
@@ -96,15 +98,38 @@ export function demoCreateAction(fixtures, body) {
     }
   }
 
-  return { 
-    action, 
-    action_id, 
-    decision: { 
-      decision: (isSimulator || isDemoAgent) ? 'block' : 'allow', 
-      reason: isSimulator 
-        ? 'Risk score 92 exceeds automation threshold for financial operations.' 
-        : (isDemoAgent ? 'High-risk production action requires explicit approval per Demo Policy.' : 'Demo mode simulation auto-permitted.'),
-      matched_policies: (isSimulator || isDemoAgent) ? ['Demo Production Guard'] : []
+  // Inject a real guard decision for pipeline-agent so replay shows correct policy data
+  if (isPipelineAgent && fixtures.guardDecisions) {
+    const riskScore = body.risk_score || 94;
+    const guardDecision = {
+      id: `gd_${action_id}`,
+      org_id: 'org_demo',
+      action_id,
+      agent_id: 'pipeline-agent',
+      agent_name: 'Pipeline Agent',
+      action_type: body.action_type || 'cleanup',
+      decision: 'block',
+      risk_score: riskScore,
+      reason: `Risk score ${riskScore} exceeds org threshold of 75. Irreversible operations on customer data require explicit approval.`,
+      matched_policies: JSON.stringify(['PRODUCTION_DATA_PROTECTION']),
+      created_at: now,
+      signals: [],
+    };
+    fixtures.guardDecisions.unshift(guardDecision);
+  }
+
+  const isPipelineBlock = isPipelineAgent;
+  return {
+    action,
+    action_id,
+    decision: {
+      decision: (isSimulator || isDemoAgent || isPipelineBlock) ? 'block' : 'allow',
+      reason: isSimulator
+        ? 'Risk score 92 exceeds automation threshold for financial operations.'
+        : isDemoAgent ? 'High-risk production action requires explicit approval per Demo Policy.'
+        : isPipelineBlock ? `Risk score ${body.risk_score || 94} exceeds org threshold of 75. Policy PRODUCTION_DATA_PROTECTION enforced.`
+        : 'Demo mode simulation auto-permitted.',
+      matched_policies: (isSimulator || isDemoAgent) ? ['Demo Production Guard'] : isPipelineBlock ? ['PRODUCTION_DATA_PROTECTION'] : []
     },
     security: { clean: true, findings_count: 0 }
   };
@@ -501,19 +526,34 @@ export function demoGuard(fixtures, url) {
   const blocks = reads.filter(r => r.decision === 'block').length;
   const stats = { total, blocks, permits: total - blocks };
 
-  return { evaluations: paged, total, stats, lastUpdated: new Date().toISOString() };
+  return { decisions: paged, evaluations: paged, total, stats, lastUpdated: new Date().toISOString() };
 }
 
 export function demoGuardPost(fixtures, body) {
   const agentId = body.agent_id;
   const riskScore = body.risk_score || 0;
-  
+
   // Deterministic block for the 1-Minute Governance Test
   const isDemoAgent = agentId === 'openai-deployer-1';
-  const shouldBlock = isDemoAgent && riskScore >= 80;
+  const isPipelineAgent = agentId === 'pipeline-agent';
 
   if (isDemoAgent) {
     return demoTestEval;
+  }
+
+  if (isPipelineAgent) {
+    return {
+      id: `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
+      agent_id: agentId,
+      agent_name: 'Pipeline Agent',
+      action_type: body.action_type || 'cleanup',
+      decision: 'block',
+      reason: `Risk score ${riskScore} exceeds org threshold of 75. Irreversible operations on customer data require explicit approval.`,
+      matched_policies: JSON.stringify(['PRODUCTION_DATA_PROTECTION']),
+      risk_score: riskScore,
+      created_at: new Date().toISOString(),
+      signals: [],
+    };
   }
 
   const evaluation = {
