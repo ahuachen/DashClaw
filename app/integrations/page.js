@@ -363,6 +363,7 @@ export default function IntegrationsPage() {
 
   const [settings, setSettings] = useState({});
   const [agentConnections, setAgentConnections] = useState([]);
+  const [healthData, setHealthData] = useState({});
   const [loading, setLoading] = useState(true);
   const [editingIntegration, setEditingIntegration] = useState(null);
   const [formData, setFormData] = useState({});
@@ -449,10 +450,21 @@ export default function IntegrationsPage() {
     }
   }, [selectedAgentId]);
 
+  const fetchHealth = useCallback(async () => {
+    try {
+      if (isDemoMode()) return;
+      const res = await fetch('/api/integrations/health');
+      if (res.ok) {
+        const data = await res.json();
+        setHealthData(data.health || {});
+      }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchSettings(), fetchConnections()]);
-  }, [fetchSettings, fetchConnections]);
+    Promise.all([fetchSettings(), fetchConnections(), fetchHealth()]);
+  }, [fetchSettings, fetchConnections, fetchHealth]);
 
   // Build a map of provider -> connections for quick lookup
   const connectionsByProvider = {};
@@ -765,6 +777,24 @@ export default function IntegrationsPage() {
                     <span className="text-xs text-zinc-500">{getStatusLabel(status)}</span>
                     {isIntegrationInherited(key) && (
                       <span className="text-[10px] text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">inherited</span>
+                    )}
+                    {healthData[key]?.status === 'healthy' && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400" title={`Verified: ${healthData[key]?.message}`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Live
+                      </span>
+                    )}
+                    {healthData[key]?.status === 'error' && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-red-400" title={healthData[key]?.message}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                        Error
+                      </span>
+                    )}
+                    {healthData[key]?.status === 'degraded' && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-amber-400" title={healthData[key]?.message}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        Degraded
+                      </span>
                     )}
                   </div>
                   {isAdmin && (
