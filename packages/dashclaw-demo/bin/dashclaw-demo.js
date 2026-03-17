@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('node:child_process');
+const { execSync, spawn } = require('node:child_process');
 
 const IMAGE = 'ghcr.io/ucsandman/dashclaw-demo:latest';
 
@@ -22,17 +22,60 @@ execSync(`docker pull ${IMAGE}`, { stdio: 'inherit' });
 
 console.log('\nStarting DashClaw demo on http://localhost:3000 ...\n');
 
-try {
-  execSync(
-    `docker run --rm -p 3000:3000 -e DASHCLAW_MODE=demo -e NEXT_PUBLIC_DASHCLAW_MODE=demo ${IMAGE}`,
-    { stdio: 'inherit' }
-  );
-} catch (error) {
-  // Graceful exit on Ctrl+C (SIGINT sends status null / signal SIGINT)
-  if (error.signal === 'SIGINT' || error.status === 130) {
-    // Normal user-initiated stop
-  }
-}
+const container = spawn('docker', [
+  'run', '--rm',
+  '-p', '3000:3000',
+  '-e', 'DASHCLAW_MODE=demo',
+  '-e', 'NEXT_PUBLIC_DASHCLAW_MODE=demo',
+  IMAGE,
+], { stdio: ['ignore', 'pipe', 'pipe'] });
 
-console.log('\nDemo stopped.');
-process.exit(0);
+// Graceful shutdown on Ctrl+C
+process.on('SIGINT', () => {
+  container.kill('SIGTERM');
+  console.log('\nDemo stopped.');
+  process.exit(0);
+});
+
+let buffer = '';
+
+container.stdout.on('data', (data) => {
+  buffer += data.toString();
+  let newlineIdx;
+  while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+    const line = buffer.slice(0, newlineIdx);
+    buffer = buffer.slice(newlineIdx + 1);
+
+    if (line.startsWith('REPLAY_URL=')) {
+      const url = line.slice('REPLAY_URL='.length).trim();
+      process.stdout.write(line + '\n');
+      // Open in default browser
+      try {
+        if (process.platform === 'darwin') {
+          execSync(`open "${url}"`);
+        } else if (process.platform === 'win32') {
+          execSync(`cmd /c start "" "${url}"`);
+        } else {
+          execSync(`xdg-open "${url}"`);
+        }
+      } catch (e) {
+        console.log('Could not open browser automatically. Visit the URL above.');
+      }
+    } else {
+      process.stdout.write(line + '\n');
+    }
+  }
+});
+
+container.stderr.on('data', (data) => {
+  process.stderr.write(data);
+});
+
+container.on('close', (code) => {
+  // Flush remaining buffer
+  if (buffer.length > 0) {
+    process.stdout.write(buffer + '\n');
+  }
+  console.log('\nDemo stopped.');
+  process.exit(code || 0);
+});
