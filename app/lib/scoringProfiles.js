@@ -653,6 +653,168 @@ function getDefaultWeight(metric) {
   return weights[metric] || 0.15;
 }
 
+// --- Default Seed Data ------------------------------------
+
+const DEFAULT_RISK_TEMPLATES = [
+  {
+    name: 'Production Safety',
+    description: 'Increases risk for production-targeting, data-modifying, or irreversible actions.',
+    action_type: null,
+    base_risk: 15,
+    rules: [
+      { condition: "metadata.environment == 'production'", add: 30 },
+      { condition: "metadata.modifies_data == true", add: 20 },
+      { condition: "metadata.irreversible == true", add: 25 },
+      { condition: "metadata.affects_users == true", add: 15 },
+    ],
+  },
+  {
+    name: 'External API Safety',
+    description: 'Risk rules for outbound API calls — escalates for unauthenticated or external targets.',
+    action_type: 'api_call',
+    base_risk: 10,
+    rules: [
+      { condition: "metadata.auth == 'none'", add: 40 },
+      { condition: "metadata.is_external == true", add: 20 },
+      { condition: "metadata.retries > 3", add: 15 },
+    ],
+  },
+];
+
+const DEFAULT_SCORING_PROFILES = [
+  {
+    name: 'General Action Quality',
+    description: 'Balanced multi-dimensional quality score for any agent action. Good starting point.',
+    action_type: null,
+    composite_method: 'weighted_average',
+    dimensions: [
+      {
+        name: 'Risk Control',
+        data_source: 'risk_score',
+        weight: 0.35,
+        scale: [
+          { label: 'excellent', operator: 'lte', value: 20, score: 100 },
+          { label: 'good',      operator: 'lte', value: 40, score: 75 },
+          { label: 'acceptable',operator: 'lte', value: 65, score: 45 },
+          { label: 'poor',      operator: 'gt',  value: 65, score: 10 },
+        ],
+      },
+      {
+        name: 'Confidence',
+        data_source: 'confidence',
+        weight: 0.30,
+        scale: [
+          { label: 'excellent', operator: 'gte', value: 0.85, score: 100 },
+          { label: 'good',      operator: 'gte', value: 0.70, score: 75 },
+          { label: 'acceptable',operator: 'gte', value: 0.50, score: 45 },
+          { label: 'poor',      operator: 'lt',  value: 0.50, score: 10 },
+        ],
+      },
+      {
+        name: 'Speed',
+        data_source: 'duration_ms',
+        weight: 0.20,
+        scale: [
+          { label: 'excellent', operator: 'lte', value: 2000,  score: 100 },
+          { label: 'good',      operator: 'lte', value: 8000,  score: 75 },
+          { label: 'acceptable',operator: 'lte', value: 30000, score: 45 },
+          { label: 'poor',      operator: 'gt',  value: 30000, score: 10 },
+        ],
+      },
+      {
+        name: 'Cost Efficiency',
+        data_source: 'cost_estimate',
+        weight: 0.15,
+        scale: [
+          { label: 'excellent', operator: 'lte', value: 0.005, score: 100 },
+          { label: 'good',      operator: 'lte', value: 0.02,  score: 75 },
+          { label: 'acceptable',operator: 'lte', value: 0.10,  score: 45 },
+          { label: 'poor',      operator: 'gt',  value: 0.10,  score: 10 },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Strict Safety Profile',
+    description: 'Uses minimum composite method — a single poor dimension tanks the score. For critical actions.',
+    action_type: null,
+    composite_method: 'minimum',
+    dimensions: [
+      {
+        name: 'Risk Gate',
+        data_source: 'risk_score',
+        weight: 1.0,
+        scale: [
+          { label: 'excellent', operator: 'lte', value: 25, score: 100 },
+          { label: 'good',      operator: 'lte', value: 50, score: 70 },
+          { label: 'poor',      operator: 'gt',  value: 50, score: 0 },
+        ],
+      },
+      {
+        name: 'Confidence Gate',
+        data_source: 'confidence',
+        weight: 1.0,
+        scale: [
+          { label: 'excellent', operator: 'gte', value: 0.80, score: 100 },
+          { label: 'good',      operator: 'gte', value: 0.60, score: 70 },
+          { label: 'poor',      operator: 'lt',  value: 0.60, score: 0 },
+        ],
+      },
+    ],
+  },
+];
+
+const DEFAULT_SAMPLE_ACTIONS = [
+  { action_type: 'api_call',   risk_score: 18, confidence: 0.92, duration_ms: 1200,  cost_estimate: 0.003 },
+  { action_type: 'api_call',   risk_score: 45, confidence: 0.71, duration_ms: 4500,  cost_estimate: 0.015 },
+  { action_type: 'deploy',     risk_score: 72, confidence: 0.65, duration_ms: 28000, cost_estimate: 0.04  },
+  { action_type: 'research',   risk_score: 12, confidence: 0.95, duration_ms: 850,   cost_estimate: 0.008 },
+  { action_type: 'file_write', risk_score: 35, confidence: 0.88, duration_ms: 600,   cost_estimate: 0.001 },
+];
+
+/**
+ * Seed default scoring profiles, risk templates, and sample scores for a new org.
+ * Safe to call multiple times — skips already-existing records by name.
+ */
+export async function seedDefaultData(sql, orgId) {
+  // Risk templates
+  const existingTemplates = await listRiskTemplates(sql, orgId, {});
+  const existingTemplateNames = new Set(existingTemplates.map(t => t.name));
+  for (const tmpl of DEFAULT_RISK_TEMPLATES) {
+    if (!existingTemplateNames.has(tmpl.name)) {
+      await createRiskTemplate(sql, orgId, tmpl);
+    }
+  }
+
+  // Scoring profiles
+  const existingProfiles = await listProfiles(sql, orgId, {});
+  const existingProfileNames = new Set(existingProfiles.map(p => p.name));
+  let generalProfile = existingProfiles.find(p => p.name === DEFAULT_SCORING_PROFILES[0].name) || null;
+
+  for (const prof of DEFAULT_SCORING_PROFILES) {
+    if (existingProfileNames.has(prof.name)) continue;
+    const { dimensions, ...profileData } = prof;
+    const profile = await createProfile(sql, orgId, profileData);
+    for (let i = 0; i < dimensions.length; i++) {
+      await addDimension(sql, orgId, profile.id, { ...dimensions[i], sort_order: i });
+    }
+    if (prof.name === DEFAULT_SCORING_PROFILES[0].name) generalProfile = profile;
+  }
+
+  // Sample scores against general profile only
+  if (generalProfile) {
+    const [{ count }] = await sql`
+      SELECT COUNT(*)::int AS count FROM profile_scores
+      WHERE org_id = ${orgId} AND profile_id = ${generalProfile.id}
+    `;
+    if (count < DEFAULT_SAMPLE_ACTIONS.length) {
+      for (const action of DEFAULT_SAMPLE_ACTIONS) {
+        try { await scoreAction(sql, orgId, generalProfile.id, action); } catch { /* skip */ }
+      }
+    }
+  }
+}
+
 // --- Exports ----------------------------------------------
 
 export { extractRawValue, scoreDimensionValue, computeComposite, evaluateCondition };

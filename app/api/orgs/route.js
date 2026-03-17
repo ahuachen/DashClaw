@@ -4,6 +4,7 @@ export const revalidate = 0;
 import { NextResponse } from 'next/server';
 import { getSql } from '../../lib/db.js';
 import { getOrgId, getOrgRole } from '../../lib/org.js';
+import { seedDefaultData } from '../../lib/scoringProfiles.js';
 import crypto from 'crypto';
 
 // Hash API key using Node crypto (server-side)
@@ -93,6 +94,12 @@ export async function POST(request) {
       INSERT INTO api_keys (id, org_id, key_hash, key_prefix, label, role)
       VALUES (${keyId}, ${orgId}, ${keyHash}, ${keyPrefix}, 'Admin Key', 'admin')
     `;
+
+    // Seed default scoring profiles and risk templates for the new org.
+    // Non-blocking — a seed failure must not prevent org creation.
+    seedDefaultData(sql, orgId).catch(err => {
+      console.error('[orgs] Failed to seed default scoring data for', orgId, err.message);
+    });
 
     return NextResponse.json({
       organization: orgResult[0],
