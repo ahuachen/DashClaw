@@ -34,6 +34,14 @@ export async function findPolicyByName(sql, orgId, name) {
   `;
 }
 
+export async function deletePoliciesByIds(sql, orgId, idList) {
+  return sql`
+    DELETE FROM guard_policies
+    WHERE id = ANY(${idList}) AND org_id = ${orgId}
+    RETURNING id
+  `;
+}
+
 export async function insertPolicy(sql, orgId, { id, name, policyType, rules }) {
   const now = new Date().toISOString();
   const result = await sql`

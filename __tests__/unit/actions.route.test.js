@@ -9,6 +9,7 @@ const {
   mockCreateBlockedActionRecord,
   mockHasAgentAction,
   mockInsertActionEmbedding,
+  mockDeleteActionsByIds,
   mockEvaluateGuard,
   mockCheckQuotaFast,
   mockGetOrgPlan,
@@ -27,6 +28,7 @@ const {
   mockCreateBlockedActionRecord: vi.fn(),
   mockHasAgentAction: vi.fn(),
   mockInsertActionEmbedding: vi.fn(),
+  mockDeleteActionsByIds: vi.fn(),
   mockEvaluateGuard: vi.fn(),
   mockCheckQuotaFast: vi.fn(),
   mockGetOrgPlan: vi.fn(),
@@ -45,6 +47,7 @@ vi.mock('@/lib/repositories/actions.repository.js', () => ({
   listActions: mockListActions,
   createActionRecord: mockCreateActionRecord,
   createBlockedActionRecord: mockCreateBlockedActionRecord,
+  deleteActionsByIds: mockDeleteActionsByIds,
   hasAgentAction: mockHasAgentAction,
   insertActionEmbedding: mockInsertActionEmbedding,
 }));
@@ -341,7 +344,7 @@ describe('/api/actions DELETE', () => {
   });
 
   it('deletes a single action by action_id', async () => {
-    mockSql.mockResolvedValue([{ action_id: 'act_1' }]);
+    mockDeleteActionsByIds.mockResolvedValue([{ action_id: 'act_1' }]);
 
     const res = await DELETE(makeRequest('http://localhost/api/actions?action_id=act_1', {
       headers: { 'x-org-id': 'org_1', 'x-org-role': 'admin' },
@@ -373,7 +376,7 @@ describe('/api/actions DELETE', () => {
   });
 
   it('returns 500 on error', async () => {
-    mockSql.mockRejectedValue(new Error('db error'));
+    mockDeleteActionsByIds.mockRejectedValue(new Error('db error'));
 
     const res = await DELETE(makeRequest('http://localhost/api/actions?action_id=act_1', {
       headers: { 'x-org-id': 'org_1', 'x-org-role': 'admin' },

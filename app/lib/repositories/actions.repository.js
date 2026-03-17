@@ -494,6 +494,18 @@ export async function getActionStats(sql, orgId) {
 /**
  * Fetch historical actions for policy simulation.
  */
+/**
+ * Delete actions by a list of specific action IDs, including related loops and assumptions.
+ */
+export async function deleteActionsByIds(sql, orgId, idList) {
+  await sql`DELETE FROM open_loops WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
+  await sql`DELETE FROM assumptions WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
+  return sql`DELETE FROM action_records WHERE action_id = ANY(${idList}) AND org_id = ${orgId} RETURNING action_id`;
+}
+
+/**
+ * Fetch historical actions for policy simulation.
+ */
 export async function listActionsForSimulation(sql, orgId, days = 7, limit = 200) {
   return sql`
     SELECT action_id, agent_id, agent_name, action_type, declared_goal, risk_score, 

@@ -15,6 +15,7 @@ import { scanSensitiveData } from '../../lib/security.js';
 import {
   createActionRecord,
   createBlockedActionRecord,
+  deleteActionsByIds,
   hasAgentAction,
   insertActionEmbedding,
   listActions,
@@ -325,18 +326,13 @@ export async function DELETE(request) {
       if (idList.length === 0) {
         return NextResponse.json({ error: 'No valid ids provided' }, { status: 400 });
       }
-      await sql`DELETE FROM open_loops WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
-      await sql`DELETE FROM assumptions WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
-      const result = await sql`DELETE FROM action_records WHERE action_id = ANY(${idList}) AND org_id = ${orgId} RETURNING action_id`;
+      const result = await deleteActionsByIds(sql, orgId, idList);
       return NextResponse.json({ deleted: result.length, action_ids: result.map(r => r.action_id) });
     }
 
     // Single action deletion
     if (actionId) {
-      // Also clean up related loops + assumptions
-      await sql`DELETE FROM open_loops WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-      await sql`DELETE FROM assumptions WHERE action_id = ${actionId} AND org_id = ${orgId}`;
-      const result = await sql`DELETE FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} RETURNING action_id`;
+      const result = await deleteActionsByIds(sql, orgId, [actionId]);
       return NextResponse.json({ deleted: result.length, action_ids: result.map(r => r.action_id) });
     }
 

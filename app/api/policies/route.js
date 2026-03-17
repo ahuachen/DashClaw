@@ -7,6 +7,7 @@ import { getOrgId, getOrgRole } from '../../lib/org';
 import { validatePolicy } from '../../lib/validate';
 import { getSql } from '../../lib/db.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
+import { deletePoliciesByIds } from '../../lib/repositories/guardrails.repository.js';
 
 /**
  * GET /api/policies — List guard policies for the org.
@@ -177,11 +178,7 @@ export async function DELETE(request) {
       if (idList.length === 0) {
         return NextResponse.json({ error: 'No valid ids provided' }, { status: 400 });
       }
-      const rows = await sql`
-        DELETE FROM guard_policies
-        WHERE id = ANY(${idList}) AND org_id = ${orgId}
-        RETURNING id
-      `;
+      const rows = await deletePoliciesByIds(sql, orgId, idList);
       for (const row of rows) {
         void publishOrgEvent(EVENTS.POLICY_UPDATED, { orgId, policy_id: row.id, change_type: 'deleted' });
       }
@@ -189,11 +186,7 @@ export async function DELETE(request) {
     }
 
     // Single delete: ?id=gp_xxx
-    const rows = await sql`
-      DELETE FROM guard_policies
-      WHERE id = ${policyId} AND org_id = ${orgId}
-      RETURNING id
-    `;
+    const rows = await deletePoliciesByIds(sql, orgId, [policyId]);
 
     if (rows.length === 0) {
       return NextResponse.json({ error: 'Policy not found' }, { status: 404 });
