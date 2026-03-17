@@ -197,6 +197,43 @@ export async function computeSignals(orgId, filterAgentId, sql) {
     });
   }
 
+  // Integration mismatch: agent reports using a provider but credentials are missing or broken
+  try {
+    const [connections, health] = await Promise.all([
+      sql`SELECT DISTINCT provider, agent_id FROM agent_connections WHERE org_id = ${orgId} AND status = 'active'`,
+      sql`SELECT provider, status FROM integration_health WHERE org_id = ${orgId}`,
+    ]);
+    const healthMap = Object.fromEntries(health.map(h => [h.provider, h.status]));
+    for (const conn of connections) {
+      const h = healthMap[conn.provider];
+      if (h === 'error') {
+        signals.push({
+          type: 'integration_mismatch',
+          severity: 'red',
+          label: 'Integration Credential Error',
+          detail: `Agent "${conn.agent_id}" reports using ${conn.provider} but stored credentials are invalid.`,
+          help: 'Update credentials on the Integrations page.',
+          agent_id: conn.agent_id,
+        });
+      } else if (!h && h !== 'healthy' && h !== 'degraded') {
+        // No health record means credentials were never configured or checked
+        const hasAnyHealth = health.length > 0; // health cron has run at least once
+        if (hasAnyHealth) {
+          signals.push({
+            type: 'integration_mismatch',
+            severity: 'amber',
+            label: 'Missing Integration Credentials',
+            detail: `Agent "${conn.agent_id}" reports using ${conn.provider} but no credentials are configured.`,
+            help: 'Configure credentials on the Integrations page.',
+            agent_id: conn.agent_id,
+          });
+        }
+      }
+    }
+  } catch {
+    // integration_health table may not exist yet — skip silently
+  }
+
   // Post-filter by agent_id if requested
   const filteredSignals = filterAgentId
     ? signals.filter(s => s.agent_id === filterAgentId)
