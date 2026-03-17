@@ -28,12 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. After deployment completes, the app starts with schema migrations applied automatically — no manual `db:push` step required
   3. The `/setup` page detects and warns when NEXTAUTH_URL is misconfigured, Redis is running in-memory fallback mode, schema migration has not run, or CRON_SECRET is absent
   4. Post-deploy instructions in the README explicitly cover the NEXTAUTH_URL update step, Upstash Redis setup, and `/setup` as the verification landing page
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Update `vercel.json` with framework preset, cron routes, and `buildCommand`
-- [ ] 01-02: Construct and embed Vercel deploy button URL in README and `/self-host`
-- [ ] 01-03: Add `/setup` health checks for NEXTAUTH_URL, Redis backend, schema status, and CRON_SECRET
+- [ ] 01-01-PLAN.md — Configure vercel.json and add deploy button with post-deploy instructions to README
+- [ ] 01-02-PLAN.md — Add deploy readiness health checks (NEXTAUTH_URL, realtime backend, CRON_SECRET) to /setup
 
 ### Phase 2: Community Setup
 **Goal**: A Discord server exists, is pre-populated with real content, and has a permanent invite link ready to embed in code before any guide or launch content references it
@@ -77,7 +76,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 04-01: Draft and publish Show HN post (9–11am Pacific, not Friday)
+- [ ] 04-01: Draft and publish Show HN post (9-11am Pacific, not Friday)
 - [ ] 04-02: Capture Mission Control screenshot and 30-second screen recording; publish X thread and LinkedIn post
 
 ## Progress
@@ -87,7 +86,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Deploy Funnel | 0/3 | Not started | - |
+| 1. Deploy Funnel | 0/2 | Not started | - |
 | 2. Community Setup | 0/2 | Not started | - |
 | 3. Integration Guides | 0/5 | Not started | - |
 | 4. Public Launch | 0/2 | Not started | - |
