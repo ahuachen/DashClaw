@@ -180,11 +180,26 @@ function describeSignInMethods(authConfig) {
 function migrationCommands() {
   return [
     'node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-action-records-compat.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-hitl-metadata.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-policy-agent-scope.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-behavioral-ai.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-token-budgets.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-prompt-injection.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-evaluations.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-scoring-profiles.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-prompts.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-feedback.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-learning-loop-mvp.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-learning-analytics.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-compliance-export.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-drift.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-agent-schedules.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-message-attachments.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-ideas-subscores.mjs',
   ];
 }
 
@@ -388,12 +403,31 @@ async function main() {
   step(5, TOTAL, 'Running database migrations');
 
   const migrations = [
+    // Core schema (order matters — multi-tenant adds org_id everywhere)
     'scripts/migrate-multi-tenant.mjs',
+    'scripts/migrate-action-records-compat.mjs',
     'scripts/migrate-cost-analytics.mjs',
     'scripts/migrate-identity-binding.mjs',
     'scripts/migrate-capabilities.mjs',
     'scripts/migrate-hitl-metadata.mjs',
+    // Governance features
     'scripts/migrate-policy-agent-scope.mjs',
+    'scripts/migrate-behavioral-ai.mjs',
+    'scripts/migrate-token-budgets.mjs',
+    'scripts/migrate-prompt-injection.mjs',
+    // Intelligence features
+    'scripts/migrate-evaluations.mjs',
+    'scripts/migrate-scoring-profiles.mjs',
+    'scripts/migrate-prompts.mjs',
+    'scripts/migrate-feedback.mjs',
+    'scripts/migrate-learning-loop-mvp.mjs',
+    'scripts/migrate-learning-analytics.mjs',
+    // Operational features
+    'scripts/migrate-compliance-export.mjs',
+    'scripts/migrate-drift.mjs',
+    'scripts/migrate-agent-schedules.mjs',
+    'scripts/migrate-message-attachments.mjs',
+    'scripts/migrate-ideas-subscores.mjs',
   ];
   const migrationEnv = { ...process.env, ...env };
   const frames = ['-', '\\', '|', '/'];
