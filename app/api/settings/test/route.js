@@ -51,17 +51,10 @@ async function safeFetch(url, options = {}) {
     }
   }
 
-  // Use resolved IP directly to prevent TOCTOU races; preserve original Host header
-  const resolvedIP = addresses[0].address;
-  const fetchUrl = new URL(url);
-  fetchUrl.hostname = resolvedIP;
-
-  return fetch(fetchUrl.toString(), {
+  // Validation passed — fetch the original URL so TLS SNI works correctly.
+  // (Replacing hostname with IP would break TLS cert verification.)
+  return fetch(url, {
     ...options,
-    headers: {
-      ...(options.headers || {}),
-      Host: parsed.hostname,
-    },
     redirect: 'manual', // Prevent SSRF via redirects
   });
 }
