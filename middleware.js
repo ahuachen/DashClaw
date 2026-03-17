@@ -27,6 +27,7 @@ const PUBLIC_ROUTES = [
   '/api/health',
   '/api/setup/status',
   '/api/setup/proof',
+  '/api/setup/ping',
   '/api/auth',
   '/api/cron',
   // Public read-only content endpoints

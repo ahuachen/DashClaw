@@ -46,9 +46,9 @@
     ]
   },
   "summary": {
-    "total_routes": 150,
+    "total_routes": 151,
     "stable_routes": 27,
-    "beta_routes": 15,
+    "beta_routes": 16,
     "experimental_routes": 108
   },
   "routes": [
@@ -1367,6 +1367,15 @@
       "maturity": "beta",
       "matched_prefix": "/api/setup",
       "file": "app/api/setup/live-proof/route.js"
+    },
+    {
+      "path": "/api/setup/ping",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "beta",
+      "matched_prefix": "/api/setup",
+      "file": "app/api/setup/ping/route.js"
     },
     {
       "path": "/api/setup/proof",

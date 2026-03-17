@@ -1,6 +1,7 @@
 import { CodeBlock } from './Common';
 
 export function VerificationSection({ section }) {
+  const allPass = section.checks.every((c) => c.status === 'pass');
   const headerColor = {
     pass: 'text-emerald-400',
     fail: 'text-red-400',
@@ -16,35 +17,59 @@ export function VerificationSection({ section }) {
   }[section.status] || 'i';
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111]">
-      <div className="border-b border-[rgba(255,255,255,0.06)] px-5 py-4">
-        <div className="flex items-start gap-3">
-          <span className={`mt-0.5 text-xs font-bold ${headerColor}`}>{icon}</span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-zinc-200">{section.title}</p>
-            <p className="mt-1 text-xs text-zinc-500">{section.description}</p>
-            {section.summary ? <p className="mt-2 text-sm text-zinc-300">{section.summary}</p> : null}
-            {section.whatWasChecked ? (
-              <p className="mt-2 text-xs text-zinc-400">What was checked: {section.whatWasChecked}</p>
-            ) : null}
-            {section.evidenceSummary ? (
-              <p className="mt-1 text-xs text-zinc-500">Evidence: {section.evidenceSummary}</p>
-            ) : null}
-            {section.pendingProof ? (
-              <p className="mt-1 text-xs text-zinc-500">Still pending: {section.pendingProof}</p>
-            ) : null}
-          </div>
+    <details
+      open={!allPass}
+      className="group overflow-hidden rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111]"
+    >
+      <summary className="flex cursor-pointer items-center gap-3 px-5 py-4 select-none list-none [&::-webkit-details-marker]:hidden">
+        <span className={`shrink-0 text-xs font-bold ${headerColor}`}>{icon}</span>
+        <p className="min-w-0 flex-1 text-sm font-semibold text-zinc-200">{section.title}</p>
+        {allPass && (
+          <span className="rounded-full border border-emerald-900/40 bg-emerald-900/10 px-2.5 py-0.5 text-[10px] text-emerald-300">
+            All checks passed
+          </span>
+        )}
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="shrink-0 text-zinc-500 transition-transform group-open:rotate-180"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </summary>
+
+      {section.description && (
+        <div className="border-t border-[rgba(255,255,255,0.06)] px-5 py-3">
+          <p className="text-xs text-zinc-500">{section.description}</p>
+          {section.summary && <p className="mt-1 text-sm text-zinc-300">{section.summary}</p>}
+          {section.whatWasChecked && (
+            <p className="mt-1 text-xs text-zinc-400">What was checked: {section.whatWasChecked}</p>
+          )}
+          {section.evidenceSummary && (
+            <p className="mt-1 text-xs text-zinc-500">Evidence: {section.evidenceSummary}</p>
+          )}
+          {section.pendingProof && (
+            <p className="mt-1 text-xs text-zinc-500">Still pending: {section.pendingProof}</p>
+          )}
         </div>
-      </div>
+      )}
 
       <div className="divide-y divide-[rgba(255,255,255,0.04)]">
         {section.checks.map((check) => (
           <CheckRow key={check.id} check={check} />
         ))}
 
-        {section.id === 'sdk' ? <SdkCommands commands={section.commands} coreReady={section.coreReady} liveProof={section.liveProof} /> : null}
+        {section.id === 'sdk' ? (
+          <SdkCommands commands={section.commands} coreReady={section.coreReady} liveProof={section.liveProof} />
+        ) : null}
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -90,9 +115,6 @@ function SdkCommands({ commands, coreReady, liveProof }) {
           Proves a live authenticated SDK request path from a Node client.
         </p>
         <CodeBlock>{commands.node}</CodeBlock>
-        <p className="mt-2 text-xs text-zinc-500">
-          Add <code>--capture-setup-proof</code> to have the validator mint a signed setup proof link automatically after a successful run.
-        </p>
       </div>
 
       <div>
@@ -101,10 +123,6 @@ function SdkCommands({ commands, coreReady, liveProof }) {
           Proves package install, auth, base URL correctness, and a live ping from Python.
         </p>
         <CodeBlock>{commands.python}</CodeBlock>
-        <p className="mt-2 text-xs text-zinc-500">
-          After a successful Python check, run the helper below to mint a signed setup proof link from the successful ping.
-        </p>
-        <CodeBlock>{commands.pythonCapture}</CodeBlock>
       </div>
 
       {liveProof ? (
