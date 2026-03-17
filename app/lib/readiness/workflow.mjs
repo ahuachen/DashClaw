@@ -34,7 +34,7 @@ export function buildWorkflow(report) {
       nextAction: authReady
         ? apiReady
           ? ''
-          : 'Add or generate an API key before running live SDK validation.'
+          : 'Add or generate an API key before running the connection test.'
         : 'Finish local password or OAuth setup before relying on dashboard access.',
     }),
     createWorkflowStep({
@@ -46,20 +46,20 @@ export function buildWorkflow(report) {
         : hasLiveProof
           ? 'Live SDK proof has been captured for this verify view.'
         : apiReady
-          ? 'Live validation commands are ready, but proof is still pending until you run them.'
-          : 'Core checks are in place, but you still need API credentials for live SDK validation.',
+          ? 'Paste your API key above and click "Run test" to capture live proof.'
+          : 'Core checks are in place, but you still need an API key for live validation.',
       proof: hasLiveProof
         ? report.sdk.evidenceSummary
         : !coreReady
         ? 'No live SDK proof collected yet.'
-        : 'This page provides the commands and explains what each live validation will prove.',
+        : 'Use the connection test above to prove authenticated API access.',
       nextAction: !coreReady
         ? 'Complete the core verification step first.'
         : hasLiveProof
           ? 'Download the refreshed proof artifact or share the setup URL with the attached live proof token.'
         : apiReady
-          ? 'Run the Node or Python validation command below and capture the result in your deployment notes.'
-          : 'Configure an API key, then run one of the live validation commands.',
+          ? 'Use the "Run test" button at the top of this page to validate and capture proof automatically.'
+          : 'Generate an API key, then use the test button above to validate.',
     }),
     createWorkflowStep({
       id: 'proof_artifact',
@@ -185,13 +185,13 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
     steps.push(
       createStep({
         id: 'run_sdk_validation',
-        title: hasLiveProof ? 'Live SDK proof captured' : 'Run live SDK validation',
+        title: hasLiveProof ? 'Live SDK proof captured' : 'Validate your connection',
         variant: hasLiveProof ? 'info' : report.auth.hasAgentApiKey ? 'info' : 'warn',
         summary: hasLiveProof
           ? 'A successful live validation result is attached to this verify view.'
           : report.auth.hasAgentApiKey
-          ? 'Core verification passed. Use the Node or Python validation path to collect live client proof.'
-          : 'Core verification passed, but you still need API credentials before live SDK validation can succeed.',
+          ? 'Core verification passed. Use the "Run test" button at the top of this page to validate and capture proof.'
+          : 'Core verification passed, but you still need an API key before validation can succeed.',
         details: hasLiveProof
           ? [
               `Captured proof: ${report.sdk.evidenceSummary}`,
@@ -199,12 +199,12 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
             ]
           : report.auth.hasAgentApiKey
           ? [
-              'What this proves next: real API ingress, authentication, and a live client request path.',
-              'Next action: run the Node or Python command in the SDK verification section and archive the result with the JSON proof artifact.',
+              'What this proves: real API ingress, authentication, and a live request path.',
+              'Next action: paste your API key in the test panel above and click "Run test".',
             ]
           : [
-              'What is pending: live integration proof still depends on API credentials.',
-              'Next action: set DASHCLAW_API_KEY or sign in and create a workspace API key before running the SDK validation commands.',
+              'What is pending: live proof still depends on an API key.',
+              'Next action: generate an API key, then use the test button above to validate.',
             ],
       })
     );
@@ -217,7 +217,7 @@ NEXTAUTH_SECRET=$(openssl rand -base64 32)`,
         title: 'Instance verification looks strong',
         variant: 'info',
         summary: 'Core verification checks are passing and operator access looks ready.',
-        details: ['Next action: download the JSON proof artifact and run a live SDK validation command if you want additional client-path evidence.'],
+        details: ['Next action: download the JSON proof artifact or use the "Run test" button above for additional live proof.'],
       })
     );
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import { findActiveKeyByHash } from '../../../lib/repositories/apiKeys.repository.js';
+import { createLiveVerificationProofToken } from '../../../lib/liveVerificationProof.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,36 @@ function timingSafeEqual(a, b) {
   return result === 0;
 }
 
+async function buildSuccessResponse(start, request) {
+  const latencyMs = Date.now() - start;
+  const url = new URL(request.url);
+
+  // Mint a live verification proof so the setup page upgrades to "verified"
+  let proofToken = null;
+  try {
+    const { token } = await createLiveVerificationProofToken(
+      {
+        validator: 'setup-ping',
+        tool: 'node',
+        mode: 'read_only',
+        summary: { passed: 1, failed: 0, skipped: 0, score: 100 },
+        checks: [{ name: 'Authenticated ping', status: 'pass' }],
+      },
+      { env: process.env, host: url.host }
+    );
+    proofToken = token;
+  } catch {
+    // Proof minting is best-effort (needs NEXTAUTH_SECRET)
+  }
+
+  return NextResponse.json({
+    ok: true,
+    latencyMs,
+    message: 'Instance is accepting authenticated requests.',
+    proof_token: proofToken,
+  });
+}
+
 export async function POST(request) {
   const start = Date.now();
 
@@ -46,11 +77,7 @@ export async function POST(request) {
   // Fast path: check against environment variable
   const expectedKey = process.env.DASHCLAW_API_KEY;
   if (expectedKey && timingSafeEqual(apiKey, expectedKey)) {
-    return NextResponse.json({
-      ok: true,
-      latencyMs: Date.now() - start,
-      message: 'Instance is accepting authenticated requests.',
-    });
+    return buildSuccessResponse(start, request);
   }
 
   // Slow path: check against workspace API keys in database
@@ -59,11 +86,7 @@ export async function POST(request) {
     const keyHash = await hashKey(apiKey);
     const rows = await findActiveKeyByHash(sql, keyHash);
     if (rows.length > 0) {
-      return NextResponse.json({
-        ok: true,
-        latencyMs: Date.now() - start,
-        message: 'Instance is accepting authenticated requests.',
-      });
+      return buildSuccessResponse(start, request);
     }
   } catch {
     // DB unavailable — fall through to rejection

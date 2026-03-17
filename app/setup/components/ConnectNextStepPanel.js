@@ -54,6 +54,11 @@ export function ConnectNextStepPanel({ maskedApiKey, host, isAuthenticated, over
       });
       const data = await res.json();
       if (data.ok) {
+        // Redirect with proof token so the page reloads as "verified"
+        if (data.proof_token) {
+          window.location.href = `/setup?proof=${encodeURIComponent(data.proof_token)}`;
+          return;
+        }
         setStatus('success');
         setResult(data);
       } else {

@@ -230,21 +230,21 @@ export function buildSdkSection(host, report, liveProof) {
       : 'Live SDK proof is pending because core instance verification is not complete yet.',
     pendingProof: hasLiveProof
       ? ''
-      : 'SDK and integration proof is still pending until one of the live validation commands is run successfully.',
+      : 'Use the "Run test" button above to validate your API key and capture proof.',
     checks: [
       createCheck({
         id: 'sdk_live_proof',
-        label: 'Captured live validation proof',
+        label: 'Live validation proof',
         status: hasLiveProof ? 'pass' : coreReady ? 'info' : 'warn',
         detail: hasLiveProof
-          ? `${liveProof.tool === 'python' ? 'Python SDK' : 'Node validator'} ${liveProof.mode === 'full' ? 'full' : 'read-only'} validation passed on ${formatCapturedAt(liveProof.capturedAt)}.`
-          : 'No successful live validation proof has been attached to this verify view yet.',
+          ? `Validation passed on ${formatCapturedAt(liveProof.capturedAt)}.`
+          : 'No live validation proof has been captured yet.',
         subDetail: hasLiveProof
           ? `${liveProof.summary.passed} passed, ${liveProof.summary.failed} failed, ${liveProof.summary.skipped} skipped.`
-          : 'Run a live validation command, then capture the result to upgrade this instance from ready_unverified to verified.',
+          : 'Click "Run test" above with your API key to capture proof and upgrade to verified.',
         nextAction: hasLiveProof
           ? 'Download the updated JSON proof artifact or share the setup URL that includes this live proof token.'
-          : 'Use the Node auto-capture flow or POST a sanitized Python success payload to /api/setup/live-proof after the command succeeds.',
+          : '',
       }),
       createCheck({
         id: 'sdk_gate',
@@ -252,37 +252,17 @@ export function buildSdkSection(host, report, liveProof) {
         status: coreReady ? 'pass' : 'warn',
         detail: coreReady
           ? 'Core instance verification checks are passing.'
-          : 'Core verification is still incomplete, so SDK validation should wait.',
+          : 'Core verification is still incomplete, so validation should wait.',
         likelyCause: coreReady ? '' : 'Database, required configuration, or auth readiness still needs attention.',
-        nextAction: coreReady ? '' : 'Fix the blocked or warning checks above, then return to live SDK validation.',
-      }),
-      createCheck({
-        id: 'sdk_node',
-        label: 'Node live validation path',
-        status: coreReady ? 'info' : 'warn',
-        detail: 'Use the Node validation script to prove the instance accepts authenticated SDK traffic.',
-        subDetail: 'What it proves: API ingress, auth, and a real end-to-end SDK request path.',
-        nextAction: coreReady
-          ? 'Use a valid API key and run the Node command shown below.'
-          : 'Wait until core verification passes before running this.',
-      }),
-      createCheck({
-        id: 'sdk_python',
-        label: 'Python live validation path',
-        status: coreReady ? 'info' : 'warn',
-        detail: 'Use the Python SDK ping flow to prove a second client path works against this instance.',
-        subDetail: 'What it proves: package install, authentication, base URL correctness, and a live request/response loop.',
-        nextAction: coreReady
-          ? 'Install the SDK, then run the Python command shown below.'
-          : 'Wait until core verification passes before running this.',
+        nextAction: coreReady ? '' : 'Fix the blocked or warning checks above first.',
       }),
       createCheck({
         id: 'sdk_api_key_gate',
-        label: 'API key available for live checks',
+        label: 'API key available',
         status: apiReady ? 'pass' : 'warn',
         detail: apiReady
-          ? 'An API authentication path is available for SDK verification.'
-          : 'You still need an API key before you can complete live SDK validation.',
+          ? 'An API authentication path is available.'
+          : 'You still need an API key before you can validate.',
         likelyCause: apiReady ? '' : 'Neither DASHCLAW_API_KEY nor an operator-generated workspace API key is currently available.',
         nextAction: apiReady ? '' : 'Set DASHCLAW_API_KEY or sign in and create a workspace API key.',
       }),

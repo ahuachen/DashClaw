@@ -1,5 +1,3 @@
-import { CodeBlock } from './Common';
-
 export function VerificationSection({ section }) {
   const allPass = section.checks.every((c) => c.status === 'pass');
   const headerColor = {
@@ -66,7 +64,7 @@ export function VerificationSection({ section }) {
         ))}
 
         {section.id === 'sdk' ? (
-          <SdkCommands commands={section.commands} coreReady={section.coreReady} liveProof={section.liveProof} />
+          <SdkValidationNote coreReady={section.coreReady} liveProof={section.liveProof} />
         ) : null}
       </div>
     </details>
@@ -104,30 +102,12 @@ function CheckRow({ check }) {
   );
 }
 
-function SdkCommands({ commands, coreReady, liveProof }) {
-  if (!commands) return null;
-
-  return (
-    <div className="space-y-4 px-5 py-4">
-      <div>
-        <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Node validation</p>
-        <p className="mt-2 text-xs text-zinc-400">
-          Proves a live authenticated SDK request path from a Node client.
-        </p>
-        <CodeBlock>{commands.node}</CodeBlock>
-      </div>
-
-      <div>
-        <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Python validation</p>
-        <p className="mt-2 text-xs text-zinc-400">
-          Proves package install, auth, base URL correctness, and a live ping from Python.
-        </p>
-        <CodeBlock>{commands.python}</CodeBlock>
-      </div>
-
-      {liveProof ? (
+function SdkValidationNote({ coreReady, liveProof }) {
+  if (liveProof) {
+    return (
+      <div className="px-5 py-4">
         <div className="rounded-xl border border-emerald-900/40 bg-[#0d0d0d] p-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-emerald-300">Captured live proof</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-emerald-300">Live proof captured</p>
           <p className="mt-2 text-xs text-zinc-300">{liveProof.proofStatement}</p>
           <p className="mt-1 text-xs text-zinc-500">
             Captured {new Date(liveProof.capturedAt).toLocaleString('en-US', {
@@ -138,12 +118,16 @@ function SdkCommands({ commands, coreReady, liveProof }) {
             })}
           </p>
         </div>
-      ) : null}
+      </div>
+    );
+  }
 
+  return (
+    <div className="px-5 py-4">
       <p className="text-xs text-zinc-500">
         {coreReady
-          ? 'These commands are guidance for live validation. This page only upgrades to verified after a signed live-proof token is attached.'
-          : 'Run these only after the blocked core checks above have been resolved.'}
+          ? 'Use the "Run test" button above to validate your API key and capture live proof automatically.'
+          : 'Fix the blocked core checks above first, then use the test button to validate.'}
       </p>
     </div>
   );
