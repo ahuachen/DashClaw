@@ -211,6 +211,7 @@ const POLICY_SCHEMA = {
   policy_type: { type: 'string', required: true, enum: POLICY_TYPES },
   rules:       { type: 'string', required: true, maxLength: 4000 },
   active:      { type: 'integer', min: 0, max: 1 },
+  agent_ids:   { type: 'string', maxLength: 4000 },
 };
 
 export function validateGuardInput(body) {

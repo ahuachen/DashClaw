@@ -16,12 +16,26 @@ export async function GET(request) {
   try {
     const orgId = getOrgId(request);
     const sql = getSql();
+    const agentId = request.nextUrl.searchParams.get('agent_id');
 
     const policies = await sql`
       SELECT * FROM guard_policies
       WHERE org_id = ${orgId}
       ORDER BY created_at DESC
     `;
+
+    // If agent_id filter is provided, return only policies that apply to this agent
+    if (agentId) {
+      const filtered = policies.filter(p => {
+        if (!p.agent_ids) return true; // null = all agents
+        try {
+          const scoped = JSON.parse(p.agent_ids);
+          if (!Array.isArray(scoped) || scoped.length === 0) return true;
+          return scoped.includes(agentId);
+        } catch { return true; }
+      });
+      return NextResponse.json({ policies: filtered });
+    }
 
     return NextResponse.json({ policies });
   } catch (err) {
@@ -55,9 +69,11 @@ export async function POST(request) {
     const now = new Date().toISOString();
     const active = data.active != null ? data.active : 1;
 
+    const agentIds = data.agent_ids || null;
+
     await sql`
-      INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, created_by, created_at, updated_at)
-      VALUES (${id}, ${orgId}, ${data.name}, ${data.policy_type}, ${data.rules}, ${active}, ${body.created_by || null}, ${now}, ${now})
+      INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, agent_ids, created_by, created_at, updated_at)
+      VALUES (${id}, ${orgId}, ${data.name}, ${data.policy_type}, ${data.rules}, ${active}, ${agentIds}, ${body.created_by || null}, ${now}, ${now})
     `;
 
     const rows = await sql`SELECT * FROM guard_policies WHERE id = ${id}`;
@@ -125,6 +141,12 @@ export async function PATCH(request) {
     if (body.active != null) {
       sets.push(`active = $${idx++}`);
       params.push(body.active ? 1 : 0);
+    }
+    if (body.agent_ids !== undefined) {
+      sets.push(`agent_ids = $${idx++}`);
+      params.push(body.agent_ids != null
+        ? (typeof body.agent_ids === 'string' ? body.agent_ids : JSON.stringify(body.agent_ids))
+        : null);
     }
 
     if (sets.length === 0) {

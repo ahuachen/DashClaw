@@ -5,7 +5,7 @@ import {
   Shield, Plus, Trash2, ToggleLeft, ToggleRight,
   ChevronDown, ChevronRight, AlertTriangle,
   Upload, Play, FileDown, Copy, Check, ChevronUp,
-  Pencil, X, Square, CheckSquare,
+  Pencil, X, Square, CheckSquare, Users,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
@@ -114,6 +114,15 @@ function formatRules(policy) {
   }
 }
 
+/** Parse agent_ids JSON from a policy */
+function parseAgentIds(policy) {
+  if (!policy.agent_ids) return [];
+  try {
+    const parsed = JSON.parse(policy.agent_ids);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
+}
+
 /** Parse rules from a policy into form-friendly shape */
 function parseRulesForEdit(policy) {
   let rules;
@@ -132,6 +141,7 @@ function parseRulesForEdit(policy) {
     webhookOnTimeout: rules.on_timeout || 'allow',
     instruction: rules.instruction || '',
     fallback: rules.fallback || 'allow',
+    agentIds: parseAgentIds(policy),
   };
 }
 
@@ -271,6 +281,60 @@ function PolicyFormFields({ form, setForm }) {
   );
 }
 
+/** Agent scope picker — select which agents a policy applies to */
+function PolicyAgentScope({ agentIds, setAgentIds, agents }) {
+  const isAllAgents = agentIds.length === 0;
+
+  const toggleAgent = (id) => {
+    setAgentIds(prev =>
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
+
+  return (
+    <div>
+      <label className="block text-xs text-zinc-400 mb-2 flex items-center gap-1.5">
+        <Users size={12} />
+        Agent Scope
+      </label>
+      <div className="flex items-center gap-3 mb-2">
+        <button
+          type="button"
+          onClick={() => setAgentIds([])}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            isAllAgents
+              ? 'bg-brand text-white'
+              : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+          }`}
+        >
+          All Agents
+        </button>
+        <span className="text-[10px] text-zinc-600">or pick specific agents:</span>
+      </div>
+      {agents.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {agents.map(agent => (
+            <button
+              key={agent.agent_id}
+              type="button"
+              onClick={() => toggleAgent(agent.agent_id)}
+              className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
+                agentIds.includes(agent.agent_id)
+                  ? 'bg-brand text-white'
+                  : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+              }`}
+            >
+              {agent.agent_name || agent.agent_id}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[10px] text-zinc-600">No agents discovered yet. Policies will apply to all agents by default.</p>
+      )}
+    </div>
+  );
+}
+
 export default function PoliciesPage() {
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === 'admin' || isDemoMode();
@@ -279,6 +343,7 @@ export default function PoliciesPage() {
 
   const [policies, setPolicies] = useState([]);
   const [decisions, setDecisions] = useState([]);
+  const [agents, setAgents] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -289,7 +354,7 @@ export default function PoliciesPage() {
     name: '', type: 'risk_threshold', action: 'block', threshold: 80,
     actionTypes: [], maxActions: 50, windowMinutes: 60,
     webhookUrl: '', webhookTimeout: 5000, webhookOnTimeout: 'allow',
-    instruction: '', fallback: 'allow',
+    instruction: '', fallback: 'allow', agentIds: [],
   });
   const [creating, setCreating] = useState(false);
 
@@ -372,9 +437,10 @@ export default function PoliciesPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [policiesRes, decisionsRes] = await Promise.all([
+      const [policiesRes, decisionsRes, agentsRes] = await Promise.all([
         fetch('/api/policies'),
         fetch('/api/guard?limit=20'),
+        fetch('/api/agents'),
       ]);
       const policiesJson = await policiesRes.json();
       const decisionsJson = await decisionsRes.json();
@@ -383,6 +449,10 @@ export default function PoliciesPage() {
       if (decisionsRes.ok) {
         setDecisions(decisionsJson.decisions || []);
         setStats(decisionsJson.stats || {});
+      }
+      if (agentsRes.ok) {
+        const agentsJson = await agentsRes.json();
+        setAgents(agentsJson.agents || []);
       }
     } catch {
       setError('Failed to load data');
@@ -400,14 +470,19 @@ export default function PoliciesPage() {
       const res = await fetch('/api/policies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: createForm.name, policy_type: createForm.type, rules: buildRulesJson(createForm) }),
+        body: JSON.stringify({
+          name: createForm.name,
+          policy_type: createForm.type,
+          rules: buildRulesJson(createForm),
+          agent_ids: createForm.agentIds.length > 0 ? JSON.stringify(createForm.agentIds) : null,
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
         setError(json.error || 'Failed to create policy');
       } else {
         setShowAddForm(false);
-        setCreateForm(prev => ({ ...prev, name: '', actionTypes: [], webhookUrl: '', instruction: '' }));
+        setCreateForm(prev => ({ ...prev, name: '', actionTypes: [], webhookUrl: '', instruction: '', agentIds: [] }));
         fetchData();
       }
     } catch {
@@ -437,6 +512,7 @@ export default function PoliciesPage() {
           id: policyId,
           name: editForm.name,
           rules: buildRulesJson(editForm),
+          agent_ids: editForm.agentIds?.length > 0 ? JSON.stringify(editForm.agentIds) : null,
         }),
       });
       const json = await res.json();
@@ -700,6 +776,12 @@ export default function PoliciesPage() {
 
             <PolicyFormFields form={createForm} setForm={setCreateForm} />
 
+            <PolicyAgentScope
+              agentIds={createForm.agentIds}
+              setAgentIds={(ids) => setCreateForm(prev => ({ ...prev, agentIds: typeof ids === 'function' ? ids(prev.agentIds) : ids }))}
+              agents={agents}
+            />
+
             <div className="flex items-center gap-3">
               <button
                 type="submit"
@@ -789,6 +871,11 @@ export default function PoliciesPage() {
                           </div>
                         </div>
                         <PolicyFormFields form={editForm} setForm={setEditForm} />
+                        <PolicyAgentScope
+                          agentIds={editForm.agentIds || []}
+                          setAgentIds={(ids) => setEditForm(prev => ({ ...prev, agentIds: typeof ids === 'function' ? ids(prev.agentIds || []) : ids }))}
+                          agents={agents}
+                        />
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleSaveEdit(policy.id)}
@@ -830,6 +917,17 @@ export default function PoliciesPage() {
                               <Badge variant="info">{(policy.policy_type || policy.type || 'custom_policy').replace(/_/g, ' ')}</Badge>
                             </div>
                             <p className="text-xs text-zinc-400">{formatRules(policy)}</p>
+                            {parseAgentIds(policy).length > 0 && (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <Users size={10} className="text-zinc-500" />
+                                <span className="text-[10px] text-zinc-500">
+                                  {parseAgentIds(policy).map(id => {
+                                    const agent = agents.find(a => a.agent_id === id);
+                                    return agent?.agent_name || id;
+                                  }).join(', ')}
+                                </span>
+                              </div>
+                            )}
                             <p className="text-xs text-zinc-600 mt-0.5 font-mono">{policy.id}</p>
                           </div>
                         </div>

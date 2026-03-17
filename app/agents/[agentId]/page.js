@@ -5,14 +5,207 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   Shield, ShieldCheck, ShieldAlert, Zap, Clock, Activity,
-  Lock, Info, ArrowLeft, ExternalLink, Database, 
+  Lock, Info, ArrowLeft, ExternalLink, Database,
   BarChart3, RefreshCw, KeyRound, Globe, Brain,
-  ChevronRight, CheckCircle2, XCircle, HelpCircle, Fingerprint
+  ChevronRight, CheckCircle2, XCircle, HelpCircle, Fingerprint,
+  Plus, X, ToggleLeft, ToggleRight,
 } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { StatCompact } from '../../components/ui/Stat';
+
+function formatPolicyRules(policy) {
+  const policyType = policy.policy_type || policy.type;
+  let rules;
+  try { rules = JSON.parse(policy.rules || '{}'); } catch { return 'Invalid rules'; }
+  switch (policyType) {
+    case 'risk_threshold': return `Risk >= ${rules.threshold} → ${rules.action || 'block'}`;
+    case 'require_approval': return `Types: ${(rules.action_types || []).join(', ')} → require approval`;
+    case 'block_action_type': return `Types: ${(rules.action_types || []).join(', ')} → block`;
+    case 'rate_limit': return `Max ${rules.max_actions} / ${rules.window_minutes}min → ${rules.action || 'warn'}`;
+    case 'webhook_check': return `Webhook check`;
+    case 'semantic_check': return `Semantic: "${(rules.instruction || '').slice(0, 60)}..."`;
+    default: return policyType;
+  }
+}
+
+function parseAgentIds(policy) {
+  if (!policy.agent_ids) return [];
+  try { const p = JSON.parse(policy.agent_ids); return Array.isArray(p) ? p : []; } catch { return []; }
+}
+
+function AgentPoliciesTab({ agentId, policies, allPolicies, assigning, setAssigning, onRefresh }) {
+  const [showAssign, setShowAssign] = useState(false);
+
+  // Policies specifically assigned to this agent (agent_ids includes this agent)
+  const assignedPolicies = policies.filter(p => {
+    const ids = parseAgentIds(p);
+    return ids.length > 0 && ids.includes(agentId);
+  });
+
+  // Global policies (no agent_ids = applies to all)
+  const globalPolicies = policies.filter(p => {
+    const ids = parseAgentIds(p);
+    return ids.length === 0;
+  });
+
+  // Policies NOT currently applying to this agent (for the assign picker)
+  const unassignedPolicies = allPolicies.filter(p => {
+    const ids = parseAgentIds(p);
+    // Already applies: either global or includes this agent
+    if (ids.length === 0) return false;
+    return !ids.includes(agentId);
+  });
+
+  const handleAssign = async (policy) => {
+    setAssigning(true);
+    try {
+      const currentIds = parseAgentIds(policy);
+      const newIds = [...currentIds, agentId];
+      const res = await fetch('/api/policies', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: policy.id, agent_ids: JSON.stringify(newIds) }),
+      });
+      if (res.ok) onRefresh();
+    } catch { /* ignore */ }
+    finally { setAssigning(false); }
+  };
+
+  const handleUnassign = async (policy) => {
+    setAssigning(true);
+    try {
+      const currentIds = parseAgentIds(policy);
+      const newIds = currentIds.filter(id => id !== agentId);
+      const res = await fetch('/api/policies', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: policy.id, agent_ids: newIds.length > 0 ? JSON.stringify(newIds) : null }),
+      });
+      if (res.ok) onRefresh();
+    } catch { /* ignore */ }
+    finally { setAssigning(false); }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Assigned Policies */}
+      <Card hover={false}>
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
+          <div className="flex items-center gap-2">
+            <Shield size={16} className="text-brand" />
+            <span className="text-sm font-medium text-white">Agent-Specific Policies</span>
+            <Badge variant="info">{assignedPolicies.length}</Badge>
+          </div>
+          <button
+            onClick={() => setShowAssign(!showAssign)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors"
+          >
+            {showAssign ? <X size={12} /> : <Plus size={12} />}
+            {showAssign ? 'Cancel' : 'Assign Policy'}
+          </button>
+        </div>
+
+        {showAssign && (
+          <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+            <p className="text-xs text-zinc-500 mb-3">Select a policy to assign specifically to this agent:</p>
+            {unassignedPolicies.length > 0 ? (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {unassignedPolicies.map(policy => (
+                  <div key={policy.id} className="flex items-center justify-between p-3 rounded-lg bg-surface-tertiary border border-white/5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-medium text-white">{policy.name}</span>
+                        <Badge variant="info" size="xs">{(policy.policy_type || '').replace(/_/g, ' ')}</Badge>
+                      </div>
+                      <p className="text-[10px] text-zinc-500">{formatPolicyRules(policy)}</p>
+                    </div>
+                    <button
+                      onClick={() => handleAssign(policy)}
+                      disabled={assigning}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand/10 text-brand text-xs font-medium hover:bg-brand/20 border border-brand/20 transition-colors disabled:opacity-50 ml-3 flex-shrink-0"
+                    >
+                      <Plus size={12} /> Assign
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-zinc-500 py-4 text-center">
+                All policies are already applying to this agent (either globally or by assignment).
+              </p>
+            )}
+          </div>
+        )}
+
+        <CardContent>
+          {assignedPolicies.length > 0 ? (
+            <div className="space-y-3">
+              {assignedPolicies.map(policy => (
+                <div key={policy.id} className="p-4 rounded-xl bg-surface-tertiary border border-white/5 flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-white">{policy.name}</span>
+                      <Badge variant={policy.active ? 'success' : 'muted'}>
+                        {policy.active ? 'active' : 'inactive'}
+                      </Badge>
+                      <Badge variant="info" size="xs">{(policy.policy_type || '').replace(/_/g, ' ')}</Badge>
+                    </div>
+                    <p className="text-xs text-zinc-400">{formatPolicyRules(policy)}</p>
+                    <p className="text-[10px] text-zinc-600 mt-0.5 font-mono">{policy.id}</p>
+                  </div>
+                  <button
+                    onClick={() => handleUnassign(policy)}
+                    disabled={assigning}
+                    className="text-zinc-500 hover:text-red-400 transition-colors p-1 disabled:opacity-50 flex-shrink-0"
+                    title="Remove from this agent"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-zinc-500 text-sm">
+              No policies assigned specifically to this agent. Use &quot;Assign Policy&quot; above to scope a policy to this agent.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Global Policies */}
+      <Card hover={false}>
+        <div className="flex items-center gap-2 px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
+          <Shield size={16} className="text-zinc-500" />
+          <span className="text-sm font-medium text-white">Global Policies</span>
+          <Badge variant="muted">{globalPolicies.length}</Badge>
+          <span className="text-[10px] text-zinc-600 ml-1">Apply to all agents</span>
+        </div>
+        <CardContent>
+          {globalPolicies.length > 0 ? (
+            <div className="space-y-3">
+              {globalPolicies.map(policy => (
+                <div key={policy.id} className="p-3 rounded-xl bg-surface-tertiary border border-white/5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium text-zinc-300">{policy.name}</span>
+                    <Badge variant={policy.active ? 'success' : 'muted'} size="xs">
+                      {policy.active ? 'active' : 'inactive'}
+                    </Badge>
+                    <Badge variant="info" size="xs">{(policy.policy_type || '').replace(/_/g, ' ')}</Badge>
+                  </div>
+                  <p className="text-xs text-zinc-500">{formatPolicyRules(policy)}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-4 text-center text-zinc-600 text-xs">No global policies configured.</div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function AgentProfilePage() {
   const params = useParams();
@@ -22,9 +215,11 @@ export default function AgentProfilePage() {
   const [agent, setAgent] = useState(null);
   const [decisions, setActions] = useState([]);
   const [policies, setPolicies] = useState([]);
+  const [allPolicies, setAllPolicies] = useState([]);
   const [signals, setSignals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [assigning, setAssigning] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -43,11 +238,18 @@ export default function AgentProfilePage() {
         setActions(actionsData.actions || []);
       }
 
-      // 3. Fetch Policies (Guard Evaluations)
-      const policiesRes = await fetch(`/api/guard?agent_id=${encodeURIComponent(agentId)}&limit=20`);
-      if (policiesRes.ok) {
-        const policiesData = await policiesRes.json();
-        setPolicies(policiesData.evaluations || []);
+      // 3. Fetch Policies that apply to this agent + all org policies
+      const [agentPoliciesRes, allPoliciesRes] = await Promise.all([
+        fetch(`/api/policies?agent_id=${encodeURIComponent(agentId)}`),
+        fetch('/api/policies'),
+      ]);
+      if (agentPoliciesRes.ok) {
+        const policiesData = await agentPoliciesRes.json();
+        setPolicies(policiesData.policies || []);
+      }
+      if (allPoliciesRes.ok) {
+        const allData = await allPoliciesRes.json();
+        setAllPolicies(allData.policies || []);
       }
 
       // 4. Fetch Risk Signals
@@ -269,38 +471,15 @@ export default function AgentProfilePage() {
           )}
 
           {activeTab === 'policies' && (
-            <Card hover={false}>
-              <CardHeader title="Enforced Policies" icon={Shield} />
-              <CardContent>
-                <div className="space-y-4">
-                  {policies.length > 0 ? (
-                    policies.slice(0, 10).map((evalu, i) => (
-                      <div key={i} className="p-4 rounded-xl bg-surface-tertiary border border-white/5 flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant={evalu.decision === 'allow' ? 'success' : evalu.decision === 'block' ? 'error' : 'warning'}>
-                              {evalu.decision.toUpperCase()}
-                            </Badge>
-                            <span className="text-xs text-zinc-500 font-mono">{evalu.action_type}</span>
-                          </div>
-                          <div className="text-sm text-white font-medium mb-2">{evalu.reason || 'No specific reasoning provided.'}</div>
-                          <div className="flex flex-wrap gap-1">
-                            {parseJsonArray(evalu.matched_policies).map((p, idx) => (
-                              <span key={idx} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/10">
-                                {typeof p === 'string' ? p : p.name || p.id}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-[10px] text-zinc-600 font-mono pt-1">{new Date(evalu.created_at).toLocaleTimeString()}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-12 text-center text-zinc-500">No active guard policies recorded for this agent.</div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <AgentPoliciesTab
+              agentId={agentId}
+              policies={policies}
+              allPolicies={allPolicies}
+              assigning={assigning}
+              setAssigning={setAssigning}
+              onRefresh={fetchData}
+              parseJsonArray={parseJsonArray}
+            />
           )}
 
           {activeTab === 'permissions' && (

@@ -80,11 +80,22 @@ function redactAny(value, findings) {
  * @returns {Promise<{ decision, reasons, warnings, matched_policies, risk_score, evaluated_at }>}
  */
 export async function evaluateGuard(orgId, context, sql, options = {}) {
-  const policies = await sql`
-    SELECT id, name, policy_type, rules
+  const allPolicies = await sql`
+    SELECT id, name, policy_type, rules, agent_ids
     FROM guard_policies
     WHERE org_id = ${orgId} AND active = 1
   `;
+
+  // Filter to policies that apply to this agent (null agent_ids = all agents)
+  const currentAgentId = context.agent_id || null;
+  const policies = allPolicies.filter(p => {
+    if (!p.agent_ids) return true; // null/empty = applies to all
+    try {
+      const scoped = JSON.parse(p.agent_ids);
+      if (!Array.isArray(scoped) || scoped.length === 0) return true;
+      return currentAgentId && scoped.includes(currentAgentId);
+    } catch { return true; }
+  });
 
   // Compute authoritative server-side risk score
   const authoritativeRiskScore = computeRiskScore(context);
