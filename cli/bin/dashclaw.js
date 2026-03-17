@@ -158,6 +158,25 @@ async function cmdApprovals() {
 
   await fetchPending();
 
+  // Open SSE stream for live push of new approval requests
+  let stream = null;
+  try {
+    stream = claw.events()
+      .on('guard.decision.created', (data) => {
+        if (data.decision !== 'require_approval') return;
+        const exists = items.some((it) => (it.action_id || it.id) === data.action_id);
+        if (exists) return;
+        items.push(data);
+        render();
+      })
+      .on('error', () => {
+        moveCursor(items.length + 6, 1);
+        process.stdout.write(dim('  SSE stream error — live push unavailable, use R to refresh') + '\n');
+      });
+  } catch (_) {
+    // SSE unavailable — inbox still works via manual refresh
+  }
+
   // Set up raw mode for interactive input
   if (!process.stdin.isTTY) {
     console.error('Error: Interactive mode requires a TTY. Use dashclaw approve/deny for non-interactive use.');
@@ -171,6 +190,7 @@ async function cmdApprovals() {
 
   // Ensure cleanup on exit
   function cleanup() {
+    if (stream) stream.close();
     showCursor();
     if (process.stdin.isTTY) process.stdin.setRawMode(false);
     process.stdout.write('\n');
