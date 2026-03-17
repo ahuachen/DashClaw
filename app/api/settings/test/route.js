@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
+import dns from 'node:dns/promises';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,8 +43,25 @@ async function safeFetch(url, options = {}) {
     throw new Error('Internal or private URLs are not allowed');
   }
 
-  return fetch(url, {
+  // DNS rebinding / DNS alias protection: resolve hostname to all IPs and check each
+  const addresses = await dns.lookup(parsed.hostname, { all: true });
+  for (const { address } of addresses) {
+    if (isPrivateIP(address)) {
+      throw new Error('Internal or private URLs are not allowed');
+    }
+  }
+
+  // Use resolved IP directly to prevent TOCTOU races; preserve original Host header
+  const resolvedIP = addresses[0].address;
+  const fetchUrl = new URL(url);
+  fetchUrl.hostname = resolvedIP;
+
+  return fetch(fetchUrl.toString(), {
     ...options,
+    headers: {
+      ...(options.headers || {}),
+      Host: parsed.hostname,
+    },
     redirect: 'manual', // Prevent SSRF via redirects
   });
 }
