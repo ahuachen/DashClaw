@@ -3,7 +3,8 @@ import { getExport, deleteExport } from '../../../../lib/compliance/exporter.js'
 
 export async function GET(request, { params }) {
   try {
-    const exp = await getExport(request, params.exportId);
+    const { exportId } = await params;
+    const exp = await getExport(request, exportId);
     if (!exp) return NextResponse.json({ error: 'Export not found' }, { status: 404 });
     return NextResponse.json(exp);
   } catch (err) {
@@ -14,7 +15,8 @@ export async function GET(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await deleteExport(request, params.exportId);
+    const { exportId } = await params;
+    await deleteExport(request, exportId);
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error('[compliance/exports/detail] DELETE error:', err);

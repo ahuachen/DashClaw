@@ -3,7 +3,8 @@ import { getVersion, activateVersion } from '../../../../../../lib/prompt.js';
 
 export async function GET(request, { params }) {
   try {
-    const version = await getVersion(request, params.versionId);
+    const { versionId } = await params;
+    const version = await getVersion(request, versionId);
     if (!version) {
       return NextResponse.json({ error: 'Version not found' }, { status: 404 });
     }
@@ -16,8 +17,9 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
+    const { versionId } = await params;
     // POST to a version = activate it
-    const activated = await activateVersion(request, params.versionId);
+    const activated = await activateVersion(request, versionId);
     if (!activated) {
       return NextResponse.json({ error: 'Version not found' }, { status: 404 });
     }

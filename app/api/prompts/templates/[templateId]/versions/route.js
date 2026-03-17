@@ -3,7 +3,8 @@ import { listVersions, createVersion, getTemplate } from '../../../../../lib/pro
 
 export async function GET(request, { params }) {
   try {
-    const versions = await listVersions(request, params.templateId);
+    const { templateId } = await params;
+    const versions = await listVersions(request, templateId);
     return NextResponse.json({ versions });
   } catch (err) {
     console.error('[prompts/versions] GET error:', err);
@@ -13,7 +14,8 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
-    const template = await getTemplate(request, params.templateId);
+    const { templateId } = await params;
+    const template = await getTemplate(request, templateId);
     if (!template) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
@@ -21,7 +23,7 @@ export async function POST(request, { params }) {
     if (!body.content) {
       return NextResponse.json({ error: 'content is required' }, { status: 400 });
     }
-    const version = await createVersion(request, params.templateId, {
+    const version = await createVersion(request, templateId, {
       content: body.content,
       model_hint: body.model_hint,
       parameters: body.parameters,

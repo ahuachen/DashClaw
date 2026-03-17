@@ -3,7 +3,8 @@ import { getTemplate, updateTemplate, deleteTemplate } from '../../../../lib/pro
 
 export async function GET(request, { params }) {
   try {
-    const template = await getTemplate(request, params.templateId);
+    const { templateId } = await params;
+    const template = await getTemplate(request, templateId);
     if (!template) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
@@ -16,8 +17,9 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
+    const { templateId } = await params;
     const body = await request.json();
-    const updated = await updateTemplate(request, params.templateId, body);
+    const updated = await updateTemplate(request, templateId, body);
     if (!updated) {
       return NextResponse.json({ error: 'Template not found or no changes' }, { status: 404 });
     }
@@ -30,7 +32,8 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await deleteTemplate(request, params.templateId);
+    const { templateId } = await params;
+    await deleteTemplate(request, templateId);
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error('[prompts/templates/detail] DELETE error:', err);

@@ -3,7 +3,8 @@ import { getExport } from '../../../../../lib/compliance/exporter.js';
 
 export async function GET(request, { params }) {
   try {
-    const exp = await getExport(request, params.exportId);
+    const { exportId } = await params;
+    const exp = await getExport(request, exportId);
     if (!exp) return NextResponse.json({ error: 'Export not found' }, { status: 404 });
     if (exp.status !== 'completed') return NextResponse.json({ error: 'Export not ready' }, { status: 409 });
 

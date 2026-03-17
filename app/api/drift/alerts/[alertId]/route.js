@@ -3,7 +3,8 @@ import { acknowledgeAlert, deleteAlert } from '../../../../lib/drift.js';
 
 export async function PATCH(request, { params }) {
   try {
-    const updated = await acknowledgeAlert(request, params.alertId);
+    const { alertId } = await params;
+    const updated = await acknowledgeAlert(request, alertId);
     if (!updated) return NextResponse.json({ error: 'Alert not found' }, { status: 404 });
     return NextResponse.json(updated);
   } catch (err) {
@@ -14,7 +15,8 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await deleteAlert(request, params.alertId);
+    const { alertId } = await params;
+    await deleteAlert(request, alertId);
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error('[drift/alerts/detail] DELETE error:', err);

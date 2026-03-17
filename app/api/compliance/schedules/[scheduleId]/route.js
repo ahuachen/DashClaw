@@ -3,8 +3,9 @@ import { updateSchedule, deleteSchedule } from '../../../../lib/compliance/expor
 
 export async function PATCH(request, { params }) {
   try {
+    const { scheduleId } = await params;
     const body = await request.json();
-    const updated = await updateSchedule(request, params.scheduleId, body);
+    const updated = await updateSchedule(request, scheduleId, body);
     if (!updated) return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
     return NextResponse.json(updated);
   } catch (err) {
@@ -15,7 +16,8 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await deleteSchedule(request, params.scheduleId);
+    const { scheduleId } = await params;
+    await deleteSchedule(request, scheduleId);
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error('[compliance/schedules/detail] DELETE error:', err);

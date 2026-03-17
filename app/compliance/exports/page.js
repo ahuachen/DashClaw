@@ -152,13 +152,7 @@ export default function ComplianceExportsPage() {
   };
 
   const handleDownload = (exp) => {
-    const blob = new Blob([expandedContent || ''], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${(exp.name || 'export').replace(/[^a-zA-Z0-9-_]/g, '_')}.${exp.format === 'json' ? 'json' : 'md'}`;
-    a.click();
-    URL.revokeObjectURL(url);
+    window.open(`/api/compliance/exports/${exp.id}/download`, '_blank');
   };
 
   const toggleFramework = (list, setList, fwId) => {
