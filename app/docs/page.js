@@ -328,7 +328,7 @@ except Exception as e:
                 { name: 'action_type', type: 'string', required: true, desc: 'Proposed action type' },
                 { name: 'risk_score', type: 'number', required: false, desc: '0-100' },
               ]}
-              returns="Promise<{ decision: string, reasons: string[] }>"
+              returns="Promise<{ decision: string, reasons: string[], risk_score: number, agent_risk_score: number | null }>"
               example={
                 <DocsCodeTabs 
                   nodeSnippet="const result = await claw.guard({ action_type: 'deploy', risk_score: 85 });"

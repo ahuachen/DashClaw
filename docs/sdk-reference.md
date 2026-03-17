@@ -46,6 +46,8 @@ claw = DashClaw(
 ### `guard(context)`
 Evaluates policies against an intended action before execution. Returns a decision (`allow`, `block`, or `require_approval`).
 
+Risk scores are computed server-side from structured fields (`action_type`, `reversible`, `systems_touched`, `declared_goal`). The agent-supplied `risk_score` is advisory — the server uses the higher of the computed score and the agent-reported score. The response includes `risk_score` (authoritative server-computed score) and `agent_risk_score` (raw agent-supplied value, or `null`).
+
 - **Node Signature:** `async guard(context)`
 - **Python Signature:** `guard(self, context)`
 - **Parameters:**

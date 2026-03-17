@@ -75,7 +75,7 @@ claw.update_outcome(action_id, status="completed")
 The v2.1.5 SDK is optimized for stability and zero-overhead governance:
 
 ### Core Runtime
-- `guard(context)` -- Policy evaluation ("Can I do X?")
+- `guard(context)` -- Policy evaluation ("Can I do X?"). Returns `risk_score` (server-computed) and `agent_risk_score` (raw agent value)
 - `createAction(action)` -- Lifecycle tracking ("I am doing X")
 - `updateOutcome(id, outcome)` -- Result recording ("X finished with Y")
 - `recordAssumption(assumption)` -- Integrity tracking ("I believe Z while doing X")

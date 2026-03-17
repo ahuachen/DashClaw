@@ -229,12 +229,16 @@ pending = claw.get_pending_approvals(limit=25)
 
 Guard is the heart of DashClaw. Every action is checked against policies before execution.
 
+Risk scores are computed server-side from structured fields (`action_type`, `reversible`, `systems_touched`, `declared_goal`). The agent-supplied `risk_score` is advisory — the server uses the higher of the computed score and the agent-reported score. The response includes `risk_score` (authoritative) and `agent_risk_score` (raw agent value, or `null`).
+
 Check actions against policies and fetch guard audit history:
 
 ```python
 # Check an action against policies
 decision = claw.guard({"action_type": "deploy", "risk_score": 80}, include_signals=True)
 print(decision["decision"])  # allow | block | require_approval
+print(decision["risk_score"])  # Server-computed authoritative score
+print(decision["agent_risk_score"])  # Raw agent-supplied value (or None)
 
 # Fetch recent guard decisions
 decisions = claw.get_guard_decisions(decision="block", limit=50)

@@ -13,6 +13,46 @@ import { EVENTS, publishOrgEvent } from './events.js';
 
 const DECISION_SEVERITY = { allow: 0, warn: 1, require_approval: 2, block: 3 };
 
+const ACTION_TYPE_BASE_SCORES = {
+  deploy: 75, security: 80, migrate: 70, apply: 60, sync: 40,
+  api: 35, build: 25, fix: 20, refactor: 20, test: 15,
+  config: 30, monitor: 10, alert: 10, cleanup: 30, post: 25,
+  message: 15, calendar: 10, research: 10, review: 10, other: 20,
+};
+
+const HIGH_RISK_SYSTEMS = ['production', 'database', 'postgres', 'neon', 'redis'];
+const MODERATE_RISK_SYSTEMS = ['filesystem', 'shell'];
+const DESTRUCTIVE_GOAL_PATTERNS = /rm\s+-rf|drop\s+table|delete\s+from|truncate|format|wipe/i;
+const DEPLOYMENT_GOAL_PATTERNS = /push|deploy|release|ship|migrate/i;
+const SECRET_GOAL_PATTERNS = /secret|credential|password|token|key|\.env/i;
+
+/**
+ * Compute an authoritative risk score from structured guard context fields.
+ * Returns an integer 0-100.
+ *
+ * @param {Object} context - guard context object
+ * @returns {number}
+ */
+export function computeRiskScore(context) {
+  let score = ACTION_TYPE_BASE_SCORES[context.action_type] ?? ACTION_TYPE_BASE_SCORES.other;
+
+  if (context.reversible === false) score += 15;
+
+  if (Array.isArray(context.systems_touched)) {
+    const systems = context.systems_touched.map(s => (typeof s === 'string' ? s.toLowerCase() : ''));
+    if (systems.some(s => HIGH_RISK_SYSTEMS.includes(s))) score += 10;
+    if (systems.some(s => MODERATE_RISK_SYSTEMS.includes(s))) score += 5;
+  }
+
+  if (typeof context.declared_goal === 'string') {
+    if (DESTRUCTIVE_GOAL_PATTERNS.test(context.declared_goal)) score += 20;
+    if (DEPLOYMENT_GOAL_PATTERNS.test(context.declared_goal)) score += 10;
+    if (SECRET_GOAL_PATTERNS.test(context.declared_goal)) score += 15;
+  }
+
+  return Math.max(0, Math.min(score, 100));
+}
+
 function redactAny(value, findings) {
   if (typeof value === 'string') {
     const scan = scanSensitiveData(value);
@@ -46,6 +86,14 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     WHERE org_id = ${orgId} AND active = 1
   `;
 
+  // Compute authoritative server-side risk score
+  const authoritativeRiskScore = computeRiskScore(context);
+  const agentRiskScore = context.risk_score != null ? Number(context.risk_score) : null;
+  // Use the higher of computed vs agent-reported (agents may have internal knowledge)
+  const effectiveRiskScore = agentRiskScore != null
+    ? Math.max(authoritativeRiskScore, Math.max(0, Math.min(agentRiskScore, 100)))
+    : authoritativeRiskScore;
+
   const reasons = [];
   const warnings = [];
   const matchedPolicies = [];
@@ -59,7 +107,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       continue; // skip malformed
     }
 
-    const result = await evaluatePolicy(policy, rules, context, sql, orgId);
+    const result = await evaluatePolicy(policy, rules, context, sql, orgId, effectiveRiskScore);
     if (result) {
       applyResult(result, policy, reasons, warnings, matchedPolicies);
       if (DECISION_SEVERITY[result.action] > DECISION_SEVERITY[highestDecision]) {
@@ -147,7 +195,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       ${reasons.join('; ') || null},
       ${JSON.stringify(matchedPolicies)},
       ${JSON.stringify(safeContextForLog)},
-      ${context.risk_score != null ? context.risk_score : null},
+      ${effectiveRiskScore},
       ${context.action_type || null},
       ${evaluated_at}
     )
@@ -165,7 +213,8 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       reason: reasons.join('; ') || null,
       matched_policies: matchedPolicies,
       context: safeContextForLog,
-      risk_score: context.risk_score != null ? context.risk_score : null,
+      risk_score: effectiveRiskScore,
+      agent_risk_score: agentRiskScore,
       action_type: context.action_type || null,
       created_at: evaluated_at
     }
@@ -177,7 +226,8 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     reason: reasons.join('; ') || null, // Primary reason string
     signals: [...warnings, ...reasons], // Combined signals for the SDK
     matched_policies: matchedPolicies,
-    risk_score: context.risk_score != null ? context.risk_score : null,
+    risk_score: effectiveRiskScore,
+    agent_risk_score: agentRiskScore,
     evaluated_at,
     // Backward compatibility
     reasons,
@@ -197,14 +247,15 @@ function applyResult(result, policy, reasons, warnings, matchedPolicies) {
   matchedPolicies.push(policy.id);
 }
 
-export async function evaluatePolicy(policy, rules, context, sql, orgId) {
+export async function evaluatePolicy(policy, rules, context, sql, orgId, effectiveRiskScore) {
   switch (policy.policy_type) {
     case 'risk_threshold': {
       const threshold = rules.threshold ?? 80;
-      // SECURITY: Clamp agent-reported risk_score to valid range (0-100).
-      // Agent-supplied scores are advisory — treat as untrusted input.
-      const rawScore = Number(context.risk_score) || 0;
-      const riskScore = Math.max(0, Math.min(rawScore, 100));
+      // Use server-computed authoritative risk score (passed in from evaluateGuard).
+      // effectiveRiskScore is max(server-computed, agent-reported) and already clamped 0-100.
+      const riskScore = effectiveRiskScore != null
+        ? effectiveRiskScore
+        : Math.max(0, Math.min(Number(context.risk_score) || 0, 100));
       if (riskScore >= threshold) {
         return { action: rules.action || 'block', reason: `Risk score ${riskScore} >= threshold ${threshold}` };
       }
