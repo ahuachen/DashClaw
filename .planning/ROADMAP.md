@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Depends on**: Nothing (first phase)
 **Requirements**: DEPLOY-01, DEPLOY-02, DEPLOY-03, DEPLOY-04
 **Success Criteria** (what must be TRUE):
-  1. Clicking the deploy button in the README opens Vercel pre-populated with exactly 6 required env vars — no more, no less
+  1. Clicking the deploy button in the README opens Vercel pre-populated with exactly 7 required env vars (DATABASE_URL, DASHCLAW_API_KEY, ENCRYPTION_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL, CRON_SECRET, DASHCLAW_LOCAL_ADMIN_PASSWORD) — no more, no less
   2. After deployment completes, the app starts with schema migrations applied automatically — no manual `db:push` step required
   3. The `/setup` page detects and warns when NEXTAUTH_URL is misconfigured, Redis is running in-memory fallback mode, schema migration has not run, or CRON_SECRET is absent
   4. Post-deploy instructions in the README explicitly cover the NEXTAUTH_URL update step, Upstash Redis setup, and `/setup` as the verification landing page

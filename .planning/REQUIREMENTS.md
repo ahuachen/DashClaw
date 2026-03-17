@@ -7,7 +7,7 @@
 
 ### Deploy Funnel
 
-- [ ] **DEPLOY-01**: One-click Vercel deploy button appears in README above the fold, parameterized with exactly 6 required env vars
+- [ ] **DEPLOY-01**: One-click Vercel deploy button appears in README above the fold, parameterized with exactly 7 required env vars (DATABASE_URL, DASHCLAW_API_KEY, ENCRYPTION_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL, CRON_SECRET, DASHCLAW_LOCAL_ADMIN_PASSWORD)
 - [ ] **DEPLOY-02**: `vercel.json` registers cron routes (`/api/cron/signals` every 5 min, `/api/cron/integration-health` every 6 hours) and sets `buildCommand` to run `npm run db:push && next build` for automated schema migration
 - [ ] **DEPLOY-03**: Post-deploy setup instructions cover NEXTAUTH_URL (set to deployment URL after first deploy), Upstash Redis setup, and `/setup` as the verification page
 - [ ] **DEPLOY-04**: `/setup` page health checks include: NEXTAUTH_URL configuration detected, realtime backend (warns if running in-memory on serverless), schema migration status, CRON_SECRET presence
@@ -26,7 +26,7 @@
 - [ ] **COMM-01**: Discord server created with 4-5 channels (`#announcements`, `#general`, `#deploy-help`, `#show-and-tell`, `#feature-requests`), pre-populated with real content before invite goes public
 - [ ] **COMM-02**: Discord permanent invite link embedded in README, `/connect`, and `/self-host` pages
 - [ ] **COMM-03**: GitHub release webhook wired to `#announcements` channel
-- [ ] **COMM-04**: Show HN post drafted and published — opens with concrete agent failure mode story (not product description), includes deploy button link, demo link, and at least 2 guide links; submitted 9–11am Pacific, not Friday
+- [ ] **COMM-04**: Show HN post drafted and published — opens with concrete agent failure mode story (not product description), includes deploy button link, demo link, and at least 2 guide links; submitted 9-11am Pacific, not Friday
 - [ ] **COMM-05**: X/LinkedIn launch content with visual assets: Mission Control screenshot showing real decisions + 30-second screen recording of guard evaluation flow; X thread format, LinkedIn single post
 
 ## v2 Requirements
@@ -82,8 +82,8 @@
 **Coverage:**
 - v1 requirements: 15 total
 - Mapped to phases: 15
-- Unmapped: 0 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after roadmap creation*
+*Last updated: 2026-03-17 after plan revision (env var count 6 -> 7 per CONTEXT.md locked decision)*
