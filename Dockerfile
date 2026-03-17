@@ -48,8 +48,12 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/examples/openai-governed-agent ./examples/openai-governed-agent
-COPY --from=builder --chown=nextjs:nodejs /app/scripts/demo-entrypoint.mjs ./scripts/demo-entrypoint.mjs
+COPY --from=builder /app/examples/openai-governed-agent ./examples/openai-governed-agent
+COPY --from=builder /app/scripts/demo-entrypoint.mjs ./scripts/demo-entrypoint.mjs
+
+RUN cd examples/openai-governed-agent && npm install
+
+RUN chown -R nextjs:nodejs /app/examples /app/scripts
 
 USER nextjs
 
