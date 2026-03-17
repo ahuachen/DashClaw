@@ -61,31 +61,29 @@
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEPLOY-01 | — | Pending |
-| DEPLOY-02 | — | Pending |
-| DEPLOY-03 | — | Pending |
-| DEPLOY-04 | — | Pending |
-| GUIDE-01 | — | Pending |
-| GUIDE-02 | — | Pending |
-| GUIDE-03 | — | Pending |
-| GUIDE-04 | — | Pending |
-| GUIDE-05 | — | Pending |
-| GUIDE-06 | — | Pending |
-| COMM-01 | — | Pending |
-| COMM-02 | — | Pending |
-| COMM-03 | — | Pending |
-| COMM-04 | — | Pending |
-| COMM-05 | — | Pending |
+| DEPLOY-01 | Phase 1 | Pending |
+| DEPLOY-02 | Phase 1 | Pending |
+| DEPLOY-03 | Phase 1 | Pending |
+| DEPLOY-04 | Phase 1 | Pending |
+| GUIDE-01 | Phase 3 | Pending |
+| GUIDE-02 | Phase 3 | Pending |
+| GUIDE-03 | Phase 3 | Pending |
+| GUIDE-04 | Phase 3 | Pending |
+| GUIDE-05 | Phase 3 | Pending |
+| GUIDE-06 | Phase 3 | Pending |
+| COMM-01 | Phase 2 | Pending |
+| COMM-02 | Phase 2 | Pending |
+| COMM-03 | Phase 2 | Pending |
+| COMM-04 | Phase 4 | Pending |
+| COMM-05 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after initial definition*
+*Last updated: 2026-03-17 after roadmap creation*
