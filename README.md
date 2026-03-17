@@ -2,11 +2,18 @@
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
   <p><strong>Decision Infrastructure for AI agents.</strong></p>
-  <p>Govern AI agents before they act.</p>
+  <p>Stop agents before they make expensive mistakes.</p>
   <br />
-  <p>Try it instantly:</p>
-  <code>npx dashclaw-demo</code>
-  <br />
+  <h3>Try it in 10 seconds</h3>
+  <pre><code>npx dashclaw-demo</code></pre>
+
+  <p><sub>No setup. Opens Decision Replay automatically.</sub></p>
+
+  <img src="public/images/demo-gif2.gif" alt="DashClaw Demo" width="1000" />
+
+<br />
+<p><strong>Works with:</strong></p>
+<p>LangChain • CrewAI • OpenClaw • OpenAI • Anthropic • AutoGen • Claude Code • Codex • Gemini CLI • Custom agents</p>
   <br />
   <p>Intercept decisions. Enforce policies. Record evidence.</p>
   <br />
@@ -22,7 +29,6 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <img src="public/images/demo-gif2.gif" alt="DashClaw Demo" width="1200" />
 </div>
 
 <br />
@@ -30,6 +36,8 @@
 ---
 
 ## What is DashClaw?
+
+DashClaw is not observability. It is **control before execution**.
 
 AI agents generate actions from goals and context. They do not follow deterministic code paths. Therefore debugging alone is insufficient. **Agents require governance.**
 
@@ -41,7 +49,7 @@ DashClaw provides decision infrastructure to:
 
 ---
 
-## ⚡ 1-Minute Governance Demo
+## ⚡ See DashClaw stop an agent from deleting production data
 
 Run DashClaw instantly with **one command**.
 
@@ -56,6 +64,47 @@ What happens:
 4. Your browser opens directly to the **Decision Replay** showing the governance trail.
 
 No repo clone. No environment variables. No configuration. Just one command.
+
+---
+
+### What you’ll see
+
+- 🔴 High risk score (85)
+- 🛑 Policy requires approval before deploy
+- 🧠 Assumptions recorded by the agent
+- 📊 Full decision timeline with outcome
+
+![DashClaw Decision Replay](public/images/screenshots/Replay.png)
+
+---
+
+## Platform Overview
+
+<div align="center">
+
+**Mission Control** — Real-time strategic posture, decision timeline, and intervention feed.
+
+<img src="public/images/screenshots/Mission Control.png" alt="Mission Control" width="800" />
+
+<br /><br />
+
+**Approval Queue** — Human-in-the-loop intervention with risk scores and one-click Allow / Deny.
+
+<img src="public/images/screenshots/Approvals.png" alt="Approval Queue" width="800" />
+
+<br /><br />
+
+**Guard Policies** — Declarative rules that govern agent behavior before actions execute.
+
+<img src="public/images/screenshots/Policies.png" alt="Guard Policies" width="800" />
+
+<br /><br />
+
+**Drift Detection** — Statistical behavioral drift analysis with critical alerts when agents deviate from baselines.
+
+<img src="public/images/screenshots/Assumptions.png" alt="Drift Detection" width="800" />
+
+</div>
 
 ---
 
@@ -80,14 +129,6 @@ What it proves:
 - **Verifiable Evidence**: Intent, assumptions, and outcomes recorded in your dashboard.
 
 [View the Starter Source](./examples/openai-governed-agent)
-
----
-
-## Works With
-
-DashClaw works with any agent framework.
-
-**LangChain • CrewAI • OpenAI Tools • Anthropic Tools • AutoGen • Claude Code • Codex • Gemini CLI • Custom Agents**
 
 ---
 
