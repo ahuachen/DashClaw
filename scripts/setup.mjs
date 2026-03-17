@@ -184,6 +184,7 @@ function migrationCommands() {
     'node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-hitl-metadata.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-policy-agent-scope.mjs',
   ];
 }
 
@@ -392,6 +393,7 @@ async function main() {
     'scripts/migrate-identity-binding.mjs',
     'scripts/migrate-capabilities.mjs',
     'scripts/migrate-hitl-metadata.mjs',
+    'scripts/migrate-policy-agent-scope.mjs',
   ];
   const migrationEnv = { ...process.env, ...env };
   const frames = ['-', '\\', '|', '/'];
