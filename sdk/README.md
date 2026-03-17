@@ -99,7 +99,23 @@ The v2.1.5 SDK is optimized for stability and zero-overhead governance:
 
 ### Compliance & Audit
 - `createScorer(name, type, config)` -- Define automated evaluations.
-- `createScoringProfile(profile)` -- Weighted quality scoring.
+- `createScoringProfile(profile)` -- Create a weighted multi-dimensional scoring profile.
+- `listScoringProfiles(filters)` -- List all scoring profiles.
+- `getScoringProfile(profileId)` -- Get a profile with its dimensions.
+- `updateScoringProfile(profileId, updates)` -- Update profile metadata or composite method.
+- `deleteScoringProfile(profileId)` -- Delete a scoring profile.
+- `addScoringDimension(profileId, dimension)` -- Add a dimension to a profile.
+- `updateScoringDimension(profileId, dimensionId, updates)` -- Update a dimension's scale or weight.
+- `deleteScoringDimension(profileId, dimensionId)` -- Remove a dimension from a profile.
+- `scoreWithProfile(profileId, action)` -- Score a single action; returns composite + per-dimension breakdown.
+- `batchScoreWithProfile(profileId, actions)` -- Score multiple actions; returns results + summary stats.
+- `getProfileScores(filters)` -- List stored profile scores (filter by profile_id, agent_id, action_id).
+- `getProfileScoreStats(profileId)` -- Aggregate stats: avg, min, max, stddev for a profile.
+- `createRiskTemplate(template)` -- Define rules for automatic risk score computation.
+- `listRiskTemplates(filters)` -- List all risk templates.
+- `updateRiskTemplate(templateId, updates)` -- Update a risk template's rules or base_risk.
+- `deleteRiskTemplate(templateId)` -- Delete a risk template.
+- `autoCalibrate(options)` -- Analyze historical actions and suggest percentile-based scoring scales.
 - `mapCompliance(framework)` -- Map behavior to regulatory controls.
 - `getProofReport(format)` -- Generate audit-ready evidence exports.
 - `getActivityLogs(filters)` -- Query the immutable audit trail.

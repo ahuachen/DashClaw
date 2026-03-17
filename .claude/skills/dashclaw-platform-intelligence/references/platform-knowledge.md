@@ -14,8 +14,12 @@
 ## What DashClaw Is
 
 AI agent decision infrastructure. A control plane for policy enforcement, decision recording,
-assumption tracking, compliance mapping, security signals, messaging, and operator workflows.
-The governance layer for AI agent fleets.
+assumption tracking, compliance mapping, security signals, messaging, evaluation scoring,
+prompt management, user feedback, behavioral drift detection, learning analytics, scoring profiles, and operator
+workflows. The governance layer for AI agent fleets.
+
+**Zero-dependency philosophy**: All features work without any LLM API key by default. The only
+optional LLM feature is the `llm_judge` scorer type in the Evaluation Framework.
 
 ## Deployment Modes
 
@@ -29,7 +33,7 @@ Both modes serve the same landing page. `/demo` sets a cookie and redirects to `
 - Next.js 15 (App Router), JavaScript, Tailwind CSS 3
 - Postgres (TCP via `postgres`, serverless via `@neondatabase/serverless`)
 - Auth: NextAuth v4 for UI (GitHub, Google, or OIDC), `x-api-key` header for agents/tools
-- SDKs: Node (`sdk/dashclaw.js`, 97+ methods), Python (`sdk-python/dashclaw/client.py`, 97+ methods)   
+- SDKs: Node (`sdk/dashclaw.js`, 177+ methods), Python (`sdk-python/dashclaw/client.py`, 177+ methods)
 - Node SDK naming: camelCase. Python SDK naming: snake_case.
 
 ## Auth Chain
@@ -72,6 +76,7 @@ Client request hits middleware.js
               |
               +--> Cross-origin without key --> 401 Unauthorized
 ```
+
 ## ID Prefixes
 
 | Prefix | Entity |
@@ -82,6 +87,24 @@ Client request hits middleware.js
 | `oc_live_` / `oc_test_` | API keys |
 | `pi_` | Prompt injection scans |
 | `org_` | Organizations |
+| `gp_` | Guard policies |
+| `es_` | Evaluation scorers |
+| `sc_` | Evaluation scores |
+| `er_` | Evaluation runs |
+| `pt_` | Prompt templates |
+| `pv_` | Prompt versions |
+| `fb_` | Feedback entries |
+| `ce_` | Compliance exports |
+| `cs_` | Compliance schedules |
+| `da_` | Drift alerts |
+| `db_` | Drift baselines |
+| `ds_` | Drift snapshots |
+| `lv_` | Learning velocity records |
+| `lc_` | Learning curve records |
+| `sp_` | Scoring profiles |
+| `sd_` | Scoring dimensions |
+| `ps_` | Profile scores |
+| `rt_` | Risk templates |
 
 ## Architectural Guardrails
 
@@ -98,18 +121,31 @@ Client request hits middleware.js
    - Message threads (`mt_*` via `/api/messages/threads`) -- inter-agent communication
    - These are NOT interchangeable.
 
+6. **Zero-LLM default**: All features must work without any LLM API key. The only exception is the `llm_judge` scorer type, which gracefully degrades when no provider is configured.
+
+7. **DB patterns**: TEXT primary keys with crypto-random prefixed IDs. `getSql()` for connection, `getOrgId()` for org scoping. Tagged template SQL via Neon's `postgres` driver.
+
 ## Product Surfaces
 
 | Path | Purpose |
 |---|---|
 | `/` | Public landing site |
 | `/demo` | Demo sandbox (fake data, read-only, no login) |
-| `/mission-control` | Strategic strategic fleet overview (reactive timeline + live log) |
+| `/mission-control` | Strategic fleet overview (reactive timeline + live log) |
 | `/dashboard` | Draggable widget dashboard (real-time reactive cards) |
-| `/workspace` | Per-agent workspace (digest, context, handoffs, snippets, preferences, memory) |      
+| `/workspace` | Per-agent workspace (digest, context, handoffs, snippets, preferences, memory) |
 | `/security` | Security dashboard (signals, guard decisions, findings) |
 | `/routing` | Task routing (agent registry, task queue, health) |
 | `/compliance` | Compliance mapping (framework controls, gap analysis, evidence, reports) |
+| `/compliance/exports` | Compliance export generation, scheduling, downloads |
+| `/evaluations` | Evaluation framework (scorers, scores, runs, quality tracking) |
+| `/prompts` | Prompt registry (templates, versions, rendering, usage stats) |
+| `/feedback` | User feedback (ratings, sentiment, auto-tagging, resolution) |
+| `/drift` | Drift detection (baselines, alerts, severity, trends) |
+| `/learning` | Learning loop (episodes, recommendations) |
+| `/learning/analytics` |
+| `/scoring` | Learning analytics (velocity, maturity, curves, summary) |
+
 ## Key Reference Files
 
 When you need current data from the codebase, read these:
@@ -128,3 +164,11 @@ When you need current data from the codebase, read these:
 | Agent bootstrap guide | `docs/agent-bootstrap.md` |
 | Project architecture | `PROJECT_DETAILS.md` |
 | Cross-SDK test harness | `docs/sdk-critical-contract-harness.json` |
+| Eval engine | `app/lib/eval.js` |
+| Prompt engine | `app/lib/prompt.js` |
+| Feedback engine | `app/lib/feedback.js` |
+| Compliance exporter | `app/lib/compliance/exporter.js` |
+| Drift engine | `app/lib/drift.js` |
+| Learning analytics | `app/lib/learningAnalytics.js` |
+| Scoring profiles engine | `app/lib/scoringProfiles.js` |
+| LLM abstraction (optional) | `app/lib/llm.js` |

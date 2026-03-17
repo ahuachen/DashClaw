@@ -314,6 +314,118 @@ class DashClaw {
   }
 
   /**
+   * GET /api/scoring/profiles
+   */
+  async listScoringProfiles(filters = {}) {
+    return this._request('/api/scoring/profiles', 'GET', null, filters);
+  }
+
+  /**
+   * GET /api/scoring/profiles/:id
+   */
+  async getScoringProfile(profileId) {
+    return this._request(`/api/scoring/profiles/${profileId}`, 'GET');
+  }
+
+  /**
+   * PATCH /api/scoring/profiles/:id
+   */
+  async updateScoringProfile(profileId, updates) {
+    return this._request(`/api/scoring/profiles/${profileId}`, 'PATCH', updates);
+  }
+
+  /**
+   * DELETE /api/scoring/profiles/:id
+   */
+  async deleteScoringProfile(profileId) {
+    return this._request(`/api/scoring/profiles/${profileId}`, 'DELETE');
+  }
+
+  /**
+   * POST /api/scoring/profiles/:id/dimensions
+   */
+  async addScoringDimension(profileId, dimension) {
+    return this._request(`/api/scoring/profiles/${profileId}/dimensions`, 'POST', dimension);
+  }
+
+  /**
+   * PATCH /api/scoring/profiles/:id/dimensions/:dimId
+   */
+  async updateScoringDimension(profileId, dimensionId, updates) {
+    return this._request(`/api/scoring/profiles/${profileId}/dimensions/${dimensionId}`, 'PATCH', updates);
+  }
+
+  /**
+   * DELETE /api/scoring/profiles/:id/dimensions/:dimId
+   */
+  async deleteScoringDimension(profileId, dimensionId) {
+    return this._request(`/api/scoring/profiles/${profileId}/dimensions/${dimensionId}`, 'DELETE');
+  }
+
+  /**
+   * POST /api/scoring/score — score a single action against a profile
+   */
+  async scoreWithProfile(profileId, action) {
+    return this._request('/api/scoring/score', 'POST', { profile_id: profileId, action });
+  }
+
+  /**
+   * POST /api/scoring/score — batch score multiple actions against a profile
+   */
+  async batchScoreWithProfile(profileId, actions) {
+    return this._request('/api/scoring/score', 'POST', { profile_id: profileId, actions });
+  }
+
+  /**
+   * GET /api/scoring/score — list stored profile scores
+   */
+  async getProfileScores(filters = {}) {
+    return this._request('/api/scoring/score', 'GET', null, filters);
+  }
+
+  /**
+   * GET /api/scoring/score?view=stats — aggregate stats for a profile
+   */
+  async getProfileScoreStats(profileId) {
+    return this._request('/api/scoring/score', 'GET', null, { profile_id: profileId, view: 'stats' });
+  }
+
+  /**
+   * POST /api/scoring/risk-templates
+   */
+  async createRiskTemplate(template) {
+    return this._request('/api/scoring/risk-templates', 'POST', template);
+  }
+
+  /**
+   * GET /api/scoring/risk-templates
+   */
+  async listRiskTemplates(filters = {}) {
+    return this._request('/api/scoring/risk-templates', 'GET', null, filters);
+  }
+
+  /**
+   * PATCH /api/scoring/risk-templates/:id
+   */
+  async updateRiskTemplate(templateId, updates) {
+    return this._request(`/api/scoring/risk-templates/${templateId}`, 'PATCH', updates);
+  }
+
+  /**
+   * DELETE /api/scoring/risk-templates/:id
+   */
+  async deleteRiskTemplate(templateId) {
+    return this._request(`/api/scoring/risk-templates/${templateId}`, 'DELETE');
+  }
+
+  /**
+   * POST /api/scoring/calibrate — analyze historical data and suggest dimension thresholds
+   */
+  async autoCalibrate(options = {}) {
+    return this._request('/api/scoring/calibrate', 'POST', options);
+  }
+
+  /**
    * GET /api/compliance/map
    */
   async mapCompliance(framework) {

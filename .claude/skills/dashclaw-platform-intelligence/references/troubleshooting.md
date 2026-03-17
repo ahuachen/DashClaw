@@ -163,7 +163,7 @@ The agent pairing flow has several gotchas:
 **Full validation:**
 ```bash
 node .claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs \
-  --base-url http://localhost:3000 --api-key $DASHCLAW_API_KEY --full --capture-setup-proof
+  --base-url http://localhost:3000 --api-key $DASHCLAW_API_KEY --full
 ```
 
 **Targeted diagnosis:**
@@ -174,5 +174,3 @@ node .claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs \
 ```
 
 Both scripts support `--json` for machine-readable output.
-The validator also supports `--capture-setup-proof`, which returns a signed `/setup?proof=...` URL after a successful run so the Verify page can show live SDK proof without storing it in the database.
-For Python-only environments, use the helper snippet on `/setup` or in `docs/client-setup-guide.md` to POST a sanitized success payload to `/api/setup/live-proof` and get the same signed setup URL back.

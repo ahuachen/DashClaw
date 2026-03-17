@@ -1,7 +1,7 @@
 ---
 source-of-truth: false
 owner: SDK Lead
-last-verified: 2026-03-16
+last-verified: 2026-03-17
 doc-type: architecture
 ---
 
@@ -9,11 +9,11 @@ doc-type: architecture
 
 ## SDK Tiers
 
-As of v2.1.5, the Node SDK is split into two tiers:
+As of v2.3.0, the Node SDK is split into two tiers:
 
 | Tier | Entry Point | Import | Methods | Purpose |
 |------|------------|--------|---------|---------|
-| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | ~20 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, compliance, webhooks |
+| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | 36 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, compliance, webhooks |
 | **v1 (Legacy)** | `sdk/legacy/dashclaw-v1.js` | `import { DashClaw } from 'dashclaw/legacy'` | 177+ | Full platform surface: everything in v2 plus swarm, SSE events, context, messaging, handoffs, pairing, identity, preferences, and more |
 
 **New integrations should use v2.** v1 is preserved for existing agents that depend on the full surface.
@@ -22,7 +22,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 177+ method su
 
 ## v2 Stable Surface (Node)
 
-20 public methods organized by governance concern:
+36 public methods organized by governance concern:
 
 | Category | Methods | Count |
 |----------|---------|------:|
@@ -36,11 +36,11 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 177+ method su
 | Learning Analytics | `getLearningVelocity`, `getLearningCurves` | 2 |
 | Prompt Registry | `renderPrompt` | 1 |
 | Evaluations | `createScorer` | 1 |
-| Scoring Profiles | `createScoringProfile` | 1 |
+| Scoring Profiles | `createScoringProfile`, `listScoringProfiles`, `getScoringProfile`, `updateScoringProfile`, `deleteScoringProfile`, `addScoringDimension`, `updateScoringDimension`, `deleteScoringDimension`, `scoreWithProfile`, `batchScoreWithProfile`, `getProfileScores`, `getProfileScoreStats`, `createRiskTemplate`, `listRiskTemplates`, `updateRiskTemplate`, `deleteRiskTemplate`, `autoCalibrate` | 17 |
 | Compliance | `mapCompliance`, `getProofReport` | 2 |
 | Activity | `getActivityLogs` | 1 |
 | Webhooks | `createWebhook` | 1 |
-| **Total** | | **19** |
+| **Total** | | **36** |
 
 Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
 
@@ -90,6 +90,14 @@ Critical-domain contract coverage is validated against a shared harness:
 - Shared fixture: `docs/sdk-critical-contract-harness.json`
 - Node harness runner: `scripts/check-sdk-cross-integration.mjs` (`npm run sdk:integration`)
 - Python harness test: `sdk-python/tests/test_ws5_m4_integration.py` (`npm run sdk:integration:python`)
+
+## v2 Changelog
+
+### v2.3.0 (March 17, 2026)
+
+Node SDK v2 scoring surface expanded from 1 → 17 methods to match Python SDK parity.
+
+Methods added: `listScoringProfiles`, `getScoringProfile`, `updateScoringProfile`, `deleteScoringProfile`, `addScoringDimension`, `updateScoringDimension`, `deleteScoringDimension`, `scoreWithProfile`, `batchScoreWithProfile`, `getProfileScores`, `getProfileScoreStats`, `createRiskTemplate`, `listRiskTemplates`, `updateRiskTemplate`, `deleteRiskTemplate`, `autoCalibrate`.
 
 ## v1 Parity Changelog
 
