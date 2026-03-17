@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import { checkAllIntegrations } from '../../../lib/integration-health.js';
-import { upsertHealth } from '../../../lib/repositories/integration-health.repository.js';
+import { upsertHealth, getActiveOrgIds } from '../../../lib/repositories/integration-health.repository.js';
 import { timingSafeEqual } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,7 @@ export async function GET(request) {
 
     const sql = getSql();
 
-    // Get all active orgs (same pattern as signals cron)
-    const orgs = await sql`SELECT DISTINCT org_id AS id FROM settings WHERE org_id != 'org_default'`;
+    const orgs = await getActiveOrgIds(sql);
 
     let totalChecked = 0;
     for (const org of orgs) {

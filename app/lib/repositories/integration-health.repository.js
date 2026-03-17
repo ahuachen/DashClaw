@@ -26,6 +26,10 @@ export async function upsertHealth(sql, orgId, provider, status, message) {
   `;
 }
 
+export async function getActiveOrgIds(sql) {
+  return sql`SELECT DISTINCT org_id AS id FROM settings WHERE org_id != 'org_default'`;
+}
+
 export async function getHealthForOrg(sql, orgId) {
   await ensureTable(sql);
   return sql`
