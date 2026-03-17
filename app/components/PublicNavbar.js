@@ -29,7 +29,7 @@ export default function PublicNavbar() {
         </div>
         <div className="flex items-center gap-3">
           <Link href="/demo" className="px-4 py-1.5 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors">
-            Run Demo
+            Mission Control
           </Link>
           <Link href="/self-host" className="hidden sm:inline-flex px-4 py-1.5 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-zinc-300 text-sm font-medium hover:bg-[#222] hover:text-white transition-colors">
             Get Started
