@@ -22,7 +22,7 @@
   <a href="https://www.npmjs.com/package/dashclaw"><img src="https://img.shields.io/npm/v/dashclaw?style=flat-square&color=orange" alt="npm" /></a>
   <a href="https://pypi.org/project/dashclaw/"><img src="https://img.shields.io/pypi/v/dashclaw?style=flat-square&color=orange" alt="PyPI" /></a>
 
-  <img src="public/images/screenshots/replay2.png" alt="DashClaw Replay" width="2500" />
+  <img src="public/images/demo-gif.gif" alt="DashClaw Demo" width="1200" />
 </div>
 
 <br />

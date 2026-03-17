@@ -53,19 +53,14 @@ async function main() {
 
     if (decision.decision === 'block') {
       console.error(`\n❌ ACTION BLOCKED: ${decision.reason}`);
-      console.log(`View decision at: ${process.env.DASHCLAW_BASE_URL}/replay/${decision.action_id}\n`);
+      console.log(`View decision at: ${process.env.DASHCLAW_BASE_URL}/decisions\n`);
+      return;
     }
 
-    if (decision.decision === 'require_approval') {
-      console.log(`\n⏳ APPROVAL REQUIRED. Waiting for human review...`);
-      console.log(`Approve here: ${process.env.DASHCLAW_BASE_URL}/approvals\n`);
-      await claw.waitForApproval(decision.action_id);
-      console.log("✅ Approved! Proceeding...");
-    } else if (decision.decision !== 'block') {
-      console.log("✅ Guard: Allowed.");
-    }
+    console.log(`✅ Guard: ${decision.decision === 'require_approval' ? 'Approval required.' : 'Allowed.'}`);
 
     // 📝 2. ACTION: Declare intent to record evidence
+    // This creates the action record (with status 'pending_approval' if guard requires it).
     const { action } = await claw.createAction({
       action_type: 'deploy',
       declared_goal: goal,
@@ -77,6 +72,14 @@ async function main() {
     const actionId = action.action_id;
     console.log(`📝 Action Recorded: ${actionId}`);
     console.log(`📋 Decision Replay: ${process.env.DASHCLAW_BASE_URL}/replay/${actionId}`);
+
+    // ⏳ 3. APPROVAL: Wait for human sign-off if required
+    if (decision.decision === 'require_approval') {
+      console.log(`\n⏳ APPROVAL REQUIRED. Waiting for human review...`);
+      console.log(`Approve here: ${process.env.DASHCLAW_BASE_URL}/approvals\n`);
+      await claw.waitForApproval(actionId);
+      console.log("✅ Approved! Proceeding...");
+    }
 
     // 💭 3. ASSUMPTION: Record what the agent believes to be true
     await claw.recordAssumption({
