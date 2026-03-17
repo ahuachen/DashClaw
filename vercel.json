@@ -1,12 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/signals",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/integration-health",
-      "schedule": "0 */6 * * *"
-    }
-  ]
-}
+{}
