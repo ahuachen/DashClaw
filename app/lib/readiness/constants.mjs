@@ -22,6 +22,11 @@ export const ADVISORY_ENV_VARS = [
     description: 'Default API key for agent authentication',
     help: 'Set DASHCLAW_API_KEY or sign in and generate a workspace API key before connecting agents.',
   },
+  {
+    key: 'CRON_SECRET',
+    description: 'Secret token protecting /api/cron/* routes from unauthorized invocation',
+    help: 'Generate with: openssl rand -hex 32 — then add to Vercel → Settings → Environment Variables.',
+  },
 ];
 
 export const OVERALL_STATE_META = {

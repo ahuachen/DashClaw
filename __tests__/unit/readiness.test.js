@@ -9,6 +9,9 @@ vi.mock('@/lib/setupStatus.mjs', () => ({
 }));
 
 import { getReadinessReport, getSdkCommands, projectConnectNextStep, projectReadinessReport } from '@/lib/readiness.mjs';
+import { buildDeploySection } from '@/lib/readiness/deployCheck.mjs';
+import { ADVISORY_ENV_VARS } from '@/lib/readiness/constants.mjs';
+import { checkConfiguration } from '@/lib/readiness/configurationCheck.mjs';
 
 describe('readiness projections', () => {
   it('uses a path-neutral validator command and never suggests dashclaw.io as the agent base URL', () => {
@@ -219,6 +222,7 @@ describe('readiness projections', () => {
       NEXTAUTH_URL: 'https://dashclaw.example.com',
       DASHCLAW_LOCAL_ADMIN_PASSWORD: 'password',
       DASHCLAW_API_KEY: 'dc_test_key',
+      CRON_SECRET: 'cron_test_secret',
     });
 
     expect(report.verification.overall).toBe('ready_unverified');
@@ -240,6 +244,7 @@ describe('readiness projections', () => {
         NEXTAUTH_URL: 'https://dashclaw.example.com',
         DASHCLAW_LOCAL_ADMIN_PASSWORD: 'password',
         DASHCLAW_API_KEY: 'dc_test_key',
+        CRON_SECRET: 'cron_test_secret',
       },
       {
         host: 'dashclaw.example.com',
@@ -292,4 +297,118 @@ describe('readiness projections', () => {
   });
 });
 
+describe('deploy section — NEXTAUTH_URL checks', () => {
+  it('returns pass when NEXTAUTH_URL matches the host', () => {
+    const section = buildDeploySection(
+      { NEXTAUTH_URL: 'https://app.example.com' },
+      'app.example.com'
+    );
+    const check = section.checks.find((c) => c.id === 'nextauth_url');
+    expect(check.status).toBe('pass');
+    expect(check.label).toBe('NEXTAUTH_URL matches deployment host');
+  });
+
+  it('returns warn when NEXTAUTH_URL does not match the host', () => {
+    const section = buildDeploySection(
+      { NEXTAUTH_URL: 'https://old.example.com' },
+      'new.example.com'
+    );
+    const check = section.checks.find((c) => c.id === 'nextauth_url');
+    expect(check.status).toBe('warn');
+    expect(check.label).toContain('does not match');
+    expect(check.nextAction).toContain('set NEXTAUTH_URL to https://new.example.com');
+  });
+
+  it('returns fail when NEXTAUTH_URL is not set', () => {
+    const section = buildDeploySection({}, 'app.example.com');
+    const check = section.checks.find((c) => c.id === 'nextauth_url');
+    expect(check.status).toBe('fail');
+    expect(check.label).toContain('not configured');
+  });
+});
+
+describe('deploy section — realtime backend checks', () => {
+  it('returns warn on Vercel with no Redis configured', () => {
+    const section = buildDeploySection({ VERCEL: '1' }, 'app.example.com');
+    const check = section.checks.find((c) => c.id === 'realtime_backend');
+    expect(check.status).toBe('warn');
+    expect(check.label).toContain('requires Redis');
+  });
+
+  it('returns pass on Vercel with Upstash Redis configured', () => {
+    const section = buildDeploySection(
+      {
+        VERCEL: '1',
+        UPSTASH_REDIS_REST_URL: 'https://redis.upstash.io',
+        UPSTASH_REDIS_REST_TOKEN: 'token123',
+      },
+      'app.example.com'
+    );
+    const check = section.checks.find((c) => c.id === 'realtime_backend');
+    expect(check.status).toBe('pass');
+    expect(check.label).toBe('Realtime backend: Redis');
+  });
+
+  it('returns info when not on Vercel and no Redis', () => {
+    const section = buildDeploySection({}, 'localhost:3000');
+    const check = section.checks.find((c) => c.id === 'realtime_backend');
+    expect(check.status).toBe('info');
+    expect(check.label).toBe('Realtime backend: in-memory');
+  });
+});
+
+describe('deploy section — section shape', () => {
+  it('has id deploy and title Deploy Readiness', () => {
+    const section = buildDeploySection(
+      { NEXTAUTH_URL: 'https://app.example.com' },
+      'app.example.com'
+    );
+    expect(section.id).toBe('deploy');
+    expect(section.title).toBe('Deploy Readiness');
+  });
+});
+
+describe('CRON_SECRET in advisory env vars', () => {
+  it('includes CRON_SECRET entry in ADVISORY_ENV_VARS', () => {
+    const entry = ADVISORY_ENV_VARS.find((v) => v.key === 'CRON_SECRET');
+    expect(entry).toBeDefined();
+    expect(entry.key).toBe('CRON_SECRET');
+  });
+
+  it('checkConfiguration returns pass for CRON_SECRET when present', () => {
+    const config = checkConfiguration({
+      CRON_SECRET: 'abc123',
+      DATABASE_URL: 'postgres://x',
+      NEXTAUTH_SECRET: 'y',
+      NEXTAUTH_URL: 'https://z.example.com',
+      DASHCLAW_API_KEY: 'k',
+    });
+    const check = config.checks.find((c) => c.id === 'cron_secret');
+    expect(check).toBeDefined();
+    expect(check.status).toBe('pass');
+  });
+
+  it('checkConfiguration returns warn for CRON_SECRET when absent', () => {
+    const config = checkConfiguration({
+      DATABASE_URL: 'postgres://x',
+      NEXTAUTH_SECRET: 'y',
+    });
+    const check = config.checks.find((c) => c.id === 'cron_secret');
+    expect(check).toBeDefined();
+    expect(check.status).toBe('warn');
+  });
+});
+
+describe('deploy section integration', () => {
+  it('includes deploy section in report sections', async () => {
+    mockGetSetupStatus.mockResolvedValue({ configured: true, reason: 'ready', missing: [] });
+    const report = await getReadinessReport(
+      { DATABASE_URL: 'postgres://test', NEXTAUTH_SECRET: 'secret', NEXTAUTH_URL: 'https://test.vercel.app' },
+      { host: 'test.vercel.app' }
+    );
+    expect(report.deploy).toBeDefined();
+    expect(report.deploy.id).toBe('deploy');
+    expect(report.sections.some((s) => s.id === 'deploy')).toBe(true);
+  });
+});
 
