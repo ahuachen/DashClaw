@@ -37,11 +37,12 @@
 
 **$0 to deploy** — Vercel free tier + Neon free tier.
 
-### After deploy (3 steps)
+### After deploy (4 steps)
 
-1. **Set NEXTAUTH_URL** — In Vercel → Project → Settings → Environment Variables, set `NEXTAUTH_URL` to your deployment URL (e.g., `https://my-dashclaw.vercel.app`). Redeploy once.
-2. **Enable live stream (optional)** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Required for Mission Control live decision stream on serverless.
-3. **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
+1. **Run database migration** — Clone your forked repo locally, set `DATABASE_URL` in `.env` to your Neon connection string, then run `npm run db:push`. This applies the schema once and must be done before the app will function.
+2. **Set NEXTAUTH_URL** — In Vercel → Project → Settings → Environment Variables, set `NEXTAUTH_URL` to your deployment URL (e.g., `https://my-dashclaw.vercel.app`). Redeploy once.
+3. **Enable live stream (optional)** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Required for Mission Control live decision stream on serverless.
+4. **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
 
 For a manual deploy path (local Docker, custom domain), see [Deploy without OAuth](docs/deploy-without-oauth.md).
 
