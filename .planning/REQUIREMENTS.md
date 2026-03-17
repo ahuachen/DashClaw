@@ -10,7 +10,7 @@
 - [ ] **DEPLOY-01**: One-click Vercel deploy button appears in README above the fold, parameterized with exactly 7 required env vars (DATABASE_URL, DASHCLAW_API_KEY, ENCRYPTION_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL, CRON_SECRET, DASHCLAW_LOCAL_ADMIN_PASSWORD)
 - [ ] **DEPLOY-02**: `vercel.json` registers cron routes (`/api/cron/signals` every 5 min, `/api/cron/integration-health` every 6 hours) and sets `buildCommand` to run `npm run db:push && next build` for automated schema migration
 - [ ] **DEPLOY-03**: Post-deploy setup instructions cover NEXTAUTH_URL (set to deployment URL after first deploy), Upstash Redis setup, and `/setup` as the verification page
-- [ ] **DEPLOY-04**: `/setup` page health checks include: NEXTAUTH_URL configuration detected, realtime backend (warns if running in-memory on serverless), schema migration status, CRON_SECRET presence
+- [x] **DEPLOY-04**: `/setup` page health checks include: NEXTAUTH_URL configuration detected, realtime backend (warns if running in-memory on serverless), schema migration status, CRON_SECRET presence
 
 ### Integration Guides
 
@@ -66,7 +66,7 @@
 | DEPLOY-01 | Phase 1 | Pending |
 | DEPLOY-02 | Phase 1 | Pending |
 | DEPLOY-03 | Phase 1 | Pending |
-| DEPLOY-04 | Phase 1 | Pending |
+| DEPLOY-04 | Phase 1 | Complete |
 | GUIDE-01 | Phase 3 | Pending |
 | GUIDE-02 | Phase 3 | Pending |
 | GUIDE-03 | Phase 3 | Pending |

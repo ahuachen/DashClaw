@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-03-17T22:45:37.377Z"
+stopped_at: Completed 01-deploy-funnel-02-PLAN.md
+last_updated: "2026-03-17T23:28:16.733Z"
 last_activity: 2026-03-17 — Roadmap created
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-deploy-funnel P02 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,6 +63,8 @@ Recent decisions affecting current work:
 - All four frameworks (LangChain/LangGraph, Claude Code, OpenAI Agents SDK, CrewAI) for integration guides
 - Discord as community platform; no bots, no in-app integration
 - Show HN as primary launch vehicle; problem-first narrative required
+- [Phase 01-deploy-funnel]: deploy.ok=false (NEXTAUTH_URL missing) causes overall=blocked; deploy.status=warn causes needs_attention — fail is blocking because auth redirects break
+- [Phase 01-deploy-funnel]: CRON_SECRET is advisory not required — missing cron protection is a security gap but not a runtime blocker
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-17T22:45:37.375Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-deploy-funnel/01-CONTEXT.md
+Last session: 2026-03-17T23:28:16.731Z
+Stopped at: Completed 01-deploy-funnel-02-PLAN.md
+Resume file: None
