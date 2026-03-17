@@ -42,7 +42,7 @@ async function main() {
   console.log('[2/3] Running governed agent action...');
   console.log('');
 
-  const agent = spawn('node', ['/app/examples/openai-governed-agent/index.js'], {
+  const agent = spawn('node', ['/app/scripts/demo-agent.mjs'], {
     cwd: '/app',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
