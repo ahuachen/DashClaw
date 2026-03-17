@@ -5,6 +5,7 @@
 
 import { getSetupStatus } from './setupStatus.mjs';
 import { getAuthConfig } from './authConfig.mjs';
+import { getSql } from './db.js';
 
 import { REQUIRED_ENV_VARS, ADVISORY_ENV_VARS } from './readiness/constants.mjs';
 import { buildApplicationSection } from './readiness/applicationCheck.mjs';
@@ -29,6 +30,26 @@ export async function getReadinessReport(env = process.env, options = {}) {
   const db = buildDatabaseSection(dbStatus);
   const configuration = buildConfigurationSection(config);
   const auth = buildAuthSection(authConfig, env);
+
+  // Check for workspace API keys and recorded actions in the database.
+  // Env var alone isn't enough when users generate keys through the dashboard.
+  let hasWorkspaceApiKey = false;
+  let hasRecordedActions = false;
+  if (dbStatus.configured) {
+    try {
+      const sql = getSql();
+      const [keyRows, actionRows] = await Promise.all([
+        auth.hasAgentApiKey ? [] : sql`SELECT 1 FROM api_keys WHERE revoked_at IS NULL LIMIT 1`,
+        sql`SELECT 1 FROM action_records LIMIT 1`,
+      ]);
+      if (!auth.hasAgentApiKey && keyRows.length > 0) {
+        auth.hasAgentApiKey = true;
+        hasWorkspaceApiKey = true;
+      }
+      hasRecordedActions = actionRows.length > 0;
+    } catch { /* best-effort */ }
+  }
+
   const baseReport = {
     checkedAt: new Date().toISOString(),
     application,
@@ -56,6 +77,7 @@ export async function getReadinessReport(env = process.env, options = {}) {
     auth,
     sdk,
     sections,
+    hasRecordedActions,
   };
 
   const verification = buildVerificationState(report);

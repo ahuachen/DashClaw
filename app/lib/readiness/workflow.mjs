@@ -250,7 +250,10 @@ export function buildVerificationState(report) {
     };
   }
 
-  if (!report.auth.hasAgentApiKey || !report.sdk?.hasLiveProof) {
+  // Accept either a live proof token OR an API key + recorded actions as verified
+  const hasLiveProof = Boolean(report.sdk?.hasLiveProof);
+  const hasApiKeyAndActions = report.auth.hasAgentApiKey && report.hasRecordedActions;
+  if (!hasLiveProof && !hasApiKeyAndActions) {
     return {
       overall: 'ready_unverified',
       ...OVERALL_STATE_META.ready_unverified,

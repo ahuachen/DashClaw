@@ -317,6 +317,20 @@ export async function DELETE(request) {
     const status = searchParams.get('status');
     const actionId = searchParams.get('action_id');
 
+    const actionIds = searchParams.get('action_ids');
+
+    // Bulk delete by specific IDs: ?action_ids=act_1,act_2,act_3
+    if (actionIds) {
+      const idList = actionIds.split(',').map(id => id.trim()).filter(Boolean);
+      if (idList.length === 0) {
+        return NextResponse.json({ error: 'No valid ids provided' }, { status: 400 });
+      }
+      await sql`DELETE FROM open_loops WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
+      await sql`DELETE FROM assumptions WHERE action_id = ANY(${idList}) AND org_id = ${orgId}`;
+      const result = await sql`DELETE FROM action_records WHERE action_id = ANY(${idList}) AND org_id = ${orgId} RETURNING action_id`;
+      return NextResponse.json({ deleted: result.length, action_ids: result.map(r => r.action_id) });
+    }
+
     // Single action deletion
     if (actionId) {
       // Also clean up related loops + assumptions

@@ -163,11 +163,32 @@ export async function DELETE(request) {
     }
 
     const policyId = request.nextUrl.searchParams.get('id');
-    if (!policyId) {
-      return NextResponse.json({ error: 'Policy id is required' }, { status: 400 });
+    const policyIds = request.nextUrl.searchParams.get('ids');
+
+    if (!policyId && !policyIds) {
+      return NextResponse.json({ error: 'Policy id or ids is required' }, { status: 400 });
     }
 
     const sql = getSql();
+
+    // Bulk delete: ?ids=gp_1,gp_2,gp_3
+    if (policyIds) {
+      const idList = policyIds.split(',').map(id => id.trim()).filter(Boolean);
+      if (idList.length === 0) {
+        return NextResponse.json({ error: 'No valid ids provided' }, { status: 400 });
+      }
+      const rows = await sql`
+        DELETE FROM guard_policies
+        WHERE id = ANY(${idList}) AND org_id = ${orgId}
+        RETURNING id
+      `;
+      for (const row of rows) {
+        void publishOrgEvent(EVENTS.POLICY_UPDATED, { orgId, policy_id: row.id, change_type: 'deleted' });
+      }
+      return NextResponse.json({ deleted: rows.length, ids: rows.map(r => r.id) });
+    }
+
+    // Single delete: ?id=gp_xxx
     const rows = await sql`
       DELETE FROM guard_policies
       WHERE id = ${policyId} AND org_id = ${orgId}

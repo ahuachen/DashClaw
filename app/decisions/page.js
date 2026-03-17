@@ -18,6 +18,7 @@ import {
   CheckCircle2, XCircle, Clock, Loader2, Ban,
   ChevronUp, ChevronDown, ChevronLeft, ChevronRight, RotateCw,
   ShieldCheck, ShieldAlert, ExternalLink, Info,
+  Square, CheckSquare,
 } from 'lucide-react';
 
 const typeIconMap = {
@@ -49,6 +50,8 @@ export default function DecisionsLedger() {
   const [expandedData, setExpandedData] = useState({});
   const [clearing, setClearing] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [selectedActions, setSelectedActions] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const [filterAgent, setFilterAgent] = useState('');
   const [filterType, setFilterType] = useState('');
@@ -90,6 +93,7 @@ export default function DecisionsLedger() {
 
   useEffect(() => {
     setLoading(true);
+    setSelectedActions(new Set());
     fetchActions();
   }, [fetchActions]);
 
@@ -143,6 +147,48 @@ export default function DecisionsLedger() {
       alert('Failed to delete action');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleBulkDeleteSelected = async () => {
+    if (selectedActions.size === 0) return;
+    const msg = `Delete ${selectedActions.size} selected ${selectedActions.size === 1 ? 'decision' : 'decisions'}? This cannot be undone.`;
+    if (!confirm(msg)) return;
+    setBulkDeleting(true);
+    try {
+      const ids = Array.from(selectedActions).join(',');
+      const res = await fetch(`/api/actions?action_ids=${ids}`, { method: 'DELETE' });
+      if (res.ok) {
+        const data = await res.json();
+        setActions(prev => prev.filter(a => !selectedActions.has(a.action_id)));
+        setTotal(prev => Math.max(0, prev - (data.deleted || 0)));
+        setSelectedActions(new Set());
+        if (expandedId && selectedActions.has(expandedId)) setExpandedId(null);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to delete actions');
+      }
+    } catch {
+      alert('Failed to delete actions');
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const toggleSelectAction = (actionId, e) => {
+    e.stopPropagation();
+    setSelectedActions(prev => {
+      const next = new Set(prev);
+      if (next.has(actionId)) next.delete(actionId); else next.add(actionId);
+      return next;
+    });
+  };
+
+  const toggleSelectAllActions = () => {
+    if (selectedActions.size === actions.length) {
+      setSelectedActions(new Set());
+    } else {
+      setSelectedActions(new Set(actions.map(a => a.action_id)));
     }
   };
 
@@ -215,6 +261,16 @@ export default function DecisionsLedger() {
       breadcrumbs={['Governance', 'Decisions']}
       actions={
         <div className="flex items-center gap-2">
+          {isAdmin && selectedActions.size > 0 && (
+            <button
+              onClick={handleBulkDeleteSelected}
+              disabled={bulkDeleting}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors duration-150 disabled:opacity-50"
+            >
+              <Trash2 size={14} />
+              {bulkDeleting ? 'Deleting...' : `Delete ${selectedActions.size} selected`}
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={handleClearActions}
@@ -307,6 +363,19 @@ export default function DecisionsLedger() {
             <EmptyState icon={Inbox} title="No actions found" description="Adjust filters or wait for agent activity" />
           ) : (
             <div className="space-y-2">
+              {/* Select all row */}
+              {isAdmin && actions.length > 1 && (
+                <div className="flex items-center gap-2 px-2 py-1">
+                  <button onClick={toggleSelectAllActions} className="text-zinc-500 hover:text-white transition-colors p-0.5">
+                    {selectedActions.size === actions.length
+                      ? <CheckSquare size={16} className="text-brand" />
+                      : <Square size={16} />}
+                  </button>
+                  <span className="text-xs text-zinc-500">
+                    {selectedActions.size === actions.length ? 'Deselect all' : `Select all (${actions.length})`}
+                  </span>
+                </div>
+              )}
               {actions.map((action) => {
                 const isExpanded = expandedId === action.action_id;
                 const detail = expandedData[action.action_id];
@@ -324,6 +393,17 @@ export default function DecisionsLedger() {
                       className="w-full p-4 text-left hover:bg-white/[0.02] transition-colors duration-150 cursor-pointer"
                     >
                       <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        {/* Checkbox for multi-select */}
+                        {isAdmin && (
+                          <button
+                            onClick={(e) => toggleSelectAction(action.action_id, e)}
+                            className="text-zinc-500 hover:text-white transition-colors p-0.5 flex-shrink-0 hidden md:block"
+                          >
+                            {selectedActions.has(action.action_id)
+                              ? <CheckSquare size={16} className="text-brand" />
+                              : <Square size={16} />}
+                          </button>
+                        )}
                         {/* 1. Agent & Intent */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1.5">
