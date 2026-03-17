@@ -11,6 +11,7 @@ import { estimateCost } from '../../lib/billing.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
 import { generateActionEmbedding, isEmbeddingsEnabled } from '../../lib/embeddings.js';
 import { evaluateGuard } from '../../lib/guard.js';
+import { fireActionAlert } from '../../lib/actionAlerts.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import {
   createActionRecord,
@@ -200,7 +201,9 @@ export async function POST(request) {
         action: blockedAction,
       });
 
-      return NextResponse.json({ 
+      fireActionAlert('blocked', blockedAction, sql, orgId);
+
+      return NextResponse.json({
         error: 'Action blocked by policy', 
         action: blockedAction,
         decision: guardDecision 
@@ -279,6 +282,13 @@ export async function POST(request) {
       orgId,
       action: createdAction,
     });
+
+    // Real-time Discord alerts for notable actions
+    if (isPendingApproval) {
+      fireActionAlert('pending_approval', createdAction, sql, orgId);
+    } else {
+      fireActionAlert('high_risk', createdAction, sql, orgId);
+    }
 
     if (actionsQuota.warning) {
       response.headers.set('x-quota-warning', `actions_per_month at ${actionsQuota.percent}%`);
