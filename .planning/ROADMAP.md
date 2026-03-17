@@ -12,7 +12,7 @@ The governance runtime is architecturally complete. This milestone is a pure dis
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Deploy Funnel** - One-click Vercel deploy works end-to-end with automated migration and minimal env var friction
+- [x] **Phase 1: Deploy Funnel** - One-click Vercel deploy works end-to-end with automated migration and minimal env var friction
 - [ ] **Phase 2: Community Setup** - Discord server live, pre-populated, and ready to receive evaluators before any public link goes out
 - [ ] **Phase 3: Integration Guides** - Four agent framework guides published, linked from README and app pages, each ending with a visible dashboard proof moment
 - [ ] **Phase 4: Public Launch** - Show HN post live and social content published with visual assets
@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Configure vercel.json and add deploy button with post-deploy instructions to README
-- [ ] 01-02-PLAN.md — Add deploy readiness health checks (NEXTAUTH_URL, realtime backend, CRON_SECRET) to /setup
+- [x] 01-01-PLAN.md — Configure vercel.json and add deploy button with post-deploy instructions to README
+- [x] 01-02-PLAN.md — Add deploy readiness health checks (NEXTAUTH_URL, realtime backend, CRON_SECRET) to /setup
 
 ### Phase 2: Community Setup
 **Goal**: A Discord server exists, is pre-populated with real content, and has a permanent invite link ready to embed in code before any guide or launch content references it
@@ -86,7 +86,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Deploy Funnel | 1/2 | In Progress|  |
+| 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
 | 2. Community Setup | 0/2 | Not started | - |
 | 3. Integration Guides | 0/5 | Not started | - |
 | 4. Public Launch | 0/2 | Not started | - |
