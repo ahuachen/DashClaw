@@ -64,10 +64,15 @@ describe('evaluateGuard', () => {
     expect(result.reasons[0]).toContain('Risk score 100');
   });
 
-  it('treats negative risk_score as 0', async () => {
+  it('treats negative agent risk_score as 0 and uses server-computed score', async () => {
+    // Server computes score from action_type (defaults to 'other' = 20).
+    // Agent-supplied -50 is clamped to 0, so effective = max(20, 0) = 20.
+    // Threshold 1 → 20 >= 1 → block.
     const sql = makeSql([makePolicy('risk_threshold', { threshold: 1 })]);
     const result = await evaluateGuard('org_1', { risk_score: -50 }, sql);
-    expect(result.decision).toBe('allow');
+    expect(result.decision).toBe('block');
+    expect(result.agent_risk_score).toBe(-50);
+    expect(result.risk_score).toBe(20);
   });
 
   // --- require_approval ---
@@ -265,6 +270,8 @@ describe('evaluateGuard', () => {
     expect(result).toHaveProperty('warnings');
     expect(result).toHaveProperty('matched_policies');
     expect(result).toHaveProperty('evaluated_at');
-    expect(result.risk_score).toBeNull();
+    // Server always computes a risk score; 'read' is unknown so defaults to 'other' (20)
+    expect(result.risk_score).toBe(20);
+    expect(result.agent_risk_score).toBeNull();
   });
 });
