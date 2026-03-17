@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 151,
+    "total_routes": 153,
     "stable_routes": 27,
-    "beta_routes": 16,
-    "experimental_routes": 108
+    "beta_routes": 17,
+    "experimental_routes": 109
   },
   "routes": [
     {
@@ -775,6 +775,15 @@
       "file": "app/api/compliance/trends/route.js"
     },
     {
+      "path": "/api/cron/integration-health",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "beta",
+      "matched_prefix": "/api/cron",
+      "file": "app/api/cron/integration-health/route.js"
+    },
+    {
       "path": "/api/cron/learning-episodes-backfill",
       "methods": [
         "GET"
@@ -952,6 +961,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/health",
       "file": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/integrations/health",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/integrations/health/route.js"
     },
     {
       "path": "/api/keys",
