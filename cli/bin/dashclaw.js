@@ -146,6 +146,10 @@ async function cmdApprovals() {
 
   function openReplay(actionId) {
     const url = `${baseUrl}/replay/${actionId}`;
+    if (!/^https?:\/\/[^\s]+$/.test(url)) {
+      process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
+      return;
+    }
     try {
       const platform = process.platform;
       if (platform === 'darwin') execFileSync('open', [url]);

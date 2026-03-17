@@ -3,10 +3,8 @@
   <h1>DashClaw</h1>
   <p><strong>Decision Infrastructure for AI agents.</strong></p>
   <p>Stop agents before they make expensive mistakes.</p>
-  <br />
-  <h3>Try it in 10 seconds</h3>
+  <p><sub>Try it in 10 seconds</sub></p>
   <pre><code>npx dashclaw-demo</code></pre>
-
   <p><sub>No setup. Opens Decision Replay automatically.</sub></p>
 
   <img src="public/images/demo-gif2.gif" alt="DashClaw Demo" width="1000" />
@@ -84,25 +82,25 @@ No repo clone. No environment variables. No configuration. Just one command.
 
 **Mission Control** — Real-time strategic posture, decision timeline, and intervention feed.
 
-<img src="public/images/screenshots/Mission Control.png" alt="Mission Control" width="800" />
+<img src="public/images/screenshots/Mission Control.png" alt="Mission Control" width="1000" />
 
 <br /><br />
 
 **Approval Queue** — Human-in-the-loop intervention with risk scores and one-click Allow / Deny.
 
-<img src="public/images/screenshots/Approvals.png" alt="Approval Queue" width="800" />
+<img src="public/images/screenshots/Approvals.png" alt="Approval Queue" width="1000" />
 
 <br /><br />
 
 **Guard Policies** — Declarative rules that govern agent behavior before actions execute.
 
-<img src="public/images/screenshots/Policies.png" alt="Guard Policies" width="800" />
+<img src="public/images/screenshots/policies.png" alt="Guard Policies" width="1000" />
 
 <br /><br />
 
 **Drift Detection** — Statistical behavioral drift analysis with critical alerts when agents deviate from baselines.
 
-<img src="public/images/screenshots/Assumptions.png" alt="Drift Detection" width="800" />
+<img src="public/images/screenshots/Assumptions.png" alt="Drift Detection" width="1000" />
 
 </div>
 
