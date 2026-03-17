@@ -1,8 +1,17 @@
 {
   "name": "dashclaw-platform",
   "version": "2.2.1",
+  "description": "Decision infrastructure for AI agents — governance runtime with policy enforcement, decision recording, and human-in-the-loop approval.",
   "private": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/DashClaw.git"
+  },
+  "author": "DashClaw",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev -p 3000 --turbopack",
     "demo": "node scripts/run-demo.mjs",
