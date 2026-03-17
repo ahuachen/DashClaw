@@ -107,7 +107,6 @@ def map_bash(command):
     elif _match_any(command, ["npm install", "pip install", "yarn add"]):
         action_type, risk, reversible = "build", 30, True
 
-    # Infer systems touched
     systems = ["shell"]
     if _match_any(command, ["postgres", "psql"]):
         systems = ["postgres"]
@@ -191,7 +190,6 @@ def handle_warn(guard_resp, context, tool_use_id):
     warnings = guard_resp.get("warnings") or guard_resp.get("reasons") or []
     msg = warnings[0] if warnings else "Policy warning"
     log("[DashClaw] Warning: " + msg)
-    # Still record the action
     resp = create_action(context, status="running")
     if resp:
         action_id = (resp.get("action_id")
@@ -225,10 +223,8 @@ def handle_require_approval(guard_resp, context, tool_use_id):
     policies = guard_resp.get("matched_policies") or []
     policy = policies[0] if policies else "require_approval policy"
 
-    # Create the action in pending state
     resp = create_action(context, status="pending_approval")
     if not resp:
-        # Cannot create action record; fail open
         log("[DashClaw] Could not create approval request, proceeding")
         sys.exit(0)
 
@@ -244,7 +240,6 @@ def handle_require_approval(guard_resp, context, tool_use_id):
         write_action_id(tool_use_id, action_id)
         sys.exit(0)
 
-    # Enforce mode: print info and poll
     log("[DashClaw] Approval required")
     log("Action ID: " + action_id)
     log("Goal:      " + context["declared_goal"])
@@ -255,7 +250,6 @@ def handle_require_approval(guard_resp, context, tool_use_id):
     log("Or visit the approval queue in your DashClaw dashboard.")
     log("Waiting for approval... (30s timeout, then blocking)")
 
-    # Poll for up to 30 seconds
     deadline = time.time() + 30
     while time.time() < deadline:
         time.sleep(3)
@@ -287,10 +281,11 @@ def main():
     if not BASE_URL or not API_KEY:
         sys.exit(0)
 
-    # Parse stdin
+    # Parse stdin — read as raw bytes and decode as UTF-8 to handle
+    # Windows PowerShell which pipes UTF-8 BOM bytes through cp1252 stdin
     try:
-        raw = sys.stdin.read()
-        data = json.loads(raw) if raw.strip() else {}
+        raw = sys.stdin.buffer.read().decode("utf-8-sig").strip()
+        data = json.loads(raw) if raw else {}
     except Exception:
         sys.exit(0)
 
@@ -326,7 +321,6 @@ def main():
     elif decision == "require_approval":
         handle_require_approval(guard_resp, context, tool_use_id)
     else:
-        # Unknown decision, fail open
         handle_allow(context, tool_use_id)
 
 

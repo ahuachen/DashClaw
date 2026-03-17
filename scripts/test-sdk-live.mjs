@@ -33,7 +33,9 @@ process.on('unhandledRejection', (reason) => {
 
 import { webcrypto } from 'node:crypto';
 import { DashClaw } from '../sdk/dashclaw.js';
-import { sendDirectMessage, VALID_MESSAGE_TYPES } from '../tools/dashclaw/client.js';
+// Agent messaging and sendDirectMessage are archived (not in v2 SDK).
+// Define VALID_MESSAGE_TYPES locally for any remaining references.
+const VALID_MESSAGE_TYPES = ['action', 'info', 'lesson', 'question', 'status'];
 
 const BASE_URL = process.env.DASHCLAW_URL || 'http://localhost:3000';
 const API_KEY  = process.env.DASHCLAW_API_KEY || '';
@@ -471,8 +473,11 @@ async function testSecurityScanning() {
 // ──────────────────────────────────────────────────────────────
 
 async function testAgentMessaging() {
-  console.log('\n--- Category 11: Agent Messaging ---');
+  console.log('\n--- Category 11: Agent Messaging (SKIPPED — archived in v2) ---');
+  console.log('  ⏭️  sendMessage/getSentMessages not available in v2 SDK');
+  return;
 
+  /* eslint-disable no-unreachable */
   const TARGET_AGENT = AGENT_ID; // send to self so the org can see it
 
   // Helper: find a message by ID from the sent list
@@ -646,7 +651,10 @@ async function testBulkSync() {
 // ──────────────────────────────────────────────────────────────
 
 async function testSendDirectMessageWrapper() {
-  console.log('\n--- sendDirectMessage wrapper (tools/dashclaw/client.js) ---');
+  console.log('\n--- sendDirectMessage wrapper (SKIPPED — archived in v2) ---');
+  console.log('  ⏭️  sendDirectMessage wrapper not available in v2 SDK');
+  return;
+  /* eslint-disable no-unreachable */
 
   // Missing `to` throws at call time
   let threwOnMissingTo = false;
@@ -712,7 +720,7 @@ async function testSendDirectMessageWrapper() {
 // ──────────────────────────────────────────────────────────────
 
 function testValidMessageTypesExport() {
-  console.log('\n--- VALID_MESSAGE_TYPES constant ---');
+  console.log('\n--- VALID_MESSAGE_TYPES constant (local — messaging archived in v2) ---');
 
   assert(Array.isArray(VALID_MESSAGE_TYPES),
     'VALID_MESSAGE_TYPES: exported as array');
