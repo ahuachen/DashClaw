@@ -12,6 +12,7 @@ import { buildApplicationSection } from './readiness/applicationCheck.mjs';
 import { buildDatabaseSection } from './readiness/databaseCheck.mjs';
 import { checkConfiguration, buildConfigurationSection } from './readiness/configurationCheck.mjs';
 import { buildAuthSection } from './readiness/authCheck.mjs';
+import { buildDeploySection } from './readiness/deployCheck.mjs';
 import { getSdkCommands, projectConnectNextStep, buildSdkSection } from './readiness/sdkCheck.mjs';
 import { buildWorkflow, buildRecommendations, buildVerificationState, buildProofArtifact, projectAuthConfig, projectCheck, projectStep } from './readiness/workflow.mjs';
 
@@ -30,6 +31,7 @@ export async function getReadinessReport(env = process.env, options = {}) {
   const db = buildDatabaseSection(dbStatus);
   const configuration = buildConfigurationSection(config);
   const auth = buildAuthSection(authConfig, env);
+  const deploy = buildDeploySection(env, host);
 
   // Check for workspace API keys and recorded actions in the database.
   // Env var alone isn't enough when users generate keys through the dashboard.
@@ -59,12 +61,12 @@ export async function getReadinessReport(env = process.env, options = {}) {
   };
 
   const sdk = buildSdkSection(host, baseReport, liveProof);
-  const sections = [application, db, configuration, auth, sdk];
+  const sections = [application, db, configuration, auth, deploy, sdk];
 
   let overall = 'healthy';
-  if (!db.ok || !configuration.ok) {
+  if (!db.ok || !configuration.ok || !deploy.ok) {
     overall = 'blocked';
-  } else if (!auth.ok || configuration.missingAdvisory.length > 0 || auth.status === 'warn') {
+  } else if (!auth.ok || configuration.missingAdvisory.length > 0 || auth.status === 'warn' || deploy.status === 'warn') {
     overall = 'needs_attention';
   }
 
@@ -75,6 +77,7 @@ export async function getReadinessReport(env = process.env, options = {}) {
     db,
     config: configuration,
     auth,
+    deploy,
     sdk,
     sections,
     hasRecordedActions,
