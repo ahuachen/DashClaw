@@ -147,7 +147,7 @@ Explain your reasoning clearly at each step.`,
           // 1. GUARD
           console.log('Checking deployment policy...');
           const decision = await claw.guard({
-            action_type: 'production_deploy',
+            action_type: 'deploy',
             declared_goal: `Deploy ${block.input.build} to production (${block.input.services.join(', ')})`,
             risk_score: 90,
             systems_touched: block.input.services,
@@ -167,7 +167,7 @@ Explain your reasoning clearly at each step.`,
 
           // 2. ACTION
           const actionResult = await claw.createAction({
-            action_type: 'production_deploy',
+            action_type: 'deploy',
             declared_goal: `Deploy ${block.input.build} to production`,
             reasoning: block.input.justification,
             risk_score: 90,

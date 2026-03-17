@@ -432,9 +432,11 @@ export async function getActionTraceData(sql, orgId, actionId) {
 /**
  * Fetch decision throughput statistics for the last 24h and comparison window.
  */
-export async function getActionStats(sql, orgId) {
+export async function getActionStats(sql, orgId, agentId = null) {
   // Test-contract compatibility path for sql mocks
   if (typeof sql.query === 'function' && Array.isArray(sql.queryCalls)) {
+    const agentFilter = agentId ? ' AND agent_id = $2' : '';
+    const params = agentId ? [orgId, agentId] : [orgId];
     const currentQuery = `
       SELECT
         COUNT(*)::int as total,
@@ -444,17 +446,17 @@ export async function getActionStats(sql, orgId) {
         COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
         COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
       FROM action_records
-      WHERE org_id = $1 AND created_at > NOW() - INTERVAL '24 hours'
+      WHERE org_id = $1 AND created_at > NOW() - INTERVAL '24 hours'${agentFilter}
     `;
     const previousQuery = `
       SELECT COUNT(*)::int as total
       FROM action_records
-      WHERE org_id = $1 AND created_at <= NOW() - INTERVAL '24 hours' AND created_at > NOW() - INTERVAL '48 hours'
+      WHERE org_id = $1 AND created_at <= NOW() - INTERVAL '24 hours' AND created_at > NOW() - INTERVAL '48 hours'${agentFilter}
     `;
 
     const [currentResults, previousResults] = await Promise.all([
-      sql.query(currentQuery, [orgId]),
-      sql.query(previousQuery, [orgId])
+      sql.query(currentQuery, params),
+      sql.query(previousQuery, params)
     ]);
 
     return {
@@ -463,27 +465,51 @@ export async function getActionStats(sql, orgId) {
     };
   }
 
-  const [currentResults, previousResults] = await Promise.all([
-    sql`
-      SELECT
-        COUNT(*)::int as total,
-        COUNT(*) FILTER (WHERE status='completed')::int as completed,
-        COUNT(*) FILTER (WHERE status='failed')::int as failed,
-        COUNT(*) FILTER (WHERE status='blocked')::int as blocked,
-        COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
-        COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
-      FROM action_records
-      WHERE org_id = ${orgId}
-        AND created_at > NOW() - INTERVAL '24 hours'
-    `,
-    sql`
-      SELECT COUNT(*)::int as total
-      FROM action_records
-      WHERE org_id = ${orgId}
-        AND created_at <= NOW() - INTERVAL '24 hours'
-        AND created_at > NOW() - INTERVAL '48 hours'
-    `
-  ]);
+  const [currentResults, previousResults] = agentId
+    ? await Promise.all([
+        sql`
+          SELECT
+            COUNT(*)::int as total,
+            COUNT(*) FILTER (WHERE status='completed')::int as completed,
+            COUNT(*) FILTER (WHERE status='failed')::int as failed,
+            COUNT(*) FILTER (WHERE status='blocked')::int as blocked,
+            COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
+            COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
+          FROM action_records
+          WHERE org_id = ${orgId}
+            AND agent_id = ${agentId}
+            AND created_at > NOW() - INTERVAL '24 hours'
+        `,
+        sql`
+          SELECT COUNT(*)::int as total
+          FROM action_records
+          WHERE org_id = ${orgId}
+            AND agent_id = ${agentId}
+            AND created_at <= NOW() - INTERVAL '24 hours'
+            AND created_at > NOW() - INTERVAL '48 hours'
+        `
+      ])
+    : await Promise.all([
+        sql`
+          SELECT
+            COUNT(*)::int as total,
+            COUNT(*) FILTER (WHERE status='completed')::int as completed,
+            COUNT(*) FILTER (WHERE status='failed')::int as failed,
+            COUNT(*) FILTER (WHERE status='blocked')::int as blocked,
+            COUNT(*) FILTER (WHERE status='cancelled')::int as cancelled,
+            COUNT(*) FILTER (WHERE status='pending_approval')::int as approval
+          FROM action_records
+          WHERE org_id = ${orgId}
+            AND created_at > NOW() - INTERVAL '24 hours'
+        `,
+        sql`
+          SELECT COUNT(*)::int as total
+          FROM action_records
+          WHERE org_id = ${orgId}
+            AND created_at <= NOW() - INTERVAL '24 hours'
+            AND created_at > NOW() - INTERVAL '48 hours'
+        `
+      ]);
 
   return {
     current: currentResults[0] || { total: 0, completed: 0, failed: 0, blocked: 0, cancelled: 0, approval: 0 },

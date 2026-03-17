@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -221,6 +221,28 @@ export default function AgentProfilePage() {
   const [error, setError] = useState(null);
   const [assigning, setAssigning] = useState(false);
 
+  // Compute Decision Profile from actual action records
+  const decisionProfile = useMemo(() => {
+    if (!decisions || decisions.length === 0) {
+      return { avgRisk: '—', confidenceFloor: '—', reversibilityRate: '—' };
+    }
+    const withRisk = decisions.filter(d => d.risk_score != null);
+    const withConf = decisions.filter(d => d.confidence != null);
+    const withRev = decisions.filter(d => d.reversible != null);
+
+    const avgRisk = withRisk.length > 0
+      ? (withRisk.reduce((s, d) => s + d.risk_score, 0) / withRisk.length).toFixed(1)
+      : '—';
+    const confidenceFloor = withConf.length > 0
+      ? Math.min(...withConf.map(d => d.confidence)) + '%'
+      : '—';
+    const reversibilityRate = withRev.length > 0
+      ? Math.round((withRev.filter(d => d.reversible).length / withRev.length) * 100) + '%'
+      : '—';
+
+    return { avgRisk, confidenceFloor, reversibilityRate };
+  }, [decisions]);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -412,15 +434,15 @@ export default function AgentProfilePage() {
                         <div className="space-y-3">
                           <div className="flex justify-between text-sm">
                             <span className="text-zinc-400">Avg Risk Score</span>
-                            <span className="text-white font-mono">24.5</span>
+                            <span className="text-white font-mono">{decisionProfile.avgRisk}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-zinc-400">Confidence Floor</span>
-                            <span className="text-white font-mono">85%</span>
+                            <span className="text-white font-mono">{decisionProfile.confidenceFloor}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-zinc-400">Reversibility Rate</span>
-                            <span className="text-emerald-400 font-mono">92%</span>
+                            <span className="text-emerald-400 font-mono">{decisionProfile.reversibilityRate}</span>
                           </div>
                         </div>
                       </div>

@@ -152,7 +152,7 @@ export default function MissionControlPage() {
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
         fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
-        fetch('/api/actions/stats'),
+        fetch(withParams('/api/actions/stats')),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());

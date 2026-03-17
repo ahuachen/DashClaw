@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Bell, AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { useRealtime } from '../hooks/useRealtime';
 
 export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
@@ -33,17 +34,40 @@ export default function NotificationCenter() {
       timestamp: new Date().toLocaleTimeString(),
       read: false
     };
-    setNotifications(prev => [newNotif, ...prev].slice(0, 10));
+    setNotifications(prev => [newNotif, ...prev].slice(0, 20));
 
     if (permission === 'granted' && type !== 'info') {
       new Notification(title, { body: message });
     }
   }, [permission]);
 
-  useEffect(() => {
-    // Background alert checks removed to maintain minimal governance runtime.
-    // Real-time governance signals are handled via the Security surface.
-  }, [addNotification]);
+  // Listen to real-time SSE events for governance notifications
+  useRealtime(useCallback((event, payload) => {
+    // Approval required — an agent is waiting for human decision
+    if (event === 'action.created') {
+      const action = payload?.action || payload;
+      if (action?.status === 'pending_approval') {
+        const agentName = action.agent_name || action.agent_id || 'An agent';
+        const goal = action.declared_goal || action.action_type || 'action';
+        addNotification('warning', `${agentName} needs approval: ${goal}`, 'Approval Required');
+      }
+    }
+
+    // Guard blocked an action
+    if (event === 'guard.decision.created') {
+      const decision = payload?.decision;
+      if (decision?.decision === 'block') {
+        const agentName = decision.agent_id || 'An agent';
+        addNotification('error', `Action blocked for ${agentName}`, 'Guard Policy');
+      }
+    }
+
+    // Risk signal detected
+    if (event === 'signal.detected') {
+      const signalType = (payload?.type || 'risk signal').replace(/_/g, ' ');
+      addNotification('error', `${signalType} detected`, 'Risk Signal');
+    }
+  }, [addNotification]));
 
   const markAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));

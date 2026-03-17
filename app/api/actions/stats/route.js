@@ -17,8 +17,9 @@ export async function GET(request) {
   try {
     const sql = getSql();
     const orgId = getOrgId(request);
+    const agentId = request.nextUrl.searchParams.get('agent_id') || null;
 
-    const { current, previousTotal } = await getActionStats(sql, orgId);
+    const { current, previousTotal } = await getActionStats(sql, orgId, agentId);
 
     // Calculate change percent
     let change_percent = 0;
