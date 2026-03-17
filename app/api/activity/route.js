@@ -72,7 +72,7 @@ export async function GET(request) {
     const stats = await sql.query(countQuery, [orgId]);
 
     return NextResponse.json({
-      logs,
+      events: logs,
       stats: stats[0] || { total: 0, today: 0, unique_actors: 0 },
       pagination: { limit, offset },
     });
