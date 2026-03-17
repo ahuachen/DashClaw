@@ -6,7 +6,7 @@
 
 const BASE_URL = process.env.DASHCLAW_BASE_URL || 'http://localhost:3000';
 const API_KEY  = process.env.DASHCLAW_API_KEY  || 'demo-key';
-const AGENT_ID = 'demo-deployer';
+const AGENT_ID = 'pipeline-agent';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -27,67 +27,40 @@ async function post(path, body) {
 }
 
 async function main() {
-  const goal = 'Deploy auth-service-v2 to production';
+  const goal = 'Purge customer records from production database';
   console.log(`\n🤖 Agent Goal: ${goal}`);
 
-  // 1. Guard check
+  // 1. Simulate guard block locally — demo mode has no live DB policies
   console.log('🛡️  Checking policies via DashClaw Guard...');
-  let guardResult;
-  try {
-    guardResult = await post('/api/guard', {
-      agent_id: AGENT_ID,
-      action_type: 'deploy',
-      declared_goal: goal,
-      risk_score: 85,
-      reversible: false,
-      systems_touched: ['kubernetes', 'production-api'],
-    });
-  } catch (err) {
-    console.error(`❌ Guard check failed: ${err.message}`);
-    process.exit(1);
-  }
+  await new Promise(r => setTimeout(r, 600)); // realistic pause
+  console.log('\n🚨 POLICY VIOLATION DETECTED');
+  console.log('   Policy:     PRODUCTION_DATA_PROTECTION');
+  console.log('   Rule:       Irreversible operations on customer data require explicit approval');
+  console.log('   Risk Score: 94 — exceeds org threshold of 75');
+  console.log('   Decision:   BLOCK\n');
 
-  const decision  = guardResult.decision;
-  const actionId  = guardResult.action_id;
-
-  if (decision === 'block') {
-    console.log(`\n❌ ACTION BLOCKED by policy.`);
-    console.log(`   Reason: ${guardResult.reason || guardResult.reasons?.join(', ') || 'Policy threshold exceeded'}`);
-    console.log(`   Risk score: 85 — exceeds policy threshold`);
-    console.log(`\n📋 Decision Replay: ${BASE_URL}/replay/${actionId}`);
-    console.log(`REPLAY_URL=${BASE_URL}/replay/${actionId}`);
-    return;
-  }
-
-  if (decision === 'require_approval') {
-    console.log(`\n⏳ APPROVAL REQUIRED — waiting for human review...`);
-    console.log(`   Approve here: ${BASE_URL}/approvals`);
-    console.log(`REPLAY_URL=${BASE_URL}/approvals`);
-    return;
-  }
-
-  // 2. Record action
+  // 2. Record blocked action
   let actionResult;
   try {
     actionResult = await post('/api/actions', {
       agent_id: AGENT_ID,
-      action_type: 'deploy',
+      action_type: 'cleanup',
       declared_goal: goal,
-      reasoning: 'Scheduled release window. QA sign-off received.',
-      risk_score: 85,
+      reasoning: 'Automated data retention policy enforcement — purging expired customer records.',
+      risk_score: 94,
       reversible: false,
-      systems_touched: ['kubernetes', 'production-api'],
+      systems_touched: ['postgres-prod', 'customer-data', 's3-backups'],
+      status: 'blocked',
+      error_message: 'Blocked by policy: PRODUCTION_DATA_PROTECTION — irreversible operation on customer data',
     });
   } catch (err) {
     console.error(`❌ Action record failed: ${err.message}`);
     process.exit(1);
   }
 
-  const recordedId = actionResult.action_id || actionResult.action?.action_id || actionId;
-  console.log(`📝 Action Recorded: ${recordedId}`);
+  const recordedId = actionResult.action_id || actionResult.action?.action_id;
+  console.log(`❌ ACTION BLOCKED — pipeline-agent cannot proceed.`);
   console.log(`📋 Decision Replay: ${BASE_URL}/replay/${recordedId}`);
-  console.log(`\n🎉 Deployment governed. Trace recorded in DashClaw.`);
-  console.log(`REPLAY_URL=${BASE_URL}/replay/${recordedId}`);
 }
 
 main().catch(err => {
