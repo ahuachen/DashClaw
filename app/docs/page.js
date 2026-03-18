@@ -100,31 +100,45 @@ const navItems = [
   { href: '#updateOutcome', label: 'updateOutcome', indent: true },
   { href: '#recordAssumption', label: 'recordAssumption', indent: true },
   { href: '#signals', label: 'Signals' },
-  { href: '#swarm-intelligence', label: 'Swarm Intelligence' },
   { href: '#loops-assumptions', label: 'Loops & Assumptions' },
   { href: '#learning-analytics', label: 'Learning Analytics' },
   { href: '#prompt-management', label: 'Prompt Management' },
   { href: '#evaluation-framework', label: 'Evaluation Framework' },
   { href: '#scoring-profiles', label: 'Scoring Profiles' },
-  { href: '#compliance-engine', label: 'Compliance Engine' },
-  { href: '#activity-logs', label: 'Activity Logs' },
-  { href: '#webhooks', label: 'Webhooks' },
+  { href: '#messaging', label: 'Agent Messaging' },
+  { href: '#sendMessage', label: 'sendMessage', indent: true },
+  { href: '#getInbox', label: 'getInbox', indent: true },
+  { href: '#handoffs', label: 'Session Handoffs' },
+  { href: '#createHandoff', label: 'createHandoff', indent: true },
+  { href: '#getLatestHandoff', label: 'getLatestHandoff', indent: true },
+  { href: '#security-scanning', label: 'Security Scanning' },
+  { href: '#scanPromptInjection', label: 'scanPromptInjection', indent: true },
+  { href: '#feedback', label: 'User Feedback' },
+  { href: '#submitFeedback', label: 'submitFeedback', indent: true },
+  { href: '#context-threads', label: 'Context Threads' },
+  { href: '#createThread', label: 'createThread', indent: true },
+  { href: '#addThreadEntry', label: 'addThreadEntry', indent: true },
+  { href: '#closeThread', label: 'closeThread', indent: true },
+  { href: '#bulk-sync', label: 'Bulk Sync' },
+  { href: '#syncState', label: 'syncState', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
   { href: '#real-time-events', label: 'Real-Time Events', indent: true, legacy: true },
-  { href: '#user-feedback', label: 'User Feedback', indent: true, legacy: true },
   { href: '#behavioral-drift', label: 'Behavioral Drift', indent: true, legacy: true },
   { href: '#compliance-exports', label: 'Compliance Exports', indent: true, legacy: true },
   { href: '#dashboard-data', label: 'Dashboard Data', indent: true, legacy: true },
-  { href: '#session-handoffs', label: 'Session Handoffs', indent: true, legacy: true },
   { href: '#context-manager', label: 'Context Manager', indent: true, legacy: true },
   { href: '#automation-snippets', label: 'Automation Snippets', indent: true, legacy: true },
   { href: '#user-preferences', label: 'User Preferences', indent: true, legacy: true },
   { href: '#daily-digest', label: 'Daily Digest', indent: true, legacy: true },
-  { href: '#security-scanning', label: 'Security Scanning', indent: true, legacy: true },
-  { href: '#agent-messaging', label: 'Agent Messaging', indent: true, legacy: true },
-  { href: '#bulk-sync', label: 'Bulk Sync', indent: true, legacy: true },
+  { href: '#compliance-engine', label: 'Compliance Engine', indent: true, legacy: true },
+  { href: '#mapCompliance', label: 'mapCompliance', indent: true, legacy: true },
+  { href: '#getProofReport', label: 'getProofReport', indent: true, legacy: true },
+  { href: '#activity-logs', label: 'Activity Logs', indent: true, legacy: true },
+  { href: '#getActivityLogs', label: 'getActivityLogs', indent: true, legacy: true },
+  { href: '#webhooks', label: 'Webhooks', indent: true, legacy: true },
+  { href: '#createWebhook', label: 'createWebhook', indent: true, legacy: true },
   { href: '#policy-testing', label: 'Policy Testing', indent: true, legacy: true },
   { href: '#task-routing', label: 'Task Routing', indent: true, legacy: true },
   { href: '#agent-schedules', label: 'Agent Schedules', indent: true, legacy: true },
@@ -159,7 +173,7 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK (v2.1.5). Node.js and Python parity across all core governance features.
+            Canonical reference for the DashClaw SDK (v2.4.0). Node.js and Python parity across all core governance features.
           </p>
           <Suspense fallback={null}>
             <CopyDocsButton />
@@ -415,52 +429,6 @@ except Exception as e:
             />
           </section>
 
-          {/* ── Swarm Intelligence ── */}
-          <section id="swarm-intelligence" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
-                <Users size={16} className="text-brand" />
-              </div>
-              <h2 className="text-2xl font-bold tracking-tight">Swarm Intelligence</h2>
-            </div>
-            <p className="text-sm text-zinc-400 mb-6">Map your entire fleet as a neural web, highlighting high-risk nodes and message flows.</p>
-            
-            <MethodEntry
-              id="heartbeat"
-              signature="claw.heartbeat(status, metadata) / claw.heartbeat(status=...)"
-              description="Report agent presence and health to the control plane."
-              params={[
-                { name: 'status', type: 'string', required: false, desc: 'Agent status (online, busy, offline)' },
-                { name: 'metadata', type: 'object', required: false, desc: 'Additional agent state' },
-              ]}
-              example={
-                <DocsCodeTabs 
-                  nodeSnippet="await claw.heartbeat('online', { task: 'monitoring' });"
-                  pythonSnippet="claw.heartbeat(status='online', metadata={'task': 'monitoring'})"
-                />
-              }
-            />
-
-            <MethodEntry
-              id="reportConnections"
-              signature="claw.reportConnections(connections) / claw.report_connections(connections)"
-              description="Report active provider connections and their status."
-              params={[
-                { name: 'connections', type: 'Array<Object>', required: true, desc: 'List of provider connection objects' },
-              ]}
-              example={
-                <DocsCodeTabs 
-                  nodeSnippet={`await claw.reportConnections([
-  { provider: 'openai', status: 'active', plan_name: 'enterprise' }
-]);`}
-                  pythonSnippet={`claw.report_connections([
-    {'provider': 'openai', 'status': 'active', 'plan_name': 'enterprise'}
-])`}
-                />
-              }
-            />
-          </section>
-
           {/* ── Loops & Assumptions ── */}
           <section id="loops-assumptions" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-3 mb-2">
@@ -630,79 +598,254 @@ rendered = res["rendered"]`}
             />
           </section>
 
-          {/* ── Compliance Engine ── */}
-          <section id="compliance-engine" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          {/* ── Agent Messaging ── */}
+          <section id="messaging" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(59,130,246,0.1)] flex items-center justify-center">
-                <Scale size={16} className="text-blue-400" />
+              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+                <MessageSquare size={16} className="text-brand" />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight">Compliance Engine</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Agent Messaging</h2>
             </div>
-            
+
             <MethodEntry
-              id="mapCompliance"
-              signature="claw.mapCompliance(framework) / claw.map_compliance(framework)"
-              description="Map active policies to a compliance framework's controls."
+              id="sendMessage"
+              signature="claw.sendMessage(params) / claw.send_message(**kwargs)"
+              description="Send a point-to-point message or broadcast to all agents in the organization."
+              params={[
+                { name: 'to', type: 'string', required: false, desc: 'Target agent ID (omit for broadcast)' },
+                { name: 'body', type: 'string', required: true, desc: 'Message content' },
+                { name: 'type', type: 'string', required: false, desc: 'action|info|lesson|question' },
+                { name: 'urgent', type: 'boolean', required: false, desc: 'Mark as high priority' },
+              ]}
               example={
-                <DocsCodeTabs 
-                  nodeSnippet={`await claw.mapCompliance('SOC2');`}
-                  pythonSnippet={`claw.map_compliance('SOC2')`}
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.sendMessage({
+  to: 'scout-agent-01',
+  body: 'I have finished indexing the repository. You can start the analysis.',
+  type: 'status'
+});`}
+                  pythonSnippet={`claw.send_message(
+    to="scout-agent-01",
+    body="I have finished indexing the repository. You can start the analysis.",
+    type="status"
+)`}
                 />
               }
             />
 
             <MethodEntry
-              id="getProofReport"
-              signature="claw.getProofReport(format) / claw.get_proof_report(format)"
-              description="Generate a compliance proof report from active policies."
+              id="getInbox"
+              signature="claw.getInbox(options?) / claw.get_inbox(**kwargs)"
+              description="Retrieve messages from the agent inbox with optional filtering."
+              params={[
+                { name: 'type', type: 'string', required: false, desc: 'Filter by message type' },
+                { name: 'unread', type: 'boolean', required: false, desc: 'Only return unread messages' },
+                { name: 'limit', type: 'number', required: false, desc: 'Max messages to return' },
+              ]}
+              returns="Promise<{ messages, total, unread_count }>"
               example={
-                <DocsCodeTabs 
-                  nodeSnippet={`const report = await claw.getProofReport('json');`}
-                  pythonSnippet={`report = claw.get_proof_report(format='json')`}
+                <DocsCodeTabs
+                  nodeSnippet={`const { messages } = await claw.getInbox({ unread: true, limit: 10 });`}
+                  pythonSnippet={`result = claw.get_inbox(unread=True, limit=10)`}
                 />
               }
             />
           </section>
 
-          {/* ── Activity Logs ── */}
-          <section id="activity-logs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          {/* ── Session Handoffs ── */}
+          <section id="handoffs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
-                <Eye size={16} className="text-brand" />
+                <Network size={16} className="text-brand" />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight">Activity Logs</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Session Handoffs</h2>
             </div>
-            
+
             <MethodEntry
-              id="getActivityLogs"
-              signature="claw.getActivityLogs(filters) / claw.get_activity_logs(**filters)"
-              description="Query the immutable audit trail of all workspace changes and administrative events."
+              id="createHandoff"
+              signature="claw.createHandoff(handoff) / claw.create_handoff(**kwargs)"
+              description="Create a session handoff document to persist state between agent sessions or transfer context to another agent."
               example={
-                <DocsCodeTabs 
-                  nodeSnippet={`const logs = await claw.getActivityLogs({ limit: 10 });`}
-                  pythonSnippet={`logs = claw.get_activity_logs(limit=10)`}
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.createHandoff({
+  summary: 'Completed initial data collection from Jira.',
+  key_decisions: ['Prioritize high-severity bugs', 'Ignore closed tickets'],
+  open_tasks: ['Run security scan on src/', 'Draft fix for #123'],
+  next_priorities: ['Security audit']
+});`}
+                  pythonSnippet={`claw.create_handoff(
+    summary="Completed initial data collection from Jira.",
+    key_decisions=["Prioritize high-severity bugs", "Ignore closed tickets"],
+    open_tasks=["Run security scan on src/", "Draft fix for #123"],
+    next_priorities=["Security audit"]
+)`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="getLatestHandoff"
+              signature="claw.getLatestHandoff() / claw.get_latest_handoff()"
+              description="Retrieve the most recent handoff for the current agent."
+              returns="Promise<Object|null>"
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`const handoff = await claw.getLatestHandoff();`}
+                  pythonSnippet={`handoff = claw.get_latest_handoff()`}
                 />
               }
             />
           </section>
 
-          {/* ── Webhooks ── */}
-          <section id="webhooks" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          {/* ── Security Scanning ── */}
+          <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(239,68,68,0.1)] flex items-center justify-center">
+                <ShieldAlert size={16} className="text-red-400" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Security Scanning</h2>
+            </div>
+
+            <MethodEntry
+              id="scanPromptInjection"
+              signature="claw.scanPromptInjection(text) / claw.scan_prompt_injection(text)"
+              description="Scan untrusted input for potential prompt injection or jailbreak attempts."
+              params={[
+                { name: 'text', type: 'string', required: true, desc: 'Untrusted input to scan' },
+              ]}
+              returns="Promise<{ clean: boolean, risk_level: string, recommendation: string }>"
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`const result = await claw.scanPromptInjection(userInput);
+if (!result.clean) {
+  console.warn('Injection risk:', result.risk_level);
+}`}
+                  pythonSnippet={`result = claw.scan_prompt_injection(user_input)
+if not result["clean"]:
+    print(f"Injection risk: {result['risk_level']}")`}
+                />
+              }
+            />
+          </section>
+
+          {/* ── User Feedback ── */}
+          <section id="feedback" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
-                <ExternalLink size={16} className="text-brand" />
+                <MessageSquare size={16} className="text-brand" />
               </div>
-              <h2 className="text-2xl font-bold tracking-tight">Webhooks</h2>
+              <h2 className="text-2xl font-bold tracking-tight">User Feedback</h2>
             </div>
-            
+
             <MethodEntry
-              id="createWebhook"
-              signature="claw.createWebhook(url, events) / claw.create_webhook(url, events)"
-              description="Register an HMAC-signed webhook for real-time exfiltration of governance events."
+              id="submitFeedback"
+              signature="claw.submitFeedback(params) / claw.submit_feedback(**kwargs)"
+              description="Submit feedback for a specific agent action. Used for human evaluation of agent performance."
+              params={[
+                { name: 'action_id', type: 'string', required: true, desc: 'Target action ID' },
+                { name: 'rating', type: 'number', required: true, desc: '1-5 star rating' },
+                { name: 'comment', type: 'string', required: false, desc: 'Textual feedback' },
+                { name: 'category', type: 'string', required: false, desc: 'Grouping tag' },
+              ]}
               example={
-                <DocsCodeTabs 
-                  nodeSnippet={`await claw.createWebhook('https://api.myapp.com/hooks', ['action.blocked']);`}
-                  pythonSnippet={`claw.create_webhook('https://api.myapp.com/hooks', events=['action.blocked'])`}
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.submitFeedback({
+  action_id: 'act_4b2s8...',
+  rating: 4,
+  comment: 'Action was safe and effective but took longer than expected.',
+  category: 'performance_review'
+});`}
+                  pythonSnippet={`claw.submit_feedback(
+    action_id="act_4b2s8...",
+    rating=4,
+    comment="Action was safe and effective but took longer than expected.",
+    category="performance_review"
+)`}
+                />
+              }
+            />
+          </section>
+
+          {/* ── Context Threads ── */}
+          <section id="context-threads" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+                <CircleDot size={16} className="text-brand" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Context Threads</h2>
+            </div>
+
+            <MethodEntry
+              id="createThread"
+              signature="claw.createThread(options) / claw.create_thread(**kwargs)"
+              description="Create a new context thread to track a multi-step reasoning chain or investigation."
+              params={[
+                { name: 'name', type: 'string', required: true, desc: 'Thread name' },
+                { name: 'summary', type: 'string', required: false, desc: 'Initial thread summary' },
+              ]}
+              returns="Promise<{ thread, thread_id }>"
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`const { thread } = await claw.createThread({ name: 'Deploy analysis', summary: 'Evaluating safety' });`}
+                  pythonSnippet={`result = claw.create_thread(name="Deploy analysis", summary="Evaluating safety")`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="addThreadEntry"
+              signature="claw.addThreadEntry(threadId, content, entryType) / claw.add_thread_entry(...)"
+              description="Append an observation, conclusion, or decision to an existing context thread."
+              params={[
+                { name: 'threadId', type: 'string', required: true, desc: 'Thread ID to append to' },
+                { name: 'content', type: 'string', required: true, desc: 'Entry content' },
+                { name: 'entryType', type: 'string', required: true, desc: "'observation' | 'conclusion' | 'decision'" },
+              ]}
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.addThreadEntry('ct_abc123', 'Staging checks passed', 'observation');`}
+                  pythonSnippet={`claw.add_thread_entry("ct_abc123", "Staging checks passed", "observation")`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="closeThread"
+              signature="claw.closeThread(threadId, summary?) / claw.close_thread(thread_id, summary=None)"
+              description="Close a context thread, optionally providing a final summary."
+              params={[
+                { name: 'threadId', type: 'string', required: true, desc: 'Thread ID to close' },
+                { name: 'summary', type: 'string', required: false, desc: 'Final summary of the thread' },
+              ]}
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.closeThread('ct_abc123', 'Deploy approved after staging check');`}
+                  pythonSnippet={`claw.close_thread("ct_abc123", "Deploy approved after staging check")`}
+                />
+              }
+            />
+          </section>
+
+          {/* ── Bulk Sync ── */}
+          <section id="bulk-sync" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+                <Download size={16} className="text-brand" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Bulk Sync</h2>
+            </div>
+
+            <MethodEntry
+              id="syncState"
+              signature="claw.syncState(state) / claw.sync_state(**kwargs)"
+              description="Bulk-sync agent state including decisions, lessons, goals, context, relationships, memory, and preferences in a single call."
+              params={[
+                { name: 'state', type: 'object', required: true, desc: 'State object with keys: decisions, lessons, goals, context, relationships, memory, preferences' },
+              ]}
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.syncState({ decisions: [...], lessons: [...], goals: [...] });`}
+                  pythonSnippet={`claw.sync_state(decisions=[...], lessons=[...], goals=[...])`}
                 />
               }
             />
@@ -748,32 +891,6 @@ stream
   .on('goal.created', (data) => console.log('New goal:', data))
   .on('policy.updated', (data) => console.log('Policy changed:', data))
   .on('error', (err) => console.error('Stream error:', err));`}
-                    </CodeBlock>
-                  }
-                />
-              </section>
-
-              {/* User Feedback */}
-              <section id="user-feedback" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Feedback</h3>
-                <MethodEntry 
-                  id="submitFeedback" 
-                  signature="claw.submitFeedback(params)" 
-                  description="Submit feedback for a specific agent action. Used for human evaluation of agent performance."
-                  params={[
-                    { name: 'action_id', type: 'string', required: true, desc: 'Target action ID' },
-                    { name: 'rating', type: 'number', required: true, desc: '1-5 star rating' },
-                    { name: 'comment', type: 'string', required: false, desc: 'Textual feedback' },
-                    { name: 'category', type: 'string', required: false, desc: 'Grouping tag' },
-                  ]}
-                  example={
-                    <CodeBlock title="Reporting feedback">
-{`await claw.submitFeedback({
-  action_id: 'act_4b2s8...',
-  rating: 4,
-  comment: 'Action was safe and effective but took longer than expected.',
-  category: 'performance_review'
-});`}
                     </CodeBlock>
                   }
                 />
@@ -866,57 +983,6 @@ if (decision.decision === 'block') {
                 />
               </section>
 
-              {/* Agent Messaging */}
-              <section id="agent-messaging" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Agent Messaging</h3>
-                <MethodEntry 
-                  id="sendMessage" 
-                  signature="claw.sendMessage(params)" 
-                  description="Send a point-to-point message or broadcast to all agents in the organization."
-                  params={[
-                    { name: 'to', type: 'string', required: false, desc: 'Target agent ID (omit for broadcast)' },
-                    { name: 'body', type: 'string', required: true, desc: 'Message content' },
-                    { name: 'type', type: 'string', required: false, desc: 'action|info|lesson|question' },
-                    { name: 'urgent', type: 'boolean', required: false, desc: 'Mark as high priority' },
-                  ]}
-                  example={
-                    <CodeBlock title="Direct agent-to-agent communication">
-{`await claw.sendMessage({
-  to: 'scout-agent-01',
-  body: 'I have finished indexing the repository. You can start the analysis.',
-  type: 'status'
-});`}
-                    </CodeBlock>
-                  }
-                />
-              </section>
-
-              {/* Session Handoffs */}
-              <section id="session-handoffs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Session Handoffs</h3>
-                <MethodEntry 
-                  id="createHandoff" 
-                  signature="claw.createHandoff(handoff)" 
-                  description="Create a session handoff document to persist state between agent sessions or transfer context to another agent."
-                  example={
-                    <CodeBlock title="Persisting session context">
-{`await claw.createHandoff({
-  summary: 'Completed initial data collection from Jira.',
-  key_decisions: ['Prioritize high-severity bugs', 'Ignore closed tickets'],
-  open_tasks: ['Run security scan on src/', 'Draft fix for #123'],
-  next_priorities: ['Security audit']
-});`}
-                    </CodeBlock>
-                  }
-                />
-                <MethodEntry 
-                  id="getLatestHandoff" 
-                  signature="claw.getLatestHandoff()" 
-                  description="Retrieve the most recent handoff for the current agent."
-                  returns="Promise<Object|null>"
-                />
-              </section>
-
               {/* User Preferences */}
               <section id="user-preferences" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
                 <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Preferences</h3>
@@ -949,12 +1015,12 @@ if (decision.decision === 'block') {
                 />
               </section>
 
-              {/* Security Scanning */}
-              <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Security Scanning</h3>
-                <MethodEntry 
-                  id="scanContent" 
-                  signature="claw.scanContent(text, destination?)" 
+              {/* Security Scanning (legacy) */}
+              <section id="legacy-security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Security Scanning (Legacy)</h3>
+                <MethodEntry
+                  id="scanContent"
+                  signature="claw.scanContent(text, destination?)"
                   description="Scan text for sensitive data (API keys, tokens, PII) before it leaves the secure environment."
                   returns="Promise<{clean: boolean, findings: Object[], redacted_text: string}>"
                   example={
@@ -966,12 +1032,6 @@ if (!clean) {
 await sendToSlack(redacted_text);`}
                     </CodeBlock>
                   }
-                />
-                <MethodEntry 
-                  id="scanPromptInjection" 
-                  signature="claw.scanPromptInjection(text)" 
-                  description="Scan untrusted input for potential prompt injection or jailbreak attempts."
-                  returns="Promise<{clean: boolean, risk_level: string, recommendation: string}>"
                 />
               </section>
 
@@ -1023,6 +1083,61 @@ await sendToSlack(redacted_text);`}
                   signature="claw.useSnippet(snippetId)" 
                   description="Mark a snippet as used (increments telemetry use_count)."
                   returns="Promise<{snippet: Object}>"
+                />
+              </section>
+
+              {/* Compliance Engine (moved from v2) */}
+              <section id="compliance-engine" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Compliance Engine</h3>
+                <MethodEntry
+                  id="mapCompliance"
+                  signature="claw.mapCompliance(framework) / claw.map_compliance(framework)"
+                  description="Map active policies to a compliance framework's controls."
+                  example={
+                    <CodeBlock>
+{`await claw.mapCompliance('SOC2');`}
+                    </CodeBlock>
+                  }
+                />
+                <MethodEntry
+                  id="getProofReport"
+                  signature="claw.getProofReport(format) / claw.get_proof_report(format)"
+                  description="Generate a compliance proof report from active policies."
+                  example={
+                    <CodeBlock>
+{`const report = await claw.getProofReport('json');`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Activity Logs (moved from v2) */}
+              <section id="activity-logs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Activity Logs</h3>
+                <MethodEntry
+                  id="getActivityLogs"
+                  signature="claw.getActivityLogs(filters) / claw.get_activity_logs(**filters)"
+                  description="Query the immutable audit trail of all workspace changes and administrative events."
+                  example={
+                    <CodeBlock>
+{`const logs = await claw.getActivityLogs({ limit: 10 });`}
+                    </CodeBlock>
+                  }
+                />
+              </section>
+
+              {/* Webhooks (moved from v2) */}
+              <section id="webhooks" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Webhooks</h3>
+                <MethodEntry
+                  id="createWebhook"
+                  signature="claw.createWebhook(url, events) / claw.create_webhook(url, events)"
+                  description="Register an HMAC-signed webhook for real-time exfiltration of governance events."
+                  example={
+                    <CodeBlock>
+{`await claw.createWebhook('https://api.myapp.com/hooks', ['action.blocked']);`}
+                    </CodeBlock>
+                  }
                 />
               </section>
             </div>
