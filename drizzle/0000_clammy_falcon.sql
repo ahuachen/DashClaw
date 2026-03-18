@@ -835,6 +835,17 @@ CREATE TABLE "topics" (
 	"mention_count" integer DEFAULT 1
 );
 --> statement-breakpoint
+CREATE TABLE "settings" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"org_id" text DEFAULT 'org_default' NOT NULL,
+	"agent_id" text,
+	"key" text NOT NULL,
+	"value" text,
+	"category" text DEFAULT 'general',
+	"encrypted" boolean DEFAULT false,
+	"updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "usage_meters" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"org_id" text DEFAULT 'org_default' NOT NULL,
@@ -842,7 +853,8 @@ CREATE TABLE "usage_meters" (
 	"resource" text NOT NULL,
 	"count" integer DEFAULT 0 NOT NULL,
 	"last_reconciled_at" text,
-	"updated_at" text NOT NULL
+	"updated_at" text NOT NULL,
+	CONSTRAINT "usage_meters_org_period_resource_unique" UNIQUE("org_id", "period", "resource")
 );
 --> statement-breakpoint
 CREATE TABLE "user_approaches" (
