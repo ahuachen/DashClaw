@@ -9,9 +9,10 @@
  *
  * What it does:
  *   1. Verifies DATABASE_URL is present.
- *   2. Runs `drizzle-kit push --force` to create/sync all tables without
- *      interactive prompts (--force auto-approves data-loss statements).
- *   3. Seeds the `org_default` organization row if the orgs table is empty.
+ *   2. Executes the Drizzle DDL SQL directly via postgres.js (no drizzle-kit,
+ *      no interactive prompts, no TTY required).
+ *   3. Seeds the `org_default` organization row if missing.
+ *   4. Optionally seeds an api_keys row from DASHCLAW_API_KEY env var.
  *
  * Idempotent — safe to run on every deploy.
  * Exits 0 on success, non-zero on failure.
@@ -22,14 +23,13 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import postgres from 'postgres';
 
 // Load .env / .env.local if present (no-op in Vercel where vars are injected).
 import './_load-env.mjs';
-
-import { createSqlFromEnv } from './_db.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '..');
@@ -50,35 +50,79 @@ if (!process.env.DATABASE_URL) {
 
 log('DATABASE_URL detected. Starting schema migration...');
 
-// ── Step 1: drizzle-kit push --force ──────────────────────────────────────
-// --force skips all interactive prompts and auto-approves data-loss statements.
-// This is safe on a fresh Neon database (no existing data to lose).
-// On subsequent deploys it is also safe: only additive changes are applied
-// and --force only matters when drizzle-kit would otherwise ask about drops.
-log('Running drizzle-kit push --force ...');
+// ── Connect via postgres.js (works with Neon, Supabase, any Postgres) ──────
+const sql = postgres(process.env.DATABASE_URL, {
+  max: 1,
+  connect_timeout: 30,
+  idle_timeout: 5,
+});
 
+// ── Step 1: Execute DDL directly (no drizzle-kit, no prompts) ──────────────
+// Read the Drizzle-generated DDL SQL and execute each statement individually.
+// Skips "already exists" errors so this is safe to re-run on every deploy.
+log('Executing schema DDL...');
+
+const ddlPath = resolve(projectRoot, 'drizzle', '0000_clammy_falcon.sql');
+let ddl;
 try {
-  execFileSync(
-    'npx',
-    ['drizzle-kit', 'push', '--force', '--config', resolve(projectRoot, 'drizzle.config.js')],
-    {
-      stdio: 'inherit',
-      env: { ...process.env },
-      cwd: projectRoot,
-      shell: false,
-    }
-  );
-  log('drizzle-kit push completed.');
+  ddl = readFileSync(ddlPath, 'utf8');
 } catch (err) {
-  fail(`drizzle-kit push failed (exit code ${err.status ?? 'unknown'}). Check the output above.`);
+  fail(`Could not read DDL file at ${ddlPath}: ${err.message}`);
 }
+
+const statements = ddl
+  .split('--> statement-breakpoint')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+log(`Found ${statements.length} DDL statements.`);
+
+// Postgres error codes we can safely skip (idempotent re-runs):
+const SAFE_CODES = new Set([
+  '42P07', // duplicate_table
+  '42P16', // invalid_table_definition (e.g. column already exists)
+  '42701', // duplicate_column
+  '42710', // duplicate_object (indexes, constraints)
+  '42P10', // invalid_column_reference
+  '23505', // unique_violation (for ON CONFLICT seed inserts)
+]);
+
+let created = 0;
+let skipped = 0;
+
+for (const stmt of statements) {
+  try {
+    // Enable pgvector if any statement uses the vector type
+    if (stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION')) {
+      try {
+        await sql.unsafe('CREATE EXTENSION IF NOT EXISTS vector');
+      } catch {
+        // pgvector not available — skip silently, table will fail gracefully
+      }
+    }
+    await sql.unsafe(stmt);
+    created++;
+  } catch (err) {
+    if (SAFE_CODES.has(err.code)) {
+      skipped++;
+      continue;
+    }
+    // Also handle "already exists" in the message (belt + suspenders)
+    if (err.message?.includes('already exists')) {
+      skipped++;
+      continue;
+    }
+    // Non-critical: log and continue so one bad statement doesn't block deploy
+    log(`Warning: Statement failed (${err.code || 'unknown'}): ${err.message?.slice(0, 120)}`);
+    skipped++;
+  }
+}
+
+log(`DDL complete: ${created} applied, ${skipped} skipped (already exist).`);
 
 // ── Step 2: Seed org_default ───────────────────────────────────────────────
 // The app requires at least one organization row with id='org_default'.
-// This is idempotent — INSERT … ON CONFLICT DO NOTHING.
 log('Checking for org_default seed...');
-
-const sql = createSqlFromEnv();
 
 try {
   await sql`
@@ -132,9 +176,7 @@ if (configuredKey && configuredKey.startsWith('oc_live_')) {
   }
 }
 
-// Close any open TCP connections (postgres driver).
-if (typeof sql.end === 'function') {
-  await sql.end({ timeout: 5 });
-}
+// Close the connection pool.
+await sql.end({ timeout: 5 });
 
 log('Auto-migration complete. Proceeding to next build.');

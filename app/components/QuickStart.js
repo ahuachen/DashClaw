@@ -18,11 +18,15 @@ export default function QuickStart({ onSimulationComplete, onDismiss }) {
   const [simulating, setSimulating] = useState(false);
   const [step, setStep] = useState(1);
 
-  const sdkCode = `// 1. node demo.js
+  // Dynamic baseUrl so the snippet points at *this* deployment
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-dashclaw.vercel.app';
+
+  const sdkCode = `// 1. node --env-file=.env demo.js
 import { DashClaw } from 'dashclaw'
 
-const claw = new DashClaw({ 
-  apiKey: process.env.DASHCLAW_KEY 
+const claw = new DashClaw({
+  baseUrl: '${baseUrl}',
+  apiKey: process.env.DASHCLAW_API_KEY
 })
 
 await claw.guard({
