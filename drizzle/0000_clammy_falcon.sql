@@ -40,6 +40,8 @@ CREATE TABLE "action_records" (
 	"tokens_out" integer DEFAULT 0,
 	"signature" text,
 	"verified" boolean DEFAULT false,
+	"approved_at" timestamp,
+	"approved_by" text,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "action_records_action_id_unique" UNIQUE("action_id")
@@ -400,6 +402,7 @@ CREATE TABLE "guard_policies" (
 	"policy_type" text NOT NULL,
 	"rules" text NOT NULL,
 	"active" integer DEFAULT 1 NOT NULL,
+	"agent_ids" text,
 	"created_by" text,
 	"created_at" text NOT NULL,
 	"updated_at" text NOT NULL

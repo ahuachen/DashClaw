@@ -458,6 +458,7 @@ export const guardPolicies = pgTable('guard_policies', {
   policyType: text('policy_type').notNull(),
   rules: text('rules').notNull(),
   active: integer('active').notNull().default(1),
+  agentIds: text('agent_ids'),
   createdBy: text('created_by'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
