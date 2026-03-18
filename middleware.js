@@ -361,7 +361,9 @@ export async function middleware(request) {
   // Demo sandbox: cookie or explicit DASHCLAW_MODE=demo. Cookie only provides fixture data, never real data.
   // SECURITY: Only honor demo cookie when DASHCLAW_MODE=demo or on dashclaw.io to prevent self-host bypass
   const host = request.headers.get('host') || '';
-  const isMarketingHost = host.includes('dashclaw.io');
+  const normalizedHost = host.split(':')[0].toLowerCase();
+  const isMarketingHost =
+    normalizedHost === 'dashclaw.io' || normalizedHost.endsWith('.dashclaw.io');
   if (mode === 'demo' || (demoCookie && isMarketingHost)) {
     if (pathname.startsWith('/api/')) {
       if (request.method === 'OPTIONS') {
