@@ -293,7 +293,7 @@ export default function MissionControlPage() {
     >
       {/* ═══ Activation: Quick Start (Only if no agents or in demo mode for review) ═══ */}
       {!loading && (agents.length === 0 || isDemo) && showQuickStart && (
-        <QuickStart onSimulationComplete={fetchAll} onDismiss={() => setShowQuickStart(false)} />
+        <QuickStart onDismiss={() => setShowQuickStart(false)} />
       )}
 
       {/* ═══ BAND 1: Command Strip ═══ */}

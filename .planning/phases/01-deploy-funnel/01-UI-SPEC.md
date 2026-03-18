@@ -132,7 +132,7 @@ New check rows added to the **Deploy Readiness** section in `/setup`. Follow the
 | Step 1 | `**Set NEXTAUTH_URL** — In Vercel → Project → Settings → Environment Variables, set NEXTAUTH_URL to your deployment URL (e.g., https://my-dashclaw.vercel.app). Redeploy once.` |
 | Step 2 | `**Enable live stream (optional)** — Create a free Upstash Redis instance and add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN. Required for Mission Control live decision stream on serverless.` |
 | Step 3 | `**Verify at /setup** — Open https://your-app.vercel.app/setup to confirm all systems are green.` |
-| Manual path footer | `For a manual deploy path (local Docker, custom domain), see [Deploy without OAuth](docs/deploy-without-oauth.md).` |
+| Manual path footer | `For a manual deploy path (local Docker, custom domain), see Deploy without OAuth.` |
 
 ### Empty States
 

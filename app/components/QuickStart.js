@@ -1,25 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Rocket, Terminal, Zap, CheckCircle2, Copy, 
-  Play, Shield, ArrowRight, Loader2, X, MousePointer2,
-  Sparkles
+import { useState } from 'react';
+import {
+  Rocket, Terminal, CheckCircle2, Copy, X, MousePointer2,
+  Sparkles, FileText, Key, Globe
 } from 'lucide-react';
-import { Card, CardContent } from './ui/Card';
-import { Badge } from './ui/Badge';
+import { Card } from './ui/Card';
 import { useRealtime } from '../hooks/useRealtime';
 import { isDemoMode } from '../lib/isDemoMode';
 
-export default function QuickStart({ onSimulationComplete, onDismiss }) {
-  const router = useRouter();
+export default function QuickStart({ onDismiss }) {
   const [copied, setCopying] = useState(false);
-  const [simulating, setSimulating] = useState(false);
+  const [envCopied, setEnvCopied] = useState(false);
   const [step, setStep] = useState(1);
 
-  // Dynamic baseUrl so the snippet points at *this* deployment
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-dashclaw.vercel.app';
+  // In demo mode, show the placeholder — don't imply dashclaw.io is a hosted service.
+  // For self-hosted instances, use the actual origin so the snippet works out of the box.
+  const baseUrl = isDemoMode()
+    ? 'https://your-dashclaw.vercel.app'
+    : (typeof window !== 'undefined' ? window.location.origin : 'https://your-dashclaw.vercel.app');
 
   const sdkCode = `// 1. node --env-file=.env demo.js
 import { DashClaw } from 'dashclaw'
@@ -33,6 +32,8 @@ await claw.guard({
   actionType: "deploy",
   riskScore: 85
 })`;
+
+  const envFileContent = `DASHCLAW_API_KEY=<your-api-key>`;
 
   // Auto-advance steps based on real-time activity
   useRealtime((event) => {
@@ -50,53 +51,16 @@ await claw.guard({
     setTimeout(() => setCopying(false), 2000);
   };
 
-  const handleSimulate = async () => {
-    setSimulating(true);
-    try {
-      // Simulate a governed decision by calling the real API
-      const res = await fetch('/api/actions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent_id: 'simulator-bot',
-          agent_name: 'Simulator Bot',
-          declared_goal: 'Test governance flow',
-          action_type: 'deploy',
-          reasoning: 'Verifying system posture and policy enforcement.',
-          risk_score: 45,
-          confidence: 90,
-          status: 'completed',
-          systems_touched: ['production-api'],
-          timestamp_start: new Date().toISOString()
-        })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        const actionId = data.action_id || 'act_real_1';
-        
-        if (onSimulationComplete) onSimulationComplete();
-        setStep(3);
-        
-        // Wait a beat for the user to see the success before redirecting to replay
-        setTimeout(() => {
-          router.push(`/decisions/${actionId}`);
-        }, 1500);
-      } else {
-        const err = await res.json();
-        console.error('Simulation API error:', err);
-      }
-    } catch (err) {
-      console.error('Simulation failed:', err);
-    } finally {
-      // Keep simulating true during the redirect pause
-    }
+  const handleEnvCopy = () => {
+    navigator.clipboard.writeText(envFileContent);
+    setEnvCopied(true);
+    setTimeout(() => setEnvCopied(false), 2000);
   };
 
   return (
     <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 group/qs">
       {onDismiss && (
-        <button 
+        <button
           onClick={onDismiss}
           className="absolute -top-3 -right-3 z-10 p-1.5 bg-surface-secondary border border-white/10 rounded-full text-zinc-500 hover:text-white opacity-0 group-hover/qs:opacity-100 transition-all shadow-xl"
           title="Dismiss guide"
@@ -131,7 +95,7 @@ await claw.guard({
                 <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-xs text-zinc-300 group/term relative">
                   <Terminal size={12} className="text-zinc-500" />
                   <span>npm install dashclaw</span>
-                  <button 
+                  <button
                     onClick={() => {
                       navigator.clipboard.writeText('npm install dashclaw');
                       if (step === 1) setStep(2);
@@ -158,7 +122,7 @@ await claw.guard({
                   <pre className={`bg-black/40 p-3 rounded border font-mono text-[10px] overflow-x-auto max-h-[140px] transition-colors ${step === 2 ? 'border-brand/30 text-zinc-200' : 'border-white/5 text-zinc-500'}`}>
                     {sdkCode}
                   </pre>
-                  <button 
+                  <button
                     onClick={handleCopy}
                     disabled={step < 2}
                     className="absolute top-2 right-2 p-1.5 bg-zinc-800 rounded border border-white/10 text-zinc-400 hover:text-white transition-colors disabled:opacity-0"
@@ -179,11 +143,11 @@ await claw.guard({
               <div className="flex-1 relative">
                 <div className="text-sm font-semibold text-white mb-1">Watch Governance Happen</div>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  {isDemoMode() 
-                    ? 'Self-host to connect real agents. In demo mode, use the simulator to see governance.' 
+                  {isDemoMode()
+                    ? 'Self-host to connect real agents. In demo mode, use the simulator to see governance.'
                     : 'Mission Control will light up the moment your agent acts.'}
                 </p>
-                
+
                 {/* Visual Hint - Re-anchored to the text for clarity */}
                 {step === 2 && (
                   <div className="absolute -right-4 top-0 hidden xl:flex items-center gap-2 animate-pulse">
@@ -199,37 +163,79 @@ await claw.guard({
         </div>
       </Card>
 
-      {/* 2. The Simulation Card */}
-      <Card className="border-white/5 bg-surface-secondary flex flex-col justify-center items-center text-center p-8 relative overflow-hidden" hover={false}>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-zinc-700 to-transparent opacity-20" />
-        <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 border border-white/5 flex items-center justify-center text-zinc-400 mb-6 shadow-inner">
-          <Play size={24} className={simulating ? 'animate-pulse text-brand' : ''} />
-        </div>
-        <h3 className="text-xl font-bold text-white mb-2">Not ready to code?</h3>
-        <p className="text-zinc-400 text-sm max-w-[280px] mb-8 leading-relaxed">
-          Simulate a real-time agent decision to see DashClaw governance in action right now.
-        </p>
-        
-        <button 
-          onClick={handleSimulate}
-          disabled={simulating}
-          className="group relative flex items-center gap-2 px-8 py-3 bg-white text-black font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 shadow-[0_10px_20px_rgba(0,0,0,0.2)]"
-        >
-          {simulating ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : (
-            <Shield size={18} />
-          )}
-          {simulating ? 'Processing Decision...' : 'Run Simulation'}
-          {!simulating && <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />}
-        </button>
-        
-        <div className="mt-8 flex items-center gap-4 text-[9px] text-zinc-600 uppercase font-bold tracking-[0.2em]">
-          <span>Policy Check</span>
-          <div className="w-1 h-1 rounded-full bg-zinc-800" />
-          <span>Risk Scoring</span>
-          <div className="w-1 h-1 rounded-full bg-zinc-800" />
-          <span>Ledger Record</span>
+      {/* 2. Environment Setup Guide */}
+      <Card className="border-white/5 bg-surface-secondary overflow-hidden" hover={false}>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-white/5 flex items-center justify-center text-zinc-400">
+              <FileText size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">Environment Setup</h3>
+              <p className="text-sm text-zinc-500">Configure your agent project</p>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            {/* .env file */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Key size={13} className="text-zinc-500" />
+                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Create a <code className="text-brand/80 font-mono">.env</code> file</span>
+              </div>
+              <div className="relative group/env">
+                <pre className="bg-black/40 p-3 rounded border border-white/5 font-mono text-[11px] text-zinc-300">
+                  {envFileContent}
+                </pre>
+                <button
+                  onClick={handleEnvCopy}
+                  className="absolute top-2 right-2 p-1.5 bg-zinc-800 rounded border border-white/10 text-zinc-400 hover:text-white transition-colors opacity-0 group-hover/env:opacity-100"
+                >
+                  {envCopied ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-600 mt-1.5 leading-relaxed">
+                Your API key starts with <code className="text-zinc-500">oc_live_</code> — find it in <span className="text-zinc-400">Settings</span> or the Vercel deploy output.
+              </p>
+            </div>
+
+            {/* baseUrl explanation */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Globe size={13} className="text-zinc-500" />
+                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Base URL</span>
+              </div>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Set <code className="text-zinc-300 font-mono text-[10px]">baseUrl</code> to your deployed DashClaw instance URL.
+                {isDemoMode() ? (
+                  <> DashClaw is self-hosted — there is no shared cloud. After deploying via the Vercel button, your URL will look like <code className="text-zinc-300 font-mono text-[10px]">https://your-app.vercel.app</code>.</>
+                ) : (
+                  <> For this instance, use <code className="text-zinc-300 font-mono text-[10px]">{baseUrl}</code>.</>
+                )}
+              </p>
+            </div>
+
+            {/* Run command */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Terminal size={13} className="text-zinc-500" />
+                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Run it</span>
+              </div>
+              <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-[11px] text-zinc-300 group/run relative">
+                <span className="text-zinc-600">$</span>
+                <span>node --env-file=.env demo.js</span>
+                <button
+                  onClick={() => navigator.clipboard.writeText('node --env-file=.env demo.js')}
+                  className="absolute right-2 opacity-0 group-hover/run:opacity-100 transition-opacity p-1 hover:text-white"
+                >
+                  <Copy size={10} />
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-600 mt-1.5">
+                Requires Node.js 20+. The <code className="text-zinc-500">--env-file</code> flag loads your <code className="text-zinc-500">.env</code> automatically.
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
     </div>

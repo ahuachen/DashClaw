@@ -361,7 +361,7 @@ export function buildDeploySection(env, host) {
 2. **Enable live stream (optional)** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Required for Mission Control live decision stream on serverless.
 3. **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
 
-For a manual deploy path (local Docker, custom domain), see [Deploy without OAuth](docs/deploy-without-oauth.md).
+For a manual deploy path (local Docker, custom domain), see Deploy without OAuth.
 ```
 
 ---
