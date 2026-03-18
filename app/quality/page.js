@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 /**
@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
  * This is the merged "Quality" entry point from the sidebar.
  * Both /scoring and /evaluations remain fully functional standalone pages.
  */
-export default function QualityPage() {
+function QualityRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const view = searchParams.get('view');
@@ -27,5 +27,17 @@ export default function QualityPage() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="h-8 w-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
     </div>
+  );
+}
+
+export default function QualityPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="h-8 w-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <QualityRedirect />
+    </Suspense>
   );
 }
