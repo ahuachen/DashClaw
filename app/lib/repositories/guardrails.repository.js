@@ -42,11 +42,11 @@ export async function deletePoliciesByIds(sql, orgId, idList) {
   `;
 }
 
-export async function insertPolicy(sql, orgId, { id, name, policyType, rules }) {
+export async function insertPolicy(sql, orgId, { id, name, policyType, rules, agentIds }) {
   const now = new Date().toISOString();
   const result = await sql`
-    INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, created_at, updated_at)
-    VALUES (${id}, ${orgId}, ${name}, ${policyType}, ${rules}, 1, ${now}, ${now})
+    INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, agent_ids, created_at, updated_at)
+    VALUES (${id}, ${orgId}, ${name}, ${policyType}, ${rules}, 1, ${agentIds || null}, ${now}, ${now})
     RETURNING *
   `;
   return result[0];
