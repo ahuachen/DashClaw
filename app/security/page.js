@@ -253,64 +253,18 @@ export default function SecurityDashboard() {
         </Card>
       )}
 
-      {/* Security Health Score Bar */}
-      {securityStatus && (
-        <Card className="mb-6 border-l-4 border-l-emerald-500 overflow-hidden" hover={false}>
-          <div className="flex flex-col md:flex-row items-center gap-6 p-6">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="relative">
-                <svg className="w-20 h-20">
-                  <circle
-                    className="text-zinc-800"
-                    strokeWidth="6"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="34"
-                    cx="40"
-                    cy="40"
-                  />
-                  <circle
-                    className={securityScore >= 90 ? 'text-emerald-500' : securityScore >= 70 ? 'text-yellow-500' : 'text-red-500'}
-                    strokeWidth="6"
-                    strokeDasharray={2 * Math.PI * 34}
-                    strokeDashoffset={2 * Math.PI * 34 * (1 - securityScore / 100)}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="34"
-                    cx="40"
-                    cy="40"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center text-xl font-bold">
-                  {securityScore}
-                </div>
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-zinc-500 mt-2 font-medium">Security Score</div>
+      {/* Stats Bar — Security Score + 4 stats inline */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <Card hover={false}>
+          <CardContent className="pt-5 text-center">
+            <div className={`text-2xl font-semibold tabular-nums ${
+              securityScore >= 90 ? 'text-emerald-400' : securityScore >= 70 ? 'text-yellow-400' : 'text-red-400'
+            }`}>
+              {securityScore}
             </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {securityChecks.map((check) => {
-                  const Icon = getStatusIcon(check.status);
-                  return (
-                    <div key={check.id} className="flex items-start gap-2.5 bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.04]">
-                      <Icon size={16} className={`mt-0.5 shrink-0 ${getStatusColor(check.status)}`} />
-                      <div className="min-w-0">
-                        <div className="text-xs font-medium text-white truncate">{check.label}</div>
-                        <div className="text-[10px] text-zinc-500 line-clamp-1">{check.detail || 'System check passed.'}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+            <div className="text-xs text-zinc-500 mt-1">Security Score</div>
+          </CardContent>
         </Card>
-      )}
-
-      {/* Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className={`text-2xl font-semibold tabular-nums ${totalSignals > 0 ? 'text-red-400' : 'text-white'}`}>
@@ -344,6 +298,21 @@ export default function SecurityDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Security Checks (compact row) */}
+      {securityChecks.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {securityChecks.map((check) => {
+            const Icon = getStatusIcon(check.status);
+            return (
+              <div key={check.id} className="flex items-center gap-2 bg-white/[0.02] px-3 py-2 rounded-lg border border-white/[0.04]">
+                <Icon size={14} className={`shrink-0 ${getStatusColor(check.status)}`} />
+                <span className="text-xs text-zinc-300">{check.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">

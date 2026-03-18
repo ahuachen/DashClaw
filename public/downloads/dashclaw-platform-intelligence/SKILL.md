@@ -73,8 +73,8 @@ dc = DashClaw(
 )
 ```
 
-> **v1 Legacy SDK:** For the full 177+ method surface (SSE events, wrapClient, handoffs, context,
-> messaging, pairing, etc.), import from `dashclaw/legacy` instead. See `sdk/legacy/dashclaw-v1.js`.
+> **v1 Legacy SDK:** For the full 177+ method surface (SSE events, wrapClient, pairing, full policy
+> CRUD, full compliance exports, etc.), import from `dashclaw/legacy` instead. See `sdk/legacy/dashclaw-v1.js`.
 
 ### 2. Identify decision points in the agent's code
 
@@ -129,6 +129,50 @@ const approved = await dc.waitForApproval(action.action_id);
 const { loop_id } = await dc.registerOpenLoop(action.action_id, 'background_indexing', 'Indexing docs');
 // ... later ...
 await dc.resolveOpenLoop(loop_id, 'resolved', 'Indexed 42 files.');
+```
+
+**Prompt injection scanning** (on user/tool input before processing):
+```javascript
+const scan = await dc.scanPromptInjection(userInput, { source: 'user_input' });
+if (scan.recommendation === 'block') throw new Error('Prompt injection detected');
+```
+
+**Agent messaging** (inter-agent communication):
+```javascript
+await dc.sendMessage({
+  to: 'deploy-bot', type: 'status',
+  subject: 'Tests passed', body: 'All 847 tests green. Safe to deploy.',
+});
+const { messages } = await dc.getInbox({ unread: true });
+```
+
+**Session handoffs** (continuity across restarts):
+```javascript
+await dc.createHandoff({
+  sessionDate: new Date().toISOString().slice(0, 10),
+  summary: 'Completed migration. 3 tables updated.',
+  openTasks: ['Verify row counts'],
+  decisions: ['Used batch inserts'],
+});
+// On next startup:
+const { handoff } = await dc.getLatestHandoff();
+```
+
+**User feedback** (capture end-user ratings):
+```javascript
+await dc.submitFeedback({
+  action_id: action.action_id,
+  rating: 4,
+  comment: 'Fast and accurate response',
+});
+```
+
+**Context threads** (reasoning trails):
+```javascript
+const { thread } = await dc.createThread({ name: 'Deploy analysis', summary: 'Evaluating deploy safety' });
+await dc.addThreadEntry(thread.thread_id, 'Checked staging health: all green', 'observation');
+await dc.addThreadEntry(thread.thread_id, 'Production deploy is safe', 'conclusion');
+await dc.closeThread(thread.thread_id, 'Deploy approved after staging check');
 ```
 
 ### 4. Add quality scoring (recommended)
@@ -200,6 +244,8 @@ const custom = await dc.createScorer(
 
 ### Batch Evaluation Runs
 
+> **Requires v1 SDK:** `createEvalRun` is available via `import { DashClaw } from 'dashclaw/legacy'`.
+
 ```javascript
 const run = await dc.createEvalRun({
   name: 'weekly-quality-audit',
@@ -212,6 +258,9 @@ console.log(`Avg score: ${run.avg_score}`);
 ## Manage Prompts
 
 Version-controlled prompt templates with mustache variable rendering.
+
+> **Requires v1 SDK:** Template CRUD (`createTemplate`, `createVersion`, `activateVersion`, `getPromptStats`)
+> is available via `import { DashClaw } from 'dashclaw/legacy'`. The v2 SDK has `renderPrompt()` for consuming templates.
 
 ```javascript
 // Create template
@@ -243,9 +292,12 @@ const stats = await dc.getPromptStats({ template_id: tmpl.id });
 ## Collect Feedback
 
 Structured user feedback with auto-sentiment detection and auto-tagging.
+`submitFeedback()` is in the v2 SDK. Querying and managing feedback requires v1.
+
+> **v1 SDK methods:** `listFeedback`, `resolveFeedback`, `getFeedbackStats` require `import { DashClaw } from 'dashclaw/legacy'`.
 
 ```javascript
-// Submit feedback linked to an action
+// Submit feedback linked to an action (v2 SDK)
 const fb = await dc.submitFeedback({
   rating: 2,
   comment: 'Response was slow and inaccurate',
@@ -271,6 +323,8 @@ const stats = await dc.getFeedbackStats();
 **Auto-tag categories**: performance, accuracy, cost, security, reliability, ux
 
 ## Export Compliance
+
+> **Requires v1 SDK:** All compliance export methods require `import { DashClaw } from 'dashclaw/legacy'`.
 
 Generate multi-framework compliance bundles with evidence packaging.
 
@@ -299,6 +353,8 @@ await dc.downloadComplianceExport(exp.id);
 ```
 
 ## Monitor Drift
+
+> **Requires v1 SDK:** All drift detection methods require `import { DashClaw } from 'dashclaw/legacy'`.
 
 Statistical behavioral drift detection using z-score analysis. Pure math, no LLM.
 
@@ -336,6 +392,9 @@ console.log(`${stats.overall.critical_count} critical, ${stats.overall.warning_c
 
 Learning analytics with velocity tracking, maturity classification, and per-skill learning curves.
 **This is DashClaw's unique moat -- no other platform tracks agent learning velocity.**
+
+> **v2 SDK:** `getLearningVelocity(lookbackDays)` and `getLearningCurves(lookbackDays)` are in v2 for read access.
+> Compute methods (`computeLearningVelocity`, `computeLearningCurves`, `getLearningAnalyticsSummary`) require v1.
 
 ### Maturity Model
 
@@ -424,11 +483,11 @@ npm run lint && npm run build
 Generate a DashClaw client in any language from the API contracts.
 
 1. Read OpenAPI spec: `docs/openapi/critical-stable.openapi.json`
-2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2), `sdk-python/dashclaw/client.py`
+2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2, 44 methods), `sdk-python/dashclaw/client.py`
 3. Constructor (v2): `baseUrl`, `apiKey`, `agentId`
 4. Auth: `x-api-key` header on every request
 5. Error types: `GuardBlockedError`, `ApprovalDeniedError`
-6. Minimum viable methods (v2): `guard`, `createAction`, `updateOutcome`, `recordAssumption`, `waitForApproval`
+6. Minimum viable methods (v2): `guard`, `createAction`, `updateOutcome`, `recordAssumption`, `waitForApproval`, `sendMessage`, `createHandoff`, `scanPromptInjection`, `submitFeedback`
 
 For the full 130+ route API surface with method mappings, read [references/api-surface.md](references/api-surface.md).
 
@@ -587,6 +646,9 @@ template = dc.create_risk_template(
 **ID prefixes**: `sp_` (profiles), `sd_` (dimensions), `ps_` (profile scores), `rt_` (risk templates).
 
 ## Design Policies
+
+> **Requires v1 SDK:** Policy CRUD (`importPolicies`, `createPolicy`, `testPolicies`) requires
+> `import { DashClaw } from 'dashclaw/legacy'`. The v2 SDK has `guard()` for runtime policy checks.
 
 Set up behavior guard policies for agent governance.
 

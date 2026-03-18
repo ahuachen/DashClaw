@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { isDemoMode } from '../lib/isDemoMode';
 import {
-  Radar, Zap, ShieldAlert, Users, UsersRound, Plug, KeyRound,
-  Settings, BarChart3, Clock, Webhook, Scale, PanelLeftClose, 
-  PanelLeft, Menu, X, Activity, Shield, Network, Microscope, Search, 
-  Terminal, LayoutPanelLeft, DollarSign
+  Radar, Zap, ShieldAlert, Users, KeyRound,
+  Settings, BarChart3, Clock, PanelLeftClose,
+  PanelLeft, Menu, X, Activity, Shield, Microscope,
+  Terminal, TrendingUp, GraduationCap, Plug,
+  MessageSquare, Download,
 } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
 
@@ -18,38 +19,40 @@ const navGroups = [
     items: [
       { href: '/mission-control', icon: Radar, label: 'Mission Control' },
       { href: '/decisions', icon: Zap, label: 'Decisions' },
-      { href: '/policies', icon: Shield, label: 'Policies' },
       { href: '/approvals', icon: Clock, label: 'Approvals' },
+      { href: '/policies', icon: Shield, label: 'Policies' },
+      { href: '/assumptions', icon: Microscope, label: 'Assumptions' },
     ],
   },
   {
-    label: 'Operations',
+    label: 'Observe',
     items: [
-      { href: '/agents', icon: Users, label: 'Agents' },
-      { href: '/security', icon: ShieldAlert, label: 'Signals' },
-      { href: '/activity', icon: Activity, label: 'Activity' },
-      { href: '/compliance', icon: Scale, label: 'Compliance' },
-      { href: '/audit-log', icon: Clock, label: 'Audit Log' },
+      { href: '/agents', icon: Users, label: 'Fleet' },
+      { href: '/security', icon: ShieldAlert, label: 'Security' },
+      { href: '/drift', icon: TrendingUp, label: 'Drift' },
+      { href: '/learning', icon: GraduationCap, label: 'Learning' },
     ],
   },
   {
-    label: 'Labs',
+    label: 'Measure',
     items: [
-      { href: '/swarm', icon: Network, label: 'Swarm Intel' },
-      { href: '/drift', icon: Microscope, label: 'Assumptions' },
-      { href: '/learning', icon: Microscope, label: 'Learning' },
+      { href: '/quality', icon: BarChart3, label: 'Quality' },
       { href: '/prompts', icon: Terminal, label: 'Prompts' },
-      { href: '/evaluations', icon: Search, label: 'Evaluations' },
-      { href: '/scoring', icon: BarChart3, label: 'Quality Scoring' },
-      { href: '/integrations', icon: Plug, label: 'Integrations' },
-      { href: '/webhooks', icon: Webhook, label: 'Webhooks' },
+      { href: '/feedback', icon: MessageSquare, label: 'Feedback' },
     ],
   },
   {
-    label: 'Configuration',
+    label: 'Compliance',
     items: [
+      { href: '/activity', icon: Activity, label: 'Activity' },
+      { href: '/compliance/exports', icon: Download, label: 'Exports' },
+    ],
+  },
+  {
+    label: 'Configure',
+    items: [
+      { href: '/integrations', icon: Plug, label: 'Integrations' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
-      { href: '/usage', icon: DollarSign, label: 'Usage' },
       { href: '/setup', icon: Settings, label: 'Settings' },
     ],
   },

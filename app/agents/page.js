@@ -183,15 +183,17 @@ export default function AgentsFleetPage() {
                   {filteredAgents.map((agent) => (
                     <tr key={agent.agent_id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                        <Link href={`/agents/${encodeURIComponent(agent.agent_id)}`} className="flex items-center gap-3 group/name">
                           <div className="w-8 h-8 rounded bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
                             <Brain size={16} />
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-white">{agent.name || agent.agent_id}</div>
-                            <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{agent.agent_id}</div>
+                            <div className="text-sm font-medium text-white group-hover/name:text-brand transition-colors">{agent.name || agent.agent_id}</div>
+                            <div className="text-[10px] text-zinc-500 mt-0.5">
+                              {agent.action_count != null ? `${agent.action_count} decisions` : agent.agent_id !== (agent.name || agent.agent_id) ? agent.agent_id : 'No activity yet'}
+                            </div>
                           </div>
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">

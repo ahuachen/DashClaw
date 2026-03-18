@@ -218,8 +218,14 @@ export default function IntegrationsPage() {
   });
 
   const connectedCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'connected').length;
-  const agentConnectedCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'agent_connected').length;
-  const configuredCount = allIntegrations.filter(([k]) => getIntegrationStatus(k) === 'configured').length;
+  const notConfiguredCount = allIntegrations.length - connectedCount;
+
+  // Count integrations that have at least one agent-specific override
+  const overrideProviders = new Set();
+  for (const conn of agentConnections) {
+    overrideProviders.add(conn.provider.toLowerCase());
+  }
+  const agentOverrideCount = overrideProviders.size;
 
   if (loading) {
     return (
@@ -255,12 +261,12 @@ export default function IntegrationsPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Agent Connected" value={agentConnectedCount} color="text-blue-400" />
+            <StatCompact label="Agent Overrides" value={agentOverrideCount} color="text-blue-400" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Partial" value={configuredCount} color="text-yellow-400" />
+            <StatCompact label="Not Configured" value={notConfiguredCount} color="text-zinc-500" />
           </CardContent>
         </Card>
       </div>

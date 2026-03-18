@@ -33,7 +33,7 @@ Both modes serve the same landing page. `/demo` sets a cookie and redirects to `
 - Next.js 15 (App Router), JavaScript, Tailwind CSS 3
 - Postgres (TCP via `postgres`, serverless via `@neondatabase/serverless`)
 - Auth: NextAuth v4 for UI (GitHub, Google, or OIDC), `x-api-key` header for agents/tools
-- SDKs: Node (`sdk/dashclaw.js`, 177+ methods), Python (`sdk-python/dashclaw/client.py`, 177+ methods)
+- SDKs: Node v2 (`sdk/dashclaw.js`, 44 methods — agent runtime), Node v1 (`sdk/legacy/dashclaw-v1.js`, 188 methods — full platform), Python (`sdk-python/dashclaw/client.py`, 185+ methods — full platform)
 - Node SDK naming: camelCase. Python SDK naming: snake_case.
 
 ## Auth Chain

@@ -54,9 +54,9 @@
 
 | Endpoint | Methods | Node SDK | Python SDK |
 |---|---|---|---|
-| `/api/actions/loops` | GET, POST | `reportLoop`, `getLoops` | `report_loop`, `get_loops` |
-| `/api/actions/loops/{loopId}` | GET, PATCH | `closeLoop` | `close_loop` |
-| `/api/actions/assumptions` | GET, POST | `reportAssumption`, `getAssumptions` | `report_assumption`, `get_assumptions` |
+| `/api/actions/loops` | GET, POST | v2: `registerOpenLoop`, v1: `reportLoop`, `getLoops` | `register_open_loop`, `report_loop`, `get_loops` |
+| `/api/actions/loops/{loopId}` | GET, PATCH | v2: `resolveOpenLoop`, v1: `closeLoop` | `resolve_open_loop`, `close_loop` |
+| `/api/actions/assumptions` | GET, POST | v2: `recordAssumption`, v1: `reportAssumption`, `getAssumptions` | `record_assumption`, `report_assumption`, `get_assumptions` |
 | `/api/actions/assumptions/{assumptionId}` | GET, PATCH | `getAssumption`, `updateAssumption` | `get_assumption`, `update_assumption` |
 
 ## Signals

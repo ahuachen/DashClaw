@@ -425,34 +425,141 @@ class DashClaw {
     return this._request('/api/scoring/calibrate', 'POST', options);
   }
 
+  // ---------------------------------------------------------------------------
+  // Agent Messaging
+  // ---------------------------------------------------------------------------
+
   /**
-   * GET /api/compliance/map
+   * POST /api/messages — Send a message to another agent or the dashboard.
    */
-  async mapCompliance(framework) {
-    return this._request(`/api/compliance/map`, 'GET', null, { framework });
+  async sendMessage({ to, type, subject, body, threadId, urgent }) {
+    return this._request('/api/messages', 'POST', {
+      from_agent_id: this.agentId,
+      to_agent_id: to,
+      message_type: type,
+      subject,
+      body,
+      thread_id: threadId,
+      urgent,
+    });
   }
 
   /**
-   * GET /api/policies/proof
+   * GET /api/messages — Fetch this agent's inbox.
    */
-  async getProofReport(format = 'json') {
-    return this._request('/api/policies/proof', 'GET', null, { format });
+  async getInbox({ type, unread, limit } = {}) {
+    return this._request('/api/messages', 'GET', null, {
+      agent_id: this.agentId,
+      direction: 'inbox',
+      ...(type && { type }),
+      ...(unread != null && { unread }),
+      ...(limit && { limit }),
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Session Handoffs
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/handoffs — Create a session handoff record.
+   */
+  async createHandoff(handoff) {
+    return this._request('/api/handoffs', 'POST', {
+      agent_id: this.agentId,
+      ...handoff,
+    });
   }
 
   /**
-   * GET /api/activity
+   * GET /api/handoffs — Fetch the most recent handoff for this agent.
    */
-  async getActivityLogs(filters = {}) {
-    return this._request('/api/activity', 'GET', null, filters);
+  async getLatestHandoff() {
+    return this._request('/api/handoffs', 'GET', null, {
+      agent_id: this.agentId,
+      latest: 'true',
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Security Scanning
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/security/prompt-injection — Scan text for prompt injection attacks.
+   */
+  async scanPromptInjection(text, { source } = {}) {
+    return this._request('/api/security/prompt-injection', 'POST', {
+      text,
+      source,
+      agent_id: this.agentId,
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // User Feedback
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/feedback — Submit user feedback linked to an action.
+   */
+  async submitFeedback({ action_id, rating, comment, category, tags, metadata }) {
+    return this._request('/api/feedback', 'POST', {
+      action_id,
+      agent_id: this.agentId,
+      rating,
+      comment,
+      category,
+      tags,
+      metadata,
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Context Threads
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/context/threads — Create a reasoning context thread.
+   */
+  async createThread(thread) {
+    return this._request('/api/context/threads', 'POST', {
+      agent_id: this.agentId,
+      ...thread,
+    });
   }
 
   /**
-   * POST /api/webhooks
+   * POST /api/context/threads/:id/entries — Append a reasoning step.
    */
-  async createWebhook(url, events = null) {
-    return this._request('/api/webhooks', 'POST', {
-      url,
-      events
+  async addThreadEntry(threadId, content, entryType) {
+    return this._request(`/api/context/threads/${threadId}/entries`, 'POST', {
+      content,
+      entry_type: entryType,
+    });
+  }
+
+  /**
+   * PATCH /api/context/threads/:id — Close a reasoning thread.
+   */
+  async closeThread(threadId, summary) {
+    return this._request(`/api/context/threads/${threadId}`, 'PATCH', {
+      status: 'closed',
+      ...(summary ? { summary } : {}),
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bulk Sync
+  // ---------------------------------------------------------------------------
+
+  /**
+   * POST /api/sync — Bulk state sync for periodic updates or bootstrap.
+   */
+  async syncState(state) {
+    return this._request('/api/sync', 'POST', {
+      agent_id: this.agentId,
+      ...state,
     });
   }
 }
