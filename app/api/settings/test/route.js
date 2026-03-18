@@ -43,6 +43,17 @@ async function safeFetch(url, options = {}) {
     throw new Error('Internal or private URLs are not allowed');
   }
 
+  // Integration-specific allow-listing to further reduce SSRF risk.
+  // Currently used by Discord to ensure only official webhook endpoints are contacted.
+  const { context, ...fetchOptions } = options;
+  if (context && context.integration === 'discord') {
+    const isDiscordHost = parsed.hostname === 'discord.com';
+    const isDiscordWebhookPath = parsed.pathname.startsWith('/api/webhooks/');
+    if (!isDiscordHost || !isDiscordWebhookPath) {
+      throw new Error('Only official Discord webhook URLs are allowed');
+    }
+  }
+
   // DNS rebinding / DNS alias protection: resolve hostname to all IPs and check each
   const addresses = await dns.lookup(parsed.hostname, { all: true });
   for (const { address } of addresses) {
@@ -54,7 +65,7 @@ async function safeFetch(url, options = {}) {
   // Validation passed — fetch the original URL so TLS SNI works correctly.
   // (Replacing hostname with IP would break TLS cert verification.)
   return fetch(url, {
-    ...options,
+    ...fetchOptions,
     redirect: 'manual', // Prevent SSRF via redirects
   });
 }
@@ -336,6 +347,7 @@ async function testDiscord(credentials) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: '✅ DashClaw governance alerts connected!' }),
+      context: { integration: 'discord' },
     });
     // Discord returns 204 No Content on success
     if (res.status === 204 || res.ok) {
