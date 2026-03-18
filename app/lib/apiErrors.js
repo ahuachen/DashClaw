@@ -37,5 +37,12 @@ export function apiErrorResponse(err, label) {
     }, { status: 503 });
   }
 
-  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  // Surface the real error so we can actually diagnose issues.
+  // Never leak stack traces, but the message itself is useful.
+  const detail = err.message || String(err);
+  return NextResponse.json({
+    error: 'Internal server error',
+    detail,
+    code: err.code || undefined,
+  }, { status: 500 });
 }
