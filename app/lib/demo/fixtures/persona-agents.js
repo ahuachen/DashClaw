@@ -159,7 +159,7 @@ const PERSONAS = [
         declared_goal: 'Integrating DashClaw SDK into an existing agent codebase',
         reasoning: 'Platform engineers own the integration layer — SDK setup is the foundation for all agent instrumentation.',
         output_summary:
-          'Install the SDK with npm install @dashclaw/sdk, then initialize with: const dc = new DashClaw({ apiKey: process.env.DASHCLAW_API_KEY, orgId: "org_yourorg" }). Wrap your agent\'s main action loop with dc.recordAction({ declaredGoal, actionType, reasoning }) to start recording decisions. The SDK handles batching, retries, and signature generation automatically. Verify integration by checking the action feed in the dashboard.',
+          'Install the SDK with npm install dashclaw, then initialize with: const dc = new DashClaw({ baseUrl: process.env.DASHCLAW_BASE_URL, apiKey: process.env.DASHCLAW_API_KEY, agentId: \'my-agent\' }). Wrap your agent\'s main action loop with dc.recordAction({ declaredGoal, actionType, reasoning }) to start recording decisions. The SDK handles batching, retries, and signature generation automatically. Verify integration by checking the action feed in the dashboard.',
       },
       {
         action_type: 'configure',
@@ -252,14 +252,14 @@ const PERSONAS = [
         declared_goal: 'Initializing the Node SDK with proper error handling',
         reasoning: 'Correct initialization prevents silent failures and ensures actions are recorded reliably.',
         output_summary:
-          'Import the SDK and initialize with explicit error handling: const dc = new DashClaw({ apiKey, orgId, onError: (err) => logger.error("DashClaw SDK error", err) }). The onError callback fires for network failures, auth errors, and malformed payloads. Never swallow these errors — they indicate instrumentation gaps. The SDK validates the API key on first use and caches the result. If initialization fails, all subsequent calls return gracefully without throwing, but actions are not recorded.',
+          'Import the SDK and initialize with explicit error handling: const dc = new DashClaw({ baseUrl: process.env.DASHCLAW_BASE_URL, apiKey: process.env.DASHCLAW_API_KEY, agentId: \'my-agent\', onError: (err) => logger.error("DashClaw SDK error", err) }). The onError callback fires for network failures, auth errors, and malformed payloads. Never swallow these errors — they indicate instrumentation gaps. The SDK validates the API key on first use and caches the result. If initialization fails, all subsequent calls return gracefully without throwing, but actions are not recorded.',
       },
       {
         action_type: 'workflow',
         declared_goal: 'Recording actions with the Python SDK',
         reasoning: 'Python agents need the same instrumentation — the Python SDK mirrors the Node API in snake_case.',
         output_summary:
-          'Install with pip install dashclaw-sdk. Initialize: dc = DashClaw(api_key=os.environ["DASHCLAW_API_KEY"], org_id="org_yourorg"). Record actions: dc.record_action(declared_goal="Analyze dataset", action_type="workflow", reasoning="Quarterly metrics require updated analysis"). The Python SDK uses snake_case for all methods and parameters. Async support is available via dc_async = AsyncDashClaw(...) for asyncio-based agents. Both sync and async clients share the same method signatures.',
+          'Install with pip install dashclaw. Initialize: dc = DashClaw(base_url=os.environ["DASHCLAW_BASE_URL"], api_key=os.environ["DASHCLAW_API_KEY"], agent_id="my-agent"). Record actions: dc.record_action(declared_goal="Analyze dataset", action_type="workflow", reasoning="Quarterly metrics require updated analysis"). The Python SDK uses snake_case for all methods and parameters. Async support is available via dc_async = AsyncDashClaw(...) for asyncio-based agents. Both sync and async clients share the same method signatures.',
       },
       {
         action_type: 'workflow',

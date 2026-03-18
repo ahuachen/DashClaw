@@ -286,7 +286,7 @@ const sharedDocs = [
       '## 3. Initialize',
       '```javascript',
       'const dc = new DashClaw({',
-      '  baseUrl: "https://your-instance.dashclaw.io",',
+      '  baseUrl: "https://your-dashclaw.vercel.app",',
       '  apiKey: process.env.DASHCLAW_API_KEY,',
       '  agentId: "my-agent",',
       '  agentName: "My Agent",',

@@ -40,5 +40,5 @@ async function run() {
 run().catch(err => {
   console.error("❌ Error running example:", err.message);
   console.log("\nTip: Make sure DashClaw is running locally at http://localhost:3000");
-  console.log("Or run with: DASHCLAW_BASE_URL=https://www.dashclaw.io node first-governed-action.js");
+  console.log("Or run with: DASHCLAW_BASE_URL=https://your-dashclaw.vercel.app node first-governed-action.js");
 });

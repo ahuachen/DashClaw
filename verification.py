@@ -1,8 +1,9 @@
+import os
 from dashclaw import DashClaw
 
 claw = DashClaw(
-    base_url="https://my-dashclaw.vercel.app",
-    api_key="oc_live_607f846b6bfe92edd06c038499ea8c4b",
+    base_url=os.environ.get("DASHCLAW_BASE_URL", "https://your-dashclaw.vercel.app"),
+    api_key=os.environ["DASHCLAW_API_KEY"],
     agent_id="my-agent2",
 )
 

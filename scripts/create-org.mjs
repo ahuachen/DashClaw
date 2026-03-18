@@ -83,7 +83,7 @@ async function run() {
   console.log(`  role:    admin`);
 
   console.log('\nUsage with SDK:');
-  console.log(`  const agent = new DashClaw({ baseUrl: "http://localhost:3000", apiKey: "${rawKey}" }); // or https://your-app.vercel.app`);
+  console.log(`  const agent = new DashClaw({ baseUrl: "http://localhost:3000", apiKey: "${rawKey}", agentId: "my-agent" }); // or https://your-app.vercel.app`);
   console.log('\n=== Done ===\n');
 }
 

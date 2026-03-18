@@ -5,7 +5,7 @@ def run():
     # 1. Initialize DashClaw
     # In "demo" mode, it sends telemetry to the public DashClaw demo.
     claw = DashClaw(
-        base_url=os.getenv("DASHCLAW_BASE_URL", "https://www.dashclaw.io"),
+        base_url=os.getenv("DASHCLAW_BASE_URL", "https://your-dashclaw.vercel.app"),
         api_key=os.getenv("DASHCLAW_API_KEY", "demo"),
         agent_id=os.getenv("DASHCLAW_AGENT_ID", "first-action-agent"),
     )
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error running example: {e}")
         print("\nTip: Make sure DashClaw is running locally at http://localhost:3000")
-        print("Or run with: DASHCLAW_BASE_URL=https://www.dashclaw.io python first-governed-action.py")
+        print("Or run with: DASHCLAW_BASE_URL=https://your-dashclaw.vercel.app python first-governed-action.py")

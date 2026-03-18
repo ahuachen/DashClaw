@@ -88,8 +88,13 @@ export const frameworkQuickstarts = [
     name: 'LangChain',
     label: 'Python tool guard',
     code: `from dashclaw import DashClaw
+import os
 
-claw = DashClaw(api_key="...")
+claw = DashClaw(
+    base_url=os.environ["DASHCLAW_BASE_URL"],
+    api_key=os.environ["DASHCLAW_API_KEY"],
+    agent_id="my-agent"
+)
 
 # Intercept tool execution
 decision = claw.guard(
@@ -119,7 +124,11 @@ if decision == "allowed":
     name: 'OpenAI Tools',
     label: 'Node.js function guard',
     code: `import { DashClaw } from 'dashclaw'
-const claw = new DashClaw()
+const claw = new DashClaw({
+  baseUrl: process.env.DASHCLAW_BASE_URL,
+  apiKey: process.env.DASHCLAW_API_KEY,
+  agentId: 'my-agent'
+})
 
 // Guard before calling the tool
 const { decision } = await claw.guard({

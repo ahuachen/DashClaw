@@ -2,7 +2,7 @@ import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL,
-  apiKey: 'oc_live_607f846b6bfe92edd06c038499ea8c4b',
+  apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'home',
 });
 

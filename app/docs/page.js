@@ -205,7 +205,7 @@ export default async function DocsPage({ searchParams }) {
                     nodeSnippet={`import { DashClaw } from 'dashclaw';
 
 const claw = new DashClaw({
-  baseUrl: 'https://dashclaw.io',
+  baseUrl: process.env.DASHCLAW_BASE_URL,
   apiKey: process.env.DASHCLAW_API_KEY,
   agentId: 'my-agent'
 });`}
@@ -213,7 +213,7 @@ const claw = new DashClaw({
 import os
 
 claw = DashClaw(
-    base_url="https://dashclaw.io",
+    base_url=os.environ["DASHCLAW_BASE_URL"],
     api_key=os.getenv("DASHCLAW_API_KEY"),
     agent_id="my-agent"
 )`}
