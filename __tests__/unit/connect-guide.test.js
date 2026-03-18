@@ -7,7 +7,7 @@ describe('connect guide content', () => {
     const content = getConnectGuideContent({ host: 'dashclaw.example.com' });
 
     expect(content.baseUrl).toBe('https://dashclaw.example.com');
-    expect(content.languages.node.envBlock).toContain('DASHCLAW_URL=https://dashclaw.example.com');
+    expect(content.languages.node.envBlock).toContain('DASHCLAW_BASE_URL=https://dashclaw.example.com');
     expect(content.languages.node.envBlock).toContain('DASHCLAW_API_KEY=<your-workspace-api-key>');
     expect(content.languages.node.starterSnippet).toContain('await claw.guard');
     expect(content.languages.node.validatorCommand).toContain('node ./dashclaw-platform-intelligence/scripts/validate-integration.mjs');
@@ -19,7 +19,7 @@ describe('connect guide content', () => {
     const content = getConnectGuideContent({ host: 'dashclaw.io' });
 
     expect(content.baseUrl).toBe('https://your-dashclaw-instance.example.com');
-    expect(content.languages.node.envBlock).toContain('DASHCLAW_URL=https://your-dashclaw-instance.example.com');
+    expect(content.languages.node.envBlock).toContain('DASHCLAW_BASE_URL=https://your-dashclaw-instance.example.com');
     expect(content.baseUrlGuidance[0]).toContain('not https://dashclaw.io');
     expect(content.envNote).toContain('Do not use the marketing site URL');
     expect(content.commonMistakes[0]).toContain('Do not use https://dashclaw.io');
@@ -30,7 +30,7 @@ describe('connect guide content', () => {
 
     expect(content.baseUrl).toBe('http://localhost:3000');
     expect(content.agentRequirementsNote).toContain('never needs DATABASE_URL');
-    expect(content.languages.python.envBlock).toContain('DASHCLAW_URL=http://localhost:3000');
+    expect(content.languages.python.envBlock).toContain('DASHCLAW_BASE_URL=http://localhost:3000');
     expect(content.languages.python.starterSnippet).toContain('claw.create_action');
     expect(content.languages.python.validatorCommand).toContain('/api/setup/live-proof');
     expect(content.languages.python.optionalPairingSnippet).toContain('create_pairing_from_private_jwk');

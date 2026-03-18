@@ -24,8 +24,9 @@ export default function QuickStart({ onDismiss }) {
 import { DashClaw } from 'dashclaw'
 
 const claw = new DashClaw({
-  baseUrl: '${baseUrl}',
-  apiKey: process.env.DASHCLAW_API_KEY
+  baseUrl: process.env.DASHCLAW_BASE_URL || '${baseUrl}',
+  apiKey: process.env.DASHCLAW_API_KEY,
+  agentId: 'my-first-agent'
 })
 
 await claw.guard({
@@ -33,7 +34,7 @@ await claw.guard({
   riskScore: 85
 })`;
 
-  const envFileContent = `DASHCLAW_API_KEY=<your-api-key>`;
+  const envFileContent = `DASHCLAW_API_KEY=<your-api-key>\nDASHCLAW_BASE_URL=${baseUrl}`;
 
   // Auto-advance steps based on real-time activity
   useRealtime((event) => {

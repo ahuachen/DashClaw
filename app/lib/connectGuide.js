@@ -33,14 +33,14 @@ export function getConnectGuideContent({ host = '' } = {}) {
     intro:
       'This page gets a real Node or Python agent reporting live actions to your DashClaw deployment.',
     agentRequirementsNote:
-      'Your agent only needs DASHCLAW_URL and DASHCLAW_API_KEY. It never needs DATABASE_URL.',
+      'Your agent only needs DASHCLAW_BASE_URL and DASHCLAW_API_KEY. It never needs DATABASE_URL.',
     baseUrlGuidance: [
       'Use the URL of your own deployed DashClaw app, not https://dashclaw.io.',
       `Example deployment: ${DEPLOYED_BASE_URL_PLACEHOLDER}`,
       `Local development: ${LOCAL_BASE_URL_PLACEHOLDER}`,
     ],
     envNote:
-      'Do not use the marketing site URL. DASHCLAW_URL must point to your deployed DashClaw app.',
+      'Do not use the marketing site URL. DASHCLAW_BASE_URL must point to your deployed DashClaw app.',
     validatorNote:
       'This command assumes you downloaded and extracted dashclaw-platform-intelligence.zip so the validator lives in ./dashclaw-platform-intelligence/scripts/. If you installed it elsewhere, adjust the path.',
     successChecks: [
@@ -50,7 +50,7 @@ export function getConnectGuideContent({ host = '' } = {}) {
       'If policies are active, future risky actions can route into guard and approvals.',
     ],
     commonMistakes: [
-      'Do not use https://dashclaw.io as DASHCLAW_URL. Use your own DashClaw deployment URL.',
+      'Do not use https://dashclaw.io as DASHCLAW_BASE_URL. Use your own DashClaw deployment URL.',
       'Use your DashClaw instance URL, not an API route or localhost from a different machine.',
       'Set DASHCLAW_API_KEY in the agent runtime before running the snippet or validator.',
       'Keep DATABASE_URL on the DashClaw server only. The agent should never need it.',
@@ -60,13 +60,13 @@ export function getConnectGuideContent({ host = '' } = {}) {
         label: 'Node',
         installCommand: 'npm install dashclaw',
         envBlock: `DASHCLAW_API_KEY=<your-workspace-api-key>
-DASHCLAW_URL=${baseUrl}`,
+DASHCLAW_BASE_URL=${baseUrl}`,
         starterSnippet: `// 1. node --env-file=.env demo.js
 import { DashClaw } from 'dashclaw'
 
 const claw = new DashClaw({
   apiKey: process.env.DASHCLAW_API_KEY,
-  baseUrl: process.env.DASHCLAW_URL,
+  baseUrl: process.env.DASHCLAW_BASE_URL,
   agentId: 'my-first-agent',
 })
 
@@ -90,12 +90,12 @@ await claw.waitForPairing(pairing.id);`,
         label: 'Python',
         installCommand: 'pip install dashclaw',
         envBlock: `DASHCLAW_API_KEY=<your-workspace-api-key>
-DASHCLAW_URL=${baseUrl}`,
+DASHCLAW_BASE_URL=${baseUrl}`,
         starterSnippet: `import os
 from dashclaw import DashClaw
 
 claw = DashClaw(
-    base_url=os.environ["DASHCLAW_URL"],
+    base_url=os.environ["DASHCLAW_BASE_URL"],
     api_key=os.environ["DASHCLAW_API_KEY"],
     agent_id="my-agent",
     agent_name="My Agent",

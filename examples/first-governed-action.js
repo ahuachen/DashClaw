@@ -5,7 +5,7 @@ import { DashClaw } from "dashclaw";
 // In "demo" mode, it sends telemetry to the public DashClaw demo.
 const claw = new DashClaw({
   apiKey: process.env.DASHCLAW_API_KEY || "demo",
-  baseUrl: process.env.DASHCLAW_BASE_URL || "https://www.dashclaw.io",
+  baseUrl: process.env.DASHCLAW_BASE_URL || "https://your-dashclaw.vercel.app",
   agentId: process.env.DASHCLAW_AGENT_ID || "first-action-agent"
 });
 
