@@ -10,12 +10,12 @@
       "label": "sql.query call"
     }
   ],
-  "files_scanned": 101,
-  "files_with_direct_sql": 22,
+  "files_scanned": 107,
+  "files_with_direct_sql": 23,
   "totals": {
-    "tagged_template": 61,
+    "tagged_template": 59,
     "query_call": 11,
-    "total": 72
+    "total": 70
   },
   "files": [
     {
@@ -32,9 +32,9 @@
     },
     {
       "file": "app/api/actions/route.js",
-      "tagged_template": 3,
+      "tagged_template": 0,
       "query_call": 3,
-      "total": 6
+      "total": 3
     },
     {
       "file": "app/api/activity/route.js",
@@ -92,9 +92,9 @@
     },
     {
       "file": "app/api/policies/route.js",
-      "tagged_template": 4,
+      "tagged_template": 3,
       "query_call": 2,
-      "total": 6
+      "total": 5
     },
     {
       "file": "app/api/security/scan/route.js",
@@ -115,6 +115,12 @@
       "total": 1
     },
     {
+      "file": "app/api/setup/migrate/route.js",
+      "tagged_template": 3,
+      "query_call": 0,
+      "total": 3
+    },
+    {
       "file": "app/api/swarm/graph/route.js",
       "tagged_template": 4,
       "query_call": 0,
@@ -122,9 +128,9 @@
     },
     {
       "file": "app/api/team/[userId]/route.js",
-      "tagged_template": 6,
+      "tagged_template": 5,
       "query_call": 0,
-      "total": 6
+      "total": 5
     },
     {
       "file": "app/api/usage/route.js",
