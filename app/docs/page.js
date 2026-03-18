@@ -105,6 +105,7 @@ const navItems = [
   { href: '#reportConnections', label: 'reportConnections', indent: true },
   { href: '#loops-assumptions', label: 'Loops & Assumptions' },
   { href: '#learning-analytics', label: 'Learning Analytics' },
+  { href: '#getLessons', label: 'getLessons', indent: true },
   { href: '#prompt-management', label: 'Prompt Management' },
   { href: '#evaluation-framework', label: 'Evaluation Framework' },
   { href: '#scoring-profiles', label: 'Scoring Profiles' },
@@ -176,7 +177,7 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK (v2.4.0). Node.js and Python parity across all core governance features.
+            Canonical reference for the DashClaw SDK (v2.5.0). Node.js and Python parity across all core governance features.
           </p>
           <Suspense fallback={null}>
             <CopyDocsButton />
@@ -340,7 +341,7 @@ except Exception as e:
             <MethodEntry
               id="guard"
               signature="claw.guard(context)"
-              description="Evaluate guard policies for a proposed action. Call this before risky operations."
+              description="Evaluate guard policies for a proposed action. Call this before risky operations. The guard response includes a `learning` field with historical performance context when available (recent scores, drift status, learned patterns, feedback summary)."
               params={[
                 { name: 'action_type', type: 'string', required: true, desc: 'Proposed action type' },
                 { name: 'risk_score', type: 'number', required: false, desc: '0-100' },
@@ -557,9 +558,26 @@ except Exception as e:
               signature="claw.getLearningCurves() / claw.get_learning_curves()"
               description="Compute learning curves per action type to measure efficiency gains."
               example={
-                <DocsCodeTabs 
+                <DocsCodeTabs
                   nodeSnippet={`const curves = await claw.getLearningCurves();`}
                   pythonSnippet={`curves = claw.get_learning_curves()`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="getLessons"
+              signature="claw.getLessons({ actionType, limit }) / claw.get_lessons(action_type=..., limit=...)"
+              description="Fetch consolidated lessons from scored outcomes — what DashClaw has learned about this agent's performance patterns."
+              params={[
+                { name: 'actionType', type: 'string', required: false, desc: 'Filter by action type' },
+                { name: 'limit', type: 'number', required: false, desc: 'Max lessons to return (default 10)' },
+              ]}
+              returns="Promise<{ lessons: Object[], drift_warnings: Object[], agent_id: string }>"
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`const { lessons, drift_warnings } = await claw.getLessons({ actionType: 'deploy' });\nlessons.forEach(l => console.log(l.guidance));`}
+                  pythonSnippet={`result = claw.get_lessons(action_type="deploy")\nfor lesson in result["lessons"]:\n    print(lesson["guidance"])`}
                 />
               }
             />

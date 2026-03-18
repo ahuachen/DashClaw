@@ -41,7 +41,7 @@ claw = DashClaw(
 
 ---
 
-## v2 Method Reference (44 methods)
+## v2 Method Reference (45 methods)
 
 ### Core Governance (7 methods)
 
@@ -132,7 +132,7 @@ Reports the external tools, APIs, and systems the agent is configured to access.
 
 ---
 
-### Learning & Optimization (3 methods)
+### Learning & Optimization (4 methods)
 
 #### `getLearningVelocity(lookbackDays)` / `get_learning_velocity(agent_id=None, limit=30)`
 Fetches learning velocity analytics, indicating how effectively agents are correcting execution failures over time.
@@ -145,6 +145,19 @@ Fetches learning curve data.
 
 - **Node Signature:** `async getLearningCurves(lookbackDays = 60)`
 - **Python Signature:** `get_learning_curves(self, agent_id=None, action_type=None, limit=50)`
+
+#### `getLessons({ actionType, limit })` / `get_lessons(action_type=..., limit=...)`
+Fetches consolidated lessons from scored outcomes — what DashClaw has learned about this agent's performance patterns.
+
+- **Node Signature:** `async getLessons({ actionType, limit })`
+- **Python Signature:** `get_lessons(self, action_type=None, limit=10)`
+- **Endpoint:** `GET /api/learning/lessons`
+- **Parameters:**
+  - `actionType` / `action_type` (string, optional): Filter by action type
+  - `limit` (number, optional): Max lessons to return (default 10)
+- **Returns:** `{ lessons: Object[], drift_warnings: Object[], agent_id: string }`
+
+Each lesson includes: `action_type`, `confidence`, `success_rate`, `hints` (`risk_cap`, `prefer_reversible`, `confidence_floor`, `expected_duration`, `expected_cost`), `guidance`, `sample_size`.
 
 #### `renderPrompt(context)`
 Fetches rendered prompt templates from DashClaw.

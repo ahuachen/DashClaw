@@ -1,4 +1,4 @@
-# DashClaw SDK (v2.4.0)
+# DashClaw SDK (v2.5.0)
 
 **Minimal governance runtime for AI agents.**
 
@@ -70,9 +70,9 @@ claw.update_outcome(action_id, status="completed")
 
 ---
 
-## SDK Surface Area (v2.4.0)
+## SDK Surface Area (v2.5.0)
 
-The v2 SDK exposes **44 methods** optimized for stability and zero-overhead governance:
+The v2 SDK exposes **45 methods** optimized for stability and zero-overhead governance:
 
 ### Core Runtime
 - `guard(context)` -- Policy evaluation ("Can I do X?"). Returns `risk_score` (server-computed) and `agent_risk_score` (raw agent value)
@@ -95,7 +95,32 @@ The v2 SDK exposes **44 methods** optimized for stability and zero-overhead gove
 ### Learning & Optimization
 - `getLearningVelocity()` -- Track agent improvement rate.
 - `getLearningCurves()` -- Measure efficiency gains per action type.
+- `getLessons({ actionType, limit })` -- Fetch consolidated lessons from scored outcomes.
 - `renderPrompt(context)` -- Fetch rendered prompt templates from DashClaw.
+
+### Learning Loop
+
+The guard response now includes a `learning` field when DashClaw has historical data for the agent and action type. This creates a closed learning loop: outcomes feed back into guard decisions automatically.
+
+```javascript
+// Guard response includes learning context
+const res = await claw.guard({ action_type: 'deploy' });
+console.log(res.learning);
+// {
+//   recent_score_avg: 82,
+//   baseline_score_avg: 75,
+//   drift_status: 'stable',
+//   patterns: ['Deploys after 5pm have 3x higher failure rate'],
+//   feedback_summary: { positive: 12, negative: 2 }
+// }
+
+// Fetch consolidated lessons for an action type
+const { lessons, drift_warnings } = await claw.getLessons({ actionType: 'deploy' });
+lessons.forEach(l => console.log(l.guidance));
+// Each lesson includes: action_type, confidence, success_rate,
+// hints (risk_cap, prefer_reversible, confidence_floor, expected_duration, expected_cost),
+// guidance, sample_size
+```
 
 ### Scoring Profiles
 - `createScorer(name, type, config)` -- Define automated evaluations.
@@ -251,7 +276,7 @@ Then merge the hooks block from `hooks/settings.json` into your `.claude/setting
 
 ## Legacy SDK (v1)
 
-The v2 SDK covers the 44 methods most critical to agent governance. If you require the full platform surface (188+ methods including Calendar, Workflows, Routing, Pairing, etc.), the v1 SDK is available via the `dashclaw/legacy` sub-path in Node.js or via the full client in Python.
+The v2 SDK covers the 45 methods most critical to agent governance. If you require the full platform surface (188+ methods including Calendar, Workflows, Routing, Pairing, etc.), the v1 SDK is available via the `dashclaw/legacy` sub-path in Node.js or via the full client in Python.
 
 ```javascript
 // v1 legacy import

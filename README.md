@@ -259,6 +259,8 @@ try {
 }
 ```
 
+> **Learning loop**: The guard response includes a `learning` field with your agent's historical performance — recent scores, drift status, and patterns learned from past outcomes. Your agent gets smarter every cycle.
+
 ---
 
 ## CLI Approval Channel

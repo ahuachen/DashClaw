@@ -1022,7 +1022,7 @@ integration.instrument_agent(assistant)
 
 This SDK provides the full DashClaw platform surface (185+ methods), which is parity with the [Node.js v1 (legacy) SDK](https://github.com/ucsandman/DashClaw/tree/main/sdk/legacy).
 
-The Node.js v2 SDK exposes a curated subset of **44 methods** focused on agent governance. The following Python methods are available in both the Node.js v2 SDK and this Python SDK:
+The Node.js v2 SDK exposes a curated subset of **45 methods** focused on agent governance. The following Python methods are available in both the Node.js v2 SDK and this Python SDK:
 
 | Category | Node v2 method | Python equivalent | In v2? |
 |----------|---------------|-------------------|:------:|
@@ -1040,6 +1040,7 @@ The Node.js v2 SDK exposes a curated subset of **44 methods** focused on agent g
 | Lifecycle | `reportConnections` | `report_connections` | Yes |
 | Learning | `getLearningVelocity` | `get_learning_velocity` | Yes |
 | Learning | `getLearningCurves` | `get_learning_curves` | Yes |
+| Learning | `getLessons` | `get_lessons` | Yes |
 | Messaging | `sendMessage` | `send_message` | Yes |
 | Messaging | `getInbox` | `get_inbox` | Yes |
 | Handoffs | `createHandoff` | `create_handoff` | Yes |

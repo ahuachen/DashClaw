@@ -9,11 +9,11 @@ doc-type: architecture
 
 ## SDK Tiers
 
-As of v2.4.0, the Node SDK is split into two tiers:
+As of v2.5.0, the Node SDK is split into two tiers:
 
 | Tier | Entry Point | Import | Methods | Purpose |
 |------|------------|--------|---------|---------|
-| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | 44 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, messaging, handoffs, security scanning, feedback, context threads, bulk sync |
+| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | 45 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, messaging, handoffs, security scanning, feedback, context threads, bulk sync, learning loop |
 | **v1 (Legacy)** | `sdk/legacy/dashclaw-v1.js` | `import { DashClaw } from 'dashclaw/legacy'` | 188+ | Full platform surface: everything in v2 plus swarm, SSE events, calendar, workflows, pairing, identity, preferences, and more |
 
 **New integrations should use v2.** v1 is preserved for existing agents that depend on the full surface.
@@ -22,7 +22,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 
 ## v2 Stable Surface (Node)
 
-44 public methods organized by governance concern:
+45 public methods organized by governance concern:
 
 | Category | Methods | Count |
 |----------|---------|------:|
@@ -33,7 +33,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 | Agent Lifecycle | `heartbeat`, `reportConnections` | 2 |
 | Loop Tracking | `registerOpenLoop`, `resolveOpenLoop` | 2 |
 | Signals | `getSignals` | 1 |
-| Learning Analytics | `getLearningVelocity`, `getLearningCurves` | 2 |
+| Learning Analytics | `getLearningVelocity`, `getLearningCurves`, `getLessons` | 3 |
 | Prompt Registry | `renderPrompt` | 1 |
 | Evaluations | `createScorer` | 1 |
 | Scoring Profiles | `createScoringProfile`, `listScoringProfiles`, `getScoringProfile`, `updateScoringProfile`, `deleteScoringProfile`, `addScoringDimension`, `updateScoringDimension`, `deleteScoringDimension`, `scoreWithProfile`, `batchScoreWithProfile`, `getProfileScores`, `getProfileScoreStats`, `createRiskTemplate`, `listRiskTemplates`, `updateRiskTemplate`, `deleteRiskTemplate`, `autoCalibrate` | 17 |
@@ -43,7 +43,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 | Feedback | `submitFeedback` | 1 |
 | Context Threads | `createThread`, `addThreadEntry`, `closeThread` | 3 |
 | Bulk Sync | `syncState` | 1 |
-| **Total** | | **44** |
+| **Total** | | **45** |
 
 Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
 
@@ -106,6 +106,14 @@ Critical-domain contract coverage is validated against a shared harness:
 - Python harness test: `sdk-python/tests/test_ws5_m4_integration.py` (`npm run sdk:integration:python`)
 
 ## v2 Changelog
+
+### v2.5.0 (March 18, 2026)
+
+Node SDK v2 expanded from 44 to 45 methods. Closed learning loop.
+
+**Added:**
+- Learning Analytics: `getLessons` — fetch consolidated lessons from scored outcomes
+- Guard response now includes `learning` field with historical performance context
 
 ### v2.4.0 (March 18, 2026)
 
