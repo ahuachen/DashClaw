@@ -4,16 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Plug,
-  Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings, Users, ChevronDown
+  Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings
 } from 'lucide-react';
-import { getAgentColor } from '../lib/colors';
 import { INTEGRATION_CONFIGS, CATEGORY_ICONS, CATEGORIES } from '../lib/integrationConfigs';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { isDemoMode } from '../lib/isDemoMode';
-import { demoAgents, demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
+import { demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
 
 export default function IntegrationsPage() {
   const { data: session } = useSession();
@@ -30,44 +29,14 @@ export default function IntegrationsPage() {
   const [showValues, setShowValues] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [agents, setAgents] = useState([]);
-  const [selectedAgentId, setSelectedAgentId] = useState(null); // null = "All Agents (Org Default)"
-  const [agentDropdownOpen, setAgentDropdownOpen] = useState(false);
-
-  const fetchAgents = useCallback(async () => {
-    try {
-      if (isDemoMode()) {
-        setAgents(demoAgents);
-        return;
-      }
-      const res = await fetch('/api/agents');
-      if (!res.ok) return;
-      const data = await res.json();
-      setAgents(data.agents || []);
-    } catch (error) {
-      console.error('Failed to fetch agents:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAgents();
-  }, [fetchAgents]);
 
   const fetchConnections = useCallback(async () => {
     try {
       if (isDemoMode()) {
-        let conns = [...demoIntegrationsConnections];
-        if (selectedAgentId) {
-          conns = conns.filter(c => c.agent_id === selectedAgentId);
-        }
-        setAgentConnections(conns);
+        setAgentConnections([...demoIntegrationsConnections]);
         return;
       }
-      let url = '/api/agents/connections';
-      if (selectedAgentId) {
-        url += `?agent_id=${encodeURIComponent(selectedAgentId)}`;
-      }
-      const res = await fetch(url);
+      const res = await fetch('/api/agents/connections');
       if (!res.ok) {
         setAgentConnections([]);
         return;
@@ -78,7 +47,7 @@ export default function IntegrationsPage() {
       console.error('Failed to fetch agent connections:', error);
       setAgentConnections([]);
     }
-  }, [selectedAgentId]);
+  }, []);
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -90,11 +59,7 @@ export default function IntegrationsPage() {
         setSettings(settingsMap);
         return;
       }
-      let url = '/api/settings?category=integration';
-      if (selectedAgentId) {
-        url += `&agent_id=${encodeURIComponent(selectedAgentId)}`;
-      }
-      const res = await fetch(url);
+      const res = await fetch('/api/settings?category=integration');
       const data = await res.json();
       const settingsMap = {};
       (data.settings || []).forEach(s => {
@@ -106,7 +71,7 @@ export default function IntegrationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedAgentId]);
+  }, []);
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -124,12 +89,14 @@ export default function IntegrationsPage() {
     Promise.all([fetchSettings(), fetchConnections(), fetchHealth()]);
   }, [fetchSettings, fetchConnections, fetchHealth]);
 
-  // Build a map of provider -> connections for quick lookup
+  // Build a map of provider -> connection count for agent usage indicator
   const connectionsByProvider = {};
+  const agentCountByProvider = {};
   for (const conn of agentConnections) {
     const key = conn.provider.toLowerCase();
     if (!connectionsByProvider[key]) connectionsByProvider[key] = [];
     connectionsByProvider[key].push(conn);
+    agentCountByProvider[key] = (agentCountByProvider[key] || 0) + 1;
   }
 
   const getIntegrationStatus = (integrationKey) => {
@@ -141,12 +108,6 @@ export default function IntegrationsPage() {
     if (config.fields.some(f => settings[f.key]?.hasValue)) return 'configured';
     if (connectionsByProvider[integrationKey]?.some(c => c.status === 'active')) return 'agent_connected';
     return 'not_configured';
-  };
-
-  // Check if any field for an integration is inherited from org defaults
-  const isIntegrationInherited = (integrationKey) => {
-    const config = INTEGRATION_CONFIGS[integrationKey];
-    return selectedAgentId && config.fields.some(f => settings[f.key]?.is_inherited && settings[f.key]?.hasValue);
   };
 
   const openEditor = (integrationKey) => {
@@ -179,9 +140,6 @@ export default function IntegrationsPage() {
             category: 'integration',
             encrypted: field.type === 'password'
           };
-          if (selectedAgentId) {
-            payload.agent_id = selectedAgentId;
-          }
           await fetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -266,8 +224,8 @@ export default function IntegrationsPage() {
   if (loading) {
     return (
       <PageLayout
-        title="Integrations & Settings"
-        subtitle="Configure your connected services"
+        title="Integrations"
+        subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
         breadcrumbs={['Dashboard', 'Integrations']}
       >
         <div className="flex items-center justify-center py-20">
@@ -279,70 +237,10 @@ export default function IntegrationsPage() {
 
   return (
     <PageLayout
-      title="Integrations & Settings"
-      subtitle={selectedAgentId
-        ? `Per-agent settings for ${agents.find(a => a.agent_id === selectedAgentId)?.agent_name || selectedAgentId}`
-        : 'Configure your connected services'
-      }
+      title="Integrations"
+      subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
       breadcrumbs={['Dashboard', 'Integrations']}
     >
-      {/* Agent Selector */}
-      {agents.length > 0 && (
-        <div className="mb-6 relative">
-          <label className="block text-xs text-zinc-500 mb-1.5">Viewing settings for</label>
-          <button
-            onClick={() => setAgentDropdownOpen(!agentDropdownOpen)}
-            className="w-full max-w-xs flex items-center justify-between gap-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm text-white hover:border-[rgba(255,255,255,0.12)] transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              {selectedAgentId ? (
-                <>
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: getAgentColor(selectedAgentId) }}
-                  />
-                  <span className="truncate">{agents.find(a => a.agent_id === selectedAgentId)?.agent_name || selectedAgentId}</span>
-                </>
-              ) : (
-                <>
-                  <Users size={14} className="text-zinc-400 shrink-0" />
-                  <span>All Agents (Org Default)</span>
-                </>
-              )}
-            </span>
-            <ChevronDown size={14} className={`text-zinc-400 transition-transform ${agentDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {agentDropdownOpen && (
-            <div className="absolute z-30 mt-1 w-full max-w-xs bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-lg shadow-xl overflow-hidden">
-              <button
-                onClick={() => { setSelectedAgentId(null); setAgentDropdownOpen(false); }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-surface-tertiary ${
-                  !selectedAgentId ? 'text-brand' : 'text-zinc-300'
-                }`}
-              >
-                <Users size={14} className="text-zinc-400 shrink-0" />
-                All Agents (Org Default)
-              </button>
-              {agents.map(agent => (
-                <button
-                  key={agent.agent_id}
-                  onClick={() => { setSelectedAgentId(agent.agent_id); setAgentDropdownOpen(false); }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors hover:bg-surface-tertiary ${
-                    selectedAgentId === agent.agent_id ? 'text-brand' : 'text-zinc-300'
-                  }`}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: getAgentColor(agent.agent_id) }}
-                  />
-                  {agent.agent_name || agent.agent_id}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <Card hover={false}>
@@ -433,8 +331,10 @@ export default function IntegrationsPage() {
                   <div className="flex items-center gap-2">
                     {getStatusDot(status)}
                     <span className="text-xs text-zinc-500">{getStatusLabel(status)}</span>
-                    {isIntegrationInherited(key) && (
-                      <span className="text-[10px] text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">inherited</span>
+                    {agentCountByProvider[key] > 0 && (
+                      <span className="text-[10px] text-zinc-600 ml-1">
+                        {agentCountByProvider[key]} agent{agentCountByProvider[key] !== 1 ? 's' : ''}
+                      </span>
                     )}
                     {healthData[key]?.status === 'healthy' && (
                       <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400" title={`Verified: ${healthData[key]?.message}`}>
@@ -461,24 +361,6 @@ export default function IntegrationsPage() {
                     </span>
                   )}
                 </div>
-                {/* Agent connection details */}
-                {connectionsByProvider[key]?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.04)] space-y-1.5">
-                    {connectionsByProvider[key].map((conn) => (
-                      <div key={conn.id} className="flex items-center gap-2 text-xs">
-                        <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0"
-                          style={{ backgroundColor: getAgentColor(conn.agent_id) }}
-                        />
-                        <span className="text-zinc-400 truncate">{conn.agent_id}</span>
-                        <span className="text-zinc-600">via {conn.auth_type.replace('_', ' ')}</span>
-                        {conn.plan_name && (
-                          <span className="text-[10px] text-blue-400 border border-blue-500/20 rounded px-1 py-0.5">{conn.plan_name}</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </Card>
           );
@@ -502,6 +384,7 @@ export default function IntegrationsPage() {
                     <p className="text-sm text-zinc-400">
                       {INTEGRATION_CONFIGS[editingIntegration].description}
                     </p>
+                    <p className="text-[10px] text-zinc-500 mt-1">Org-wide default. Agents can override from their profile.</p>
                   </div>
                 </div>
                 <button
@@ -556,9 +439,6 @@ export default function IntegrationsPage() {
                         </div>
                         <p className="text-xs text-zinc-500 mt-1">
                           {field.key}
-                          {selectedAgentId && settings[field.key]?.is_inherited && settings[field.key]?.hasValue && (
-                            <span className="ml-2 text-zinc-600">Inherited from org default</span>
-                          )}
                         </p>
                       </>
                     )}
