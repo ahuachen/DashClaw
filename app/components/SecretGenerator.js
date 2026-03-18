@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { KeyRound, Copy, Check, RefreshCw } from 'lucide-react';
 
 const ENV_KEYS = {
-  NEXTAUTH: ['NEXTAUTH', 'SECRET'].join('_'),
+  DATABASE_URL: 'DATABASE_URL',
   API: ['DASHCLAW', 'API', 'KEY'].join('_'),
   ENCRYPTION: ['ENCRYPTION', 'KEY'].join('_'),
+  NEXTAUTH: ['NEXTAUTH', 'SECRET'].join('_'),
+  NEXTAUTH_URL: 'NEXTAUTH_URL',
   CRON: ['CRON', 'SECRET'].join('_'),
+  ADMIN_PASSWORD: ['DASHCLAW', 'LOCAL', 'ADMIN', 'PASSWORD'].join('_'),
 };
 
 function toBase64Url(bytes) {
@@ -32,18 +35,24 @@ function generateSecrets() {
   crypto.getRandomValues(cronBytes);
 
   return {
-    [ENV_KEYS.NEXTAUTH]: toBase64Url(authBytes),
+    [ENV_KEYS.DATABASE_URL]: 'postgresql://user:password@host/dbname',
     [ENV_KEYS.API]: 'oc_live_' + toHex(apiBytes),
     [ENV_KEYS.ENCRYPTION]: toBase64Url(encBytes).slice(0, 32),
+    [ENV_KEYS.NEXTAUTH]: toBase64Url(authBytes),
+    [ENV_KEYS.NEXTAUTH_URL]: 'https://your-app.vercel.app',
     [ENV_KEYS.CRON]: toHex(cronBytes),
+    [ENV_KEYS.ADMIN_PASSWORD]: 'change-me-to-a-strong-password',
   };
 }
 
 const SECRET_LABELS = {
-  [ENV_KEYS.NEXTAUTH]: 'Encrypts login sessions',
+  [ENV_KEYS.DATABASE_URL]: 'Your Neon (or any Postgres) connection string',
   [ENV_KEYS.API]: 'Authenticates your agents (oc_live_ prefix required)',
   [ENV_KEYS.ENCRYPTION]: 'Encrypts sensitive settings in the database',
+  [ENV_KEYS.NEXTAUTH]: 'Encrypts login sessions',
+  [ENV_KEYS.NEXTAUTH_URL]: 'Your Vercel app URL (update after deploy)',
   [ENV_KEYS.CRON]: 'Authenticates scheduled job requests',
+  [ENV_KEYS.ADMIN_PASSWORD]: 'Quick-start admin password — change this before going live',
 };
 
 function SecretRow({ name, value, label }) {
@@ -87,17 +96,13 @@ export default function SecretGenerator() {
   function buildEnvBlock() {
     if (!secrets) return '';
     return [
-      `DATABASE_URL=<postgres-connection-string>`,
-      `NEXTAUTH_URL=https://your-app.vercel.app`,
-      `${ENV_KEYS.NEXTAUTH}=${secrets[ENV_KEYS.NEXTAUTH]}`,
+      `${ENV_KEYS.DATABASE_URL}=${secrets[ENV_KEYS.DATABASE_URL]}`,
       `${ENV_KEYS.API}=${secrets[ENV_KEYS.API]}`,
       `${ENV_KEYS.ENCRYPTION}=${secrets[ENV_KEYS.ENCRYPTION]}`,
+      `${ENV_KEYS.NEXTAUTH}=${secrets[ENV_KEYS.NEXTAUTH]}`,
+      `${ENV_KEYS.NEXTAUTH_URL}=${secrets[ENV_KEYS.NEXTAUTH_URL]}`,
       `${ENV_KEYS.CRON}=${secrets[ENV_KEYS.CRON]}`,
-      `REALTIME_BACKEND=redis`,
-      `REDIS_URL=<redis-connection-string>`,
-      `REALTIME_ENFORCE_REDIS=true`,
-      `GITHUB_ID=<from-step-3>`,
-      `GITHUB_SECRET=<from-step-3>`,
+      `${ENV_KEYS.ADMIN_PASSWORD}=${secrets[ENV_KEYS.ADMIN_PASSWORD]}`,
     ].join('\n');
   }
 
@@ -155,7 +160,7 @@ export default function SecretGenerator() {
       </div>
 
       <p className="text-xs text-zinc-500">
-        Replace <code className="font-mono text-zinc-300">DATABASE_URL</code>, <code className="font-mono text-zinc-300">NEXTAUTH_URL</code>, <code className="font-mono text-zinc-300">REDIS_URL</code>, <code className="font-mono text-zinc-300">GITHUB_ID</code>, and <code className="font-mono text-zinc-300">GITHUB_SECRET</code> with your actual values. The four generated secrets are ready to use.
+        Replace <code className="font-mono text-zinc-300">DATABASE_URL</code> with your Neon connection string, <code className="font-mono text-zinc-300">NEXTAUTH_URL</code> with your Vercel app URL, and <code className="font-mono text-zinc-300">DASHCLAW_LOCAL_ADMIN_PASSWORD</code> with a strong password. The four generated secrets (<code className="font-mono text-zinc-300">DASHCLAW_API_KEY</code>, <code className="font-mono text-zinc-300">ENCRYPTION_KEY</code>, <code className="font-mono text-zinc-300">NEXTAUTH_SECRET</code>, <code className="font-mono text-zinc-300">CRON_SECRET</code>) are ready to use as-is.
       </p>
     </div>
   );
