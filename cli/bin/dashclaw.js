@@ -173,9 +173,14 @@ async function cmdApprovals() {
     }
     try {
       const platform = process.platform;
-      if (platform === 'darwin') execFileSync('open', [url]);
-      else if (platform === 'win32') execFileSync('cmd', ['/c', 'start', '', url]);
-      else execFileSync('xdg-open', [url]);
+      if (platform === 'darwin') {
+        execFileSync('open', [url]);
+      } else if (platform === 'win32') {
+        // Use PowerShell Start-Process instead of relying on cmd.exe parsing
+        execFileSync('powershell', ['-NoProfile', '-Command', 'Start-Process', url]);
+      } else {
+        execFileSync('xdg-open', [url]);
+      }
     } catch (_) {
       process.stdout.write(`\n  Could not open browser. URL: ${url}\n`);
     }
