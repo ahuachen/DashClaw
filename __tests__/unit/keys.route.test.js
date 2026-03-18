@@ -46,15 +46,7 @@ describe('/api/keys GET', () => {
     expect(data.keys).toEqual(keys);
   });
 
-  it('returns 403 when org is org_default (needs onboarding)', async () => {
-    const res = await GET(makeRequest('http://localhost/api/keys', {
-      headers: { 'x-org-id': 'org_default' },
-    }));
 
-    expect(res.status).toBe(403);
-    const data = await res.json();
-    expect(data.needsOnboarding).toBe(true);
-  });
 
   it('returns 500 on db error', async () => {
     mockSql.mockRejectedValueOnce(new Error('db fail'));
@@ -92,14 +84,7 @@ describe('/api/keys POST', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 403 for org_default', async () => {
-    const res = await POST(makeRequest('http://localhost/api/keys', {
-      headers: { 'x-org-id': 'org_default', 'x-org-role': 'admin' },
-      body: { label: 'Key' },
-    }));
 
-    expect(res.status).toBe(403);
-  });
 
   it('returns 400 for label exceeding 256 chars', async () => {
     const res = await POST(makeRequest('http://localhost/api/keys', {
@@ -172,13 +157,7 @@ describe('/api/keys DELETE', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 403 for org_default', async () => {
-    const res = await DELETE(makeRequest('http://localhost/api/keys?id=key_abc', {
-      headers: { 'x-org-id': 'org_default', 'x-org-role': 'admin' },
-    }));
 
-    expect(res.status).toBe(403);
-  });
 
   it('returns 400 for missing or invalid key id', async () => {
     const res = await DELETE(makeRequest('http://localhost/api/keys', {

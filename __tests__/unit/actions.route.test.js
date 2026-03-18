@@ -272,8 +272,8 @@ describe('/api/actions POST', () => {
     expect(res.status).toBe(402);
   });
 
-  it('returns 401 when signature is required but missing in production', async () => {
-    process.env.NODE_ENV = 'production';
+  it('returns 401 when signature enforcement is opted in but signature is missing', async () => {
+    process.env.ENFORCE_AGENT_SIGNATURES = 'true';
 
     const res = await POST(makeRequest('http://localhost/api/actions', {
       headers: { 'x-org-id': 'org_1' },
@@ -283,6 +283,8 @@ describe('/api/actions POST', () => {
     expect(res.status).toBe(401);
     const data = await res.json();
     expect(data.code).toBe('SIGNATURE_REQUIRED');
+
+    delete process.env.ENFORCE_AGENT_SIGNATURES;
   });
 
   it('includes DLP findings in security metadata', async () => {

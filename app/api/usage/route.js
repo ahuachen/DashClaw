@@ -10,12 +10,6 @@ import { getPlanLimits, getUsage } from '../../lib/usage.js';
 export async function GET(request) {
   try {
     const orgId = getOrgId(request);
-    if (orgId === 'org_default') {
-      return NextResponse.json(
-        { error: 'Complete onboarding to view usage', needsOnboarding: true },
-        { status: 403 }
-      );
-    }
 
     const sql = getSql();
 

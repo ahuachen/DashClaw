@@ -1103,18 +1103,6 @@ export async function middleware(request) {
         const userId = sessionToken.userId || (sessionToken.sub === 'local-admin' ? 'usr_local_admin' : '');
 
 
-        // SECURITY: Users on org_default are only allowed to access onboarding and health APIs
-        const ONBOARDING_PREFIXES = ['/api/onboarding', '/api/setup', '/api/health'];
-        const isAllowedForOnboarding = ONBOARDING_PREFIXES.some(p => pathname.startsWith(p));
-
-        if (orgId === 'org_default' && !isAllowedForOnboarding) {
-          console.warn('[SECURITY] Blocked org_default API access for unaffiliated session.');
-          return NextResponse.json(
-            { error: 'Forbidden - Complete onboarding to access this resource', needsOnboarding: true },
-            { status: 403 }
-          );
-        }
-
         requestHeaders.set('x-org-id', orgId);
         requestHeaders.set('x-org-role', role);
         requestHeaders.set('x-user-id', userId);

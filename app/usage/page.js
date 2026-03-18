@@ -59,12 +59,6 @@ function UsageContent() {
       const res = await fetch('/api/usage');
       const data = await res.json();
 
-      if (res.status === 403 && data.needsOnboarding) {
-        setNeedsOnboarding(true);
-        setLoading(false);
-        return;
-      }
-
       if (!res.ok) {
         setError(data.error || 'Failed to load usage data');
         setLoading(false);
@@ -82,35 +76,6 @@ function UsageContent() {
   useEffect(() => {
     fetchUsage();
   }, [fetchUsage]);
-
-  // Onboarding guard
-  if (needsOnboarding) {
-    return (
-      <PageLayout
-        title="Usage"
-        subtitle="Monitor your workspace activity"
-        breadcrumbs={['Dashboard', 'Usage']}
-      >
-        <Card hover={false}>
-          <CardContent className="pt-6">
-            <EmptyState
-              icon={AlertTriangle}
-              title="Workspace Required"
-              description="Complete onboarding to create a workspace before viewing usage data."
-              action={
-                <a
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand/90 text-white text-sm font-medium rounded-lg transition-colors"
-                >
-                  Go to Dashboard <ArrowRight size={14} />
-                </a>
-              }
-            />
-          </CardContent>
-        </Card>
-      </PageLayout>
-    );
-  }
 
   // Loading state
   if (loading) {

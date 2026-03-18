@@ -26,12 +26,6 @@ const KEY_PREFIX_LENGTH = 16;
 export async function GET(request) {
   try {
     const orgId = getOrgId(request);
-    if (orgId === 'org_default') {
-      return NextResponse.json(
-        { error: 'Complete onboarding to manage API keys', needsOnboarding: true },
-        { status: 403 }
-      );
-    }
 
     const sql = getSql();
     const keys = await sql`
@@ -52,12 +46,6 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const orgId = getOrgId(request);
-    if (orgId === 'org_default') {
-      return NextResponse.json(
-        { error: 'Complete onboarding to manage API keys', needsOnboarding: true },
-        { status: 403 }
-      );
-    }
     if (getOrgRole(request) !== 'admin') {
       return NextResponse.json({ error: 'Admin access required to generate API keys' }, { status: 403 });
     }
@@ -122,12 +110,6 @@ export async function POST(request) {
 export async function DELETE(request) {
   try {
     const orgId = getOrgId(request);
-    if (orgId === 'org_default') {
-      return NextResponse.json(
-        { error: 'Complete onboarding to manage API keys', needsOnboarding: true },
-        { status: 403 }
-      );
-    }
     if (getOrgRole(request) !== 'admin') {
       return NextResponse.json({ error: 'Admin access required to revoke API keys' }, { status: 403 });
     }

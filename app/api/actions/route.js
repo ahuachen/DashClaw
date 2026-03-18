@@ -148,10 +148,9 @@ export async function POST(request) {
     // Identity Verification
     const signature = body._signature || null;
     let verified = false;
-    // SECURITY: Default to enforcing signatures in production unless explicitly disabled
-    const enforceSignatures = process.env.NODE_ENV === 'production'
-      ? process.env.ENFORCE_AGENT_SIGNATURES !== 'false'
-      : process.env.ENFORCE_AGENT_SIGNATURES === 'true';
+    // Opt-in: set ENFORCE_AGENT_SIGNATURES=true to require signed agent actions.
+    // Default OFF — signatures are an advanced feature, not a setup prerequisite.
+    const enforceSignatures = process.env.ENFORCE_AGENT_SIGNATURES === 'true';
 
     if (enforceSignatures && !signature) {
       return NextResponse.json(

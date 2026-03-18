@@ -10,12 +10,6 @@ import { getTeamOrgAndMembers } from '../../lib/repositories/orgsTeam.repository
 export async function GET(request) {
   try {
     const orgId = getOrgId(request);
-    if (orgId === 'org_default') {
-      return NextResponse.json(
-        { error: 'Complete onboarding to manage your team', needsOnboarding: true },
-        { status: 403 }
-      );
-    }
 
     const sql = getSql();
 

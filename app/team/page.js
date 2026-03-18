@@ -47,11 +47,6 @@ export default function TeamPage() {
     try {
       const res = await fetch('/api/team');
       const json = await res.json();
-      if (res.status === 403 && json.needsOnboarding) {
-        setNeedsOnboarding(true);
-        setLoading(false);
-        return;
-      }
       if (!res.ok) {
         setError(json.error || 'Failed to load team');
         setLoading(false);
@@ -216,28 +211,6 @@ export default function TeamPage() {
   const canEdit = isAdmin && !isDemo;
   const adminCount = data?.members?.filter((m) => m.role === 'admin').length || 0;
   const isLastAdmin = isAdmin && adminCount <= 1;
-
-  // Onboarding guard
-  if (needsOnboarding) {
-    return (
-      <PageLayout title="Team" subtitle="Manage workspace members" breadcrumbs={['Dashboard', 'Team']}>
-        <Card hover={false}>
-          <CardContent className="pt-6">
-            <EmptyState
-              icon={AlertTriangle}
-              title="Workspace Required"
-              description="Complete onboarding to create a workspace before managing your team."
-              action={
-                <a href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand/90 text-white text-sm font-medium rounded-lg transition-colors">
-                  Go to Dashboard <ArrowRight size={14} />
-                </a>
-              }
-            />
-          </CardContent>
-        </Card>
-      </PageLayout>
-    );
-  }
 
   if (loading) {
     return (
