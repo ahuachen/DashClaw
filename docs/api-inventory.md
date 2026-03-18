@@ -13,9 +13,9 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `153`
+- Total routes: `154`
 - Stable routes: `27`
-- Beta routes: `17`
+- Beta routes: `18`
 - Experimental routes: `109`
 
 ## Routes
@@ -161,6 +161,7 @@ doc-type: architecture
 | `/api/settings/llm-status` | `GET` | `stable` | `/api/settings` | `app/api/settings/llm-status/route.js` |
 | `/api/settings/test` | `POST` | `stable` | `/api/settings` | `app/api/settings/test/route.js` |
 | `/api/setup/live-proof` | `POST` | `beta` | `/api/setup` | `app/api/setup/live-proof/route.js` |
+| `/api/setup/migrate` | `POST` | `beta` | `/api/setup` | `app/api/setup/migrate/route.js` |
 | `/api/setup/ping` | `POST` | `beta` | `/api/setup` | `app/api/setup/ping/route.js` |
 | `/api/setup/proof` | `GET` | `beta` | `/api/setup` | `app/api/setup/proof/route.js` |
 | `/api/setup/status` | `GET` | `beta` | `/api/setup` | `app/api/setup/status/route.js` |

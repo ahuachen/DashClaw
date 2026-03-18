@@ -6,6 +6,7 @@ import { getOrgId } from '../../lib/org';
 import { validateGuardInput } from '../../lib/validate';
 import { evaluateGuard } from '../../lib/guard';
 import { getSql } from '../../lib/db.js';
+import { apiErrorResponse } from '../../lib/apiErrors.js';
 
 /**
  * POST /api/guard — Evaluate guard policies for a proposed action.
@@ -40,8 +41,7 @@ export async function POST(request) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    console.error('[GUARD] POST error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'GUARD POST');
   }
 }
 
@@ -107,7 +107,6 @@ export async function GET(request) {
       offset,
     });
   } catch (err) {
-    console.error('[GUARD] GET error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'GUARD GET');
   }
 }

@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { getOrgId, getOrgRole } from '../../lib/org';
 import { validatePolicy } from '../../lib/validate';
 import { getSql } from '../../lib/db.js';
+import { apiErrorResponse } from '../../lib/apiErrors.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
 import { deletePoliciesByIds } from '../../lib/repositories/guardrails.repository.js';
 
@@ -39,8 +40,7 @@ export async function GET(request) {
 
     return NextResponse.json({ policies });
   } catch (err) {
-    console.error('[POLICIES] GET error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'POLICIES GET');
   }
 }
 
@@ -85,8 +85,7 @@ export async function POST(request) {
     if (err.message?.includes('guard_policies_org_name_unique')) {
       return NextResponse.json({ error: 'A policy with that name already exists' }, { status: 409 });
     }
-    console.error('[POLICIES] POST error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'POLICIES POST');
   }
 }
 
@@ -167,8 +166,7 @@ export async function PATCH(request) {
 
     return NextResponse.json({ policy: rows[0] });
   } catch (err) {
-    console.error('[POLICIES] PATCH error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'POLICIES PATCH');
   }
 }
 
@@ -218,7 +216,6 @@ export async function DELETE(request) {
 
     return NextResponse.json({ deleted: true, id: policyId });
   } catch (err) {
-    console.error('[POLICIES] DELETE error:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiErrorResponse(err, 'POLICIES DELETE');
   }
 }

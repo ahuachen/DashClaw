@@ -6,6 +6,7 @@ import { getSql } from '../../lib/db.js';
 import { validateActionRecord } from '../../lib/validate.js';
 import { getOrgId, getOrgRole } from '../../lib/org.js';
 import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../lib/usage.js';
+import { apiErrorResponse } from '../../lib/apiErrors.js';
 import { verifyAgentSignature } from '../../lib/identity.js';
 import { estimateCost } from '../../lib/billing.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
@@ -71,11 +72,7 @@ export async function GET(request) {
       lastUpdated: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Actions API GET error:', error);
-    return NextResponse.json(
-      { error: 'An error occurred while fetching actions', actions: [], stats: {} },
-      { status: 500 }
-    );
+    return apiErrorResponse(error, 'ACTIONS GET');
   }
 }
 
@@ -295,11 +292,10 @@ export async function POST(request) {
     }
     return response;
   } catch (error) {
-    console.error('Actions API POST error:', error);
     if (error.message?.includes('unique') || error.message?.includes('duplicate')) {
       return NextResponse.json({ error: 'Action with this action_id already exists' }, { status: 409 });
     }
-    return NextResponse.json({ error: 'An error occurred while creating the action' }, { status: 500 });
+    return apiErrorResponse(error, 'ACTIONS POST');
   }
 }
 
@@ -387,7 +383,6 @@ export async function DELETE(request) {
 
     return NextResponse.json({ deleted: result.length });
   } catch (error) {
-    console.error('Actions API DELETE error:', error);
-    return NextResponse.json({ error: 'An error occurred while deleting actions' }, { status: 500 });
+    return apiErrorResponse(error, 'ACTIONS DELETE');
   }
 }

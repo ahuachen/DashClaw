@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
   '/api/setup/status',
   '/api/setup/proof',
   '/api/setup/ping',
+  '/api/setup/migrate',
   '/api/auth',
   '/api/cron',
   // Public read-only content endpoints
@@ -1142,7 +1143,12 @@ export async function middleware(request) {
         console.error('[SECURITY] DASHCLAW_API_KEY_ORG is set to a value that does not exist in the organizations table. Run migrations or create the org.');
         // SECURITY: Do not leak the configured org ID to the client or logs.
         return NextResponse.json(
-          { error: 'Server misconfigured: configured org does not exist. Check server logs and run migrations.' },
+          {
+            error: 'Database not initialized. Redeploy to trigger auto-migration, or POST to /api/setup/migrate.',
+            code: 'SCHEMA_NOT_INITIALIZED',
+            setup_url: '/setup',
+            migrate_url: '/api/setup/migrate',
+          },
           { status: 503 }
         );
       }
