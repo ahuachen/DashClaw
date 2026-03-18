@@ -120,6 +120,48 @@ for (const stmt of statements) {
 
 log(`DDL complete: ${created} applied, ${skipped} skipped (already exist).`);
 
+// ── Step 1b: Ensure columns on existing tables (schema drift fix) ──────────
+// When tables already exist from an older deploy, CREATE TABLE is skipped but
+// the old table may be missing columns added in later schema versions.
+// ALTER TABLE ADD COLUMN IF NOT EXISTS is a no-op for columns that already exist.
+log('Ensuring schema columns are up to date...');
+
+let columnsAdded = 0;
+
+for (const stmt of statements) {
+  const tableMatch = stmt.match(/^CREATE TABLE\s+"(\w+)"\s*\(/i);
+  if (!tableMatch) continue;
+  const table = tableMatch[1];
+
+  // Extract column lines: anything that starts with "column_name" type...
+  // Stop at CONSTRAINT lines.
+  const body = stmt.slice(stmt.indexOf('(') + 1, stmt.lastIndexOf(')'));
+  const lines = body.split('\n').map((l) => l.trim().replace(/,\s*$/, ''));
+
+  for (const line of lines) {
+    if (!line.startsWith('"')) continue;
+    // Parse: "col_name" type [DEFAULT ...] [NOT NULL]
+    const colMatch = line.match(/^"(\w+)"\s+(.+)/);
+    if (!colMatch) continue;
+
+    const colName = colMatch[1];
+    let rest = colMatch[2];
+    // Strip trailing constraints that ALTER TABLE ADD COLUMN doesn't accept inline
+    // Keep type + DEFAULT + NOT NULL but remove PRIMARY KEY / UNIQUE / CONSTRAINT
+    rest = rest.replace(/\s*PRIMARY KEY.*/i, '');
+    rest = rest.replace(/,\s*$/, '');
+
+    try {
+      await sql.unsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${colName}" ${rest}`);
+      columnsAdded++;
+    } catch {
+      // Column already exists or type mismatch — skip silently
+    }
+  }
+}
+
+log(`Column sync complete: ${columnsAdded} ALTER statements executed (no-op if already present).`);
+
 // ── Step 2: Seed org_default ───────────────────────────────────────────────
 // The app requires at least one organization row with id='org_default'.
 log('Checking for org_default seed...');

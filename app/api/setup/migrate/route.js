@@ -66,6 +66,22 @@ export async function POST() {
       }
     }
 
+    // Ensure columns on existing tables (handles schema drift from older deploys)
+    for (const stmt of statements) {
+      const tableMatch = stmt.match(/^CREATE TABLE\s+"(\w+)"\s*\(/i);
+      if (!tableMatch) continue;
+      const table = tableMatch[1];
+      const body = stmt.slice(stmt.indexOf('(') + 1, stmt.lastIndexOf(')'));
+      const lines = body.split('\n').map((l) => l.trim().replace(/,\s*$/, ''));
+      for (const line of lines) {
+        if (!line.startsWith('"')) continue;
+        const colMatch = line.match(/^"(\w+)"\s+(.+)/);
+        if (!colMatch) continue;
+        let rest = colMatch[2].replace(/\s*PRIMARY KEY.*/i, '').replace(/,\s*$/, '');
+        try { await sql.unsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${colMatch[1]}" ${rest}`); } catch { /* skip */ }
+      }
+    }
+
     // Seed org_default
     let orgSeeded = false;
     try {
