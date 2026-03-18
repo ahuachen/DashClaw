@@ -1,7 +1,7 @@
 ---
 source-of-truth: false
 owner: SDK Lead
-last-verified: 2026-03-17
+last-verified: 2026-03-18
 doc-type: architecture
 ---
 
@@ -9,27 +9,27 @@ doc-type: architecture
 
 ## SDK Tiers
 
-As of v2.3.0, the Node SDK is split into two tiers:
+As of v2.4.0, the Node SDK is split into two tiers:
 
 | Tier | Entry Point | Import | Methods | Purpose |
 |------|------------|--------|---------|---------|
-| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | 36 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, compliance, webhooks |
-| **v1 (Legacy)** | `sdk/legacy/dashclaw-v1.js` | `import { DashClaw } from 'dashclaw/legacy'` | 177+ | Full platform surface: everything in v2 plus swarm, SSE events, context, messaging, handoffs, pairing, identity, preferences, and more |
+| **v2 (Stable)** | `sdk/dashclaw.js` | `import { DashClaw } from 'dashclaw'` | 44 | Governance runtime: guard, actions, assumptions, HITL, loops, signals, scoring, messaging, handoffs, security scanning, feedback, context threads, bulk sync |
+| **v1 (Legacy)** | `sdk/legacy/dashclaw-v1.js` | `import { DashClaw } from 'dashclaw/legacy'` | 188+ | Full platform surface: everything in v2 plus swarm, SSE events, calendar, workflows, pairing, identity, preferences, and more |
 
 **New integrations should use v2.** v1 is preserved for existing agents that depend on the full surface.
 
-The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 177+ method surface in a single module. Python parity is tracked against v1.
+The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method surface in a single module. Python parity is tracked against v1.
 
 ## v2 Stable Surface (Node)
 
-36 public methods organized by governance concern:
+44 public methods organized by governance concern:
 
 | Category | Methods | Count |
 |----------|---------|------:|
 | Policy Enforcement | `guard` | 1 |
 | Action Recording | `createAction`, `updateOutcome` | 2 |
 | Assumption Tracking | `recordAssumption` | 1 |
-| Human-in-the-Loop | `waitForApproval` | 1 |
+| Human-in-the-Loop | `waitForApproval`, `approveAction`, `getPendingApprovals` | 3 |
 | Agent Lifecycle | `heartbeat`, `reportConnections` | 2 |
 | Loop Tracking | `registerOpenLoop`, `resolveOpenLoop` | 2 |
 | Signals | `getSignals` | 1 |
@@ -37,21 +37,35 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 177+ method su
 | Prompt Registry | `renderPrompt` | 1 |
 | Evaluations | `createScorer` | 1 |
 | Scoring Profiles | `createScoringProfile`, `listScoringProfiles`, `getScoringProfile`, `updateScoringProfile`, `deleteScoringProfile`, `addScoringDimension`, `updateScoringDimension`, `deleteScoringDimension`, `scoreWithProfile`, `batchScoreWithProfile`, `getProfileScores`, `getProfileScoreStats`, `createRiskTemplate`, `listRiskTemplates`, `updateRiskTemplate`, `deleteRiskTemplate`, `autoCalibrate` | 17 |
-| Compliance | `mapCompliance`, `getProofReport` | 2 |
-| Activity | `getActivityLogs` | 1 |
-| Webhooks | `createWebhook` | 1 |
-| **Total** | | **36** |
+| Messaging | `sendMessage`, `getInbox` | 2 |
+| Handoffs | `createHandoff`, `getLatestHandoff` | 2 |
+| Security Scanning | `scanPromptInjection` | 1 |
+| Feedback | `submitFeedback` | 1 |
+| Context Threads | `createThread`, `addThreadEntry`, `closeThread` | 3 |
+| Bulk Sync | `syncState` | 1 |
+| **Total** | | **44** |
 
 Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
 
 Constructor: `new DashClaw({ baseUrl, apiKey, agentId })`.
 
-## v1 Legacy Surface (Node ↔ Python Parity)
+### Methods removed from v2 (moved to v1 only)
+
+The following 4 methods were removed from v2 and are available only in the v1 legacy SDK:
+
+| Method | Reason |
+|--------|--------|
+| `createWebhook` | Admin configuration — not part of agent runtime |
+| `getActivityLogs` | Operator browsing — not part of agent runtime |
+| `mapCompliance` | Quarterly admin task — not part of agent runtime |
+| `getProofReport` | Auditor reporting — not part of agent runtime |
+
+## v1 Legacy Surface (Node <-> Python Parity)
 
 v1 parity between Node and Python is **100%** as of February 19, 2026.
 
-- Node v1 public methods: `177+`
-- Python public methods: `177+`
+- Node v1 public methods: `188+`
+- Python public methods: `185+`
 
 ### Category Matrix (v1)
 
@@ -93,9 +107,27 @@ Critical-domain contract coverage is validated against a shared harness:
 
 ## v2 Changelog
 
+### v2.4.0 (March 18, 2026)
+
+Node SDK v2 expanded from 38 to 44 methods. 10 methods added, 4 removed (moved to v1 only).
+
+**Added:**
+- Messaging: `sendMessage`, `getInbox`
+- Handoffs: `createHandoff`, `getLatestHandoff`
+- Security Scanning: `scanPromptInjection`
+- Feedback: `submitFeedback`
+- Context Threads: `createThread`, `addThreadEntry`, `closeThread`
+- Bulk Sync: `syncState`
+
+**Removed (moved to v1 only):**
+- `createWebhook` (admin configuration)
+- `getActivityLogs` (operator browsing)
+- `mapCompliance` (quarterly admin task)
+- `getProofReport` (auditor reporting)
+
 ### v2.3.0 (March 17, 2026)
 
-Node SDK v2 scoring surface expanded from 1 → 17 methods to match Python SDK parity.
+Node SDK v2 scoring surface expanded from 1 -> 17 methods to match Python SDK parity.
 
 Methods added: `listScoringProfiles`, `getScoringProfile`, `updateScoringProfile`, `deleteScoringProfile`, `addScoringDimension`, `updateScoringDimension`, `deleteScoringDimension`, `scoreWithProfile`, `batchScoreWithProfile`, `getProfileScores`, `getProfileScoreStats`, `createRiskTemplate`, `listRiskTemplates`, `updateRiskTemplate`, `deleteRiskTemplate`, `autoCalibrate`.
 

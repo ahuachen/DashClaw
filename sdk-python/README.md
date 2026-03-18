@@ -12,16 +12,34 @@ pip install dashclaw
 
 ## Quick Start
 
+The Python SDK is the full platform SDK (185+ methods). The constructor accepts both v2-compatible and v1-extended parameters.
+
+### v2-compatible constructor (recommended for new agents)
+
+These 3 parameters are the only ones available in the Node.js v2 SDK (`new DashClaw({ baseUrl, apiKey, agentId })`):
+
 ```python
 from dashclaw import DashClaw
 
 claw = DashClaw(
-    base_url="http://localhost:3000",  # or "https://your-app.vercel.app"
-    api_key="your-api-key",
-    agent_id="my-python-agent",
-    agent_name="My Python Agent",
-    auto_recommend="warn",  # Optional: off | warn | enforce
-    hitl_mode="wait" # Optional: automatically wait for human approval
+    base_url="http://localhost:3000",  # Required (v2)
+    api_key="your-api-key",            # Required (v2)
+    agent_id="my-python-agent",        # Required (v2)
+)
+```
+
+### Full constructor (v1 extended parameters)
+
+These additional parameters are available in the Python SDK but have no equivalent in the Node.js v2 SDK:
+
+```python
+claw = DashClaw(
+    base_url="http://localhost:3000",  # Required (v2)
+    api_key="your-api-key",            # Required (v2)
+    agent_id="my-python-agent",        # Required (v2)
+    agent_name="My Python Agent",      # v1 only
+    auto_recommend="warn",             # v1 only: off | warn | enforce
+    hitl_mode="wait",                  # v1 only: automatically wait for human approval
 )
 
 # Record an action
@@ -1002,7 +1020,39 @@ integration.instrument_agent(assistant)
 
 ## API Parity
 
-This SDK provides parity with the [DashClaw Node.js SDK](https://github.com/ucsandman/DashClaw/tree/main/sdk).
+This SDK provides the full DashClaw platform surface (185+ methods), which is parity with the [Node.js v1 (legacy) SDK](https://github.com/ucsandman/DashClaw/tree/main/sdk/legacy).
+
+The Node.js v2 SDK exposes a curated subset of **44 methods** focused on agent governance. The following Python methods are available in both the Node.js v2 SDK and this Python SDK:
+
+| Category | Node v2 method | Python equivalent | In v2? |
+|----------|---------------|-------------------|:------:|
+| Guard | `guard` | `guard` | Yes |
+| Actions | `createAction` | `create_action` | Yes |
+| Actions | `updateOutcome` | `update_outcome` | Yes |
+| Assumptions | `recordAssumption` | `record_assumption` | Yes |
+| HITL | `waitForApproval` | `wait_for_approval` | Yes |
+| HITL | `approveAction` | `approve_action` | Yes |
+| HITL | `getPendingApprovals` | `get_pending_approvals` | Yes |
+| Loops | `registerOpenLoop` | `register_open_loop` | Yes |
+| Loops | `resolveOpenLoop` | `resolve_open_loop` | Yes |
+| Signals | `getSignals` | `get_signals` | Yes |
+| Lifecycle | `heartbeat` | `heartbeat` | Yes |
+| Lifecycle | `reportConnections` | `report_connections` | Yes |
+| Learning | `getLearningVelocity` | `get_learning_velocity` | Yes |
+| Learning | `getLearningCurves` | `get_learning_curves` | Yes |
+| Messaging | `sendMessage` | `send_message` | Yes |
+| Messaging | `getInbox` | `get_inbox` | Yes |
+| Handoffs | `createHandoff` | `create_handoff` | Yes |
+| Handoffs | `getLatestHandoff` | `get_latest_handoff` | Yes |
+| Security | `scanPromptInjection` | `scan_prompt_injection` | Yes |
+| Feedback | `submitFeedback` | _(planned)_ | Yes |
+| Threads | `createThread` | `create_thread` | Yes |
+| Threads | `addThreadEntry` | `add_thread_entry` | Yes |
+| Threads | `closeThread` | `close_thread` | Yes |
+| Sync | `syncState` | `sync_state` | Yes |
+| Scoring | _(17 scoring/risk methods)_ | _(equivalent methods)_ | Yes |
+
+Methods like `createWebhook`, `getActivityLogs`, `mapCompliance`, and `getProofReport` are available in this Python SDK but are **v1 only** in the Node.js SDK.
 
 ## License
 
