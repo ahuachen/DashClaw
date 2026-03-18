@@ -9,7 +9,8 @@ export function isDemoMode() {
 
     // SECURITY: Only honor demo cookie on dashclaw.io to prevent accidental self-host lockout/confusion.
     const host = window.location.hostname;
-    const isMarketingHost = host.includes('dashclaw.io');
+    const isMarketingHost =
+      host === 'dashclaw.io' || host.endsWith('.dashclaw.io');
     
     return isMarketingHost;
   }
