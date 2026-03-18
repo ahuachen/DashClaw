@@ -4,7 +4,7 @@ import {
   ArrowRight, Github, ExternalLink, BookOpen,
   Terminal, Zap, CircleDot, Eye, ShieldAlert, BarChart3,
   ChevronRight, Network, FileCheck, Scale, Radio, Users,
-  Newspaper, MessageSquare, Download, SlidersHorizontal, Shield, History
+  Newspaper, MessageSquare, Download, SlidersHorizontal, Shield, History, Activity
 } from 'lucide-react';
 import DashClawLogo from '../components/DashClawLogo';
 import CopyDocsButton from '../components/CopyDocsButton';
@@ -100,6 +100,9 @@ const navItems = [
   { href: '#updateOutcome', label: 'updateOutcome', indent: true },
   { href: '#recordAssumption', label: 'recordAssumption', indent: true },
   { href: '#signals', label: 'Signals' },
+  { href: '#agent-lifecycle', label: 'Agent Lifecycle' },
+  { href: '#heartbeat', label: 'heartbeat', indent: true },
+  { href: '#reportConnections', label: 'reportConnections', indent: true },
   { href: '#loops-assumptions', label: 'Loops & Assumptions' },
   { href: '#learning-analytics', label: 'Learning Analytics' },
   { href: '#prompt-management', label: 'Prompt Management' },
@@ -424,6 +427,53 @@ except Exception as e:
                 <DocsCodeTabs 
                   nodeSnippet="const { signals } = await claw.getSignals();"
                   pythonSnippet="signals = claw.get_signals()"
+                />
+              }
+            />
+          </section>
+
+          {/* ── Agent Lifecycle ── */}
+          <section id="agent-lifecycle" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(34,197,94,0.1)] flex items-center justify-center">
+                <Activity size={16} className="text-emerald-400" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Agent Lifecycle</h2>
+            </div>
+
+            <MethodEntry
+              id="heartbeat"
+              signature="claw.heartbeat(status, metadata) / claw.heartbeat(status=..., metadata=...)"
+              description="Report agent presence and health to the control plane. Call periodically to indicate the agent is alive."
+              params={[
+                { name: 'status', type: 'string', required: false, desc: "Agent status — 'online', 'busy', 'idle'. Defaults to 'online'" },
+                { name: 'metadata', type: 'object', required: false, desc: 'Arbitrary metadata to include with the heartbeat' },
+              ]}
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.heartbeat('online', { cycle: 42, uptime_ms: 360000 });`}
+                  pythonSnippet={`claw.heartbeat("online", metadata={"cycle": 42, "uptime_ms": 360000})`}
+                />
+              }
+            />
+
+            <MethodEntry
+              id="reportConnections"
+              signature="claw.reportConnections(connections) / claw.report_connections(connections)"
+              description="Report active provider connections and their status. Appears in the agent's Fleet profile."
+              params={[
+                { name: 'connections', type: 'Array<Object>', required: true, desc: 'List of { name, type, status } connection objects' },
+              ]}
+              example={
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.reportConnections([
+  { name: 'OpenAI', type: 'llm', status: 'connected' },
+  { name: 'Postgres', type: 'database', status: 'connected' },
+]);`}
+                  pythonSnippet={`claw.report_connections([
+    {"name": "OpenAI", "type": "llm", "status": "connected"},
+    {"name": "Postgres", "type": "database", "status": "connected"},
+])`}
                 />
               }
             />
