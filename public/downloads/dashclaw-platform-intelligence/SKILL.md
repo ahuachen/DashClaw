@@ -89,6 +89,13 @@ const decision = await dc.guard({
   action_type: 'file_write', content: fileContent, risk_score: 60
 });
 if (decision.decision === 'block') return; // blocked by policy
+
+// The guard response includes learning context when DashClaw has relevant data:
+if (decision.learning) {
+  console.log(`Recent score avg: ${decision.learning.recent_score_avg}`);
+  console.log(`Drift status: ${decision.learning.drift_status}`);
+  decision.learning.patterns.forEach(p => console.log(`Pattern: ${p}`));
+}
 ```
 
 **Action recording** (wrap every significant operation):
@@ -425,11 +432,22 @@ const { curves } = await dc.getLearningCurves({
 });
 curves.forEach(c => console.log(`Week of ${c.window_start}: avg=${c.avg_score}`));
 
-// Comprehensive summary (the dashboard API)
+// Comprehensive summary (the dashboard API — requires v1)
 const summary = await dc.getLearningAnalyticsSummary();
 console.log(`${summary.overall.total_episodes} episodes`);
 console.log(`Top agent: ${summary.by_agent[0].agent_id} (${summary.by_agent[0].maturity_level})`);
 console.log(`Velocity: ${summary.by_agent[0].velocity} pts/day`);
+```
+
+**Fetch consolidated lessons (v2 SDK):**
+```javascript
+// What has DashClaw learned from this agent's scored outcomes?
+const { lessons, drift_warnings } = await dc.getLessons({ actionType: 'deploy' });
+for (const lesson of lessons) {
+  console.log(`[${lesson.action_type}] ${lesson.guidance} (confidence: ${lesson.confidence})`);
+  console.log(`  Hints: risk_cap=${lesson.hints.risk_cap}, prefer_reversible=${lesson.hints.prefer_reversible}`);
+}
+drift_warnings.forEach(w => console.log(`[DRIFT] ${w.metric}: z=${w.z_score} (${w.severity})`));
 ```
 
 ## Add a DashClaw Capability
@@ -483,7 +501,7 @@ npm run lint && npm run build
 Generate a DashClaw client in any language from the API contracts.
 
 1. Read OpenAPI spec: `docs/openapi/critical-stable.openapi.json`
-2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2, 44 methods), `sdk-python/dashclaw/client.py`
+2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2, 45 methods), `sdk-python/dashclaw/client.py`
 3. Constructor (v2): `baseUrl`, `apiKey`, `agentId`
 4. Auth: `x-api-key` header on every request
 5. Error types: `GuardBlockedError`, `ApprovalDeniedError`
