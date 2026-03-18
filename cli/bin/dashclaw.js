@@ -146,7 +146,28 @@ async function cmdApprovals() {
 
   function openReplay(actionId) {
     const url = `${baseUrl}/replay/${actionId}`;
-    if (!/^https?:\/\/[^\s]+$/.test(url)) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
+      return;
+    }
+    const protocol = parsed.protocol;
+    if (protocol !== 'http:' && protocol !== 'https:') {
+      process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
+      return;
+    }
+    if (!parsed.hostname) {
+      process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
+      return;
+    }
+    if (/\s/.test(url)) {
+      process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
+      return;
+    }
+    // Disallow characters that are dangerous when passed through a shell
+    if (/[&|><^"'`]/.test(url)) {
       process.stdout.write(`\n  Invalid URL, cannot open browser.\n`);
       return;
     }
