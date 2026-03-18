@@ -50,6 +50,51 @@
 
 ---
 
+## Connect Your Agent
+
+**Three ways to get governed — pick what fits your workflow:**
+
+### Option 1: Install the skill (30 seconds)
+
+Give your AI agent the `dashclaw-platform-intelligence` skill and it instruments itself — no code changes, no manual wiring. The agent registers with DashClaw, sets up guard checks, records decisions, and starts tracking assumptions automatically.
+
+```bash
+# Download the skill into your agent's skill directory
+cp -r public/downloads/dashclaw-platform-intelligence .claude/skills/
+```
+
+Set two environment variables and your agent is governed on its next run:
+```bash
+export DASHCLAW_BASE_URL=https://your-dashclaw-instance.com
+export DASHCLAW_API_KEY=your_api_key
+```
+
+This is the fastest path. We gave our own OpenClaw agent the skill and it put itself on DashClaw in one conversation.
+
+### Option 2: Drop in Claude Code hooks (zero-code)
+
+Govern every Bash, Edit, Write, and MultiEdit call Claude Code makes — no SDK instrumentation needed:
+
+```bash
+cp hooks/dashclaw_pretool.py  .claude/hooks/
+cp hooks/dashclaw_posttool.py .claude/hooks/
+```
+
+Set `DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, and `DASHCLAW_HOOK_MODE=enforce`. Every tool call becomes a governed, replayable decision record. See [hooks/README.md](hooks/README.md) for the full guide.
+
+### Option 3: Use the SDK (full control)
+
+For custom agents where you want precise control over what gets governed:
+
+```bash
+npm install dashclaw    # Node.js
+pip install dashclaw    # Python
+```
+
+The 4-step governance loop — Guard, Record, Verify, Outcome — is covered in the [Quickstart](#quickstart) below.
+
+---
+
 ## What is DashClaw?
 
 DashClaw is not observability. It is **control before execution**.
@@ -61,6 +106,7 @@ DashClaw provides decision infrastructure to:
 * Enforce policy checks before execution.
 * Require human approval (HITL) for sensitive operations.
 * Record verifiable decision evidence to detect reasoning drift.
+* Track agent learning velocity — the only platform that measures whether your agents are getting better or worse over time.
 
 ---
 
@@ -123,25 +169,18 @@ No repo clone. No environment variables. No configuration. Just one command.
 
 ---
 
-## 🏗️ First Real Agent (5-Minute Integration)
+## 🏗️ First Real Agent
 
-Ready to connect your own agent? Use the **OpenAI Governed Agent Starter** to see DashClaw in a real customer communication workflow.
+**Fastest**: Install the [dashclaw-platform-intelligence skill](#option-1-install-the-skill-30-seconds) and let your agent instrument itself.
+
+**Hands-on**: Use the **OpenAI Governed Agent Starter** to see the SDK in a real customer communication workflow:
 
 ```bash
-# 1. Enter the starter directory
 cd examples/openai-governed-agent
-
-# 2. Install and run
-npm install
-cp .env.example .env
+npm install && cp .env.example .env
 # Add your DASHCLAW_API_KEY to .env
 node index.js
 ```
-
-What it proves:
-- **Governance Before Execution**: `claw.guard()` checks policies *before* the action.
-- **Permissioned Autonomy**: Pausing for human approval (HITL) on high-risk actions.
-- **Verifiable Evidence**: Intent, assumptions, and outcomes recorded in your dashboard.
 
 [View the Starter Source](./examples/openai-governed-agent)
 
@@ -259,30 +298,6 @@ export DASHCLAW_BASE_URL="http://localhost:3000"
 python scripts/test-sdk-agent.py --full
 ```
 See the script comments for more flags and usage.
-
----
-
-## Claude Code Hooks
-
-Govern Claude Code tool calls without any SDK instrumentation. Drop two Python scripts into `.claude/hooks/` and every Bash, Edit, Write, and MultiEdit call Claude makes is governed by your DashClaw policies.
-
-```bash
-# Copy hooks into your project
-cp path/to/DashClaw/hooks/dashclaw_pretool.py  .claude/hooks/
-cp path/to/DashClaw/hooks/dashclaw_posttool.py .claude/hooks/
-```
-
-Merge the `hooks` block from `hooks/settings.json` into your `.claude/settings.json`, then set three environment variables:
-
-```bash
-export DASHCLAW_BASE_URL=https://your-dashclaw-instance.com
-export DASHCLAW_API_KEY=your_api_key
-export DASHCLAW_HOOK_MODE=enforce   # or "observe" to log without blocking
-```
-
-The hooks require no pip installs and exit silently when DashClaw is unreachable. Claude Code is never blocked because your governance layer is down.
-
-See `hooks/README.md` for the full installation guide and action type mapping.
 
 ---
 
