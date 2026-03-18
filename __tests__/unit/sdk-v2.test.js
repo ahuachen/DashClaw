@@ -272,6 +272,20 @@ describe('DashClaw v2 SDK', () => {
     });
   });
 
+  // --- getLessons ---
+
+  describe('getLessons', () => {
+    it('GETs /api/learning/lessons with agent_id', async () => {
+      await claw.getLessons({ actionType: 'deploy', limit: 5 });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toContain('/api/learning/lessons');
+      expect(url).toContain('agent_id=test-agent');
+      expect(url).toContain('action_type=deploy');
+      expect(url).toContain('limit=5');
+      expect(opts.method).toBe('GET');
+    });
+  });
+
   // --- renderPrompt ---
 
   describe('renderPrompt', () => {

@@ -282,6 +282,17 @@ class DashClaw {
   }
 
   /**
+   * GET /api/learning/lessons — Fetch consolidated lessons from scored outcomes.
+   */
+  async getLessons({ actionType, limit } = {}) {
+    return this._request('/api/learning/lessons', 'GET', null, {
+      agent_id: this.agentId,
+      ...(actionType && { action_type: actionType }),
+      ...(limit && { limit }),
+    });
+  }
+
+  /**
    * POST /api/prompts/render
    */
   async renderPrompt({ template_id, version_id, variables, record = false }) {
