@@ -10,6 +10,7 @@ import { generateActionEmbedding, isEmbeddingsEnabled } from './embeddings.js';
 import { scanSensitiveData } from './security.js';
 import { scanForPromptInjection } from './promptInjection.js';
 import { EVENTS, publishOrgEvent } from './events.js';
+import { getLearningContext } from './learning-context.js';
 
 const DECISION_SEVERITY = { allow: 0, warn: 1, require_approval: 2, block: 3 };
 
@@ -231,6 +232,12 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     }
   });
 
+  // Learning context — best-effort enrichment
+  const learningContext = await getLearningContext(sql, orgId, {
+    agentId: context.agent_id,
+    actionType: context.action_type,
+  });
+
   return {
     decision: highestDecision,
     action_id: decisionId, // Standardized ID for the evaluation
@@ -240,6 +247,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     risk_score: effectiveRiskScore,
     agent_risk_score: agentRiskScore,
     evaluated_at,
+    learning: learningContext || undefined,
     // Backward compatibility
     reasons,
     warnings,
