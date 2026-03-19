@@ -56,7 +56,7 @@ export function ConnectNextStepPanel({ maskedApiKey, host, isAuthenticated, over
       if (data.ok) {
         // Redirect with proof token so the page reloads as "verified"
         if (data.proof_token) {
-          window.location.href = `/setup?proof=${encodeURIComponent(data.proof_token)}`;
+          window.location.href = `/settings?proof=${encodeURIComponent(data.proof_token)}`;
           return;
         }
         setStatus('success');

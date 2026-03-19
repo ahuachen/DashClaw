@@ -36,6 +36,8 @@ export const VALID_SETTING_KEYS = [
   'DASHCLAW_ALERT_EMAIL', 'SLACK_CHANNEL_ID', 'SLACK_WEBHOOK_URL',
   'DISCORD_WEBHOOK_URL', 'GITHUB_REPO',
   'SENDGRID_DEFAULT_TO', 'SENDGRID_FROM_EMAIL',
+  // System configuration
+  'MODEL_PRICING',
 ];
 
 export const VALID_CATEGORIES = ['integration', 'general', 'system'];
@@ -158,6 +160,23 @@ export async function deleteSetting(sql, orgId, key, agentId = null) {
   } else {
     await sql`DELETE FROM settings WHERE key = ${key} AND org_id = ${orgId} AND agent_id IS NULL`;
   }
+}
+
+/**
+ * Load custom model pricing for an org.
+ * Returns a parsed pricing array or null if none is configured.
+ */
+export async function getModelPricing(sql, orgId) {
+  try {
+    const rows = await sql`SELECT value FROM settings WHERE org_id = ${orgId} AND key = 'MODEL_PRICING' AND agent_id IS NULL LIMIT 1`;
+    if (rows.length > 0 && rows[0].value) {
+      const parsed = JSON.parse(rows[0].value);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {
+    // Gracefully fall back to default pricing on any error
+  }
+  return null;
 }
 
 /**

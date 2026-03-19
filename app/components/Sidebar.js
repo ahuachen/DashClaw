@@ -53,7 +53,7 @@ const navGroups = [
     items: [
       { href: '/integrations', icon: Plug, label: 'Integrations' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
-      { href: '/setup', icon: Settings, label: 'Settings' },
+      { href: '/settings', icon: Settings, label: 'Settings' },
     ],
   },
 ];

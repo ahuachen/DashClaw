@@ -23,6 +23,7 @@ import {
   insertActionEmbedding,
   listActions,
 } from '../../lib/repositories/actions.repository.js';
+import { getModelPricing } from '../../lib/repositories/settings.repository.js';
 import crypto from 'crypto';
 
 function redactAny(value, findings) {
@@ -220,7 +221,8 @@ export async function POST(request) {
 
     let costEstimate = data.cost_estimate || 0;
     if ((data.tokens_in || data.tokens_out) && !data.cost_estimate) {
-      costEstimate = estimateCost(data.tokens_in || 0, data.tokens_out || 0, data.model);
+      const customPricing = await getModelPricing(sql, orgId);
+      costEstimate = estimateCost(data.tokens_in || 0, data.tokens_out || 0, data.model, customPricing);
     }
 
     const createdAction = await createActionRecord(sql, {

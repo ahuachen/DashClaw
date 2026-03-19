@@ -62,7 +62,7 @@ export function TopSummary({ view, proofDownloadHref }) {
           <ActionLink href="#workflow" secondary>
             Review verification flow
           </ActionLink>
-          <ActionLink href="/setup" secondary>
+          <ActionLink href="/settings" secondary>
             Reload checks
           </ActionLink>
         </div>
