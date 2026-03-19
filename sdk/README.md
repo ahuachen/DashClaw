@@ -1,4 +1,4 @@
-# DashClaw SDK (v2.5.0)
+# DashClaw SDK (v2.6.0)
 
 **Minimal governance runtime for AI agents.**
 
