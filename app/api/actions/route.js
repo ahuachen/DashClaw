@@ -13,6 +13,7 @@ import { EVENTS, publishOrgEvent } from '../../lib/events.js';
 import { generateActionEmbedding, isEmbeddingsEnabled } from '../../lib/embeddings.js';
 import { evaluateGuard } from '../../lib/guard.js';
 import { fireActionAlert } from '../../lib/actionAlerts.js';
+import { fireWebhooksForApproval } from '../../lib/webhooks.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import {
   createActionRecord,
@@ -284,6 +285,14 @@ export async function POST(request) {
       fireActionAlert('pending_approval', createdAction, sql, orgId);
     } else {
       fireActionAlert('high_risk', createdAction, sql, orgId);
+    }
+
+    if (createdAction.status === 'pending_approval') {
+      fireWebhooksForApproval(orgId, 'approval_pending', {
+        ...createdAction,
+        matched_policies: guardDecision?.matched_policies,
+        reason: guardDecision?.reason,
+      }, sql).catch(() => {});
     }
 
     if (actionsQuota.warning) {

@@ -8,9 +8,10 @@ import crypto from 'crypto';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const VALID_SIGNAL_TYPES = [
+const VALID_EVENT_TYPES = [
   'all', 'autonomy_spike', 'high_impact_low_oversight', 'repeated_failures',
-  'stale_loop', 'assumption_drift', 'stale_assumption', 'stale_running_action'
+  'stale_loop', 'assumption_drift', 'stale_assumption', 'stale_running_action',
+  'approval_pending', 'approval_granted', 'approval_denied'
 ];
 
 // GET /api/webhooks - List webhooks for org (all members)
@@ -63,7 +64,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Events must be a non-empty array' }, { status: 400 });
     }
     for (const evt of events) {
-      if (!VALID_SIGNAL_TYPES.includes(evt)) {
+      if (!VALID_EVENT_TYPES.includes(evt)) {
         return NextResponse.json({ error: `Invalid event type: ${evt}` }, { status: 400 });
       }
     }

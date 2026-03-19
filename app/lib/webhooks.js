@@ -311,3 +311,54 @@ export async function fireWebhooksForOrg(orgId, signals, sql) {
 
   return results;
 }
+
+/**
+ * Fire webhooks for approval-related events (pending, granted, denied).
+ */
+export async function fireWebhooksForApproval(orgId, eventType, action, sql) {
+  try {
+    const webhooks = await sql`
+      SELECT id, url, secret, events FROM webhooks
+      WHERE org_id = ${orgId} AND active = 1
+    `;
+
+    const baseUrl = process.env.NEXTAUTH_URL || (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+    const payload = {
+      event: eventType,
+      org_id: orgId,
+      timestamp: new Date().toISOString(),
+      action: {
+        action_id: action.action_id,
+        agent_id: action.agent_id,
+        action_type: action.action_type,
+        declared_goal: action.declared_goal,
+        risk_score: action.risk_score,
+        status: action.status,
+        matched_policies: action.matched_policies || [],
+        reason: action.reason || '',
+      },
+      approval_url: `${baseUrl}/api/approvals/${action.action_id}`,
+      replay_url: `${baseUrl}/replay/${action.action_id}`,
+    };
+
+    for (const wh of webhooks) {
+      const events = JSON.parse(wh.events || '["all"]');
+      if (!events.includes('all') && !events.includes(eventType)) continue;
+      deliverWebhook({
+        webhookId: wh.id,
+        orgId,
+        url: wh.url,
+        secret: wh.secret,
+        eventType,
+        payload,
+        sql,
+      }).catch(err =>
+        console.error(`[WEBHOOK] Delivery failed for ${wh.id}:`, err.message)
+      );
+    }
+  } catch (err) {
+    console.error('[WEBHOOK] fireWebhooksForApproval error:', err.message);
+  }
+}

@@ -5,6 +5,7 @@ import { logActivity } from '../../../lib/audit.js';
 import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { scanSensitiveData } from '../../../lib/security.js';
 import { recordApproval, getActionStatus } from '../../../lib/repositories/actions.repository.js';
+import { fireWebhooksForApproval } from '../../../lib/webhooks.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -81,9 +82,22 @@ export async function POST(request, { params }) {
 
     // Emit event for real-time updates
     void publishOrgEvent(EVENTS.ACTION_UPDATED, {
-      orgId, 
-      action: updatedAction 
+      orgId,
+      action: updatedAction
     });
+
+    // Fetch full action for webhook payload (getActionStatus only returns status + agent_id)
+    const [fullAction] = await sql`
+      SELECT action_id, agent_id, action_type, declared_goal, risk_score
+      FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1
+    `;
+    const approvalEvent = decision === 'allow' ? 'approval_granted' : 'approval_denied';
+    if (fullAction) {
+      fireWebhooksForApproval(orgId, approvalEvent, {
+        ...fullAction,
+        status: decision === 'allow' ? 'running' : 'failed',
+      }, sql).catch(() => {});
+    }
 
     return NextResponse.json({ 
       success: true, 
