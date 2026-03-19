@@ -232,7 +232,15 @@ async function verifyOrgExists(orgId) {
     return exists;
   } catch (err) {
     console.error('[MIDDLEWARE] Failed to verify org existence:', err.message);
-    // SECURITY: Fail closed — a deleted/revoked org's key must not work during outages
+    // Self-host with local Postgres: Neon HTTP driver can't reach TCP-only Postgres.
+    // Fail open for the default org since migrations already seeded it.
+    const mode = getDashclawMode();
+    if (mode === 'self_host' && orgId === 'org_default') {
+      console.warn('[MIDDLEWARE] Self-host mode: assuming org_default exists (local Postgres, Neon HTTP driver unavailable).');
+      orgExistsCache.set(orgId, { timestamp: now, exists: true });
+      return true;
+    }
+    // SECURITY: Fail closed for non-default orgs or non-self-host deployments.
     return false;
   }
 }
@@ -300,6 +308,9 @@ async function resolveApiKey(keyHash) {
     return result;
   } catch (err) {
     console.error('[AUTH] API key lookup failed:', err.message);
+    // Self-host with local Postgres: Neon HTTP driver can't reach TCP-only Postgres.
+    // The fast-path (DASHCLAW_API_KEY exact match) handles the primary key.
+    // For secondary keys, fail open is not safe — return null.
     return null;
   }
 }
