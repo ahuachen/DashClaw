@@ -10,6 +10,7 @@ import {
 import { formatCost, formatTokens } from '../../lib/formatCost';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent } from '../../components/ui/Card';
+import CommunicationTrail from '../../components/CommunicationTrail';
 
 // Shared components for the replay story
 const DashClawLogo = ({ size = 20, className = "" }) => (
@@ -254,6 +255,9 @@ export default function PublicReplayPage() {
                   )}
                 </div>
               </Link>
+
+              {/* Communication Trail */}
+              <CommunicationTrail actionId={action.action_id} actingAgentId={action.agent_id} />
 
               {/* 3. THE OUTCOME */}
               <div className="relative flex gap-6">
