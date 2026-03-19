@@ -1,4 +1,5 @@
 import { pgTable, text, timestamp, integer, boolean, uniqueIndex, numeric, customType, serial, real, jsonb, pgEnum } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // Custom vector type for pgvector
 const vector = customType({
@@ -422,6 +423,7 @@ export const agentMessages = pgTable('agent_messages', {
   createdAt: timestamp('created_at').defaultNow(),
   readAt: timestamp('read_at'),
   archivedAt: timestamp('archived_at'),
+  actionId: text('action_id'),
 });
 
 export const messageThreads = pgTable('message_threads', {
@@ -698,6 +700,19 @@ export const webhooks = pgTable('webhooks', {
   failureCount: integer('failure_count').notNull().default(0),
   lastTriggeredAt: timestamp('last_trigger_at'),
   createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const webhookDeliveries = pgTable('webhook_deliveries', {
+  id: text('id').primaryKey(),
+  webhookId: text('webhook_id').notNull(),
+  orgId: text('org_id').notNull().default('org_default'),
+  eventType: text('event_type').notNull(),
+  payload: text('payload'),
+  status: text('status').notNull().default('pending'),
+  responseStatus: integer('response_status'),
+  responseBody: text('response_body'),
+  attemptedAt: text('attempted_at').default(sql`now()`).notNull(),
+  durationMs: integer('duration_ms'),
 });
 
 export const usageMeters = pgTable('usage_meters', {
