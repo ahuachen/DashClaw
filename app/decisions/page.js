@@ -9,6 +9,7 @@ import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
 import { getAgentColor } from '../lib/colors';
+import { formatCost, formatTokens } from '../lib/formatCost';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useSession } from 'next-auth/react';
 import {
@@ -464,6 +465,18 @@ export default function DecisionsLedger() {
                                 {action.status}
                               </span>
                             </div>
+                            {action.cost_estimate > 0 && (
+                              <div className="flex flex-col items-end gap-0.5">
+                                <span className="font-mono text-[10px] text-purple-400">
+                                  {formatCost(action.cost_estimate)}
+                                </span>
+                                {(action.tokens_in > 0 || action.tokens_out > 0) && (
+                                  <span className="font-mono text-[9px] text-zinc-600">
+                                    {formatTokens(action.tokens_in)} in / {formatTokens(action.tokens_out)} out
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                           
                           <div className="flex items-center gap-2">

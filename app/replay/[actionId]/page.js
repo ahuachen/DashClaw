@@ -7,6 +7,7 @@ import {
   ShieldCheck, ShieldAlert, Zap, Clock, Info, ExternalLink,
   ChevronRight, ArrowRight, Code, Copy, Check, X
 } from 'lucide-react';
+import { formatCost, formatTokens } from '../../lib/formatCost';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent } from '../../components/ui/Card';
 
@@ -51,7 +52,10 @@ export default function PublicReplayPage() {
         timestamp_start: data.action.timestamp_start,
         verified: data.action.verified,
         duration_ms: data.action.duration_ms,
-        output_summary: data.action.output_summary
+        output_summary: data.action.output_summary,
+        cost_estimate: data.action.cost_estimate,
+        tokens_in: data.action.tokens_in,
+        tokens_out: data.action.tokens_out,
       });
 
       if (data.action.agent_id) {
@@ -258,12 +262,20 @@ export default function PublicReplayPage() {
                 </div>
                 <div className="flex-1">
                   <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Final Result</div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className={`text-lg font-bold tracking-tight ${isSuccess ? 'text-emerald-400' : 'text-red-400'} uppercase`}>
                       {getResultText()}
                     </span>
                     {action.duration_ms && (
                       <span className="text-xs text-zinc-600 font-mono">in {(action.duration_ms/1000).toFixed(2)}s</span>
+                    )}
+                    {action.cost_estimate > 0 && (
+                      <span className="text-xs text-zinc-600 font-mono">
+                        | {formatCost(action.cost_estimate)}
+                        {(action.tokens_in > 0 || action.tokens_out > 0) && (
+                          <> | {formatTokens(action.tokens_in)} in / {formatTokens(action.tokens_out)} out</>
+                        )}
+                      </span>
                     )}
                   </div>
                   <div className="text-xs text-zinc-300 font-mono bg-black/40 p-3 rounded-lg border border-white/5 leading-relaxed">
