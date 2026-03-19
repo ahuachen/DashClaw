@@ -170,6 +170,88 @@ export async function batchArchiveMessages(sql, orgId, messageIds, now) {
   return rows.length;
 }
 
+// ── Action Message Trail ─────────────────────────────────────
+
+export async function getMessagesByActionId(sql, orgId, actionId) {
+  return sql`
+    SELECT id, from_agent_id, to_agent_id, message_type, subject, body,
+           thread_id, urgent, created_at, action_id
+    FROM agent_messages
+    WHERE org_id = ${orgId} AND action_id = ${actionId}
+    ORDER BY created_at ASC
+  `;
+}
+
+export async function getMessagesInTimeWindow(sql, orgId, agentId, windowStart, windowEnd) {
+  return sql`
+    SELECT id, from_agent_id, to_agent_id, message_type, subject, body,
+           thread_id, urgent, created_at, action_id
+    FROM agent_messages
+    WHERE org_id = ${orgId}
+      AND (from_agent_id = ${agentId} OR to_agent_id = ${agentId})
+      AND created_at::timestamptz >= (${windowStart}::timestamptz - interval '60 seconds')
+      AND created_at::timestamptz <= (${windowEnd}::timestamptz + interval '60 seconds')
+    ORDER BY created_at ASC
+    LIMIT 50
+  `;
+}
+
+// ── Message Threads (CRUD) ───────────────────────────────────
+
+export async function listThreads(sql, orgId, { status, agentId, limit = 20 } = {}) {
+  const conditions = ['t.org_id = $1'];
+  const params = [orgId];
+  let idx = 2;
+
+  if (status) {
+    conditions.push(`t.status = $${idx}`);
+    params.push(status);
+    idx++;
+  }
+  if (agentId) {
+    conditions.push(`(t.participants ILIKE $${idx} OR t.created_by = $${idx + 1} OR EXISTS (SELECT 1 FROM agent_messages m WHERE m.thread_id = t.id AND (m.from_agent_id = $${idx + 1} OR m.to_agent_id = $${idx + 1})))`);
+    params.push(`%${agentId}%`, agentId);
+    idx += 2;
+  }
+
+  const where = conditions.join(' AND ');
+  return sql.query(
+    `SELECT t.*,
+      (SELECT COUNT(*)::int FROM agent_messages m WHERE m.thread_id = t.id) as message_count,
+      (SELECT MAX(m.created_at) FROM agent_messages m WHERE m.thread_id = t.id) as last_message_at
+    FROM message_threads t
+    WHERE ${where}
+    ORDER BY COALESCE((SELECT MAX(m.created_at) FROM agent_messages m WHERE m.thread_id = t.id), t.created_at) DESC
+    LIMIT $${idx}`,
+    [...params, limit]
+  );
+}
+
+export async function createThread(sql, orgId, { id, name, participants, created_by, now }) {
+  const participantsJson = participants ? JSON.stringify(participants) : null;
+  const rows = await sql`
+    INSERT INTO message_threads (id, org_id, name, participants, status, created_by, created_at, updated_at)
+    VALUES (${id}, ${orgId}, ${name}, ${participantsJson}, 'open', ${created_by}, ${now}, ${now})
+    RETURNING *
+  `;
+  return rows[0] || null;
+}
+
+export async function getThreadById(sql, orgId, threadId) {
+  const rows = await sql`SELECT * FROM message_threads WHERE id = ${threadId} AND org_id = ${orgId}`;
+  return rows[0] || null;
+}
+
+export async function updateThread(sql, orgId, threadId, { status, summary, resolvedAt, now }) {
+  const rows = await sql`
+    UPDATE message_threads
+    SET status = ${status}, summary = ${summary}, resolved_at = ${resolvedAt}, updated_at = ${now}
+    WHERE id = ${threadId} AND org_id = ${orgId}
+    RETURNING *
+  `;
+  return rows[0] || null;
+}
+
 // ── Attachments ──────────────────────────────────────────────
 
 export async function createAttachment(sql, payload) {

@@ -4,7 +4,7 @@ import { getOrgId, getOrgRole, getUserId } from '../../../lib/org.js';
 import { logActivity } from '../../../lib/audit.js';
 import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { scanSensitiveData } from '../../../lib/security.js';
-import { recordApproval, getActionStatus } from '../../../lib/repositories/actions.repository.js';
+import { recordApproval, getActionStatus, getActionSummary } from '../../../lib/repositories/actions.repository.js';
 import { fireWebhooksForApproval } from '../../../lib/webhooks.js';
 
 function redactAny(value, findings) {
@@ -87,10 +87,7 @@ export async function POST(request, { params }) {
     });
 
     // Fetch full action for webhook payload (getActionStatus only returns status + agent_id)
-    const [fullAction] = await sql`
-      SELECT action_id, agent_id, action_type, declared_goal, risk_score
-      FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1
-    `;
+    const fullAction = await getActionSummary(sql, orgId, actionId);
     const approvalEvent = decision === 'allow' ? 'approval_granted' : 'approval_denied';
     if (fullAction) {
       fireWebhooksForApproval(orgId, approvalEvent, {

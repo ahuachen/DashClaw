@@ -16,6 +16,26 @@ export async function getActionStatus(sql, orgId, actionId) {
   return rows[0] || null;
 }
 
+export async function getActionSummary(sql, orgId, actionId) {
+  const rows = await sql`
+    SELECT action_id, agent_id, action_type, declared_goal, risk_score
+    FROM action_records
+    WHERE action_id = ${actionId} AND org_id = ${orgId}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
+export async function getActionTimeBounds(sql, orgId, actionId) {
+  const rows = await sql`
+    SELECT agent_id, timestamp_start, timestamp_end
+    FROM action_records
+    WHERE org_id = ${orgId} AND action_id = ${actionId}
+    LIMIT 1
+  `;
+  return rows[0] || null;
+}
+
 export async function recordApproval(sql, orgId, actionId, data) {
   const { newStatus, errorMessage, decision, userId, safeReasoning } = data;
 
