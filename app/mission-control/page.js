@@ -16,6 +16,7 @@ import { getAgentColor } from '../lib/colors';
 import ActivityTimeline from '../components/ActivityTimeline';
 import SwarmActivityLog from '../components/SwarmActivityLog';
 import QuickStart from '../components/QuickStart';
+import AgentSpendCard from '../components/AgentSpendCard';
 import { isDemoMode } from '../lib/isDemoMode';
 import { computePosture } from '../components/SystemStatusBar';
 
@@ -468,6 +469,13 @@ export default function MissionControlPage() {
                 )}
               </div>
             )}
+          </div>
+        </Card>
+
+        {/* Card 5 — Agent Spend */}
+        <Card>
+          <div className="p-4">
+            <AgentSpendCard agentId={agentId} />
           </div>
         </Card>
 

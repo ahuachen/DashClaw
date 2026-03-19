@@ -5,7 +5,7 @@ import {
   Shield, Plus, Trash2, ToggleLeft, ToggleRight,
   ChevronDown, ChevronRight, AlertTriangle,
   Upload, Play, FileDown, Copy, Check, ChevronUp,
-  Pencil, X, Square, CheckSquare, Users,
+  Pencil, X, Square, CheckSquare, Users, BookOpen,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
@@ -15,6 +15,7 @@ import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { useRealtime } from '../hooks/useRealtime';
+import { PACK_PREVIEWS } from '../lib/policyPackPreviews.js';
 
 const POLICY_TYPES = [
   { value: 'risk_threshold', label: 'Risk Threshold', desc: 'Block or warn when risk score exceeds a threshold' },
@@ -36,48 +37,6 @@ const DECISION_ACTIONS = [
   { value: 'warn', label: 'Warn' },
   { value: 'require_approval', label: 'Require Approval' },
 ];
-
-const PACK_PREVIEWS = {
-  'enterprise-strict': {
-    name: 'Enterprise Strict',
-    description: 'Maximum security — all external actions blocked or gated, zero autonomous risk',
-    policies: [
-      { name: 'Every external communication requires human approval with no exceptions', type: 'require_approval' },
-      { name: 'All destructive operations are blocked with no exceptions', type: 'block_action_type' },
-      { name: 'Shell command execution is completely blocked', type: 'block_action_type' },
-      { name: 'Content containing secrets, PII, or sensitive data must be blocked', type: 'block_action_type' },
-      { name: 'Any data export or download operation requires approval', type: 'require_approval' },
-    ],
-  },
-  'smb-safe': {
-    name: 'SMB Safe',
-    description: 'Balanced protection for small-to-medium teams — blocks destructive ops, gates external comms',
-    policies: [
-      { name: 'All external communications require human approval', type: 'require_approval' },
-      { name: 'File deletion and destructive commands are blocked', type: 'block_action_type' },
-      { name: 'Shell commands restricted to safe operations only', type: 'block_action_type' },
-      { name: 'Web requests limited to approved domains', type: 'block_action_type' },
-    ],
-  },
-  'startup-growth': {
-    name: 'Startup Growth',
-    description: 'Permissive with guardrails — gates customer-facing comms, allows internal messaging',
-    policies: [
-      { name: 'External communications to customers require approval', type: 'require_approval' },
-      { name: 'Destructive operations require approval instead of being blocked', type: 'require_approval' },
-      { name: 'Internal Slack messages are allowed without approval', type: 'block_action_type' },
-      { name: 'Content containing secrets or API keys must be blocked', type: 'block_action_type' },
-    ],
-  },
-  'development': {
-    name: 'Development',
-    description: 'Minimal guardrails for dev environments — warns on destructive ops, blocks production access',
-    policies: [
-      { name: 'Warn on destructive file and database operations', type: 'require_approval' },
-      { name: 'Block any access to production databases or APIs', type: 'block_action_type' },
-    ],
-  },
-};
 
 const DECISION_COLORS = {
   allow: 'success',
@@ -380,6 +339,15 @@ export default function PoliciesPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
+  // Template Gallery
+  const [showGallery, setShowGallery] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [expandedTemplate, setExpandedTemplate] = useState(null);
+  const [installPreview, setInstallPreview] = useState(null); // { packId, preview }
+  const [installing, setInstalling] = useState(null); // packId being installed
+  const [installResults, setInstallResults] = useState({}); // packId -> result
+
   // Test Runner
   const [testResults, setTestResults] = useState(null);
   const [testRunning, setTestRunning] = useState(false);
@@ -389,6 +357,64 @@ export default function PoliciesPage() {
   const [proofReport, setProofReport] = useState('');
   const [proofFormat, setProofFormat] = useState('markdown');
   const [generatingProof, setGeneratingProof] = useState(false);
+
+  const handleBrowseTemplates = async () => {
+    if (showGallery) { setShowGallery(false); return; }
+    setShowGallery(true);
+    if (templates.length > 0) return;
+    setTemplatesLoading(true);
+    try {
+      const res = await fetch('/api/policies/templates');
+      const json = await res.json();
+      if (res.ok) setTemplates(json.templates || []);
+      else setError(json.error || 'Failed to load templates');
+    } catch {
+      setError('Failed to load templates');
+    } finally {
+      setTemplatesLoading(false);
+    }
+  };
+
+  const handleInstallPreview = async (packId) => {
+    setInstallPreview(null);
+    try {
+      const res = await fetch('/api/policies/import?preview=true', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pack: packId }),
+      });
+      const json = await res.json();
+      if (res.ok) setInstallPreview({ packId, preview: json });
+      else setError(json.error || 'Failed to preview pack');
+    } catch {
+      setError('Failed to preview pack');
+    }
+  };
+
+  const handleInstallConfirm = async () => {
+    if (!installPreview) return;
+    const { packId } = installPreview;
+    setInstalling(packId);
+    setInstallPreview(null);
+    try {
+      const res = await fetch('/api/policies/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pack: packId }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setInstallResults(prev => ({ ...prev, [packId]: json }));
+        fetchData();
+      } else {
+        setError(json.error || 'Install failed');
+      }
+    } catch {
+      setError('Install failed');
+    } finally {
+      setInstalling(null);
+    }
+  };
 
   const handleSimulate = async (customRules = null, customType = null, context = 'create') => {
     setSimulating(true);
@@ -732,13 +758,22 @@ export default function PoliciesPage() {
             )}
           </div>
           {canEdit && (
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors"
-            >
-              {showAddForm ? <ChevronDown size={14} /> : <Plus size={14} />}
-              {showAddForm ? 'Cancel' : 'Add Policy'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBrowseTemplates}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-zinc-300 text-xs font-medium hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+              >
+                <BookOpen size={14} />
+                {showGallery ? 'Hide Templates' : 'Browse Templates'}
+              </button>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors"
+              >
+                {showAddForm ? <ChevronDown size={14} /> : <Plus size={14} />}
+                {showAddForm ? 'Cancel' : 'Add Policy'}
+              </button>
+            </div>
           )}
         </div>
 
@@ -977,6 +1012,155 @@ export default function PoliciesPage() {
         </CardContent>
       </Card>
 
+      {/* Template Gallery */}
+      {showGallery && canEdit && (
+        <Card className="mb-6">
+          <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+            <h2 className="text-sm font-medium text-white flex items-center gap-2">
+              <BookOpen size={14} className="text-zinc-400" />
+              Policy Template Gallery
+            </h2>
+            <button onClick={() => setShowGallery(false)} className="text-zinc-500 hover:text-white transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+          <CardContent>
+            {templatesLoading ? (
+              <div className="text-sm text-zinc-500 py-8 text-center">Loading templates...</div>
+            ) : templates.length === 0 ? (
+              <div className="text-sm text-zinc-500 py-8 text-center">No templates available.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {templates.map(pack => {
+                  const isExpanded = expandedTemplate === pack.id;
+                  const result = installResults[pack.id];
+                  const alreadyInstalled = result ? result.imported === 0 && result.skipped > 0 : false;
+                  const isInstalling = installing === pack.id;
+
+                  return (
+                    <div
+                      key={pack.id}
+                      className="rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] overflow-hidden"
+                    >
+                      {/* Card header — click to expand */}
+                      <button
+                        type="button"
+                        className="w-full text-left px-4 py-3 flex items-start justify-between gap-3 hover:bg-[rgba(255,255,255,0.03)] transition-colors"
+                        onClick={() => setExpandedTemplate(isExpanded ? null : pack.id)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-sm font-medium text-white">{pack.name}</span>
+                            <Badge variant="info">{pack.policy_count} {pack.policy_count === 1 ? 'policy' : 'policies'}</Badge>
+                            {alreadyInstalled && <Badge variant="success">Installed</Badge>}
+                          </div>
+                          <p className="text-xs text-zinc-400 mb-1">{pack.description}</p>
+                          {pack.recommended_for && (
+                            <p className="text-[10px] text-zinc-600">For: {pack.recommended_for}</p>
+                          )}
+                        </div>
+                        {isExpanded ? (
+                          <ChevronUp size={14} className="text-zinc-500 flex-shrink-0 mt-0.5" />
+                        ) : (
+                          <ChevronRight size={14} className="text-zinc-500 flex-shrink-0 mt-0.5" />
+                        )}
+                      </button>
+
+                      {/* Expanded policy list */}
+                      {isExpanded && (
+                        <div className="border-t border-[rgba(255,255,255,0.06)] px-4 py-3 space-y-2">
+                          {(pack.policies || []).map((p, i) => (
+                            <div key={i} className="flex items-start gap-2 text-xs">
+                              <Badge
+                                variant={p.policy_type === 'require_approval' ? 'warning' : p.policy_type === 'block_action_type' ? 'error' : 'info'}
+                                size="xs"
+                              >
+                                {p.policy_type === 'require_approval' ? 'approval' : p.policy_type === 'block_action_type' ? 'block' : p.policy_type?.replace(/_/g, ' ') || 'policy'}
+                              </Badge>
+                              <span className="text-zinc-300 leading-relaxed">{p.name}</span>
+                            </div>
+                          ))}
+
+                          {/* Install button */}
+                          <div className="pt-2">
+                            {result ? (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {result.imported > 0 && <Badge variant="success">{result.imported} imported</Badge>}
+                                {result.skipped > 0 && <Badge variant="warning">{result.skipped} skipped</Badge>}
+                                {result.errors?.length > 0 && <Badge variant="error">{result.errors.length} errors</Badge>}
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleInstallPreview(pack.id)}
+                                disabled={isInstalling}
+                                className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                              >
+                                {isInstalling ? 'Installing...' : 'Install Pack'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Install Preview Modal */}
+      {installPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-xl bg-[#161616] border border-[rgba(255,255,255,0.1)] shadow-2xl">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">Review Installation</h3>
+              <button onClick={() => setInstallPreview(null)} className="text-zinc-500 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Badge variant="success">{installPreview.preview.would_create} will be created</Badge>
+                {installPreview.preview.would_skip > 0 && (
+                  <Badge variant="warning">{installPreview.preview.would_skip} already exist, will skip</Badge>
+                )}
+              </div>
+              {installPreview.preview.policies?.length > 0 && (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {installPreview.preview.policies.map((p, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs">
+                      {p.conflict ? (
+                        <Badge variant="muted" size="xs">skip</Badge>
+                      ) : (
+                        <Badge variant="success" size="xs">new</Badge>
+                      )}
+                      <span className={p.conflict ? 'text-zinc-500 line-through' : 'text-zinc-300'}>{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="px-5 py-4 border-t border-[rgba(255,255,255,0.06)] flex items-center gap-3">
+              <button
+                onClick={handleInstallConfirm}
+                disabled={installPreview.preview.would_create === 0}
+                className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
+              >
+                {installPreview.preview.would_create === 0 ? 'Nothing to install' : 'Confirm Install'}
+              </button>
+              <button
+                onClick={() => setInstallPreview(null)}
+                className="px-4 py-2 rounded-lg bg-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-600 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Simulation Results — shown outside the add form so both create and per-policy simulate work */}
       {simResults && (
         <Card className="mb-6">
@@ -1125,21 +1309,11 @@ export default function PoliciesPage() {
 
                   {PACK_PREVIEWS[importPack] && (
                     <div className="rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] p-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-white">{PACK_PREVIEWS[importPack].name}</span>
-                        <Badge variant="info">{PACK_PREVIEWS[importPack].policies.length} policies</Badge>
-                      </div>
-                      <p className="text-[10px] text-zinc-500 mb-3">{PACK_PREVIEWS[importPack].description}</p>
-                      <div className="space-y-1.5">
-                        {PACK_PREVIEWS[importPack].policies.map((p, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs">
-                            <Badge variant={p.type === 'require_approval' ? 'warning' : 'error'} size="xs">
-                              {p.type === 'require_approval' ? 'approval' : 'block'}
-                            </Badge>
-                            <span className="text-zinc-300">{p.name}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <span className="text-xs font-medium text-white">{PACK_PREVIEWS[importPack].name}</span>
+                      <p className="text-[10px] text-zinc-500 mt-1">{PACK_PREVIEWS[importPack].description}</p>
+                      {PACK_PREVIEWS[importPack].recommended_for && (
+                        <p className="text-[10px] text-zinc-600 mt-1">Recommended for: {PACK_PREVIEWS[importPack].recommended_for}</p>
+                      )}
                     </div>
                   )}
                 </div>

@@ -8,8 +8,9 @@ import { join } from 'node:path';
 import { getSql } from '../../../lib/db.js';
 import { getOrgId, getOrgRole } from '../../../lib/org.js';
 import { findPolicyByName, insertPolicy } from '../../../lib/repositories/guardrails.repository.js';
+import { inferPolicyType, AVAILABLE_PACKS } from '../../../lib/policyPackPreviews.js';
 
-const VALID_PACKS = ['enterprise-strict', 'smb-safe', 'startup-growth', 'development'];
+const VALID_PACKS = AVAILABLE_PACKS;
 
 /**
  * POST /api/policies/import — Import a policy pack or raw YAML
@@ -59,6 +60,31 @@ export async function POST(request) {
       policies = doc.policies || [];
     }
 
+    const url = new URL(request.url);
+    const preview = url.searchParams.get('preview') === 'true';
+
+    if (preview) {
+      const previewPolicies = [];
+      for (const policy of policies) {
+        const name = policy.description || policy.id;
+        const policyType = inferPolicyType(policy);
+        const existing = await findPolicyByName(sql, orgId, name);
+        previewPolicies.push({
+          name,
+          policy_type: policyType,
+          rules: JSON.stringify(policy.rule || {}),
+          conflict: existing.length > 0,
+          conflict_reason: existing.length > 0 ? 'Policy with this name already exists' : undefined,
+        });
+      }
+      return NextResponse.json({
+        preview: true,
+        would_create: previewPolicies.filter(p => !p.conflict).length,
+        would_skip: previewPolicies.filter(p => p.conflict).length,
+        policies: previewPolicies,
+      });
+    }
+
     const imported = [];
     const skipped = [];
     const errors = [];
@@ -106,10 +132,4 @@ export async function POST(request) {
     console.error('[POLICIES/IMPORT] POST error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-function inferPolicyType(policy) {
-  if (policy.rule?.block === true) return 'block_action_type';
-  if (policy.rule?.require === 'approval') return 'require_approval';
-  return 'block_action_type';
 }

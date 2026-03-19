@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-03-19
+
+### Added
+- **Approval Webhooks**: Webhook subscriptions now support `approval_pending`, `approval_granted`, and `approval_denied` events. Webhooks fire when agents require approval and when admins approve or deny actions, enabling PagerDuty, Opsgenie, and custom bot integrations. Payloads include an `approval_url` for direct approve/deny from external systems.
+- **Policy Template Gallery**: New `GET /api/policies/templates` endpoint returns browsable previews of all policy packs (Enterprise Strict, SMB Safe, Startup Growth, Development). The import endpoint now supports `?preview=true` for dry-run mode showing what would be created vs skipped. Policies page includes a "Browse Templates" gallery with one-click install.
+- **Cost Dashboard**: New `GET /api/actions/costs` endpoint with by-agent and by-day cost breakdowns. Mission Control gains an "Agent Spend" widget showing total spend, sparkline, and top agents. Cost and token columns added to the decisions list. Decision Replay shows cost and token usage in the result section.
+- **Communication Trail in Decision Replay**: Messages between agents are now visible in Decision Replay. New `GET /api/actions/{actionId}/messages` endpoint uses a hybrid strategy — explicit `action_id` tags first, time-window correlation as fallback. Chat-bubble UI shows the conversation that led to a decision.
+- **`webhook_deliveries` Table**: Tracks all webhook delivery attempts with status, response, and duration. Previously referenced in code but missing from the schema.
+- **Messages API Restored**: `/api/messages`, `/api/messages/threads`, and `/api/messages/attachments` routes moved from archive back to active, fixing SDK `sendMessage()` which was returning 404.
+
+### Changed
+- **SDK `sendMessage()`**: Added optional `actionId` parameter that links messages to action records for the communication trail (Node SDK v2.6.0, Python SDK v2.6.0).
+- **Webhook Event Types**: `VALID_SIGNAL_TYPES` renamed to `VALID_EVENT_TYPES` to reflect the broader scope of supported events.
+- **Policy Pack Previews**: `PACK_PREVIEWS` metadata extracted from the policies page into shared `app/lib/policyPackPreviews.js` module with `inferPolicyType` and `summarizeRules` utilities.
+
+### Tests
+- Added 32 new tests: approval webhook wiring (7), policy templates endpoint (9), cost aggregation (8), message trail endpoint (8).
+
 ## [2.2.0] - 2026-03-16
 
 ### Added

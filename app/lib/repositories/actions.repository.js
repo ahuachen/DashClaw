@@ -530,6 +530,63 @@ export async function deleteActionsByIds(sql, orgId, idList) {
 }
 
 /**
+ * Aggregate cost and token usage for an org over a rolling time window.
+ * Returns totals, per-agent breakdown, and per-day breakdown.
+ */
+export async function getCostAggregation(sql, orgId, { period = '30d', agentId = null } = {}) {
+  const days = parseInt(period) || 30;
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  const agentFilter = agentId ? sql` AND agent_id = ${agentId}` : sql``;
+
+  const [totals] = await sql`
+    SELECT
+      COALESCE(SUM(cost_estimate), 0)::real as total_cost_usd,
+      COALESCE(SUM(tokens_in), 0)::integer as total_tokens_in,
+      COALESCE(SUM(tokens_out), 0)::integer as total_tokens_out
+    FROM action_records
+    WHERE org_id = ${orgId}
+      AND created_at::timestamptz >= ${since}::timestamptz
+      ${agentFilter}
+  `;
+
+  const byAgent = await sql`
+    SELECT
+      agent_id,
+      COALESCE(SUM(cost_estimate), 0)::real as cost_usd,
+      COUNT(*)::integer as action_count
+    FROM action_records
+    WHERE org_id = ${orgId}
+      AND created_at::timestamptz >= ${since}::timestamptz
+      ${agentFilter}
+    GROUP BY agent_id
+    ORDER BY cost_usd DESC
+  `;
+
+  const byDay = await sql`
+    SELECT
+      DATE(created_at::timestamptz) as date,
+      COALESCE(SUM(cost_estimate), 0)::real as cost_usd,
+      COUNT(*)::integer as action_count
+    FROM action_records
+    WHERE org_id = ${orgId}
+      AND created_at::timestamptz >= ${since}::timestamptz
+      ${agentFilter}
+    GROUP BY DATE(created_at::timestamptz)
+    ORDER BY date DESC
+  `;
+
+  return {
+    total_cost_usd: totals.total_cost_usd,
+    total_tokens_in: totals.total_tokens_in,
+    total_tokens_out: totals.total_tokens_out,
+    period,
+    by_agent: byAgent,
+    by_day: byDay,
+  };
+}
+
+/**
  * Fetch historical actions for policy simulation.
  */
 export async function listActionsForSimulation(sql, orgId, days = 7, limit = 200) {

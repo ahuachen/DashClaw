@@ -989,3 +989,20 @@ ALTER TABLE "users" ADD CONSTRAINT "users_org_id_organizations_id_fk" FOREIGN KE
 CREATE UNIQUE INDEX "notification_preferences_org_user_channel_unique" ON "notification_preferences" USING btree ("org_id","user_id","channel");--> statement-breakpoint
 CREATE UNIQUE INDEX "users_provider_account_unique" ON "users" USING btree ("provider","provider_account_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "workflows_org_name_unique" ON "workflows" USING btree ("org_id","name");
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "webhook_deliveries" (
+  "id" text PRIMARY KEY NOT NULL,
+  "webhook_id" text NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "event_type" text NOT NULL,
+  "payload" text,
+  "status" text DEFAULT 'pending' NOT NULL,
+  "response_status" integer,
+  "response_body" text,
+  "attempted_at" text DEFAULT now() NOT NULL,
+  "duration_ms" integer
+);
+--> statement-breakpoint
+ALTER TABLE "agent_messages" ADD COLUMN IF NOT EXISTS "action_id" text;
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_agent_messages_action_id" ON "agent_messages" ("action_id");

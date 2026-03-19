@@ -46,8 +46,8 @@
     ]
   },
   "summary": {
-    "total_routes": 157,
-    "stable_routes": 27,
+    "total_routes": 163,
+    "stable_routes": 33,
     "beta_routes": 19,
     "experimental_routes": 111
   },
@@ -530,6 +530,15 @@
       "file": "app/api/actions/route.js"
     },
     {
+      "path": "/api/actions/costs",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/actions",
+      "file": "app/api/actions/costs/route.js"
+    },
+    {
       "path": "/api/actions/loops",
       "methods": [
         "GET",
@@ -567,6 +576,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/actions",
       "file": "app/api/actions/[actionId]/route.js"
+    },
+    {
+      "path": "/api/actions/{actionId}/messages",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/actions",
+      "file": "app/api/actions/[actionId]/messages/route.js"
     },
     {
       "path": "/api/actions/{actionId}/trace",
@@ -1096,6 +1114,37 @@
       "file": "app/api/learning/suggestions/route.js"
     },
     {
+      "path": "/api/messages",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/messages",
+      "file": "app/api/messages/route.js"
+    },
+    {
+      "path": "/api/messages/attachments",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/messages",
+      "file": "app/api/messages/attachments/route.js"
+    },
+    {
+      "path": "/api/messages/threads",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/messages",
+      "file": "app/api/messages/threads/route.js"
+    },
+    {
       "path": "/api/orgs",
       "methods": [
         "GET",
@@ -1164,6 +1213,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/policies",
       "file": "app/api/policies/simulate/route.js"
+    },
+    {
+      "path": "/api/policies/templates",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/policies",
+      "file": "app/api/policies/templates/route.js"
     },
     {
       "path": "/api/policies/test",

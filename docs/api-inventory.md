@@ -13,8 +13,8 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `157`
-- Stable routes: `27`
+- Total routes: `163`
+- Stable routes: `33`
 - Beta routes: `19`
 - Experimental routes: `111`
 
@@ -71,10 +71,12 @@ doc-type: architecture
 | `/api/_archive/tokens/budget` | `GET, PUT` | `experimental` | `(default)` | `app/api/_archive/tokens/budget/route.js` |
 | `/api/_archive/workflows` | `GET` | `experimental` | `(default)` | `app/api/_archive/workflows/route.js` |
 | `/api/actions` | `DELETE, GET, POST` | `stable` | `/api/actions` | `app/api/actions/route.js` |
+| `/api/actions/costs` | `GET` | `stable` | `/api/actions` | `app/api/actions/costs/route.js` |
 | `/api/actions/loops` | `GET, POST` | `stable` | `/api/actions` | `app/api/actions/loops/route.js` |
 | `/api/actions/loops/{loopId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/loops/[loopId]/route.js` |
 | `/api/actions/stats` | `GET` | `stable` | `/api/actions` | `app/api/actions/stats/route.js` |
 | `/api/actions/{actionId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/[actionId]/route.js` |
+| `/api/actions/{actionId}/messages` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/messages/route.js` |
 | `/api/actions/{actionId}/trace` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/trace/route.js` |
 | `/api/activity` | `GET` | `beta` | `/api/activity` | `app/api/activity/route.js` |
 | `/api/agents` | `GET` | `experimental` | `/api/agents` | `app/api/agents/route.js` |
@@ -131,6 +133,9 @@ doc-type: architecture
 | `/api/learning/recommendations/metrics` | `GET` | `experimental` | `/api/learning` | `app/api/learning/recommendations/metrics/route.js` |
 | `/api/learning/recommendations/{recommendationId}` | `PATCH` | `experimental` | `/api/learning` | `app/api/learning/recommendations/[recommendationId]/route.js` |
 | `/api/learning/suggestions` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/suggestions/route.js` |
+| `/api/messages` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/route.js` |
+| `/api/messages/attachments` | `GET` | `stable` | `/api/messages` | `app/api/messages/attachments/route.js` |
+| `/api/messages/threads` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/threads/route.js` |
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
 | `/api/orgs/{orgId}` | `GET, PATCH` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/route.js` |
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
@@ -138,6 +143,7 @@ doc-type: architecture
 | `/api/policies/import` | `POST` | `stable` | `/api/policies` | `app/api/policies/import/route.js` |
 | `/api/policies/proof` | `GET` | `stable` | `/api/policies` | `app/api/policies/proof/route.js` |
 | `/api/policies/simulate` | `POST` | `stable` | `/api/policies` | `app/api/policies/simulate/route.js` |
+| `/api/policies/templates` | `GET` | `stable` | `/api/policies` | `app/api/policies/templates/route.js` |
 | `/api/policies/test` | `POST` | `stable` | `/api/policies` | `app/api/policies/test/route.js` |
 | `/api/prompts/agent-connect/raw` | `GET` | `experimental` | `(default)` | `app/api/prompts/agent-connect/raw/route.js` |
 | `/api/prompts/render` | `POST` | `experimental` | `(default)` | `app/api/prompts/render/route.js` |

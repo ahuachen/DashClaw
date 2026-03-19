@@ -228,11 +228,12 @@ Analyze historical actions and suggest percentile-based scoring scales.
 
 ### Messaging (2 methods)
 
-#### `sendMessage({ to, type, subject, body, threadId, urgent })`
-Sends a message to another agent or broadcasts to all agents.
+#### `sendMessage({ to, type, subject, body, threadId, urgent, actionId })`
+Sends a message to another agent or broadcasts to all agents. When `actionId` is provided, the message is linked to that action and appears in the Decision Replay communication trail.
 
-- **Node Signature:** `async sendMessage({ to, type, subject, body, threadId, urgent })`
+- **Node Signature:** `async sendMessage({ to, type, subject, body, threadId, urgent, actionId })`
 - **Endpoint:** `POST /api/messages`
+- **`actionId`** *(optional)* — Links the message to an action record (e.g. `'ar_...'`). Messages linked to an action are displayed in the Decision Replay communication trail.
 
 #### `getInbox({ type, unread, limit })`
 Retrieves inbox messages with optional filters.
