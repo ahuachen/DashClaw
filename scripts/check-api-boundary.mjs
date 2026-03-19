@@ -28,6 +28,7 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'compliance',
   'drift',
   'evaluations',
+  'messages',
   'prompts',
   'scoring',
   'webhooks',
