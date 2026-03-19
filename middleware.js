@@ -234,13 +234,17 @@ async function verifyOrgExists(orgId) {
     console.error('[MIDDLEWARE] Failed to verify org existence:', err.message);
     // Self-host with local Postgres: Neon HTTP driver can't reach TCP-only Postgres.
     // Fail open for the default org since migrations already seeded it.
+    // SECURITY: Require both self_host mode AND explicit postgres driver to prevent
+    // accidental fail-open on Neon-backed deployments that forgot to set DASHCLAW_MODE.
     const mode = getDashclawMode();
-    if (mode === 'self_host' && orgId === 'org_default') {
-      console.warn('[MIDDLEWARE] Self-host mode: assuming org_default exists (local Postgres, Neon HTTP driver unavailable).');
+    const driver = (process.env.DASHCLAW_DB_DRIVER || '').toLowerCase();
+    const isLocalPostgres = mode === 'self_host' && (driver === 'postgres' || driver === 'pg');
+    if (isLocalPostgres && orgId === 'org_default') {
+      console.warn('[MIDDLEWARE] Self-host mode (local Postgres): assuming org_default exists (Neon HTTP driver unavailable).');
       orgExistsCache.set(orgId, { timestamp: now, exists: true });
       return true;
     }
-    // SECURITY: Fail closed for non-default orgs or non-self-host deployments.
+    // SECURITY: Fail closed for non-default orgs, non-self-host deployments, or Neon driver.
     return false;
   }
 }
