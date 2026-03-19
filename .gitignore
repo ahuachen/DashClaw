@@ -86,3 +86,4 @@ secrets/
 .vercel
 .env*.local
 .gitnexus
+.worktrees/
