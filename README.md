@@ -285,6 +285,14 @@ Every governed action has a permanent replay URL:
 <DASHCLAW_BASE_URL>/replay/<actionId>
 ```
 
+### Discord & Slack Notifications
+
+Approval requests also push to Discord and Slack so your team catches high-risk actions without watching a terminal.
+
+<div align="center">
+<img src="public/images/screenshots/discord.png" alt="DashClaw Discord approval notification" width="520" />
+</div>
+
 ---
 
 ## Local SDK Testing
