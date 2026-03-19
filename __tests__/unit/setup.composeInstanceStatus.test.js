@@ -1,6 +1,6 @@
 // tests/unit/setup.composeInstanceStatus.test.js
 import { describe, it, expect } from 'vitest';
-import { composeInstanceStatus } from '@/setup/composeInstanceStatus';
+import { composeInstanceStatus } from '@/settings/composeInstanceStatus';
 
 // Helpers to build raw inputs
 function dbOk() {
