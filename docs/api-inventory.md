@@ -13,8 +13,8 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `158`
-- Stable routes: `28`
+- Total routes: `159`
+- Stable routes: `29`
 - Beta routes: `19`
 - Experimental routes: `111`
 
@@ -71,6 +71,7 @@ doc-type: architecture
 | `/api/_archive/tokens/budget` | `GET, PUT` | `experimental` | `(default)` | `app/api/_archive/tokens/budget/route.js` |
 | `/api/_archive/workflows` | `GET` | `experimental` | `(default)` | `app/api/_archive/workflows/route.js` |
 | `/api/actions` | `DELETE, GET, POST` | `stable` | `/api/actions` | `app/api/actions/route.js` |
+| `/api/actions/costs` | `GET` | `stable` | `/api/actions` | `app/api/actions/costs/route.js` |
 | `/api/actions/loops` | `GET, POST` | `stable` | `/api/actions` | `app/api/actions/loops/route.js` |
 | `/api/actions/loops/{loopId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/loops/[loopId]/route.js` |
 | `/api/actions/stats` | `GET` | `stable` | `/api/actions` | `app/api/actions/stats/route.js` |
