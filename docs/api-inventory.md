@@ -13,8 +13,8 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `157`
-- Stable routes: `27`
+- Total routes: `158`
+- Stable routes: `28`
 - Beta routes: `19`
 - Experimental routes: `111`
 
@@ -138,6 +138,7 @@ doc-type: architecture
 | `/api/policies/import` | `POST` | `stable` | `/api/policies` | `app/api/policies/import/route.js` |
 | `/api/policies/proof` | `GET` | `stable` | `/api/policies` | `app/api/policies/proof/route.js` |
 | `/api/policies/simulate` | `POST` | `stable` | `/api/policies` | `app/api/policies/simulate/route.js` |
+| `/api/policies/templates` | `GET` | `stable` | `/api/policies` | `app/api/policies/templates/route.js` |
 | `/api/policies/test` | `POST` | `stable` | `/api/policies` | `app/api/policies/test/route.js` |
 | `/api/prompts/agent-connect/raw` | `GET` | `experimental` | `(default)` | `app/api/prompts/agent-connect/raw/route.js` |
 | `/api/prompts/render` | `POST` | `experimental` | `(default)` | `app/api/prompts/render/route.js` |

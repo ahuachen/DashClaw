@@ -1563,6 +1563,47 @@
         "x-api-maturity": "stable"
       }
     },
+    "/api/policies/templates": {
+      "get": {
+        "operationId": "get_api_policies_templates",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or request error"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "GET /api/policies/templates",
+        "tags": [
+          "policies"
+        ],
+        "x-api-maturity": "stable"
+      }
+    },
     "/api/policies/test": {
       "post": {
         "operationId": "post_api_policies_test",
