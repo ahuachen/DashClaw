@@ -443,7 +443,7 @@ class DashClaw {
   /**
    * POST /api/messages — Send a message to another agent or the dashboard.
    */
-  async sendMessage({ to, type, subject, body, threadId, urgent }) {
+  async sendMessage({ to, type, subject, body, threadId, urgent, actionId }) {
     return this._request('/api/messages', 'POST', {
       from_agent_id: this.agentId,
       to_agent_id: to,
@@ -452,6 +452,7 @@ class DashClaw {
       body,
       thread_id: threadId,
       urgent,
+      action_id: actionId,
     });
   }
 
