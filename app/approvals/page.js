@@ -42,10 +42,10 @@ export default function ApprovalsPage() {
   const handleDecision = async (actionId, decision) => {
     try {
       setProcessingId(actionId);
-      const res = await fetch(`/api/actions/${actionId}/approve`, {
+      const res = await fetch(`/api/approvals/${actionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision })
+        body: JSON.stringify({ decision: decision === 'approve' ? 'allow' : 'deny' })
       });
 
       if (!res.ok) throw new Error('Failed to submit decision');
