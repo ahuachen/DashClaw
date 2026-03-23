@@ -33,7 +33,7 @@ Both modes serve the same landing page. `/demo` sets a cookie and redirects to `
 - Next.js 15 (App Router), JavaScript, Tailwind CSS 3
 - Postgres (TCP via `postgres`, serverless via `@neondatabase/serverless`)
 - Auth: NextAuth v4 for UI (GitHub, Google, or OIDC), `x-api-key` header for agents/tools
-- SDKs: Node (`sdk/dashclaw.js`, 177+ methods), Python (`sdk-python/dashclaw/client.py`, 177+ methods)
+- SDKs: Node v2 (`sdk/dashclaw.js`, 45 methods — agent runtime), Node v1 (`sdk/legacy/dashclaw-v1.js`, 188 methods — full platform), Python (`sdk-python/dashclaw/client.py`, 185+ methods — full platform)
 - Node SDK naming: camelCase. Python SDK naming: snake_case.
 
 ## Auth Chain
@@ -145,6 +145,18 @@ Client request hits middleware.js
 | `/learning` | Learning loop (episodes, recommendations) |
 | `/learning/analytics` |
 | `/scoring` | Learning analytics (velocity, maturity, curves, summary) |
+
+## CLI and Hooks Layer
+
+DashClaw has three integration surfaces beyond the SDK:
+
+**CLI (`@dashclaw/cli`)**: A terminal approval client installed via `npm install -g @dashclaw/cli`. Provides `dashclaw approvals` (interactive inbox), `dashclaw approve <id>`, and `dashclaw deny <id>`. Uses the same `POST /api/actions/:id/approve` endpoint as the browser dashboard. Decisions sync in real time via the Redis SSE stream.
+
+**Claude Code Hooks (`hooks/`)**: Two Python scripts for `PreToolUse` and `PostToolUse` lifecycle events. Require only stdlib, no pip installs. Governed tools: Bash, Edit, Write, MultiEdit. Safe to install even without DashClaw configured (silent no-op when env vars are missing).
+
+**SDK terminal output**: The Node SDK's `waitForApproval()` method prints a structured approval block to stdout before blocking. The block includes the action ID, policy name, risk score, declared goal, and the replay URL. This gives terminal-first workflows full governance visibility without a browser.
+
+**Approval sync architecture**: All three surfaces (browser, CLI, SDK polling) converge at `POST /api/actions/:id/approve`. The API commits to Neon Postgres, publishes `action.updated` to the Redis stream, and every connected SSE listener receives the decision. The browser dashboard, the SDK polling loop, and the CLI inbox all stay in sync within the SSE heartbeat window (~1 second).
 
 ## Key Reference Files
 

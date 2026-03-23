@@ -121,7 +121,7 @@ The agent pairing flow has several gotchas:
      testInput: { actionType: 'your_type', riskScore: 50 }
    });
    ```
-3. Check if `guardMode` is set to `enforce` vs `warn` in the SDK constructor
+3. Check guard policies on the server (v1 SDK constructor accepts `guardMode`, v2 uses server-side policy config)
 4. If using `DASHCLAW_GUARD_FALLBACK=block`, the guard fails closed when the LLM is unavailable
 
 ## Common Gotchas
