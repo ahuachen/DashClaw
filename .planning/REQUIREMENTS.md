@@ -19,7 +19,7 @@
 - [x] **GUIDE-03**: LangChain/LangGraph integration guide with new runnable Python example (`examples/langgraph-governed/`) covering guard + createAction + updateOutcome in a graph node
 - [x] **GUIDE-04**: CrewAI integration guide with new runnable Python example (`examples/crewai-governed/`) using `@tool` decorator pattern
 - [x] **GUIDE-05**: All 4 guides follow conversion-guide structure: deploy button as step 1, sub-20-minute completion target, ends with a visible proof moment in the dashboard
-- [ ] **GUIDE-06**: All 4 guides are navigable from README, `/connect`, and `/self-host` pages
+- [x] **GUIDE-06**: All 4 guides are navigable from README, `/connect`, and `/self-host` pages
 
 ### Security Audit
 
@@ -85,7 +85,7 @@
 | GUIDE-03 | Phase 3 | Complete |
 | GUIDE-04 | Phase 3 | Complete |
 | GUIDE-05 | Phase 3 | Complete |
-| GUIDE-06 | Phase 3 | Pending |
+| GUIDE-06 | Phase 3 | Complete |
 | SEC-01 | Phase 2 | Complete |
 | SEC-02 | Phase 2 | Complete |
 | SEC-03 | Phase 2 | Complete |

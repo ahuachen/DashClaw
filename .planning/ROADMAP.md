@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Deploy Funnel** - One-click Vercel deploy works end-to-end with automated migration and minimal env var friction
 - [x] **Phase 2: Security & Product Audit** - Deep security audit and product validation confirming DashClaw is secure, coherent, and genuinely useful as a free governance runtime (completed 2026-03-23)
-- [ ] **Phase 3: Integration Guides** - Four agent framework guides published, linked from README and app pages, each ending with a visible dashboard proof moment
+- [x] **Phase 3: Integration Guides** - Four agent framework guides published, linked from README and app pages, each ending with a visible dashboard proof moment (completed 2026-03-23)
 - [ ] **Phase 4: Public Launch** - Show HN post live and social content published with visual assets
 
 ## Phase Details
@@ -67,7 +67,7 @@ Plans:
 - [x] 03-01-PLAN.md — Shared GuideClient component + Claude Code guide + OpenAI Agents SDK guide
 - [x] 03-02-PLAN.md — LangGraph Python example and integration guide page
 - [x] 03-03-PLAN.md — CrewAI Python example and integration guide page
-- [ ] 03-04-PLAN.md — Wire guide navigation from /connect, /self-host, and README
+- [x] 03-04-PLAN.md — Wire guide navigation from /connect, /self-host, and README
 
 ### Phase 4: Public Launch
 **Goal**: DashClaw is publicly announced to the Hacker News and developer communities with a problem-first narrative, working deploy path, and visual proof that the dashboard is real
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
 | 2. Security & Product Audit | 3/3 | Complete   | 2026-03-23 |
-| 3. Integration Guides | 3/4 | In Progress|  |
+| 3. Integration Guides | 4/4 | Complete   | 2026-03-23 |
 | 4. Public Launch | 0/2 | Not started | - |

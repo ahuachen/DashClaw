@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 03-integration-guides-03-PLAN.md
-last_updated: "2026-03-23T23:28:00.118Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 03-integration-guides-04-PLAN.md
+last_updated: "2026-03-23T23:32:18.443Z"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 4 of 4
 | Phase 03-integration-guides P01 | 7min | 3 tasks | 4 files |
 | Phase 03-integration-guides P02 | 4min | 2 tasks | 5 files |
 | Phase 03-integration-guides P03 | 15 | 2 tasks | 5 files |
+| Phase 03-integration-guides P04 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 03-integration-guides]: LangGraph-specific guardrails.yml shows approve_external_writes and allow_research policies to illustrate read-safe / write-guarded pattern
 - [Phase 03-integration-guides]: CrewAI example calls tool directly (no OPENAI_API_KEY) to demonstrate governance without LLM provider
 - [Phase 03-integration-guides]: DashClawCrewIntegration class mentioned in README only; @tool decorator is the primary guide pattern per CONTEXT.md
+- [Phase 03-integration-guides]: Framework Guides cards in server component not ConnectGuideClient — static navigation needs no client interactivity
+- [Phase 03-integration-guides]: README links to /connect (one link) not individual guides per D-11 — /connect cards handle framework selection
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T23:28:00.114Z
-Stopped at: Completed 03-integration-guides-03-PLAN.md
+Last session: 2026-03-23T23:32:18.440Z
+Stopped at: Completed 03-integration-guides-04-PLAN.md
 Resume file: None
