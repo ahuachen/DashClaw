@@ -93,6 +93,8 @@ pip install dashclaw    # Python
 
 The 4-step governance loop — Guard, Record, Verify, Outcome — is covered in the [Quickstart](#quickstart) below.
 
+For framework-specific step-by-step guides (Claude Code, OpenAI Agents SDK, LangGraph, CrewAI), visit [`/connect`](https://dashclaw.io/connect) on your DashClaw instance.
+
 ---
 
 ## What is DashClaw?

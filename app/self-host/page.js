@@ -380,6 +380,33 @@ ENFORCE_AGENT_SIGNATURES=true`}</CopyableCodeBlock>
           </div>
         </div>
       </section>
+
+      {/* Framework Integration Guides */}
+      <section className="pb-12 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Connect your agent framework</h2>
+          <p className="text-zinc-400 mb-6">Step-by-step guides for popular agent frameworks. Each takes under 20 minutes.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <Link href="/guides/claude-code" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
+              <h3 className="text-sm font-semibold text-white">Claude Code</h3>
+              <p className="text-xs text-zinc-400 mt-1">Hook-based governance</p>
+            </Link>
+            <Link href="/guides/openai-agents-sdk" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
+              <h3 className="text-sm font-semibold text-white">OpenAI Agents SDK</h3>
+              <p className="text-xs text-zinc-400 mt-1">Node.js SDK integration</p>
+            </Link>
+            <Link href="/guides/langgraph" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
+              <h3 className="text-sm font-semibold text-white">LangGraph</h3>
+              <p className="text-xs text-zinc-400 mt-1">Python governance node</p>
+            </Link>
+            <Link href="/guides/crewai" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
+              <h3 className="text-sm font-semibold text-white">CrewAI</h3>
+              <p className="text-xs text-zinc-400 mt-1">@tool decorator pattern</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <PublicFooter />
     </div>
   );
