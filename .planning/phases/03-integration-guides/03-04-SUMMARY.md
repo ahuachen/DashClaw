@@ -97,6 +97,16 @@ None. All 4 guide links point to real pages created in plans 01-03. Navigation i
 - All 4 framework guide pages exist and are discoverable from /connect, /self-host, and README
 - Ready for Phase 04 (launch content: Show HN, social)
 
+## Self-Check: PASSED
+
+- app/connect/page.js: FOUND (contains all 4 guide hrefs + Framework guides section)
+- app/self-host/page.js: FOUND (contains all 4 guide hrefs + PublicFooter + SetupTabs)
+- README.md: FOUND (contains /connect link in Connect Your Agent section)
+- .planning/phases/03-integration-guides/03-04-SUMMARY.md: FOUND
+- Commit e85a3e2: FOUND (Task 1 - Framework Guides on /connect)
+- Commit ace112f: FOUND (Task 2 - guide links on /self-host and README)
+- Commit 35a7b77: FOUND (plan metadata)
+
 ---
 *Phase: 03-integration-guides*
 *Completed: 2026-03-23*
