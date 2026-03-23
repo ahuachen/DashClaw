@@ -23,10 +23,10 @@
 
 ### Security Audit
 
-- [ ] **SEC-01**: All 7 canonical API routes audited against OWASP Top 10 — no injection, broken auth, security misconfiguration, or sensitive data exposure
-- [ ] **SEC-02**: Security headers (CSP, CORS, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security) correctly configured on all routes
-- [ ] **SEC-03**: Input validation and sanitization verified on all user-facing endpoints — no unsanitized SQL, XSS vectors, or path traversal
-- [ ] **SEC-04**: Auth flow (API key validation via x-api-key, local admin password, NextAuth session handling) verified secure with no bypass vectors
+- [x] **SEC-01**: All 7 canonical API routes audited against OWASP Top 10 — no injection, broken auth, security misconfiguration, or sensitive data exposure
+- [x] **SEC-02**: Security headers (CSP, CORS, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security) correctly configured on all routes
+- [x] **SEC-03**: Input validation and sanitization verified on all user-facing endpoints — no unsanitized SQL, XSS vectors, or path traversal
+- [x] **SEC-04**: Auth flow (API key validation via x-api-key, local admin password, NextAuth session handling) verified secure with no bypass vectors
 
 ### Product Validation
 
@@ -86,10 +86,10 @@
 | GUIDE-04 | Phase 3 | Pending |
 | GUIDE-05 | Phase 3 | Pending |
 | GUIDE-06 | Phase 3 | Pending |
-| SEC-01 | Phase 2 | Pending |
-| SEC-02 | Phase 2 | Pending |
-| SEC-03 | Phase 2 | Pending |
-| SEC-04 | Phase 2 | Pending |
+| SEC-01 | Phase 2 | Complete |
+| SEC-02 | Phase 2 | Complete |
+| SEC-03 | Phase 2 | Complete |
+| SEC-04 | Phase 2 | Complete |
 | PROD-01 | Phase 2 | Pending |
 | PROD-02 | Phase 2 | Pending |
 | PROD-03 | Phase 2 | Pending |
