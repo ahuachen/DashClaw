@@ -13,7 +13,7 @@ The governance runtime is architecturally complete. This milestone is a pure dis
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Deploy Funnel** - One-click Vercel deploy works end-to-end with automated migration and minimal env var friction
-- [ ] **Phase 2: Security & Product Audit** - Deep security audit and product validation confirming DashClaw is secure, coherent, and genuinely useful as a free governance runtime
+- [x] **Phase 2: Security & Product Audit** - Deep security audit and product validation confirming DashClaw is secure, coherent, and genuinely useful as a free governance runtime (completed 2026-03-23)
 - [ ] **Phase 3: Integration Guides** - Four agent framework guides published, linked from README and app pages, each ending with a visible dashboard proof moment
 - [ ] **Phase 4: Public Launch** - Show HN post live and social content published with visual assets
 
@@ -91,6 +91,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
-| 2. Security & Product Audit | 0/3 | Not started | - |
+| 2. Security & Product Audit | 3/3 | Complete   | 2026-03-23 |
 | 3. Integration Guides | 0/5 | Not started | - |
 | 4. Public Launch | 0/2 | Not started | - |
