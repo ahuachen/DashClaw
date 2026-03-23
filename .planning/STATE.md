@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-integration-guides-02-PLAN.md
-last_updated: "2026-03-23T23:27:49.876Z"
+stopped_at: Completed 03-integration-guides-03-PLAN.md
+last_updated: "2026-03-23T23:28:00.118Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -89,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 03-integration-guides]: LangGraph example uses simulated LLM output — no OPENAI_API_KEY required per D-07, making example fully self-contained with only DashClaw credentials needed
 - [Phase 03-integration-guides]: governance_node set as graph entry_point — ensures guard runs before any tool execution, consistent with DashClaw's intercept-before-action principle
 - [Phase 03-integration-guides]: LangGraph-specific guardrails.yml shows approve_external_writes and allow_research policies to illustrate read-safe / write-guarded pattern
+- [Phase 03-integration-guides]: CrewAI example calls tool directly (no OPENAI_API_KEY) to demonstrate governance without LLM provider
+- [Phase 03-integration-guides]: DashClawCrewIntegration class mentioned in README only; @tool decorator is the primary guide pattern per CONTEXT.md
 
 ### Pending Todos
 
@@ -106,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T23:27:28.276Z
-Stopped at: Completed 03-integration-guides-02-PLAN.md
+Last session: 2026-03-23T23:28:00.114Z
+Stopped at: Completed 03-integration-guides-03-PLAN.md
 Resume file: None
