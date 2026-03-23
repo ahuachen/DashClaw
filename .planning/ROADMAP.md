@@ -61,14 +61,13 @@ Plans:
   2. Each guide opens with the Vercel deploy button as the prerequisite step and ends with a specific dashboard view (decision visible in the ledger or a guard evaluation showing in Mission Control) that confirms it worked
   3. LangChain/LangGraph and CrewAI guides include a runnable local example (`examples/langgraph-governed/` and `examples/crewai-governed/`) with pinned, tested dependency versions
   4. Every guide includes a `guardrails.yml` policy example showing governance-as-code in context
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01: Build Claude Code integration guide page (`app/guides/claude-code/page.js`)
-- [ ] 03-02: Build OpenAI Agents SDK integration guide page (`app/guides/openai-agents-sdk/page.js`) linked to existing example
-- [ ] 03-03: Build `examples/langgraph-governed/` Python example and LangChain/LangGraph guide page
-- [ ] 03-04: Build `examples/crewai-governed/` Python example and CrewAI guide page (verify package versions first)
-- [ ] 03-05: Wire guide navigation from README, `/connect`, and `/self-host`
+- [ ] 03-01-PLAN.md — Shared GuideClient component + Claude Code guide + OpenAI Agents SDK guide
+- [ ] 03-02-PLAN.md — LangGraph Python example and integration guide page
+- [ ] 03-03-PLAN.md — CrewAI Python example and integration guide page
+- [ ] 03-04-PLAN.md — Wire guide navigation from /connect, /self-host, and README
 
 ### Phase 4: Public Launch
 **Goal**: DashClaw is publicly announced to the Hacker News and developer communities with a problem-first narrative, working deploy path, and visual proof that the dashboard is real
@@ -92,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
 | 2. Security & Product Audit | 3/3 | Complete   | 2026-03-23 |
-| 3. Integration Guides | 0/5 | Not started | - |
+| 3. Integration Guides | 0/4 | Not started | - |
 | 4. Public Launch | 0/2 | Not started | - |
