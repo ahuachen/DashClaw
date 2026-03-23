@@ -35,6 +35,32 @@ export default async function ConnectPage() {
           </div>
 
           <ConnectGuideClient content={content} />
+
+          {/* Framework Guides - per D-10 */}
+          <section className="mt-12 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6 sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Framework guides</p>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">Connect your framework</h2>
+            <p className="mt-2 text-sm text-zinc-400">Step-by-step guides for popular agent frameworks. Each takes under 20 minutes.</p>
+
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Link href="/guides/claude-code" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
+                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">Claude Code</h3>
+                <p className="mt-1 text-sm text-zinc-400">Govern Bash, Edit, Write, and MultiEdit tool calls via PreToolUse hooks. Zero SDK code required.</p>
+              </Link>
+              <Link href="/guides/openai-agents-sdk" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
+                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">OpenAI Agents SDK</h3>
+                <p className="mt-1 text-sm text-zinc-400">Add guard-record-outcome governance to your OpenAI agent tools with the Node.js SDK.</p>
+              </Link>
+              <Link href="/guides/langgraph" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
+                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">LangGraph</h3>
+                <p className="mt-1 text-sm text-zinc-400">Add a governance node to your LangGraph StateGraph with the Python SDK. Includes runnable example.</p>
+              </Link>
+              <Link href="/guides/crewai" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
+                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">CrewAI</h3>
+                <p className="mt-1 text-sm text-zinc-400">Govern CrewAI tool calls using the @tool decorator pattern with the Python SDK. Includes runnable example.</p>
+              </Link>
+            </div>
+          </section>
         </div>
       </main>
 
