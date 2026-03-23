@@ -32,14 +32,15 @@ Get an agent builder from zero to a working DashClaw instance with at least one 
 - ✓ Setup page (readiness verification) — existing
 - ✓ Integration health checks — existing
 - ✓ Self-hosted Docker deployment — existing
+- ✓ One-click Vercel deploy button with guided env var setup — Phase 1
+- ✓ Security audit: OWASP Top 10, auth hardening, HSTS, SSRF, prompt injection guard, 51 regression tests — Phase 2
+- ✓ Product validation: governance loop verified, 3-persona UX audit passed, $0 free-tier confirmed — Phase 2
 
 ### Active
 
 <!-- Adoption milestone: reduce friction on the path to first governed action. -->
 
-- [ ] One-click Vercel deploy button with guided env var setup
 - [ ] Agent integration guides: LangChain/LangGraph, Claude Code agents, OpenAI Agents SDK, CrewAI/AutoGen
-- [ ] Discord community server for early adopters and support
 - [ ] Show HN launch post
 - [ ] X/LinkedIn launch content (announcement thread + demo assets)
 
@@ -79,4 +80,4 @@ The 8-minute connect path already exists in the app (`/connect`). The gap is get
 | Show HN as primary launch vehicle | GitHub / Hacker News audience is the core DashClaw persona: technical, builds agents, cares about control | — Pending |
 
 ---
-*Last updated: 2026-03-17 after initialization*
+*Last updated: 2026-03-23 after Phase 2 (Security & Product Audit) completion*
