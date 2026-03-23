@@ -7,6 +7,7 @@ import { validateGuardInput } from '../../lib/validate';
 import { evaluateGuard } from '../../lib/guard';
 import { getSql } from '../../lib/db.js';
 import { apiErrorResponse } from '../../lib/apiErrors.js';
+import { scanForPromptInjection } from '../../lib/promptInjection.js';
 
 /**
  * POST /api/guard — Evaluate guard policies for a proposed action.
@@ -23,6 +24,19 @@ export async function POST(request) {
 
     if (!valid) {
       return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+    }
+
+    // SECURITY: Block prompt injection patterns in declared_goal (per D-04)
+    const goalText = data.declared_goal || '';
+    if (goalText) {
+      const injectionScan = scanForPromptInjection(goalText);
+      if (injectionScan.recommendation === 'block') {
+        return NextResponse.json({
+          error: 'Input rejected: prompt injection pattern detected',
+          risk_level: injectionScan.risk_level,
+          categories: injectionScan.categories,
+        }, { status: 400 });
+      }
     }
 
     const sql = getSql();
