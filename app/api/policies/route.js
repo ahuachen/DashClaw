@@ -82,7 +82,7 @@ export async function POST(request) {
 
     return NextResponse.json({ policy: rows[0], policy_id: id }, { status: 201 });
   } catch (err) {
-    if (err.message?.includes('guard_policies_org_name_unique')) {
+    if (err.code === '23505' || err.message?.includes('guard_policies_org_name_unique')) {
       return NextResponse.json({ error: 'A policy with that name already exists' }, { status: 409 });
     }
     return apiErrorResponse(err, 'POLICIES POST');

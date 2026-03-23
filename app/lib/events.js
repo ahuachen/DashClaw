@@ -285,6 +285,8 @@ if (requestedBackend === 'redis') {
   } else {
     console.warn('[REALTIME] REALTIME_BACKEND=redis but REDIS_URL is missing. Falling back to memory backend.');
   }
+} else if (process.env.NODE_ENV === 'production') {
+  console.warn('[realtime] WARNING: Using in-memory event backend in production. SSE events will be lost between serverless invocations. Set REDIS_URL (Upstash free tier works) for persistent realtime events.');
 }
 
 function createEventEnvelope(event, orgId, payload) {

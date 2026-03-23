@@ -95,7 +95,10 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       const scoped = JSON.parse(p.agent_ids);
       if (!Array.isArray(scoped) || scoped.length === 0) return true;
       return currentAgentId && scoped.includes(currentAgentId);
-    } catch { return true; }
+    } catch (parseErr) {
+      console.error('[GUARD] Failed to parse agent_ids for policy:', p.id, parseErr.message);
+      return true; // Fail open — applies to all agents when agent_ids is malformed
+    }
   });
 
   // Compute authoritative server-side risk score
