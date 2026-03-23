@@ -45,11 +45,12 @@ Plans:
   4. End-to-end governance loop (record → guard → track → signal) works correctly from a fresh deploy perspective
   5. Product value proposition is clear to a new developer within 5 minutes — /connect, /mission-control, /decisions tell a coherent story
   6. Free-tier viability confirmed — deploy stays $0 on Vercel free tier with no hidden costs or paid-service gates
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Security audit of all API routes, auth flows, input validation, and security headers
-- [ ] 02-02: Product validation — end-to-end governance loop, UX coherence, and free-tier viability review
+- [ ] 02-01-PLAN.md — Security hardening: fix HSTS headers, SSRF IPv6 blocklist, array validation, prompt injection guard integration, policy error codes, guard JSON parse logging
+- [ ] 02-02-PLAN.md — Product validation: governance loop code path review, UX narrative assessment (3 personas), free-tier viability documentation, comprehensive audit report
+- [ ] 02-03-PLAN.md — Security regression tests: HSTS headers, prompt injection guard, SSRF validation, array item validation
 
 ### Phase 3: Integration Guides
 **Goal**: Developers using any of the four primary agent frameworks (Claude Code, OpenAI Agents SDK, LangChain/LangGraph, CrewAI) can find, follow, and complete a working integration guide in under 20 minutes
@@ -90,6 +91,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
-| 2. Security & Product Audit | 0/2 | Not started | - |
+| 2. Security & Product Audit | 0/3 | Not started | - |
 | 3. Integration Guides | 0/5 | Not started | - |
 | 4. Public Launch | 0/2 | Not started | - |
