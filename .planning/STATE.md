@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 02-01-PLAN.md (security hardening)
-last_updated: "2026-03-23T21:10:23.980Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 02-03-PLAN.md (security regression tests)
+last_updated: "2026-03-23T21:18:27.868Z"
 progress:
   total_phases: 4
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 02 (security-product-audit) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -52,6 +52,8 @@ Plan: 2 of 3
 | Phase 01-deploy-funnel P01 | 4 tasks | 2 files |
 | Phase 01-deploy-funnel P02 | 3 tasks | 4 files |
 | Phase 02-security-product-audit P01 | 4 | 3 tasks | 6 files |
+| Phase 02-security-product-audit P02 | 8 | 2 tasks | 1 files |
+| Phase 02-security-product-audit P03 | 5 | 1 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -73,6 +75,12 @@ Recent decisions affecting current work:
 - [Phase 02-security-product-audit]: Prompt injection blocks only on critical severity (recommendation=block), not warn/medium
 - [Phase 02-security-product-audit]: Dead PUBLIC_ROUTES regex entry removed from middleware.js — no replacement endpoint added
 - [Phase 02-security-product-audit]: All 7 cron routes already had CRON_SECRET timing-safe enforcement — confirmed, no changes needed
+- [Phase 02-security-product-audit]: Extension routes (compliance/exports, drift/alerts) use delegation pattern for org scoping — functionally correct, documented as acceptable pattern
+- [Phase 02-security-product-audit]: Free-tier stack handles up to ~1,000 actions/day at $0 cost; all optional services degrade gracefully with logged warnings
+- [Phase 02-security-product-audit]: Enterprise SOC 2 certification requires encryption key rotation (D-01) — deferred post-adoption
+- [Phase 02-security-product-audit]: IPv6 SSRF patterns required bracket-stripping fix: Node URL wraps IPv6 hostnames in brackets, breaking all fc00/fe80/loopback patterns
+- [Phase 02-security-product-audit]: integration-health cron route required Bearer prefix enforcement: replace() bypass allowed token without scheme prefix
+- [Phase 02-security-product-audit]: Security test strategy: inline addSecurityHeaders in test file to avoid complex middleware module graph
 
 ### Pending Todos
 
@@ -90,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T21:10:23.977Z
-Stopped at: Completed 02-01-PLAN.md (security hardening)
+Last session: 2026-03-23T21:18:27.865Z
+Stopped at: Completed 02-03-PLAN.md (security regression tests)
 Resume file: None

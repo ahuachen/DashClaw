@@ -30,9 +30,9 @@
 
 ### Product Validation
 
-- [ ] **PROD-01**: End-to-end governance loop (record decision → guard check → track outcome → risk signal) works correctly from a fresh deploy
-- [ ] **PROD-02**: Product value proposition is clear to a new developer within 5 minutes — /connect, /mission-control, /decisions tell a coherent story as a free governance tool
-- [ ] **PROD-03**: Free-tier viability confirmed — deploy costs $0 on Vercel free tier, no features require paid services, limits are documented
+- [x] **PROD-01**: End-to-end governance loop (record decision → guard check → track outcome → risk signal) works correctly from a fresh deploy
+- [x] **PROD-02**: Product value proposition is clear to a new developer within 5 minutes — /connect, /mission-control, /decisions tell a coherent story as a free governance tool
+- [x] **PROD-03**: Free-tier viability confirmed — deploy costs $0 on Vercel free tier, no features require paid services, limits are documented
 
 ### Launch
 
@@ -90,9 +90,9 @@
 | SEC-02 | Phase 2 | Complete |
 | SEC-03 | Phase 2 | Complete |
 | SEC-04 | Phase 2 | Complete |
-| PROD-01 | Phase 2 | Pending |
-| PROD-02 | Phase 2 | Pending |
-| PROD-03 | Phase 2 | Pending |
+| PROD-01 | Phase 2 | Complete |
+| PROD-02 | Phase 2 | Complete |
+| PROD-03 | Phase 2 | Complete |
 | COMM-04 | Phase 4 | Pending |
 | COMM-05 | Phase 4 | Pending |
 
