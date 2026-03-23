@@ -48,7 +48,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Security hardening: fix HSTS headers, SSRF IPv6 blocklist, array validation, prompt injection guard integration, policy error codes, guard JSON parse logging
+- [x] 02-01-PLAN.md — Security hardening: fix HSTS headers, SSRF IPv6 blocklist, array validation, prompt injection guard integration, policy error codes, guard JSON parse logging
 - [ ] 02-02-PLAN.md — Product validation: governance loop code path review, UX narrative assessment (3 personas), free-tier viability documentation, comprehensive audit report
 - [ ] 02-03-PLAN.md — Security regression tests: HSTS headers, prompt injection guard, SSRF validation, array item validation
 

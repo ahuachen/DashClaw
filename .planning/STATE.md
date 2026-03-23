@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-23T20:27:33.885Z"
-last_activity: 2026-03-17 — Completed plan 01-01 (Vercel deploy infrastructure)
+status: Ready to execute
+stopped_at: Completed 02-01-PLAN.md (security hardening)
+last_updated: "2026-03-23T21:10:23.980Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
-  percent: 8
+  total_plans: 5
+  completed_plans: 3
 ---
 
 # Project State
@@ -21,16 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-17)
 
 **Core value:** Get a developer from zero to a working DashClaw instance with at least one real agent connected and decisions flowing — as fast as possible.
-**Current focus:** Phase 1 — Deploy Funnel
+**Current focus:** Phase 02 — security-product-audit
 
 ## Current Position
 
-Phase: 1 of 4 (Deploy Funnel)
-Plan: 1 of 3 in current phase (01-01 complete)
-Status: In progress
-Last activity: 2026-03-17 — Completed plan 01-01 (Vercel deploy infrastructure)
-
-Progress: [█░░░░░░░░░] 8%
+Phase: 02 (security-product-audit) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -57,6 +51,7 @@ Progress: [█░░░░░░░░░] 8%
 |------|-------|-------|
 | Phase 01-deploy-funnel P01 | 4 tasks | 2 files |
 | Phase 01-deploy-funnel P02 | 3 tasks | 4 files |
+| Phase 02-security-product-audit P01 | 4 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -74,6 +69,10 @@ Recent decisions affecting current work:
 - [Phase 01-deploy-funnel P01]: db:push removed from buildCommand — hangs in non-TTY (Vercel build); manual migration step added to README post-deploy checklist
 - [Phase 01-deploy-funnel P01]: skippable-integrations=1 confirmed working — Neon panel skippable, DATABASE_URL field still appears for manual entry
 - [Phase 01-deploy-funnel P01]: NEXTAUTH_URL has no envDefault — developer sets after deploy URL is known (correct per design)
+- [Phase 02-security-product-audit]: HSTS unified to 2-year max-age with preload in both middleware paths, matching next.config.js
+- [Phase 02-security-product-audit]: Prompt injection blocks only on critical severity (recommendation=block), not warn/medium
+- [Phase 02-security-product-audit]: Dead PUBLIC_ROUTES regex entry removed from middleware.js — no replacement endpoint added
+- [Phase 02-security-product-audit]: All 7 cron routes already had CRON_SECRET timing-safe enforcement — confirmed, no changes needed
 
 ### Pending Todos
 
@@ -91,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T20:27:33.882Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-security-product-audit/02-CONTEXT.md
+Last session: 2026-03-23T21:10:23.977Z
+Stopped at: Completed 02-01-PLAN.md (security hardening)
+Resume file: None
