@@ -35,12 +35,11 @@ Get an agent builder from zero to a working DashClaw instance with at least one 
 - ✓ One-click Vercel deploy button with guided env var setup — Phase 1
 - ✓ Security audit: OWASP Top 10, auth hardening, HSTS, SSRF, prompt injection guard, 51 regression tests — Phase 2
 - ✓ Product validation: governance loop verified, 3-persona UX audit passed, $0 free-tier confirmed — Phase 2
+- ✓ Agent integration guides: 4 framework guides (Claude Code, OpenAI Agents SDK, LangGraph, CrewAI) with runnable examples — Phase 3
 
 ### Active
 
 <!-- Adoption milestone: reduce friction on the path to first governed action. -->
-
-- [ ] Agent integration guides: LangChain/LangGraph, Claude Code agents, OpenAI Agents SDK, CrewAI/AutoGen
 - [ ] Show HN launch post
 - [ ] X/LinkedIn launch content (announcement thread + demo assets)
 
