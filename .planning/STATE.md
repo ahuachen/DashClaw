@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-integration-guides-01-PLAN.md
-last_updated: "2026-03-23T23:21:05.000Z"
+stopped_at: Completed 03-integration-guides-02-PLAN.md
+last_updated: "2026-03-23T23:27:49.876Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-17)
 ## Current Position
 
 Phase: 03 (integration-guides) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -55,6 +55,8 @@ Plan: 2 of 4
 | Phase 02-security-product-audit P02 | 8 | 2 tasks | 1 files |
 | Phase 02-security-product-audit P03 | 5 | 1 tasks | 6 files |
 | Phase 03-integration-guides P01 | 7min | 3 tasks | 4 files |
+| Phase 03-integration-guides P02 | 4min | 2 tasks | 5 files |
+| Phase 03-integration-guides P03 | 15 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -84,6 +86,9 @@ Recent decisions affecting current work:
 - [Phase 02-security-product-audit]: Security test strategy: inline addSecurityHeaders in test file to avoid complex middleware module graph
 - [Phase 03-integration-guides]: GuideClient accepts steps array with optional codeTitle/codeBody/note — flexible for all 4 framework guides
 - [Phase 03-integration-guides]: getGuideBaseUrl() duplicates connectGuide.js logic rather than importing — avoids coupling guide infra to connect-specific code
+- [Phase 03-integration-guides]: LangGraph example uses simulated LLM output — no OPENAI_API_KEY required per D-07, making example fully self-contained with only DashClaw credentials needed
+- [Phase 03-integration-guides]: governance_node set as graph entry_point — ensures guard runs before any tool execution, consistent with DashClaw's intercept-before-action principle
+- [Phase 03-integration-guides]: LangGraph-specific guardrails.yml shows approve_external_writes and allow_research policies to illustrate read-safe / write-guarded pattern
 
 ### Pending Todos
 
@@ -101,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T23:21:04.997Z
-Stopped at: Completed 03-integration-guides-01-PLAN.md
+Last session: 2026-03-23T23:27:28.276Z
+Stopped at: Completed 03-integration-guides-02-PLAN.md
 Resume file: None

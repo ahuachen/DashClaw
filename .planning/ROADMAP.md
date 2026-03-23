@@ -65,8 +65,8 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Shared GuideClient component + Claude Code guide + OpenAI Agents SDK guide
-- [ ] 03-02-PLAN.md — LangGraph Python example and integration guide page
-- [ ] 03-03-PLAN.md — CrewAI Python example and integration guide page
+- [x] 03-02-PLAN.md — LangGraph Python example and integration guide page
+- [x] 03-03-PLAN.md — CrewAI Python example and integration guide page
 - [ ] 03-04-PLAN.md — Wire guide navigation from /connect, /self-host, and README
 
 ### Phase 4: Public Launch
@@ -91,5 +91,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Deploy Funnel | 2/2 | Complete | 2026-03-17 |
 | 2. Security & Product Audit | 3/3 | Complete   | 2026-03-23 |
-| 3. Integration Guides | 1/4 | In Progress|  |
+| 3. Integration Guides | 3/4 | In Progress|  |
 | 4. Public Launch | 0/2 | Not started | - |

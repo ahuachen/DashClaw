@@ -16,7 +16,7 @@
 
 - [x] **GUIDE-01**: Official Claude Code integration guide covering pretool hook setup, env var configuration, and guardrails.yml policy example
 - [x] **GUIDE-02**: Official OpenAI Agents SDK integration guide linked to `examples/openai-agents-governed/` with annotated walkthrough
-- [ ] **GUIDE-03**: LangChain/LangGraph integration guide with new runnable Python example (`examples/langgraph-governed/`) covering guard + createAction + updateOutcome in a graph node
+- [x] **GUIDE-03**: LangChain/LangGraph integration guide with new runnable Python example (`examples/langgraph-governed/`) covering guard + createAction + updateOutcome in a graph node
 - [ ] **GUIDE-04**: CrewAI integration guide with new runnable Python example (`examples/crewai-governed/`) using `@tool` decorator pattern
 - [x] **GUIDE-05**: All 4 guides follow conversion-guide structure: deploy button as step 1, sub-20-minute completion target, ends with a visible proof moment in the dashboard
 - [ ] **GUIDE-06**: All 4 guides are navigable from README, `/connect`, and `/self-host` pages
@@ -82,7 +82,7 @@
 | DEPLOY-04 | Phase 1 | Complete |
 | GUIDE-01 | Phase 3 | Complete |
 | GUIDE-02 | Phase 3 | Complete |
-| GUIDE-03 | Phase 3 | Pending |
+| GUIDE-03 | Phase 3 | Complete |
 | GUIDE-04 | Phase 3 | Pending |
 | GUIDE-05 | Phase 3 | Complete |
 | GUIDE-06 | Phase 3 | Pending |
