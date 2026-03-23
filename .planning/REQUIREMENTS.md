@@ -21,11 +21,21 @@
 - [ ] **GUIDE-05**: All 4 guides follow conversion-guide structure: deploy button as step 1, sub-20-minute completion target, ends with a visible proof moment in the dashboard
 - [ ] **GUIDE-06**: All 4 guides are navigable from README, `/connect`, and `/self-host` pages
 
-### Community + Launch
+### Security Audit
 
-- [ ] **COMM-01**: Discord server created with 4-5 channels (`#announcements`, `#general`, `#deploy-help`, `#show-and-tell`, `#feature-requests`), pre-populated with real content before invite goes public
-- [ ] **COMM-02**: Discord permanent invite link embedded in README, `/connect`, and `/self-host` pages
-- [ ] **COMM-03**: GitHub release webhook wired to `#announcements` channel
+- [ ] **SEC-01**: All 7 canonical API routes audited against OWASP Top 10 — no injection, broken auth, security misconfiguration, or sensitive data exposure
+- [ ] **SEC-02**: Security headers (CSP, CORS, X-Frame-Options, X-Content-Type-Options, Strict-Transport-Security) correctly configured on all routes
+- [ ] **SEC-03**: Input validation and sanitization verified on all user-facing endpoints — no unsanitized SQL, XSS vectors, or path traversal
+- [ ] **SEC-04**: Auth flow (API key validation via x-api-key, local admin password, NextAuth session handling) verified secure with no bypass vectors
+
+### Product Validation
+
+- [ ] **PROD-01**: End-to-end governance loop (record decision → guard check → track outcome → risk signal) works correctly from a fresh deploy
+- [ ] **PROD-02**: Product value proposition is clear to a new developer within 5 minutes — /connect, /mission-control, /decisions tell a coherent story as a free governance tool
+- [ ] **PROD-03**: Free-tier viability confirmed — deploy costs $0 on Vercel free tier, no features require paid services, limits are documented
+
+### Launch
+
 - [ ] **COMM-04**: Show HN post drafted and published — opens with concrete agent failure mode story (not product description), includes deploy button link, demo link, and at least 2 guide links; submitted 9-11am Pacific, not Friday
 - [ ] **COMM-05**: X/LinkedIn launch content with visual assets: Mission Control screenshot showing real decisions + 30-second screen recording of guard evaluation flow; X thread format, LinkedIn single post
 
@@ -44,6 +54,9 @@
 
 ### Community
 
+- **COMM-01**: Discord server created with channels, pre-populated with real content before invite goes public
+- **COMM-02**: Discord permanent invite link embedded in README, `/connect`, and `/self-host` pages
+- **COMM-03**: GitHub release webhook wired to Discord `#announcements` channel
 - **COMM-06**: Discord bot for automated support threads
 - **COMM-07**: Dedicated `#integrations` channel with per-framework threads
 - **COMM-08**: Community showcase page on DashClaw website
@@ -73,17 +86,21 @@
 | GUIDE-04 | Phase 3 | Pending |
 | GUIDE-05 | Phase 3 | Pending |
 | GUIDE-06 | Phase 3 | Pending |
-| COMM-01 | Phase 2 | Pending |
-| COMM-02 | Phase 2 | Pending |
-| COMM-03 | Phase 2 | Pending |
+| SEC-01 | Phase 2 | Pending |
+| SEC-02 | Phase 2 | Pending |
+| SEC-03 | Phase 2 | Pending |
+| SEC-04 | Phase 2 | Pending |
+| PROD-01 | Phase 2 | Pending |
+| PROD-02 | Phase 2 | Pending |
+| PROD-03 | Phase 2 | Pending |
 | COMM-04 | Phase 4 | Pending |
 | COMM-05 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 15 total
-- Mapped to phases: 15
+- v1 requirements: 19 total
+- Mapped to phases: 19
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-17*
-*Last updated: 2026-03-17 after 01-01-PLAN.md completion (DEPLOY-01, DEPLOY-02, DEPLOY-03 marked complete)*
+*Last updated: 2026-03-23 after Phase 2 replaced (Community Setup → Security & Product Audit; COMM-01/02/03 moved to v2)*
