@@ -24,6 +24,8 @@ dashclaw approve act_<id shown in Terminal 1>
 | `claude-code-review-agent` | Anthropic | Node.js | Security fix approval gate |
 | `openai-deploy-pipeline` | OpenAI | Node.js | Production deploy approval with CLI |
 | `python-research-agent` | None (simulated) | Python | File write governance |
+| `langgraph-governed` | LangGraph | Python | StateGraph governance node pattern |
+| `crewai-governed` | CrewAI | Python | @tool decorator governance pattern |
 
 ### openai-governed-agent
 
@@ -41,12 +43,20 @@ A CI/CD pipeline agent that runs pre-flight checks, gets an AI readiness assessm
 
 A Python agent that researches a topic and writes a report. Demonstrates the Python SDK governance flow. Requires no AI API key at all.
 
+### langgraph-governed
+
+A LangGraph StateGraph with a `governance_node` that runs guard checks and records actions before the research node executes. Shows how to wire DashClaw into LangGraph's node-based execution model. Requires Python 3.10+ and the DashClaw Python SDK. No OPENAI_API_KEY needed.
+
+### crewai-governed
+
+A CrewAI agent using the `@tool` decorator to wrap governance calls around tool execution. Demonstrates guard → create_action → update_outcome flow within CrewAI's tool abstraction. Requires Python 3.10+ and the DashClaw Python SDK. No OPENAI_API_KEY needed.
+
 ## Prerequisites
 
 All examples need:
 - A running DashClaw instance (`npm run dev` from the repo root)
 - `DASHCLAW_API_KEY` from your instance
 
-Node examples additionally need Node.js 20+. The Python example needs Python 3.10+.
+Node examples additionally need Node.js 20+. Python examples need Python 3.10+.
 
 Each example includes a `.env.example` file. Copy it to `.env` and fill in your keys before running.
