@@ -72,7 +72,7 @@ function addSecurityHeaders(response, request) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   // SECURITY: Apply HSTS in production to prevent protocol downgrade attacks
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   }
   return response;
 }
@@ -1091,7 +1091,7 @@ export async function middleware(request) {
       response.headers.set('X-Content-Type-Options', 'nosniff');
       response.headers.set('X-Frame-Options', 'DENY');
       response.headers.set('X-XSS-Protection', '1; mode=block');
-      response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+      response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
       for (const [k, v] of Object.entries(getCorsHeaders(request))) response.headers.set(k, v);
       return response;
     }

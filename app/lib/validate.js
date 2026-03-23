@@ -105,6 +105,11 @@ function validateField(key, value, rule) {
     case 'array':
       if (!Array.isArray(value)) return `${key} must be an array`;
       if (rule.maxItems && value.length > rule.maxItems) return `${key} exceeds max items of ${rule.maxItems}`;
+      // SECURITY: Validate individual array items are strings with bounded length
+      for (let i = 0; i < value.length; i++) {
+        if (typeof value[i] !== 'string') return `${key}[${i}] must be a string`;
+        if (value[i].length > 500) return `${key}[${i}] exceeds max length of 500`;
+      }
       break;
   }
   return null;
@@ -333,6 +338,11 @@ export function isValidWebhookUrl(url) {
       /^::1?$/,
       /^\[0:0:0:0:0:0:0:0\]$/,
       /^\[::\]$/,
+      /^(fc|fd)[0-9a-f]{2}:/i,          // fc00::/7 (unique local IPv6)
+      /^fe[89ab][0-9a-f]:/i,             // fe80::/10 (link-local IPv6)
+      /^\[?::ffff:127\./i,               // IPv4-mapped loopback
+      /^\[?::ffff:0:127\./i,             // IPv4-translated loopback
+      /^0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0*1$/i,  // Full notation ::1
       /\.local$/i,
       /\.internal$/i,
       /\.test$/i,
