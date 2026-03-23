@@ -323,7 +323,13 @@ export function isValidWebhookUrl(url) {
 
   try {
     const parsed = new URL(url);
-    const host = parsed.hostname.toLowerCase();
+    // SECURITY: Node's URL normalizes IPv6 addresses with surrounding brackets in hostname
+    // (e.g. "[fc00::1]"). Strip brackets before pattern matching so all IPv6 regexes
+    // work consistently against the bare address string.
+    const rawHost = parsed.hostname.toLowerCase();
+    const host = rawHost.startsWith('[') && rawHost.endsWith(']')
+      ? rawHost.slice(1, -1)
+      : rawHost;
 
     // Block localhost, private IPs, and zero-host variants
     const blockedPatterns = [
@@ -334,14 +340,14 @@ export function isValidWebhookUrl(url) {
       /^172\.(1[6-9]|2\d|3[0-1])\./,
       /^192\.168\./,
       /^169\.254\./,
-      /^\[::1?\]$/,
-      /^::1?$/,
-      /^\[0:0:0:0:0:0:0:0\]$/,
-      /^\[::\]$/,
+      /^::1$/,                           // IPv6 loopback shorthand
+      /^0:0:0:0:0:0:0:0$/,              // IPv6 all-zeros (full notation)
+      /^::$/,                            // IPv6 all-zeros (compressed)
       /^(fc|fd)[0-9a-f]{2}:/i,          // fc00::/7 (unique local IPv6)
-      /^fe[89ab][0-9a-f]:/i,             // fe80::/10 (link-local IPv6)
-      /^\[?::ffff:127\./i,               // IPv4-mapped loopback
-      /^\[?::ffff:0:127\./i,             // IPv4-translated loopback
+      /^fe[89ab][0-9a-f]:/i,            // fe80::/10 (link-local IPv6)
+      /^::ffff:127\./i,                  // IPv4-mapped loopback (dotted-decimal)
+      /^::ffff:7f[0-9a-f]{2}:/i,        // IPv4-mapped loopback (hex, e.g. 7f00:1 = 127.0.1)
+      /^::ffff:0:127\./i,                // IPv4-translated loopback
       /^0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0{0,4}:0*1$/i,  // Full notation ::1
       /\.local$/i,
       /\.internal$/i,

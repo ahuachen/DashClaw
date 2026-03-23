@@ -13,7 +13,11 @@ export async function GET(request) {
     if (!secret) return NextResponse.json({ error: 'CRON_SECRET not set' }, { status: 500 });
 
     const authHeader = request.headers.get('authorization') || '';
-    const token = authHeader.replace('Bearer ', '');
+    // SECURITY: Require explicit "Bearer " prefix to prevent token bypass
+    if (!authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const token = authHeader.slice('Bearer '.length);
     if (!token || Buffer.byteLength(token) !== Buffer.byteLength(secret) ||
         !timingSafeEqual(Buffer.from(token), Buffer.from(secret))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
