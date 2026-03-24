@@ -1,6 +1,6 @@
-import PairApprovalClient from './pairApprovalClient';
+import { redirect } from 'next/navigation';
 
-export default function PairPage({ params }) {
-  return <PairApprovalClient pairingId={params.pairingId} />;
+export default async function PairRedirectPage({ params }) {
+  const { pairingId } = await params;
+  redirect(`/settings?tab=identity&pairing=${encodeURIComponent(pairingId)}`);
 }
-
