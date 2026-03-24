@@ -183,6 +183,7 @@ function migrationCommands() {
     'node scripts/_run-with-env.mjs scripts/migrate-action-records-compat.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-agent-pairings.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-hitl-metadata.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-policy-agent-scope.mjs',
@@ -408,6 +409,7 @@ async function main() {
     'scripts/migrate-action-records-compat.mjs',
     'scripts/migrate-cost-analytics.mjs',
     'scripts/migrate-identity-binding.mjs',
+    'scripts/migrate-agent-pairings.mjs',
     'scripts/migrate-capabilities.mjs',
     'scripts/migrate-hitl-metadata.mjs',
     // Governance features
