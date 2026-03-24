@@ -185,7 +185,7 @@ POST scans text for prompt injection attacks. Returns `{ clean, risk_level, reco
 
 ## Agent Pairing
 
-**Maturity:** Experimental
+**Maturity:** Stable
 
 | Endpoint | Methods | Node SDK | Python SDK |
 |---|---|---|---|
@@ -193,13 +193,16 @@ POST scans text for prompt injection attacks. Returns `{ clean, risk_level, reco
 | `/api/pairings/{pairingId}` | GET | `getPairing` | `get_pairing` |
 | `/api/pairings/{pairingId}/approve` | POST | `waitForPairing` | `wait_for_pairing` |
 
+Management UI: `/settings?tab=identity`
+
 ## Identity Binding
 
-**Maturity:** Experimental
+**Maturity:** Stable
 
 | Endpoint | Methods | Node SDK | Python SDK |
 |---|---|---|---|
 | `/api/identities` | GET, POST | `registerIdentity`, `getIdentities` | `register_identity`, `get_identities` |
+| `/api/identities/{agentId}` | DELETE | `revokeIdentity` | `revoke_identity` |
 
 ## Organization Management
 
