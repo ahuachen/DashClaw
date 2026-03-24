@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `167`
+- Total routes: `168`
 - Stable routes: `33`
 - Beta routes: `19`
-- Experimental routes: `115`
+- Experimental routes: `116`
 
 ## Routes
 
@@ -143,6 +143,7 @@ doc-type: architecture
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
 | `/api/pairings` | `GET, POST` | `experimental` | `(default)` | `app/api/pairings/route.js` |
 | `/api/pairings/{pairingId}` | `GET` | `experimental` | `(default)` | `app/api/pairings/[pairingId]/route.js` |
+| `/api/pairings/{pairingId}/approve` | `POST` | `experimental` | `(default)` | `app/api/pairings/[pairingId]/approve/route.js` |
 | `/api/policies` | `DELETE, GET, PATCH, POST` | `stable` | `/api/policies` | `app/api/policies/route.js` |
 | `/api/policies/import` | `POST` | `stable` | `/api/policies` | `app/api/policies/import/route.js` |
 | `/api/policies/proof` | `GET` | `stable` | `/api/policies` | `app/api/policies/proof/route.js` |

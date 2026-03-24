@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 167,
+    "total_routes": 168,
     "stable_routes": 33,
     "beta_routes": 19,
-    "experimental_routes": 115
+    "experimental_routes": 116
   },
   "routes": [
     {
@@ -1212,6 +1212,15 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/pairings/[pairingId]/route.js"
+    },
+    {
+      "path": "/api/pairings/{pairingId}/approve",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/pairings/[pairingId]/approve/route.js"
     },
     {
       "path": "/api/policies",
