@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `163`
+- Total routes: `167`
 - Stable routes: `33`
 - Beta routes: `19`
-- Experimental routes: `111`
+- Experimental routes: `115`
 
 ## Routes
 
@@ -120,6 +120,8 @@ doc-type: architecture
 | `/api/evaluations/stats` | `GET` | `experimental` | `(default)` | `app/api/evaluations/stats/route.js` |
 | `/api/guard` | `GET, POST` | `stable` | `/api/guard` | `app/api/guard/route.js` |
 | `/api/health` | `GET` | `stable` | `/api/health` | `app/api/health/route.js` |
+| `/api/identities` | `GET, POST` | `experimental` | `/api/identities` | `app/api/identities/route.js` |
+| `/api/identities/{agentId}` | `DELETE` | `experimental` | `/api/identities` | `app/api/identities/[agentId]/route.js` |
 | `/api/integrations/health` | `GET` | `experimental` | `(default)` | `app/api/integrations/health/route.js` |
 | `/api/keys` | `DELETE, GET, POST` | `stable` | `/api/keys` | `app/api/keys/route.js` |
 | `/api/learning` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/route.js` |
@@ -139,6 +141,8 @@ doc-type: architecture
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
 | `/api/orgs/{orgId}` | `GET, PATCH` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/route.js` |
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
+| `/api/pairings` | `GET, POST` | `experimental` | `(default)` | `app/api/pairings/route.js` |
+| `/api/pairings/{pairingId}` | `GET` | `experimental` | `(default)` | `app/api/pairings/[pairingId]/route.js` |
 | `/api/policies` | `DELETE, GET, PATCH, POST` | `stable` | `/api/policies` | `app/api/policies/route.js` |
 | `/api/policies/import` | `POST` | `stable` | `/api/policies` | `app/api/policies/import/route.js` |
 | `/api/policies/proof` | `GET` | `stable` | `/api/policies` | `app/api/policies/proof/route.js` |
