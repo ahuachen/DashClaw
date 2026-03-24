@@ -38,6 +38,7 @@ export const VALID_SETTING_KEYS = [
   'SENDGRID_DEFAULT_TO', 'SENDGRID_FROM_EMAIL',
   // System configuration
   'MODEL_PRICING',
+  'ENFORCE_AGENT_SIGNATURES',
 ];
 
 export const VALID_CATEGORIES = ['integration', 'general', 'system'];

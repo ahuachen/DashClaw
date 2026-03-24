@@ -23,7 +23,7 @@ import {
   insertActionEmbedding,
   listActions,
 } from '../../lib/repositories/actions.repository.js';
-import { getModelPricing } from '../../lib/repositories/settings.repository.js';
+import { getModelPricing, getSettings } from '../../lib/repositories/settings.repository.js';
 import crypto from 'crypto';
 
 function redactAny(value, findings) {
@@ -152,7 +152,14 @@ export async function POST(request) {
     let verified = false;
     // Opt-in: set ENFORCE_AGENT_SIGNATURES=true to require signed agent actions.
     // Default OFF — signatures are an advanced feature, not a setup prerequisite.
-    const enforceSignatures = process.env.ENFORCE_AGENT_SIGNATURES === 'true';
+    // Check DB setting first (runtime-toggleable), fall back to env var
+    let enforceSignatures = process.env.ENFORCE_AGENT_SIGNATURES === 'true';
+    try {
+      const enforcementSettings = await getSettings(sql, orgId, { key: 'ENFORCE_AGENT_SIGNATURES' });
+      if (enforcementSettings.length > 0) {
+        enforceSignatures = enforcementSettings[0].value === 'true';
+      }
+    } catch { /* table may not exist yet — use env var fallback */ }
 
     if (enforceSignatures && !signature) {
       return NextResponse.json(
