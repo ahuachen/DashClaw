@@ -14,6 +14,7 @@ import { VerificationSection } from './components/VerificationSection.js';
 import { RecommendedSteps } from './components/RecommendedSteps.js';
 import { ProofPanel } from './components/ProofPanel.js';
 import ModelPricingPanel from './components/ModelPricingPanel.js';
+import AgentIdentityPanel from './components/AgentIdentityPanel';
 import PageLayout from '../components/PageLayout';
 import { LogIn } from 'lucide-react';
 
@@ -73,12 +74,13 @@ export default async function SettingsPage({ searchParams }) {
   const tabs = [
     { key: 'setup', label: 'Setup & Verify', href: '/settings' },
     { key: 'pricing', label: 'Model Pricing', href: '/settings?tab=pricing' },
+    { key: 'identity', label: 'Agent Identity', href: '/settings?tab=identity' },
   ];
 
   return (
     <PageLayout
       title="Settings"
-      subtitle="Instance configuration, verification, and model pricing."
+      subtitle="Instance configuration, verification, model pricing, and agent identity."
       breadcrumbs={['System', 'Settings']}
       actions={
         <div className="flex items-center gap-2">
@@ -280,6 +282,10 @@ export default async function SettingsPage({ searchParams }) {
       {/* Model Pricing tab */}
       {tab === 'pricing' && (
         <ModelPricingPanel />
+      )}
+
+      {tab === 'identity' && (
+        <AgentIdentityPanel highlightPairingId={resolvedSearchParams?.pairing || null} />
       )}
     </PageLayout>
   );
