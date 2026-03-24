@@ -47,6 +47,8 @@ These 7 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/integrations/health` | Integration credential health status | On demand |
 | `/api/cron/signals` | Signal detection + notification pipeline | Every 5 min |
 | `/api/cron/integration-health` | Credential validation for all orgs | Every 6 hours |
+| `/api/pairings` | Agent identity pairing enrollment | On demand |
+| `/api/identities` | Approved agent identity management | On demand |
 
 ### Tier 2: Extensions (`app/(extensions)/`)
 Modular intelligence features that consume runtime data.

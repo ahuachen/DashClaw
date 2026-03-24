@@ -894,6 +894,13 @@ claw.register_identity(agent_id="agent-007", public_key=public_pem, algorithm="R
 
 # List all registered agent identities
 identities = claw.get_identities()
+
+# Revoke an identity (direct HTTP — no SDK method)
+import requests
+requests.delete(
+    f"{base_url}/api/identities/{agent_id}",
+    headers={"x-api-key": admin_api_key}
+)
 ```
 
 **Methods:**
@@ -902,6 +909,18 @@ identities = claw.get_identities()
 |--------|-------------|
 | `register_identity(agent_id, public_key, algorithm="RSASSA-PKCS1-v1_5")` | Register or update an agent's public key. Requires admin API key |
 | `get_identities()` | List all registered agent identities for this org |
+
+**Admin REST endpoints (no SDK wrapper):**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/pairings` | `POST` | Create pairing request |
+| `/api/pairings` | `GET` | List pairings (admin) |
+| `/api/pairings/:id` | `GET` | Get pairing status |
+| `/api/pairings/:id/approve` | `POST` | Approve pairing (admin) |
+| `/api/identities` | `POST` | Register identity (admin) |
+| `/api/identities` | `GET` | List identities (admin) |
+| `/api/identities/:agentId` | `DELETE` | Revoke identity (admin) |
 
 ## Organization Management
 

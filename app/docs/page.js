@@ -125,6 +125,14 @@ const navItems = [
   { href: '#closeThread', label: 'closeThread', indent: true },
   { href: '#bulk-sync', label: 'Bulk Sync' },
   { href: '#syncState', label: 'syncState', indent: true },
+  { href: '#agent-identity', label: 'Agent Identity' },
+  { href: '#createPairing', label: 'createPairing', indent: true },
+  { href: '#listPairings', label: 'listPairings', indent: true },
+  { href: '#getPairing', label: 'getPairing', indent: true },
+  { href: '#approvePairing', label: 'approvePairing', indent: true },
+  { href: '#registerIdentity', label: 'registerIdentity', indent: true },
+  { href: '#listIdentities', label: 'listIdentities', indent: true },
+  { href: '#revokeIdentity', label: 'revokeIdentity', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
@@ -915,6 +923,131 @@ if not result["clean"]:
                   nodeSnippet={`await claw.syncState({ decisions: [...], lessons: [...], goals: [...] });`}
                   pythonSnippet={`claw.sync_state(decisions=[...], lessons=[...], goals=[...])`}
                 />
+              }
+            />
+          </section>
+
+          {/* ── Agent Identity ── */}
+          <section id="agent-identity" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+                <Shield size={16} className="text-brand" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Agent Identity</h2>
+            </div>
+            <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+              Enroll agents via public-key pairing and manage approved identities. Pairing requests are created by agents; approval is an admin action. Once approved, the agent&apos;s public key is registered as a trusted identity for signature verification.
+            </p>
+
+            <MethodEntry
+              id="createPairing"
+              signature="POST /api/pairings"
+              description="Create an agent pairing request. The agent submits its public key and waits for operator approval."
+              params={[
+                { name: 'public_key', type: 'string', required: true, desc: 'PEM-encoded RSA public key' },
+                { name: 'algorithm', type: 'string', required: false, desc: 'Key algorithm. Default: RSASSA-PKCS1-v1_5' },
+                { name: 'agent_name', type: 'string', required: false, desc: 'Human-readable label for the agent' },
+              ]}
+              returns="{ pairing: { id, status, agent_name, created_at } }"
+              example={
+                <CodeBlock title="Create pairing request">
+{`// Node SDK (v1 legacy)
+import { DashClaw } from 'dashclaw/legacy';
+const claw = new DashClaw({ baseUrl, apiKey, agentId });
+
+const { pairing } = await claw.createPairing(publicKeyPem, 'RSASSA-PKCS1-v1_5', 'my-agent');
+console.log(pairing.id); // pair_...`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="listPairings"
+              signature="GET /api/pairings"
+              description="List all pairing requests for the organization. Admin API key required."
+              returns="{ pairings: Array<{ id, status, agent_name, created_at, approved_at }> }"
+              example={
+                <CodeBlock title="List pairings (admin)">
+{`const res = await fetch('/api/pairings', {
+  headers: { 'x-api-key': adminApiKey }
+});
+const { pairings } = await res.json();`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="getPairing"
+              signature="GET /api/pairings/:id"
+              description="Get a specific pairing request by ID. Used by agents to poll for approval status."
+              returns="{ pairing: { id, status, agent_name, created_at, approved_at } }"
+              example={
+                <CodeBlock title="Poll pairing status">
+{`// Node SDK (v1 legacy)
+const status = await claw.getPairing(pairingId);
+console.log(status.pairing.status); // pending | approved | expired`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="approvePairing"
+              signature="POST /api/pairings/:id/approve"
+              description="Approve a pending pairing request. Admin API key required. On approval, the agent's public key is registered as a trusted identity."
+              returns="{ pairing: { id, status, approved_at } }"
+              example={
+                <CodeBlock title="Approve pairing (admin)">
+{`const res = await fetch(\`/api/pairings/\${pairingId}/approve\`, {
+  method: 'POST',
+  headers: { 'x-api-key': adminApiKey }
+});`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="registerIdentity"
+              signature="POST /api/identities"
+              description="Directly register an agent's public key as a trusted identity. Admin API key required. Bypasses the pairing flow."
+              params={[
+                { name: 'agent_id', type: 'string', required: true, desc: 'Unique agent identifier' },
+                { name: 'public_key', type: 'string', required: true, desc: 'PEM-encoded RSA public key' },
+                { name: 'algorithm', type: 'string', required: false, desc: 'Key algorithm. Default: RSASSA-PKCS1-v1_5' },
+              ]}
+              returns="{ identity: { agent_id, algorithm, created_at } }"
+              example={
+                <CodeBlock title="Register identity (admin)">
+{`// Node SDK (v1 legacy)
+await claw.registerIdentity('agent-007', publicKeyPem, 'RSASSA-PKCS1-v1_5');`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="listIdentities"
+              signature="GET /api/identities"
+              description="List all registered agent identities for the organization. Admin API key required."
+              returns="{ identities: Array<{ agent_id, algorithm, created_at }> }"
+              example={
+                <CodeBlock title="List identities (admin)">
+{`// Node SDK (v1 legacy)
+const { identities } = await claw.getIdentities();`}
+                </CodeBlock>
+              }
+            />
+
+            <MethodEntry
+              id="revokeIdentity"
+              signature="DELETE /api/identities/:agentId"
+              description="Revoke a registered agent identity. Admin API key required. The agent's public key is removed and signature verification will fail for future actions."
+              returns="{ success: true }"
+              example={
+                <CodeBlock title="Revoke identity (admin)">
+{`const res = await fetch(\`/api/identities/\${agentId}\`, {
+  method: 'DELETE',
+  headers: { 'x-api-key': adminApiKey }
+});`}
+                </CodeBlock>
               }
             />
           </section>

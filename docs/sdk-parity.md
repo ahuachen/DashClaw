@@ -85,6 +85,7 @@ v1 parity between Node and Python is **100%** as of February 19, 2026.
 | Behavior Guard | 2 | 2 | Full parity |
 | Agent Pairing | 4 | 4 | Full parity |
 | Identity Binding | 2 | 2 | Full parity |
+| Agent Identity (REST API) | -- | -- | Server-side only (no SDK wrapper) |
 | Organization Management | 5 | 5 | Full parity |
 | Activity Logs | 1 | 1 | Full parity |
 | Webhooks | 5 | 5 | Full parity |
@@ -106,6 +107,19 @@ Critical-domain contract coverage is validated against a shared harness:
 - Python harness test: `sdk-python/tests/test_ws5_m4_integration.py` (`npm run sdk:integration:python`)
 
 ## v2 Changelog
+
+### v2.6.0 (March 23, 2026)
+
+Infrastructure routes added for agent identity enrollment and management. These routes are server-side only; SDK wrappers are provided by the existing v1 `createPairing`, `waitForPairing`, `getPairing`, and `registerIdentity` / `getIdentities` methods.
+
+**Added infrastructure routes:**
+- `POST /api/pairings` — Create pairing request
+- `GET /api/pairings` — List pairings (admin)
+- `GET /api/pairings/:id` — Get pairing
+- `POST /api/pairings/:id/approve` — Approve pairing (admin)
+- `POST /api/identities` — Register identity (admin)
+- `GET /api/identities` — List identities (admin)
+- `DELETE /api/identities/:agentId` — Revoke identity (admin)
 
 ### v2.5.0 (March 18, 2026)
 

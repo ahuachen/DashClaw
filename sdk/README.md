@@ -235,6 +235,78 @@ await claw.syncState({
 
 ---
 
+## Agent Identity
+
+Enroll agents via public-key pairing and manage approved identities for signature verification. Pairing is available in the v1 legacy SDK; the REST endpoints are callable directly from any HTTP client.
+
+### Create Pairing
+
+```javascript
+// Node SDK (v1 legacy)
+import { DashClaw } from 'dashclaw/legacy';
+const claw = new DashClaw({ baseUrl, apiKey, agentId });
+
+const { pairing } = await claw.createPairing(publicKeyPem, 'RSASSA-PKCS1-v1_5', 'my-agent');
+console.log(pairing.id); // pair_...
+```
+
+### Wait for Pairing Approval
+
+```javascript
+const approved = await claw.waitForPairing(pairing.id, { timeout: 300 });
+```
+
+### Get Pairing
+
+```javascript
+const status = await claw.getPairing(pairingId);
+console.log(status.pairing.status); // pending | approved | expired
+```
+
+### Approve Pairing (Admin)
+
+```javascript
+// Direct HTTP — admin API key required
+const res = await fetch(`${baseUrl}/api/pairings/${pairingId}/approve`, {
+  method: 'POST',
+  headers: { 'x-api-key': adminApiKey }
+});
+```
+
+### List Pairings (Admin)
+
+```javascript
+const res = await fetch(`${baseUrl}/api/pairings`, {
+  headers: { 'x-api-key': adminApiKey }
+});
+const { pairings } = await res.json();
+```
+
+### Register Identity (Admin)
+
+```javascript
+// Node SDK (v1 legacy)
+await claw.registerIdentity('agent-007', publicKeyPem, 'RSASSA-PKCS1-v1_5');
+```
+
+### List Identities (Admin)
+
+```javascript
+const { identities } = await claw.getIdentities();
+```
+
+### Revoke Identity (Admin)
+
+```javascript
+// Direct HTTP — admin API key required
+const res = await fetch(`${baseUrl}/api/identities/${agentId}`, {
+  method: 'DELETE',
+  headers: { 'x-api-key': adminApiKey }
+});
+```
+
+---
+
 ## Error Handling
 
 DashClaw uses standard HTTP status codes and custom error classes:
