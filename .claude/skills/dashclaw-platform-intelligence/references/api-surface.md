@@ -112,6 +112,10 @@ Context thread IDs use `ct_` prefix.
 | `/api/messages/threads` | GET, POST, PATCH | `createMessageThread`, `getMessageThreads`, `resolveMessageThread` | `create_message_thread`, `get_message_threads`, `resolve_message_thread` |
 | `/api/messages/docs` | GET, POST | `getSharedDocs`, `saveSharedDoc` | `get_shared_docs`, `save_shared_doc` |
 | `/api/messages/attachments` | GET | `getMessageAttachments` | `get_message_attachments` |
+| `/api/actions/{actionId}/messages` | GET | `getActionMessages` | `get_action_messages` |
+| `/api/actions/{actionId}/messages?summary=true` | GET | -- | -- |
+
+`GET /api/actions/{actionId}/messages?summary=true` returns `{ total, participants[], correlation, first_message_at, last_message_at }` instead of full messages. `GET /api/actions/{actionId}` now includes `message_summary` in the response.
 
 Message thread IDs use `mt_` prefix.
 
@@ -189,9 +193,11 @@ POST scans text for prompt injection attacks. Returns `{ clean, risk_level, reco
 
 | Endpoint | Methods | Node SDK | Python SDK |
 |---|---|---|---|
-| `/api/pairings` | GET, POST | `createPairing` | `create_pairing` |
+| `/api/pairings` | GET, POST | `createPairing`, `listPairings` | `create_pairing`, `list_pairings` |
 | `/api/pairings/{pairingId}` | GET | `getPairing` | `get_pairing` |
-| `/api/pairings/{pairingId}/approve` | POST | `waitForPairing` | `wait_for_pairing` |
+| `/api/pairings/{pairingId}/approve` | POST | `approvePairing`, `waitForPairing` | `approve_pairing`, `wait_for_pairing` |
+
+`POST /api/pairings` — Agent identity pairing enrollment. `GET /api/pairings` — List all pairings. `POST /api/pairings/:id/approve` — Approve a pending pairing.
 
 Management UI: `/settings?tab=identity`
 
@@ -203,6 +209,8 @@ Management UI: `/settings?tab=identity`
 |---|---|---|---|
 | `/api/identities` | GET, POST | `registerIdentity`, `getIdentities` | `register_identity`, `get_identities` |
 | `/api/identities/{agentId}` | DELETE | `revokeIdentity` | `revoke_identity` |
+
+`POST /api/identities` — Register a new agent identity. `GET /api/identities` — List all registered identities. `DELETE /api/identities/:id` — Revoke an agent identity.
 
 ## Organization Management
 

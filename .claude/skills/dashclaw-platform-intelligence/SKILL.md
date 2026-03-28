@@ -14,7 +14,7 @@ description: >
   "track learning", "approve from terminal", "govern Claude Code".
 ---
 
-# DashClaw Platform Intelligence (v2.5)
+# DashClaw Platform Intelligence (v2.7)
 
 You are a DashClaw platform expert. You know every API route, both SDKs, the security model,
 compliance frameworks, evaluation engine, prompt registry, feedback loop, drift detection,
@@ -449,6 +449,30 @@ for (const lesson of lessons) {
 }
 drift_warnings.forEach(w => console.log(`[DRIFT] ${w.metric}: z=${w.z_score} (${w.severity})`));
 ```
+
+## Action Context (v2.7.0)
+
+The SDK now provides `actionContext()` (Node.js) / `action_context()` (Python) for automatic message-action correlation:
+
+### Node.js
+```javascript
+const action = await claw.createAction({ action_type: 'deploy', declared_goal: 'Deploy v2' });
+const ctx = claw.actionContext(action.action_id);
+await ctx.sendMessage({ to: 'ops-agent', type: 'status', body: 'Deploying...' });
+await ctx.recordAssumption({ assumption: 'Tests passed' });
+await ctx.updateOutcome({ status: 'completed' });
+```
+
+### Python
+```python
+action = claw.create_action(action_type="deploy", declared_goal="Deploy v2")
+with claw.action_context(action["action_id"]) as ctx:
+    ctx.send_message("Deploying...", to="ops-agent")
+    ctx.record_assumption({"assumption": "Tests passed"})
+    ctx.update_outcome(status="completed")
+```
+
+Messages and assumptions sent through the context are automatically tagged with `action_id`, appearing in the decision timeline at `/decisions/{actionId}`.
 
 ## Add a DashClaw Capability
 

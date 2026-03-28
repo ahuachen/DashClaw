@@ -145,6 +145,9 @@ Client request hits middleware.js
 | `/learning` | Learning loop (episodes, recommendations) |
 | `/learning/analytics` |
 | `/scoring` | Learning analytics (velocity, maturity, curves, summary) |
+| `/decisions/{actionId}` | Chronological decision timeline (guard decisions, messages, assumptions, actions, outcomes, open loops merged by timestamp) |
+
+The decisions ledger now shows inline message trails in expanded rows.
 
 ## CLI and Hooks Layer
 
