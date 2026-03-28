@@ -13,6 +13,7 @@ import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import AssumptionGraph from '../../components/AssumptionGraph';
+import { TimelineMessage } from '../../components/MessageTrail';
 
 export default function DecisionReplayPage() {
   const params = useParams();
@@ -22,6 +23,7 @@ export default function DecisionReplayPage() {
   const [action, setAction] = useState(null);
   const [loops, setLoops] = useState([]);
   const [assumptions, setAssumptions] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [trace, setTrace] = useState(null);
   const [guardDecision, setGuardDecision] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,15 @@ export default function DecisionReplayPage() {
       setAction(data.action);
       setLoops(data.open_loops || []);
       setAssumptions(data.assumptions || []);
+
+      // Fetch correlated messages
+      try {
+        const msgRes = await fetch(`/api/actions/${actionId}/messages`);
+        if (msgRes.ok) {
+          const msgData = await msgRes.json();
+          setMessages(msgData.messages || []);
+        }
+      } catch { /* messages are optional */ }
 
       // Fetch trace data for failed/completed actions
       if (data.action.status === 'failed' || data.action.status === 'completed') {
@@ -98,6 +109,67 @@ export default function DecisionReplayPage() {
       });
     } catch { return ts; }
   };
+
+  const timelineEvents = useMemo(() => {
+    if (!action) return [];
+    const events = [];
+
+    // Guard decision
+    if (guardDecision) {
+      events.push({
+        type: 'guard',
+        timestamp: guardDecision.created_at,
+        data: guardDecision,
+      });
+    }
+
+    // Messages
+    messages.forEach(msg => {
+      events.push({
+        type: 'message',
+        timestamp: msg.created_at,
+        data: msg,
+      });
+    });
+
+    // Action started
+    if (action.timestamp_start) {
+      events.push({
+        type: 'action_start',
+        timestamp: action.timestamp_start,
+        data: action,
+      });
+    }
+
+    // Assumptions
+    assumptions.forEach(asm => {
+      events.push({
+        type: 'assumption',
+        timestamp: asm.created_at || action.timestamp_start,
+        data: asm,
+      });
+    });
+
+    // Outcome
+    if (action.timestamp_end) {
+      events.push({
+        type: 'outcome',
+        timestamp: action.timestamp_end,
+        data: action,
+      });
+    }
+
+    // Open loops
+    loops.forEach(loop => {
+      events.push({
+        type: 'open_loop',
+        timestamp: loop.created_at || action.timestamp_end || action.timestamp_start,
+        data: loop,
+      });
+    });
+
+    return events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  }, [action, guardDecision, messages, assumptions, loops]);
 
   const getStatusVariant = (status) => {
     const map = {
@@ -354,6 +426,138 @@ export default function DecisionReplayPage() {
         <div className="lg:col-span-2 space-y-6">
           {activeTab === 'timeline' && (
             <>
+              {/* Chronological Event Timeline */}
+              <Card hover={false}>
+                <CardHeader title="Chronological Timeline" icon={Clock} count={timelineEvents.length} />
+                <CardContent>
+                  <div className="space-y-0">
+                    {timelineEvents.length === 0 && (
+                      <div className="text-sm text-zinc-500 py-4">No timeline events to display.</div>
+                    )}
+                    {timelineEvents.map((event, idx) => {
+                      if (event.type === 'message') {
+                        return <TimelineMessage key={`msg-${event.data.id}`} message={event.data} />;
+                      }
+                      if (event.type === 'guard') {
+                        return (
+                          <div key={`guard-${idx}`} className="flex gap-3 py-3">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                <ShieldCheck size={14} className="text-emerald-400" />
+                              </div>
+                              <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex items-center gap-2 text-xs mb-1">
+                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
+                                <span className="text-zinc-500 uppercase font-medium">Guard</span>
+                              </div>
+                              <div className="text-sm text-zinc-300">
+                                Decision: <span className={event.data.decision === 'allow' ? 'text-green-400' : 'text-red-400'}>{event.data.decision?.toUpperCase()}</span>
+                                {event.data.risk_score != null && <span className="text-zinc-500 ml-2">(risk {event.data.risk_score})</span>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (event.type === 'action_start') {
+                        return (
+                          <div key={`start-${idx}`} className="flex gap-3 py-3">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                <Rocket size={14} className="text-blue-400" />
+                              </div>
+                              <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex items-center gap-2 text-xs mb-1">
+                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
+                                <span className="text-zinc-500 uppercase font-medium">Action Started</span>
+                              </div>
+                              <div className="text-sm text-zinc-300">
+                                {event.data.action_type} — {event.data.declared_goal}
+                              </div>
+                              {event.data.reasoning && (
+                                <div className="text-xs text-zinc-500 mt-1">{event.data.reasoning}</div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (event.type === 'assumption') {
+                        return (
+                          <div key={`asm-${event.data.assumption_id || idx}`} className="flex gap-3 py-3">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                                <Target size={14} className="text-purple-400" />
+                              </div>
+                              <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex items-center gap-2 text-xs mb-1">
+                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
+                                <span className="text-zinc-500 uppercase font-medium">Assumption</span>
+                                {event.data.validated ? <CheckCircle2 size={12} className="text-green-400" /> : event.data.invalidated ? <XCircle size={12} className="text-red-400" /> : <Clock size={12} className="text-zinc-500" />}
+                              </div>
+                              <div className="text-sm text-zinc-300">{event.data.assumption}</div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (event.type === 'outcome') {
+                        const isSuccessOutcome = event.data.status === 'completed';
+                        return (
+                          <div key={`outcome-${idx}`} className="flex gap-3 py-3">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-8 h-8 rounded-full ${isSuccessOutcome ? 'bg-green-500/20' : 'bg-red-500/20'} flex items-center justify-center flex-shrink-0`}>
+                                {isSuccessOutcome ? <CheckCircle2 size={14} className="text-green-400" /> : <XCircle size={14} className="text-red-400" />}
+                              </div>
+                              <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex items-center gap-2 text-xs mb-1">
+                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
+                                <span className="text-zinc-500 uppercase font-medium">Outcome</span>
+                              </div>
+                              <div className="text-sm text-zinc-300">{event.data.output_summary || event.data.error_message}</div>
+                              <div className="flex gap-3 text-xs text-zinc-500 mt-1">
+                                {event.data.duration_ms && <span>{event.data.duration_ms}ms</span>}
+                                {event.data.cost_estimate > 0 && <span>${parseFloat(event.data.cost_estimate).toFixed(4)}</span>}
+                                {(event.data.tokens_in > 0 || event.data.tokens_out > 0) && (
+                                  <span>{event.data.tokens_in} in / {event.data.tokens_out} out</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      if (event.type === 'open_loop') {
+                        return (
+                          <div key={`loop-${event.data.loop_id || idx}`} className="flex gap-3 py-3">
+                            <div className="flex flex-col items-center">
+                              <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                                <AlertTriangle size={14} className="text-yellow-400" />
+                              </div>
+                              <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
+                            </div>
+                            <div className="min-w-0 flex-1 pb-2">
+                              <div className="flex items-center gap-2 text-xs mb-1">
+                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
+                                <span className="text-zinc-500 uppercase font-medium">Open Loop</span>
+                                <span className={`text-xs ${event.data.status === 'open' ? 'text-yellow-500' : 'text-green-500'}`}>{event.data.status}</span>
+                              </div>
+                              <div className="text-sm text-zinc-300">{event.data.description}</div>
+                              <div className="text-xs text-zinc-500 mt-0.5">{event.data.loop_type} / {event.data.priority}</div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Causal Timeline Card */}
               <Card hover={false}>
                 <CardHeader title="Causal Timeline" icon={Activity} />
