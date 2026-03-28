@@ -936,6 +936,34 @@ class DashClaw:
             payload["attachments"] = attachments
         return self._request("/api/messages", method="POST", body=payload)
 
+    @contextmanager
+    def action_context(self, action_id):
+        """Context manager that auto-tags messages and assumptions with action_id.
+
+        Usage:
+            with claw.action_context("act_123") as ctx:
+                ctx.send_message("Hello", to="agent-b")
+                ctx.record_assumption({"assumption": "Staging is clear"})
+                ctx.update_outcome(status="completed")
+        """
+        class _ActionContext:
+            def __init__(ctx_self):
+                ctx_self.action_id = action_id
+
+            def send_message(ctx_self, body, to=None, message_type="info", attachments=None, **kwargs):
+                kwargs["action_id"] = action_id
+                return self.send_message(body, to=to, message_type=message_type, attachments=attachments, **kwargs)
+
+            def record_assumption(ctx_self, assumption):
+                if isinstance(assumption, dict):
+                    assumption = {**assumption, "action_id": action_id}
+                return self.record_assumption(assumption)
+
+            def update_outcome(ctx_self, status=None, **kwargs):
+                return self.update_outcome(action_id, status=status, **kwargs)
+
+        yield _ActionContext()
+
     def get_inbox(self, **filters):
         filters["agent_id"] = self.agent_id
         filters["direction"] = "inbox"
