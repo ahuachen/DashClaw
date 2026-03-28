@@ -12,6 +12,7 @@ import { getAgentColor } from '../lib/colors';
 import { formatCost, formatTokens } from '../lib/formatCost';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useSession } from 'next-auth/react';
+import MessageTrail from '../components/MessageTrail';
 import {
   Zap, Hammer, Rocket, FileText, Briefcase, Shield, MessageSquare,
   Link as LinkIcon, Calendar, Search, Eye, Wrench, RefreshCw, FlaskConical,
@@ -577,6 +578,14 @@ export default function DecisionsLedger() {
                                   ))}
                                 </div>
                               </div>
+                            )}
+
+                            {detail.message_summary && (
+                              <MessageTrail
+                                actionId={action.action_id}
+                                summary={detail.message_summary}
+                                compact={true}
+                              />
                             )}
                           </>
                         )}
