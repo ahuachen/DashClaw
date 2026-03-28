@@ -325,17 +325,32 @@ export async function insertActionEmbedding(sql, { orgId, agentId, actionId, emb
 }
 
 export async function getActionWithRelations(sql, orgId, actionId) {
-  const [actions, loops, assumptions] = await Promise.all([
+  const [actions, loops, assumptions, msgSummaryRows] = await Promise.all([
     sql`SELECT * FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId}`,
     sql`SELECT * FROM open_loops WHERE action_id = ${actionId} AND org_id = ${orgId} ORDER BY created_at DESC`,
     sql`SELECT * FROM assumptions WHERE action_id = ${actionId} AND org_id = ${orgId} ORDER BY created_at DESC`,
+    sql`SELECT COUNT(*)::int AS total,
+        COALESCE(STRING_AGG(DISTINCT from_agent_id, ',') || CASE WHEN STRING_AGG(DISTINCT to_agent_id, ',') IS NOT NULL THEN ',' || STRING_AGG(DISTINCT to_agent_id, ',') ELSE '' END, '') AS participants,
+        MIN(created_at) AS first_message_at,
+        MAX(created_at) AS last_message_at
+      FROM agent_messages WHERE org_id = ${orgId} AND action_id = ${actionId}`,
   ]);
 
   if (actions.length === 0) return null;
+
+  const msgRaw = msgSummaryRows[0] || { total: 0, participants: '', first_message_at: null, last_message_at: null };
+  const msgTotal = parseInt(msgRaw.total, 10) || 0;
+
   return {
     action: actions[0],
     open_loops: loops,
     assumptions,
+    message_summary: {
+      total: msgTotal,
+      participants: msgRaw.participants ? [...new Set(msgRaw.participants.split(',').filter(Boolean))] : [],
+      first_message_at: msgRaw.first_message_at || null,
+      last_message_at: msgRaw.last_message_at || null,
+    },
   };
 }
 

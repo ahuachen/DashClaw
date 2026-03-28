@@ -36,16 +36,9 @@ function redactAny(value, findings) {
   return value;
 }
 
-let _sql;
-function getSql() {
-  if (_sql) return _sql;
-  _sql = getDbSql();
-  return _sql;
-}
-
 export async function GET(request, { params }) {
   try {
-    const sql = getSql();
+    const sql = getDbSql();
     const orgId = getOrgId(request);
     const { actionId } = await params;
 
@@ -63,7 +56,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const sql = getSql();
+    const sql = getDbSql();
     const orgId = getOrgId(request);
     const { actionId } = await params;
     const body = await request.json();
