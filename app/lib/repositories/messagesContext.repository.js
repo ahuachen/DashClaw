@@ -196,6 +196,24 @@ export async function getMessagesInTimeWindow(sql, orgId, agentId, windowStart, 
   `;
 }
 
+export async function getMessageSummaryByActionId(sql, orgId, actionId) {
+  const rows = await sql`
+    SELECT
+      COUNT(*)::int AS total,
+      COALESCE(
+        STRING_AGG(DISTINCT from_agent_id, ',') ||
+        CASE WHEN STRING_AGG(DISTINCT to_agent_id, ',') IS NOT NULL
+          THEN ',' || STRING_AGG(DISTINCT to_agent_id, ',') ELSE '' END,
+        ''
+      ) AS participants,
+      MIN(created_at) AS first_message_at,
+      MAX(created_at) AS last_message_at
+    FROM agent_messages
+    WHERE org_id = ${orgId} AND action_id = ${actionId}
+  `;
+  return rows[0] || { total: 0, participants: '', first_message_at: null, last_message_at: null };
+}
+
 // ── Message Threads (CRUD) ───────────────────────────────────
 
 export async function listThreads(sql, orgId, { status, agentId, limit = 20 } = {}) {

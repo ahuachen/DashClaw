@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { getSql } from '../../../../lib/db.js';
 import { getOrgId } from '../../../../lib/org.js';
 import { getActionTimeBounds } from '../../../../lib/repositories/actions.repository.js';
-import { getMessagesByActionId, getMessagesInTimeWindow } from '../../../../lib/repositories/messagesContext.repository.js';
+import { getMessagesByActionId, getMessagesInTimeWindow, getMessageSummaryByActionId } from '../../../../lib/repositories/messagesContext.repository.js';
 
 export async function GET(request, { params }) {
   try {
@@ -15,6 +15,23 @@ export async function GET(request, { params }) {
 
     if (!actionId || (!actionId.startsWith('ar_') && !actionId.startsWith('act_'))) {
       return NextResponse.json({ error: 'Valid action_id required' }, { status: 400 });
+    }
+
+    // Summary mode: return aggregated stats instead of full message list
+    if (request.nextUrl.searchParams.get('summary') === 'true') {
+      const row = await getMessageSummaryByActionId(sql, orgId, actionId);
+      const total = Number(row.total) || 0;
+      const rawParticipants = row.participants || '';
+      const participants = rawParticipants
+        ? [...new Set(rawParticipants.split(',').filter(Boolean))]
+        : [];
+      return NextResponse.json({
+        total,
+        participants,
+        correlation: total > 0 ? 'explicit' : 'none',
+        first_message_at: row.first_message_at || null,
+        last_message_at: row.last_message_at || null,
+      });
     }
 
     // Strategy 1: Explicit matches (messages tagged with this action_id)
