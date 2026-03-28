@@ -498,61 +498,81 @@ export default function SwarmIntelligencePage() {
           {context.loading ? (
             <div className="py-12 text-center text-[11px] text-zinc-600 animate-pulse">Analyzing neural bridge...</div>
           ) : activeTab === 'activity' ? (
-            <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
-              {context.shared_actions.length > 0 ? (
-                context.shared_actions.map((action, i) => (
-                  <div 
-                    key={i} 
-                    onClick={() => setInspectedAction(action)}
-                    className="p-3.5 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-2 hover:bg-white/10 hover:border-brand/20 transition-all cursor-pointer group/action"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex flex-col">
-                        <span className="text-[12px] font-bold text-white group-hover:text-brand transition-colors truncate max-w-[140px]">{action.action_type}</span>
-                        <span className="text-[9px] text-zinc-500 font-mono mt-0.5">{action.agent_id === link.source ? sourceNode.name : targetNode.name}</span>
-                      </div>
-                      <Badge variant="outline" className={`text-[9px] py-0 px-1.5 border-none font-bold ${
-                        action.status === 'completed' ? 'text-green-400 bg-green-400/10' : 
-                        action.status === 'failed' ? 'text-red-400 bg-red-400/10' : 'text-yellow-400 bg-yellow-400/10'
-                      }`}>
-                        {action.status?.toUpperCase()}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] text-zinc-500 font-mono">
-                      <div className="flex items-center gap-1.5"><Target size={10} /> {action.risk_score || 0}% RISK</div>
-                      <div className="flex items-center gap-1.5">{formatTimestamp(action.timestamp_start)} <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" /></div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="py-12 text-center text-[11px] text-zinc-600 italic">No shared neural activity within sync windows.</div>
-              )}
+            <div className="flex flex-col flex-1 min-h-0 gap-2">
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest shrink-0">
+                Shared Actions ({context.shared_actions.length})
+              </div>
+              <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
+                {context.shared_actions.length > 0 ? (
+                  <>
+                    {context.shared_actions.slice(0, 3).map((act, i) => {
+                      const statusColor = act.status === 'completed' ? 'bg-green-400' : act.status === 'failed' ? 'bg-red-400' : 'bg-yellow-400';
+                      const riskColor = act.risk_score >= 70 ? 'text-red-400' : 'text-yellow-400';
+                      return (
+                        <a
+                          key={i}
+                          href={`/decisions/${act.action_id}`}
+                          className="block p-2 bg-surface-tertiary rounded text-xs hover:bg-surface-secondary transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusColor}`} />
+                            <span className="text-zinc-300 truncate">{act.declared_goal || act.action_type}</span>
+                            {act.risk_score >= 40 && (
+                              <span className={`${riskColor} ml-auto text-[10px] font-mono shrink-0`}>risk {act.risk_score}</span>
+                            )}
+                          </div>
+                        </a>
+                      );
+                    })}
+                    {context.shared_actions.length > 3 && (
+                      <a
+                        href={`/decisions?agents=${encodeURIComponent(link.source)},${encodeURIComponent(link.target)}`}
+                        className="block text-center text-[10px] text-brand hover:text-brand/80 transition-colors py-1"
+                      >
+                        View all {context.shared_actions.length} actions →
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <div className="py-12 text-center text-[11px] text-zinc-600 italic">No shared neural activity within sync windows.</div>
+                )}
+              </div>
             </div>
           ) : (
-            <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
-              {context.messages.length > 0 ? (
-                context.messages.map((msg, i) => {
-                  const isFromSource = msg.sender_agent_id === link.source;
-                  const senderNode = nodesMapRef.current.get(msg.sender_agent_id);
-                  const senderName = senderNode?.name || msg.sender_agent_id;
-                  
-                  return (
-                    <div key={i} className={`flex flex-col ${isFromSource ? 'items-start' : 'items-end'}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-bold text-zinc-500">{senderName}</span>
-                        <span className="text-[8px] text-zinc-600 font-mono">{formatTimestamp(msg.created_at)}</span>
-                      </div>
-                      <div className={`p-3 rounded-2xl text-[11px] max-w-[85%] leading-relaxed ${
-                        isFromSource ? 'bg-zinc-800/50 rounded-tl-none border border-white/5 text-zinc-300' : 'bg-brand/10 rounded-tr-none border border-brand/20 text-brand-foreground text-zinc-200'
-                      }`}>
-                        {msg.content}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="py-12 text-center text-[11px] text-zinc-600 italic">No direct messages recorded between these agents.</div>
-              )}
+            <div className="flex flex-col flex-1 min-h-0 gap-2">
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest shrink-0">
+                Messages ({context.messages.length})
+              </div>
+              <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
+                {context.messages.length > 0 ? (
+                  <>
+                    {context.messages.slice(0, 5).map((msg, i) => {
+                      const time = formatTimestamp(msg.created_at);
+                      return (
+                        <div key={i} className="p-2 bg-surface-tertiary rounded text-xs">
+                          <div className="flex items-center gap-1 text-zinc-500 mb-0.5">
+                            <span className="text-zinc-300">{msg.sender_agent_id}</span>
+                            <span>→</span>
+                            <span>{msg.recipient_agent_id || 'broadcast'}</span>
+                            <span className="ml-auto">{time}</span>
+                          </div>
+                          <div className="text-zinc-400 line-clamp-2">{msg.content}</div>
+                        </div>
+                      );
+                    })}
+                    {context.messages.length > 5 && (
+                      <a
+                        href={`/messages?agents=${encodeURIComponent(link.source)},${encodeURIComponent(link.target)}`}
+                        className="block text-center text-[10px] text-brand hover:text-brand/80 transition-colors py-1"
+                      >
+                        View all {context.messages.length} messages →
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <div className="py-12 text-center text-[11px] text-zinc-600 italic">No direct messages recorded between these agents.</div>
+                )}
+              </div>
             </div>
           )}
         </div>
