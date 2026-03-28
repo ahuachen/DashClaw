@@ -457,6 +457,26 @@ class DashClaw {
   }
 
   /**
+   * Create a scoped action context that auto-tags messages and assumptions
+   * with the given action_id.
+   * @param {string} actionId - The action_id to attach to all operations
+   * @returns {{ sendMessage, recordAssumption, updateOutcome }}
+   */
+  actionContext(actionId) {
+    return {
+      sendMessage: ({ to, type, subject, body, threadId, urgent }) => {
+        return this.sendMessage({ to, type, subject, body, threadId, urgent, actionId });
+      },
+      recordAssumption: (assumption) => {
+        return this.recordAssumption({ ...assumption, action_id: actionId });
+      },
+      updateOutcome: (outcome) => {
+        return this.updateOutcome(actionId, outcome);
+      },
+    };
+  }
+
+  /**
    * GET /api/messages — Fetch this agent's inbox.
    */
   async getInbox({ type, unread, limit } = {}) {
