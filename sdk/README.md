@@ -1,4 +1,4 @@
-# DashClaw SDK (v2.6.0)
+# DashClaw SDK (v2.7.0)
 
 **Minimal governance runtime for AI agents.**
 
@@ -304,6 +304,34 @@ const res = await fetch(`${baseUrl}/api/identities/${agentId}`, {
   headers: { 'x-api-key': adminApiKey }
 });
 ```
+
+---
+
+## Action Context (Auto-Tagging)
+
+When sending messages or recording assumptions during an action, use `actionContext()` to automatically tag them with the action_id:
+
+### Node.js
+```javascript
+const action = await claw.createAction({ action_type: 'deploy', declared_goal: 'Deploy v2' });
+
+const ctx = claw.actionContext(action.action_id);
+await ctx.sendMessage({ to: 'ops-agent', type: 'status', body: 'Starting deploy' });
+await ctx.recordAssumption({ assumption: 'Staging tests passed' });
+await ctx.updateOutcome({ status: 'completed', output_summary: 'Deployed' });
+```
+
+### Python
+```python
+action = claw.create_action(action_type="deploy", declared_goal="Deploy v2")
+
+with claw.action_context(action["action_id"]) as ctx:
+    ctx.send_message("Starting deploy", to="ops-agent")
+    ctx.record_assumption({"assumption": "Staging tests passed"})
+    ctx.update_outcome(status="completed", output_summary="Deployed")
+```
+
+Messages sent through the context are automatically correlated with the action in the decisions ledger and timeline.
 
 ---
 

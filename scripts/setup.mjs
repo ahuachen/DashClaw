@@ -201,6 +201,7 @@ function migrationCommands() {
     'node scripts/_run-with-env.mjs scripts/migrate-agent-schedules.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-message-attachments.mjs',
     'node scripts/_run-with-env.mjs scripts/migrate-ideas-subscores.mjs',
+    'node scripts/_run-with-env.mjs scripts/migrate-agent-messages-index.mjs',
   ];
 }
 
@@ -430,6 +431,7 @@ async function main() {
     'scripts/migrate-agent-schedules.mjs',
     'scripts/migrate-message-attachments.mjs',
     'scripts/migrate-ideas-subscores.mjs',
+    'scripts/migrate-agent-messages-index.mjs',
   ];
   const migrationEnv = { ...process.env, ...env };
   const frames = ['-', '\\', '|', '/'];

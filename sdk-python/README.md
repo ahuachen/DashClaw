@@ -88,6 +88,21 @@ signals = claw.get_signals()
 | `track(action_type, declared_goal, **kwargs)` | Context manager: auto-creates action, records status + duration |
 | `get_signals()` | Get computed signals (anomalies, streaks, patterns) |
 
+## Action Context (Auto-Tagging)
+
+Use `action_context()` to automatically tag messages and assumptions with an action_id:
+
+```python
+action = claw.create_action(action_type="deploy", declared_goal="Deploy v2")
+
+with claw.action_context(action["action_id"]) as ctx:
+    ctx.send_message("Starting deploy", to="ops-agent")
+    ctx.record_assumption({"assumption": "Staging tests passed"})
+    ctx.update_outcome(status="completed", output_summary="Deployed")
+```
+
+The context manager auto-cleans up on exceptions. Messages and assumptions sent through the context are automatically correlated with the action in the decisions ledger and timeline.
+
 ## Agent Presence & Health
 
 Monitor agent uptime and status in real-time. Use heartbeats to detect when an agent crashes or loses network connectivity.
