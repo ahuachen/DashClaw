@@ -52,6 +52,7 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'docs',
   'pairings',      // Agent identity pairing enrollment
   'identities',    // Approved agent identity management
+  'sessions',      // Agent session lifecycle tracking
 
   // The Quarantine Zone
   '_archive',
