@@ -72,7 +72,7 @@ export async function POST(request) {
         previewPolicies.push({
           name,
           policy_type: policyType,
-          rules: JSON.stringify(policy.rule || {}),
+          rules: policy.rules ? JSON.stringify(policy.rules) : JSON.stringify(policy.rule || {}),
           conflict: existing.length > 0,
           conflict_reason: existing.length > 0 ? 'Policy with this name already exists' : undefined,
         });
@@ -93,11 +93,13 @@ export async function POST(request) {
       try {
         const policyType = inferPolicyType(policy);
         const name = policy.description || policy.id;
-        const rules = JSON.stringify({
-          action_types: policy.applies_to?.tools || [],
-          ...(policy.rule || {}),
-          tests: policy.tests || [],
-        });
+        const rules = policy.rules
+          ? JSON.stringify(policy.rules)
+          : JSON.stringify({
+              action_types: policy.applies_to?.tools || [],
+              ...(policy.rule || {}),
+              tests: policy.tests || [],
+            });
 
         // Check for existing policy with same name
         const existing = await findPolicyByName(sql, orgId, name);

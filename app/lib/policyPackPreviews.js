@@ -19,11 +19,17 @@ export const PACK_PREVIEWS = {
     description: 'Minimal guardrails for dev environments — warns on destructive ops, blocks production access',
     recommended_for: 'Development and staging environments',
   },
+  'layered-intelligence': {
+    name: 'Layered Intelligence',
+    description: 'Graduated autonomy, test verification gates, and branch freshness enforcement for coding agents',
+    recommended_for: 'Teams using Claude Code hooks with dashclaw-agent-intel module',
+  },
 };
 
 export const AVAILABLE_PACKS = Object.keys(PACK_PREVIEWS);
 
 export function inferPolicyType(policy) {
+  if (policy.policy_type) return policy.policy_type;
   const rule = policy.rule || {};
   if (rule.block === true) return 'block_action_type';
   if (rule.require === 'approval') return 'require_approval';
