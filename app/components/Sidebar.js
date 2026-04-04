@@ -28,6 +28,7 @@ const navGroups = [
     label: 'Observe',
     items: [
       { href: '/agents', icon: Users, label: 'Fleet' },
+      { href: '/sessions', icon: Activity, label: 'Sessions' },
       { href: '/security', icon: ShieldAlert, label: 'Security' },
       { href: '/drift', icon: TrendingUp, label: 'Drift' },
       { href: '/learning', icon: GraduationCap, label: 'Learning' },
