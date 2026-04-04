@@ -1765,6 +1765,40 @@ class DashClaw:
     def auto_calibrate(self, **options):
         return self._request("POST", "/api/scoring/calibrate", json=options)
 
+    # --- Session Lifecycle ----------------------------------
+
+    def create_session(self, workspace=None, branch=None):
+        """Create a new agent session for lifecycle tracking."""
+        payload = {"agent_id": self.agent_id}
+        if workspace is not None:
+            payload["workspace"] = workspace
+        if branch is not None:
+            payload["branch"] = branch
+        return self._request("/api/sessions", "POST", json=payload)
+
+    def get_session(self, session_id):
+        """Get a session by ID."""
+        return self._request(f"/api/sessions/{session_id}", "GET")
+
+    def update_session(self, session_id, **updates):
+        """Update session state. Fields: status, green_level, branch_freshness, commits_behind, blocked_reason."""
+        return self._request(f"/api/sessions/{session_id}", "PATCH", json=updates)
+
+    def list_sessions(self, agent_id=None, status=None, limit=50):
+        """List sessions with optional filters."""
+        params = {}
+        if agent_id is not None:
+            params["agent_id"] = agent_id
+        if status is not None:
+            params["status"] = status
+        if limit is not None:
+            params["limit"] = limit
+        return self._request("/api/sessions", "GET", params=params)
+
+    def get_session_events(self, session_id):
+        """Get the event log for a session."""
+        return self._request(f"/api/sessions/{session_id}/events", "GET")
+
 
 # Backward compatibility alias (Legacy)
 OpenClawAgent = DashClaw
