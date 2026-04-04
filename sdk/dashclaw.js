@@ -1,5 +1,5 @@
 /**
- * DashClaw SDK v2.7.0 (Stable Runtime API)
+ * DashClaw SDK v2.8.0 (Stable Runtime API)
  * Focused governance runtime client for AI agents.
  */
 
