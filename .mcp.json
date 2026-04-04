@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "anythink": {
+      "command": "dotnet",
+      "args": ["run", "--project", "C:/Projects/anythink-cli/mcp", "--", "--profile", "dashclaw"]
+    }
+  }
+}
