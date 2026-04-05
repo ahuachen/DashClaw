@@ -465,6 +465,149 @@ export async function getActionTraceData(sql, orgId, actionId) {
 }
 
 /**
+ * Build a read-only graph payload (nodes + edges) for an action, reusing
+ * trace data plus correlated governance artifacts. Powers the Execution Graph
+ * tab on the decision replay page.
+ *
+ * Node id conventions:
+ *   action:<action_id>, assumption:<assumption_id>, loop:<loop_id>
+ *
+ * Edge types:
+ *   parent_child   — parent action spawned child action
+ *   related        — correlated action (same agent/system, nearby time window)
+ *   assumption_of  — assumption supports the root action's decision basis
+ *   loop_from      — open loop attached to the root action
+ */
+export async function buildActionGraph(sql, orgId, actionId) {
+  const trace = await getActionTraceData(sql, orgId, actionId);
+  if (!trace) return null;
+
+  const { action, assumptions, loops, relatedActions, subActions, parentChain } = trace;
+
+  const nodes = [];
+  const edges = [];
+  const seenNodes = new Set();
+
+  const pushNode = (node) => {
+    if (seenNodes.has(node.id)) return;
+    seenNodes.add(node.id);
+    nodes.push(node);
+  };
+
+  const toActionNode = (a, { isRoot = false } = {}) => ({
+    id: `action:${a.action_id}`,
+    type: 'action',
+    label: a.declared_goal || a.action_type || a.action_id,
+    status: a.status || 'unknown',
+    riskScore: a.risk_score ?? null,
+    agentId: a.agent_id || null,
+    agentName: a.agent_name || null,
+    actionType: a.action_type || null,
+    timestamp: a.timestamp_start || null,
+    isRoot,
+    meta: {
+      error_message: a.error_message || null,
+      parent_action_id: a.parent_action_id || null,
+    },
+  });
+
+  // Root action
+  pushNode(toActionNode(action, { isRoot: true }));
+
+  // Parent chain — each parent spawned the next link toward the root
+  let childActionId = action.action_id;
+  for (const parent of parentChain || []) {
+    pushNode(toActionNode(parent));
+    edges.push({
+      id: `edge:pc:${parent.action_id}->${childActionId}`,
+      source: `action:${parent.action_id}`,
+      target: `action:${childActionId}`,
+      type: 'parent_child',
+      label: 'spawned',
+    });
+    childActionId = parent.action_id;
+  }
+
+  // Sub-actions (root spawned them)
+  for (const sub of subActions || []) {
+    pushNode(toActionNode(sub));
+    edges.push({
+      id: `edge:pc:${action.action_id}->${sub.action_id}`,
+      source: `action:${action.action_id}`,
+      target: `action:${sub.action_id}`,
+      type: 'parent_child',
+      label: 'spawned',
+    });
+  }
+
+  // Related actions (same agent/systems in nearby time window)
+  for (const rel of relatedActions || []) {
+    pushNode(toActionNode(rel));
+    edges.push({
+      id: `edge:rel:${action.action_id}-${rel.action_id}`,
+      source: `action:${action.action_id}`,
+      target: `action:${rel.action_id}`,
+      type: 'related',
+      label: 'correlated',
+    });
+  }
+
+  // Assumptions — edge flows from assumption into the action it supports
+  for (const a of assumptions || []) {
+    const invalidated = a.invalidated === 1 || a.invalidated === true;
+    const validated = a.validated === 1 || a.validated === true;
+    const status = invalidated ? 'invalidated' : validated ? 'validated' : 'unresolved';
+
+    pushNode({
+      id: `assumption:${a.assumption_id}`,
+      type: 'assumption',
+      label: a.assumption || 'Assumption',
+      status,
+      meta: {
+        invalidated_reason: a.invalidated_reason || null,
+        drift_score: a.drift_score ?? null,
+        created_at: a.created_at || null,
+      },
+    });
+    edges.push({
+      id: `edge:as:${a.assumption_id}->${action.action_id}`,
+      source: `assumption:${a.assumption_id}`,
+      target: `action:${action.action_id}`,
+      type: 'assumption_of',
+      label: status,
+    });
+  }
+
+  // Open loops — edge flows from loop into the action it blocks/questions
+  for (const l of loops || []) {
+    pushNode({
+      id: `loop:${l.loop_id}`,
+      type: 'loop',
+      label: l.description || l.loop_type || 'Open loop',
+      status: l.status || 'open',
+      meta: {
+        priority: l.priority || null,
+        loop_type: l.loop_type || null,
+        created_at: l.created_at || null,
+      },
+    });
+    edges.push({
+      id: `edge:lp:${l.loop_id}->${action.action_id}`,
+      source: `loop:${l.loop_id}`,
+      target: `action:${action.action_id}`,
+      type: 'loop_from',
+      label: l.priority || 'open',
+    });
+  }
+
+  return {
+    rootActionId: action.action_id,
+    nodes,
+    edges,
+  };
+}
+
+/**
  * Fetch decision throughput statistics for the last 24h and comparison window.
  */
 export async function getActionStats(sql, orgId, agentId = null) {
