@@ -13,6 +13,7 @@ import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import AssumptionGraph from '../../components/AssumptionGraph';
+import ExecutionGraph from '../../components/ExecutionGraph';
 import { TimelineMessage } from '../../components/MessageTrail';
 
 export default function DecisionReplayPage() {
@@ -25,6 +26,7 @@ export default function DecisionReplayPage() {
   const [assumptions, setAssumptions] = useState([]);
   const [messages, setMessages] = useState([]);
   const [trace, setTrace] = useState(null);
+  const [graph, setGraph] = useState(null);
   const [guardDecision, setGuardDecision] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +65,15 @@ export default function DecisionReplayPage() {
           }
         } catch { /* trace is optional */ }
       }
+
+      // Fetch execution graph (nodes + edges) for any action
+      try {
+        const graphRes = await fetch(`/api/actions/${actionId}/graph`);
+        if (graphRes.ok) {
+          const graphData = await graphRes.json();
+          setGraph(graphData);
+        }
+      } catch { /* graph is optional */ }
 
       // Fetch correlated guard decision (policy governance)
       if (data.action.agent_id) {
@@ -309,6 +320,7 @@ export default function DecisionReplayPage() {
 
   const tabs = [
     { id: 'timeline', label: 'Timeline', icon: Clock },
+    { id: 'graph', label: 'Graph', icon: LayoutPanelLeft },
     { id: 'policies', label: 'Policies', icon: ShieldCheck },
     { id: 'assumptions', label: 'Assumptions', icon: HelpCircle },
     { id: 'signals', label: 'Signals', icon: ShieldAlert },
@@ -424,6 +436,9 @@ export default function DecisionReplayPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
+          {activeTab === 'graph' && (
+            <ExecutionGraph graph={graph} />
+          )}
           {activeTab === 'timeline' && (
             <>
               {/* Chronological Event Timeline */}
