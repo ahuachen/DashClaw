@@ -34,6 +34,11 @@ const ALLOWED_RUNTIME_ROUTES = new Set([
   'webhooks',
   'swarm',
   'learning',
+  // Execution Studio — governance packaging + discovery surface
+  'workflows',         // Reusable workflow template packaging
+  'model-strategies',  // Model / provider strategy records linked to workflows
+  'knowledge',         // Knowledge collection metadata + workflow bindings
+  'capabilities',      // Governed capability registry
 
   // Tier 3: Essential Infrastructure
   'auth',
