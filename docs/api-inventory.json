@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 172,
+    "total_routes": 178,
     "stable_routes": 34,
     "beta_routes": 19,
-    "experimental_routes": 119
+    "experimental_routes": 125
   },
   "routes": [
     {
@@ -1173,6 +1173,27 @@
       "file": "app/api/messages/threads/route.js"
     },
     {
+      "path": "/api/model-strategies",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/model-strategies/route.js"
+    },
+    {
+      "path": "/api/model-strategies/{strategyId}",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/model-strategies/[strategyId]/route.js"
+    },
+    {
       "path": "/api/orgs",
       "methods": [
         "GET",
@@ -1697,6 +1718,44 @@
       "maturity": "stable",
       "matched_prefix": "/api/webhooks",
       "file": "app/api/webhooks/[webhookId]/test/route.js"
+    },
+    {
+      "path": "/api/workflows/templates",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/templates/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/{templateId}",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/templates/[templateId]/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/{templateId}/duplicate",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/templates/[templateId]/duplicate/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/{templateId}/launch",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/templates/[templateId]/launch/route.js"
     }
   ]
 }

@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `172`
+- Total routes: `178`
 - Stable routes: `34`
 - Beta routes: `19`
-- Experimental routes: `119`
+- Experimental routes: `125`
 
 ## Routes
 
@@ -139,6 +139,8 @@ doc-type: architecture
 | `/api/messages` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/route.js` |
 | `/api/messages/attachments` | `GET` | `stable` | `/api/messages` | `app/api/messages/attachments/route.js` |
 | `/api/messages/threads` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/threads/route.js` |
+| `/api/model-strategies` | `GET, POST` | `experimental` | `(default)` | `app/api/model-strategies/route.js` |
+| `/api/model-strategies/{strategyId}` | `DELETE, GET, PATCH` | `experimental` | `(default)` | `app/api/model-strategies/[strategyId]/route.js` |
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
 | `/api/orgs/{orgId}` | `GET, PATCH` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/route.js` |
 | `/api/orgs/{orgId}/keys` | `DELETE, GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/[orgId]/keys/route.js` |
@@ -194,4 +196,8 @@ doc-type: architecture
 | `/api/webhooks` | `DELETE, GET, POST` | `stable` | `/api/webhooks` | `app/api/webhooks/route.js` |
 | `/api/webhooks/{webhookId}/deliveries` | `GET` | `stable` | `/api/webhooks` | `app/api/webhooks/[webhookId]/deliveries/route.js` |
 | `/api/webhooks/{webhookId}/test` | `POST` | `stable` | `/api/webhooks` | `app/api/webhooks/[webhookId]/test/route.js` |
+| `/api/workflows/templates` | `GET, POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/route.js` |
+| `/api/workflows/templates/{templateId}` | `GET, PATCH` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/route.js` |
+| `/api/workflows/templates/{templateId}/duplicate` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/duplicate/route.js` |
+| `/api/workflows/templates/{templateId}/launch` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/launch/route.js` |
 
