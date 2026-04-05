@@ -1006,3 +1006,102 @@ CREATE TABLE IF NOT EXISTS "webhook_deliveries" (
 ALTER TABLE "agent_messages" ADD COLUMN IF NOT EXISTS "action_id" text;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_agent_messages_action_id" ON "agent_messages" ("action_id");
+--> statement-breakpoint
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Execution Studio — Phase 1 (workflow templates, model strategies,
+-- knowledge collections, capability registry). All additive + nullable.
+-- auto-migrate.mjs catches "already exists" errors so these are safe on re-run.
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS "workflow_templates" (
+  "template_id" text PRIMARY KEY NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "name" text NOT NULL,
+  "slug" text NOT NULL,
+  "description" text,
+  "objective" text,
+  "steps_json" text DEFAULT '[]',
+  "model_strategy_id" text,
+  "model_strategy_snapshot" text,
+  "linked_prompt_template_ids_json" text DEFAULT '[]',
+  "linked_policy_ids_json" text DEFAULT '[]',
+  "linked_knowledge_collection_ids_json" text DEFAULT '[]',
+  "linked_capability_ids_json" text DEFAULT '[]',
+  "linked_capability_tags_json" text DEFAULT '[]',
+  "version" integer DEFAULT 1 NOT NULL,
+  "status" text DEFAULT 'draft' NOT NULL,
+  "created_by" text,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "workflow_templates_org_slug_unique" ON "workflow_templates" ("org_id","slug");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_workflow_templates_org_status" ON "workflow_templates" ("org_id","status");
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "model_strategies" (
+  "strategy_id" text PRIMARY KEY NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "name" text NOT NULL,
+  "description" text,
+  "config_json" text NOT NULL,
+  "created_by" text,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_model_strategies_org" ON "model_strategies" ("org_id");
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "knowledge_collections" (
+  "collection_id" text PRIMARY KEY NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "name" text NOT NULL,
+  "description" text,
+  "source_type" text DEFAULT 'files' NOT NULL,
+  "tags_json" text DEFAULT '[]',
+  "ingestion_status" text DEFAULT 'empty' NOT NULL,
+  "doc_count" integer DEFAULT 0 NOT NULL,
+  "last_synced_at" timestamp,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_knowledge_collections_org" ON "knowledge_collections" ("org_id");
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "knowledge_collection_items" (
+  "item_id" text PRIMARY KEY NOT NULL,
+  "collection_id" text NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "source_uri" text NOT NULL,
+  "title" text,
+  "mime_type" text,
+  "status" text DEFAULT 'pending' NOT NULL,
+  "metadata_json" text DEFAULT '{}',
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_knowledge_items_collection" ON "knowledge_collection_items" ("collection_id");
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "capabilities" (
+  "capability_id" text PRIMARY KEY NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "name" text NOT NULL,
+  "slug" text NOT NULL,
+  "description" text,
+  "category" text,
+  "source_type" text DEFAULT 'internal_sdk' NOT NULL,
+  "auth_type" text DEFAULT 'none',
+  "risk_level" text DEFAULT 'medium' NOT NULL,
+  "requires_approval" integer DEFAULT 0 NOT NULL,
+  "tags_json" text DEFAULT '[]',
+  "pricing_json" text DEFAULT '{}',
+  "health_status" text DEFAULT 'unknown' NOT NULL,
+  "docs_url" text,
+  "invocation_schema_json" text DEFAULT '{}',
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "capabilities_org_slug_unique" ON "capabilities" ("org_id","slug");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_capabilities_org_category" ON "capabilities" ("org_id","category");
