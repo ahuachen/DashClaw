@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 178,
+    "total_routes": 183,
     "stable_routes": 34,
     "beta_routes": 19,
-    "experimental_routes": 125
+    "experimental_routes": 130
   },
   "routes": [
     {
@@ -699,6 +699,26 @@
       "file": "app/api/auth/local/route.js"
     },
     {
+      "path": "/api/capabilities",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/capabilities/route.js"
+    },
+    {
+      "path": "/api/capabilities/{capabilityId}",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/capabilities/[capabilityId]/route.js"
+    },
+    {
       "path": "/api/compliance/evidence",
       "methods": [
         "GET"
@@ -1036,6 +1056,36 @@
       "maturity": "stable",
       "matched_prefix": "/api/keys",
       "file": "app/api/keys/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/knowledge/collections/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/{collectionId}",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/knowledge/collections/[collectionId]/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/{collectionId}/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/knowledge/collections/[collectionId]/items/route.js"
     },
     {
       "path": "/api/learning",

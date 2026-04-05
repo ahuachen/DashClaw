@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `178`
+- Total routes: `183`
 - Stable routes: `34`
 - Beta routes: `19`
-- Experimental routes: `125`
+- Experimental routes: `130`
 
 ## Routes
 
@@ -89,6 +89,8 @@ doc-type: architecture
 | `/api/assumptions/{assumptionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/assumptions/[assumptionId]/route.js` |
 | `/api/auth/config` | `GET` | `beta` | `/api/auth` | `app/api/auth/config/route.js` |
 | `/api/auth/local` | `DELETE, POST` | `beta` | `/api/auth` | `app/api/auth/local/route.js` |
+| `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
+| `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
 | `/api/compliance/evidence` | `GET` | `experimental` | `(default)` | `app/api/compliance/evidence/route.js` |
 | `/api/compliance/exports` | `GET, POST` | `experimental` | `(default)` | `app/api/compliance/exports/route.js` |
 | `/api/compliance/exports/{exportId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/compliance/exports/[exportId]/route.js` |
@@ -125,6 +127,9 @@ doc-type: architecture
 | `/api/identities/{agentId}` | `DELETE` | `experimental` | `/api/identities` | `app/api/identities/[agentId]/route.js` |
 | `/api/integrations/health` | `GET` | `experimental` | `(default)` | `app/api/integrations/health/route.js` |
 | `/api/keys` | `DELETE, GET, POST` | `stable` | `/api/keys` | `app/api/keys/route.js` |
+| `/api/knowledge/collections` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/route.js` |
+| `/api/knowledge/collections/{collectionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/route.js` |
+| `/api/knowledge/collections/{collectionId}/items` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/items/route.js` |
 | `/api/learning` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/route.js` |
 | `/api/learning/analytics/curves` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/analytics/curves/route.js` |
 | `/api/learning/analytics/maturity` | `GET` | `experimental` | `/api/learning` | `app/api/learning/analytics/maturity/route.js` |
