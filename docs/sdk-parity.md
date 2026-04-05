@@ -184,3 +184,19 @@ Node SDK methods added in the same release: Identity Binding, Organization Manag
 - Python method naming uses `snake_case`; Node uses `camelCase`.
 - v2 `waitForApproval` has stricter approval validation than v1 (requires `approved_by` metadata).
 - v1's `registerAssumption` was renamed to `recordAssumption` in v2.
+
+## Execution Studio (Phase 1) — HTTP API, no SDK wrapper yet
+
+The Phase 1 Execution Studio adds 22 new HTTP routes across workflow templates, model strategies, knowledge collections, and a capability registry, plus a read-only execution graph endpoint on actions. **None of these have SDK wrapper methods in v2 (Node) or the Python SDK.** Operators access them via raw HTTP (`fetch` / `requests`) against the `DASHCLAW_BASE_URL` for now. SDK wrappers will be added in Phase 2.
+
+| Feature | Routes added | SDK wrapper status |
+|---|---|---|
+| Execution Graph | `GET /api/actions/:id/graph` | None (HTTP only) |
+| Workflow Templates | `GET/POST /api/workflows/templates`, `GET/PATCH /api/workflows/templates/:id`, `POST .../duplicate`, `POST .../launch` | None (HTTP only) |
+| Model Strategies | `GET/POST /api/model-strategies`, `GET/PATCH/DELETE /api/model-strategies/:id` | None (HTTP only) |
+| Knowledge Collections | `GET/POST /api/knowledge/collections`, `GET/PATCH /api/knowledge/collections/:id`, `GET/POST .../items` | None (HTTP only) |
+| Capability Registry | `GET/POST /api/capabilities`, `GET/PATCH /api/capabilities/:id` | None (HTTP only) |
+
+See `PROJECT_DETAILS.md` § Execution Studio Routes for the full table. Full request/response shapes are in `docs/openapi/critical-stable.openapi.json` and `docs/api-inventory.md`.
+
+Because this is HTTP-only, the Node `v2` and Python method counts above (**45** and **185+**) are unchanged by Phase 1. The category matrix is unchanged. No SDK version bump was required.

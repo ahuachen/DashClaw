@@ -387,5 +387,160 @@ Methods moved to v1 only: `createWebhook`, `getActivityLogs`, `mapCompliance`, `
 
 ---
 
+## Execution Studio (HTTP API)
+
+Phase 1 adds governance packaging and discovery features — workflow templates, model strategies, knowledge collections, and a capability registry — plus a read-only execution graph endpoint on actions. **These are HTTP-only for now; no SDK wrapper methods exist in either Node or Python.** Call them directly via `fetch` (or your preferred HTTP client) against `DASHCLAW_BASE_URL` with your API key.
+
+### Execution Graph
+
+```javascript
+// Fetch the execution graph for any action (reuses existing trace data)
+const res = await fetch(`${baseUrl}/api/actions/${actionId}/graph`, {
+  headers: { 'x-api-key': apiKey }
+});
+const { rootActionId, nodes, edges } = await res.json();
+// nodes: action:<id>, assumption:<id>, loop:<id>
+// edges: parent_child | related | assumption_of | loop_from
+```
+
+### Workflow Templates
+
+```javascript
+// List templates
+await fetch(`${baseUrl}/api/workflows/templates`, { headers: { 'x-api-key': apiKey } });
+
+// Create a template
+await fetch(`${baseUrl}/api/workflows/templates`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Release Hotfix',
+    description: 'Ship urgent production patches safely',
+    objective: 'Deploy with full policy + approval coverage',
+    linked_policy_ids: ['pol_prod_deploy'],
+    linked_capability_tags: ['deploy'],
+    model_strategy_id: 'mst_balanced_default'
+  })
+});
+
+// Get / update / duplicate
+await fetch(`${baseUrl}/api/workflows/templates/${templateId}`, { headers: { 'x-api-key': apiKey } });
+await fetch(`${baseUrl}/api/workflows/templates/${templateId}`, {
+  method: 'PATCH',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ steps: [{ id: 'plan' }, { id: 'test' }, { id: 'deploy' }] })
+});
+await fetch(`${baseUrl}/api/workflows/templates/${templateId}/duplicate`, { method: 'POST', headers: { 'x-api-key': apiKey } });
+
+// Launch — creates a traceable action_records row with workflow metadata
+// (trigger=workflow:<id>, reasoning carries WORKFLOW_LAUNCH_META JSON).
+// If the template links a model_strategy_id, the resolved config is snapshotted
+// onto the launched action.
+const res = await fetch(`${baseUrl}/api/workflows/templates/${templateId}/launch`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ agent_id: 'deploy-bot' })
+});
+const { launch } = await res.json();
+console.log(launch.action_id); // act_... — view it in /decisions/<action_id>
+```
+
+### Model Strategies
+
+```javascript
+// List and create
+await fetch(`${baseUrl}/api/model-strategies`, { headers: { 'x-api-key': apiKey } });
+await fetch(`${baseUrl}/api/model-strategies`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Balanced Default',
+    description: 'GPT-4.1 primary, Claude Sonnet 4 fallback',
+    config: {
+      primary: { provider: 'openai', model: 'gpt-4.1' },
+      fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+      costSensitivity: 'balanced',        // 'low' | 'balanced' | 'high-quality'
+      latencySensitivity: 'medium',       // 'low' | 'medium' | 'high'
+      maxBudgetUsd: 0.5,
+      maxRetries: 2,
+      allowedProviders: ['openai', 'anthropic']
+    }
+  })
+});
+
+// Update (config patches merge over existing config)
+await fetch(`${baseUrl}/api/model-strategies/${strategyId}`, {
+  method: 'PATCH',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ config: { maxBudgetUsd: 1.0 } })
+});
+
+// Delete (soft references on linked workflow_templates are nulled out)
+await fetch(`${baseUrl}/api/model-strategies/${strategyId}`, { method: 'DELETE', headers: { 'x-api-key': apiKey } });
+```
+
+### Knowledge Collections
+
+Metadata-only layer in Phase 1 — no embedding or retrieval.
+
+```javascript
+// Create a collection
+await fetch(`${baseUrl}/api/knowledge/collections`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Runbook Library',
+    description: 'Incident response runbooks',
+    source_type: 'files',  // 'files' | 'urls' | 'external' | 'notes'
+    tags: ['ops', 'oncall']
+  })
+});
+
+// Add items (bumps parent doc_count; transitions ingestion_status from empty → pending)
+await fetch(`${baseUrl}/api/knowledge/collections/${collectionId}/items`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    source_uri: 'https://docs.example.com/runbook.md',
+    title: 'Deploy runbook',
+    mime_type: 'text/markdown'
+  })
+});
+
+// List items
+await fetch(`${baseUrl}/api/knowledge/collections/${collectionId}/items`, { headers: { 'x-api-key': apiKey } });
+```
+
+### Capability Registry
+
+```javascript
+// Search the registry (category, risk_level, and search are combinable)
+const params = new URLSearchParams({ risk_level: 'medium', search: 'slack' });
+const res = await fetch(`${baseUrl}/api/capabilities?${params}`, { headers: { 'x-api-key': apiKey } });
+const { capabilities } = await res.json();
+
+// Register a capability
+await fetch(`${baseUrl}/api/capabilities`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Send Slack Message',
+    description: 'Posts to a configured Slack channel',
+    category: 'messaging',
+    source_type: 'http_api',        // 'internal_sdk' | 'http_api' | 'webhook' | 'human_approval' | 'external_marketplace'
+    auth_type: 'oauth',
+    risk_level: 'medium',           // 'low' | 'medium' | 'high' | 'critical'
+    requires_approval: false,
+    tags: ['notify', 'slack'],
+    health_status: 'healthy',
+    docs_url: 'https://docs.example.com/slack'
+  })
+});
+```
+
+Full OpenAPI definitions for all 22 new routes are in `docs/openapi/critical-stable.openapi.json`. The canonical route table lives in `PROJECT_DETAILS.md` under § Execution Studio Routes.
+
+---
+
 ## License
 MIT

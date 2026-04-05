@@ -56,6 +56,26 @@ Modular intelligence features that consume runtime data.
 - **Drift**: Detection of reasoning and metric drift.
 - **Evaluations**: LLM-as-judge accuracy scoring.
 - **Scoring**: Multi-dimensional risk profiles.
+- **Execution Studio** (Phase 1): Governance packaging and discovery — workflow templates, model strategies, knowledge collections, and a capability registry. HTTP API only in Phase 1; no SDK wrapper methods.
+
+### Execution Studio Routes (Tier 2, added Phase 1)
+
+| Route | Purpose |
+|:---|:---|
+| `GET /api/actions/:actionId/graph` | Read-only execution graph (nodes + edges) for a governed action, reusing existing trace data plus correlated assumptions and open loops. Powers the Graph tab on decision replay. |
+| `GET/POST /api/workflows/templates` | List or create reusable workflow templates. |
+| `GET/PATCH /api/workflows/templates/:templateId` | Fetch or update a template; `PATCH` bumps version on step changes. |
+| `POST /api/workflows/templates/:templateId/duplicate` | Clone a template as a new draft. |
+| `POST /api/workflows/templates/:templateId/launch` | Launch a template — creates an `action_records` row with `trigger=workflow:<id>` and `WORKFLOW_LAUNCH_META=<json>` in `reasoning`, resolving any linked model strategy into a snapshot. No schema columns added to `action_records`. |
+| `GET/POST /api/model-strategies` | List or create model/provider strategy records (`primary`, `fallback`, `costSensitivity`, `maxBudgetUsd`, `maxRetries`). |
+| `GET/PATCH/DELETE /api/model-strategies/:strategyId` | Fetch, update (merges config), or delete a strategy. Delete nulls the soft reference on any linked `workflow_templates`. |
+| `GET/POST /api/knowledge/collections` | List or create knowledge collections (metadata-only in Phase 1; no embedding/retrieval). |
+| `GET/PATCH /api/knowledge/collections/:collectionId` | Fetch or update a collection. |
+| `GET/POST /api/knowledge/collections/:collectionId/items` | List or add items. Adding an item bumps the parent collection's `doc_count` and transitions `ingestion_status` from `empty` → `pending`. |
+| `GET/POST /api/capabilities` | Searchable capability registry. `GET` supports `category`, `risk_level`, and `search` (ILIKE on name/description/tags) filters. |
+| `GET/PATCH /api/capabilities/:capabilityId` | Fetch or update a capability record. |
+
+All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Five new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
 ### Tier 3: Archived (`app/api/_archive/`)
 Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory Health). These are physically quarantined to maintain a small, stable runtime boundary.

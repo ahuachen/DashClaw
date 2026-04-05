@@ -133,6 +133,12 @@ const navItems = [
   { href: '#registerIdentity', label: 'registerIdentity', indent: true },
   { href: '#listIdentities', label: 'listIdentities', indent: true },
   { href: '#revokeIdentity', label: 'revokeIdentity', indent: true },
+  { href: '#execution-studio', label: 'Execution Studio (HTTP)' },
+  { href: '#execution-graph', label: 'Execution Graph', indent: true },
+  { href: '#workflow-templates', label: 'Workflow Templates', indent: true },
+  { href: '#model-strategies-http', label: 'Model Strategies', indent: true },
+  { href: '#knowledge-collections', label: 'Knowledge Collections', indent: true },
+  { href: '#capability-registry', label: 'Capability Registry', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
@@ -1050,6 +1056,291 @@ const { identities } = await claw.getIdentities();`}
                 </CodeBlock>
               }
             />
+          </section>
+
+          {/* ── Execution Studio (HTTP API) ── */}
+          <section id="execution-studio" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(168,85,247,0.1)] flex items-center justify-center">
+                <Network size={16} className="text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Execution Studio (HTTP API)</h2>
+            </div>
+            <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+              Phase 1 governance packaging: workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph on actions. <strong className="text-zinc-300">These are HTTP-only in Phase 1 — no SDK wrapper methods exist yet in Node or Python.</strong> Call them directly against <code className="font-mono text-brand">DASHCLAW_BASE_URL</code> with your API key. SDK wrappers will land in Phase 2. Full OpenAPI definitions are at <code className="font-mono text-zinc-500">docs/openapi/critical-stable.openapi.json</code>.
+            </p>
+
+            {/* Execution Graph */}
+            <div id="execution-graph" className="scroll-mt-20 pt-6">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Execution Graph</h3>
+              <MethodEntry
+                id="getActionGraph"
+                signature="GET /api/actions/:actionId/graph"
+                description="Read-only execution graph (nodes + edges) for any action. Reuses the existing trace data plus correlated assumptions and open loops — zero schema change. Powers the Graph tab on decision replay."
+                returns="{ rootActionId, nodes: Array<{ id, type, status, riskScore, ... }>, edges: Array<{ source, target, type, label }> }"
+                example={
+                  <CodeBlock title="Fetch graph">
+{`const res = await fetch(\`\${baseUrl}/api/actions/\${actionId}/graph\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const { rootActionId, nodes, edges } = await res.json();
+// node ids: action:<id>, assumption:<id>, loop:<id>
+// edge types: parent_child | related | assumption_of | loop_from`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+
+            {/* Workflow Templates */}
+            <div id="workflow-templates" className="scroll-mt-20 pt-10">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Workflow Templates</h3>
+              <p className="text-xs text-zinc-500 mb-4">Package a repeatable operational pattern as a reusable, versioned asset linking policies, prompts, knowledge, capabilities, and a model strategy.</p>
+
+              <MethodEntry
+                id="listWorkflowTemplates"
+                signature="GET /api/workflows/templates"
+                description="List all workflow templates for the current org. Supports ?status=draft|active|archived, ?limit, ?offset."
+                example={
+                  <CodeBlock title="List templates">
+{`const { templates } = await fetch(\`\${baseUrl}/api/workflows/templates\`, {
+  headers: { 'x-api-key': apiKey }
+}).then(r => r.json());`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="createWorkflowTemplate"
+                signature="POST /api/workflows/templates"
+                description="Create a workflow template. Slug auto-generated from name if omitted. Starts as v1, status=draft. Body fields: name (required), description, objective, steps, linked_prompt_template_ids, linked_policy_ids, linked_knowledge_collection_ids, linked_capability_ids, linked_capability_tags, model_strategy_id, status."
+                example={
+                  <CodeBlock title="Create template">
+{`await fetch(\`\${baseUrl}/api/workflows/templates\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Release Hotfix',
+    description: 'Ship urgent production patches safely',
+    objective: 'Deploy with full policy + approval coverage',
+    linked_policy_ids: ['pol_prod_deploy'],
+    linked_capability_tags: ['deploy'],
+    model_strategy_id: 'mst_balanced_default'
+  })
+});`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="updateWorkflowTemplate"
+                signature="GET | PATCH /api/workflows/templates/:templateId"
+                description="Fetch or partially update a template. PATCH bumps version by 1 when the steps array changes; all linked arrays and metadata can be updated in the same call."
+                example={
+                  <CodeBlock title="Update steps (bumps version)">
+{`await fetch(\`\${baseUrl}/api/workflows/templates/\${templateId}\`, {
+  method: 'PATCH',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    steps: [{ id: 'plan' }, { id: 'test' }, { id: 'deploy' }]
+  })
+});`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="duplicateWorkflowTemplate"
+                signature="POST /api/workflows/templates/:templateId/duplicate"
+                description="Clone a template as a new draft (version resets to 1, status='draft'). Accepts optional name and slug overrides in the body."
+                example={
+                  <CodeBlock title="Duplicate">
+{`const { template } = await fetch(
+  \`\${baseUrl}/api/workflows/templates/\${templateId}/duplicate\`,
+  { method: 'POST', headers: { 'x-api-key': apiKey } }
+).then(r => r.json());`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="launchWorkflowTemplate"
+                signature="POST /api/workflows/templates/:templateId/launch"
+                description="Launch a template. Creates a new row in action_records with trigger='workflow:<templateId>' and reasoning='WORKFLOW_LAUNCH_META=<json>' carrying the full template context. If the template links a model_strategy_id, the resolved config is fetched and snapshotted onto the launched action and the template. No schema columns were added to action_records — Phase 1 piggybacks on existing trace primitives."
+                returns="{ launch: { action_id, template_id, template_version, launched_at, resolved_strategy } }"
+                example={
+                  <CodeBlock title="Launch and link to replay">
+{`const { launch } = await fetch(
+  \`\${baseUrl}/api/workflows/templates/\${templateId}/launch\`,
+  {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ agent_id: 'deploy-bot' })
+  }
+).then(r => r.json());
+
+// The launched action is immediately traceable in decision replay
+console.log(\`\${baseUrl}/decisions/\${launch.action_id}\`);`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+
+            {/* Model Strategies */}
+            <div id="model-strategies-http" className="scroll-mt-20 pt-10">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Model Strategies</h3>
+              <p className="text-xs text-zinc-500 mb-4">Reusable provider/model strategy records (primary + fallback chain, cost/latency sensitivity, budget cap). Linked from workflow templates and snapshotted at launch.</p>
+
+              <MethodEntry
+                id="listModelStrategies"
+                signature="GET | POST /api/model-strategies"
+                description="List all strategies or create a new one. Config is validated server-side: primary.provider and primary.model are required; costSensitivity must be one of low | balanced | high-quality; latencySensitivity must be low | medium | high; maxBudgetUsd must be a number; maxRetries must be an integer; fallback, allowedProviders, and disallowedProviders must be arrays if provided."
+                example={
+                  <CodeBlock title="Create strategy">
+{`await fetch(\`\${baseUrl}/api/model-strategies\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Balanced Default',
+    description: 'GPT-4.1 primary, Claude Sonnet 4 fallback',
+    config: {
+      primary: { provider: 'openai', model: 'gpt-4.1' },
+      fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+      costSensitivity: 'balanced',
+      latencySensitivity: 'medium',
+      maxBudgetUsd: 0.5,
+      maxRetries: 2,
+      allowedProviders: ['openai', 'anthropic']
+    }
+  })
+});`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="updateModelStrategy"
+                signature="GET | PATCH | DELETE /api/model-strategies/:strategyId"
+                description="Fetch, update, or delete a strategy. PATCH merges config patches over the existing config (primary fields preserved unless overridden). DELETE nulls out the soft reference on any linked workflow_templates rather than orphaning them."
+                example={
+                  <CodeBlock title="Patch budget only">
+{`await fetch(\`\${baseUrl}/api/model-strategies/\${strategyId}\`, {
+  method: 'PATCH',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ config: { maxBudgetUsd: 1.0 } })
+});`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+
+            {/* Knowledge Collections */}
+            <div id="knowledge-collections" className="scroll-mt-20 pt-10">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Knowledge Collections</h3>
+              <p className="text-xs text-zinc-500 mb-4">Lightweight metadata layer for knowledge sources that workflows and agents can bind to. <strong className="text-zinc-400">No embedding or retrieval in Phase 1</strong> — metadata + tags only.</p>
+
+              <MethodEntry
+                id="listKnowledgeCollections"
+                signature="GET | POST /api/knowledge/collections"
+                description="List collections (filter by ?source_type) or create a new one. source_type must be one of files | urls | external | notes. New collections start with ingestion_status='empty' and doc_count=0."
+                example={
+                  <CodeBlock title="Create collection">
+{`await fetch(\`\${baseUrl}/api/knowledge/collections\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Runbook Library',
+    description: 'Incident response runbooks',
+    source_type: 'files',
+    tags: ['ops', 'oncall']
+  })
+});`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="getKnowledgeCollection"
+                signature="GET | PATCH /api/knowledge/collections/:collectionId"
+                description="Fetch or update a collection's metadata (name, description, source_type, tags, ingestion_status)."
+                example={
+                  <CodeBlock title="Fetch">
+{`const { collection } = await fetch(
+  \`\${baseUrl}/api/knowledge/collections/\${collectionId}\`,
+  { headers: { 'x-api-key': apiKey } }
+).then(r => r.json());`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="knowledgeCollectionItems"
+                signature="GET | POST /api/knowledge/collections/:collectionId/items"
+                description="List or add items in a collection. Adding an item increments the parent collection's doc_count atomically and transitions ingestion_status from 'empty' to 'pending' on the first item. Items carry source_uri (required), title, mime_type, status, and a metadata object."
+                example={
+                  <CodeBlock title="Add an item">
+{`await fetch(
+  \`\${baseUrl}/api/knowledge/collections/\${collectionId}/items\`,
+  {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      source_uri: 'https://docs.example.com/runbook.md',
+      title: 'Deploy runbook',
+      mime_type: 'text/markdown'
+    })
+  }
+);`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+
+            {/* Capability Registry */}
+            <div id="capability-registry" className="scroll-mt-20 pt-10 pb-4">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Capability Registry</h3>
+              <p className="text-xs text-zinc-500 mb-4">Governed registry of callable capabilities with risk, approval, health, and (future) pricing metadata. Workflow templates can reference capabilities by id or by tag.</p>
+
+              <MethodEntry
+                id="listCapabilities"
+                signature="GET | POST /api/capabilities"
+                description="Search or register a capability. GET supports combinable filters: ?category, ?risk_level (low|medium|high|critical), ?search (ILIKE on name/description/tags). source_type must be one of internal_sdk | http_api | webhook | human_approval | external_marketplace. (org_id, slug) is unique — POST returns 409 on duplicate slug."
+                example={
+                  <CodeBlock title="Register a capability">
+{`await fetch(\`\${baseUrl}/api/capabilities\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Send Slack Message',
+    description: 'Posts to a configured Slack channel',
+    category: 'messaging',
+    source_type: 'http_api',
+    auth_type: 'oauth',
+    risk_level: 'medium',
+    requires_approval: false,
+    tags: ['notify', 'slack'],
+    health_status: 'healthy',
+    docs_url: 'https://docs.example.com/slack'
+  })
+});`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="getCapability"
+                signature="GET | PATCH /api/capabilities/:capabilityId"
+                description="Fetch or update a capability. PATCH validates risk_level and source_type enums on change."
+                example={
+                  <CodeBlock title="Mark degraded">
+{`await fetch(\`\${baseUrl}/api/capabilities/\${capabilityId}\`, {
+  method: 'PATCH',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ health_status: 'degraded' })
+});`}
+                  </CodeBlock>
+                }
+              />
+            </div>
           </section>
 
           {/* ── Error Handling ── */}
