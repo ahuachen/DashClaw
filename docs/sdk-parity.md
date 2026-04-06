@@ -22,7 +22,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 
 ## v2 Stable Surface (Node)
 
-45 public methods organized by governance concern:
+67 public methods organized by governance concern:
 
 | Category | Methods | Count |
 |----------|---------|------:|
@@ -43,7 +43,12 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 | Feedback | `submitFeedback` | 1 |
 | Context Threads | `createThread`, `addThreadEntry`, `closeThread` | 3 |
 | Bulk Sync | `syncState` | 1 |
-| **Total** | | **45** |
+| Execution Graph | `getActionGraph` | 1 |
+| Workflow Templates | `listWorkflowTemplates`, `createWorkflowTemplate`, `getWorkflowTemplate`, `updateWorkflowTemplate`, `duplicateWorkflowTemplate`, `launchWorkflowTemplate` | 6 |
+| Model Strategies | `listModelStrategies`, `createModelStrategy`, `getModelStrategy`, `updateModelStrategy`, `deleteModelStrategy` | 5 |
+| Knowledge Collections | `listKnowledgeCollections`, `createKnowledgeCollection`, `getKnowledgeCollection`, `updateKnowledgeCollection`, `listKnowledgeCollectionItems`, `addKnowledgeCollectionItem` | 6 |
+| Capability Registry | `listCapabilities`, `createCapability`, `getCapability`, `updateCapability` | 4 |
+| **Total** | | **67** |
 
 Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
 
@@ -199,4 +204,4 @@ The Phase 1 Execution Studio adds 22 new HTTP routes across workflow templates, 
 
 See `PROJECT_DETAILS.md` § Execution Studio Routes for the full table. Full request/response shapes are in `docs/openapi/critical-stable.openapi.json` and `docs/api-inventory.md`.
 
-Because this is HTTP-only, the Node `v2` and Python method counts above (**45** and **185+**) are unchanged by Phase 1. The category matrix is unchanged. No SDK version bump was required.
+**Update (Phase 2a):** SDK wrappers now exist for all 22 Execution Studio routes. Node v2 expanded from 45 → 67 methods. Python expanded from 185+ → 207+ methods. Both SDKs bumped to v2.10.0.

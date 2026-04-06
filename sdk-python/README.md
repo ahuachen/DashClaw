@@ -1089,20 +1089,15 @@ The Node.js v2 SDK exposes a curated subset of **45 methods** focused on agent g
 
 Methods like `createWebhook`, `getActivityLogs`, `mapCompliance`, and `getProofReport` are available in this Python SDK but are **v1 only** in the Node.js SDK.
 
-## Execution Studio (HTTP API)
+## Execution Studio
 
-Phase 1 adds governance packaging and discovery features — workflow templates, model strategies, knowledge collections, and a capability registry — plus a read-only execution graph endpoint on actions. **These are HTTP-only for now; no Python SDK wrapper methods exist yet.** Call them directly with `requests` or `httpx` against `DASHCLAW_BASE_URL`. SDK wrappers will land in Phase 2.
+Governance packaging and discovery — workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph. Added in v2.10.0.
 
 ### Execution Graph
 
 ```python
-import os, requests
-
-base = os.environ["DASHCLAW_BASE_URL"]
-headers = {"x-api-key": os.environ["DASHCLAW_API_KEY"]}
-
 # Fetch the execution graph for any action (reuses existing trace data)
-graph = requests.get(f"{base}/api/actions/{action_id}/graph", headers=headers).json()
+graph = claw.get_action_graph(action_id)
 # graph["nodes"] — action:<id>, assumption:<id>, loop:<id>
 # graph["edges"] — parent_child | related | assumption_of | loop_from
 ```
@@ -1111,138 +1106,103 @@ graph = requests.get(f"{base}/api/actions/{action_id}/graph", headers=headers).j
 
 ```python
 # Create a template
-template = requests.post(
-    f"{base}/api/workflows/templates",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "name": "Release Hotfix",
-        "description": "Ship urgent production patches safely",
-        "objective": "Deploy with full policy + approval coverage",
-        "linked_policy_ids": ["pol_prod_deploy"],
-        "linked_capability_tags": ["deploy"],
-        "model_strategy_id": "mst_balanced_default",
-    },
-).json()["template"]
+result = claw.create_workflow_template(
+    name="Release Hotfix",
+    description="Ship urgent production patches safely",
+    objective="Deploy with full policy + approval coverage",
+    linked_policy_ids=["pol_prod_deploy"],
+    linked_capability_tags=["deploy"],
+    model_strategy_id="mst_balanced_default",
+)
+template = result["template"]
 
 # List, get, update, duplicate
-requests.get(f"{base}/api/workflows/templates", headers=headers).json()
-requests.get(f"{base}/api/workflows/templates/{template['template_id']}", headers=headers).json()
-requests.patch(
-    f"{base}/api/workflows/templates/{template['template_id']}",
-    headers={**headers, "Content-Type": "application/json"},
-    json={"steps": [{"id": "plan"}, {"id": "test"}, {"id": "deploy"}]},
-)
-requests.post(f"{base}/api/workflows/templates/{template['template_id']}/duplicate", headers=headers)
+claw.list_workflow_templates(status="active")
+claw.get_workflow_template(template["template_id"])
+claw.update_workflow_template(template["template_id"],
+    steps=[{"id": "plan"}, {"id": "test"}, {"id": "deploy"}]
+)  # bumps version when steps change
+claw.duplicate_workflow_template(template["template_id"])
 
 # Launch — creates a traceable action_records row with workflow metadata.
-# If the template links a model_strategy_id, the resolved config is snapshotted
-# onto the launched action (trigger=workflow:<id>, reasoning carries
-# WORKFLOW_LAUNCH_META JSON).
-launch = requests.post(
-    f"{base}/api/workflows/templates/{template['template_id']}/launch",
-    headers={**headers, "Content-Type": "application/json"},
-    json={"agent_id": "deploy-bot"},
-).json()["launch"]
+# If the template links a model_strategy_id, the resolved config is snapshotted.
+launch = claw.launch_workflow_template(
+    template["template_id"], agent_id="deploy-bot"
+)["launch"]
 print(launch["action_id"])  # act_... — view in /decisions/<action_id>
 ```
 
 ### Model Strategies
 
 ```python
-requests.post(
-    f"{base}/api/model-strategies",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "name": "Balanced Default",
-        "description": "GPT-4.1 primary, Claude Sonnet 4 fallback",
-        "config": {
-            "primary": {"provider": "openai", "model": "gpt-4.1"},
-            "fallback": [{"provider": "anthropic", "model": "claude-sonnet-4"}],
-            "costSensitivity": "balanced",      # low | balanced | high-quality
-            "latencySensitivity": "medium",     # low | medium | high
-            "maxBudgetUsd": 0.5,
-            "maxRetries": 2,
-            "allowedProviders": ["openai", "anthropic"],
-        },
+# Create
+claw.create_model_strategy(
+    name="Balanced Default",
+    description="GPT-4.1 primary, Claude Sonnet 4 fallback",
+    config={
+        "primary": {"provider": "openai", "model": "gpt-4.1"},
+        "fallback": [{"provider": "anthropic", "model": "claude-sonnet-4"}],
+        "costSensitivity": "balanced",      # low | balanced | high-quality
+        "latencySensitivity": "medium",     # low | medium | high
+        "maxBudgetUsd": 0.5,
+        "maxRetries": 2,
+        "allowedProviders": ["openai", "anthropic"],
     },
 )
 
-# Config patches merge over the existing config on PATCH
-requests.patch(
-    f"{base}/api/model-strategies/{strategy_id}",
-    headers={**headers, "Content-Type": "application/json"},
-    json={"config": {"maxBudgetUsd": 1.0}},
-)
+# Config patches merge over the existing config
+claw.update_model_strategy(strategy_id, config={"maxBudgetUsd": 1.0})
 
 # Delete nulls the soft reference on linked workflow_templates
-requests.delete(f"{base}/api/model-strategies/{strategy_id}", headers=headers)
+claw.delete_model_strategy(strategy_id)
 ```
 
 ### Knowledge Collections
 
-Metadata-only layer in Phase 1 — no embedding or retrieval.
+Metadata-only layer — no embedding or retrieval yet. Ingestion execution planned for Phase 2b.
 
 ```python
 # Create a collection
-collection = requests.post(
-    f"{base}/api/knowledge/collections",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "name": "Runbook Library",
-        "description": "Incident response runbooks",
-        "source_type": "files",   # files | urls | external | notes
-        "tags": ["ops", "oncall"],
-    },
-).json()["collection"]
+result = claw.create_knowledge_collection(
+    name="Runbook Library",
+    description="Incident response runbooks",
+    source_type="files",   # files | urls | external | notes
+    tags=["ops", "oncall"],
+)
+collection = result["collection"]
 
 # Add items — bumps doc_count and transitions ingestion_status empty → pending
-requests.post(
-    f"{base}/api/knowledge/collections/{collection['collection_id']}/items",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "source_uri": "https://docs.example.com/runbook.md",
-        "title": "Deploy runbook",
-        "mime_type": "text/markdown",
-    },
+claw.add_knowledge_collection_item(
+    collection["collection_id"],
+    source_uri="https://docs.example.com/runbook.md",
+    title="Deploy runbook",
+    mime_type="text/markdown",
 )
 
 # List items
-requests.get(
-    f"{base}/api/knowledge/collections/{collection['collection_id']}/items",
-    headers=headers,
-).json()
+claw.list_knowledge_collection_items(collection["collection_id"])
 ```
 
 ### Capability Registry
 
 ```python
 # Searchable registry — category, risk_level, and search combine freely
-caps = requests.get(
-    f"{base}/api/capabilities",
-    headers=headers,
-    params={"risk_level": "medium", "search": "slack"},
-).json()["capabilities"]
+caps = claw.list_capabilities(risk_level="medium", search="slack")["capabilities"]
 
 # Register a capability
-requests.post(
-    f"{base}/api/capabilities",
-    headers={**headers, "Content-Type": "application/json"},
-    json={
-        "name": "Send Slack Message",
-        "description": "Posts to a configured Slack channel",
-        "category": "messaging",
-        "source_type": "http_api",    # internal_sdk | http_api | webhook | human_approval | external_marketplace
-        "auth_type": "oauth",
-        "risk_level": "medium",       # low | medium | high | critical
-        "requires_approval": False,
-        "tags": ["notify", "slack"],
-        "health_status": "healthy",
-        "docs_url": "https://docs.example.com/slack",
-    },
+claw.create_capability(
+    name="Send Slack Message",
+    description="Posts to a configured Slack channel",
+    category="messaging",
+    source_type="http_api",    # internal_sdk | http_api | webhook | human_approval | external_marketplace
+    auth_type="oauth",
+    risk_level="medium",       # low | medium | high | critical
+    requires_approval=False,
+    tags=["notify", "slack"],
+    health_status="healthy",
+    docs_url="https://docs.example.com/slack",
 )
 ```
-
-Full OpenAPI definitions for all 22 new routes live in `docs/openapi/critical-stable.openapi.json`. The canonical route table is in `PROJECT_DETAILS.md` under § Execution Studio Routes.
 
 ## License
 

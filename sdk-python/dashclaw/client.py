@@ -1799,6 +1799,118 @@ class DashClaw:
         """Get the event log for a session."""
         return self._request(f"/api/sessions/{session_id}/events", "GET")
 
+    # --- Execution Studio: Execution Graph ----------------
+
+    def get_action_graph(self, action_id):
+        """Read-only execution graph (nodes + edges) for an action."""
+        return self._request(f"/api/actions/{action_id}/graph", "GET")
+
+    # --- Execution Studio: Workflow Templates -------------
+
+    def list_workflow_templates(self, status=None, limit=50, offset=0):
+        """List workflow templates."""
+        params = {"limit": limit, "offset": offset}
+        if status is not None:
+            params["status"] = status
+        return self._request("/api/workflows/templates", "GET", params=params)
+
+    def create_workflow_template(self, **kwargs):
+        """Create a workflow template. Required: name."""
+        return self._request("/api/workflows/templates", "POST", json=kwargs)
+
+    def get_workflow_template(self, template_id):
+        """Fetch a single workflow template."""
+        return self._request(f"/api/workflows/templates/{template_id}", "GET")
+
+    def update_workflow_template(self, template_id, **kwargs):
+        """Partial update. Bumps version when steps change."""
+        return self._request(f"/api/workflows/templates/{template_id}", "PATCH", json=kwargs)
+
+    def duplicate_workflow_template(self, template_id, **kwargs):
+        """Clone a template as a new draft."""
+        return self._request(f"/api/workflows/templates/{template_id}/duplicate", "POST", json=kwargs)
+
+    def launch_workflow_template(self, template_id, **kwargs):
+        """Launch a template. Creates a traceable action record with workflow metadata.
+        Resolves any linked model strategy into a snapshot at launch time."""
+        return self._request(f"/api/workflows/templates/{template_id}/launch", "POST", json=kwargs)
+
+    # --- Execution Studio: Model Strategies ---------------
+
+    def list_model_strategies(self):
+        """List model strategies."""
+        return self._request("/api/model-strategies", "GET")
+
+    def create_model_strategy(self, **kwargs):
+        """Create a model strategy. Required: name, config (with config.primary.provider and config.primary.model)."""
+        return self._request("/api/model-strategies", "POST", json=kwargs)
+
+    def get_model_strategy(self, strategy_id):
+        """Fetch a single model strategy."""
+        return self._request(f"/api/model-strategies/{strategy_id}", "GET")
+
+    def update_model_strategy(self, strategy_id, **kwargs):
+        """Partial update. Config patches merge over existing."""
+        return self._request(f"/api/model-strategies/{strategy_id}", "PATCH", json=kwargs)
+
+    def delete_model_strategy(self, strategy_id):
+        """Delete a model strategy. Nulls soft refs on linked workflow templates."""
+        return self._request(f"/api/model-strategies/{strategy_id}", "DELETE")
+
+    # --- Execution Studio: Knowledge Collections ----------
+
+    def list_knowledge_collections(self, source_type=None, limit=50, offset=0):
+        """List knowledge collections."""
+        params = {"limit": limit, "offset": offset}
+        if source_type is not None:
+            params["source_type"] = source_type
+        return self._request("/api/knowledge/collections", "GET", params=params)
+
+    def create_knowledge_collection(self, **kwargs):
+        """Create a knowledge collection. Required: name."""
+        return self._request("/api/knowledge/collections", "POST", json=kwargs)
+
+    def get_knowledge_collection(self, collection_id):
+        """Fetch a single knowledge collection."""
+        return self._request(f"/api/knowledge/collections/{collection_id}", "GET")
+
+    def update_knowledge_collection(self, collection_id, **kwargs):
+        """Update collection metadata."""
+        return self._request(f"/api/knowledge/collections/{collection_id}", "PATCH", json=kwargs)
+
+    def list_knowledge_collection_items(self, collection_id, limit=100, offset=0):
+        """List items in a knowledge collection."""
+        return self._request(f"/api/knowledge/collections/{collection_id}/items", "GET", params={"limit": limit, "offset": offset})
+
+    def add_knowledge_collection_item(self, collection_id, **kwargs):
+        """Add an item to a collection. Required: source_uri. Bumps parent doc_count."""
+        return self._request(f"/api/knowledge/collections/{collection_id}/items", "POST", json=kwargs)
+
+    # --- Execution Studio: Capability Registry ------------
+
+    def list_capabilities(self, category=None, risk_level=None, search=None, limit=100, offset=0):
+        """Search the capability registry. Filters are combinable."""
+        params = {"limit": limit, "offset": offset}
+        if category is not None:
+            params["category"] = category
+        if risk_level is not None:
+            params["risk_level"] = risk_level
+        if search is not None:
+            params["search"] = search
+        return self._request("/api/capabilities", "GET", params=params)
+
+    def create_capability(self, **kwargs):
+        """Register a capability. Required: name."""
+        return self._request("/api/capabilities", "POST", json=kwargs)
+
+    def get_capability(self, capability_id):
+        """Fetch a single capability."""
+        return self._request(f"/api/capabilities/{capability_id}", "GET")
+
+    def update_capability(self, capability_id, **kwargs):
+        """Update a capability."""
+        return self._request(f"/api/capabilities/{capability_id}", "PATCH", json=kwargs)
+
 
 # Backward compatibility alias (Legacy)
 OpenClawAgent = DashClaw

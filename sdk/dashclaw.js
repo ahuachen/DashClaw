@@ -1,5 +1,5 @@
 /**
- * DashClaw SDK v2.8.0 (Stable Runtime API)
+ * DashClaw SDK v2.10.0 (Stable Runtime API)
  * Focused governance runtime client for AI agents.
  */
 
@@ -642,6 +642,190 @@ class DashClaw {
    */
   async getSessionEvents(sessionId) {
     return this._request(`/api/sessions/${sessionId}/events`, 'GET');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Execution Studio — Execution Graph
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /api/actions/:id/graph — Read-only execution graph (nodes + edges).
+   */
+  async getActionGraph(actionId) {
+    return this._request(`/api/actions/${actionId}/graph`, 'GET');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Execution Studio — Workflow Templates
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /api/workflows/templates — List workflow templates.
+   * @param {Object} [filters={}] - { status, limit, offset }
+   */
+  async listWorkflowTemplates(filters = {}) {
+    return this._request('/api/workflows/templates', 'GET', null, filters);
+  }
+
+  /**
+   * POST /api/workflows/templates — Create a workflow template.
+   */
+  async createWorkflowTemplate(data) {
+    return this._request('/api/workflows/templates', 'POST', data);
+  }
+
+  /**
+   * GET /api/workflows/templates/:id — Fetch a single template.
+   */
+  async getWorkflowTemplate(templateId) {
+    return this._request(`/api/workflows/templates/${templateId}`, 'GET');
+  }
+
+  /**
+   * PATCH /api/workflows/templates/:id — Partial update. Bumps version when steps change.
+   */
+  async updateWorkflowTemplate(templateId, patch) {
+    return this._request(`/api/workflows/templates/${templateId}`, 'PATCH', patch);
+  }
+
+  /**
+   * POST /api/workflows/templates/:id/duplicate — Clone as a new draft.
+   */
+  async duplicateWorkflowTemplate(templateId, overrides = {}) {
+    return this._request(`/api/workflows/templates/${templateId}/duplicate`, 'POST', overrides);
+  }
+
+  /**
+   * POST /api/workflows/templates/:id/launch — Create a traceable action record.
+   * Resolves any linked model strategy into a snapshot at launch time.
+   */
+  async launchWorkflowTemplate(templateId, options = {}) {
+    return this._request(`/api/workflows/templates/${templateId}/launch`, 'POST', options);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Execution Studio — Model Strategies
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /api/model-strategies — List model strategies.
+   */
+  async listModelStrategies() {
+    return this._request('/api/model-strategies', 'GET');
+  }
+
+  /**
+   * POST /api/model-strategies — Create a model strategy.
+   * @param {Object} data - { name, description, config: { primary, fallback, costSensitivity, ... } }
+   */
+  async createModelStrategy(data) {
+    return this._request('/api/model-strategies', 'POST', data);
+  }
+
+  /**
+   * GET /api/model-strategies/:id — Fetch a single strategy.
+   */
+  async getModelStrategy(strategyId) {
+    return this._request(`/api/model-strategies/${strategyId}`, 'GET');
+  }
+
+  /**
+   * PATCH /api/model-strategies/:id — Partial update. Config patches merge over existing.
+   */
+  async updateModelStrategy(strategyId, patch) {
+    return this._request(`/api/model-strategies/${strategyId}`, 'PATCH', patch);
+  }
+
+  /**
+   * DELETE /api/model-strategies/:id — Delete. Nulls soft refs on linked templates.
+   */
+  async deleteModelStrategy(strategyId) {
+    return this._request(`/api/model-strategies/${strategyId}`, 'DELETE');
+  }
+
+  // ---------------------------------------------------------------------------
+  // Execution Studio — Knowledge Collections
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /api/knowledge/collections — List knowledge collections.
+   * @param {Object} [filters={}] - { sourceType, limit, offset }
+   */
+  async listKnowledgeCollections(filters = {}) {
+    const params = {};
+    if (filters.sourceType) params.source_type = filters.sourceType;
+    if (filters.limit) params.limit = filters.limit;
+    if (filters.offset) params.offset = filters.offset;
+    return this._request('/api/knowledge/collections', 'GET', null, params);
+  }
+
+  /**
+   * POST /api/knowledge/collections — Create a knowledge collection.
+   */
+  async createKnowledgeCollection(data) {
+    return this._request('/api/knowledge/collections', 'POST', data);
+  }
+
+  /**
+   * GET /api/knowledge/collections/:id — Fetch a single collection.
+   */
+  async getKnowledgeCollection(collectionId) {
+    return this._request(`/api/knowledge/collections/${collectionId}`, 'GET');
+  }
+
+  /**
+   * PATCH /api/knowledge/collections/:id — Update collection metadata.
+   */
+  async updateKnowledgeCollection(collectionId, patch) {
+    return this._request(`/api/knowledge/collections/${collectionId}`, 'PATCH', patch);
+  }
+
+  /**
+   * GET /api/knowledge/collections/:id/items — List items in a collection.
+   * @param {Object} [filters={}] - { limit, offset }
+   */
+  async listKnowledgeCollectionItems(collectionId, filters = {}) {
+    return this._request(`/api/knowledge/collections/${collectionId}/items`, 'GET', null, filters);
+  }
+
+  /**
+   * POST /api/knowledge/collections/:id/items — Add an item. Bumps parent doc_count.
+   */
+  async addKnowledgeCollectionItem(collectionId, data) {
+    return this._request(`/api/knowledge/collections/${collectionId}/items`, 'POST', data);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Execution Studio — Capability Registry
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /api/capabilities — Search the capability registry.
+   * @param {Object} [filters={}] - { category, risk_level, search, limit, offset }
+   */
+  async listCapabilities(filters = {}) {
+    return this._request('/api/capabilities', 'GET', null, filters);
+  }
+
+  /**
+   * POST /api/capabilities — Register a capability.
+   */
+  async createCapability(data) {
+    return this._request('/api/capabilities', 'POST', data);
+  }
+
+  /**
+   * GET /api/capabilities/:id — Fetch a single capability.
+   */
+  async getCapability(capabilityId) {
+    return this._request(`/api/capabilities/${capabilityId}`, 'GET');
+  }
+
+  /**
+   * PATCH /api/capabilities/:id — Update a capability.
+   */
+  async updateCapability(capabilityId, patch) {
+    return this._request(`/api/capabilities/${capabilityId}`, 'PATCH', patch);
   }
 }
 
