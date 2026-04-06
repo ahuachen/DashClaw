@@ -1194,6 +1194,19 @@ claw.add_knowledge_collection_item(
 
 # List items
 claw.list_knowledge_collection_items(collection["collection_id"])
+
+# Sync — ingest pending items (fetch, chunk, embed via BYOK OpenAI key)
+sync = claw.sync_knowledge_collection(collection["collection_id"])["sync"]
+print(sync["ingested"], sync["chunks_created"])  # e.g. 3 ingested, 42 chunks
+
+# Search — semantic similarity over embedded chunks
+results = claw.search_knowledge_collection(
+    collection["collection_id"],
+    "How do I roll back a deploy?",
+    limit=5,
+)["results"]
+for r in results:
+    print(f"{r['score']*100:.1f}%: {r['content'][:80]}...")
 ```
 
 ### Capability Registry

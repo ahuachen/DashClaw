@@ -486,6 +486,18 @@ await claw.addKnowledgeCollectionItem(collection.collection_id, {
 
 // List items
 const { items } = await claw.listKnowledgeCollectionItems(collection.collection_id);
+
+// Sync — ingest pending items (fetch, chunk, embed via BYOK OpenAI key)
+const { sync } = await claw.syncKnowledgeCollection(collection.collection_id);
+console.log(sync.ingested, sync.chunks_created); // e.g. 3 ingested, 42 chunks
+
+// Search — semantic similarity over embedded chunks
+const { results } = await claw.searchKnowledgeCollection(
+  collection.collection_id,
+  'How do I roll back a deploy?',
+  { limit: 5 }
+);
+results.forEach(r => console.log(`${(r.score * 100).toFixed(1)}%: ${r.content.slice(0, 80)}...`));
 ```
 
 ### Capability Registry

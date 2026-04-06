@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, BookOpen, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, FileText, RefreshCw, Search } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -23,6 +23,11 @@ export default function KnowledgeCollectionDetailPage() {
   const [adding, setAdding] = useState(false);
   const [newItemUri, setNewItemUri] = useState('');
   const [newItemTitle, setNewItemTitle] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [searching, setSearching] = useState(false);
 
   const fetchCollection = useCallback(async () => {
     try {
@@ -102,12 +107,36 @@ export default function KnowledgeCollectionDetailPage() {
       subtitle={collection.description || 'Knowledge collection'}
       breadcrumbs={['Studio', 'Knowledge', collection.name]}
       actions={
-        <Link
-          href="/knowledge"
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
-        >
-          <ArrowLeft size={14} /> Back
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/knowledge"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+          >
+            <ArrowLeft size={14} /> Back
+          </Link>
+          <button
+            onClick={async () => {
+              setSyncing(true);
+              setSyncResult(null);
+              try {
+                const res = await fetch(`/api/knowledge/collections/${collectionId}/sync`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sync failed');
+                setSyncResult(data.sync);
+                fetchCollection();
+              } catch (err) {
+                setSyncResult({ error: err.message });
+              } finally {
+                setSyncing(false);
+              }
+            }}
+            disabled={syncing}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+            {syncing ? 'Syncing...' : 'Sync'}
+          </button>
+        </div>
       }
     >
       {/* Metadata row */}
@@ -193,6 +222,102 @@ export default function KnowledgeCollectionDetailPage() {
                   <Badge variant={statusVariant[item.status] || 'default'}>{item.status}</Badge>
                 </div>
               ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Sync result banner */}
+      {syncResult && !syncResult.error && (
+        <div className="mt-4 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300">
+          Sync complete: {syncResult.ingested} ingested, {syncResult.chunks_created} chunks created
+          {syncResult.failed > 0 && <span className="text-amber-400"> ({syncResult.failed} failed)</span>}
+        </div>
+      )}
+      {syncResult?.error && (
+        <div className="mt-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          Sync failed: {syncResult.error}
+        </div>
+      )}
+
+      {/* Semantic Search */}
+      <Card className="mt-4">
+        <CardHeader title="Search" icon={Search} />
+        <CardContent className="p-5 pt-0">
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  setSearching(true);
+                  setSearchResults(null);
+                  fetch(`/api/knowledge/collections/${collectionId}/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: searchQuery.trim(), limit: 5 }),
+                  })
+                    .then((r) => r.json())
+                    .then((data) => setSearchResults(data))
+                    .catch((err) => setSearchResults({ error: err.message }))
+                    .finally(() => setSearching(false));
+                }
+              }}
+              placeholder="Ask a question about this collection..."
+              className="flex-1 px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+            />
+            <button
+              onClick={() => {
+                if (!searchQuery.trim()) return;
+                setSearching(true);
+                setSearchResults(null);
+                fetch(`/api/knowledge/collections/${collectionId}/search`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ query: searchQuery.trim(), limit: 5 }),
+                })
+                  .then((r) => r.json())
+                  .then((data) => setSearchResults(data))
+                  .catch((err) => setSearchResults({ error: err.message }))
+                  .finally(() => setSearching(false));
+              }}
+              disabled={searching || !searchQuery.trim()}
+              className="px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {searching ? 'Searching...' : 'Search'}
+            </button>
+          </div>
+
+          {searchResults?.error && (
+            <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 mb-3">
+              {searchResults.error}
+            </div>
+          )}
+
+          {searchResults?.results && (
+            <div className="space-y-3">
+              {searchResults.results.length === 0 ? (
+                <div className="text-sm text-zinc-500 py-4 text-center">No results found. Have you synced the collection first?</div>
+              ) : (
+                searchResults.results.map((r, i) => (
+                  <div key={r.chunk_id} className="px-3 py-3 rounded-lg bg-white/[0.02] border border-white/5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-zinc-500 font-mono">#{i + 1}</span>
+                        {r.title && <span className="text-xs text-zinc-300">{r.title}</span>}
+                      </div>
+                      <span className="text-[10px] text-zinc-500 font-mono">
+                        score {(r.score * 100).toFixed(1)}% · {r.token_count} tokens
+                      </span>
+                    </div>
+                    <div className="text-sm text-zinc-300 whitespace-pre-wrap line-clamp-4">{r.content}</div>
+                    {r.source_uri && (
+                      <div className="text-[10px] text-zinc-600 font-mono mt-1.5 truncate">{r.source_uri}</div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           )}
         </CardContent>

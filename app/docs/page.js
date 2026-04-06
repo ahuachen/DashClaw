@@ -1318,6 +1318,41 @@ console.log(result.fallback_used); // true if primary failed`}
                   </CodeBlock>
                 }
               />
+
+              <MethodEntry
+                id="syncKnowledgeCollection"
+                signature="POST /api/knowledge/collections/:collectionId/sync"
+                description="Caller-invoked ingestion: fetches source_uri content for each pending item, chunks text (~500 tokens with overlap), generates embeddings via BYOK OpenAI key (text-embedding-3-small, 1536 dims), and stores in the knowledge_chunks table (pgvector). Updates item status (pending → indexed/failed) and collection ingestion_status. Bounded to 50 items per call — designed for Vercel free tier (no cron required)."
+                returns="{ sync: { ingested, failed, chunks_created, errors } }"
+                example={
+                  <CodeBlock title="Sync a collection">
+{`// SDK
+const { sync } = await claw.syncKnowledgeCollection(collectionId);
+console.log(sync.ingested, sync.chunks_created);`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="searchKnowledgeCollection"
+                signature="POST /api/knowledge/collections/:collectionId/search"
+                description="Semantic search over chunked + embedded content. Embeds the query via BYOK OpenAI key, then uses pgvector cosine distance to find the most relevant chunks. Returns top-k results with similarity scores, chunk content, and source item metadata."
+                params={[
+                  { name: 'query', type: 'string', required: true, desc: 'Natural language search query' },
+                  { name: 'limit', type: 'number', required: false, desc: 'Max results (default 5, max 20)' },
+                ]}
+                returns="{ query, collection_id, results: Array<{ chunk_id, item_id, content, score, position, token_count, title, source_uri }>, count }"
+                example={
+                  <CodeBlock title="Search a collection">
+{`const { results } = await claw.searchKnowledgeCollection(
+  collectionId,
+  'How do I roll back a deploy?',
+  { limit: 5 }
+);
+results.forEach(r => console.log(\`\${(r.score * 100).toFixed(1)}%: \${r.content.slice(0, 80)}\`));`}
+                  </CodeBlock>
+                }
+              />
             </div>
 
             {/* Capability Registry */}

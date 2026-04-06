@@ -22,7 +22,7 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 
 ## v2 Stable Surface (Node)
 
-68 public methods organized by governance concern:
+70 public methods organized by governance concern:
 
 | Category | Methods | Count |
 |----------|---------|------:|
@@ -46,9 +46,9 @@ The Python SDK (`sdk-python/dashclaw/client.py`) retains the full 188+ method su
 | Execution Graph | `getActionGraph` | 1 |
 | Workflow Templates | `listWorkflowTemplates`, `createWorkflowTemplate`, `getWorkflowTemplate`, `updateWorkflowTemplate`, `duplicateWorkflowTemplate`, `launchWorkflowTemplate` | 6 |
 | Model Strategies | `listModelStrategies`, `createModelStrategy`, `getModelStrategy`, `updateModelStrategy`, `deleteModelStrategy`, `completeWithStrategy` | 6 |
-| Knowledge Collections | `listKnowledgeCollections`, `createKnowledgeCollection`, `getKnowledgeCollection`, `updateKnowledgeCollection`, `listKnowledgeCollectionItems`, `addKnowledgeCollectionItem` | 6 |
+| Knowledge Collections | `listKnowledgeCollections`, `createKnowledgeCollection`, `getKnowledgeCollection`, `updateKnowledgeCollection`, `listKnowledgeCollectionItems`, `addKnowledgeCollectionItem`, `syncKnowledgeCollection`, `searchKnowledgeCollection` | 8 |
 | Capability Registry | `listCapabilities`, `createCapability`, `getCapability`, `updateCapability` | 4 |
-| **Total** | | **68** |
+| **Total** | | **70** |
 
 Error types exported: `ApprovalDeniedError`, `GuardBlockedError`.
 

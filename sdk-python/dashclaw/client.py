@@ -1895,6 +1895,17 @@ class DashClaw:
         """Add an item to a collection. Required: source_uri. Bumps parent doc_count."""
         return self._request(f"/api/knowledge/collections/{collection_id}/items", "POST", json=kwargs)
 
+    def sync_knowledge_collection(self, collection_id):
+        """Ingest pending items: fetch, chunk, embed, store. Caller-invoked."""
+        return self._request(f"/api/knowledge/collections/{collection_id}/sync", "POST", json={})
+
+    def search_knowledge_collection(self, collection_id, query, limit=5):
+        """Semantic search over chunked + embedded collection content."""
+        return self._request(
+            f"/api/knowledge/collections/{collection_id}/search", "POST",
+            json={"query": query, "limit": limit}
+        )
+
     # --- Execution Studio: Capability Registry ------------
 
     def list_capabilities(self, category=None, risk_level=None, search=None, limit=100, offset=0):

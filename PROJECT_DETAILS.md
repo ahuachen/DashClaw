@@ -73,6 +73,8 @@ Modular intelligence features that consume runtime data.
 | `GET/POST /api/knowledge/collections` | List or create knowledge collections (metadata-only in Phase 1; no embedding/retrieval). |
 | `GET/PATCH /api/knowledge/collections/:collectionId` | Fetch or update a collection. |
 | `GET/POST /api/knowledge/collections/:collectionId/items` | List or add items. Adding an item bumps the parent collection's `doc_count` and transitions `ingestion_status` from `empty` → `pending`. |
+| `POST /api/knowledge/collections/:collectionId/sync` | Caller-invoked ingestion: fetches source_uri content for pending items, chunks text (~500 tokens with overlap), generates embeddings via BYOK OpenAI key (`text-embedding-3-small`), stores in `knowledge_chunks` table (pgvector). Updates item status (pending → indexed/failed) and collection metadata. Bounded to 50 items per call. |
+| `POST /api/knowledge/collections/:collectionId/search` | Semantic search over chunked + embedded content. Embeds the query, uses pgvector cosine distance (`<=>`) to return top-k results with similarity scores, chunk content, and source item metadata. |
 | `GET/POST /api/capabilities` | Searchable capability registry. `GET` supports `category`, `risk_level`, and `search` (ILIKE on name/description/tags) filters. |
 | `GET/PATCH /api/capabilities/:capabilityId` | Fetch or update a capability record. |
 

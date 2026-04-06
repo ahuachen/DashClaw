@@ -1105,3 +1105,20 @@ CREATE TABLE IF NOT EXISTS "capabilities" (
 CREATE UNIQUE INDEX IF NOT EXISTS "capabilities_org_slug_unique" ON "capabilities" ("org_id","slug");
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_capabilities_org_category" ON "capabilities" ("org_id","category");
+--> statement-breakpoint
+-- Knowledge ingestion: chunked + embedded content for vector retrieval
+CREATE TABLE IF NOT EXISTS "knowledge_chunks" (
+  "chunk_id" text PRIMARY KEY NOT NULL,
+  "item_id" text NOT NULL,
+  "collection_id" text NOT NULL,
+  "org_id" text DEFAULT 'org_default' NOT NULL,
+  "content" text NOT NULL,
+  "embedding" vector(1536),
+  "position" integer DEFAULT 0 NOT NULL,
+  "token_count" integer DEFAULT 0 NOT NULL,
+  "created_at" timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_knowledge_chunks_collection" ON "knowledge_chunks" ("collection_id");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_knowledge_chunks_item" ON "knowledge_chunks" ("item_id");

@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `184`
+- Total routes: `186`
 - Stable routes: `34`
 - Beta routes: `19`
-- Experimental routes: `131`
+- Experimental routes: `133`
 
 ## Routes
 
@@ -130,6 +130,8 @@ doc-type: architecture
 | `/api/knowledge/collections` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/route.js` |
 | `/api/knowledge/collections/{collectionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/route.js` |
 | `/api/knowledge/collections/{collectionId}/items` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/items/route.js` |
+| `/api/knowledge/collections/{collectionId}/search` | `POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/search/route.js` |
+| `/api/knowledge/collections/{collectionId}/sync` | `POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/sync/route.js` |
 | `/api/learning` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/route.js` |
 | `/api/learning/analytics/curves` | `GET, POST` | `experimental` | `/api/learning` | `app/api/learning/analytics/curves/route.js` |
 | `/api/learning/analytics/maturity` | `GET` | `experimental` | `/api/learning` | `app/api/learning/analytics/maturity/route.js` |

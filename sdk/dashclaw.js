@@ -810,6 +810,26 @@ class DashClaw {
     return this._request(`/api/knowledge/collections/${collectionId}/items`, 'POST', data);
   }
 
+  /**
+   * POST /api/knowledge/collections/:id/sync — Ingest pending items (chunk + embed).
+   */
+  async syncKnowledgeCollection(collectionId) {
+    return this._request(`/api/knowledge/collections/${collectionId}/sync`, 'POST', {});
+  }
+
+  /**
+   * POST /api/knowledge/collections/:id/search — Semantic search over chunks.
+   * @param {string} collectionId
+   * @param {string} query
+   * @param {Object} [options={}] - { limit }
+   */
+  async searchKnowledgeCollection(collectionId, query, options = {}) {
+    return this._request(`/api/knowledge/collections/${collectionId}/search`, 'POST', {
+      query,
+      ...options,
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Execution Studio — Capability Registry
   // ---------------------------------------------------------------------------
