@@ -149,6 +149,16 @@ export async function getCapability(sql, orgId, capabilityId) {
   return shapeCapability(rows[0]);
 }
 
+export async function getCapabilityBySlug(sql, orgId, slug) {
+  const rows = await sql`
+    SELECT * FROM capabilities
+    WHERE org_id = ${orgId} AND slug = ${slug}
+    LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  return shapeCapability(rows[0]);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Writes
 // ─────────────────────────────────────────────────────────────────────────────
