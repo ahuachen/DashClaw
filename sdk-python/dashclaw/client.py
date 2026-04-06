@@ -1857,6 +1857,15 @@ class DashClaw:
         """Delete a model strategy. Nulls soft refs on linked workflow templates."""
         return self._request(f"/api/model-strategies/{strategy_id}", "DELETE")
 
+    def complete_with_strategy(self, strategy_id, messages, **kwargs):
+        """Execute a chat completion using a model strategy. Resolves BYOK
+        provider credentials, handles fallback chain, enforces budget caps.
+        kwargs: max_tokens, temperature, task_mode."""
+        return self._request(
+            f"/api/model-strategies/{strategy_id}/complete", "POST",
+            json={"messages": messages, **kwargs}
+        )
+
     # --- Execution Studio: Knowledge Collections ----------
 
     def list_knowledge_collections(self, source_type=None, limit=50, offset=0):

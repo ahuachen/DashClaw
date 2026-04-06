@@ -743,6 +743,21 @@ class DashClaw {
     return this._request(`/api/model-strategies/${strategyId}`, 'DELETE');
   }
 
+  /**
+   * POST /api/model-strategies/:id/complete — Execute a chat completion using
+   * this strategy. Resolves BYOK provider credentials, handles fallback chain,
+   * enforces budget caps.
+   * @param {string} strategyId
+   * @param {Array<{role: string, content: string}>} messages
+   * @param {Object} [options={}] - { max_tokens, temperature, task_mode }
+   */
+  async completeWithStrategy(strategyId, messages, options = {}) {
+    return this._request(`/api/model-strategies/${strategyId}/complete`, 'POST', {
+      messages,
+      ...options,
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Execution Studio — Knowledge Collections
   // ---------------------------------------------------------------------------
