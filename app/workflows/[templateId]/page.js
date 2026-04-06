@@ -6,9 +6,13 @@ import Link from 'next/link';
 import {
   ArrowLeft, Rocket, Copy, FileText, ShieldCheck, BookOpen, Wrench, Cpu, ExternalLink,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+
+// Dynamic import avoids SSR for React Flow (canvas-heavy, browser-only)
+const WorkflowEditor = dynamic(() => import('../../components/WorkflowEditor'), { ssr: false });
 
 const statusVariant = {
   draft: 'default',
@@ -25,6 +29,9 @@ export default function WorkflowTemplateDetailPage() {
   const [launching, setLaunching] = useState(false);
   const [launchResult, setLaunchResult] = useState(null);
   const [duplicating, setDuplicating] = useState(false);
+  const [stepsView, setStepsView] = useState('visual'); // 'visual' | 'source'
+  const [pendingSteps, setPendingSteps] = useState(null);
+  const [savingSteps, setSavingSteps] = useState(false);
 
   const fetchTemplate = useCallback(async () => {
     try {
@@ -187,6 +194,66 @@ export default function WorkflowTemplateDetailPage() {
           Launch failed: {launchResult.error}
         </div>
       )}
+
+      {/* Workflow Steps Editor */}
+      <Card className="mb-4">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps</span>
+            <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
+              <button
+                onClick={() => setStepsView('visual')}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'visual' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Visual
+              </button>
+              <button
+                onClick={() => setStepsView('source')}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'source' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Source
+              </button>
+            </div>
+          </div>
+          {pendingSteps && (
+            <button
+              onClick={async () => {
+                setSavingSteps(true);
+                try {
+                  const res = await fetch(`/api/workflows/templates/${templateId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steps: pendingSteps }),
+                  });
+                  if (res.ok) {
+                    setPendingSteps(null);
+                    fetchTemplate();
+                  }
+                } catch { /* noop */ }
+                setSavingSteps(false);
+              }}
+              disabled={savingSteps}
+              className="px-3 py-1.5 text-xs text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {savingSteps ? 'Saving...' : 'Save Steps'}
+            </button>
+          )}
+        </div>
+        <CardContent className="p-5 pt-0">
+          {stepsView === 'visual' ? (
+            <div className="relative">
+              <WorkflowEditor
+                steps={template.steps}
+                onChange={(newSteps) => setPendingSteps(newSteps)}
+              />
+            </div>
+          ) : (
+            <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
+              {JSON.stringify(pendingSteps || template.steps, null, 2)}
+            </pre>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Objective + linked resources */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

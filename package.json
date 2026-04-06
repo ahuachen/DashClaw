@@ -52,6 +52,7 @@
     "@e965/xlsx": "^0.20.3",
     "@neondatabase/serverless": "^1.0.2",
     "@vercel/analytics": "1.6.1",
+    "@xyflow/react": "^12.10.2",
     "better-sqlite3": "^12.8.0",
     "d3-drag": "^3.0.0",
     "d3-force": "^3.0.0",
