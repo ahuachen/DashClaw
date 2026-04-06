@@ -93,13 +93,12 @@ export default function KnowledgePage() {
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
-          <button
-            onClick={createStarter}
-            disabled={creating}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+          <Link
+            href="/knowledge/new"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
           >
-            <Plus size={14} /> {creating ? 'Creating...' : 'New Collection'}
-          </button>
+            <Plus size={14} /> New Collection
+          </Link>
         </div>
       }
     >
@@ -117,13 +116,12 @@ export default function KnowledgePage() {
           title="No knowledge collections yet"
           description="Collections are named containers for documents, URLs, and notes that workflows can bind to. Phase 1 is metadata-only — vector retrieval comes later."
           action={
-            <button
-              onClick={createStarter}
-              disabled={creating}
+            <Link
+              href="/knowledge/new"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
             >
-              <Plus size={14} /> Create starter collection
-            </button>
+              <Plus size={14} /> Create your first collection
+            </Link>
           }
         />
       ) : (

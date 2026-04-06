@@ -32,6 +32,11 @@ export default function WorkflowTemplateDetailPage() {
   const [stepsView, setStepsView] = useState('visual'); // 'visual' | 'source'
   const [pendingSteps, setPendingSteps] = useState(null);
   const [savingSteps, setSavingSteps] = useState(false);
+  const [linkedResources, setLinkedResources] = useState({
+    strategy: null,
+    knowledge: [],
+    capabilities: [],
+  });
 
   const fetchTemplate = useCallback(async () => {
     try {
@@ -42,6 +47,42 @@ export default function WorkflowTemplateDetailPage() {
       }
       const { template: t } = await res.json();
       setTemplate(t);
+
+      // Hydrate linked resources (best-effort, don't block on failures)
+      const hydrated = { strategy: null, knowledge: [], capabilities: [] };
+      try {
+        const fetches = [];
+        if (t.model_strategy_id) {
+          fetches.push(
+            fetch(`/api/model-strategies/${t.model_strategy_id}`)
+              .then((r) => r.ok ? r.json() : null)
+              .then((d) => { if (d?.strategy) hydrated.strategy = d.strategy; })
+              .catch(() => {})
+          );
+        }
+        if (t.linked_knowledge_collection_ids?.length) {
+          for (const id of t.linked_knowledge_collection_ids) {
+            fetches.push(
+              fetch(`/api/knowledge/collections/${id}`)
+                .then((r) => r.ok ? r.json() : null)
+                .then((d) => { if (d?.collection) hydrated.knowledge.push(d.collection); })
+                .catch(() => {})
+            );
+          }
+        }
+        if (t.linked_capability_ids?.length) {
+          for (const id of t.linked_capability_ids) {
+            fetches.push(
+              fetch(`/api/capabilities/${id}`)
+                .then((r) => r.ok ? r.json() : null)
+                .then((d) => { if (d?.capability) hydrated.capabilities.push(d.capability); })
+                .catch(() => {})
+            );
+          }
+        }
+        await Promise.all(fetches);
+      } catch { /* hydration is best-effort */ }
+      setLinkedResources(hydrated);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -269,10 +310,26 @@ export default function WorkflowTemplateDetailPage() {
         <Card>
           <CardHeader title="Linked Resources" icon={ShieldCheck} />
           <CardContent className="p-5 pt-0 space-y-3">
-            <LinkedRow icon={Cpu} label="Model strategy" value={template.model_strategy_id} />
+            {/* Model strategy — hydrated */}
+            <LinkedRow icon={Cpu} label="Model strategy"
+              value={linkedResources.strategy
+                ? `${linkedResources.strategy.name} (${linkedResources.strategy.config?.primary?.provider || '?'}/${linkedResources.strategy.config?.primary?.model || '?'})`
+                : template.model_strategy_id}
+              href={template.model_strategy_id ? `/model-strategies/${template.model_strategy_id}` : null}
+            />
             <LinkedRow icon={ShieldCheck} label="Policies" value={template.linked_policy_ids} />
-            <LinkedRow icon={BookOpen} label="Knowledge" value={template.linked_knowledge_collection_ids} />
-            <LinkedRow icon={Wrench} label="Capabilities" value={template.linked_capability_ids} />
+            {/* Knowledge — hydrated */}
+            <LinkedRow icon={BookOpen} label="Knowledge"
+              value={linkedResources.knowledge.length > 0
+                ? linkedResources.knowledge.map((k) => `${k.name} (${k.doc_count} items)`)
+                : template.linked_knowledge_collection_ids}
+            />
+            {/* Capabilities — hydrated */}
+            <LinkedRow icon={Wrench} label="Capabilities"
+              value={linkedResources.capabilities.length > 0
+                ? linkedResources.capabilities.map((c) => `${c.name} [${c.risk_level}]`)
+                : template.linked_capability_ids}
+            />
             <LinkedRow icon={FileText} label="Prompts" value={template.linked_prompt_template_ids} />
             <LinkedRow icon={Wrench} label="Capability tags" value={template.linked_capability_tags} />
           </CardContent>
@@ -294,9 +351,10 @@ export default function WorkflowTemplateDetailPage() {
   );
 }
 
-function LinkedRow({ icon: Icon, label, value }) {
+function LinkedRow({ icon: Icon, label, value, href }) {
   const isArray = Array.isArray(value);
   const empty = isArray ? value.length === 0 : !value;
+  const display = isArray ? value.join(', ') : value;
   return (
     <div className="flex items-start gap-2">
       <Icon size={14} className="text-zinc-500 mt-0.5" />
@@ -304,10 +362,12 @@ function LinkedRow({ icon: Icon, label, value }) {
         <div className="text-[10px] text-zinc-500 uppercase tracking-wider">{label}</div>
         {empty ? (
           <div className="text-xs text-zinc-600">None linked</div>
-        ) : isArray ? (
-          <div className="text-xs text-zinc-300 font-mono truncate">{value.join(', ')}</div>
+        ) : href ? (
+          <Link href={href} className="text-xs text-brand hover:text-brand/80 font-mono truncate block transition-colors">
+            {display}
+          </Link>
         ) : (
-          <div className="text-xs text-zinc-300 font-mono truncate">{value}</div>
+          <div className="text-xs text-zinc-300 font-mono truncate">{display}</div>
         )}
       </div>
     </div>

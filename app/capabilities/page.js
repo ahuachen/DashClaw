@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Wrench, Plus, Search, RotateCw, ShieldAlert, Clock, DollarSign, Activity } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
@@ -100,13 +101,12 @@ export default function CapabilitiesPage() {
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
-          <button
-            onClick={createStarter}
-            disabled={creating}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+          <Link
+            href="/capabilities/new"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
           >
-            <Plus size={14} /> {creating ? 'Creating...' : 'Register Capability'}
-          </button>
+            <Plus size={14} /> Register Capability
+          </Link>
         </div>
       }
     >
@@ -158,13 +158,12 @@ export default function CapabilitiesPage() {
           }
           action={
             !search && riskFilter === 'all' ? (
-              <button
-                onClick={createStarter}
-                disabled={creating}
+              <Link
+                href="/capabilities/new"
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
               >
-                <Plus size={14} /> Register starter capability
-              </button>
+                <Plus size={14} /> Register your first capability
+              </Link>
             ) : null
           }
         />

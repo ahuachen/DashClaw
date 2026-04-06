@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { ArrowLeft, Save } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent } from '../../components/ui/Card';
+
+const WorkflowEditor = dynamic(() => import('../../components/WorkflowEditor'), { ssr: false });
 
 export default function NewWorkflowTemplatePage() {
   const router = useRouter();
@@ -18,6 +21,7 @@ export default function NewWorkflowTemplatePage() {
     objective: '',
     status: 'draft',
   });
+  const [steps, setSteps] = useState(null);
 
   const update = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
@@ -39,6 +43,7 @@ export default function NewWorkflowTemplatePage() {
           description: form.description.trim() || undefined,
           objective: form.objective.trim() || undefined,
           status: form.status,
+          ...(steps ? { steps } : {}),
         }),
       });
       if (!res.ok) {
@@ -137,6 +142,16 @@ export default function NewWorkflowTemplatePage() {
                 <option value="archived">Archived</option>
               </select>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <div className="px-5 pt-5 pb-3">
+            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps (optional)</span>
+            <span className="text-xs text-zinc-500 ml-2">Drag nodes, connect edges. Saved with the template on create.</span>
+          </div>
+          <CardContent className="p-5 pt-0">
+            <WorkflowEditor steps={null} onChange={(s) => setSteps(s)} />
           </CardContent>
         </Card>
 

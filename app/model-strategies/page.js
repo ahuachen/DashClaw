@@ -81,13 +81,12 @@ export default function ModelStrategiesPage() {
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
-          <button
-            onClick={createDefault}
-            disabled={creating}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50"
+          <Link
+            href="/model-strategies/new"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
           >
-            <Plus size={14} /> {creating ? 'Creating...' : 'New Strategy'}
-          </button>
+            <Plus size={14} /> New Strategy
+          </Link>
         </div>
       }
     >
@@ -105,13 +104,12 @@ export default function ModelStrategiesPage() {
           title="No model strategies yet"
           description="Define reusable model/provider strategies with fallback chains, budget caps, and task-mode overrides. Link them to workflow templates."
           action={
-            <button
-              onClick={createDefault}
-              disabled={creating}
+            <Link
+              href="/model-strategies/new"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
             >
-              <Plus size={14} /> Create a balanced default
-            </button>
+              <Plus size={14} /> Create your first strategy
+            </Link>
           }
         />
       ) : (
