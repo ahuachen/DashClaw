@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `186`
+- Total routes: `187`
 - Stable routes: `34`
 - Beta routes: `19`
-- Experimental routes: `133`
+- Experimental routes: `134`
 
 ## Routes
 
@@ -91,6 +91,7 @@ doc-type: architecture
 | `/api/auth/local` | `DELETE, POST` | `beta` | `/api/auth` | `app/api/auth/local/route.js` |
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
+| `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |
 | `/api/compliance/evidence` | `GET` | `experimental` | `(default)` | `app/api/compliance/evidence/route.js` |
 | `/api/compliance/exports` | `GET, POST` | `experimental` | `(default)` | `app/api/compliance/exports/route.js` |
 | `/api/compliance/exports/{exportId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/compliance/exports/[exportId]/route.js` |
