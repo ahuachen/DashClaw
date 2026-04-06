@@ -453,6 +453,15 @@ await claw.updateModelStrategy(strategyId, { config: { maxBudgetUsd: 1.0 } });
 
 // Delete (soft references on linked workflow_templates are nulled out)
 await claw.deleteModelStrategy(strategyId);
+
+// Execute a chat completion using the strategy (BYOK, fallback, budget enforcement)
+const result = await claw.completeWithStrategy(strategyId, [
+  { role: 'user', content: 'Summarize the deploy plan' }
+], { max_tokens: 512, temperature: 0.7, task_mode: 'reasoning' });
+console.log(result.content);    // LLM response text
+console.log(result.provider);   // e.g. 'openai'
+console.log(result.cost_usd);   // estimated cost
+console.log(result.fallback_used); // true if primary failed
 ```
 
 ### Knowledge Collections

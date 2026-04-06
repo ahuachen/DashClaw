@@ -1155,6 +1155,19 @@ claw.update_model_strategy(strategy_id, config={"maxBudgetUsd": 1.0})
 
 # Delete nulls the soft reference on linked workflow_templates
 claw.delete_model_strategy(strategy_id)
+
+# Execute a chat completion using the strategy (BYOK, fallback, budget enforcement)
+result = claw.complete_with_strategy(
+    strategy_id,
+    messages=[{"role": "user", "content": "Summarize the deploy plan"}],
+    max_tokens=512,
+    temperature=0.7,
+    task_mode="reasoning",
+)
+print(result["content"])       # LLM response text
+print(result["provider"])      # e.g. 'openai'
+print(result["cost_usd"])      # estimated cost
+print(result["fallback_used"]) # True if primary failed
 ```
 
 ### Knowledge Collections

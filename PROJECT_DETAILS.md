@@ -69,6 +69,7 @@ Modular intelligence features that consume runtime data.
 | `POST /api/workflows/templates/:templateId/launch` | Launch a template — creates an `action_records` row with `trigger=workflow:<id>` and `WORKFLOW_LAUNCH_META=<json>` in `reasoning`, resolving any linked model strategy into a snapshot. No schema columns added to `action_records`. |
 | `GET/POST /api/model-strategies` | List or create model/provider strategy records (`primary`, `fallback`, `costSensitivity`, `maxBudgetUsd`, `maxRetries`). |
 | `GET/PATCH/DELETE /api/model-strategies/:strategyId` | Fetch, update (merges config), or delete a strategy. Delete nulls the soft reference on any linked `workflow_templates`. |
+| `POST /api/model-strategies/:strategyId/complete` | Execute a chat completion using this strategy. Resolves BYOK provider credentials from org settings, walks the fallback chain (primary → fallback providers), enforces `maxBudgetUsd`, records cost. Supports `task_mode` overrides via `taskModes` config. Returns normalized `{ content, provider, model, usage, cost_usd, fallback_used }`. |
 | `GET/POST /api/knowledge/collections` | List or create knowledge collections (metadata-only in Phase 1; no embedding/retrieval). |
 | `GET/PATCH /api/knowledge/collections/:collectionId` | Fetch or update a collection. |
 | `GET/POST /api/knowledge/collections/:collectionId/items` | List or add items. Adding an item bumps the parent collection's `doc_count` and transitions `ingestion_status` from `empty` → `pending`. |

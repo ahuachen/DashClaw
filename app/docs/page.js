@@ -1231,6 +1231,31 @@ console.log(\`\${baseUrl}/decisions/\${launch.action_id}\`);`}
                   </CodeBlock>
                 }
               />
+
+              <MethodEntry
+                id="completeWithStrategy"
+                signature="POST /api/model-strategies/:strategyId/complete"
+                description="Execute a chat completion using this strategy. Resolves BYOK provider credentials from org settings, walks the fallback chain (primary provider first, then each fallback), enforces maxBudgetUsd, and returns a normalized response. Supports task_mode to override primary with the corresponding taskModes entry. Providers supported: openai, anthropic, groq, together, perplexity. Returns 502 with provider_errors array when all providers fail."
+                params={[
+                  { name: 'messages', type: 'Array<{ role, content }>', required: true, desc: 'Chat messages (system, user, assistant)' },
+                  { name: 'max_tokens', type: 'number', required: false, desc: 'Max output tokens (default 1024)' },
+                  { name: 'temperature', type: 'number', required: false, desc: 'Sampling temperature (default 0.7)' },
+                  { name: 'task_mode', type: 'string', required: false, desc: 'Override primary with taskModes[mode] if defined in strategy config' },
+                ]}
+                returns="{ content, provider, model, usage: { input_tokens, output_tokens }, cost_usd, fallback_used, attempts, strategy_id, strategy_name }"
+                example={
+                  <CodeBlock title="Execute completion with fallback">
+{`const result = await claw.completeWithStrategy(strategyId, [
+  { role: 'user', content: 'Summarize the deploy plan' }
+], { max_tokens: 512, task_mode: 'reasoning' });
+
+console.log(result.content);       // LLM response
+console.log(result.provider);      // which provider handled it
+console.log(result.cost_usd);      // estimated cost
+console.log(result.fallback_used); // true if primary failed`}
+                  </CodeBlock>
+                }
+              />
             </div>
 
             {/* Knowledge Collections */}
