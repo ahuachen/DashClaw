@@ -3,7 +3,16 @@ import { getCapabilityHealthSummary } from '../../app/lib/capability-health.js';
 
 function makeSqlMock(responses) {
   const queue = [...responses];
-  return vi.fn(() => Promise.resolve(queue.shift() ?? []));
+  return vi.fn((strings) => {
+    if (Array.isArray(strings) && strings.length === 1 && strings[0] === '') {
+      return Promise.resolve([]);
+    }
+    const next = queue.shift() ?? [];
+    if (next instanceof Error) {
+      return Promise.reject(next);
+    }
+    return Promise.resolve(next);
+  });
 }
 
 describe('getCapabilityHealthSummary', () => {
@@ -112,5 +121,45 @@ describe('getCapabilityHealthSummary', () => {
     expect(summary.last_tested_at).toBeNull();
     expect(summary.stale_check).toBe(true);
     expect(summary.success_rate_7d).toBe(0);
+  });
+
+  it('falls back to legacy action_records columns when runtime fields are unavailable', async () => {
+    const missingColumn = new Error('column "duration_ms" does not exist');
+    missingColumn.code = '42703';
+
+    const sql = makeSqlMock([
+      missingColumn,
+      [],
+      [],
+      [{
+        total_invocations: '2',
+        successful_invocations: '2',
+        failed_invocations: '0',
+        pending_approvals: '0',
+        total_invocations_1d: '1',
+        successful_invocations_1d: '1',
+        last_success_at: '2026-04-07T00:00:00.000Z',
+        last_failure_at: null,
+      }],
+      [{
+        action_id: 'act_test_legacy',
+        status: 'completed',
+        timestamp_start: '2026-04-07T02:00:00.000Z',
+      }],
+    ]);
+
+    const summary = await getCapabilityHealthSummary(sql, 'org_1', {
+      slug: 'research-agent',
+      health_status: 'unknown',
+    });
+
+    expect(summary.status).toBe('healthy');
+    expect(summary.total_invocations).toBe(2);
+    expect(summary.success_rate_1d).toBe(100);
+    expect(summary.success_rate_7d).toBe(100);
+    expect(summary.p95_latency_ms).toBeNull();
+    expect(summary.last_test_status).toBe('completed');
+    expect(summary.last_test_action_id).toBe('act_test_legacy');
+    expect(summary.recent_errors).toEqual([]);
   });
 });

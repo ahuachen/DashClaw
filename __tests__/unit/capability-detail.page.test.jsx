@@ -291,6 +291,47 @@ describe('CapabilityDetailPage', () => {
     expect(await screen.findByText(/no recent capability events/i)).toBeTruthy();
   });
 
+  it('keeps the page usable when health fails after the capability metadata loads', async () => {
+    mockUseParams.mockReturnValue({});
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Research Agent',
+          slug: 'research-agent',
+          risk_level: 'medium',
+          source_type: 'http_api',
+        },
+      }))
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          error: 'Internal server error',
+          detail: 'column "duration_ms" does not exist',
+        }),
+      })
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [
+          {
+            action_id: 'act_1',
+            action_type: 'capability_invoke',
+            status: 'completed',
+          },
+        ],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
+
+    expect(await screen.findByText('Research Agent')).toBeTruthy();
+    expect(screen.queryByText('Capability unavailable')).toBeNull();
+    expect(await screen.findByText(/health summary unavailable/i)).toBeTruthy();
+    expect(await screen.findByText(/duration_ms/i)).toBeTruthy();
+    expect(await screen.findByText(/capability_invoke/i)).toBeTruthy();
+  });
+
   it('disables test submission for invalid json and while a test is in flight', async () => {
     mockUseParams.mockReturnValue({});
     let resolveTest;

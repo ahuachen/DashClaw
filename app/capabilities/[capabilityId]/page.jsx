@@ -15,7 +15,7 @@ import CapabilityTestPanel from './components/CapabilityTestPanel';
 async function readJson(response) {
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(body.error || 'Request failed');
+    throw new Error(body.detail || body.error || 'Request failed');
   }
   return body;
 }
@@ -30,6 +30,7 @@ export default function CapabilityDetailPage({ params }) {
   const [error, setError] = useState(null);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState(null);
+  const [healthError, setHealthError] = useState(null);
   const [historyFilters, setHistoryFilters] = useState({ actionType: 'all', status: 'all' });
   const [testPanelOpen, setTestPanelOpen] = useState(false);
   const [testSubmitting, setTestSubmitting] = useState(false);
@@ -42,8 +43,16 @@ export default function CapabilityDetailPage({ params }) {
   }, [capabilityId]);
 
   const loadHealthSummary = useCallback(async () => {
-    const healthBody = await fetch(`/api/capabilities/${capabilityId}/health`).then(readJson);
-    setHealth(healthBody || null);
+    setHealthError(null);
+    try {
+      const healthBody = await fetch(`/api/capabilities/${capabilityId}/health`).then(readJson);
+      setHealth(healthBody || null);
+      return healthBody;
+    } catch (err) {
+      setHealth(null);
+      setHealthError(err.message || 'Failed to load health summary');
+      return null;
+    }
   }, [capabilityId]);
 
   const loadHistory = useCallback(async (filters = historyFilters) => {
@@ -171,6 +180,13 @@ export default function CapabilityDetailPage({ params }) {
             />
 
             <CapabilityHealthCards health={health} />
+
+            {healthError ? (
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                <span className="font-medium">Health summary unavailable.</span>{' '}
+                <span>{healthError}</span>
+              </div>
+            ) : null}
 
             <CapabilityHistoryTable
               events={history}

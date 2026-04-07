@@ -4,6 +4,18 @@ function toInt(value) {
   return parseInt(value || '0', 10);
 }
 
+function isLegacyActionRecordsError(error) {
+  const code = String(error?.code || '');
+  const message = `${error?.message || ''} ${error?.detail || ''}`.toLowerCase();
+  return ['42703', '42883', '42804'].includes(code)
+    || /column .* does not exist/.test(message)
+    || /operator does not exist/.test(message)
+    || /timestamp_start/.test(message)
+    || /duration_ms/.test(message)
+    || /output_summary/.test(message)
+    || /error_message/.test(message);
+}
+
 function deriveStatus(capabilityHealthStatus, stats) {
   const total = toInt(stats.total_invocations);
   const successful = toInt(stats.successful_invocations);
@@ -45,9 +57,9 @@ function deriveStaleCheck(latestTest) {
   return Date.now() - lastTestedAt > 30 * 24 * 60 * 60 * 1000;
 }
 
-export async function getCapabilityHealthSummary(sql, orgId, capability) {
+async function getCapabilityHealthSummaryLegacy(sql, orgId, capability) {
   const systemsTouched = JSON.stringify([`capability:${capability.slug}`]);
-  const [statsRows, errorRows, testRows] = await Promise.all([
+  const [statsRows, testRows] = await Promise.all([
     sql`
       SELECT
         COUNT(*)::int as total_invocations,
@@ -55,42 +67,123 @@ export async function getCapabilityHealthSummary(sql, orgId, capability) {
         COUNT(*) FILTER (WHERE status = 'failed')::int as failed_invocations,
         COUNT(*) FILTER (WHERE status = 'pending_approval')::int as pending_approvals,
         COUNT(*) FILTER (
-          WHERE timestamp_start::timestamptz >= NOW() - INTERVAL '1 day'
+          WHERE created_at >= NOW() - INTERVAL '1 day'
         )::int as total_invocations_1d,
         COUNT(*) FILTER (
-          WHERE status = 'completed' AND timestamp_start::timestamptz >= NOW() - INTERVAL '1 day'
+          WHERE status = 'completed' AND created_at >= NOW() - INTERVAL '1 day'
         )::int as successful_invocations_1d,
-        MAX(CASE WHEN status = 'completed' THEN timestamp_start END) as last_success_at,
-        MAX(CASE WHEN status = 'failed' THEN timestamp_start END) as last_failure_at,
-        PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms)
-          FILTER (WHERE duration_ms IS NOT NULL AND duration_ms > 0) as p95_latency_ms
+        MAX(CASE WHEN status = 'completed' THEN created_at END) as last_success_at,
+        MAX(CASE WHEN status = 'failed' THEN created_at END) as last_failure_at
       FROM action_records
       WHERE org_id = ${orgId}
         AND action_type = 'capability_invoke'
         AND systems_touched = ${systemsTouched}
-        AND timestamp_start >= NOW() - INTERVAL '7 days'
+        AND created_at >= NOW() - INTERVAL '7 days'
     `,
     sql`
-      SELECT error_message, timestamp_start
-      FROM action_records
-      WHERE org_id = ${orgId}
-        AND action_type = 'capability_invoke'
-        AND systems_touched = ${systemsTouched}
-        AND status = 'failed'
-        AND error_message IS NOT NULL
-      ORDER BY timestamp_start DESC
-      LIMIT 5
-    `,
-    sql`
-      SELECT action_id, status, timestamp_start, duration_ms, output_summary, error_message
+      SELECT action_id, status, created_at as timestamp_start
       FROM action_records
       WHERE org_id = ${orgId}
         AND action_type = 'capability_test'
         AND systems_touched = ${systemsTouched}
-      ORDER BY timestamp_start DESC
+      ORDER BY created_at DESC
       LIMIT 1
     `,
   ]);
+
+  const stats = statsRows[0] || {};
+  const latestTest = testRows[0] || null;
+  const totalInvocations = toInt(stats.total_invocations);
+  const successfulInvocations = toInt(stats.successful_invocations);
+  const failedInvocations = toInt(stats.failed_invocations);
+  const pendingApprovals = toInt(stats.pending_approvals);
+  const totalInvocations1d = toInt(stats.total_invocations_1d);
+  const successfulInvocations1d = toInt(stats.successful_invocations_1d);
+
+  return {
+    status: deriveStatus(capability.health_status, stats),
+    certification_status: deriveCertificationStatus(latestTest),
+    last_checked_at: new Date().toISOString(),
+    last_success_at: stats.last_success_at || null,
+    last_failure_at: stats.last_failure_at || null,
+    last_tested_at: latestTest?.timestamp_start || null,
+    last_test_status: latestTest?.status || null,
+    last_test_action_id: latestTest?.action_id || null,
+    last_test_duration_ms: null,
+    last_test_summary: null,
+    stale_check: deriveStaleCheck(latestTest),
+    total_invocations: totalInvocations,
+    successful_invocations: successfulInvocations,
+    failed_invocations: failedInvocations,
+    pending_approvals: pendingApprovals,
+    success_rate_1d: totalInvocations1d > 0
+      ? Math.round((successfulInvocations1d / totalInvocations1d) * 100)
+      : 0,
+    success_rate_7d: totalInvocations > 0
+      ? Math.round((successfulInvocations / totalInvocations) * 100)
+      : 0,
+    p95_latency_ms: null,
+    recent_errors: [],
+  };
+}
+
+export async function getCapabilityHealthSummary(sql, orgId, capability) {
+  const systemsTouched = JSON.stringify([`capability:${capability.slug}`]);
+  let statsRows;
+  let errorRows;
+  let testRows;
+
+  try {
+    [statsRows, errorRows, testRows] = await Promise.all([
+      sql`
+        SELECT
+          COUNT(*)::int as total_invocations,
+          COUNT(*) FILTER (WHERE status = 'completed')::int as successful_invocations,
+          COUNT(*) FILTER (WHERE status = 'failed')::int as failed_invocations,
+          COUNT(*) FILTER (WHERE status = 'pending_approval')::int as pending_approvals,
+          COUNT(*) FILTER (
+            WHERE timestamp_start::timestamptz >= NOW() - INTERVAL '1 day'
+          )::int as total_invocations_1d,
+          COUNT(*) FILTER (
+            WHERE status = 'completed' AND timestamp_start::timestamptz >= NOW() - INTERVAL '1 day'
+          )::int as successful_invocations_1d,
+          MAX(CASE WHEN status = 'completed' THEN timestamp_start::timestamptz END) as last_success_at,
+          MAX(CASE WHEN status = 'failed' THEN timestamp_start::timestamptz END) as last_failure_at,
+          PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms)
+            FILTER (WHERE duration_ms IS NOT NULL AND duration_ms > 0) as p95_latency_ms
+        FROM action_records
+        WHERE org_id = ${orgId}
+          AND action_type = 'capability_invoke'
+          AND systems_touched = ${systemsTouched}
+          AND timestamp_start::timestamptz >= NOW() - INTERVAL '7 days'
+      `,
+      sql`
+        SELECT error_message, timestamp_start
+        FROM action_records
+        WHERE org_id = ${orgId}
+          AND action_type = 'capability_invoke'
+          AND systems_touched = ${systemsTouched}
+          AND status = 'failed'
+          AND error_message IS NOT NULL
+        ORDER BY timestamp_start::timestamptz DESC
+        LIMIT 5
+      `,
+      sql`
+        SELECT action_id, status, timestamp_start, duration_ms, output_summary, error_message
+        FROM action_records
+        WHERE org_id = ${orgId}
+          AND action_type = 'capability_test'
+          AND systems_touched = ${systemsTouched}
+        ORDER BY timestamp_start::timestamptz DESC
+        LIMIT 1
+      `,
+    ]);
+  } catch (error) {
+    if (!isLegacyActionRecordsError(error)) {
+      throw error;
+    }
+    return getCapabilityHealthSummaryLegacy(sql, orgId, capability);
+  }
 
   const stats = statsRows[0] || {};
   const latestTest = testRows[0] || null;

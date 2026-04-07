@@ -4,6 +4,20 @@ function toInt(value, fallback = null) {
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
+function isLegacyActionRecordsError(error) {
+  const code = String(error?.code || '');
+  const message = `${error?.message || ''} ${error?.detail || ''}`.toLowerCase();
+  return ['42703', '42883', '42804'].includes(code)
+    || /column .* does not exist/.test(message)
+    || /operator does not exist/.test(message)
+    || /timestamp_start/.test(message)
+    || /timestamp_end/.test(message)
+    || /output_summary/.test(message)
+    || /error_message/.test(message)
+    || /duration_ms/.test(message)
+    || /trigger/.test(message);
+}
+
 export async function getCapabilityHistory(sql, orgId, capability, filters = {}) {
   const {
     action_type,
@@ -16,29 +30,56 @@ export async function getCapabilityHistory(sql, orgId, capability, filters = {})
   const parsedOffset = parseInt(offset, 10) || 0;
   const systemsTouched = JSON.stringify([`capability:${capability.slug}`]);
 
-  const rows = await sql`
-    SELECT
-      action_id,
-      action_type,
-      status,
-      agent_id,
-      declared_goal,
-      trigger,
-      output_summary,
-      error_message,
-      duration_ms,
-      timestamp_start,
-      timestamp_end
-    FROM action_records
-    WHERE org_id = ${orgId}
-      AND systems_touched = ${systemsTouched}
-      AND action_type IN ('capability_invoke', 'capability_test')
-      ${action_type ? sql`AND action_type = ${action_type}` : sql``}
-      ${status ? sql`AND status = ${status}` : sql``}
-    ORDER BY timestamp_start DESC
-    LIMIT ${parsedLimit}
-    OFFSET ${parsedOffset}
-  `;
+  let rows;
+
+  try {
+    rows = await sql`
+      SELECT
+        action_id,
+        action_type,
+        status,
+        agent_id,
+        declared_goal,
+        trigger,
+        output_summary,
+        error_message,
+        duration_ms,
+        timestamp_start,
+        timestamp_end
+      FROM action_records
+      WHERE org_id = ${orgId}
+        AND systems_touched = ${systemsTouched}
+        AND action_type IN ('capability_invoke', 'capability_test')
+        ${action_type ? sql`AND action_type = ${action_type}` : sql``}
+        ${status ? sql`AND status = ${status}` : sql``}
+      ORDER BY timestamp_start::timestamptz DESC
+      LIMIT ${parsedLimit}
+      OFFSET ${parsedOffset}
+    `;
+  } catch (error) {
+    if (!isLegacyActionRecordsError(error)) {
+      throw error;
+    }
+
+    rows = await sql`
+      SELECT
+        action_id,
+        action_type,
+        status,
+        agent_id,
+        declared_goal,
+        created_at as timestamp_start
+      FROM action_records
+      WHERE org_id = ${orgId}
+        AND systems_touched = ${systemsTouched}
+        AND action_type IN ('capability_invoke', 'capability_test')
+        ${action_type ? sql`AND action_type = ${action_type}` : sql``}
+        ${status ? sql`AND status = ${status}` : sql``}
+      ORDER BY created_at DESC
+      LIMIT ${parsedLimit}
+      OFFSET ${parsedOffset}
+    `;
+  }
 
   return {
     capability_id: capability.capability_id,
