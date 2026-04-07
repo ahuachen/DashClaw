@@ -46,3 +46,24 @@ The governance node runs first, checks policy, then the research node executes i
 This example uses the DashClaw Python SDK directly (`from dashclaw import DashClaw`).
 For production LangChain integrations, see `sdk-python/dashclaw/integrations/langchain.py`
 which provides a `DashClawCallbackHandler` for automatic governance of all LLM calls.
+
+## What's Governed
+
+| DashClaw Feature | Graph Node |
+|---|---|
+| **Guard** | `governance` — policy check with conditional routing |
+| **Action Recording** | `governance` — records intent with risk score |
+| **HITL Approval** | `approval` — waits for human decision (SSE-powered) |
+| **Assumptions** | `research` — records reasoning basis |
+| **Outcome Tracking** | `outcome` / `abort` — reports success or cancellation |
+
+### Graph Structure
+
+```
+governance → [allow] → research → outcome → END
+           → [require_approval] → approval → [approved] → research → outcome → END
+                                            → [denied] → abort → END
+           → [blocked] → abort → END
+```
+
+This demonstrates LangGraph's conditional routing integrated with DashClaw governance decisions.
