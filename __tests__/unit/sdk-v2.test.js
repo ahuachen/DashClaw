@@ -479,6 +479,24 @@ describe('DashClaw v2 SDK', () => {
       const body = JSON.parse(fetch.mock.calls[0][1].body);
       expect(body.agent_id).toBe('other-agent');
     });
+
+    it('test POSTs to capability test route with default agent_id', async () => {
+      await claw.execution.capabilities.test('cap_123', { query: 'What is x402?' });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toBe('http://localhost:3000/api/capabilities/cap_123/test');
+      expect(opts.method).toBe('POST');
+      const body = JSON.parse(opts.body);
+      expect(body.agent_id).toBe('test-agent');
+      expect(body.query).toBe('What is x402?');
+    });
+
+    it('getHealth GETs the capability health route', async () => {
+      await claw.execution.capabilities.getHealth('cap_123');
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toBe('http://localhost:3000/api/capabilities/cap_123/health');
+      expect(opts.method).toBe('GET');
+      expect(opts.body).toBeUndefined();
+    });
   });
 
   // --- addThreadEntry ---

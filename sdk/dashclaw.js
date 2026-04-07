@@ -42,6 +42,8 @@ class DashClaw {
         get: (capabilityId) => this.getCapability(capabilityId),
         update: (capabilityId, patch) => this.updateCapability(capabilityId, patch),
         invoke: (capabilityId, payload = {}) => this.invokeCapability(capabilityId, payload),
+        test: (capabilityId, payload = {}) => this.testCapability(capabilityId, payload),
+        getHealth: (capabilityId) => this.getCapabilityHealth(capabilityId),
       },
     };
   }
@@ -961,6 +963,23 @@ class DashClaw {
       ...payload,
       agent_id: payload.agent_id || this.agentId,
     });
+  }
+
+  /**
+   * POST /api/capabilities/:id/test — Run a non-production capability validation call.
+   */
+  async testCapability(capabilityId, payload = {}) {
+    return this._request(`/api/capabilities/${capabilityId}/test`, 'POST', {
+      ...payload,
+      agent_id: payload.agent_id || this.agentId,
+    });
+  }
+
+  /**
+   * GET /api/capabilities/:id/health — Fetch derived capability health.
+   */
+  async getCapabilityHealth(capabilityId) {
+    return this._request(`/api/capabilities/${capabilityId}/health`, 'GET');
   }
 }
 

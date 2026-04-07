@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `194`
+- Total routes: `196`
 - Stable routes: `37`
 - Beta routes: `20`
-- Experimental routes: `137`
+- Experimental routes: `139`
 
 ## Routes
 
@@ -93,7 +93,9 @@ doc-type: architecture
 | `/api/billing/portal` | `GET` | `experimental` | `(default)` | `app/api/billing/portal/route.js` |
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
+| `/api/capabilities/{capabilityId}/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/health/route.js` |
 | `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |
+| `/api/capabilities/{capabilityId}/test` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/test/route.js` |
 | `/api/compliance/evidence` | `GET` | `experimental` | `(default)` | `app/api/compliance/evidence/route.js` |
 | `/api/compliance/exports` | `GET, POST` | `experimental` | `(default)` | `app/api/compliance/exports/route.js` |
 | `/api/compliance/exports/{exportId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/compliance/exports/[exportId]/route.js` |

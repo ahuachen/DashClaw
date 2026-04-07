@@ -380,7 +380,7 @@ DashClaw includes advanced governance capabilities beyond the core guard loop:
 - **Prompt Injection Scanning** — On by default for all guard evaluations. Detects and blocks injection patterns in declared goals. See [SDK: Security Scanning](./sdk/README.md#security-scanning).
 - **Session Lifecycle** — Automatic session tracking with stall detection, recovery recipes, and graduated autonomy levels per agent. See the [v2.8 changelog](./CHANGELOG.md).
 
-- **Governed Capability Runtime** â€” Invoke registered `http_api` capabilities through the canonical Node SDK path `dc.execution.capabilities.invoke(...)`. See [SDK: Capability Runtime](./sdk/README.md#capability-runtime).
+- **Governed Capability Runtime** â€” Invoke, test, and inspect registered `http_api` capabilities through the canonical Node SDK paths under `dc.execution.capabilities.*`. See [SDK: Capability Runtime](./sdk/README.md#capability-runtime).
 
 ---
 

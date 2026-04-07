@@ -558,6 +558,16 @@ const result = await caps.invoke('cap_123', {
   query: 'What is x402?'
 });
 console.log(result.governed, result.action_id);
+
+// Run a non-production validation call
+const testRun = await caps.test('cap_123', {
+  query: 'What is x402?'
+});
+console.log(testRun.tested, testRun.health_status);
+
+// Fetch derived capability health
+const health = await caps.getHealth('cap_123');
+console.log(health.status, health.success_rate_7d);
 ```
 
 The existing flat registry methods remain available for compatibility:
@@ -567,7 +577,13 @@ The existing flat registry methods remain available for compatibility:
 - `claw.getCapability(...)`
 - `claw.updateCapability(...)`
 
-Use `claw.execution.capabilities.invoke(...)` as the canonical invoke path. `test` and health-oriented SDK wrappers are planned, but are not exposed yet because the underlying routes are not shipped yet.
+Use the canonical capability runtime paths:
+
+- `claw.execution.capabilities.invoke(...)`
+- `claw.execution.capabilities.test(...)`
+- `claw.execution.capabilities.getHealth(...)`
+
+`listHealth` remains planned and is not exposed yet because the backend route does not exist yet.
 
 ---
 
