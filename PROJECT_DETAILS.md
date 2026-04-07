@@ -56,7 +56,8 @@ Modular intelligence features that consume runtime data.
 - **Drift**: Detection of reasoning and metric drift.
 - **Evaluations**: LLM-as-judge accuracy scoring.
 - **Scoring**: Multi-dimensional risk profiles.
-- **Execution Studio** (Phase 1): Governance packaging and discovery — workflow templates, model strategies, knowledge collections, and a capability registry. HTTP API only in Phase 1; no SDK wrapper methods.
+- **Execution Studio** (Phase 2 complete): Workflow templates, model strategies, knowledge collections, capability registry. **Capabilities are now invocable** via `POST /api/capabilities/:id/invoke`. **Workflows can now execute** via `POST /api/workflows/templates/:id/execute` with 3 step types (prompt, capability_invoke, knowledge_search).
+- **Billing & Metering**: Tier-based quota enforcement (free/pro/business/enterprise), Stripe Checkout + Customer Portal, cost aggregation API, monthly meter reset cron.
 
 ### Execution Studio Routes (Tier 2, added Phase 1)
 
@@ -77,6 +78,13 @@ Modular intelligence features that consume runtime data.
 | `POST /api/knowledge/collections/:collectionId/search` | Semantic search over chunked + embedded content. Embeds the query, uses pgvector cosine distance (`<=>`) to return top-k results with similarity scores, chunk content, and source item metadata. |
 | `GET/POST /api/capabilities` | Searchable capability registry. `GET` supports `category`, `risk_level`, and `search` (ILIKE on name/description/tags) filters. |
 | `GET/PATCH /api/capabilities/:capabilityId` | Fetch or update a capability record. |
+| `POST /api/capabilities/:capabilityId/invoke` | **Invoke an HTTP capability** through the full governance loop. Guard evaluation, action recording, BYOK auth resolution, request/response mapping, timeout handling, outcome tracking. Supports blocked (403), pending_approval (202), success (200). |
+| `POST /api/workflows/templates/:templateId/execute` | **Execute a workflow** synchronously (120s max). Runs steps sequentially with rolling context. 3 step types: `prompt` (LLM via model strategy), `capability_invoke` (HTTP capability), `knowledge_search` (semantic search). Each step creates a child action record. Guard on launch. |
+| `GET /api/usage/costs` | Cost aggregation by action type and daily totals for the billing period. |
+| `POST /api/billing/checkout` | Create Stripe Checkout Session for pro/business subscription. |
+| `GET /api/billing/portal` | Create Stripe Customer Portal link for subscription management. |
+| `POST /api/webhooks/stripe` | Stripe webhook handler (checkout.session.completed, subscription.updated/deleted, invoice.payment_failed). |
+| `GET /api/cron/reset-meters` | Monthly meter archive + reset (Vercel Cron, 1st of month). |
 
 All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Five new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
@@ -92,6 +100,13 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `org.js`: Multi-tenant scoping and role helpers.
 - `integration-health.js`: Per-provider credential validation (OpenAI, Anthropic, Slack, etc).
 - `notification-adapters/`: Native governance alert delivery (Slack, Discord, Linear, GitHub, Email).
+- `capability-invoke.js`: HTTP capability invocation engine — auth resolution (bearer/api_key), request/response mapping, AbortController timeout.
+- `mapping.js`: Dot-path request/response mapper for capability invocations. URL variable substitution from org settings.
+- `workflow-executor.js`: Sequential workflow executor — iterates steps, manages rolling context, dispatches to step handlers, creates child action records.
+- `step-handlers.js`: Step type handlers for workflow execution (knowledge_search, capability_invoke, prompt).
+- `template-vars.js`: Variable substitution engine for workflow step configs — resolves `${variables.x}` and `${steps.step_id.output.y}`.
+- `usage.js`: Plan limits (PLAN_LIMITS), quota enforcement with grace buffer (checkQuota), meter increment/read, cost estimation.
+- `billing.js`: Token cost estimation for LLM calls (DEFAULT_PRICING for 20+ models).
 
 ## SDK Surface Area (v2)
 
