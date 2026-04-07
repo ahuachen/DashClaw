@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 186,
+    "total_routes": 187,
     "stable_routes": 34,
     "beta_routes": 19,
-    "experimental_routes": 133
+    "experimental_routes": 134
   },
   "routes": [
     {
@@ -717,6 +717,15 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/capabilities/[capabilityId]/route.js"
+    },
+    {
+      "path": "/api/capabilities/{capabilityId}/invoke",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/capabilities/[capabilityId]/invoke/route.js"
     },
     {
       "path": "/api/compliance/evidence",
