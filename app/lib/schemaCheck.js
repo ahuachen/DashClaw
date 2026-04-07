@@ -3,18 +3,16 @@
  * Used by health endpoint, setup status, and first-request startup check.
  */
 
+import {
+  CORE_SETUP_TABLES,
+  getSetupMigrationCommand,
+} from './setup/runtime-prerequisites.mjs';
+
 /**
  * Tables that must exist for DashClaw to function.
  * Ordered roughly by migration step.
  */
-export const CORE_TABLES = [
-  'action_records',
-  'guard_decisions',
-  'api_keys',
-  'users',
-  'settings',
-  'guard_policies',
-];
+export const CORE_TABLES = CORE_SETUP_TABLES;
 
 /**
  * Check which core tables exist in the database.
@@ -44,7 +42,9 @@ export async function startupSchemaCheck(sql) {
   try {
     const { ok, missing } = await checkCoreTables(sql);
     if (!ok) {
-      console.warn(`[SCHEMA] Missing core tables: ${missing.join(', ')}. Run: node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs`);
+      console.warn(
+        `[SCHEMA] Missing core tables: ${missing.join(', ')}. Run: ${getSetupMigrationCommand('scripts/migrate-multi-tenant.mjs')}`,
+      );
     }
   } catch (err) {
     console.warn('[SCHEMA] Could not verify core tables:', err.message);

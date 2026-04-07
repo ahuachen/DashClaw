@@ -1,0 +1,50 @@
+export const SETUP_MIGRATION_SCRIPTS = [
+  'scripts/migrate-multi-tenant.mjs',
+  'scripts/migrate-action-records-compat.mjs',
+  'scripts/migrate-cost-analytics.mjs',
+  'scripts/migrate-identity-binding.mjs',
+  'scripts/migrate-agent-pairings.mjs',
+  'scripts/migrate-capabilities.mjs',
+  'scripts/migrate-hitl-metadata.mjs',
+  'scripts/migrate-policy-agent-scope.mjs',
+  'scripts/migrate-behavioral-ai.mjs',
+  'scripts/migrate-token-budgets.mjs',
+  'scripts/migrate-prompt-injection.mjs',
+  'scripts/migrate-evaluations.mjs',
+  'scripts/migrate-scoring-profiles.mjs',
+  'scripts/migrate-prompts.mjs',
+  'scripts/migrate-feedback.mjs',
+  'scripts/migrate-learning-loop-mvp.mjs',
+  'scripts/migrate-learning-analytics.mjs',
+  'scripts/migrate-compliance-export.mjs',
+  'scripts/migrate-drift.mjs',
+  'scripts/migrate-agent-schedules.mjs',
+  'scripts/migrate-message-attachments.mjs',
+  'scripts/migrate-ideas-subscores.mjs',
+  'scripts/migrate-agent-messages-index.mjs',
+];
+
+export const SETUP_READINESS_MIGRATION_SCRIPTS = [
+  'scripts/migrate-multi-tenant.mjs',
+  'scripts/migrate-cost-analytics.mjs',
+  'scripts/migrate-identity-binding.mjs',
+  'scripts/migrate-capabilities.mjs',
+];
+
+export const CORE_SETUP_TABLES = [
+  'action_records',
+  'guard_decisions',
+  'api_keys',
+  'users',
+  'settings',
+  'guard_policies',
+];
+
+export function buildSetupMigrationCommands(scripts = SETUP_MIGRATION_SCRIPTS) {
+  return scripts.map((script) => `node scripts/_run-with-env.mjs ${script}`);
+}
+
+export function getSetupMigrationCommand(script) {
+  return buildSetupMigrationCommands([script])[0] || '';
+}
+

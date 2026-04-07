@@ -8,6 +8,7 @@ describe('loadContracts', () => {
     expect(contracts.index.version).toBe(1);
     expect(contracts.api.capabilities.domain).toBe('capabilities');
     expect(contracts.schema['action-records'].table).toBe('action_records');
+    expect(contracts.setup['runtime-prerequisites'].owner).toBe('app/lib/setup/runtime-prerequisites.mjs');
     expect(contracts.setup['runtime-migration'].owner).toBe('app/api/setup/migrate/route.js');
     expect(contracts.sdk['release-plan'].node.current_version).toBe('2.10.0');
   });

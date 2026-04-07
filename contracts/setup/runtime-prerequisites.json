@@ -1,0 +1,47 @@
+{
+  "owner": "app/lib/setup/runtime-prerequisites.mjs",
+  "migration_scripts": [
+    "scripts/migrate-multi-tenant.mjs",
+    "scripts/migrate-action-records-compat.mjs",
+    "scripts/migrate-cost-analytics.mjs",
+    "scripts/migrate-identity-binding.mjs",
+    "scripts/migrate-agent-pairings.mjs",
+    "scripts/migrate-capabilities.mjs",
+    "scripts/migrate-hitl-metadata.mjs",
+    "scripts/migrate-policy-agent-scope.mjs",
+    "scripts/migrate-behavioral-ai.mjs",
+    "scripts/migrate-token-budgets.mjs",
+    "scripts/migrate-prompt-injection.mjs",
+    "scripts/migrate-evaluations.mjs",
+    "scripts/migrate-scoring-profiles.mjs",
+    "scripts/migrate-prompts.mjs",
+    "scripts/migrate-feedback.mjs",
+    "scripts/migrate-learning-loop-mvp.mjs",
+    "scripts/migrate-learning-analytics.mjs",
+    "scripts/migrate-compliance-export.mjs",
+    "scripts/migrate-drift.mjs",
+    "scripts/migrate-agent-schedules.mjs",
+    "scripts/migrate-message-attachments.mjs",
+    "scripts/migrate-ideas-subscores.mjs",
+    "scripts/migrate-agent-messages-index.mjs"
+  ],
+  "readiness_migration_scripts": [
+    "scripts/migrate-multi-tenant.mjs",
+    "scripts/migrate-cost-analytics.mjs",
+    "scripts/migrate-identity-binding.mjs",
+    "scripts/migrate-capabilities.mjs"
+  ],
+  "core_tables": [
+    "action_records",
+    "guard_decisions",
+    "api_keys",
+    "users",
+    "settings",
+    "guard_policies"
+  ],
+  "consumers": {
+    "setup_script": "scripts/setup.mjs",
+    "schema_check": "app/lib/schemaCheck.js",
+    "readiness_workflow": "app/lib/readiness/workflow.mjs"
+  }
+}

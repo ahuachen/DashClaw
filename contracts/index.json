@@ -3,7 +3,8 @@
   "validators": {
     "schema_setup": true,
     "sdk_surface": true,
-    "api_surface": true
+    "api_surface": true,
+    "setup_prerequisites": true
   },
   "api": {
     "capabilities": "contracts/api/capabilities.json",
@@ -13,6 +14,7 @@
     "action-records": "contracts/schema/action-records.json"
   },
   "setup": {
+    "runtime-prerequisites": "contracts/setup/runtime-prerequisites.json",
     "runtime-migration": "contracts/setup/runtime-migration.json"
   },
   "sdk": {

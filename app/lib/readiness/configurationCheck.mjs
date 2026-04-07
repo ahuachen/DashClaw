@@ -1,5 +1,6 @@
 import { REQUIRED_ENV_VARS, ADVISORY_ENV_VARS } from './constants.mjs';
 import { createSection, createCheck } from './factories.mjs';
+import { CORE_TABLES } from '../schemaCheck.js';
 
 export function checkConfiguration(env = process.env) {
   const required = REQUIRED_ENV_VARS.map(({ key, description, help }) => ({

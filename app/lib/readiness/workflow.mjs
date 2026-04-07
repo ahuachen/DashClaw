@@ -1,5 +1,9 @@
 import { OVERALL_STATE_META } from './constants.mjs';
 import { createStep, createWorkflowStep } from './factories.mjs';
+import {
+  buildSetupMigrationCommands,
+  SETUP_READINESS_MIGRATION_SCRIPTS,
+} from '../setup/runtime-prerequisites.mjs';
 
 export function buildWorkflow(report) {
   const coreReady = report.db.ok && report.config.ok;
@@ -75,6 +79,7 @@ export function buildWorkflow(report) {
 export function buildRecommendations(report) {
   const steps = [];
   const hasLiveProof = Boolean(report.sdk?.hasLiveProof);
+  const readinessMigrationCommands = buildSetupMigrationCommands(SETUP_READINESS_MIGRATION_SCRIPTS).join('\n');
 
   if (report.config.missingRequired.length > 0) {
     steps.push(
@@ -139,10 +144,7 @@ node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs`,
           'Likely cause: bootstrap migrations have not run, or they only ran partially.',
           'Next action: run the migration commands, then reload /setup.',
         ],
-        code: `node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs
-node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs
-node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs
-node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs`,
+        code: readinessMigrationCommands,
         publicCode: 'Sign in for the exact migration commands.',
         note: report.db.missing.length > 0 ? `Missing tables: ${report.db.missing.join(', ')}` : '',
         publicNote: `${report.db.missing.length} required schema check(s) are still failing.`,

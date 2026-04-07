@@ -20,6 +20,10 @@ import crypto from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import readline from 'node:readline';
 import { getAuthConfig } from '../app/lib/authConfig.mjs';
+import {
+  buildSetupMigrationCommands,
+  SETUP_MIGRATION_SCRIPTS,
+} from '../app/lib/setup/runtime-prerequisites.mjs';
 
 function ask(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -175,34 +179,6 @@ function describeSignInMethods(authConfig) {
   if (authConfig.hasLocalPassword) methods.push('local admin password');
   for (const provider of authConfig.oauthProviders) methods.push(provider.name);
   return methods;
-}
-
-function migrationCommands() {
-  return [
-    'node scripts/_run-with-env.mjs scripts/migrate-multi-tenant.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-action-records-compat.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-cost-analytics.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-identity-binding.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-agent-pairings.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-capabilities.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-hitl-metadata.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-policy-agent-scope.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-behavioral-ai.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-token-budgets.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-prompt-injection.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-evaluations.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-scoring-profiles.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-prompts.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-feedback.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-learning-loop-mvp.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-learning-analytics.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-compliance-export.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-drift.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-agent-schedules.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-message-attachments.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-ideas-subscores.mjs',
-    'node scripts/_run-with-env.mjs scripts/migrate-agent-messages-index.mjs',
-  ];
 }
 
 async function runAsync(cmd, args, opts = {}) {
@@ -404,7 +380,8 @@ async function main() {
 
   step(5, TOTAL, 'Running database migrations');
 
-  const migrations = [
+  const migrations = SETUP_MIGRATION_SCRIPTS;
+  /*
     // Core schema (order matters — multi-tenant adds org_id everywhere)
     'scripts/migrate-multi-tenant.mjs',
     'scripts/migrate-action-records-compat.mjs',
@@ -432,7 +409,7 @@ async function main() {
     'scripts/migrate-message-attachments.mjs',
     'scripts/migrate-ideas-subscores.mjs',
     'scripts/migrate-agent-messages-index.mjs',
-  ];
+  */
   const migrationEnv = { ...process.env, ...env };
   const frames = ['-', '\\', '|', '/'];
 
@@ -536,7 +513,7 @@ async function main() {
     }
 
     console.log(`  ${nextStepNumber}. Re-run the migration step after the database is reachable:`);
-    for (const command of migrationCommands()) {
+    for (const command of buildSetupMigrationCommands()) {
       console.log(`     ${command}`);
     }
     nextStepNumber += 1;
