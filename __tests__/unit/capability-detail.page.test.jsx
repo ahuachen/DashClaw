@@ -1,0 +1,327 @@
+import React from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+vi.mock('next/link', () => ({
+  default: ({ href, children, ...props }) => <a href={href} {...props}>{children}</a>,
+}));
+
+vi.mock('@/components/PageLayout.js', () => ({
+  default: ({ title, subtitle, children, actions }) => (
+    <div>
+      <div>{title}</div>
+      <div>{subtitle}</div>
+      <div>{actions}</div>
+      <div>{children}</div>
+    </div>
+  ),
+}));
+
+vi.mock('@/components/ui/Card.js', () => ({
+  Card: ({ children }) => <div>{children}</div>,
+  CardHeader: ({ title, count, action }) => (
+    <div>
+      <span>{title}</span>
+      {count !== undefined ? <span>{count}</span> : null}
+      {action}
+    </div>
+  ),
+  CardContent: ({ children }) => <div>{children}</div>,
+}));
+
+vi.mock('@/components/ui/Badge.js', () => ({
+  Badge: ({ children }) => <span>{children}</span>,
+}));
+
+vi.mock('@/components/ui/EmptyState.js', () => ({
+  EmptyState: ({ title, description, action }) => (
+    <div>
+      <div>{title}</div>
+      <div>{description}</div>
+      <div>{action}</div>
+    </div>
+  ),
+}));
+
+function okJson(body) {
+  return {
+    ok: true,
+    json: async () => body,
+  };
+}
+
+describe('CapabilityDetailPage', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders a not-found fallback with a link back to the registry', async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ error: 'Capability not found' }),
+    });
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_missing' }} />);
+
+    expect(await screen.findByText('Capability unavailable')).toBeTruthy();
+    expect(await screen.findByText(/capability not found/i)).toBeTruthy();
+    expect(await screen.findByRole('link', { name: /back to registry/i })).toBeTruthy();
+  });
+
+  it('renders capability metadata, health, and history on load', async () => {
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Research Agent',
+          slug: 'research-agent',
+          risk_level: 'medium',
+          source_type: 'http_api',
+          auth_type: 'oauth',
+          requires_approval: true,
+        },
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
+        success_rate_1d: 97,
+        p95_latency_ms: 120,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [
+          {
+            action_id: 'act_1',
+            action_type: 'capability_test',
+            status: 'completed',
+          },
+        ],
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [
+          {
+            action_id: 'act_1',
+            action_type: 'capability_test',
+            status: 'completed',
+          },
+        ],
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [
+          {
+            action_id: 'act_1',
+            action_type: 'capability_test',
+            status: 'completed',
+          },
+        ],
+      }))
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({
+          success: false,
+          tested: true,
+          capability_id: 'cap_1',
+          test_action_id: 'act_2',
+          message: 'downstream timeout',
+          health_status: 'failing',
+          certification_status: 'failed',
+        }),
+      })
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'failing',
+        certification_status: 'failed',
+        stale_check: false,
+        success_rate_1d: 50,
+        p95_latency_ms: 140,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [
+          {
+            action_id: 'act_2',
+            action_type: 'capability_test',
+            status: 'failed',
+          },
+          {
+            action_id: 'act_1',
+            action_type: 'capability_test',
+            status: 'completed',
+          },
+        ],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
+
+    const capabilityNames = await screen.findAllByText('Research Agent');
+    expect(capabilityNames.length).toBeGreaterThan(0);
+    expect(await screen.findByText(/certified/i)).toBeTruthy();
+    expect(await screen.findByText(/capability_test/i)).toBeTruthy();
+    expect(await screen.findByText(/oauth/i)).toBeTruthy();
+    expect(await screen.findByRole('button', { name: /run test/i })).toBeTruthy();
+    expect(await screen.findByText('97%')).toBeTruthy();
+    expect(await screen.findByText('120 ms')).toBeTruthy();
+
+    const historyLink = await screen.findByRole('link', { name: /capability_test/i });
+    expect(historyLink.getAttribute('href')).toBe('/decisions/act_1');
+
+    fireEvent.change(screen.getByLabelText('Action type filter'), {
+      target: { value: 'capability_test' },
+    });
+    fireEvent.change(screen.getByLabelText('Status filter'), {
+      target: { value: 'completed' },
+    });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/capabilities/cap_1/history?action_type=capability_test&status=completed&limit=20',
+      );
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /run test/i }));
+    fireEvent.change(screen.getByLabelText('Test payload'), {
+      target: { value: '{' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /submit test/i }));
+    expect(await screen.findByText(/payload must be valid json/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Test payload'), {
+      target: { value: '{"query":"What is x402?"}' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /submit test/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/capabilities/cap_1/test',
+        expect.objectContaining({
+          method: 'POST',
+          body: '{"query":"What is x402?"}',
+        }),
+      );
+    });
+
+    expect(await screen.findByText(/downstream timeout/i)).toBeTruthy();
+    expect(await screen.findByText('50%')).toBeTruthy();
+  });
+
+  it('keeps the page usable when history fails and allows retry into an empty state', async () => {
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Research Agent',
+          slug: 'research-agent',
+          risk_level: 'medium',
+          source_type: 'http_api',
+        },
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
+      }))
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'History unavailable' }),
+      })
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
+
+    expect(await screen.findByText('Research Agent')).toBeTruthy();
+    expect(await screen.findByText(/history unavailable/i)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /retry history/i }));
+
+    expect(await screen.findByText(/no recent capability events/i)).toBeTruthy();
+  });
+
+  it('disables test submission for invalid json and while a test is in flight', async () => {
+    let resolveTest;
+    const pendingTest = new Promise((resolve) => {
+      resolveTest = resolve;
+    });
+
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Research Agent',
+          slug: 'research-agent',
+          risk_level: 'medium',
+          source_type: 'http_api',
+        },
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [],
+      }))
+      .mockImplementationOnce(() => pendingTest)
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /run test/i }));
+
+    const payload = await screen.findByLabelText('Test payload');
+    const submit = screen.getByRole('button', { name: /submit test/i });
+
+    fireEvent.change(payload, { target: { value: '{' } });
+    expect(submit.disabled).toBe(true);
+
+    fireEvent.change(payload, { target: { value: '{"query":"What is x402?"}' } });
+    expect(submit.disabled).toBe(false);
+
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /running/i }).disabled).toBe(true);
+    });
+
+    resolveTest({
+      ok: true,
+      json: async () => ({
+        success: true,
+        tested: true,
+        capability_id: 'cap_1',
+        test_action_id: 'act_9',
+        message: 'ok',
+        health_status: 'healthy',
+        certification_status: 'certified',
+      }),
+    });
+
+    expect(await screen.findByText('ok')).toBeTruthy();
+  });
+});

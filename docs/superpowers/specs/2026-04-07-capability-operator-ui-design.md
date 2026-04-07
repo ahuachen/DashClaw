@@ -76,7 +76,7 @@ Why:
 
 ### New Page
 
-- `app/capabilities/[capabilityId]/page.js`
+- `app/capabilities/[capabilityId]/page.jsx`
 
 ### Existing APIs Used
 
