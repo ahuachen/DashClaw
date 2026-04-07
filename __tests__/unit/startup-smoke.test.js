@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { formatSetupStatusSummary, waitForConfiguredSetup } from '../../scripts/lib/startup-smoke.mjs';
+import { formatSetupStatusSummary, shutdownChildProcess, waitForConfiguredSetup } from '../../scripts/lib/startup-smoke.mjs';
 
 describe('startup smoke runner', () => {
   it('returns immediately when setup status is configured', async () => {
@@ -71,5 +71,45 @@ describe('startup smoke runner', () => {
   it('formats setup status summaries for logs', () => {
     expect(formatSetupStatusSummary({ configured: true, message: 'Dashboard is configured' }, 200)).toContain('configured');
     expect(formatSetupStatusSummary({ configured: false, reason: 'connection_error' }, 500)).toContain('connection_error');
+  });
+
+  it('waits for child shutdown after SIGTERM', async () => {
+    const child = { kill: vi.fn() };
+    let exited = false;
+    let resolveExit;
+    const exitPromise = new Promise((resolve) => {
+      resolveExit = () => {
+        exited = true;
+        resolve();
+      };
+    });
+
+    await shutdownChildProcess({
+      child,
+      hasExited: () => exited,
+      exitPromise,
+      sleepImpl: async () => {
+        resolveExit();
+      },
+      graceMs: 10,
+    });
+
+    expect(child.kill).toHaveBeenCalledWith('SIGTERM');
+    expect(child.kill).toHaveBeenCalledTimes(1);
+  });
+
+  it('forces SIGKILL when the child ignores SIGTERM', async () => {
+    const child = { kill: vi.fn() };
+
+    await shutdownChildProcess({
+      child,
+      hasExited: () => false,
+      exitPromise: new Promise(() => {}),
+      sleepImpl: async () => {},
+      graceMs: 0,
+    });
+
+    expect(child.kill).toHaveBeenCalledWith('SIGTERM');
+    expect(child.kill).toHaveBeenCalledWith('SIGKILL');
   });
 });

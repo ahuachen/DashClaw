@@ -44,3 +44,29 @@ export async function waitForConfiguredSetup({
 
   throw new Error(`startup smoke timed out waiting for configured setup status from ${url}; last=${lastSummary}`);
 }
+
+export async function shutdownChildProcess({
+  child,
+  hasExited = () => false,
+  exitPromise = Promise.resolve(),
+  sleepImpl = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  graceMs = 5000,
+} = {}) {
+  if (!child || hasExited()) return;
+
+  child.kill('SIGTERM');
+
+  if (graceMs <= 0) {
+    if (!hasExited()) child.kill('SIGKILL');
+    return;
+  }
+
+  const deadline = Date.now() + graceMs;
+  while (!hasExited() && Date.now() < deadline) {
+    await Promise.race([exitPromise, sleepImpl(50)]);
+  }
+
+  if (!hasExited()) {
+    child.kill('SIGKILL');
+  }
+}

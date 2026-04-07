@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { waitForConfiguredSetup } from './lib/startup-smoke.mjs';
+import { shutdownChildProcess, waitForConfiguredSetup } from './lib/startup-smoke.mjs';
 
 function parseArgs(argv) {
   const options = {
@@ -51,6 +51,10 @@ async function main() {
   const stderrBuffer = createLogBuffer();
   let childExited = false;
   let exitCode = null;
+  let resolveExit;
+  const exitPromise = new Promise((resolve) => {
+    resolveExit = resolve;
+  });
 
   child.stdout?.on('data', (chunk) => {
     stdoutBuffer.push(chunk);
@@ -63,6 +67,7 @@ async function main() {
   child.on('close', (code) => {
     childExited = true;
     exitCode = code;
+    resolveExit(code);
   });
 
   try {
@@ -89,7 +94,11 @@ async function main() {
     }
     process.exitCode = 1;
   } finally {
-    child.kill('SIGTERM');
+    await shutdownChildProcess({
+      child,
+      hasExited: () => childExited,
+      exitPromise,
+    });
   }
 }
 
