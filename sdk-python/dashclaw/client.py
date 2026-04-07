@@ -342,42 +342,123 @@ class DashClaw:
         """Record what the agent believed to be true when making a decision."""
         return self._request("/api/assumptions", "POST", json=assumption)
 
-    def wait_for_approval(self, action_id, timeout=300, interval=5):
-        """Poll for human approval of a pending action."""
+    def _connect_sse(self, action_id, timeout):
+        """
+        Connect to the SSE stream and listen for action.updated events.
+        Returns the matching action data or None on failure (triggers polling fallback).
+        """
+        import json as _json
+        url = f"{self.base_url}/api/stream"
+        req = urllib.request.Request(url, headers={
+            "x-api-key": self.api_key,
+            "Accept": "text/event-stream",
+            "Cache-Control": "no-cache",
+        })
+
+        try:
+            resp = urllib.request.urlopen(req, timeout=timeout)
+        except Exception:
+            return None
+
+        buffer = ""
+        current_event = None
+        current_data = ""
         start_time = time.time()
+
+        try:
+            while (time.time() - start_time) < timeout:
+                try:
+                    chunk = resp.read(4096)
+                except Exception:
+                    return None
+                if not chunk:
+                    return None
+
+                buffer += chunk.decode("utf-8", errors="replace")
+                lines = buffer.split("\n")
+                buffer = lines.pop()
+
+                for line in lines:
+                    if line.startswith("id: "):
+                        pass
+                    elif line.startswith("event: "):
+                        current_event = line[7:].strip()
+                    elif line.startswith("data: "):
+                        current_data += line[6:]
+                    elif line.startswith(":"):
+                        pass  # SSE comment (heartbeat)
+                    elif line == "" and current_event:
+                        if current_data and current_event == "action.updated":
+                            try:
+                                data = _json.loads(current_data)
+                                if data.get("action_id") == action_id:
+                                    return data
+                            except Exception:
+                                pass
+                        current_event = None
+                        current_data = ""
+                    elif line == "":
+                        current_event = None
+                        current_data = ""
+        finally:
+            try:
+                resp.close()
+            except Exception:
+                pass
+
+        return None
+
+    def wait_for_approval(self, action_id, timeout=300, interval=5):
+        """Wait for human approval. Uses SSE for instant notification, falls back to polling."""
+        start_time = time.time()
+
+        # Try SSE first
+        try:
+            remaining = timeout - (time.time() - start_time)
+            if remaining > 0:
+                sse_data = self._connect_sse(action_id, remaining)
+                if sse_data is not None:
+                    if sse_data.get("approved_by"):
+                        return self.get_action(action_id)
+                    if sse_data.get("status") in ["failed", "cancelled"]:
+                        raise ApprovalDeniedError(
+                            sse_data.get("error_message") or "Operator denied the action.",
+                            decision=sse_data.get("status")
+                        )
+        except ApprovalDeniedError:
+            raise
+        except Exception:
+            pass  # SSE failed — fall through to polling
+
+        # Polling fallback
         was_pending = False
-        
         while (time.time() - start_time) < timeout:
             res = self.get_action(action_id)
             action = res.get("action", {})
-            
+
             if action.get("status") == "pending_approval":
                 was_pending = True
 
-            # Explicitly unblocked by approval metadata
             if action.get("approved_by"):
                 print(f"[DashClaw] Action {action_id} approved by operator: {action.get('approved_by')}")
                 return res
-                
-            # Denial cases
+
             if action.get("status") in ["failed", "cancelled"]:
                 raise ApprovalDeniedError(
                     action.get("error_message") or "Operator denied the action.",
                     decision=action.get("status")
                 )
-            
-            # Requirement 4 parity: If an action leaves pending_approval without approval metadata, throw an error.
+
             if was_pending and action.get("status") != "pending_approval":
                 raise DashClawError(
                     f"Action {action_id} left pending_approval state without explicit approval metadata (Status: {action.get('status')})"
                 )
 
-            # If allowed directly (never intercepted), return immediately
             if not was_pending and action.get("status") == "running":
                 return res
 
             time.sleep(interval)
-            
+
         raise TimeoutError(f"[DashClaw] Timed out waiting for approval of action {action_id}")
 
     def update_outcome(self, action_id, status=None, **kwargs):
