@@ -11,7 +11,10 @@ import {
   prepareCapabilityInvocation,
 } from '../../../../lib/capability-runtime.js';
 import { updateCapability } from '../../../../lib/repositories/capabilities.repository.js';
-import { createActionRecord } from '../../../../lib/repositories/actions.repository.js';
+import {
+  createActionRecord,
+  updateActionOutcome,
+} from '../../../../lib/repositories/actions.repository.js';
 
 function mapPreparationError(capabilityId, err) {
   if (err.message === `Capability not found: ${capabilityId}`) {
@@ -97,15 +100,13 @@ export async function POST(request, { params }) {
       ? JSON.stringify(result.data).slice(0, 500)
       : result.message || result.error;
 
-    await sql`
-      UPDATE action_records
-      SET status = ${result.success ? 'completed' : 'failed'},
-          output_summary = ${outputSummary},
-          error_message = ${result.success ? null : result.message || result.error},
-          timestamp_end = ${timestampEnd},
-          duration_ms = ${result.elapsed_ms || 0}
-      WHERE action_id = ${actionId} AND org_id = ${orgId}
-    `;
+    await updateActionOutcome(sql, orgId, actionId, {
+      status: result.success ? 'completed' : 'failed',
+      output_summary: outputSummary,
+      error_message: result.success ? null : result.message || result.error,
+      timestamp_end: timestampEnd,
+      duration_ms: result.elapsed_ms || 0,
+    });
 
     await updateCapability(sql, orgId, capabilityId, { health_status: nextHealthStatus });
 

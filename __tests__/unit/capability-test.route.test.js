@@ -8,6 +8,7 @@ const {
   mockExecuteCapabilityInvocation,
   mockUpdateCapability,
   mockCreateActionRecord,
+  mockUpdateActionOutcome,
 } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockGetOrgId: vi.fn(),
@@ -15,6 +16,7 @@ const {
   mockExecuteCapabilityInvocation: vi.fn(),
   mockUpdateCapability: vi.fn(),
   mockCreateActionRecord: vi.fn(),
+  mockUpdateActionOutcome: vi.fn(),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
@@ -28,6 +30,7 @@ vi.mock('@/lib/repositories/capabilities.repository.js', () => ({
 }));
 vi.mock('@/lib/repositories/actions.repository.js', () => ({
   createActionRecord: mockCreateActionRecord,
+  updateActionOutcome: mockUpdateActionOutcome,
 }));
 vi.mock('@/lib/apiErrors.js', () => ({
   apiErrorResponse: (error, label) => new Response(JSON.stringify({ error: error.message, label }), {
@@ -43,6 +46,7 @@ beforeEach(() => {
   mockGetOrgId.mockReturnValue('org_1');
   mockUpdateCapability.mockResolvedValue({});
   mockCreateActionRecord.mockResolvedValue({});
+  mockUpdateActionOutcome.mockResolvedValue({});
 });
 
 describe('POST /api/capabilities/[capabilityId]/test', () => {
@@ -84,6 +88,13 @@ describe('POST /api/capabilities/[capabilityId]/test', () => {
         }),
       }),
     );
+    expect(mockUpdateActionOutcome).toHaveBeenCalledWith(mockSql, 'org_1', body.test_action_id, {
+      status: 'completed',
+      output_summary: JSON.stringify({ answer: 'ok' }).slice(0, 500),
+      error_message: null,
+      timestamp_end: expect.any(String),
+      duration_ms: 42,
+    });
     expect(mockUpdateCapability).toHaveBeenCalledWith(mockSql, 'org_1', 'cap_1', { health_status: 'healthy' });
   });
 
@@ -110,6 +121,13 @@ describe('POST /api/capabilities/[capabilityId]/test', () => {
     expect(body.health_status).toBe('failing');
     expect(body.certification_status).toBe('failed');
     expect(body.test_action_id).toMatch(/^act_/);
+    expect(mockUpdateActionOutcome).toHaveBeenCalledWith(mockSql, 'org_1', body.test_action_id, {
+      status: 'failed',
+      output_summary: 'input.query is required',
+      error_message: 'input.query is required',
+      timestamp_end: expect.any(String),
+      duration_ms: 0,
+    });
     expect(mockUpdateCapability).toHaveBeenCalledWith(mockSql, 'org_1', 'cap_1', { health_status: 'failing' });
   });
 
