@@ -2826,6 +2826,46 @@ class DashClaw {
     return this._request('GET', '/api/scoring/score', null, { profile_id: profileId, view: 'stats' });
   }
 
+  // --- Capability Runtime Compatibility ------------------
+
+  async listCapabilities(params = {}) {
+    return this._request('GET', '/api/capabilities', null, params);
+  }
+
+  async createCapability(data) {
+    return this._request('POST', '/api/capabilities', data);
+  }
+
+  async getCapability(capabilityId) {
+    return this._request('GET', `/api/capabilities/${capabilityId}`);
+  }
+
+  async updateCapability(capabilityId, data) {
+    return this._request('PATCH', `/api/capabilities/${capabilityId}`, data);
+  }
+
+  async invokeCapability(capabilityId, payload = {}) {
+    return this._request('POST', `/api/capabilities/${capabilityId}/invoke`, {
+      ...payload,
+      agent_id: payload.agent_id || this.agentId,
+    });
+  }
+
+  async testCapability(capabilityId, payload = {}) {
+    return this._request('POST', `/api/capabilities/${capabilityId}/test`, {
+      ...payload,
+      agent_id: payload.agent_id || this.agentId,
+    });
+  }
+
+  async getCapabilityHealth(capabilityId) {
+    return this._request('GET', `/api/capabilities/${capabilityId}/health`);
+  }
+
+  async listCapabilityHealth(params = {}) {
+    return this._request('GET', '/api/capabilities/health', null, params);
+  }
+
   // --- Risk Templates ------------------------------------
 
   async createRiskTemplate(data) {

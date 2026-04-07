@@ -69,6 +69,8 @@ The legacy Node SDK still contains a broader set of compatibility methods, inclu
 
 Legacy is preserved for compatibility. It is not the preferred entry point for new design work.
 
+Where capability-runtime overlap exists, legacy should expose flat compatibility wrappers that call the same HTTP contracts as the canonical `execution.capabilities.*` surface.
+
 ## Python Surface
 
 The Python SDK currently remains broader than the canonical Node SDK.
@@ -86,7 +88,7 @@ That is acceptable temporarily, but it should not define future product directio
 | Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK |
 | Sessions / action graph | Yes | Partial overlap | Yes | Stable, canonical in main SDK |
 | Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, continue promoting there |
-| Capabilities | Yes | Historical overlap / broader patterns | Yes | Canonical in main SDK; `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, and `listHealth(...)` promoted |
+| Capabilities | Yes | Yes, as flat compatibility wrappers | Yes | Canonical in main SDK; `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, and `listHealth(...)` promoted. Legacy should only shim to the same routes |
 | Model strategies | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Knowledge collections | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Messaging / handoffs / threads | Yes | Yes | Yes | Canonical in main SDK |

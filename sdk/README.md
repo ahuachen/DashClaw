@@ -415,6 +415,19 @@ import { DashClaw } from 'dashclaw/legacy';
 
 Methods moved to v1 only: `createWebhook`, `getActivityLogs`, `mapCompliance`, `getProofReport`.
 
+Legacy also exposes flat compatibility wrappers for the capability runtime routes:
+
+- `claw.listCapabilities(...)`
+- `claw.createCapability(...)`
+- `claw.getCapability(...)`
+- `claw.updateCapability(...)`
+- `claw.invokeCapability(...)`
+- `claw.testCapability(...)`
+- `claw.getCapabilityHealth(...)`
+- `claw.listCapabilityHealth(...)`
+
+Those wrappers exist to keep older integrations working. New product work should still target `claw.execution.capabilities.*` on the main SDK first.
+
 ---
 
 ## Execution Studio

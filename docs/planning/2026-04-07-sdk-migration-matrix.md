@@ -63,7 +63,7 @@ These are the first domains that should set the pattern:
 - Target: canonical execution namespace
 - Needed work:
   - keep `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, and `listHealth(...)` as the canonical shipped paths,
-  - define compatibility behavior for any legacy overlap,
+  - keep legacy flat methods as compatibility shims to the same routes where older integrations already expect them,
   - document the canonical path as primary.
 
 ### Candidate 2: Workflows
