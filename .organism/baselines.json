@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-04-07T14:45:33.744920+00:00",
+  "test_count": {
+    "js": 0,
+    "python": 0
+  },
+  "file_count_over_300": 168,
+  "js_vulnerabilities": 0,
+  "sdk_methods": {
+    "node": 67,
+    "python": 236
+  },
+  "ci_pass_rate_30d": 0.6087
+}
