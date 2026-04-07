@@ -1,4 +1,5 @@
 import { invokeCapability, resolveAuth } from './capability-invoke.js';
+import { assertPayloadMatchesSchema, validateInvocationSchema } from './capability-contracts.js';
 import { resolveEndpointUrl } from './mapping.js';
 import { getCapability } from './repositories/capabilities.repository.js';
 import { getSettings } from './repositories/settings.repository.js';
@@ -29,6 +30,7 @@ export async function prepareCapabilityInvocation(sql, orgId, capabilityId) {
   }
 
   const schema = capability.invocation_schema || {};
+  validateInvocationSchema(capability.source_type, schema);
   const orgSettings = await loadOrgSettings(sql, orgId);
   const authHeaders = resolveAuth(schema.auth, orgSettings);
   const endpoint = resolveEndpointUrl(schema.endpoint, orgSettings);
@@ -47,7 +49,17 @@ export async function executeCapabilityInvocation({
   schema,
   body,
 }) {
-  return invokeCapability({
+  try {
+    assertPayloadMatchesSchema(body, schema.input_schema, 'input');
+  } catch (err) {
+    return {
+      success: false,
+      error: err.code || 'capability_input_invalid',
+      message: err.message,
+    };
+  }
+
+  const result = await invokeCapability({
     endpoint,
     method: schema.method || 'POST',
     authHeaders,
@@ -56,4 +68,21 @@ export async function executeCapabilityInvocation({
     responseMapping: schema.response_mapping,
     timeoutMs: schema.timeout_ms || 60000,
   });
+
+  if (!result.success) {
+    return result;
+  }
+
+  try {
+    assertPayloadMatchesSchema(result.data, schema.output_schema, 'output');
+  } catch (err) {
+    return {
+      success: false,
+      error: err.code || 'capability_output_invalid',
+      message: err.message,
+      elapsed_ms: result.elapsed_ms,
+    };
+  }
+
+  return result;
 }

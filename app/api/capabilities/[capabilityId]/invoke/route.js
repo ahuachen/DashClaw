@@ -74,6 +74,13 @@ export async function POST(request, { params }) {
         );
       }
 
+      if (err.code === 'capability_contract_invalid') {
+        return NextResponse.json(
+          { success: false, error: 'capability_contract_invalid', message: err.message },
+          { status: 400 },
+        );
+      }
+
       throw err;
     }
 
@@ -227,7 +234,11 @@ export async function POST(request, { params }) {
 
     // 9. Return response
     if (!result.success) {
-      const statusCode = result.error === 'capability_timeout' ? 504 : 502;
+      const statusCode = result.error === 'capability_timeout'
+        ? 504
+        : result.error === 'capability_input_invalid'
+          ? 400
+          : 502;
       return NextResponse.json(
         {
           success: false,

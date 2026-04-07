@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { validateInvocationSchema } from '../capability-contracts.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -174,6 +175,8 @@ export async function createCapability(sql, orgId, data) {
     throw new Error(`source_type must be one of ${Array.from(SOURCE_TYPES).join(', ')}`);
   }
 
+  validateInvocationSchema(data.source_type || 'internal_sdk', data.invocation_schema || {});
+
   const capability_id = data.capability_id || `cap_${crypto.randomUUID()}`;
   const slug = data.slug ? slugify(data.slug) : slugify(data.name);
 
@@ -226,6 +229,13 @@ export async function updateCapability(sql, orgId, capabilityId, patch = {}) {
   }
   if (patch.source_type && !SOURCE_TYPES.has(patch.source_type)) {
     throw new Error(`source_type must be one of ${Array.from(SOURCE_TYPES).join(', ')}`);
+  }
+
+  if ('invocation_schema' in patch || 'source_type' in patch) {
+    validateInvocationSchema(
+      patch.source_type ?? existing.source_type,
+      patch.invocation_schema ?? existing.invocation_schema,
+    );
   }
 
   const rows = await sql`

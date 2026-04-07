@@ -118,6 +118,36 @@ describe('capabilities.repository', () => {
       ).rejects.toThrow(/source_type/);
     });
 
+    it('rejects invalid http_api invocation schema on create', async () => {
+      const sql = makeSqlMock([]);
+      await expect(
+        createCapability(sql, 'org_1', {
+          name: 'Broken HTTP capability',
+          source_type: 'http_api',
+          invocation_schema: {
+            method: 'POST',
+          },
+        })
+      ).rejects.toThrow(/invocation_schema.endpoint is required/i);
+    });
+
+    it('rejects invalid input schema on create', async () => {
+      const sql = makeSqlMock([]);
+      await expect(
+        createCapability(sql, 'org_1', {
+          name: 'Broken schema capability',
+          source_type: 'http_api',
+          invocation_schema: {
+            endpoint: '${API_URL}/v1/test',
+            auth: { type: 'bearer', token_setting: 'API_TOKEN' },
+            input_schema: {
+              type: 'nope',
+            },
+          },
+        })
+      ).rejects.toThrow(/input_schema.type must be one of/i);
+    });
+
     it('generates cap_ id and slug from name', async () => {
       const sql = makeSqlMock([[capRow()]]);
       await createCapability(sql, 'org_1', { name: 'Send Slack Message' });
@@ -147,6 +177,18 @@ describe('capabilities.repository', () => {
       await expect(
         updateCapability(sql, 'org_1', 'cap_1', { risk_level: 'extreme' })
       ).rejects.toThrow(/risk_level/);
+    });
+
+    it('rejects invalid invocation schema on update', async () => {
+      const sql = makeSqlMock([[capRow()]]);
+      await expect(
+        updateCapability(sql, 'org_1', 'cap_1', {
+          invocation_schema: {
+            endpoint: '${API_URL}/v1/test',
+            auth: { type: 'unknown' },
+          },
+        })
+      ).rejects.toThrow(/invocation_schema.auth.type must be one of/i);
     });
 
     it('persists patch fields', async () => {

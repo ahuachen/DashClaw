@@ -36,7 +36,7 @@ describe('prepareCapabilityInvocation', () => {
       capability_id: 'cap_1',
       source_type: 'http_api',
       invocation_schema: {
-        endpoint: { setting: 'API_BASE' },
+        endpoint: '${API_BASE}/search',
         method: 'POST',
         auth: { type: 'bearer', token_setting: 'API_TOKEN' },
         request_mapping: { query: '$.query' },
@@ -58,7 +58,7 @@ describe('prepareCapabilityInvocation', () => {
       { API_BASE: 'https://api.example.com/search', API_TOKEN: 'secret' },
     );
     expect(resolveEndpointUrl).toHaveBeenCalledWith(
-      { setting: 'API_BASE' },
+      '${API_BASE}/search',
       { API_BASE: 'https://api.example.com/search', API_TOKEN: 'secret' },
     );
     expect(prepared).toEqual({
@@ -125,6 +125,62 @@ describe('executeCapabilityInvocation', () => {
     expect(result).toEqual({
       success: true,
       data: { answer: 'ok' },
+      elapsed_ms: 45,
+    });
+  });
+
+  it('fails fast when input does not satisfy input_schema', async () => {
+    const result = await executeCapabilityInvocation({
+      endpoint: 'https://api.example.com/search',
+      authHeaders: { Authorization: 'Bearer secret' },
+      schema: {
+        method: 'POST',
+        input_schema: {
+          type: 'object',
+          required: ['query'],
+          properties: {
+            query: { type: 'string' },
+          },
+        },
+      },
+      body: {},
+    });
+
+    expect(invokeCapability).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      success: false,
+      error: 'capability_input_invalid',
+      message: expect.stringContaining("query"),
+    });
+  });
+
+  it('fails when mapped output does not satisfy output_schema', async () => {
+    invokeCapability.mockResolvedValue({
+      success: true,
+      data: {},
+      elapsed_ms: 45,
+    });
+
+    const result = await executeCapabilityInvocation({
+      endpoint: 'https://api.example.com/search',
+      authHeaders: { Authorization: 'Bearer secret' },
+      schema: {
+        method: 'POST',
+        output_schema: {
+          type: 'object',
+          required: ['answer'],
+          properties: {
+            answer: { type: 'string' },
+          },
+        },
+      },
+      body: { query: 'test' },
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: 'capability_output_invalid',
+      message: expect.stringContaining("answer"),
       elapsed_ms: 45,
     });
   });
