@@ -383,6 +383,12 @@ DashClaw includes advanced governance capabilities beyond the core guard loop:
 ---
 
 ## Documentation
+ 
+- [Agent Operating Layer Roadmap](./docs/planning/2026-04-07-agent-operating-layer-roadmap.md) - Internal `Now / Next / Later` build sequence
+- [Program Brief](./docs/planning/2026-04-07-agent-operating-layer-program-brief.md) - Product thesis, wedge, and decision rules
+- [Platform Object Model](./docs/architecture/platform-object-model.md) - Canonical nouns and relationships for the platform
+- [SDK Consolidation RFC](./docs/rfcs/2026-04-07-sdk-consolidation.md) - Canonical SDK policy and legacy compatibility rules
+- [SDK Migration Matrix](./docs/planning/2026-04-07-sdk-migration-matrix.md) - Domain-by-domain SDK consolidation tracker
 
 - [SDK Reference](./docs/sdk-reference.md) — Complete API surface for Node and Python SDKs
 - [Roadmap](./ROADMAP.md) — What's shipped, in progress, and exploring

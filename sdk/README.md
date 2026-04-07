@@ -72,12 +72,12 @@ claw.update_outcome(action_id, status="completed")
 
 ## SDK Tiers
 
-DashClaw ships two SDKs with different scope:
+DashClaw currently exposes a canonical Node SDK surface plus a legacy compatibility layer:
 
 | | Node SDK | Python SDK |
 |---|---|---|
-| **Focus** | Lightweight governance loop | Full platform surface |
-| **Methods** | 67 | 185+ |
+| **Focus** | Canonical product surface for new work | Broader current surface |
+| **Methods** | Core runtime + execution surfaces | Broad platform surface |
 | **Core governance** | ✅ | ✅ |
 | **Scoring profiles** | ✅ | ✅ |
 | **Learning loop** | ✅ | ✅ |
@@ -87,6 +87,14 @@ DashClaw ships two SDKs with different scope:
 | **Webhooks management** | — | ✅ |
 
 **Node** is designed for most agents — fast, minimal, covers the governance loop and common workflows. **Python** is the enterprise/power-user surface with compliance reporting, execution graph traversal, and framework-native integrations.
+
+**Policy:** new product work should target the main `dashclaw` client first. `dashclaw/legacy` exists for compatibility with older integrations and older method shapes.
+
+See:
+
+- [SDK Consolidation RFC](../docs/rfcs/2026-04-07-sdk-consolidation.md)
+- [SDK Migration Matrix](../docs/planning/2026-04-07-sdk-migration-matrix.md)
+- [SDK Parity Matrix](../docs/sdk-parity.md)
 
 ---
 
@@ -396,7 +404,9 @@ Then merge the hooks block from `hooks/settings.json` into your `.claude/setting
 
 ## Legacy SDK (v1)
 
-The v2 SDK covers the 45 methods most critical to agent governance. If you require the full platform surface (188+ methods including Calendar, Workflows, Routing, Pairing, etc.), the v1 SDK is available via the `dashclaw/legacy` sub-path in Node.js or via the full client in Python.
+`dashclaw/legacy` is a compatibility layer for older integrations. It is not the preferred target for new feature design.
+
+Use it only when you need methods that have not yet been promoted into the canonical SDK surface.
 
 ```javascript
 // v1 legacy import
