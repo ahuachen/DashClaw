@@ -67,3 +67,49 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: http://localhost:3000
+
+  startup-smoke:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dashclaw
+          POSTGRES_PASSWORD: dashclaw
+          POSTGRES_DB: dashclaw
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dashclaw -d dashclaw"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://dashclaw:dashclaw@127.0.0.1:5432/dashclaw
+      NEXTAUTH_SECRET: startup-smoke-nextauth-secret-1234567890
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      DASHCLAW_API_KEY: oc_live_startup_smoke_ci_key_1234567890
+      ENCRYPTION_KEY: startupsmokeencryptionkey1234567
+      CRON_SECRET: startup-smoke-cron-secret
+      ALLOWED_ORIGIN: http://127.0.0.1:3000
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run auto-migrate bootstrap
+        run: node scripts/auto-migrate.mjs
+
+      - name: Build startup smoke target
+        run: npm run build
+
+      - name: Run startup smoke test
+        run: npm run startup:smoke -- --timeout-ms 60000 --interval-ms 1000
