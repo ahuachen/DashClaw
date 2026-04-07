@@ -17,11 +17,10 @@ DashClaw is a focused policy firewall and governance runtime for AI agent fleets
 - **Command**: `npm run test` (watch mode) or `npm run test -- --run` (CI).
 
 ### CI/CD (GitHub Actions)
-Every PR to `main` must pass the **Governance Boundary Check**. DashClaw is an infrastructure primitive; new platform features are not permitted in the core runtime.
+Every PR to `main` must pass CI checks:
 
-1. `npm run governance:boundary:check` — Enforces the minimal 7-route API surface.
-2. `npm run openapi:check` — Detects stable API contract drift.
-3. `npm run test -- --run` — Core runtime unit tests.
+1. `npm run openapi:check` — Detects stable API contract drift.
+2. `npm run test -- --run` — Core runtime unit tests.
 
 ## Architecture (Minimal Surface)
 

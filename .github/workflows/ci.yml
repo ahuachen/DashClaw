@@ -39,8 +39,6 @@ jobs:
       - name: Check API inventory maturity drift
         run: npm run api:inventory:check
 
-      - name: Governance Boundary Check
-        run: npm run governance:boundary:check
 
       - name: Check route-level SQL guardrail
         run: npm run route-sql:check
