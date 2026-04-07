@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-04-07
+
+### Added
+- **AI Policy Generator**: New `POST /api/policies/generate` endpoint converts natural language company policies into enforceable guard rules + recovery recipes. Supports dry-run preview mode. New UI at `/policies/generate`.
+- **Predictive Risk Scoring**: Guard evaluations now include statistical behavior analysis — failure rates, action velocity, and historical patterns adjust risk scores automatically. Optional LLM-enhanced assessment for high-stakes actions (risk score >= threshold).
+- **`predictive-risk.js` Module**: Statistical + LLM risk assessment engine. Always-on statistical scoring queries last 30 days of action history. LLM scoring (opt-in) consults BYOK provider for actions above configurable threshold.
+- **`policy-generator.js` Module**: LLM prompt construction with few-shot examples, response parsing, and validation against existing `validatePolicy()`. Reuses BYOK provider execution via `executeCompletion()`.
+- **Predictive Risk Settings**: `PREDICTIVE_RISK_ENABLED` (boolean, default false) and `PREDICTIVE_RISK_THRESHOLD` (integer 0-100, default 60) org settings control LLM risk assessment behavior.
+- **Database Index**: `idx_action_records_predictive` composite index on `action_records (org_id, agent_id, action_type, timestamp_start DESC)` for fast historical lookups.
+- **Public ROADMAP.md**: Community-facing roadmap with shipped, in-progress, and exploring sections.
+- **SDK Tiers Documentation**: Comparison table in SDK README explaining Node (67 methods, lightweight) vs Python (185+ methods, enterprise) SDK scope.
+- **"Beyond the Basics" README Section**: Surfaces drift detection, recovery recipes, scoring profiles, learning loop, prompt injection scanning, and session lifecycle features.
+
+### Changed
+- **Guard Engine**: `evaluateGuard()` now integrates predictive risk scoring. Risk scores are adjusted based on historical failure rates and action velocity before policy evaluation. Guard response includes optional `predictive_risk` field with statistical and LLM assessment details.
+- **Python SDK Packaging**: Migrated from legacy `setup.py` to modern `pyproject.toml`.
+
+### Tests
+- Added 23 new tests: policy generator lib (8), policy generator route (5), predictive risk module (10).
+
 ## [2.8.0] - 2026-04-03
 
 ### Added
