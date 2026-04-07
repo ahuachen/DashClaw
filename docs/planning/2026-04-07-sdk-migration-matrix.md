@@ -87,9 +87,9 @@ These are the first domains that should set the pattern:
 
 When a domain changes, update:
 
-- [README](/C:/Projects/DashClaw/README.md)
-- [SDK README](/C:/Projects/DashClaw/sdk/README.md)
-- [SDK Parity Matrix](/C:/Projects/DashClaw/docs/sdk-parity.md)
+- [README](../../README.md)
+- [SDK README](../../sdk/README.md)
+- [SDK Parity Matrix](../sdk-parity.md)
 - relevant changelog entry
 
 ## Questions To Resolve Later

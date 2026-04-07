@@ -11,8 +11,8 @@ doc-type: architecture
 
 The canonical SDK policy is defined in:
 
-- [SDK Consolidation RFC](/C:/Projects/DashClaw/docs/rfcs/2026-04-07-sdk-consolidation.md)
-- [SDK Migration Matrix](/C:/Projects/DashClaw/docs/planning/2026-04-07-sdk-migration-matrix.md)
+- [SDK Consolidation RFC](./rfcs/2026-04-07-sdk-consolidation.md)
+- [SDK Migration Matrix](./planning/2026-04-07-sdk-migration-matrix.md)
 
 In short:
 
@@ -115,6 +115,6 @@ Critical-domain contract coverage is validated against a shared harness:
 
 ## Related Documents
 
-- [SDK Consolidation RFC](/C:/Projects/DashClaw/docs/rfcs/2026-04-07-sdk-consolidation.md)
-- [SDK Migration Matrix](/C:/Projects/DashClaw/docs/planning/2026-04-07-sdk-migration-matrix.md)
-- [Platform Object Model](/C:/Projects/DashClaw/docs/architecture/platform-object-model.md)
+- [SDK Consolidation RFC](./rfcs/2026-04-07-sdk-consolidation.md)
+- [SDK Migration Matrix](./planning/2026-04-07-sdk-migration-matrix.md)
+- [Platform Object Model](./architecture/platform-object-model.md)
