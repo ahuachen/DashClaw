@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "node scripts/auto-migrate.mjs && next build"
+  "buildCommand": "node scripts/auto-migrate.mjs && next build",
+  "crons": [
+    { "path": "/api/cron/reset-meters", "schedule": "0 0 1 * *" }
+  ]
 }

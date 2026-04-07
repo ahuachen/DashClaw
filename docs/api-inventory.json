@@ -46,9 +46,9 @@
     ]
   },
   "summary": {
-    "total_routes": 192,
+    "total_routes": 193,
     "stable_routes": 36,
-    "beta_routes": 19,
+    "beta_routes": 20,
     "experimental_routes": 137
   },
   "routes": [
@@ -892,6 +892,15 @@
       "maturity": "beta",
       "matched_prefix": "/api/cron",
       "file": "app/api/cron/policy-suggestions/route.js"
+    },
+    {
+      "path": "/api/cron/reset-meters",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "beta",
+      "matched_prefix": "/api/cron",
+      "file": "app/api/cron/reset-meters/route.js"
     },
     {
       "path": "/api/cron/routing-maintenance",
