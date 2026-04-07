@@ -16,6 +16,7 @@ import { getSettings } from '../../../../lib/repositories/settings.repository.js
 import { scanSensitiveData } from '../../../../lib/security.js';
 import { RISK_SCORE_MAP, resolveAuth, invokeCapability } from '../../../../lib/capability-invoke.js';
 import { resolveEndpointUrl } from '../../../../lib/mapping.js';
+import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../lib/usage.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -142,6 +143,25 @@ export async function POST(request, { params }) {
       );
     }
 
+    // Quota check
+    const plan = await getOrgPlan(orgId, sql);
+    const capQuota = await checkQuotaFast(orgId, 'capability_invocations', plan, sql);
+    if (!capQuota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'quota_exceeded',
+          code: 'QUOTA_EXCEEDED',
+          resource: 'capability_invocations',
+          usage: capQuota.usage,
+          limit: capQuota.limit,
+          message: 'Monthly capability invocation limit exceeded. Upgrade your plan to continue.',
+          upgrade_url: '/billing',
+        },
+        { status: 402 },
+      );
+    }
+
     // 6. Resolve auth and endpoint from org settings
     let orgSettings = {};
     try {
@@ -234,12 +254,19 @@ export async function POST(request, { params }) {
       );
     }
 
+    // Meter increment (fire-and-forget)
+    void Promise.all([
+      incrementMeter(orgId, 'capability_invocations', sql),
+      incrementMeter(orgId, 'governed_actions', sql),
+    ]).catch((err) => console.warn('[API] Meter increment failed:', err.message));
+
     return NextResponse.json({
       success: true,
       action_id,
       result: result.data,
       elapsed_ms: result.elapsed_ms,
       governed: true,
+      quota_warning: capQuota.warning || undefined,
       security: {
         clean: dlpFindings.length === 0,
         findings_count: dlpFindings.length,
