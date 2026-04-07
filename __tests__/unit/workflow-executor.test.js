@@ -1,0 +1,110 @@
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { executeWorkflow } from '../../app/lib/workflow-executor.js';
+
+// Mock step handlers
+vi.mock('../../app/lib/step-handlers.js', () => ({
+  handleKnowledgeSearch: vi.fn(),
+  handleCapabilityInvoke: vi.fn(),
+  handlePrompt: vi.fn(),
+}));
+
+// Mock action repository
+vi.mock('../../app/lib/repositories/actions.repository.js', () => ({
+  createActionRecord: vi.fn().mockResolvedValue({ action_id: 'act_child' }),
+}));
+
+import { handleKnowledgeSearch, handleCapabilityInvoke, handlePrompt } from '../../app/lib/step-handlers.js';
+import { createActionRecord } from '../../app/lib/repositories/actions.repository.js';
+
+const mockSql = Object.assign(
+  vi.fn().mockResolvedValue([]),
+  { query: vi.fn().mockResolvedValue([]) },
+);
+
+describe('executeWorkflow', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('executes steps sequentially and returns final output', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [{ content: 'doc text' }], query: 'test' });
+    handlePrompt.mockResolvedValueOnce({ text: 'synthesized answer', tokens_in: 100, tokens_out: 50 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Synthesize', config: { prompt_template: 'Answer based on: ${steps.step_1.output.chunks[0].content}' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, { query: 'test' }, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    expect(result.steps).toHaveLength(2);
+    expect(result.steps[0].status).toBe('completed');
+    expect(result.steps[1].status).toBe('completed');
+    expect(result.result.text).toBe('synthesized answer');
+  });
+
+  it('stops on first failed step and reports partial results', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+    handleCapabilityInvoke.mockRejectedValueOnce(new Error('capability_timeout'));
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'capability_invoke', name: 'Research', config: { capability_id: 'cap_1', body: {} } },
+      { id: 'step_3', type: 'prompt', name: 'Synthesize', config: { prompt_template: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(false);
+    expect(result.steps).toHaveLength(2);
+    expect(result.steps[0].status).toBe('completed');
+    expect(result.steps[1].status).toBe('failed');
+    expect(result.error).toContain('capability_timeout');
+    // step_3 should not have been attempted
+    expect(handlePrompt).not.toHaveBeenCalled();
+  });
+
+  it('creates child action records for each step', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+    ];
+
+    await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(createActionRecord).toHaveBeenCalledWith(
+      mockSql,
+      expect.objectContaining({
+        orgId: 'org_1',
+        data: expect.objectContaining({
+          action_type: 'workflow_step:knowledge_search',
+          parent_action_id: 'act_parent',
+        }),
+      }),
+    );
+  });
+
+  it('passes rolling context between steps', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [{ content: 'found data' }], query: 'q' });
+    handlePrompt.mockResolvedValueOnce({ text: 'done', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: '${variables.q}' } },
+      { id: 'step_2', type: 'prompt', name: 'Synthesize', config: { prompt_template: 'Context: ${steps.step_1.output.chunks[0].content}' } },
+    ];
+
+    await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, { q: 'test' }, { strategyConfig: {} });
+
+    // Verify prompt was called with resolved variable
+    expect(handlePrompt).toHaveBeenCalledWith(
+      mockSql,
+      'org_1',
+      expect.objectContaining({
+        prompt_template: 'Context: found data',
+      }),
+      expect.any(Object),
+    );
+  });
+});
