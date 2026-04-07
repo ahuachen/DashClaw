@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `188`
+- Total routes: `190`
 - Stable routes: `34`
 - Beta routes: `19`
-- Experimental routes: `135`
+- Experimental routes: `137`
 
 ## Routes
 
@@ -89,6 +89,8 @@ doc-type: architecture
 | `/api/assumptions/{assumptionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/assumptions/[assumptionId]/route.js` |
 | `/api/auth/config` | `GET` | `beta` | `/api/auth` | `app/api/auth/config/route.js` |
 | `/api/auth/local` | `DELETE, POST` | `beta` | `/api/auth` | `app/api/auth/local/route.js` |
+| `/api/billing/checkout` | `POST` | `experimental` | `(default)` | `app/api/billing/checkout/route.js` |
+| `/api/billing/portal` | `GET` | `experimental` | `(default)` | `app/api/billing/portal/route.js` |
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
 | `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |

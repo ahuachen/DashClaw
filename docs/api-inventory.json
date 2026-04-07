@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 188,
+    "total_routes": 190,
     "stable_routes": 34,
     "beta_routes": 19,
-    "experimental_routes": 135
+    "experimental_routes": 137
   },
   "routes": [
     {
@@ -697,6 +697,24 @@
       "maturity": "beta",
       "matched_prefix": "/api/auth",
       "file": "app/api/auth/local/route.js"
+    },
+    {
+      "path": "/api/billing/checkout",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/billing/checkout/route.js"
+    },
+    {
+      "path": "/api/billing/portal",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/billing/portal/route.js"
     },
     {
       "path": "/api/capabilities",
