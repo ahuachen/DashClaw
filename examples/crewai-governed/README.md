@@ -42,6 +42,17 @@ executing, then records the action and reports the outcome.
 No OPENAI_API_KEY is needed — the example runs the governance flow directly
 without requiring an LLM provider.
 
+## What's Governed
+
+| DashClaw Feature | How It's Used |
+|---|---|
+| **Guard** | Policy check before each tool call (different risk levels per tool) |
+| **Action Recording** | Both tools record intent with risk scores and systems_touched |
+| **HITL Approval** | High-risk tools wait for human approval when policy requires it |
+| **Assumptions** | Each tool records its reasoning basis (read-only access, reviewed data) |
+| **Outcome Tracking** | Success/failure/cancellation reported for the learning loop |
+| **Multi-Tool Governance** | Two tools with different risk profiles show graduated governance |
+
 ## Note
 
 This example uses the DashClaw Python SDK directly (`from dashclaw import DashClaw`).
