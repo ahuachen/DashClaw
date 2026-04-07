@@ -576,18 +576,20 @@ console.log(result.governed, result.action_id);
 const testRun = await caps.test('cap_123', {
   query: 'What is x402?'
 });
-console.log(testRun.tested, testRun.health_status);
+console.log(testRun.tested, testRun.health_status, testRun.certification_status);
 
 // Fetch derived capability health
 const health = await caps.getHealth('cap_123');
-console.log(health.status, health.success_rate_7d);
+console.log(health.status, health.certification_status, health.last_test_status);
 
 // List derived health for matching capabilities
 const { capabilities: healthRows } = await caps.listHealth({
   risk_level: 'medium',
+  certification_status: 'certified',
+  stale_only: false,
   limit: 10,
 });
-console.log(healthRows.map((cap) => `${cap.slug}:${cap.status}`));
+console.log(healthRows.map((cap) => `${cap.slug}:${cap.status}:${cap.certification_status}`));
 ```
 
 The existing flat registry methods remain available for compatibility:
@@ -603,6 +605,16 @@ Use the canonical capability runtime paths:
 - `claw.execution.capabilities.test(...)`
 - `claw.execution.capabilities.getHealth(...)`
 - `claw.execution.capabilities.listHealth(...)`
+
+Health responses now include certification and recency fields such as:
+
+- `certification_status`
+- `last_tested_at`
+- `last_test_status`
+- `stale_check`
+- `success_rate_1d`
+- `success_rate_7d`
+- `p95_latency_ms`
 
 ---
 

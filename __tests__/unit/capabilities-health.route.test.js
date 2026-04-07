@@ -40,6 +40,8 @@ describe('GET /api/capabilities/health', () => {
         risk_level: 'medium',
         category: 'messaging',
         status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
         success_rate_7d: 100,
         total_invocations: 4,
         failed_invocations: 0,
@@ -51,6 +53,8 @@ describe('GET /api/capabilities/health', () => {
         risk_level: 'medium',
         category: 'sales',
         status: 'degraded',
+        certification_status: 'failed',
+        stale_check: true,
         success_rate_7d: 50,
         total_invocations: 6,
         failed_invocations: 3,
@@ -58,7 +62,7 @@ describe('GET /api/capabilities/health', () => {
     ]);
 
     const res = await GET(
-      makeRequest('http://localhost/api/capabilities/health?risk_level=medium&limit=2'),
+      makeRequest('http://localhost/api/capabilities/health?risk_level=medium&status=degraded&certification_status=failed&stale_only=true&limit=2'),
     );
 
     expect(res.status).toBe(200);
@@ -66,6 +70,9 @@ describe('GET /api/capabilities/health', () => {
       category: undefined,
       risk_level: 'medium',
       search: undefined,
+      status: 'degraded',
+      certification_status: 'failed',
+      stale_only: true,
       limit: '2',
       offset: 0,
     });
@@ -84,6 +91,7 @@ describe('GET /api/capabilities/health', () => {
       name: 'CRM Sync',
       slug: 'crm-sync',
       status: 'degraded',
+      certification_status: 'failed',
       failed_invocations: 3,
     });
   });

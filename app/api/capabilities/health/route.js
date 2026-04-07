@@ -16,6 +16,9 @@ export async function GET(request) {
     const category = searchParams.get('category') || undefined;
     const risk_level = searchParams.get('risk_level') || undefined;
     const search = searchParams.get('search') || undefined;
+    const status = searchParams.get('status') || undefined;
+    const certification_status = searchParams.get('certification_status') || undefined;
+    const stale_only = searchParams.get('stale_only') === 'true';
     const limit = searchParams.get('limit') || 100;
     const offset = searchParams.get('offset') || 0;
 
@@ -23,6 +26,9 @@ export async function GET(request) {
       category,
       risk_level,
       search,
+      status,
+      certification_status,
+      stale_only,
       limit,
       offset,
     });

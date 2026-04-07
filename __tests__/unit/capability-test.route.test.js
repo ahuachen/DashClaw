@@ -7,12 +7,14 @@ const {
   mockPrepareCapabilityInvocation,
   mockExecuteCapabilityInvocation,
   mockUpdateCapability,
+  mockCreateActionRecord,
 } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockGetOrgId: vi.fn(),
   mockPrepareCapabilityInvocation: vi.fn(),
   mockExecuteCapabilityInvocation: vi.fn(),
   mockUpdateCapability: vi.fn(),
+  mockCreateActionRecord: vi.fn(),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
@@ -23,6 +25,9 @@ vi.mock('@/lib/capability-runtime.js', () => ({
 }));
 vi.mock('@/lib/repositories/capabilities.repository.js', () => ({
   updateCapability: mockUpdateCapability,
+}));
+vi.mock('@/lib/repositories/actions.repository.js', () => ({
+  createActionRecord: mockCreateActionRecord,
 }));
 vi.mock('@/lib/apiErrors.js', () => ({
   apiErrorResponse: (error, label) => new Response(JSON.stringify({ error: error.message, label }), {
@@ -37,12 +42,13 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockGetOrgId.mockReturnValue('org_1');
   mockUpdateCapability.mockResolvedValue({});
+  mockCreateActionRecord.mockResolvedValue({});
 });
 
 describe('POST /api/capabilities/[capabilityId]/test', () => {
-  it('returns test result and marks capability healthy on success', async () => {
+  it('records a successful test run and marks the capability certified', async () => {
     mockPrepareCapabilityInvocation.mockResolvedValue({
-      capability: { capability_id: 'cap_1', name: 'Research Agent' },
+      capability: { capability_id: 'cap_1', name: 'Research Agent', slug: 'research-agent' },
       schema: { method: 'POST' },
       endpoint: 'https://api.example.com/test',
       authHeaders: { Authorization: 'Bearer token' },
@@ -63,12 +69,27 @@ describe('POST /api/capabilities/[capabilityId]/test', () => {
     expect(body.tested).toBe(true);
     expect(body.result.answer).toBe('ok');
     expect(body.health_status).toBe('healthy');
+    expect(body.certification_status).toBe('certified');
+    expect(body.test_action_id).toMatch(/^act_/);
+    expect(mockCreateActionRecord).toHaveBeenCalledWith(
+      mockSql,
+      expect.objectContaining({
+        orgId: 'org_1',
+        actionStatus: 'running',
+        data: expect.objectContaining({
+          action_type: 'capability_test',
+          agent_id: 'anonymous',
+          systems_touched: ['capability:research-agent'],
+          declared_goal: 'Test capability: Research Agent',
+        }),
+      }),
+    );
     expect(mockUpdateCapability).toHaveBeenCalledWith(mockSql, 'org_1', 'cap_1', { health_status: 'healthy' });
   });
 
-  it('returns 400 for invalid test payload and marks capability failing', async () => {
+  it('records a failed test run and marks certification as failed', async () => {
     mockPrepareCapabilityInvocation.mockResolvedValue({
-      capability: { capability_id: 'cap_1', name: 'Research Agent' },
+      capability: { capability_id: 'cap_1', name: 'Research Agent', slug: 'research-agent' },
       schema: { method: 'POST' },
       endpoint: 'https://api.example.com/test',
       authHeaders: { Authorization: 'Bearer token' },
@@ -87,6 +108,8 @@ describe('POST /api/capabilities/[capabilityId]/test', () => {
     const body = await res.json();
     expect(body.error).toBe('capability_input_invalid');
     expect(body.health_status).toBe('failing');
+    expect(body.certification_status).toBe('failed');
+    expect(body.test_action_id).toMatch(/^act_/);
     expect(mockUpdateCapability).toHaveBeenCalledWith(mockSql, 'org_1', 'cap_1', { health_status: 'failing' });
   });
 

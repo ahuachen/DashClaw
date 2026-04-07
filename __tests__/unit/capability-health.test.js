@@ -14,10 +14,21 @@ describe('getCapabilityHealthSummary', () => {
         successful_invocations: '4',
         failed_invocations: '0',
         pending_approvals: '0',
+        total_invocations_1d: '2',
+        successful_invocations_1d: '2',
         last_success_at: '2026-04-07T00:00:00.000Z',
         last_failure_at: null,
+        p95_latency_ms: '120',
       }],
       [],
+      [{
+        action_id: 'act_test_1',
+        status: 'completed',
+        timestamp_start: '2026-04-07T02:00:00.000Z',
+        duration_ms: '42',
+        output_summary: 'ok',
+        error_message: null,
+      }],
     ]);
 
     const summary = await getCapabilityHealthSummary(sql, 'org_1', {
@@ -27,7 +38,13 @@ describe('getCapabilityHealthSummary', () => {
 
     expect(summary.status).toBe('healthy');
     expect(summary.total_invocations).toBe(4);
+    expect(summary.success_rate_1d).toBe(100);
     expect(summary.success_rate_7d).toBe(100);
+    expect(summary.p95_latency_ms).toBe(120);
+    expect(summary.certification_status).toBe('certified');
+    expect(summary.last_test_status).toBe('completed');
+    expect(summary.last_test_action_id).toBe('act_test_1');
+    expect(summary.stale_check).toBe(false);
     expect(summary.recent_errors).toEqual([]);
   });
 
@@ -38,10 +55,21 @@ describe('getCapabilityHealthSummary', () => {
         successful_invocations: '0',
         failed_invocations: '3',
         pending_approvals: '0',
+        total_invocations_1d: '1',
+        successful_invocations_1d: '0',
         last_success_at: null,
         last_failure_at: '2026-04-07T01:00:00.000Z',
+        p95_latency_ms: '900',
       }],
       [{ error_message: 'downstream timeout', timestamp_start: '2026-04-07T01:00:00.000Z' }],
+      [{
+        action_id: 'act_test_2',
+        status: 'failed',
+        timestamp_start: '2026-04-07T00:30:00.000Z',
+        duration_ms: '55',
+        output_summary: null,
+        error_message: 'input.query is required',
+      }],
     ]);
 
     const summary = await getCapabilityHealthSummary(sql, 'org_1', {
@@ -51,6 +79,9 @@ describe('getCapabilityHealthSummary', () => {
 
     expect(summary.status).toBe('failing');
     expect(summary.failed_invocations).toBe(3);
+    expect(summary.success_rate_1d).toBe(0);
+    expect(summary.certification_status).toBe('failed');
+    expect(summary.last_test_status).toBe('failed');
     expect(summary.recent_errors[0].message).toBe('downstream timeout');
   });
 
@@ -61,9 +92,13 @@ describe('getCapabilityHealthSummary', () => {
         successful_invocations: '0',
         failed_invocations: '0',
         pending_approvals: '0',
+        total_invocations_1d: '0',
+        successful_invocations_1d: '0',
         last_success_at: null,
         last_failure_at: null,
+        p95_latency_ms: null,
       }],
+      [],
       [],
     ]);
 
@@ -73,6 +108,9 @@ describe('getCapabilityHealthSummary', () => {
     });
 
     expect(summary.status).toBe('untested');
+    expect(summary.certification_status).toBe('uncertified');
+    expect(summary.last_tested_at).toBeNull();
+    expect(summary.stale_check).toBe(true);
     expect(summary.success_rate_7d).toBe(0);
   });
 });
