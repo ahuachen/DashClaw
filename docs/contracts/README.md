@@ -6,6 +6,7 @@ DashClaw uses a validator-first contract layer to catch cross-surface drift befo
 
 The contract system exists to stop feature work from silently drifting across:
 
+- public API routes and methods
 - runtime schema assumptions
 - setup and migration safety nets
 - public SDK surface
@@ -16,6 +17,7 @@ The first shipped checks focus on `action_records` runtime schema convergence an
 ## Contract Layout
 
 - `contracts/index.json`
+- `contracts/api/*.json`
 - `contracts/schema/*.json`
 - `contracts/setup/*.json`
 - `contracts/sdk/*.json`
@@ -54,6 +56,7 @@ The validator treats undeclared public methods or stale release-plan versions as
 
 ## Current V1 Scope
 
+- declared public API route/method coverage for capabilities and workflow templates
 - `action_records` schema/setup convergence
 - canonical Node SDK `execution.capabilities` surface
 - SDK release-plan version consistency

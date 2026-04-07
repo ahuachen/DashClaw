@@ -1,4 +1,5 @@
 import { loadContracts } from './lib/contracts/load-contracts.mjs';
+import { checkApiSurface } from './lib/contracts/check-api-surface.mjs';
 import { checkSchemaSetup } from './lib/contracts/check-schema-setup.mjs';
 import { checkSdkSurface } from './lib/contracts/check-sdk-surface.mjs';
 
@@ -18,6 +19,10 @@ function getValidatorFns(contracts) {
 
   if (contracts.index.validators?.sdk_surface) {
     validators.push((loadedContracts) => checkSdkSurface(loadedContracts));
+  }
+
+  if (contracts.index.validators?.api_surface) {
+    validators.push((loadedContracts) => checkApiSurface(loadedContracts));
   }
 
   return validators;

@@ -1,0 +1,31 @@
+{
+  "domain": "workflows-templates",
+  "route_root": "app/api/workflows/templates",
+  "routes": [
+    {
+      "file": "app/api/workflows/templates/route.js",
+      "path": "/api/workflows/templates",
+      "methods": ["GET", "POST"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/route.js",
+      "path": "/api/workflows/templates/[templateId]",
+      "methods": ["GET", "PATCH"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/duplicate/route.js",
+      "path": "/api/workflows/templates/[templateId]/duplicate",
+      "methods": ["POST"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/execute/route.js",
+      "path": "/api/workflows/templates/[templateId]/execute",
+      "methods": ["POST"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/launch/route.js",
+      "path": "/api/workflows/templates/[templateId]/launch",
+      "methods": ["POST"]
+    }
+  ]
+}

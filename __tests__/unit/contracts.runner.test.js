@@ -40,4 +40,18 @@ describe('runContractsCheck', () => {
     expect(result.exitCode).toBe(0);
     expect(result.findings).toEqual([]);
   });
+
+  it('aggregates findings from multiple validators', async () => {
+    const result = await runContractsCheck({
+      mode: 'ci',
+      contracts: { index: { validators: {} } },
+      validatorFns: [
+        async () => ({ ok: false, findings: [{ code: 'schema', message: 'schema drift' }] }),
+        async () => ({ ok: false, findings: [{ code: 'api', message: 'api drift' }] }),
+      ],
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(result.findings.map((finding) => finding.code)).toEqual(['schema', 'api']);
+  });
 });

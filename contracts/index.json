@@ -3,7 +3,11 @@
   "validators": {
     "schema_setup": true,
     "sdk_surface": true,
-    "api_surface": false
+    "api_surface": true
+  },
+  "api": {
+    "capabilities": "contracts/api/capabilities.json",
+    "workflows-templates": "contracts/api/workflows-templates.json"
   },
   "schema": {
     "action-records": "contracts/schema/action-records.json"

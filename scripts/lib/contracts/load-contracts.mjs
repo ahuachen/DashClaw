@@ -19,6 +19,7 @@ export async function loadContracts(rootDir) {
 
   return {
     index,
+    api: await loadDomain(rootDir, index.api),
     schema: await loadDomain(rootDir, index.schema),
     setup: await loadDomain(rootDir, index.setup),
     sdk: await loadDomain(rootDir, index.sdk),

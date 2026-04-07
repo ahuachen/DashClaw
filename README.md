@@ -50,7 +50,7 @@
 
 ## Contract Validation
 
-DashClaw includes a validator-first contract layer for schema/setup and SDK convergence checks.
+DashClaw includes a validator-first contract layer for API, schema/setup, and SDK convergence checks.
 
 - Run: `npm run contracts:check`
 - Guide: [`docs/contracts/README.md`](./docs/contracts/README.md)
