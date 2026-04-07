@@ -110,6 +110,30 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     ? Math.max(authoritativeRiskScore, Math.max(0, Math.min(agentRiskScore, 100)))
     : authoritativeRiskScore;
 
+  // Predictive risk scoring — statistical analysis of historical behavior
+  let predictiveRisk = null;
+  try {
+    const { getPredictiveRisk } = await import('./predictive-risk.js');
+    const { getSettings } = await import('./repositories/settings.repository.js');
+    const riskSettings = await getSettings(sql, orgId, { category: 'general' });
+    const prEnabled = riskSettings.find(s => s.key === 'PREDICTIVE_RISK_ENABLED')?.value === 'true';
+    const prThreshold = parseInt(riskSettings.find(s => s.key === 'PREDICTIVE_RISK_THRESHOLD')?.value, 10) || 60;
+
+    if (context.agent_id && context.action_type) {
+      predictiveRisk = await getPredictiveRisk(
+        sql, orgId, context.agent_id, context.action_type, effectiveRiskScore,
+        { enabled: prEnabled, threshold: prThreshold }
+      );
+    }
+  } catch (e) {
+    // Predictive risk is best-effort — never block guard on failure
+    console.warn('[Guard] Predictive risk failed:', e.message);
+  }
+
+  // Apply statistical adjustment to risk score
+  const predictiveAdjustment = predictiveRisk?.total_adjustment ?? 0;
+  const adjustedRiskScore = Math.max(0, Math.min(effectiveRiskScore + predictiveAdjustment, 100));
+
   const reasons = [];
   const warnings = [];
   const matchedPolicies = [];
@@ -123,7 +147,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       continue; // skip malformed
     }
 
-    const result = await evaluatePolicy(policy, rules, context, sql, orgId, effectiveRiskScore);
+    const result = await evaluatePolicy(policy, rules, context, sql, orgId, adjustedRiskScore);
     if (result) {
       applyResult(result, policy, reasons, warnings, matchedPolicies);
       if (DECISION_SEVERITY[result.action] > DECISION_SEVERITY[highestDecision]) {
@@ -211,7 +235,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       ${reasons.join('; ') || null},
       ${JSON.stringify(matchedPolicies)},
       ${JSON.stringify(safeContextForLog)},
-      ${effectiveRiskScore},
+      ${adjustedRiskScore},
       ${context.action_type || null},
       ${evaluated_at}
     )
@@ -229,7 +253,7 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       reason: reasons.join('; ') || null,
       matched_policies: matchedPolicies,
       context: safeContextForLog,
-      risk_score: effectiveRiskScore,
+      risk_score: adjustedRiskScore,
       agent_risk_score: agentRiskScore,
       action_type: context.action_type || null,
       created_at: evaluated_at
@@ -269,11 +293,12 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
     reason: reasons.join('; ') || null, // Primary reason string
     signals: [...warnings, ...reasons], // Combined signals for the SDK
     matched_policies: matchedPolicies,
-    risk_score: effectiveRiskScore,
+    risk_score: adjustedRiskScore,
     agent_risk_score: agentRiskScore,
     evaluated_at,
     learning: learningContext || undefined,
     ...(recovery ? { recovery } : {}),
+    ...(predictiveRisk ? { predictive_risk: predictiveRisk } : {}),
     // Backward compatibility
     reasons,
     warnings,

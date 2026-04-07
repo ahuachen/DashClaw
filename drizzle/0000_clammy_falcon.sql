@@ -1122,3 +1122,7 @@ CREATE TABLE IF NOT EXISTS "knowledge_chunks" (
 CREATE INDEX IF NOT EXISTS "idx_knowledge_chunks_collection" ON "knowledge_chunks" ("collection_id");
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_knowledge_chunks_item" ON "knowledge_chunks" ("item_id");
+--> statement-breakpoint
+-- Predictive risk: fast historical action lookups by (org, agent, action_type)
+CREATE INDEX IF NOT EXISTS idx_action_records_predictive
+ON action_records (org_id, agent_id, action_type, timestamp_start DESC);

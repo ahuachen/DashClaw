@@ -12,6 +12,9 @@ vi.mock('@/lib/webhooks.js', () => ({ deliverGuardWebhook: mockDeliverGuardWebho
 vi.mock('@/lib/llm.js', () => ({ checkSemanticGuardrail: mockCheckSemantic }));
 vi.mock('@/lib/embeddings.js', () => ({ isEmbeddingsEnabled: mockIsEmbeddingsEnabled, generateActionEmbedding: mockGenerateEmbedding }));
 vi.mock('@/lib/security.js', () => ({ scanSensitiveData: mockScanSensitiveData }));
+// Predictive risk is dynamically imported in guard.js — mock to avoid consuming SQL mock responses
+vi.mock('@/lib/predictive-risk.js', () => ({ getPredictiveRisk: vi.fn(async () => ({ statistical: null, llm: null, total_adjustment: 0 })) }));
+vi.mock('@/lib/repositories/settings.repository.js', () => ({ getSettings: vi.fn(async () => []) }));
 
 import { evaluateGuard } from '@/lib/guard.js';
 import { createSqlMock } from '../helpers.js';

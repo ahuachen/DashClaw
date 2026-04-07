@@ -39,6 +39,9 @@ export const VALID_SETTING_KEYS = [
   // System configuration
   'MODEL_PRICING',
   'ENFORCE_AGENT_SIGNATURES',
+  // Predictive risk scoring
+  'PREDICTIVE_RISK_ENABLED',
+  'PREDICTIVE_RISK_THRESHOLD',
 ];
 
 export const VALID_CATEGORIES = ['integration', 'general', 'system'];
