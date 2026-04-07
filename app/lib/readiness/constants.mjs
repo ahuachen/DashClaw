@@ -1,33 +1,12 @@
-export const REQUIRED_ENV_VARS = [
-  {
-    key: 'DATABASE_URL',
-    description: 'Postgres connection string',
-    help: 'Add DATABASE_URL to your environment, then restart or redeploy.',
-  },
-  {
-    key: 'NEXTAUTH_SECRET',
-    description: 'Session signing secret',
-    help: 'Generate one with: openssl rand -base64 32',
-  },
-];
+import {
+  describeEnvVars,
+  READINESS_ADVISORY_ENV_VARS,
+  READINESS_REQUIRED_ENV_VARS,
+} from '../setup/runtime-env-prerequisites.mjs';
 
-export const ADVISORY_ENV_VARS = [
-  {
-    key: 'NEXTAUTH_URL',
-    description: 'Public URL of this DashClaw instance',
-    help: 'Set NEXTAUTH_URL so OAuth callbacks and login redirects use the correct host.',
-  },
-  {
-    key: 'DASHCLAW_API_KEY',
-    description: 'Default API key for agent authentication',
-    help: 'Set DASHCLAW_API_KEY or sign in and generate a workspace API key before connecting agents.',
-  },
-  {
-    key: 'CRON_SECRET',
-    description: 'Secret token protecting /api/cron/* routes from unauthorized invocation',
-    help: 'Generate with: openssl rand -hex 32 — then add to Vercel → Settings → Environment Variables.',
-  },
-];
+export const REQUIRED_ENV_VARS = describeEnvVars(READINESS_REQUIRED_ENV_VARS);
+
+export const ADVISORY_ENV_VARS = describeEnvVars(READINESS_ADVISORY_ENV_VARS);
 
 export const OVERALL_STATE_META = {
   verified: {

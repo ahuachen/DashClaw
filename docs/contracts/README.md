@@ -10,6 +10,7 @@ The contract system exists to stop feature work from silently drifting across:
 - runtime schema assumptions
 - setup and migration safety nets
 - setup scripts and readiness prerequisites
+- environment and deployment prerequisites
 - public SDK surface
 - SDK release intent
 
@@ -60,6 +61,7 @@ The validator treats undeclared public methods or stale release-plan versions as
 - declared public API route/method coverage for capabilities and workflow templates
 - `action_records` schema/setup convergence
 - shared setup prerequisites for migration inventory, readiness migration hints, and core tables
+- shared env prerequisites for production, readiness, and self-host startup
 - canonical Node SDK `execution.capabilities` surface
 - SDK release-plan version consistency
 

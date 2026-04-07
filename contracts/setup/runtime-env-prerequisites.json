@@ -1,0 +1,42 @@
+{
+  "owner": "app/lib/setup/runtime-env-prerequisites.mjs",
+  "production_required_env": [
+    "DASHCLAW_API_KEY",
+    "NEXTAUTH_SECRET",
+    "ENCRYPTION_KEY"
+  ],
+  "production_advisory_env": [
+    "CRON_SECRET",
+    "ALLOWED_ORIGIN"
+  ],
+  "readiness_required_env": [
+    "DATABASE_URL",
+    "NEXTAUTH_SECRET"
+  ],
+  "readiness_advisory_env": [
+    "NEXTAUTH_URL",
+    "DASHCLAW_API_KEY",
+    "CRON_SECRET"
+  ],
+  "self_host_generated_env": [
+    "DASHCLAW_MODE",
+    "NEXT_PUBLIC_DASHCLAW_MODE",
+    "DATABASE_URL",
+    "NEXTAUTH_URL",
+    "NEXTAUTH_SECRET",
+    "DASHCLAW_API_KEY",
+    "ENCRYPTION_KEY"
+  ],
+  "constraints": [
+    {
+      "key": "ENCRYPTION_KEY",
+      "type": "length",
+      "value": 32
+    }
+  ],
+  "consumers": {
+    "startup_validation": "app/lib/validateEnv.js",
+    "readiness_constants": "app/lib/readiness/constants.mjs",
+    "self_host_init": "scripts/init-self-host-env.mjs"
+  }
+}

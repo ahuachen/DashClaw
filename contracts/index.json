@@ -4,7 +4,8 @@
     "schema_setup": true,
     "sdk_surface": true,
     "api_surface": true,
-    "setup_prerequisites": true
+    "setup_prerequisites": true,
+    "setup_env_prerequisites": true
   },
   "api": {
     "capabilities": "contracts/api/capabilities.json",
@@ -14,6 +15,7 @@
     "action-records": "contracts/schema/action-records.json"
   },
   "setup": {
+    "runtime-env-prerequisites": "contracts/setup/runtime-env-prerequisites.json",
     "runtime-prerequisites": "contracts/setup/runtime-prerequisites.json",
     "runtime-migration": "contracts/setup/runtime-migration.json"
   },
