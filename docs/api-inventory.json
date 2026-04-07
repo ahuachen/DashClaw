@@ -46,8 +46,8 @@
     ]
   },
   "summary": {
-    "total_routes": 190,
-    "stable_routes": 34,
+    "total_routes": 191,
+    "stable_routes": 35,
     "beta_routes": 19,
     "experimental_routes": 137
   },
@@ -1804,6 +1804,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/webhooks",
       "file": "app/api/webhooks/route.js"
+    },
+    {
+      "path": "/api/webhooks/stripe",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/webhooks",
+      "file": "app/api/webhooks/stripe/route.js"
     },
     {
       "path": "/api/webhooks/{webhookId}/deliveries",
