@@ -49,6 +49,10 @@ async function captureNodeCalls() {
     agentId: 'agent-1',
   });
 
+  // SSE uses fetch() directly — stub it out so waitForApproval falls through
+  // to polling immediately rather than waiting for a real network connection.
+  client._connectSSE = async function* () { /* no-op in test context */ };
+
   const calls = [];
   client._request = async (pathName, method, body, params) => {
     let finalPath = pathName;
