@@ -2704,6 +2704,47 @@
         "x-api-maturity": "stable"
       }
     },
+    "/api/usage/costs": {
+      "get": {
+        "operationId": "get_api_usage_costs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or request error"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "GET /api/usage/costs",
+        "tags": [
+          "usage"
+        ],
+        "x-api-maturity": "stable"
+      }
+    },
     "/api/webhooks": {
       "delete": {
         "operationId": "delete_api_webhooks",
