@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-04-07
+
+### Added
+- **SSE-Powered `waitForApproval()` (Node SDK)**: `waitForApproval()` now connects to `/api/stream` via Server-Sent Events for instant approval notification. Falls back to polling silently if SSE is unavailable (503, network error, no Upstash). Zero new dependencies — uses native `fetch` + `ReadableStream`. New private `_connectSSE()` async generator parses SSE frames from the stream.
+- **SSE-Powered `wait_for_approval()` (Python SDK)**: Same SSE-first behavior with polling fallback. Uses `urllib.request` (stdlib only) — zero new dependencies. New private `_connect_sse()` method handles stream parsing.
+- **AutoGen Governed Example**: New `examples/autogen-governed/` with a governed deploy tool demonstrating the full 4-step loop (guard → create_action → record_assumption → update_outcome), HITL approval for production deploys, and staged risk (low for staging, high for production).
+- **Enhanced CrewAI Example**: `examples/crewai-governed/` now demonstrates multi-tool governance with two tools at different risk levels, HITL approval flow, assumption recording, and outcome tracking. Added "What's Governed" feature table to README.
+- **Enhanced LangGraph Example**: `examples/langgraph-governed/` now uses conditional graph routing based on guard decisions (allow → research, require_approval → approval → research, block → abort). Added dedicated approval, outcome, and abort nodes with assumption recording. Added "What's Governed" section with graph structure diagram to README.
+
+### Changed
+- **Node SDK `waitForApproval()`**: Now SSE-first with automatic polling fallback. API unchanged — same method signature, same return shape. The `interval` parameter is only used during polling fallback.
+- **Python SDK `wait_for_approval()`**: Now SSE-first with automatic polling fallback. API unchanged.
+- **SDK READMEs**: Updated `waitForApproval` / `wait_for_approval` descriptions to reflect SSE support. Removed "Node SDK only" SSE note from Python README.
+
+### Tests
+- Added 5 new SSE-specific tests for Node SDK: approval via SSE, fallback on 503, fallback on network error, denial via SSE, event filtering by action ID. Adapted 10 existing HITL tests for SSE-first behavior.
+
 ## [2.9.0] - 2026-04-07
 
 ### Added
