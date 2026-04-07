@@ -62,7 +62,7 @@ These are the first domains that should set the pattern:
 - Why: strongest product wedge
 - Target: canonical execution namespace
 - Needed work:
-  - keep `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, and `listHealth(...)` as the canonical shipped paths,
+  - keep `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, `listHealth(...)`, and `getHistory(...)` as the canonical shipped paths,
   - keep legacy flat methods as compatibility shims to the same routes where older integrations already expect them,
   - document the canonical path as primary.
 

@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `197`
+- Total routes: `198`
 - Stable routes: `37`
 - Beta routes: `20`
-- Experimental routes: `140`
+- Experimental routes: `141`
 
 ## Routes
 
@@ -95,6 +95,7 @@ doc-type: architecture
 | `/api/capabilities/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/health/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
 | `/api/capabilities/{capabilityId}/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/health/route.js` |
+| `/api/capabilities/{capabilityId}/history` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/history/route.js` |
 | `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |
 | `/api/capabilities/{capabilityId}/test` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/test/route.js` |
 | `/api/compliance/evidence` | `GET` | `experimental` | `(default)` | `app/api/compliance/evidence/route.js` |

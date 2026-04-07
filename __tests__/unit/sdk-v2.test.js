@@ -54,6 +54,7 @@ describe('DashClaw v2 SDK', () => {
       expect(typeof claw.execution.capabilities.update).toBe('function');
       expect(typeof claw.execution.capabilities.invoke).toBe('function');
       expect(typeof claw.execution.capabilities.listHealth).toBe('function');
+      expect(typeof claw.execution.capabilities.getHistory).toBe('function');
     });
   });
 
@@ -505,6 +506,21 @@ describe('DashClaw v2 SDK', () => {
       expect(url).toContain('http://localhost:3000/api/capabilities/health');
       expect(url).toContain('risk_level=medium');
       expect(url).toContain('limit=10');
+      expect(opts.method).toBe('GET');
+      expect(opts.body).toBeUndefined();
+    });
+
+    it('getHistory GETs the capability history route with filters', async () => {
+      await claw.execution.capabilities.getHistory('cap_123', {
+        action_type: 'capability_test',
+        status: 'failed',
+        limit: 5,
+      });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toContain('http://localhost:3000/api/capabilities/cap_123/history');
+      expect(url).toContain('action_type=capability_test');
+      expect(url).toContain('status=failed');
+      expect(url).toContain('limit=5');
       expect(opts.method).toBe('GET');
       expect(opts.body).toBeUndefined();
     });

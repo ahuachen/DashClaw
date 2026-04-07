@@ -590,6 +590,14 @@ const { capabilities: healthRows } = await caps.listHealth({
   limit: 10,
 });
 console.log(healthRows.map((cap) => `${cap.slug}:${cap.status}:${cap.certification_status}`));
+
+// Fetch recent invoke/test events for one capability
+const history = await caps.getHistory('cap_123', {
+  action_type: 'capability_test',
+  status: 'failed',
+  limit: 5,
+});
+console.log(history.events.map((event) => `${event.action_type}:${event.status}`));
 ```
 
 The existing flat registry methods remain available for compatibility:
@@ -605,6 +613,7 @@ Use the canonical capability runtime paths:
 - `claw.execution.capabilities.test(...)`
 - `claw.execution.capabilities.getHealth(...)`
 - `claw.execution.capabilities.listHealth(...)`
+- `claw.execution.capabilities.getHistory(...)`
 
 Health responses now include certification and recency fields such as:
 

@@ -45,6 +45,7 @@ class DashClaw {
         test: (capabilityId, payload = {}) => this.testCapability(capabilityId, payload),
         getHealth: (capabilityId) => this.getCapabilityHealth(capabilityId),
         listHealth: (filters = {}) => this.listCapabilityHealth(filters),
+        getHistory: (capabilityId, filters = {}) => this.getCapabilityHistory(capabilityId, filters),
       },
     };
   }
@@ -988,6 +989,13 @@ class DashClaw {
    */
   async listCapabilityHealth(filters = {}) {
     return this._request('/api/capabilities/health', 'GET', null, filters);
+  }
+
+  /**
+   * GET /api/capabilities/:id/history — Fetch recent test and invoke events for a capability.
+   */
+  async getCapabilityHistory(capabilityId, filters = {}) {
+    return this._request(`/api/capabilities/${capabilityId}/history`, 'GET', null, filters);
   }
 }
 
