@@ -87,3 +87,12 @@ secrets/
 .env*.local
 .gitnexus
 .worktrees/
+
+# Organism state (ephemeral)
+.organism/state-reports/
+.organism/heartbeats/
+.organism/cycle-history/
+.organism/active-cycle.json
+.organism/kill-switch
+.organism/paused
+.organism/consecutive-failures.json

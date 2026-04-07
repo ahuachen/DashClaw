@@ -44,7 +44,7 @@ def read_latest_state_report(repo_path: str) -> dict[str, Any] | None:
     reports_dir = Path(repo_path) / ORGANISM_DIR / "state-reports"
     if not reports_dir.exists():
         return None
-    files = sorted(reports_dir.glob("*.json"))
+    files = sorted(reports_dir.glob("*.json"), key=lambda p: p.stat().st_mtime)
     if not files:
         return None
     with open(files[-1]) as f:
