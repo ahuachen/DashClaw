@@ -57,10 +57,16 @@ async function pathExists(candidate) {
   }
 }
 
+function stripFencedCodeBlocks(content) {
+  // Remove fenced code blocks so inline code like `[fn](arg)` isn't treated as a link
+  return content.replace(/^`{3,}[^\n]*\n[\s\S]*?^`{3,}\s*$/gm, "");
+}
+
 async function validateLinks(markdownFile, content) {
   const errors = [];
   const regex = /!?\[[^\]]*]\(([^)]+)\)/g;
   const fileDir = path.dirname(markdownFile);
+  content = stripFencedCodeBlocks(content);
   let match;
 
   while ((match = regex.exec(content)) !== null) {
