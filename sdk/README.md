@@ -99,7 +99,7 @@ The v2 SDK exposes **67 methods** optimized for stability and zero-overhead gove
 - `createAction(action)` -- Lifecycle tracking ("I am doing X")
 - `updateOutcome(id, outcome)` -- Result recording ("X finished with Y")
 - `recordAssumption(assumption)` -- Integrity tracking ("I believe Z while doing X")
-- `waitForApproval(id)` -- Polling helper for human-in-the-loop approvals
+- `waitForApproval(id)` -- Real-time SSE listener for human-in-the-loop approvals (automatic polling fallback)
 - `approveAction(id, decision, reasoning?)` -- Submit approval decisions from code
 - `getPendingApprovals()` -- List actions awaiting human review
 

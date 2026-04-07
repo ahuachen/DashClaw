@@ -50,7 +50,7 @@ with claw.track(action_type="research", declared_goal="Explore Python SDK capabi
 
 ## Real-Time Events
 
-> **Note:** Real-time SSE events are currently available in the Node SDK only. Python SDK support is planned for a future release (requires an SSE client dependency such as `sseclient-py`). In the meantime, use polling via `wait_for_approval()`.
+Both Node and Python SDKs support real-time SSE events for `waitForApproval()` / `wait_for_approval()`. The SDK connects to `/api/stream` automatically and falls back to polling if SSE is unavailable. Zero additional dependencies required.
 
 ## Action Recording
 
