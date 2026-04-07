@@ -143,17 +143,112 @@ class DashClaw {
   }
 
   /**
-   * GET /api/actions/:id — Polling helper for human approval.
+   * @private Connect to SSE stream and yield parsed events.
+   */
+  async *_connectSSE(controller) {
+    const res = await fetch(`${this.baseUrl}/api/stream`, {
+      headers: { 'x-api-key': this.apiKey },
+      signal: controller.signal,
+    });
+
+    if (!res.ok || !res.body) return;
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let currentEvent = null;
+    let currentData = '';
+    let currentId = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith('id: ')) {
+          currentId = line.slice(4).trim();
+        } else if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim();
+        } else if (line.startsWith('data: ')) {
+          currentData += line.slice(6);
+        } else if (line.startsWith(':')) {
+          // SSE comment (heartbeat)
+        } else if (line === '' && currentEvent) {
+          if (currentData) {
+            try {
+              yield { event: currentEvent, data: JSON.parse(currentData), id: currentId };
+            } catch { /* ignore parse errors */ }
+          }
+          currentEvent = null;
+          currentData = '';
+          currentId = null;
+        } else if (line === '') {
+          currentEvent = null;
+          currentData = '';
+          currentId = null;
+        }
+      }
+    }
+  }
+
+  /**
+   * Wait for human approval. SSE-first with polling fallback.
    */
   async waitForApproval(actionId, { timeout = 300000, interval = 5000 } = {}) {
     const startTime = Date.now();
+
+    const checkAction = (action) => {
+      if (action.approved_by) return { resolved: true, result: { action } };
+      if (action.status === 'failed' || action.status === 'cancelled') {
+        return { resolved: true, error: new ApprovalDeniedError(action.error_message || 'Operator denied the action.', action.status) };
+      }
+      return { resolved: false };
+    };
+
+    // Try SSE first
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        for await (const frame of this._connectSSE(controller)) {
+          if (frame.event === 'action.updated' && frame.data?.action_id === actionId) {
+            const check = checkAction(frame.data);
+            if (check.resolved) {
+              clearTimeout(timeoutId);
+              controller.abort();
+              if (check.error) throw check.error;
+              const confirmed = await this._request(`/api/actions/${actionId}`, 'GET');
+              return confirmed;
+            }
+          }
+
+          if (Date.now() - startTime >= timeout) {
+            clearTimeout(timeoutId);
+            controller.abort();
+            throw new Error(`Timed out waiting for approval of action ${actionId}`);
+          }
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        if (!controller.signal.aborted) controller.abort();
+      }
+    } catch (err) {
+      if (err instanceof ApprovalDeniedError || err.message?.includes('Timed out')) throw err;
+      // SSE failed — fall through to polling
+    }
+
+    // Polling fallback
     let wasPending = false;
     let printedBlock = false;
 
     while (Date.now() - startTime < timeout) {
       const { action } = await this._request(`/api/actions/${actionId}`, 'GET');
 
-      // Print structured approval block on first fetch
       if (!printedBlock) {
         printedBlock = true;
         try {
@@ -178,33 +273,18 @@ class DashClaw {
             '\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d',
           ];
           process.stdout.write('\n' + lines.join('\n') + '\n\n');
-        } catch (_) {
-          // Rendering failure must not prevent the wait from proceeding
-        }
-      }
-      
-      if (action.status === 'pending_approval') {
-        wasPending = true;
+        } catch (_) { /* rendering failure must not prevent wait */ }
       }
 
-      // Explicitly unblocked by approval metadata
-      if (action.approved_by) return action;
-
-      // Denial cases
+      if (action.status === 'pending_approval') wasPending = true;
+      if (action.approved_by) return { action };
       if (action.status === 'failed' || action.status === 'cancelled') {
         throw new ApprovalDeniedError(action.error_message || 'Operator denied the action.', action.status);
       }
-
-      // Requirement 4: If an action leaves pending_approval without approval metadata, throw an error.
-      // This prevents "auto-approval" bugs where status is changed by non-approval paths.
       if (wasPending && action.status !== 'pending_approval') {
         throw new Error(`Action ${actionId} left pending_approval state without explicit approval metadata (Status: ${action.status})`);
       }
-
-      // If allowed directly (never intercepted), return immediately
-      if (!wasPending && action.status === 'running') {
-        return { action };
-      }
+      if (!wasPending && action.status === 'running') return { action };
 
       await new Promise(r => setTimeout(r, interval));
     }
