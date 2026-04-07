@@ -48,6 +48,13 @@
 - **Live decision stream** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel env vars. Without this, Mission Control uses in-memory events (fine for getting started, but won't persist across serverless invocations).
 - **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
 
+## Contract Validation
+
+DashClaw includes a validator-first contract layer for schema/setup and SDK convergence checks.
+
+- Run: `npm run contracts:check`
+- Guide: [`docs/contracts/README.md`](./docs/contracts/README.md)
+
 ---
 
 ## Connect Your Agent

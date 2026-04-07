@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "validators": {
+    "schema_setup": true,
+    "sdk_surface": true,
+    "api_surface": false
+  },
+  "schema": {
+    "action-records": "contracts/schema/action-records.json"
+  },
+  "setup": {
+    "runtime-migration": "contracts/setup/runtime-migration.json"
+  },
+  "sdk": {
+    "public-surface": "contracts/sdk/public-surface.json",
+    "release-plan": "contracts/sdk/release-plan.json"
+  }
+}

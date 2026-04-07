@@ -1,0 +1,22 @@
+{
+  "node": {
+    "canonical_root": "execution.capabilities",
+    "required_methods": [
+      "list",
+      "create",
+      "get",
+      "update",
+      "invoke",
+      "test",
+      "getHealth",
+      "listHealth",
+      "getHistory"
+    ]
+  },
+  "python": {
+    "required_methods": []
+  },
+  "legacy": {
+    "compatibility_only": true
+  }
+}

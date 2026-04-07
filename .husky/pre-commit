@@ -3,3 +3,4 @@
 node scripts/generate-api-inventory.mjs
 node scripts/generate-openapi.mjs
 git add docs/api-inventory.json docs/api-inventory.md docs/openapi/critical-stable.openapi.json
+node scripts/check-contracts.mjs --mode=warn || true

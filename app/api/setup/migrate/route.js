@@ -5,6 +5,37 @@ import { NextResponse } from 'next/server';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
+import {
+  ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS,
+  ACTION_RECORDS_RUNTIME_INDEX_DEFINITIONS,
+} from '../../../lib/setup/action-records-runtime-schema.mjs';
+
+export {
+  ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS,
+  ACTION_RECORDS_RUNTIME_COLUMNS,
+  ACTION_RECORDS_RUNTIME_INDEX_DEFINITIONS,
+  ACTION_RECORDS_RUNTIME_INDEXES,
+} from '../../../lib/setup/action-records-runtime-schema.mjs';
+
+async function reconcileActionRecordsRuntimeSchema(sql) {
+  for (const column of ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS) {
+    try {
+      await sql.unsafe(
+        `ALTER TABLE "action_records" ADD COLUMN IF NOT EXISTS "${column.name}" ${column.sql}`,
+      );
+    } catch {
+      // Older installs may already have equivalent columns with slight type differences.
+    }
+  }
+
+  for (const index of ACTION_RECORDS_RUNTIME_INDEX_DEFINITIONS) {
+    try {
+      await sql.unsafe(index.sql);
+    } catch {
+      // Skip index drift here; validator will catch if expectations and setup diverge.
+    }
+  }
+}
 
 /**
  * POST /api/setup/migrate — Runtime database migration.
@@ -86,6 +117,8 @@ export async function POST() {
         try { await sql.unsafe(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${colMatch[1]}" ${rest}`); } catch { /* skip */ }
       }
     }
+
+    await reconcileActionRecordsRuntimeSchema(sql);
 
     // Seed org_default
     let orgSeeded = false;

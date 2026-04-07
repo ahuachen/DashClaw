@@ -1,0 +1,34 @@
+{
+  "table": "action_records",
+  "required_columns": [
+    { "name": "action_id", "type": "text" },
+    { "name": "swarm_id", "type": "text" },
+    { "name": "parent_action_id", "type": "text" },
+    { "name": "authorization_scope", "type": "text" },
+    { "name": "trigger", "type": "text" },
+    { "name": "input_summary", "type": "text" },
+    { "name": "reversible", "type": "integer" },
+    { "name": "recommendation_id", "type": "text" },
+    { "name": "recommendation_applied", "type": "integer" },
+    { "name": "recommendation_override_reason", "type": "text" },
+    { "name": "output_summary", "type": "text" },
+    { "name": "side_effects", "type": "text" },
+    { "name": "artifacts_created", "type": "text" },
+    { "name": "error_message", "type": "text" },
+    { "name": "timestamp_start", "type": "text" },
+    { "name": "timestamp_end", "type": "text" },
+    { "name": "duration_ms", "type": "integer" },
+    { "name": "cost_estimate", "type": "real" },
+    { "name": "tokens_in", "type": "integer" },
+    { "name": "tokens_out", "type": "integer" },
+    { "name": "signature", "type": "text" },
+    { "name": "verified", "type": "integer" },
+    { "name": "approved_by", "type": "text" },
+    { "name": "approved_at", "type": "timestamp" }
+  ],
+  "required_indexes": [
+    { "name": "action_records_action_id_idx", "columns": ["action_id"] },
+    { "name": "action_records_org_timestamp_idx", "columns": ["org_id", "timestamp_start"] }
+  ],
+  "setup_owner": "app/api/setup/migrate/route.js"
+}

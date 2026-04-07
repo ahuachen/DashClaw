@@ -1,0 +1,37 @@
+{
+  "owner": "app/api/setup/migrate/route.js",
+  "tables": {
+    "action_records": {
+      "reconciled_columns": [
+        "action_id",
+        "swarm_id",
+        "parent_action_id",
+        "authorization_scope",
+        "trigger",
+        "input_summary",
+        "reversible",
+        "recommendation_id",
+        "recommendation_applied",
+        "recommendation_override_reason",
+        "output_summary",
+        "side_effects",
+        "artifacts_created",
+        "error_message",
+        "timestamp_start",
+        "timestamp_end",
+        "duration_ms",
+        "cost_estimate",
+        "tokens_in",
+        "tokens_out",
+        "signature",
+        "verified",
+        "approved_by",
+        "approved_at"
+      ],
+      "reconciled_indexes": [
+        "action_records_action_id_idx",
+        "action_records_org_timestamp_idx"
+      ]
+    }
+  }
+}

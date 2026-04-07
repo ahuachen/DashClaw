@@ -1,0 +1,14 @@
+{
+  "node": {
+    "current_version": "2.10.0",
+    "next_bump": "minor",
+    "reason": "capability runtime and operator surface expansion",
+    "domains": ["execution.capabilities"]
+  },
+  "python": {
+    "current_version": "2.10.0",
+    "next_bump": "none",
+    "reason": "",
+    "domains": []
+  }
+}
