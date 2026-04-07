@@ -34,6 +34,16 @@ class DashClaw {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.apiKey = apiKey;
     this.agentId = agentId;
+
+    this.execution = {
+      capabilities: {
+        list: (filters = {}) => this.listCapabilities(filters),
+        create: (data) => this.createCapability(data),
+        get: (capabilityId) => this.getCapability(capabilityId),
+        update: (capabilityId, patch) => this.updateCapability(capabilityId, patch),
+        invoke: (capabilityId, payload = {}) => this.invokeCapability(capabilityId, payload),
+      },
+    };
   }
 
   async _request(path, method = 'GET', body = null, params = null) {
@@ -941,6 +951,16 @@ class DashClaw {
    */
   async updateCapability(capabilityId, patch) {
     return this._request(`/api/capabilities/${capabilityId}`, 'PATCH', patch);
+  }
+
+  /**
+   * POST /api/capabilities/:id/invoke — Invoke a governed capability.
+   */
+  async invokeCapability(capabilityId, payload = {}) {
+    return this._request(`/api/capabilities/${capabilityId}/invoke`, 'POST', {
+      ...payload,
+      agent_id: payload.agent_id || this.agentId,
+    });
   }
 }
 

@@ -48,7 +48,8 @@ The canonical Node SDK already includes the core runtime and a meaningful portio
 - workflow templates,
 - model strategies,
 - knowledge collections,
-- capability registry.
+- capability registry,
+- canonical `execution.capabilities.invoke(...)` for governed runtime execution.
 
 This is the surface new SDK-facing product work should target first.
 
@@ -82,7 +83,7 @@ That is acceptable temporarily, but it should not define future product directio
 | Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK |
 | Sessions / action graph | Yes | Partial overlap | Yes | Stable, canonical in main SDK |
 | Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, continue promoting there |
-| Capabilities | Yes | Historical overlap / broader patterns | Yes | Canonical in main SDK, primary promotion target |
+| Capabilities | Yes | Historical overlap / broader patterns | Yes | Canonical in main SDK; `execution.capabilities.invoke(...)` promoted, test/health wrappers still pending |
 | Model strategies | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Knowledge collections | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Messaging / handoffs / threads | Yes | Yes | Yes | Canonical in main SDK |

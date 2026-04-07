@@ -100,7 +100,7 @@ See:
 
 ## SDK Surface Area (v2.10.0)
 
-The v2 SDK exposes **67 methods** optimized for stability and zero-overhead governance:
+The v2 SDK exposes the stable governance runtime plus promoted execution domains in the canonical Node client:
 
 ### Core Runtime
 - `guard(context)` -- Policy evaluation ("Can I do X?"). Returns `risk_score` (server-computed) and `agent_risk_score` (raw agent value)
@@ -530,14 +530,17 @@ const { results } = await claw.searchKnowledgeCollection(
 results.forEach(r => console.log(`${(r.score * 100).toFixed(1)}%: ${r.content.slice(0, 80)}...`));
 ```
 
-### Capability Registry
+### Capability Runtime
 
 ```javascript
+// Canonical namespace for capability work
+const caps = claw.execution.capabilities;
+
 // Search the registry (category, risk_level, and search are combinable)
-const { capabilities } = await claw.listCapabilities({ risk_level: 'medium', search: 'slack' });
+const { capabilities } = await caps.list({ risk_level: 'medium', search: 'slack' });
 
 // Register a capability
-await claw.createCapability({
+await caps.create({
   name: 'Send Slack Message',
   description: 'Posts to a configured Slack channel',
   category: 'messaging',
@@ -549,7 +552,22 @@ await claw.createCapability({
   health_status: 'healthy',
   docs_url: 'https://docs.example.com/slack'
 });
+
+// Invoke a governed capability
+const result = await caps.invoke('cap_123', {
+  query: 'What is x402?'
+});
+console.log(result.governed, result.action_id);
 ```
+
+The existing flat registry methods remain available for compatibility:
+
+- `claw.listCapabilities(...)`
+- `claw.createCapability(...)`
+- `claw.getCapability(...)`
+- `claw.updateCapability(...)`
+
+Use `claw.execution.capabilities.invoke(...)` as the canonical invoke path. `test` and health-oriented SDK wrappers are planned, but are not exposed yet because the underlying routes are not shipped yet.
 
 ---
 

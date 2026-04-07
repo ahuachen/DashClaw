@@ -46,6 +46,14 @@ describe('DashClaw v2 SDK', () => {
       const c = new DashClaw({ baseUrl: 'http://x/', apiKey: 'k', agentId: 'a' });
       expect(c.baseUrl).toBe('http://x');
     });
+
+    it('exposes canonical execution.capabilities namespace', () => {
+      expect(typeof claw.execution.capabilities.list).toBe('function');
+      expect(typeof claw.execution.capabilities.create).toBe('function');
+      expect(typeof claw.execution.capabilities.get).toBe('function');
+      expect(typeof claw.execution.capabilities.update).toBe('function');
+      expect(typeof claw.execution.capabilities.invoke).toBe('function');
+    });
   });
 
   // --- _request internals ---
@@ -438,6 +446,38 @@ describe('DashClaw v2 SDK', () => {
       const body = JSON.parse(opts.body);
       expect(body.agent_id).toBe('test-agent');
       expect(body.name).toBe('Deploy analysis');
+    });
+  });
+
+  // --- execution.capabilities ---
+
+  describe('execution.capabilities', () => {
+    it('list delegates to capability registry GET', async () => {
+      await claw.execution.capabilities.list({ risk_level: 'medium', search: 'slack' });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toContain('http://localhost:3000/api/capabilities');
+      expect(url).toContain('risk_level=medium');
+      expect(url).toContain('search=slack');
+      expect(opts.method).toBe('GET');
+    });
+
+    it('invoke POSTs to governed capability route with default agent_id', async () => {
+      await claw.execution.capabilities.invoke('cap_123', { query: 'What is x402?' });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toBe('http://localhost:3000/api/capabilities/cap_123/invoke');
+      expect(opts.method).toBe('POST');
+      const body = JSON.parse(opts.body);
+      expect(body.query).toBe('What is x402?');
+      expect(body.agent_id).toBe('test-agent');
+    });
+
+    it('invoke preserves explicit agent_id override', async () => {
+      await claw.execution.capabilities.invoke('cap_123', {
+        query: 'What is x402?',
+        agent_id: 'other-agent',
+      });
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.agent_id).toBe('other-agent');
     });
   });
 
