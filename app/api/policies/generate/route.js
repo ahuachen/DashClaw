@@ -7,6 +7,7 @@ import { getOrgId } from '../../../lib/org';
 import { getSql } from '../../../lib/db.js';
 import { apiErrorResponse } from '../../../lib/apiErrors.js';
 import { generatePolicies } from '../../../lib/policy-generator.js';
+import { insertPolicy } from '../../../lib/repositories/guardrails.repository.js';
 
 const MAX_INPUT_LENGTH = 5000;
 
@@ -55,22 +56,16 @@ export async function POST(request) {
       });
     }
 
-    // dry_run=false — create the policies
+    // dry_run=false — create the policies via repository
     const createdPolicies = [];
     for (const policy of result.generated_policies) {
       const policyId = `gp_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
-      await sql`
-        INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, created_at)
-        VALUES (
-          ${policyId},
-          ${orgId},
-          ${policy.name},
-          ${policy.policy_type},
-          ${JSON.stringify(policy.rules)},
-          1,
-          NOW()
-        )
-      `;
+      await insertPolicy(sql, orgId, {
+        id: policyId,
+        name: policy.name,
+        policyType: policy.policy_type,
+        rules: JSON.stringify(policy.rules),
+      });
       createdPolicies.push(policyId);
     }
 
