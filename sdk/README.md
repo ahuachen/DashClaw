@@ -70,6 +70,26 @@ claw.update_outcome(action_id, status="completed")
 
 ---
 
+## SDK Tiers
+
+DashClaw ships two SDKs with different scope:
+
+| | Node SDK | Python SDK |
+|---|---|---|
+| **Focus** | Lightweight governance loop | Full platform surface |
+| **Methods** | 67 | 185+ |
+| **Core governance** | ✅ | ✅ |
+| **Scoring profiles** | ✅ | ✅ |
+| **Learning loop** | ✅ | ✅ |
+| **Framework integrations** | — | LangChain, CrewAI, AutoGen |
+| **Compliance engine** | — | ✅ |
+| **Execution graphs** | — | ✅ |
+| **Webhooks management** | — | ✅ |
+
+**Node** is designed for most agents — fast, minimal, covers the governance loop and common workflows. **Python** is the enterprise/power-user surface with compliance reporting, execution graph traversal, and framework-native integrations.
+
+---
+
 ## SDK Surface Area (v2.10.0)
 
 The v2 SDK exposes **67 methods** optimized for stability and zero-overhead governance:
