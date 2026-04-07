@@ -331,9 +331,11 @@ The fastest path to self-host DashClaw is via **Vercel + Neon**.
 
 ---
 
-## Full SDK Documentation
+## Documentation
 
-For the complete API surface, check out the [SDK Reference](./docs/sdk-reference.md).
+- [SDK Reference](./docs/sdk-reference.md) — Complete API surface for Node and Python SDKs
+- [Roadmap](./ROADMAP.md) — What's shipped, in progress, and exploring
+- [CHANGELOG](./CHANGELOG.md) — Detailed release history
 
 ---
 
