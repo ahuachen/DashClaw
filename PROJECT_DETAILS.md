@@ -38,6 +38,7 @@ These 7 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/assumptions` | Reasoning integrity | `recordAssumption()` |
 | `/api/signals` | Anomaly detection | `getSignals()` |
 | `/api/policies` | Policy management | -- |
+| `/api/policies/generate` | AI policy generator (natural language → guard policies, `dry_run` preview mode) | -- |
 | `/api/health` | System readiness | -- |
 
 ### Infrastructure Routes
@@ -94,7 +95,7 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 ## Core Libraries (`app/lib/`)
 
 - `db.js`: Shared database connection (Neon/Postgres).
-- `guard.js`: The evaluation engine for intent vs. policy.
+- `guard.js`: The evaluation engine for intent vs. policy. Integrates predictive risk scoring — adjusts risk based on historical failure rates, action velocity, and optional LLM assessment.
 - `signals.js`: Anomaly computation (Autonomy Spikes, Stale Actions).
 - `readiness.mjs`: Instance verification for the `/setup` page.
 - `org.js`: Multi-tenant scoping and role helpers.
@@ -107,6 +108,8 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `template-vars.js`: Variable substitution engine for workflow step configs — resolves `${variables.x}` and `${steps.step_id.output.y}`.
 - `usage.js`: Plan limits (PLAN_LIMITS), quota enforcement with grace buffer (checkQuota), meter increment/read, cost estimation.
 - `billing.js`: Token cost estimation for LLM calls (DEFAULT_PRICING for 20+ models).
+- `policy-generator.js`: LLM-powered natural language to guard policy conversion with prompt construction, response parsing, validation, and dry-run preview.
+- `predictive-risk.js`: Statistical + LLM-enhanced risk scoring for guard evaluations. Queries historical action outcomes and optionally consults LLM for high-stakes actions. Controlled by `PREDICTIVE_RISK_ENABLED` and `PREDICTIVE_RISK_THRESHOLD` settings.
 
 ## SDK Surface Area (v2)
 
