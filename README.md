@@ -331,6 +331,19 @@ The fastest path to self-host DashClaw is via **Vercel + Neon**.
 
 ---
 
+## Beyond the Basics
+
+DashClaw includes advanced governance capabilities beyond the core guard loop:
+
+- **Drift Detection** — Monitors reasoning and metric drift across agent sessions. Surfaces signals when behavior deviates from baselines. See the [drift signals docs](./docs/sdk-reference.md).
+- **Recovery Recipes** — 6 built-in recipes map signals to remediations and auto-actions. Guard responses include a `recovery` field when applicable. See [SDK: Recovery](./sdk/README.md#learning-loop).
+- **Scoring Profiles** — Multi-dimensional evaluation with weighted composite scores, auto-calibration, and batch scoring. See [SDK: Scoring Profiles](./sdk/README.md#scoring-profiles).
+- **Learning Loop** — Guard responses include historical learning context: recent score averages, drift status, and behavioral patterns that feed back into future decisions. See [SDK: Learning Loop](./sdk/README.md#learning-loop).
+- **Prompt Injection Scanning** — On by default for all guard evaluations. Detects and blocks injection patterns in declared goals. See [SDK: Security Scanning](./sdk/README.md#security-scanning).
+- **Session Lifecycle** — Automatic session tracking with stall detection, recovery recipes, and graduated autonomy levels per agent. See the [v2.8 changelog](./CHANGELOG.md).
+
+---
+
 ## Documentation
 
 - [SDK Reference](./docs/sdk-reference.md) — Complete API surface for Node and Python SDKs
