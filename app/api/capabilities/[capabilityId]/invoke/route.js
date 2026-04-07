@@ -7,15 +7,16 @@ import { getSql } from '../../../../lib/db.js';
 import { getOrgId } from '../../../../lib/org.js';
 import { apiErrorResponse } from '../../../../lib/apiErrors.js';
 import { evaluateGuard } from '../../../../lib/guard.js';
-import { getCapability } from '../../../../lib/repositories/capabilities.repository.js';
 import {
   createActionRecord,
   createBlockedActionRecord,
 } from '../../../../lib/repositories/actions.repository.js';
-import { getSettings } from '../../../../lib/repositories/settings.repository.js';
 import { scanSensitiveData } from '../../../../lib/security.js';
-import { RISK_SCORE_MAP, resolveAuth, invokeCapability } from '../../../../lib/capability-invoke.js';
-import { resolveEndpointUrl } from '../../../../lib/mapping.js';
+import { RISK_SCORE_MAP } from '../../../../lib/capability-invoke.js';
+import {
+  executeCapabilityInvocation,
+  prepareCapabilityInvocation,
+} from '../../../../lib/capability-runtime.js';
 import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../lib/usage.js';
 
 function redactAny(value, findings) {
@@ -40,23 +41,49 @@ export async function POST(request, { params }) {
     const orgId = getOrgId(request);
     const body = await request.json();
 
-    // 1. Load capability
-    const capability = await getCapability(sql, orgId, capabilityId);
+    // 1. Load and resolve capability runtime config
+    let prepared;
+    try {
+      prepared = await prepareCapabilityInvocation(sql, orgId, capabilityId);
+    } catch (err) {
+      if (err.message === `Capability not found: ${capabilityId}`) {
+        return NextResponse.json(
+          { success: false, error: 'capability_not_found' },
+          { status: 404 },
+        );
+      }
+
+      if (err.message === `Capability ${capabilityId} is not an http_api type`) {
+        return NextResponse.json(
+          { success: false, error: 'not_invocable', message: 'Capability is not invocable via HTTP' },
+          { status: 400 },
+        );
+      }
+
+      if (err.code === 'auth_not_configured') {
+        return NextResponse.json(
+          { success: false, error: 'auth_not_configured', message: err.message },
+          { status: 400 },
+        );
+      }
+
+      if (err.code === 'endpoint_not_configured') {
+        return NextResponse.json(
+          { success: false, error: 'endpoint_not_configured', message: err.message },
+          { status: 400 },
+        );
+      }
+
+      throw err;
+    }
+
+    const { capability, schema } = prepared;
     if (!capability) {
       return NextResponse.json(
         { success: false, error: 'capability_not_found' },
         { status: 404 },
       );
     }
-
-    if (capability.source_type !== 'http_api') {
-      return NextResponse.json(
-        { success: false, error: 'not_invocable', message: 'Capability is not invocable via HTTP' },
-        { status: 400 },
-      );
-    }
-
-    const schema = capability.invocation_schema || {};
     const action_id = `act_${crypto.randomUUID()}`;
     const timestamp_start = new Date().toISOString();
 
@@ -162,44 +189,7 @@ export async function POST(request, { params }) {
       );
     }
 
-    // 6. Resolve auth and endpoint from org settings
-    let orgSettings = {};
-    try {
-      const rows = await getSettings(sql, orgId);
-      for (const row of rows) {
-        orgSettings[row.key] = row.value;
-      }
-    } catch {
-      // Settings table may not exist
-    }
-
-    let authHeaders;
-    try {
-      authHeaders = resolveAuth(schema.auth, orgSettings);
-    } catch (err) {
-      if (err.code === 'auth_not_configured') {
-        return NextResponse.json(
-          { success: false, error: 'auth_not_configured', message: err.message },
-          { status: 400 },
-        );
-      }
-      throw err;
-    }
-
-    let endpoint;
-    try {
-      endpoint = resolveEndpointUrl(schema.endpoint, orgSettings);
-    } catch (err) {
-      if (err.code === 'endpoint_not_configured') {
-        return NextResponse.json(
-          { success: false, error: 'endpoint_not_configured', message: err.message },
-          { status: 400 },
-        );
-      }
-      throw err;
-    }
-
-    // 7. Create running action record
+    // 6. Create running action record
     await createActionRecord(sql, {
       orgId,
       action_id,
@@ -211,18 +201,15 @@ export async function POST(request, { params }) {
       timestamp_start,
     });
 
-    // 8. Invoke the capability
-    const result = await invokeCapability({
-      endpoint,
-      method: schema.method || 'POST',
-      authHeaders,
+    // 7. Invoke the capability
+    const result = await executeCapabilityInvocation({
+      endpoint: prepared.endpoint,
+      authHeaders: prepared.authHeaders,
+      schema,
       body,
-      requestMapping: schema.request_mapping,
-      responseMapping: schema.response_mapping,
-      timeoutMs: schema.timeout_ms || 60000,
     });
 
-    // 9. Update action outcome
+    // 8. Update action outcome
     const timestamp_end = new Date().toISOString();
     const outputSummary = result.success
       ? JSON.stringify(result.data).slice(0, 500)
@@ -238,7 +225,7 @@ export async function POST(request, { params }) {
       WHERE action_id = ${action_id} AND org_id = ${orgId}
     `;
 
-    // 10. Return response
+    // 9. Return response
     if (!result.success) {
       const statusCode = result.error === 'capability_timeout' ? 504 : 502;
       return NextResponse.json(

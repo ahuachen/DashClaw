@@ -5,10 +5,7 @@
 
 import { searchCollection } from './knowledge-ingest.js';
 import { executeCompletion } from './providers.js';
-import { invokeCapability, resolveAuth } from './capability-invoke.js';
-import { resolveEndpointUrl } from './mapping.js';
-import { getCapability } from './repositories/capabilities.repository.js';
-import { getSettings } from './repositories/settings.repository.js';
+import { executeCapabilityInvocation, prepareCapabilityInvocation } from './capability-runtime.js';
 
 /**
  * knowledge_search — search a linked knowledge collection.
@@ -49,40 +46,12 @@ export async function handleCapabilityInvoke(sql, orgId, config) {
     throw new Error('capability_invoke requires capability_id');
   }
 
-  const capability = await getCapability(sql, orgId, capability_id);
-  if (!capability) {
-    throw new Error(`Capability not found: ${capability_id}`);
-  }
-
-  if (capability.source_type !== 'http_api') {
-    throw new Error(`Capability ${capability_id} is not an http_api type`);
-  }
-
-  const schema = capability.invocation_schema || {};
-
-  // Resolve org settings for auth and endpoint.
-  // getSettings(sql, orgId) returns all org-level rows; convert to key-value map.
-  let orgSettings = {};
-  try {
-    const rows = await getSettings(sql, orgId);
-    for (const row of rows) {
-      orgSettings[row.key] = row.value;
-    }
-  } catch {
-    // Settings table may not exist yet
-  }
-
-  const authHeaders = resolveAuth(schema.auth, orgSettings);
-  const endpoint = resolveEndpointUrl(schema.endpoint, orgSettings);
-
-  const result = await invokeCapability({
-    endpoint,
-    method: schema.method || 'POST',
-    authHeaders,
+  const prepared = await prepareCapabilityInvocation(sql, orgId, capability_id);
+  const result = await executeCapabilityInvocation({
+    endpoint: prepared.endpoint,
+    authHeaders: prepared.authHeaders,
+    schema: prepared.schema,
     body,
-    requestMapping: schema.request_mapping,
-    responseMapping: schema.response_mapping,
-    timeoutMs: schema.timeout_ms || 60000,
   });
 
   if (!result.success) {
