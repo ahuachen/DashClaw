@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 188,
-    "stable_routes": 34,
-    "beta_routes": 19,
-    "experimental_routes": 135
+    "total_routes": 193,
+    "stable_routes": 36,
+    "beta_routes": 20,
+    "experimental_routes": 137
   },
   "routes": [
     {
@@ -699,6 +699,24 @@
       "file": "app/api/auth/local/route.js"
     },
     {
+      "path": "/api/billing/checkout",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/billing/checkout/route.js"
+    },
+    {
+      "path": "/api/billing/portal",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/billing/portal/route.js"
+    },
+    {
       "path": "/api/capabilities",
       "methods": [
         "GET",
@@ -874,6 +892,15 @@
       "maturity": "beta",
       "matched_prefix": "/api/cron",
       "file": "app/api/cron/policy-suggestions/route.js"
+    },
+    {
+      "path": "/api/cron/reset-meters",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "beta",
+      "matched_prefix": "/api/cron",
+      "file": "app/api/cron/reset-meters/route.js"
     },
     {
       "path": "/api/cron/routing-maintenance",
@@ -1777,6 +1804,15 @@
       "file": "app/api/usage/route.js"
     },
     {
+      "path": "/api/usage/costs",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/usage",
+      "file": "app/api/usage/costs/route.js"
+    },
+    {
       "path": "/api/webhooks",
       "methods": [
         "DELETE",
@@ -1786,6 +1822,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/webhooks",
       "file": "app/api/webhooks/route.js"
+    },
+    {
+      "path": "/api/webhooks/stripe",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "stable",
+      "matched_prefix": "/api/webhooks",
+      "file": "app/api/webhooks/stripe/route.js"
     },
     {
       "path": "/api/webhooks/{webhookId}/deliveries",

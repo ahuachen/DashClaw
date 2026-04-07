@@ -18,15 +18,59 @@ export function getCurrentPeriod() {
 }
 
 /**
- * Returns limits object. In the open-source edition, all limits are Infinity.
+ * Plan limits by tier. Each key maps to the maximum allowed count per billing period.
+ * Resources using period 'current' (agents, api_keys, members, knowledge_collections)
+ * are snapshot-based; others reset monthly.
  */
-export function getPlanLimits() {
-  return {
+export const PLAN_LIMITS = {
+  free: {
+    governed_actions: 5000,
+    actions_per_month: 5000,
+    agents: 3,
+    api_keys: 2,
+    members: 5,
+    capability_invocations: 100,
+    workflow_executions: 50,
+    knowledge_collections: 3,
+  },
+  pro: {
+    governed_actions: 50000,
+    actions_per_month: 50000,
+    agents: 25,
+    api_keys: 10,
+    members: 25,
+    capability_invocations: 5000,
+    workflow_executions: 2500,
+    knowledge_collections: 25,
+  },
+  business: {
+    governed_actions: 500000,
+    actions_per_month: 500000,
+    agents: Infinity,
+    api_keys: Infinity,
+    members: Infinity,
+    capability_invocations: 50000,
+    workflow_executions: 25000,
+    knowledge_collections: Infinity,
+  },
+  enterprise: {
+    governed_actions: Infinity,
     actions_per_month: Infinity,
     agents: Infinity,
-    members: Infinity,
     api_keys: Infinity,
-  };
+    members: Infinity,
+    capability_invocations: Infinity,
+    workflow_executions: Infinity,
+    knowledge_collections: Infinity,
+  },
+};
+
+/**
+ * Returns limits object for the given plan tier.
+ * Falls back to 'free' for unknown plans.
+ */
+export function getPlanLimits(plan = 'free') {
+  return PLAN_LIMITS[plan] || PLAN_LIMITS.free;
 }
 
 /**
@@ -170,16 +214,94 @@ export async function getUsage(orgId, sql) {
 }
 
 /**
- * Fast quota check — always returns allowed in the open-source edition.
+ * Evaluates quota status for a given usage/limit pair.
+ *
+ * Thresholds:
+ *  - <80%: allowed, no warning
+ *  - 80-100%: allowed, 'approaching' warning
+ *  - 100-110%: allowed, 'grace' warning (grace buffer)
+ *  - >110%: blocked (quota_exceeded)
+ *
+ * @param {number} usage - Current usage count
+ * @param {number} limit - Plan limit for the resource
+ * @returns {{ allowed: boolean, warning: object|null, code?: string, usage?: number, limit?: number, percentage?: number, message?: string }}
+ */
+export function calculateQuotaStatus(usage, limit) {
+  if (limit === Infinity) {
+    return { allowed: true, warning: null };
+  }
+
+  const percentage = Math.round((usage / limit) * 100);
+
+  if (percentage < 80) {
+    return { allowed: true, warning: null };
+  }
+
+  if (percentage <= 100) {
+    return {
+      allowed: true,
+      warning: {
+        level: 'approaching',
+        percentage,
+        usage,
+        limit,
+        message: `Approaching quota limit (${percentage}%). Upgrade at /billing.`,
+      },
+    };
+  }
+
+  if (percentage <= 110) {
+    return {
+      allowed: true,
+      warning: {
+        level: 'grace',
+        percentage,
+        usage,
+        limit,
+        message: `Quota limit exceeded (${percentage}%). Grace period active. Upgrade to continue.`,
+      },
+    };
+  }
+
+  return {
+    allowed: false,
+    code: 'quota_exceeded',
+    usage,
+    limit,
+    percentage,
+    message: 'Monthly quota exceeded. Upgrade your plan to continue.',
+  };
+}
+
+/**
+ * Fast quota check — reads a single usage_meters row and evaluates against plan limits.
  *
  * @param {string} orgId
  * @param {string} resource
  * @param {string} plan
  * @param {object} sql
- * @returns {{ allowed: boolean, warning: boolean, usage: number, limit: number, percent: number, hardLimit: number }}
+ * @returns {Promise<{ allowed: boolean, warning: object|null, usage?: number, limit?: number, percent?: number, code?: string, message?: string }>}
  */
 export async function checkQuotaFast(orgId, resource, plan, sql) {
-  return { allowed: true, warning: false, usage: 0, limit: Infinity, percent: 0, hardLimit: Infinity };
+  const limits = getPlanLimits(plan);
+  const limit = limits[resource];
+
+  if (limit === undefined || limit === Infinity) {
+    return { allowed: true, warning: null, usage: 0, limit: Infinity, percent: 0 };
+  }
+
+  const period = (resource === 'agents' || resource === 'api_keys' || resource === 'members' || resource === 'knowledge_collections')
+    ? 'current'
+    : getCurrentPeriod();
+
+  const rows = await sql`
+    SELECT count FROM usage_meters
+    WHERE org_id = ${orgId} AND period = ${period} AND resource = ${resource}
+    LIMIT 1
+  `;
+  const usage = rows.length > 0 ? (rows[0].count || 0) : 0;
+
+  return calculateQuotaStatus(usage, limit);
 }
 
 /**

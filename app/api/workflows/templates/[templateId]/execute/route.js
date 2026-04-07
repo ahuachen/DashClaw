@@ -16,6 +16,7 @@ import {
 } from '../../../../../lib/repositories/actions.repository.js';
 import { scanSensitiveData } from '../../../../../lib/security.js';
 import { executeWorkflow } from '../../../../../lib/workflow-executor.js';
+import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../../lib/usage.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -120,6 +121,25 @@ export async function POST(request, { params }) {
       );
     }
 
+    // Quota check
+    const plan = await getOrgPlan(orgId, sql);
+    const wfQuota = await checkQuotaFast(orgId, 'workflow_executions', plan, sql);
+    if (!wfQuota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'quota_exceeded',
+          code: 'QUOTA_EXCEEDED',
+          resource: 'workflow_executions',
+          usage: wfQuota.usage,
+          limit: wfQuota.limit,
+          message: 'Monthly workflow execution limit exceeded. Upgrade your plan to continue.',
+          upgrade_url: '/billing',
+        },
+        { status: 402 },
+      );
+    }
+
     // 5. Resolve model strategy (snapshot at launch)
     let strategyConfig = null;
     if (template.model_strategy_id) {
@@ -173,6 +193,12 @@ export async function POST(request, { params }) {
       WHERE action_id = ${action_id} AND org_id = ${orgId}
     `;
 
+    // Meter increment (fire-and-forget)
+    void Promise.all([
+      incrementMeter(orgId, 'workflow_executions', sql),
+      incrementMeter(orgId, 'governed_actions', sql),
+    ]).catch((err) => console.warn('[API] Meter increment failed:', err.message));
+
     // 9. Return response
     const status = result.success ? 200 : 500;
     return NextResponse.json(
@@ -184,6 +210,7 @@ export async function POST(request, { params }) {
         error: result.error || undefined,
         total_elapsed_ms: result.total_elapsed_ms,
         governed: true,
+        quota_warning: wfQuota.warning || undefined,
         security: {
           clean: dlpFindings.length === 0,
           findings_count: dlpFindings.length,
