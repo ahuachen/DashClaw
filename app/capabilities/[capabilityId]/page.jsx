@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Wrench } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { EmptyState } from '../../components/ui/EmptyState';
@@ -20,7 +21,8 @@ async function readJson(response) {
 }
 
 export default function CapabilityDetailPage({ params }) {
-  const capabilityId = params?.capabilityId;
+  const routeParams = useParams();
+  const capabilityId = params?.capabilityId || routeParams?.capabilityId;
   const [capability, setCapability] = useState(null);
   const [health, setHealth] = useState(null);
   const [history, setHistory] = useState([]);

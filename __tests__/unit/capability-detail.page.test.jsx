@@ -2,8 +2,16 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+const { mockUseParams } = vi.hoisted(() => ({
+  mockUseParams: vi.fn(),
+}));
+
 vi.mock('next/link', () => ({
   default: ({ href, children, ...props }) => <a href={href} {...props}>{children}</a>,
+}));
+
+vi.mock('next/navigation', () => ({
+  useParams: mockUseParams,
 }));
 
 vi.mock('@/components/PageLayout.js', () => ({
@@ -55,7 +63,38 @@ describe('CapabilityDetailPage', () => {
     vi.restoreAllMocks();
   });
 
+  it('reads capabilityId from next navigation params when the client page gets no params prop', async () => {
+    mockUseParams.mockReturnValue({ capabilityId: 'cap_1' });
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Research Agent',
+          slug: 'research-agent',
+          risk_level: 'medium',
+          source_type: 'http_api',
+        },
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'healthy',
+        certification_status: 'certified',
+        stale_check: false,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage />);
+
+    expect(await screen.findAllByText('Research Agent')).toBeTruthy();
+  });
+
   it('renders a not-found fallback with a link back to the registry', async () => {
+    mockUseParams.mockReturnValue({});
     global.fetch = vi.fn().mockResolvedValueOnce({
       ok: false,
       json: async () => ({ error: 'Capability not found' }),
@@ -71,6 +110,7 @@ describe('CapabilityDetailPage', () => {
   });
 
   it('renders capability metadata, health, and history on load', async () => {
+    mockUseParams.mockReturnValue({});
     global.fetch = vi.fn()
       .mockResolvedValueOnce(okJson({
         capability: {
@@ -213,6 +253,7 @@ describe('CapabilityDetailPage', () => {
   });
 
   it('keeps the page usable when history fails and allows retry into an empty state', async () => {
+    mockUseParams.mockReturnValue({});
     global.fetch = vi.fn()
       .mockResolvedValueOnce(okJson({
         capability: {
@@ -251,6 +292,7 @@ describe('CapabilityDetailPage', () => {
   });
 
   it('disables test submission for invalid json and while a test is in flight', async () => {
+    mockUseParams.mockReturnValue({});
     let resolveTest;
     const pendingTest = new Promise((resolve) => {
       resolveTest = resolve;
