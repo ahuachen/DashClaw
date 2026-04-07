@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-04-07
+
+### Added
+- **`livingcode` Python Framework**: DashClaw now monitors its own codebase health as a living organism. Zero-dependency Python module (`livingcode/`) implements a 5-collector sensing layer, immune system, tiered planner, lifecycle orchestrator, heartbeat runner, and CLI — all stdlib only.
+- **5 Sensing Collectors**: `git_stats` (bus factor, stale branches, commit velocity), `test_health` (JS + Python test counts, untested routes), `code_quality` (files over limit, TODOs, ESLint status, archive size), `dependency_health` (npm audit, outdated packages), `ci_health` (30-day pass rate via `gh` CLI, graceful degradation).
+- **Immune System**: 6 checks (4 hard-block: CI gates, OpenAPI contract, test regression, dependency safety; 2 soft-warn: file length, SDK parity) → verdict (`merge` / `fix_required` / `needs_discussion`).
+- **Tiered Planner**: 5-tier work item prioritization (Critical → Regression → Maintenance → Improvement → Growth) from sensing data. Backlog persisted to `.organism/backlog/`.
+- **Lifecycle Orchestrator**: SENSE → PLAN → REVIEW → REFLECT cycle with kill switch, cycle lock, consecutive failure tracking (3 failures → pause), and cycle history.
+- **Heartbeat Runner**: Quick mode (post-commit: git_stats + code_quality, ~1s) and full mode (complete lifecycle cycle).
+- **CLI**: `python -m livingcode sense|plan|review|cycle|heartbeat|status`. `--path` works both before and after subcommands.
+- **`Organism` Public API**: `from livingcode import Organism; o = Organism(repo_path); o.sense(); o.cycle()`.
+- **`organism.json`**: DashClaw's self-identity file at repo root — identity, growth/forbidden zones, quality standards, CI gates, lifecycle config.
+
+### Infrastructure
+- `.organism/` directory: state-reports, heartbeats, backlog, cycle-history, baselines, cycle-counter. Ephemeral paths gitignored.
+- `baselines.json` seeded from first cycle run — immune system compares all future sensing against it.
+
+### Tests
+- 91 tests across 14 test files. All stdlib (no pytest plugins, no mocks beyond `unittest.mock`).
+
 ## [2.10.0] - 2026-04-07
 
 ### Added

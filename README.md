@@ -331,6 +331,44 @@ The fastest path to self-host DashClaw is via **Vercel + Neon**.
 
 ---
 
+## Self-Monitoring: DashClaw as a Living Organism
+
+DashClaw eats its own cooking. The `livingcode/` Python framework makes DashClaw monitor its own codebase health using the same governance principles it provides to agents — sensing, immune checks, tiered planning, and lifecycle cycles.
+
+```bash
+# Sense the codebase — 5 collectors, zero dependencies
+python -m livingcode sense
+
+# Run the full lifecycle cycle: SENSE → PLAN → REVIEW → REFLECT
+python -m livingcode cycle
+
+# Show the last sensing report
+python -m livingcode status
+```
+
+**What it tracks:**
+
+| Collector | Signals |
+|-----------|---------|
+| `git_stats` | Commit velocity, bus factor, stale branches |
+| `test_health` | JS + Python test counts, untested API routes |
+| `code_quality` | Files over 300 lines, TODOs, ESLint status, archive size |
+| `dependency_health` | npm audit vulnerabilities, outdated packages |
+| `ci_health` | 30-day CI pass rate, last failure reason |
+
+The immune system runs 6 checks (4 hard-block, 2 soft-warn) and produces a verdict: `merge`, `fix_required`, or `needs_discussion`. The planner generates tiered work items from sensing data. All state persists to `.organism/`.
+
+```python
+from livingcode import Organism
+
+o = Organism("/path/to/dashclaw")
+report, path = o.sense()
+verdict = o.review()
+print(verdict.recommendation)  # "merge" | "fix_required" | "needs_discussion"
+```
+
+---
+
 ## Beyond the Basics
 
 DashClaw includes advanced governance capabilities beyond the core guard loop:
