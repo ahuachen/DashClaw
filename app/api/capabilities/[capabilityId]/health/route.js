@@ -6,7 +6,7 @@ import { getSql } from '../../../../lib/db.js';
 import { getOrgId } from '../../../../lib/org.js';
 import { apiErrorResponse } from '../../../../lib/apiErrors.js';
 import { getCapability } from '../../../../lib/repositories/capabilities.repository.js';
-import { getCapabilityHealthSummary } from '../../../../lib/capability-health.js';
+import { getCapabilityWithHealth } from '../../../../lib/capability-health.js';
 
 export async function GET(request, { params }) {
   try {
@@ -19,13 +19,8 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Capability not found' }, { status: 404 });
     }
 
-    const health = await getCapabilityHealthSummary(sql, orgId, capability);
-    return NextResponse.json({
-      capability_id: capability.capability_id,
-      name: capability.name,
-      slug: capability.slug,
-      ...health,
-    });
+    const health = await getCapabilityWithHealth(sql, orgId, capability);
+    return NextResponse.json(health);
   } catch (error) {
     return apiErrorResponse(error, 'CAPABILITY_HEALTH');
   }

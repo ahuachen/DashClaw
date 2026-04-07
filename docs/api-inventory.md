@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `196`
+- Total routes: `197`
 - Stable routes: `37`
 - Beta routes: `20`
-- Experimental routes: `139`
+- Experimental routes: `140`
 
 ## Routes
 
@@ -92,6 +92,7 @@ doc-type: architecture
 | `/api/billing/checkout` | `POST` | `experimental` | `(default)` | `app/api/billing/checkout/route.js` |
 | `/api/billing/portal` | `GET` | `experimental` | `(default)` | `app/api/billing/portal/route.js` |
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
+| `/api/capabilities/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/health/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
 | `/api/capabilities/{capabilityId}/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/health/route.js` |
 | `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |

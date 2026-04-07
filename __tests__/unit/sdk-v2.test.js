@@ -53,6 +53,7 @@ describe('DashClaw v2 SDK', () => {
       expect(typeof claw.execution.capabilities.get).toBe('function');
       expect(typeof claw.execution.capabilities.update).toBe('function');
       expect(typeof claw.execution.capabilities.invoke).toBe('function');
+      expect(typeof claw.execution.capabilities.listHealth).toBe('function');
     });
   });
 
@@ -494,6 +495,16 @@ describe('DashClaw v2 SDK', () => {
       await claw.execution.capabilities.getHealth('cap_123');
       const [url, opts] = fetch.mock.calls[0];
       expect(url).toBe('http://localhost:3000/api/capabilities/cap_123/health');
+      expect(opts.method).toBe('GET');
+      expect(opts.body).toBeUndefined();
+    });
+
+    it('listHealth GETs the capability health collection route', async () => {
+      await claw.execution.capabilities.listHealth({ risk_level: 'medium', limit: 10 });
+      const [url, opts] = fetch.mock.calls[0];
+      expect(url).toContain('http://localhost:3000/api/capabilities/health');
+      expect(url).toContain('risk_level=medium');
+      expect(url).toContain('limit=10');
       expect(opts.method).toBe('GET');
       expect(opts.body).toBeUndefined();
     });

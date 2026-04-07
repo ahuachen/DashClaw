@@ -44,6 +44,7 @@ class DashClaw {
         invoke: (capabilityId, payload = {}) => this.invokeCapability(capabilityId, payload),
         test: (capabilityId, payload = {}) => this.testCapability(capabilityId, payload),
         getHealth: (capabilityId) => this.getCapabilityHealth(capabilityId),
+        listHealth: (filters = {}) => this.listCapabilityHealth(filters),
       },
     };
   }
@@ -980,6 +981,13 @@ class DashClaw {
    */
   async getCapabilityHealth(capabilityId) {
     return this._request(`/api/capabilities/${capabilityId}/health`, 'GET');
+  }
+
+  /**
+   * GET /api/capabilities/health — List derived health summaries for matching capabilities.
+   */
+  async listCapabilityHealth(filters = {}) {
+    return this._request('/api/capabilities/health', 'GET', null, filters);
   }
 }
 

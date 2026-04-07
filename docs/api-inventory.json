@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 196,
+    "total_routes": 197,
     "stable_routes": 37,
     "beta_routes": 20,
-    "experimental_routes": 139
+    "experimental_routes": 140
   },
   "routes": [
     {
@@ -725,6 +725,15 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/capabilities/route.js"
+    },
+    {
+      "path": "/api/capabilities/health",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/capabilities/health/route.js"
     },
     {
       "path": "/api/capabilities/{capabilityId}",

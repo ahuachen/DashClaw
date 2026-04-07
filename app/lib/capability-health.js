@@ -1,3 +1,5 @@
+import { listCapabilities } from './repositories/capabilities.repository.js';
+
 function toInt(value) {
   return parseInt(value || '0', 10);
 }
@@ -78,4 +80,22 @@ export async function getCapabilityHealthSummary(sql, orgId, capability) {
       timestamp: row.timestamp_start,
     })),
   };
+}
+
+export async function getCapabilityWithHealth(sql, orgId, capability) {
+  const health = await getCapabilityHealthSummary(sql, orgId, capability);
+  return {
+    capability_id: capability.capability_id,
+    name: capability.name,
+    slug: capability.slug,
+    category: capability.category || null,
+    risk_level: capability.risk_level,
+    health_status: capability.health_status,
+    ...health,
+  };
+}
+
+export async function listCapabilityHealthSummaries(sql, orgId, filters = {}) {
+  const capabilities = await listCapabilities(sql, orgId, filters);
+  return Promise.all(capabilities.map((capability) => getCapabilityWithHealth(sql, orgId, capability)));
 }

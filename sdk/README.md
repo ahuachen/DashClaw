@@ -568,6 +568,13 @@ console.log(testRun.tested, testRun.health_status);
 // Fetch derived capability health
 const health = await caps.getHealth('cap_123');
 console.log(health.status, health.success_rate_7d);
+
+// List derived health for matching capabilities
+const { capabilities: healthRows } = await caps.listHealth({
+  risk_level: 'medium',
+  limit: 10,
+});
+console.log(healthRows.map((cap) => `${cap.slug}:${cap.status}`));
 ```
 
 The existing flat registry methods remain available for compatibility:
@@ -582,8 +589,7 @@ Use the canonical capability runtime paths:
 - `claw.execution.capabilities.invoke(...)`
 - `claw.execution.capabilities.test(...)`
 - `claw.execution.capabilities.getHealth(...)`
-
-`listHealth` remains planned and is not exposed yet because the backend route does not exist yet.
+- `claw.execution.capabilities.listHealth(...)`
 
 ---
 

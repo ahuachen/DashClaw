@@ -5,12 +5,12 @@ const {
   mockSql,
   mockGetOrgId,
   mockGetCapability,
-  mockGetCapabilityHealthSummary,
+  mockGetCapabilityWithHealth,
 } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockGetOrgId: vi.fn(),
   mockGetCapability: vi.fn(),
-  mockGetCapabilityHealthSummary: vi.fn(),
+  mockGetCapabilityWithHealth: vi.fn(),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
@@ -19,7 +19,7 @@ vi.mock('@/lib/repositories/capabilities.repository.js', () => ({
   getCapability: mockGetCapability,
 }));
 vi.mock('@/lib/capability-health.js', () => ({
-  getCapabilityHealthSummary: mockGetCapabilityHealthSummary,
+  getCapabilityWithHealth: mockGetCapabilityWithHealth,
 }));
 vi.mock('@/lib/apiErrors.js', () => ({
   apiErrorResponse: (error, label) => new Response(JSON.stringify({ error: error.message, label }), {
@@ -43,7 +43,10 @@ describe('GET /api/capabilities/[capabilityId]/health', () => {
       slug: 'research-agent',
       health_status: 'healthy',
     });
-    mockGetCapabilityHealthSummary.mockResolvedValue({
+    mockGetCapabilityWithHealth.mockResolvedValue({
+      capability_id: 'cap_1',
+      name: 'Research Agent',
+      slug: 'research-agent',
       status: 'healthy',
       last_checked_at: '2026-04-07T00:00:00.000Z',
       last_success_at: '2026-04-07T00:00:00.000Z',
@@ -65,6 +68,12 @@ describe('GET /api/capabilities/[capabilityId]/health', () => {
     expect(body.capability_id).toBe('cap_1');
     expect(body.status).toBe('healthy');
     expect(body.total_invocations).toBe(8);
+    expect(mockGetCapabilityWithHealth).toHaveBeenCalledWith(mockSql, 'org_1', {
+      capability_id: 'cap_1',
+      name: 'Research Agent',
+      slug: 'research-agent',
+      health_status: 'healthy',
+    });
   });
 
   it('returns 404 when the capability does not exist', async () => {
