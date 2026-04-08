@@ -12,6 +12,7 @@ import {
   handlePrompt,
 } from './step-handlers.js';
 import { createActionRecord } from './repositories/actions.repository.js';
+import { calculateBackoffDelay, sleep } from './capability-invoke.js';
 
 const STEP_RISK_SCORES = {
   knowledge_search: 10,
@@ -72,37 +73,58 @@ export async function executeWorkflow(
       timestamp_start: new Date().toISOString(),
     });
 
-    try {
-      const output = await executeStep(sql, orgId, step, context, workflowContext);
+    const maxRetries = step.retry_policy?.max_retries || 0;
+    const backoff = step.retry_policy?.backoff || 'none';
+    const baseDelayMs = step.retry_policy?.base_delay_ms || 1000;
+    const maxDelayMs = step.retry_policy?.max_delay_ms || 30000;
+    let lastError = null;
+    let succeeded = false;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const output = await executeStep(sql, orgId, step, context, workflowContext);
+        const stepElapsed = Date.now() - stepStart;
+
+        const retryPrefix = attempt > 0 ? `[retried: ${attempt + 1} attempts] ` : '';
+        await sql`
+          UPDATE action_records
+          SET status = 'completed',
+              output_summary = ${retryPrefix + JSON.stringify(output).slice(0, 500 - retryPrefix.length)},
+              timestamp_end = ${new Date().toISOString()},
+              duration_ms = ${stepElapsed}
+          WHERE action_id = ${stepActionId} AND org_id = ${orgId}
+        `;
+
+        context.steps[step.id] = { output };
+
+        stepResults.push({
+          step_id: step.id,
+          type: step.type,
+          status: 'completed',
+          elapsed_ms: stepElapsed,
+          ...(attempt > 0 ? { retry_metadata: { total_attempts: attempt + 1, retried: true } } : {}),
+        });
+        succeeded = true;
+        break;
+      } catch (err) {
+        lastError = err;
+
+        if (attempt < maxRetries) {
+          const delay = calculateBackoffDelay(attempt, backoff, baseDelayMs, maxDelayMs);
+          if (delay > 0) await sleep(delay);
+          continue;
+        }
+      }
+    }
+
+    if (!succeeded) {
       const stepElapsed = Date.now() - stepStart;
+      const retryPrefix = maxRetries > 0 ? `[retried: ${maxRetries + 1} attempts] ` : '';
 
-      // Update child action to completed
-      await sql`
-        UPDATE action_records
-        SET status = 'completed',
-            output_summary = ${JSON.stringify(output).slice(0, 500)},
-            timestamp_end = ${new Date().toISOString()},
-            duration_ms = ${stepElapsed}
-        WHERE action_id = ${stepActionId} AND org_id = ${orgId}
-      `;
-
-      // Add to rolling context
-      context.steps[step.id] = { output };
-
-      stepResults.push({
-        step_id: step.id,
-        type: step.type,
-        status: 'completed',
-        elapsed_ms: stepElapsed,
-      });
-    } catch (err) {
-      const stepElapsed = Date.now() - stepStart;
-
-      // Update child action to failed
       await sql`
         UPDATE action_records
         SET status = 'failed',
-            error_message = ${err.message.slice(0, 500)},
+            error_message = ${retryPrefix + lastError.message.slice(0, 500 - retryPrefix.length)},
             timestamp_end = ${new Date().toISOString()},
             duration_ms = ${stepElapsed}
         WHERE action_id = ${stepActionId} AND org_id = ${orgId}
@@ -112,15 +134,15 @@ export async function executeWorkflow(
         step_id: step.id,
         type: step.type,
         status: 'failed',
-        error: err.message,
+        error: lastError.message,
         elapsed_ms: stepElapsed,
+        ...(maxRetries > 0 ? { retry_metadata: { total_attempts: maxRetries + 1, retried: true } } : {}),
       });
 
-      // Stop on first failure
       return {
         success: false,
         steps: stepResults,
-        error: `Step ${step.id} failed: ${err.message}`,
+        error: `Step ${step.id} failed: ${lastError.message}`,
         total_elapsed_ms: Date.now() - start,
       };
     }

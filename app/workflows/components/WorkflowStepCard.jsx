@@ -344,6 +344,95 @@ export default function WorkflowStepCard({
               </div>
             </div>
           )}
+
+          <div className="border-t border-[rgba(255,255,255,0.06)] pt-4 space-y-3">
+            <p className={labelClass}>Retry policy</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor={makeFieldId(step.id, 'max-retries')} className={labelClass}>Max retries</label>
+                <input
+                  id={makeFieldId(step.id, 'max-retries')}
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="1"
+                  value={step.retry_policy?.max_retries ?? 0}
+                  onChange={(event) => updateStep({
+                    retry_policy: {
+                      ...step.retry_policy,
+                      max_retries: Number(event.target.value),
+                    },
+                  })}
+                  className={inputClass}
+                />
+              </div>
+
+              {(step.retry_policy?.max_retries || 0) > 0 ? (
+                <>
+                  <div>
+                    <label htmlFor={makeFieldId(step.id, 'backoff')} className={labelClass}>Backoff strategy</label>
+                    <select
+                      id={makeFieldId(step.id, 'backoff')}
+                      value={step.retry_policy?.backoff || 'none'}
+                      onChange={(event) => updateStep({
+                        retry_policy: {
+                          ...step.retry_policy,
+                          backoff: event.target.value,
+                        },
+                      })}
+                      className={inputClass}
+                    >
+                      <option value="none">none (immediate)</option>
+                      <option value="fixed">fixed delay</option>
+                      <option value="exponential">exponential backoff</option>
+                    </select>
+                  </div>
+
+                  {step.retry_policy?.backoff && step.retry_policy.backoff !== 'none' ? (
+                    <div>
+                      <label htmlFor={makeFieldId(step.id, 'base-delay')} className={labelClass}>Base delay (ms)</label>
+                      <input
+                        id={makeFieldId(step.id, 'base-delay')}
+                        type="number"
+                        min="100"
+                        max="30000"
+                        step="100"
+                        value={step.retry_policy?.base_delay_ms ?? 1000}
+                        onChange={(event) => updateStep({
+                          retry_policy: {
+                            ...step.retry_policy,
+                            base_delay_ms: Number(event.target.value),
+                          },
+                        })}
+                        className={inputClass}
+                      />
+                    </div>
+                  ) : null}
+
+                  {step.retry_policy?.backoff === 'exponential' ? (
+                    <div>
+                      <label htmlFor={makeFieldId(step.id, 'max-delay')} className={labelClass}>Max delay (ms)</label>
+                      <input
+                        id={makeFieldId(step.id, 'max-delay')}
+                        type="number"
+                        min="100"
+                        max="60000"
+                        step="1000"
+                        value={step.retry_policy?.max_delay_ms ?? 30000}
+                        onChange={(event) => updateStep({
+                          retry_policy: {
+                            ...step.retry_policy,
+                            max_delay_ms: Number(event.target.value),
+                          },
+                        })}
+                        className={inputClass}
+                      />
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
     </div>

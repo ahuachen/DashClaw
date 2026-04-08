@@ -6,6 +6,7 @@ import {
   createDefaultWorkflowStep,
   normalizeWorkflowStepData,
   sanitizeExecutableSteps,
+  sanitizeRetryPolicy,
 } from '../../app/workflows/lib/workflowStepFormModel.js';
 
 describe('workflowStepFormModel', () => {
@@ -162,6 +163,61 @@ describe('workflowStepFormModel', () => {
       steps: [],
       legacyFallback: null,
     });
+  });
+
+  it('sanitizes valid retry_policy', () => {
+    expect(sanitizeRetryPolicy({ max_retries: 3, backoff: 'exponential', base_delay_ms: 2000, max_delay_ms: 15000 }))
+      .toEqual({ max_retries: 3, backoff: 'exponential', base_delay_ms: 2000, max_delay_ms: 15000 });
+  });
+
+  it('returns undefined for retry_policy with max_retries 0', () => {
+    expect(sanitizeRetryPolicy({ max_retries: 0 })).toBeUndefined();
+  });
+
+  it('returns undefined for null/undefined retry_policy', () => {
+    expect(sanitizeRetryPolicy(null)).toBeUndefined();
+    expect(sanitizeRetryPolicy(undefined)).toBeUndefined();
+  });
+
+  it('clamps retry_policy values to valid ranges', () => {
+    const result = sanitizeRetryPolicy({ max_retries: 99, backoff: 'bad', base_delay_ms: -5, max_delay_ms: 999999 });
+    expect(result.max_retries).toBe(10);
+    expect(result.backoff).toBe('none');
+    expect(result.base_delay_ms).toBe(100);
+    expect(result.max_delay_ms).toBe(60000);
+  });
+
+  it('preserves retry_policy through sanitizeExecutableSteps', () => {
+    const steps = sanitizeExecutableSteps([
+      {
+        id: 'step_1',
+        type: 'capability_invoke',
+        name: 'Call API',
+        config: { capability_id: 'cap_1', body: {} },
+        retry_policy: { max_retries: 2, backoff: 'fixed', base_delay_ms: 500 },
+      },
+    ]);
+
+    expect(steps[0].retry_policy).toEqual({
+      max_retries: 2,
+      backoff: 'fixed',
+      base_delay_ms: 500,
+      max_delay_ms: 30000,
+    });
+  });
+
+  it('omits retry_policy from sanitized steps when max_retries is 0', () => {
+    const steps = sanitizeExecutableSteps([
+      {
+        id: 'step_1',
+        type: 'knowledge_search',
+        name: 'Search',
+        config: { collection_id: 'kc_1', query: 'test' },
+        retry_policy: { max_retries: 0 },
+      },
+    ]);
+
+    expect(steps[0].retry_policy).toBeUndefined();
   });
 
   it('builds a legacy fallback preview directly', () => {

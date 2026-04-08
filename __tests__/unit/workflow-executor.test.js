@@ -86,6 +86,61 @@ describe('executeWorkflow', () => {
     );
   });
 
+  it('retries a failing step and succeeds on second attempt', async () => {
+    handleCapabilityInvoke
+      .mockRejectedValueOnce(new Error('capability_timeout'))
+      .mockResolvedValueOnce({ data: 'ok' });
+
+    const steps = [
+      {
+        id: 'step_1',
+        type: 'capability_invoke',
+        name: 'Call API',
+        config: { capability_id: 'cap_1', body: {} },
+        retry_policy: { max_retries: 2, backoff: 'none' },
+      },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    expect(handleCapabilityInvoke).toHaveBeenCalledTimes(2);
+    expect(result.steps[0].retry_metadata).toEqual({ total_attempts: 2, retried: true });
+  });
+
+  it('exhausts retries and fails', async () => {
+    handleCapabilityInvoke.mockRejectedValue(new Error('always fails'));
+
+    const steps = [
+      {
+        id: 'step_1',
+        type: 'capability_invoke',
+        name: 'Call API',
+        config: { capability_id: 'cap_1', body: {} },
+        retry_policy: { max_retries: 2, backoff: 'none' },
+      },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(false);
+    expect(handleCapabilityInvoke).toHaveBeenCalledTimes(3);
+    expect(result.steps[0].retry_metadata).toEqual({ total_attempts: 3, retried: true });
+  });
+
+  it('does not include retry_metadata when no retry configured', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    expect(result.steps[0].retry_metadata).toBeUndefined();
+  });
+
   it('passes rolling context between steps', async () => {
     handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [{ content: 'found data' }], query: 'q' });
     handlePrompt.mockResolvedValueOnce({ text: 'done', tokens_in: 10, tokens_out: 5 });

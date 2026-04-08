@@ -58,6 +58,20 @@ function normalizeNumber(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+const BACKOFF_STRATEGIES = new Set(['none', 'fixed', 'exponential']);
+
+export function sanitizeRetryPolicy(policy) {
+  if (!policy || typeof policy !== 'object') return undefined;
+  const maxRetries = Number.isInteger(policy.max_retries) ? Math.max(0, Math.min(10, policy.max_retries)) : 0;
+  if (maxRetries === 0) return undefined;
+  return {
+    max_retries: maxRetries,
+    backoff: BACKOFF_STRATEGIES.has(policy.backoff) ? policy.backoff : 'none',
+    base_delay_ms: Number.isInteger(policy.base_delay_ms) ? Math.max(100, Math.min(30000, policy.base_delay_ms)) : 1000,
+    max_delay_ms: Number.isInteger(policy.max_delay_ms) ? Math.max(100, Math.min(60000, policy.max_delay_ms)) : 30000,
+  };
+}
+
 function sanitizeStepConfig(type, config = {}) {
   switch (type) {
     case 'knowledge_search':
@@ -97,12 +111,17 @@ export function sanitizeExecutableSteps(steps) {
 
   return steps
     .filter((step) => step && typeof step === 'object' && WORKFLOW_STEP_TYPES.some((item) => item.value === step.type))
-    .map((step, index) => ({
-      id: normalizeId(step.id, index),
-      type: step.type,
-      name: normalizeName(step.name, step.type, index),
-      config: sanitizeStepConfig(step.type, step.config),
-    }));
+    .map((step, index) => {
+      const sanitized = {
+        id: normalizeId(step.id, index),
+        type: step.type,
+        name: normalizeName(step.name, step.type, index),
+        config: sanitizeStepConfig(step.type, step.config),
+      };
+      const retryPolicy = sanitizeRetryPolicy(step.retry_policy);
+      if (retryPolicy) sanitized.retry_policy = retryPolicy;
+      return sanitized;
+    });
 }
 
 export function buildWorkflowStepSummary(step) {
