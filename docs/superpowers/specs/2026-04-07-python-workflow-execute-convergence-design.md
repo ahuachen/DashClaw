@@ -44,7 +44,7 @@ Out of scope:
 
 ### Existing API route
 
-- [route.js](../../app/api/workflows/templates/[templateId]/execute/route.js)
+- [route.js](../../../app/api/workflows/templates/[templateId]/execute/route.js)
 
 Current route behavior:
 
@@ -64,7 +64,7 @@ Current route behavior:
 
 ### Existing Python methods
 
-- [client.py](../../sdk-python/dashclaw/client.py)
+- [client.py](../../../sdk-python/dashclaw/client.py)
 
 Python already has:
 
@@ -81,9 +81,9 @@ Missing:
 
 ### Existing contract validator
 
-- [check-sdk-surface.mjs](../../scripts/lib/contracts/check-sdk-surface.mjs)
-- [public-surface.json](../../contracts/sdk/public-surface.json)
-- [release-plan.json](../../contracts/sdk/release-plan.json)
+- [check-sdk-surface.mjs](../../../scripts/lib/contracts/check-sdk-surface.mjs)
+- [public-surface.json](../../../contracts/sdk/public-surface.json)
+- [release-plan.json](../../../contracts/sdk/release-plan.json)
 
 Current SDK contract enforcement only covers:
 
@@ -204,7 +204,7 @@ No new error code family is needed yet.
 
 Extend:
 
-- [contracts.sdk-surface.test.js](../../__tests__/unit/contracts.sdk-surface.test.js)
+- [contracts.sdk-surface.test.js](../../../__tests__/unit/contracts.sdk-surface.test.js)
 
 Add:
 
@@ -226,9 +226,9 @@ Tests should verify:
 
 ## Docs To Update
 
-- [sdk-python/README.md](../../sdk-python/README.md)
-- [sdk-parity.md](../../docs/sdk-parity.md)
-- [2026-04-07-sdk-migration-matrix.md](../../docs/planning/2026-04-07-sdk-migration-matrix.md)
+- [README.md](../../../sdk-python/README.md)
+- [sdk-parity.md](../../sdk-parity.md)
+- [2026-04-07-sdk-migration-matrix.md](../../planning/2026-04-07-sdk-migration-matrix.md)
 
 Documentation should say:
 

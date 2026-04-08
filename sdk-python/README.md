@@ -1145,6 +1145,8 @@ print(execution["total_elapsed_ms"])
 
 ### Model Strategies
 
+Python model strategies are part of the converged execution surface. `complete_with_strategy(...)` is the governed runtime execution path that mirrors the existing model-strategy completion route.
+
 ```python
 # Create
 claw.create_model_strategy(
