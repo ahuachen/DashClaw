@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { getDefaultProviderModel, PROVIDER_MODEL_OPTIONS } from '../lib/workflowAiModelCatalog.js';
+import {
+  getDefaultProviderModel,
+  PROVIDER_MODEL_OPTIONS,
+  WORKFLOW_AI_PROVIDER_OPTIONS,
+} from '../lib/workflowAiModelCatalog.js';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
 const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
@@ -58,11 +62,11 @@ export default function WorkflowAiDraftPanel({
             }}
             className={inputClass}
           >
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="groq">Groq</option>
-            <option value="together">Together</option>
-            <option value="perplexity">Perplexity</option>
+            {WORKFLOW_AI_PROVIDER_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
         <div>

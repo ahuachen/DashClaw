@@ -10,7 +10,13 @@ import { getActivePolicies } from '../../../lib/repositories/guardrails.reposito
 import { listCollections } from '../../../lib/repositories/knowledge.repository.js';
 import { listCapabilities } from '../../../lib/repositories/capabilities.repository.js';
 import { listTemplates } from '../../../lib/prompt.js';
-import { getDefaultProviderModel, isSupportedProviderModel, PROVIDER_MODEL_OPTIONS } from '../../../workflows/lib/workflowAiModelCatalog.js';
+import {
+  getDefaultProviderModel,
+  getProviderEntries,
+  getProviderApiStyle,
+  isSupportedProvider,
+  isSupportedProviderModel,
+} from '../../../lib/providers/providerRegistry.js';
 
 const MAX_DESCRIPTION_LENGTH = 4000;
 
@@ -125,7 +131,9 @@ async function providerFetch(url, options) {
 }
 
 async function executeDraftCompletion(provider, apiKey, model, systemPrompt, description) {
-  if (provider === 'openai') {
+  const apiStyle = getProviderApiStyle(provider);
+
+  if (apiStyle === 'openai_chat_completions') {
     const res = await providerFetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -153,7 +161,7 @@ async function executeDraftCompletion(provider, apiKey, model, systemPrompt, des
     return data.choices?.[0]?.message?.content || '{}';
   }
 
-  if (provider === 'anthropic') {
+  if (apiStyle === 'anthropic_messages') {
     const res = await providerFetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -226,7 +234,9 @@ export async function POST(request) {
     const description = trimString(body.description);
     const apiKey = trimString(body.api_key);
     const provider = trimString(body.provider) || 'openai';
-    const model = trimString(body.model) || getDefaultProviderModel(provider) || getDefaultProviderModel('openai');
+    const model = trimString(body.model)
+      || getDefaultProviderModel(provider, 'workflow_drafting')
+      || getDefaultProviderModel('openai', 'workflow_drafting');
     const preferExistingResources = body.prefer_existing_resources !== false;
 
     if (!description) {
@@ -238,7 +248,7 @@ export async function POST(request) {
     if (!apiKey) {
       return NextResponse.json({ error: 'api_key is required' }, { status: 400 });
     }
-    if (!Object.keys(PROVIDER_MODEL_OPTIONS).includes(provider)) {
+    if (!isSupportedProvider(provider) || !getProviderEntries().some((entry) => entry.id === provider && entry.defaults.workflow_drafting)) {
       return NextResponse.json({ error: 'provider is not supported for workflow draft generation' }, { status: 400 });
     }
     if (!isSupportedProviderModel(provider, model)) {

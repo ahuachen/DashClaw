@@ -81,6 +81,12 @@ describe('predictive-risk', () => {
       const result = await assessRiskWithLLM(sql, 'org_1', 'agent-1', 'deploy');
       expect(result.adjustment).toBe(12);
       expect(result.reasoning).toBe('High failure rate after hours');
+      expect(mockExecuteCompletion.mock.calls[0][2]).toEqual({
+        primary: { provider: 'openai', model: 'gpt-4.1-mini' },
+        fallback: [{ provider: 'anthropic', model: 'claude-3-5-haiku-latest' }],
+        maxRetries: 1,
+        maxBudgetUsd: 0.05,
+      });
     });
 
     it('clamps adjustment to [-20, +20]', async () => {

@@ -17,6 +17,7 @@
  */
 
 import { scanSensitiveData } from './security.js';
+import { getDefaultProviderModel } from './providers/providerRegistry.js';
 
 // ----------------------------------------------
 // Generic LLM Provider Abstraction (Phase 0)
@@ -36,14 +37,14 @@ function _detectProvider() {
   if (openaiKey) {
     _cachedProvider = {
       name: 'openai',
-      model: process.env.GUARD_LLM_MODEL || 'gpt-4o-mini',
+      model: process.env.GUARD_LLM_MODEL || getDefaultProviderModel('openai', 'semantic_guard') || 'gpt-4.1-mini',
       key: openaiKey,
       baseUrl: process.env.GUARD_LLM_BASE_URL || 'https://api.openai.com/v1',
     };
   } else if (anthropicKey) {
     _cachedProvider = {
       name: 'anthropic',
-      model: 'claude-3-haiku-20240307',
+      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
       key: anthropicKey,
       baseUrl: 'https://api.anthropic.com/v1',
     };
@@ -218,7 +219,11 @@ Respond ONLY with valid JSON:
 }
 `;
 
-export async function checkSemanticGuardrail(context, instruction, model = 'gpt-4o-mini') {
+export async function checkSemanticGuardrail(
+  context,
+  instruction,
+  model = getDefaultProviderModel('openai', 'semantic_guard') || 'gpt-4.1-mini'
+) {
   const apiKey = process.env.GUARD_LLM_KEY || process.env.OPENAI_API_KEY;
   const baseUrl = process.env.GUARD_LLM_BASE_URL || 'https://api.openai.com/v1';
 

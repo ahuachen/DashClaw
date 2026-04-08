@@ -84,13 +84,14 @@ describe('ModelStrategyDetailPage', () => {
     render(<ModelStrategyDetailPage />);
 
     expect(await screen.findByDisplayValue('Balanced Default')).toBeTruthy();
-    expect(screen.getByDisplayValue('openai')).toBeTruthy();
-    expect(screen.getByDisplayValue('gpt-4.1')).toBeTruthy();
+    expect(screen.getByLabelText(/primary provider/i).value).toBe('openai');
+    expect(screen.getByLabelText(/primary model/i).value).toBe('gpt-4.1');
     expect(screen.getByText(/strategy summary/i)).toBeTruthy();
     expect(screen.queryByText(/config \(json\)/i)).toBeNull();
 
     fireEvent.change(screen.getByLabelText(/primary provider/i), { target: { value: 'anthropic' } });
-    fireEvent.change(screen.getByLabelText(/primary model/i), { target: { value: 'claude-opus-4.1' } });
+    expect(screen.getByLabelText(/primary model/i).value).toBe('claude-sonnet-4-6');
+    fireEvent.change(screen.getByLabelText(/primary model/i), { target: { value: 'claude-opus-4-6' } });
     fireEvent.change(screen.getByLabelText(/budget cap/i), { target: { value: '1.25' } });
     fireEvent.change(screen.getByLabelText(/max retries/i), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
@@ -115,12 +116,12 @@ describe('ModelStrategyDetailPage', () => {
       config: {
         primary: {
           provider: 'anthropic',
-          model: 'claude-opus-4.1',
+          model: 'claude-opus-4-6',
         },
         fallback: [
           {
             provider: 'anthropic',
-            model: 'claude-sonnet-4',
+            model: 'claude-sonnet-4-6',
           },
         ],
         costSensitivity: 'balanced',
@@ -146,7 +147,7 @@ describe('ModelStrategyDetailPage', () => {
                 taskModes: {
                   research: {
                     provider: 'anthropic',
-                    model: 'claude-sonnet-4',
+                    model: 'claude-sonnet-4-6',
                     fallback: [{ provider: 'openai', model: 'gpt-4.1-mini' }],
                   },
                 },

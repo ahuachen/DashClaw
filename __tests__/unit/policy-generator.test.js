@@ -132,6 +132,12 @@ describe('policy-generator', () => {
       expect(result.generated_policies[0].name).toBe('Block deploys after hours');
       expect(result.warnings).toHaveLength(0);
       expect(mockExecuteCompletion).toHaveBeenCalledOnce();
+      expect(mockExecuteCompletion.mock.calls[0][2]).toEqual({
+        primary: { provider: 'openai', model: 'gpt-4.1' },
+        fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4-6' }],
+        maxRetries: 1,
+        maxBudgetUsd: 0.10,
+      });
     });
 
     it('returns 422-style error when no LLM keys configured', async () => {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import dns from 'node:dns/promises';
+import { getDefaultProviderModel } from '../../../lib/providers/providerRegistry.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -208,11 +209,26 @@ async function testOpenAI(credentials) {
 
 async function testAnthropic(credentials) {
   try {
-    // Anthropic doesn't have a simple auth check endpoint, so we just verify format
-    if (credentials.ANTHROPIC_API_KEY?.startsWith('sk-ant-')) {
-      return NextResponse.json({ success: true, message: 'API key format valid' });
+    const res = await safeFetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': credentials.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: 'ping' }],
+      }),
+    });
+    if (res.ok || res.status === 400) {
+      return NextResponse.json({ success: true, message: 'Anthropic API key valid!' });
     }
-    return NextResponse.json({ success: false, message: 'Invalid API key format (should start with sk-ant-)' });
+    if (res.status === 401) {
+      return NextResponse.json({ success: false, message: 'Invalid Anthropic API key' });
+    }
+    return NextResponse.json({ success: false, message: `Anthropic returned ${res.status}` });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Connection test failed' });
   }

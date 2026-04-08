@@ -1,4 +1,14 @@
-function TaskModeOverrideRow({ override, index, onChange, onRemove }) {
+import {
+  getDefaultProviderModel,
+  getProviderModelOptions,
+  getProviderOptions,
+} from '../../lib/providers/providerRegistry.js';
+
+const providerOptions = getProviderOptions();
+
+function TaskModeOverrideRow({ override, index, onChange, onProviderChange, onRemove }) {
+  const modelOptions = getProviderModelOptions(override.provider);
+
   return (
     <div className="grid grid-cols-1 gap-3 rounded-lg border border-white/10 bg-black/20 p-3 md:grid-cols-[1fr_1fr_1fr_auto]">
       <div>
@@ -21,27 +31,32 @@ function TaskModeOverrideRow({ override, index, onChange, onRemove }) {
         <select
           aria-label={`Task mode provider ${index + 1}`}
           value={override.provider}
-          onChange={(event) => onChange(index, 'provider', event.target.value)}
+          onChange={(event) => onProviderChange(index, event.target.value)}
           className="w-full rounded-lg border border-white/10 bg-surface-tertiary px-3 py-2 text-sm text-white focus:border-brand focus:outline-none"
         >
-          <option value="openai">openai</option>
-          <option value="anthropic">anthropic</option>
-          <option value="google">google</option>
-          <option value="xai">xai</option>
+          {providerOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
       <div>
         <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
           Model
         </label>
-        <input
+        <select
           aria-label={`Task mode model ${index + 1}`}
-          type="text"
           value={override.model}
           onChange={(event) => onChange(index, 'model', event.target.value)}
           className="w-full rounded-lg border border-white/10 bg-surface-tertiary px-3 py-2 text-sm text-white focus:border-brand focus:outline-none"
-          placeholder="gpt-4.1-mini"
-        />
+        >
+          {modelOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex items-end">
         <button
@@ -81,11 +96,31 @@ export default function ModelStrategyAdvancedSection({
     onTaskModesChange(taskModes.filter((_, taskModeIndex) => taskModeIndex !== index));
   };
 
+  const handleTaskModeProviderChange = (index, provider) => {
+    if (!onTaskModesChange) return;
+    onTaskModesChange(
+      taskModes.map((taskMode, taskModeIndex) =>
+        taskModeIndex === index
+          ? {
+              ...taskMode,
+              provider,
+              model: getDefaultProviderModel(provider, 'model_strategies') || '',
+            }
+          : taskMode
+      )
+    );
+  };
+
   const handleTaskModeAdd = () => {
     if (!onTaskModesChange) return;
+    const provider = 'openai';
     onTaskModesChange([
       ...taskModes,
-      { taskMode: '', provider: 'openai', model: '' },
+      {
+        taskMode: '',
+        provider,
+        model: getDefaultProviderModel(provider, 'model_strategies') || '',
+      },
     ]);
   };
 
@@ -136,6 +171,7 @@ export default function ModelStrategyAdvancedSection({
                     override={override}
                     index={index}
                     onChange={handleTaskModeChange}
+                    onProviderChange={handleTaskModeProviderChange}
                     onRemove={handleTaskModeRemove}
                   />
                 ))

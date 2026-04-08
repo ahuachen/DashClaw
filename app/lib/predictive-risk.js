@@ -4,13 +4,20 @@
  */
 
 import { executeCompletion } from './providers.js';
+import { getDefaultProviderModel } from './providers/providerRegistry.js';
 
 const DEFAULT_THRESHOLD = 60;
 
 const DEFAULT_STRATEGY_CONFIG = {
-  primary: { provider: 'openai', model: 'gpt-4o-mini' },
+  primary: {
+    provider: 'openai',
+    model: getDefaultProviderModel('openai', 'predictive_risk') || 'gpt-4.1-mini',
+  },
   fallback: [
-    { provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
+    {
+      provider: 'anthropic',
+      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+    },
   ],
   maxRetries: 1,
   maxBudgetUsd: 0.05,

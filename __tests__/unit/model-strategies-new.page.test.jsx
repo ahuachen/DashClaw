@@ -73,7 +73,8 @@ describe('NewModelStrategyPage', () => {
     fireEvent.change(screen.getByLabelText(/^name/i), { target: { value: 'Research Default' } });
     fireEvent.change(screen.getByLabelText(/description/i), { target: { value: 'Use the best model for research' } });
     fireEvent.change(screen.getByLabelText(/primary provider/i), { target: { value: 'anthropic' } });
-    fireEvent.change(screen.getByLabelText(/primary model/i), { target: { value: 'claude-opus-4.1' } });
+    expect(screen.getByLabelText(/primary model/i).value).toBe('claude-sonnet-4-6');
+    fireEvent.change(screen.getByLabelText(/primary model/i), { target: { value: 'claude-opus-4-6' } });
     fireEvent.change(screen.getByLabelText(/fallback provider 1/i), { target: { value: 'openai' } });
     fireEvent.change(screen.getByLabelText(/fallback model 1/i), { target: { value: 'gpt-4.1' } });
     fireEvent.change(screen.getByLabelText(/max retries/i), { target: { value: '3' } });
@@ -81,7 +82,7 @@ describe('NewModelStrategyPage', () => {
     fireEvent.change(screen.getByLabelText(/latency sensitivity/i), { target: { value: 'high' } });
     fireEvent.change(screen.getByLabelText(/cost sensitivity/i), { target: { value: 'high-quality' } });
     fireEvent.change(screen.getByLabelText(/allowed providers/i), { target: { value: 'anthropic, openai' } });
-    fireEvent.change(screen.getByLabelText(/blocked providers/i), { target: { value: 'xai' } });
+    fireEvent.change(screen.getByLabelText(/blocked providers/i), { target: { value: 'perplexity' } });
 
     fireEvent.click(screen.getByRole('button', { name: /create strategy/i }));
 
@@ -104,7 +105,7 @@ describe('NewModelStrategyPage', () => {
       config: {
         primary: {
           provider: 'anthropic',
-          model: 'claude-opus-4.1',
+          model: 'claude-opus-4-6',
         },
         fallback: [
           {
@@ -117,7 +118,7 @@ describe('NewModelStrategyPage', () => {
         maxBudgetUsd: 1.5,
         maxRetries: 3,
         allowedProviders: ['anthropic', 'openai'],
-        disallowedProviders: ['xai'],
+        disallowedProviders: ['perplexity'],
       },
     });
 
@@ -146,7 +147,8 @@ describe('NewModelStrategyPage', () => {
 
     fireEvent.change(screen.getByLabelText(/task mode 1/i), { target: { value: 'research' } });
     fireEvent.change(screen.getByLabelText(/task mode provider 1/i), { target: { value: 'anthropic' } });
-    fireEvent.change(screen.getByLabelText(/task mode model 1/i), { target: { value: 'claude-opus-4.1' } });
+    expect(screen.getByLabelText(/task mode model 1/i).value).toBe('claude-sonnet-4-6');
+    fireEvent.change(screen.getByLabelText(/task mode model 1/i), { target: { value: 'claude-opus-4-6' } });
 
     fireEvent.change(screen.getByLabelText(/^name/i), { target: { value: 'Advanced Research Strategy' } });
     fireEvent.click(screen.getByRole('button', { name: /create strategy/i }));
@@ -159,7 +161,7 @@ describe('NewModelStrategyPage', () => {
     expect(requestBody.config.taskModes).toEqual({
       research: {
         provider: 'anthropic',
-        model: 'claude-opus-4.1',
+        model: 'claude-opus-4-6',
       },
     });
   });

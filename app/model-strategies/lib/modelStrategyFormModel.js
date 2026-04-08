@@ -1,8 +1,19 @@
+import {
+  getDefaultProviderModel,
+  getModelLabel,
+  getProviderLabel,
+  isSupportedProvider,
+  isSupportedProviderModel,
+} from '../../lib/providers/providerRegistry.js';
+
 const DEFAULT_STATE = {
   execution: {
     primaryProvider: 'openai',
-    primaryModel: 'gpt-4.1',
-    fallbacks: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+    primaryModel: getDefaultProviderModel('openai', 'model_strategies') || 'gpt-4.1',
+    fallbacks: [{
+      provider: 'anthropic',
+      model: getDefaultProviderModel('anthropic', 'model_strategies') || 'claude-sonnet-4-6',
+    }],
     maxRetries: 2,
   },
   constraints: {
@@ -60,29 +71,40 @@ function titleCase(value) {
 
 function humanizeProvider(provider) {
   const normalized = cleanString(provider).toLowerCase();
-  const aliases = {
-    openai: 'OpenAI',
-    anthropic: 'Anthropic',
-    xai: 'xAI',
-    google: 'Google',
-  };
-
-  return aliases[normalized] || titleCase(provider);
+  return getProviderLabel(normalized) || titleCase(provider);
 }
 
 function humanizeModel(model) {
   const normalized = cleanString(model);
   if (!normalized) return '';
+  return titleCase(normalized);
+}
 
-  const aliases = {
-    'claude-sonnet-4': 'Claude Sonnet 4',
-    'claude-opus-4.1': 'Claude Opus 4.1',
-    'gpt-4.1': 'GPT-4.1',
-    'gpt-4.1-mini': 'GPT-4.1 Mini',
-    'gpt-5.4': 'GPT-5.4',
-  };
+function humanizeProviderModel(provider, model) {
+  const normalizedProvider = cleanString(provider).toLowerCase();
+  const normalizedModel = cleanString(model);
+  return getModelLabel(normalizedProvider, normalizedModel) || humanizeModel(normalizedModel);
+}
 
-  return aliases[normalized] || normalized.toUpperCase();
+function normalizeProvider(provider, fallbackProvider = '') {
+  const normalized = cleanString(provider).toLowerCase();
+  if (isSupportedProvider(normalized)) {
+    return normalized;
+  }
+  return cleanString(fallbackProvider).toLowerCase();
+}
+
+function normalizeModel(provider, model, useCase = 'model_strategies', fallbackModel = '') {
+  const normalizedProvider = cleanString(provider).toLowerCase();
+  const normalizedModel = cleanString(model);
+
+  if (normalizedProvider && normalizedModel && isSupportedProviderModel(normalizedProvider, normalizedModel)) {
+    return normalizedModel;
+  }
+
+  return getDefaultProviderModel(normalizedProvider, useCase)
+    || getDefaultProviderModel(normalizedProvider)
+    || cleanString(fallbackModel);
 }
 
 export function createDefaultModelStrategyFormState() {
@@ -195,9 +217,20 @@ export function decompileModelStrategyConfig(config) {
   const state = createDefaultModelStrategyFormState();
   const source = config && typeof config === 'object' && !Array.isArray(config) ? config : {};
 
-  state.execution.primaryProvider = cleanString(source.primary?.provider) || state.execution.primaryProvider;
-  state.execution.primaryModel = cleanString(source.primary?.model) || state.execution.primaryModel;
-  state.execution.fallbacks = normalizeFallbacks(source.fallback);
+  state.execution.primaryProvider = normalizeProvider(source.primary?.provider, state.execution.primaryProvider) || state.execution.primaryProvider;
+  state.execution.primaryModel = normalizeModel(
+    state.execution.primaryProvider,
+    source.primary?.model,
+    'model_strategies',
+    state.execution.primaryModel
+  ) || state.execution.primaryModel;
+  state.execution.fallbacks = normalizeFallbacks(source.fallback).map((fallback) => {
+    const provider = normalizeProvider(fallback.provider, state.execution.primaryProvider);
+    return {
+      provider,
+      model: normalizeModel(provider, fallback.model, 'model_strategies', fallback.model),
+    };
+  });
   state.execution.maxRetries = Number.isInteger(source.maxRetries) ? source.maxRetries : state.execution.maxRetries;
 
   state.constraints.costSensitivity = cleanString(source.costSensitivity) || state.constraints.costSensitivity;
@@ -208,11 +241,14 @@ export function decompileModelStrategyConfig(config) {
 
   if (source.taskModes && typeof source.taskModes === 'object' && !Array.isArray(source.taskModes)) {
     state.advanced.taskModes = Object.entries(source.taskModes)
-      .map(([taskMode, override]) => ({
-        taskMode,
-        provider: cleanString(override?.provider),
-        model: cleanString(override?.model),
-      }))
+      .map(([taskMode, override]) => {
+        const provider = normalizeProvider(override?.provider, state.execution.primaryProvider);
+        return {
+          taskMode,
+          provider,
+          model: normalizeModel(provider, override?.model, 'model_strategies', override?.model),
+        };
+      })
       .filter((override) => override.taskMode && override.provider && override.model);
   }
 
@@ -224,8 +260,8 @@ export function decompileModelStrategyConfig(config) {
 export function buildModelStrategySummary(formState) {
   const execution = formState?.execution || {};
   const constraints = formState?.constraints || {};
-  const primaryProvider = titleCase(execution.primaryProvider);
-  const primaryModel = humanizeModel(execution.primaryModel);
+  const primaryProvider = cleanString(execution.primaryProvider);
+  const primaryModel = cleanString(execution.primaryModel);
   const fallbacks = normalizeFallbacks(execution.fallbacks);
   const retryCount = Number.isInteger(execution.maxRetries) ? execution.maxRetries : 0;
   const budget = typeof constraints.maxBudgetUsd === 'number'
@@ -235,12 +271,12 @@ export function buildModelStrategySummary(formState) {
   const parts = [];
 
   if (primaryProvider && primaryModel) {
-    parts.push(`Use ${humanizeProvider(primaryProvider)} ${primaryModel} first`);
+    parts.push(`Use ${humanizeProvider(primaryProvider)} ${humanizeProviderModel(primaryProvider, primaryModel)} first`);
   }
 
   if (fallbacks.length > 0) {
     const fallbackDescriptions = fallbacks.map(
-      (fallback) => `${humanizeProvider(fallback.provider)} ${humanizeModel(fallback.model)}`
+      (fallback) => `${humanizeProvider(fallback.provider)} ${humanizeProviderModel(fallback.provider, fallback.model)}`
     );
     parts.push(`fall back to ${fallbackDescriptions.join(', then ')}`);
   }

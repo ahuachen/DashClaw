@@ -1,6 +1,7 @@
 import { getSettings } from './repositories/settings.repository.js';
 import { decrypt } from './encryption.js';
 import { shouldAutoEncrypt } from './repositories/settings.repository.js';
+import { getDefaultProviderModel } from './providers/providerRegistry.js';
 
 const HEALTH_TIMEOUT = 8000;
 
@@ -34,7 +35,11 @@ const HEALTH_CHECKERS = {
     const res = await healthFetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] }),
+      body: JSON.stringify({
+        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+        max_tokens: 1,
+        messages: [{ role: 'user', content: 'ping' }],
+      }),
     });
     // 400 = bad request but key is valid; 401 = key invalid
     if (res.ok || res.status === 400) return { status: 'healthy', message: 'API key valid' };

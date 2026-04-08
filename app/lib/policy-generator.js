@@ -7,6 +7,7 @@
 import { executeCompletion } from './providers.js';
 import { validatePolicy, POLICY_TYPES } from './validate.js';
 import { createHash } from 'node:crypto';
+import { getDefaultProviderModel } from './providers/providerRegistry.js';
 
 const ACTION_TYPES = [
   'build', 'deploy', 'post', 'apply', 'security', 'message', 'api',
@@ -128,9 +129,15 @@ export function parseGeneratedPolicies(rawContent) {
 }
 
 const DEFAULT_STRATEGY_CONFIG = {
-  primary: { provider: 'openai', model: 'gpt-4o-mini' },
+  primary: {
+    provider: 'openai',
+    model: getDefaultProviderModel('openai', 'policy_generation') || 'gpt-4.1',
+  },
   fallback: [
-    { provider: 'anthropic', model: 'claude-haiku-4-5-20251001' },
+    {
+      provider: 'anthropic',
+      model: getDefaultProviderModel('anthropic', 'policy_generation') || 'claude-sonnet-4-6',
+    },
   ],
   maxRetries: 1,
   maxBudgetUsd: 0.10,
