@@ -14,42 +14,42 @@
 
 ### Existing files to modify
 
-- [app/capabilities/new/page.js](/C:/Projects/DashClaw/app/capabilities/new/page.js)
+- `app/capabilities/new/page.jsx`
   Current capability registration page. Will become the guided entry point instead of a metadata-only form.
-- [app/capabilities/[capabilityId]/page.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/page.jsx)
+- `app/capabilities/[capabilityId]/page.jsx`
   Current capability detail page. Will use structured test state and clearer runtime-vs-registry gating.
-- [app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx)
+- `app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx`
   Currently raw JSON-first. Will become the guided test form with advanced fallback.
-- [app/capabilities/components/CapabilityRegistryCard.jsx](/C:/Projects/DashClaw/app/capabilities/components/CapabilityRegistryCard.jsx)
+- `app/capabilities/components/CapabilityRegistryCard.jsx`
   Registry cards should surface registry-only vs runnable state correctly.
-- [app/lib/repositories/capabilities.repository.js](/C:/Projects/DashClaw/app/lib/repositories/capabilities.repository.js)
+- `app/lib/repositories/capabilities.repository.js`
   Existing repository already supports `invocation_schema`; may need small normalization support if the UI stores structured helper data before compiling.
-- [__tests__/unit/capabilities.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capabilities.page.test.jsx)
+- `__tests__/unit/capabilities.page.test.jsx`
   Update expectations around registry card state and test button visibility.
-- [__tests__/unit/capability-detail.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capability-detail.page.test.jsx)
+- `__tests__/unit/capability-detail.page.test.jsx`
   Extend for guided test inputs, gating, and advanced mode.
 
 ### New files to create
 
-- [app/capabilities/lib/capabilityFormModel.js](/C:/Projects/DashClaw/app/capabilities/lib/capabilityFormModel.js)
+- `app/capabilities/lib/capabilityFormModel.js`
   Pure helpers for:
   - capability mode classification
   - compile structured HTTP builder state into `invocation_schema`
   - derive test form fields from stored schema
   - build human-readable runtime state
-- [app/capabilities/new/components/CapabilityModeSelector.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityModeSelector.jsx)
+- `app/capabilities/new/components/CapabilityModeSelector.jsx`
   Mode selector for `registry_only` vs `runnable_http`.
-- [app/capabilities/new/components/CapabilityBasicsSection.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityBasicsSection.jsx)
+- `app/capabilities/new/components/CapabilityBasicsSection.jsx`
   Shared metadata fields.
-- [app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx)
+- `app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx`
   Endpoint, method, timeout, auth, and input field builder.
-- [app/capabilities/new/components/CapabilitySummaryCard.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilitySummaryCard.jsx)
+- `app/capabilities/new/components/CapabilitySummaryCard.jsx`
   Human-readable preview of what the capability will do.
-- [app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx)
+- `app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx`
   Structured test form built from runtime input fields.
-- [__tests__/unit/capability-form-model.test.js](/C:/Projects/DashClaw/__tests__/unit/capability-form-model.test.js)
+- `__tests__/unit/capability-form-model.test.js`
   Pure function coverage for compile/derive logic.
-- [__tests__/unit/capability-new.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capability-new.page.test.jsx)
+- `__tests__/unit/capability-new.page.test.jsx`
   Guided create-flow tests.
 
 ## Implementation Notes
@@ -65,8 +65,8 @@
 ### Task 1: Add failing tests for capability form model helpers
 
 **Files:**
-- Create: [__tests__/unit/capability-form-model.test.js](/C:/Projects/DashClaw/__tests__/unit/capability-form-model.test.js)
-- Create: [app/capabilities/lib/capabilityFormModel.js](/C:/Projects/DashClaw/app/capabilities/lib/capabilityFormModel.js)
+- Create: `__tests__/unit/capability-form-model.test.js`
+- Create: `app/capabilities/lib/capabilityFormModel.js`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -84,7 +84,7 @@ Expected: FAIL because the helper module does not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Create [capabilityFormModel.js](/C:/Projects/DashClaw/app/capabilities/lib/capabilityFormModel.js) with focused pure helpers:
+Create `app/capabilities/lib/capabilityFormModel.js` with focused pure helpers:
 - `compileCapabilityPayload(formState)`
 - `deriveCapabilityMode(capability)`
 - `deriveGeneratedInputFields(capability)`
@@ -110,12 +110,12 @@ git commit -m "test: add capability form model helpers"
 ### Task 2: Add failing page tests for the new create flow
 
 **Files:**
-- Create: [__tests__/unit/capability-new.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capability-new.page.test.jsx)
-- Modify: [app/capabilities/new/page.js](/C:/Projects/DashClaw/app/capabilities/new/page.js)
-- Create: [app/capabilities/new/components/CapabilityModeSelector.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityModeSelector.jsx)
-- Create: [app/capabilities/new/components/CapabilityBasicsSection.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityBasicsSection.jsx)
-- Create: [app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx)
-- Create: [app/capabilities/new/components/CapabilitySummaryCard.jsx](/C:/Projects/DashClaw/app/capabilities/new/components/CapabilitySummaryCard.jsx)
+- Create: `__tests__/unit/capability-new.page.test.jsx`
+- Modify: `app/capabilities/new/page.jsx`
+- Create: `app/capabilities/new/components/CapabilityModeSelector.jsx`
+- Create: `app/capabilities/new/components/CapabilityBasicsSection.jsx`
+- Create: `app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx`
+- Create: `app/capabilities/new/components/CapabilitySummaryCard.jsx`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -134,7 +134,7 @@ Expected: FAIL because the current page does not have mode-based behavior or run
 
 - [ ] **Step 3: Implement the guided page**
 
-Update [new page](/C:/Projects/DashClaw/app/capabilities/new/page.js) to:
+Update `app/capabilities/new/page.jsx` to:
 - split creation into mode selection
 - use structured shared metadata inputs
 - compile runnable HTTP state through `compileCapabilityPayload(...)`
@@ -168,10 +168,10 @@ git commit -m "feat: add guided capability creation flow"
 ### Task 3: Add failing tests for generated test inputs and runtime gating
 
 **Files:**
-- Modify: [app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx)
-- Create: [app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx)
-- Modify: [app/capabilities/[capabilityId]/page.jsx](/C:/Projects/DashClaw/app/capabilities/[capabilityId]/page.jsx)
-- Modify: [__tests__/unit/capability-detail.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capability-detail.page.test.jsx)
+- Modify: `app/capabilities/[capabilityId]/components/CapabilityTestPanel.jsx`
+- Create: `app/capabilities/[capabilityId]/components/CapabilityGeneratedTestForm.jsx`
+- Modify: `app/capabilities/[capabilityId]/page.jsx`
+- Modify: `__tests__/unit/capability-detail.page.test.jsx`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -222,9 +222,9 @@ git commit -m "feat: add guided capability testing UX"
 ### Task 4: Align registry cards with runnable-vs-registry-only state
 
 **Files:**
-- Modify: [app/capabilities/page.jsx](/C:/Projects/DashClaw/app/capabilities/page.jsx)
-- Modify: [app/capabilities/components/CapabilityRegistryCard.jsx](/C:/Projects/DashClaw/app/capabilities/components/CapabilityRegistryCard.jsx)
-- Modify: [__tests__/unit/capabilities.page.test.jsx](/C:/Projects/DashClaw/__tests__/unit/capabilities.page.test.jsx)
+- Modify: `app/capabilities/page.jsx`
+- Modify: `app/capabilities/components/CapabilityRegistryCard.jsx`
+- Modify: `__tests__/unit/capabilities.page.test.jsx`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -266,8 +266,8 @@ git commit -m "feat: clarify capability registry runtime state"
 ### Task 5: Update docs and verify the slice end-to-end
 
 **Files:**
-- Modify: [docs/superpowers/specs/2026-04-07-operator-config-ux-design.md](/C:/Projects/DashClaw/docs/superpowers/specs/2026-04-07-operator-config-ux-design.md) if implementation details differ
-- Optionally modify: [sdk/README.md](/C:/Projects/DashClaw/sdk/README.md) only if user-facing capability creation/testing examples materially change
+- Modify: `docs/superpowers/specs/2026-04-07-operator-config-ux-design.md` if implementation details differ
+- Optionally modify: `sdk/README.md` only if user-facing capability creation/testing examples materially change
 
 - [ ] **Step 1: Sync docs to shipped behavior**
 
@@ -312,4 +312,3 @@ After this plan ships:
 2. Create a separate plan for Policies guided authoring + advanced import cleanup
 
 Do not mix those into this execution cycle unless the capability work reveals a reusable shared component worth extracting immediately.
-
