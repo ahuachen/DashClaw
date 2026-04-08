@@ -18,6 +18,8 @@ import {
   prepareCapabilityInvocation,
 } from '../../../../lib/capability-runtime.js';
 import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../lib/usage.js';
+import { checkCircuitBreaker } from '../../../../lib/capability-health.js';
+import { updateCapability } from '../../../../lib/repositories/capabilities.repository.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -196,6 +198,20 @@ export async function POST(request, { params }) {
       );
     }
 
+    // Circuit breaker check
+    const circuitStatus = await checkCircuitBreaker(sql, orgId, capability);
+    if (circuitStatus.open) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'circuit_breaker_open',
+          message: `Capability circuit breaker is open after ${circuitStatus.consecutive_failures} consecutive failures. Run a test to reset.`,
+          consecutive_failures: circuitStatus.consecutive_failures,
+        },
+        { status: 503 },
+      );
+    }
+
     // 6. Create running action record
     await createActionRecord(sql, {
       orgId,
@@ -234,6 +250,12 @@ export async function POST(request, { params }) {
           duration_ms = ${result.elapsed_ms || 0}
       WHERE action_id = ${action_id} AND org_id = ${orgId}
     `;
+
+    // Update health_status on success (fire-and-forget)
+    if (result.success) {
+      void updateCapability(sql, orgId, capabilityId, { health_status: 'healthy' })
+        .catch((err) => console.warn('[API] Health status update failed:', err.message));
+    }
 
     // 9. Return response
     if (!result.success) {

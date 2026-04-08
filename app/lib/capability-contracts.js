@@ -122,6 +122,22 @@ export function validateInvocationSchema(sourceType, schema) {
     }
   }
 
+  if (schema.circuit_breaker !== undefined) {
+    if (!isPlainObject(schema.circuit_breaker)) {
+      errors.push('invocation_schema.circuit_breaker must be an object');
+    } else {
+      const cb = schema.circuit_breaker;
+      if (cb.enabled !== undefined && typeof cb.enabled !== 'boolean') {
+        errors.push('invocation_schema.circuit_breaker.enabled must be a boolean');
+      }
+      if (cb.consecutive_failures !== undefined) {
+        if (!Number.isInteger(cb.consecutive_failures) || cb.consecutive_failures < 1 || cb.consecutive_failures > 50) {
+          errors.push('invocation_schema.circuit_breaker.consecutive_failures must be an integer between 1 and 50');
+        }
+      }
+    }
+  }
+
   if (schema.request_mapping !== undefined && !isPlainObject(schema.request_mapping)) {
     errors.push('invocation_schema.request_mapping must be an object');
   }

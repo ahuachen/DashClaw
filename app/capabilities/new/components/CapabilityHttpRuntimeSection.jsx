@@ -168,6 +168,40 @@ export default function CapabilityHttpRuntimeSection({
       </div>
 
       <div className="space-y-3">
+        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Circuit breaker</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-zinc-300">
+              <input
+                aria-label="Enable circuit breaker"
+                type="checkbox"
+                checked={runtime.circuit_breaker?.enabled || false}
+                onChange={(event) => onRuntimeChange('circuit_breaker.enabled', event.target.checked)}
+              />
+              Enable circuit breaker
+            </label>
+          </div>
+
+          {runtime.circuit_breaker?.enabled ? (
+            <div>
+              <Label htmlFor="capability-consecutive-failures">Consecutive failures threshold</Label>
+              <input
+                id="capability-consecutive-failures"
+                aria-label="Consecutive failures threshold"
+                type="number"
+                min="1"
+                max="50"
+                step="1"
+                value={runtime.circuit_breaker?.consecutive_failures ?? 5}
+                onChange={(event) => onRuntimeChange('circuit_breaker.consecutive_failures', Number(event.target.value))}
+                className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Input fields</p>

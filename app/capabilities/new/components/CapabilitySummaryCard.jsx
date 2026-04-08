@@ -19,6 +19,11 @@ export default function CapabilitySummaryCard({ mode, form, runtime, fieldCount 
             ? `${runtime.retry_policy.max_retries}x ${runtime.retry_policy.backoff || 'none'}`
             : 'disabled'}</li>
         ) : null}
+        {mode === 'runnable_http' ? (
+          <li>Circuit breaker: {runtime?.circuit_breaker?.enabled
+            ? `${runtime.circuit_breaker.consecutive_failures || 5} failures`
+            : 'disabled'}</li>
+        ) : null}
       </ul>
     </div>
   );

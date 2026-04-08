@@ -57,6 +57,10 @@ export default function NewCapabilityPage() {
       base_delay_ms: 1000,
       max_delay_ms: 30000,
     },
+    circuit_breaker: {
+      enabled: false,
+      consecutive_failures: 5,
+    },
     inputFields: [],
   });
 
@@ -84,6 +88,17 @@ export default function NewCapabilityPage() {
           retry_policy: {
             ...current.retry_policy,
             [retryKey]: value,
+          },
+        };
+      }
+
+      if (key.startsWith('circuit_breaker.')) {
+        const cbKey = key.replace('circuit_breaker.', '');
+        return {
+          ...current,
+          circuit_breaker: {
+            ...current.circuit_breaker,
+            [cbKey]: value,
           },
         };
       }

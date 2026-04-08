@@ -77,6 +77,13 @@ export function compileCapabilityPayload(formState) {
     };
   }
 
+  if (runtime.circuit_breaker && runtime.circuit_breaker.enabled) {
+    payload.invocation_schema.circuit_breaker = {
+      enabled: true,
+      consecutive_failures: runtime.circuit_breaker.consecutive_failures || 5,
+    };
+  }
+
   return payload;
 }
 

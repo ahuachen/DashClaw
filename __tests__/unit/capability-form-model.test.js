@@ -199,6 +199,46 @@ describe('capabilityFormModel', () => {
     expect(payload.invocation_schema).not.toHaveProperty('retry_policy');
   });
 
+  it('compiles circuit_breaker into invocation_schema when enabled', () => {
+    const payload = compileCapabilityPayload({
+      mode: 'runnable_http',
+      metadata: { name: 'Test', risk_level: 'low' },
+      runtime: {
+        endpoint: 'https://api.example.com/test',
+        method: 'POST',
+        timeout_ms: 5000,
+        auth: { type: 'none' },
+        inputFields: [],
+        circuit_breaker: {
+          enabled: true,
+          consecutive_failures: 10,
+        },
+      },
+    });
+
+    expect(payload.invocation_schema.circuit_breaker).toEqual({
+      enabled: true,
+      consecutive_failures: 10,
+    });
+  });
+
+  it('omits circuit_breaker when not enabled', () => {
+    const payload = compileCapabilityPayload({
+      mode: 'runnable_http',
+      metadata: { name: 'Test', risk_level: 'low' },
+      runtime: {
+        endpoint: 'https://api.example.com/test',
+        method: 'POST',
+        timeout_ms: 5000,
+        auth: { type: 'none' },
+        inputFields: [],
+        circuit_breaker: { enabled: false, consecutive_failures: 5 },
+      },
+    });
+
+    expect(payload.invocation_schema).not.toHaveProperty('circuit_breaker');
+  });
+
   it('classifies runnable HTTP capabilities separately from registry-only entries', () => {
     const runnable = {
       source_type: 'http_api',

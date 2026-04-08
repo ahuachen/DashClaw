@@ -257,3 +257,37 @@ export async function listCapabilityHealthSummaries(sql, orgId, filters = {}) {
     return true;
   });
 }
+
+export async function checkCircuitBreaker(sql, orgId, capability) {
+  const cb = capability.invocation_schema?.circuit_breaker;
+  if (!cb || !cb.enabled) {
+    return { open: false };
+  }
+
+  if (capability.health_status === 'healthy') {
+    return { open: false };
+  }
+
+  const threshold = cb.consecutive_failures || 5;
+  const systemsTouched = JSON.stringify([`capability:${capability.slug}`]);
+
+  const rows = await sql`
+    SELECT status FROM action_records
+    WHERE org_id = ${orgId}
+      AND action_type = 'capability_invoke'
+      AND systems_touched = ${systemsTouched}
+    ORDER BY timestamp_start DESC
+    LIMIT ${threshold}
+  `;
+
+  if (rows.length < threshold) {
+    return { open: false };
+  }
+
+  const allFailed = rows.every((row) => row.status === 'failed');
+  if (allFailed) {
+    return { open: true, consecutive_failures: threshold };
+  }
+
+  return { open: false };
+}
