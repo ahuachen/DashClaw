@@ -1222,6 +1222,8 @@ for r in results:
     print(f"{r['score']*100:.1f}%: {r['content'][:80]}...")
 ```
 
+Python knowledge collections are now part of the contract-enforced execution-studio surface, alongside capabilities, workflows, and model strategies.
+
 ### Capability Registry
 
 ```python

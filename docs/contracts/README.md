@@ -58,11 +58,12 @@ The validator treats undeclared public methods or stale release-plan versions as
 
 ## Current V1 Scope
 
-- declared public API route/method coverage for capabilities and workflow templates
+- declared public API route/method coverage for capabilities, workflow templates, and knowledge collections
 - `action_records` schema/setup convergence
 - shared setup prerequisites for migration inventory, readiness migration hints, and core tables
 - shared env prerequisites for production, readiness, and self-host startup
 - canonical Node SDK `execution.capabilities` surface
+- canonical Python execution-studio domains for capabilities, workflows, model strategies, and knowledge
 - SDK release-plan version consistency
 
 Expand contract coverage only when the checks remain high-signal.

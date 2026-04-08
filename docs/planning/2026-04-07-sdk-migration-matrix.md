@@ -85,6 +85,15 @@ These are the first domains that should set the pattern:
   - align session and action graph methods,
   - keep operator-facing state separate from admin-only tasks.
 
+### Candidate 4: Knowledge collections
+
+- Why: completes the execution-studio convergence sweep
+- Target: canonical data and retrieval namespace
+- Needed work:
+  - keep Python aligned to the knowledge collection HTTP contracts via `list_knowledge_collections(...)`, `create_knowledge_collection(...)`, `get_knowledge_collection(...)`, `update_knowledge_collection(...)`, `list_knowledge_collection_items(...)`, `add_knowledge_collection_item(...)`, `sync_knowledge_collection(...)`, and `search_knowledge_collection(...)`,
+  - keep sync and search semantics explicit,
+  - keep API contract coverage present for the knowledge collection routes.
+
 ## Documentation Checklist Per Domain
 
 When a domain changes, update:

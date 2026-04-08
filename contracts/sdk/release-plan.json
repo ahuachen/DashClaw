@@ -8,7 +8,7 @@
   "python": {
     "current_version": "2.10.0",
     "next_bump": "minor",
-    "reason": "capability, workflow, and model strategy runtime convergence with canonical SDK contracts",
-    "domains": ["capabilities", "workflows", "model_strategies"]
+    "reason": "capability, workflow, model strategy, and knowledge runtime convergence with canonical SDK contracts",
+    "domains": ["capabilities", "workflows", "model_strategies", "knowledge"]
   }
 }

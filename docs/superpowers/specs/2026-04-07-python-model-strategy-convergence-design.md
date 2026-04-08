@@ -43,7 +43,7 @@ Out of scope:
 
 ### Existing route
 
-- [route.js](../../app/api/model-strategies/[strategyId]/complete/route.js)
+- [route.js](../../../app/api/model-strategies/[strategyId]/complete/route.js)
 
 The route expects:
 
@@ -55,7 +55,7 @@ The route expects:
 
 ### Existing Python surface
 
-- [client.py](../../sdk-python/dashclaw/client.py)
+- [client.py](../../../sdk-python/dashclaw/client.py)
 
 Python already has:
 
@@ -68,9 +68,9 @@ Python already has:
 
 ### Existing contract system
 
-- [public-surface.json](../../contracts/sdk/public-surface.json)
-- [release-plan.json](../../contracts/sdk/release-plan.json)
-- [check-sdk-surface.mjs](../../scripts/lib/contracts/check-sdk-surface.mjs)
+- [public-surface.json](../../../contracts/sdk/public-surface.json)
+- [release-plan.json](../../../contracts/sdk/release-plan.json)
+- [check-sdk-surface.mjs](../../../scripts/lib/contracts/check-sdk-surface.mjs)
 
 Current Python domains in the contract:
 
@@ -126,7 +126,7 @@ within Python `domains`.
 
 ## Validator Behavior
 
-The Python domain selector in [check-sdk-surface.mjs](../../scripts/lib/contracts/check-sdk-surface.mjs) should recognize:
+The Python domain selector in [check-sdk-surface.mjs](../../../scripts/lib/contracts/check-sdk-surface.mjs) should recognize:
 
 - `capabilities`
 - `workflows`
@@ -148,7 +148,7 @@ The validator should continue to emit:
 
 Extend:
 
-- [contracts.sdk-surface.test.js](../../__tests__/unit/contracts.sdk-surface.test.js)
+- [contracts.sdk-surface.test.js](../../../__tests__/unit/contracts.sdk-surface.test.js)
 
 Add:
 
@@ -188,9 +188,9 @@ This is mostly a confidence check, not a new behavior feature.
 
 ## Docs To Update
 
-- [sdk-python/README.md](../../sdk-python/README.md)
-- [sdk-parity.md](../../docs/sdk-parity.md)
-- [2026-04-07-sdk-migration-matrix.md](../../docs/planning/2026-04-07-sdk-migration-matrix.md)
+- [README.md](../../../sdk-python/README.md)
+- [sdk-parity.md](../../sdk-parity.md)
+- [2026-04-07-sdk-migration-matrix.md](../../planning/2026-04-07-sdk-migration-matrix.md)
 
 The docs should say:
 

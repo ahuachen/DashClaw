@@ -82,4 +82,30 @@ describe('checkApiSurface', () => {
     expect(result.ok).toBe(true);
     expect(result.findings).toEqual([]);
   });
+
+  it('fails when a discovered knowledge route is missing from the contract', async () => {
+    const result = await checkApiSurface({
+      api: {
+        'knowledge-collections': {
+          route_root: 'app/api/knowledge/collections',
+          routes: [
+            {
+              file: 'app/api/knowledge/collections/route.js',
+              path: '/api/knowledge/collections',
+              methods: ['GET', 'POST'],
+            },
+          ],
+        },
+      },
+    }, {
+      'knowledge-collections': [
+        { file: 'app/api/knowledge/collections/route.js', methods: ['GET', 'POST'] },
+        { file: 'app/api/knowledge/collections/[collectionId]/sync/route.js', methods: ['POST'] },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.findings[0].code).toBe('undeclared_api_route');
+    expect(result.findings[0].message).toMatch(/sync\/route\.js/i);
+  });
 });
