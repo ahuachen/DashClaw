@@ -25,7 +25,6 @@ describe('collectTrackedMarkdownFiles', () => {
     expect(files).toEqual([
       path.join(root, 'README.md'),
       path.join(root, 'docs/guide.md'),
-      path.join(root, 'graphify-pilot/README.md'),
     ]);
   });
 
