@@ -1,0 +1,134 @@
+import { describe, expect, it } from 'vitest';
+import {
+  buildModelStrategySummary,
+  compileModelStrategyConfig,
+  createDefaultModelStrategyFormState,
+  decompileModelStrategyConfig,
+  requiresAdvancedStrategyConfig,
+} from '../../app/model-strategies/lib/modelStrategyFormModel.js';
+
+describe('modelStrategyFormModel', () => {
+  it('creates valid default form state', () => {
+    const state = createDefaultModelStrategyFormState();
+
+    expect(state.execution.primaryProvider).toBe('openai');
+    expect(state.execution.primaryModel).toBe('gpt-4.1');
+    expect(state.execution.fallbacks).toEqual([
+      { provider: 'anthropic', model: 'claude-sonnet-4' },
+    ]);
+    expect(state.constraints.costSensitivity).toBe('balanced');
+    expect(state.constraints.latencySensitivity).toBe('medium');
+  });
+
+  it('compiles builder state into persisted config shape', () => {
+    const config = compileModelStrategyConfig({
+      execution: {
+        primaryProvider: 'openai',
+        primaryModel: 'gpt-5.4',
+        fallbacks: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+        maxRetries: 3,
+      },
+      constraints: {
+        costSensitivity: 'low',
+        latencySensitivity: 'high',
+        maxBudgetUsd: 1.25,
+        allowedProviders: ['openai', 'anthropic'],
+        disallowedProviders: ['google'],
+      },
+      advanced: {
+        taskModes: [],
+      },
+    });
+
+    expect(config).toEqual({
+      primary: { provider: 'openai', model: 'gpt-5.4' },
+      fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+      costSensitivity: 'low',
+      latencySensitivity: 'high',
+      maxBudgetUsd: 1.25,
+      maxRetries: 3,
+      allowedProviders: ['openai', 'anthropic'],
+      disallowedProviders: ['google'],
+    });
+  });
+
+  it('decompiles persisted config into builder state', () => {
+    const state = decompileModelStrategyConfig({
+      primary: { provider: 'openai', model: 'gpt-4.1' },
+      fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+      costSensitivity: 'balanced',
+      latencySensitivity: 'medium',
+      maxBudgetUsd: 0.5,
+      maxRetries: 2,
+      allowedProviders: ['openai'],
+      disallowedProviders: ['xai'],
+      taskModes: {
+        research: { provider: 'anthropic', model: 'claude-opus-4.1' },
+      },
+    });
+
+    expect(state.execution.primaryProvider).toBe('openai');
+    expect(state.execution.primaryModel).toBe('gpt-4.1');
+    expect(state.execution.fallbacks).toEqual([
+      { provider: 'anthropic', model: 'claude-sonnet-4' },
+    ]);
+    expect(state.constraints.allowedProviders).toEqual(['openai']);
+    expect(state.constraints.disallowedProviders).toEqual(['xai']);
+    expect(state.advanced.taskModes).toEqual([
+      {
+        taskMode: 'research',
+        provider: 'anthropic',
+        model: 'claude-opus-4.1',
+      },
+    ]);
+  });
+
+  it('builds a readable summary string', () => {
+    const summary = buildModelStrategySummary({
+      execution: {
+        primaryProvider: 'openai',
+        primaryModel: 'gpt-4.1',
+        fallbacks: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+        maxRetries: 2,
+      },
+      constraints: {
+        costSensitivity: 'balanced',
+        latencySensitivity: 'medium',
+        maxBudgetUsd: 0.5,
+        allowedProviders: [],
+        disallowedProviders: [],
+      },
+      advanced: { taskModes: [] },
+    });
+
+    expect(summary).toContain('OpenAI GPT-4.1');
+    expect(summary).toContain('Claude Sonnet 4');
+    expect(summary).toContain('$0.50');
+    expect(summary).toContain('retry twice');
+  });
+
+  it('detects when config requires advanced/raw fallback', () => {
+    expect(
+      requiresAdvancedStrategyConfig({
+        primary: { provider: 'openai', model: 'gpt-4.1' },
+        taskModes: {
+          research: {
+            provider: 'anthropic',
+            model: 'claude-sonnet-4',
+            fallback: [{ provider: 'openai', model: 'gpt-4.1-mini' }],
+          },
+        },
+      })
+    ).toBe(true);
+
+    expect(
+      requiresAdvancedStrategyConfig({
+        primary: { provider: 'openai', model: 'gpt-4.1' },
+        fallback: [{ provider: 'anthropic', model: 'claude-sonnet-4' }],
+        taskModes: {
+          support: { provider: 'openai', model: 'gpt-4.1-mini' },
+        },
+      })
+    ).toBe(false);
+  });
+});
