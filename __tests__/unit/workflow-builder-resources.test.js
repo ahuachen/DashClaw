@@ -6,6 +6,8 @@ import {
   loadWorkflowBuilderResources,
   normalizeCapabilityOptions,
   normalizeCollectionOptions,
+  normalizeModelStrategyOptions,
+  normalizePolicyOptions,
   normalizePromptTemplateOptions,
 } from '../../app/workflows/lib/workflowBuilderResources.js';
 
@@ -60,6 +62,62 @@ describe('workflowBuilderResources', () => {
     ]);
   });
 
+  it('normalizes model strategies into readable options', () => {
+    const options = normalizeModelStrategyOptions([
+      {
+        strategy_id: 'mst_support',
+        name: 'Support default',
+        config: {
+          primary: {
+            provider: 'openai',
+            model: 'gpt-4o-mini',
+          },
+        },
+      },
+    ]);
+
+    expect(options).toEqual([
+      {
+        value: 'mst_support',
+        label: 'Support default',
+        subtitle: 'openai · gpt-4o-mini',
+        raw: {
+          strategy_id: 'mst_support',
+          name: 'Support default',
+          config: {
+            primary: {
+              provider: 'openai',
+              model: 'gpt-4o-mini',
+            },
+          },
+        },
+      },
+    ]);
+  });
+
+  it('normalizes policies into readable options', () => {
+    const options = normalizePolicyOptions([
+      {
+        id: 'gp_approval',
+        name: 'Require approval for refunds',
+        policy_type: 'require_approval',
+      },
+    ]);
+
+    expect(options).toEqual([
+      {
+        value: 'gp_approval',
+        label: 'Require approval for refunds',
+        subtitle: 'require_approval',
+        raw: {
+          id: 'gp_approval',
+          name: 'Require approval for refunds',
+          policy_type: 'require_approval',
+        },
+      },
+    ]);
+  });
+
   it('normalizes prompt templates with active content for picker usage', () => {
     const options = normalizePromptTemplateOptions([
       {
@@ -97,12 +155,16 @@ describe('workflowBuilderResources', () => {
 
   it('builds resource lookups from option arrays', () => {
     const lookups = buildWorkflowResourceLookups({
+      modelStrategies: [{ value: 'mst_support', label: 'Support default' }],
+      policies: [{ value: 'gp_approval', label: 'Require approval' }],
       knowledgeCollections: [{ value: 'kn_faq', label: 'Customer FAQ' }],
       capabilities: [{ value: 'cap_slack', label: 'Send Slack Message' }],
       promptTemplates: [{ value: 'pt_refund', label: 'Refund Summary', content: 'Summarize refunds' }],
     });
 
     expect(lookups).toEqual({
+      modelStrategies: { mst_support: 'Support default' },
+      policies: { gp_approval: 'Require approval' },
       knowledgeCollections: { kn_faq: 'Customer FAQ' },
       capabilities: { cap_slack: 'Send Slack Message' },
       promptTemplates: { pt_refund: { label: 'Refund Summary', content: 'Summarize refunds' } },
@@ -111,6 +173,24 @@ describe('workflowBuilderResources', () => {
 
   it('loads workflow builder resources and active prompt template content best-effort', async () => {
     const fetchMock = vi.fn(async (url) => {
+      if (url === '/api/model-strategies') {
+        return {
+          ok: true,
+          json: async () => ({
+            strategies: [{ strategy_id: 'mst_support', name: 'Support default', config: { primary: { provider: 'openai', model: 'gpt-4o-mini' } } }],
+          }),
+        };
+      }
+
+      if (url === '/api/policies') {
+        return {
+          ok: true,
+          json: async () => ({
+            policies: [{ id: 'gp_approval', name: 'Require approval', policy_type: 'require_approval' }],
+          }),
+        };
+      }
+
       if (url === '/api/knowledge/collections?limit=100') {
         return {
           ok: true,
@@ -155,6 +235,14 @@ describe('workflowBuilderResources', () => {
 
     const resources = await loadWorkflowBuilderResources(fetchMock);
 
+    expect(resources.modelStrategies[0]).toMatchObject({
+      value: 'mst_support',
+      label: 'Support default',
+    });
+    expect(resources.policies[0]).toMatchObject({
+      value: 'gp_approval',
+      label: 'Require approval',
+    });
     expect(resources.knowledgeCollections[0]).toMatchObject({
       value: 'kn_faq',
       label: 'Customer FAQ',

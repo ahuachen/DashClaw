@@ -3,33 +3,35 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent } from '../../components/ui/Card';
 import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
 import WorkflowReferenceHelp from '../components/WorkflowReferenceHelp.jsx';
-import { sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
-import { loadWorkflowBuilderResources } from '../lib/workflowBuilderResources.js';
+import WorkflowLinkedResourcesSection from '../components/WorkflowLinkedResourcesSection.jsx';
+import WorkflowAiDraftPanel from '../components/WorkflowAiDraftPanel.jsx';
+import { compileWorkflowDraftPayload, createDefaultWorkflowDraft } from '../lib/workflowDraftFormModel.js';
+import { normalizeGeneratedWorkflowDraft } from '../lib/workflowAiDrafts.js';
+import { loadWorkflowBuilderResources, mergeWorkflowBuilderResourceOptions } from '../lib/workflowBuilderResources.js';
 
 export default function NewWorkflowTemplatePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [generatingDraft, setGeneratingDraft] = useState(false);
   const [error, setError] = useState(null);
+  const [draftError, setDraftError] = useState(null);
+  const [draftNotes, setDraftNotes] = useState([]);
   const [resourceError, setResourceError] = useState(false);
   const [resources, setResources] = useState({
+    modelStrategies: [],
+    policies: [],
     knowledgeCollections: [],
     capabilities: [],
     promptTemplates: [],
     errors: [],
   });
-  const [form, setForm] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    objective: '',
-    status: 'draft',
-  });
-  const [steps, setSteps] = useState([]);
+  const [showAiPanel, setShowAiPanel] = useState(false);
+  const [draft, setDraft] = useState(createDefaultWorkflowDraft());
 
   useEffect(() => {
     let active = true;
@@ -50,11 +52,13 @@ export default function NewWorkflowTemplatePage() {
     };
   }, []);
 
-  const update = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }));
+  const update = (key) => (event) => setDraft((prev) => ({ ...prev, [key]: event.target.value }));
+  const updateDraft = (patch) => setDraft((prev) => ({ ...prev, ...patch }));
+  const mergedResources = mergeWorkflowBuilderResourceOptions(resources, draft);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!form.name.trim()) {
+    if (!draft.name.trim()) {
       setError('Name is required');
       return;
     }
@@ -66,14 +70,7 @@ export default function NewWorkflowTemplatePage() {
       const res = await fetch('/api/workflows/templates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          slug: form.slug.trim() || undefined,
-          description: form.description.trim() || undefined,
-          objective: form.objective.trim() || undefined,
-          status: form.status,
-          steps: sanitizeExecutableSteps(steps),
-        }),
+        body: JSON.stringify(compileWorkflowDraftPayload(draft)),
       });
 
       if (!res.ok) {
@@ -89,21 +86,87 @@ export default function NewWorkflowTemplatePage() {
     }
   };
 
+  const handleGenerateDraft = async (requestPayload) => {
+    setGeneratingDraft(true);
+    setDraftError(null);
+    setDraftNotes([]);
+
+    try {
+      const res = await fetch('/api/workflows/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: requestPayload.description,
+          api_key: requestPayload.apiKey,
+          provider: requestPayload.provider,
+          model: requestPayload.model,
+          prefer_existing_resources: requestPayload.preferExistingResources,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDraftError(data.error || 'Failed to generate workflow draft');
+        return;
+      }
+
+      const normalized = normalizeGeneratedWorkflowDraft(data.draft, mergedResources);
+      setDraft((prev) => createDefaultWorkflowDraft({
+        ...prev,
+        ...normalized.draft,
+      }));
+      setDraftNotes([...(data.warnings || []), ...normalized.notes]);
+      setShowAiPanel(false);
+    } catch (err) {
+      setDraftError(err.message);
+    } finally {
+      setGeneratingDraft(false);
+    }
+  };
+
   return (
     <PageLayout
       title="New Workflow Template"
       subtitle="Define a reusable, versioned operational pattern"
       breadcrumbs={['Studio', 'Workflows', 'New']}
       actions={(
-        <Link
-          href="/workflows"
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
-        >
-          <ArrowLeft size={14} /> Back
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowAiPanel((value) => !value)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
+          >
+            <Sparkles size={14} /> {showAiPanel ? 'Hide AI Draft' : 'Generate with AI'}
+          </button>
+          <Link
+            href="/workflows"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+          >
+            <ArrowLeft size={14} /> Back
+          </Link>
+        </div>
       )}
     >
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
+        {showAiPanel && (
+          <WorkflowAiDraftPanel
+            loading={generatingDraft}
+            error={draftError}
+            onGenerate={handleGenerateDraft}
+          />
+        )}
+
+        {draftNotes.length > 0 && (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+            <div className="font-medium text-amber-200 mb-1">Draft review notes</div>
+            <ul className="space-y-1">
+              {draftNotes.map((note) => (
+                <li key={note}>• {note}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <Card>
           <CardContent className="p-5 space-y-4">
             <div>
@@ -113,7 +176,7 @@ export default function NewWorkflowTemplatePage() {
               <input
                 type="text"
                 aria-label="Name"
-                value={form.name}
+                value={draft.name}
                 onChange={update('name')}
                 required
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
@@ -127,7 +190,7 @@ export default function NewWorkflowTemplatePage() {
               </label>
               <input
                 type="text"
-                value={form.slug}
+                value={draft.slug}
                 onChange={update('slug')}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-brand"
                 placeholder="release-hotfix"
@@ -139,7 +202,7 @@ export default function NewWorkflowTemplatePage() {
                 Description
               </label>
               <textarea
-                value={form.description}
+                value={draft.description}
                 onChange={update('description')}
                 rows={2}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
@@ -152,7 +215,7 @@ export default function NewWorkflowTemplatePage() {
                 Objective
               </label>
               <textarea
-                value={form.objective}
+                value={draft.objective}
                 onChange={update('objective')}
                 rows={3}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
@@ -165,7 +228,7 @@ export default function NewWorkflowTemplatePage() {
                 Status
               </label>
               <select
-                value={form.status}
+                value={draft.status}
                 onChange={update('status')}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
               >
@@ -176,6 +239,12 @@ export default function NewWorkflowTemplatePage() {
             </div>
           </CardContent>
         </Card>
+
+        <WorkflowLinkedResourcesSection
+          draft={draft}
+          resourceOptions={mergedResources}
+          onChange={updateDraft}
+        />
 
         <Card>
           <div className="px-5 pt-5 pb-3">
@@ -189,7 +258,11 @@ export default function NewWorkflowTemplatePage() {
                   Some workflow resources could not be loaded. You can still author the workflow, but some selectors may be incomplete.
                 </div>
               )}
-              <WorkflowStepBuilder steps={steps} onChange={setSteps} resourceOptions={resources} />
+              <WorkflowStepBuilder
+                steps={draft.steps}
+                onChange={(nextSteps) => updateDraft({ steps: nextSteps })}
+                resourceOptions={mergedResources}
+              />
               <WorkflowReferenceHelp />
             </div>
           </CardContent>

@@ -44,6 +44,28 @@ describe('WorkflowTemplateDetailPage', () => {
         };
       }
 
+      if (String(url) === '/api/model-strategies') {
+        return {
+          ok: true,
+          json: async () => ({
+            strategies: [
+              { strategy_id: 'mst_support', name: 'Support default', config: { primary: { provider: 'openai', model: 'gpt-4o-mini' } } },
+            ],
+          }),
+        };
+      }
+
+      if (String(url) === '/api/policies') {
+        return {
+          ok: true,
+          json: async () => ({
+            policies: [
+              { id: 'gp_approval', name: 'Require approval for refunds', policy_type: 'require_approval' },
+            ],
+          }),
+        };
+      }
+
       if (String(url) === '/api/knowledge/collections?limit=100') {
         return {
           ok: true,
@@ -92,7 +114,7 @@ describe('WorkflowTemplateDetailPage', () => {
         return {
           ok: true,
           json: async () => ({
-            template: { template_id: 'wft_1' },
+            template: templatePayload,
           }),
         };
       }
@@ -132,6 +154,7 @@ describe('WorkflowTemplateDetailPage', () => {
           },
         },
       ],
+      model_strategy_id: 'mst_support',
       linked_policy_ids: [],
       linked_knowledge_collection_ids: [],
       linked_capability_ids: [],
@@ -147,9 +170,10 @@ describe('WorkflowTemplateDetailPage', () => {
 
     expect(screen.getByText(/workflows currently run steps in order/i)).toBeTruthy();
     expect(screen.queryByText(/^visual$/i)).toBeNull();
-    expect(screen.getByRole('button', { name: /source/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^source$/i })).toBeTruthy();
     expect(screen.getByDisplayValue('Find refund policy')).toBeTruthy();
     expect(screen.getByText(/reference help/i)).toBeTruthy();
+    expect(screen.getByLabelText(/model strategy/i).value).toBe('mst_support');
   });
 
   it('shows an honest legacy notice for graph-shaped step data', async () => {
@@ -166,6 +190,7 @@ describe('WorkflowTemplateDetailPage', () => {
         ],
         edges: [],
       },
+      model_strategy_id: '',
       linked_policy_ids: [],
       linked_knowledge_collection_ids: [],
       linked_capability_ids: [],
@@ -205,6 +230,7 @@ describe('WorkflowTemplateDetailPage', () => {
           },
         },
       ],
+      model_strategy_id: 'mst_support',
       linked_policy_ids: [],
       linked_knowledge_collection_ids: [],
       linked_capability_ids: [],
@@ -248,6 +274,53 @@ describe('WorkflowTemplateDetailPage', () => {
           },
         },
       ],
+    });
+  });
+
+  it('saves linked workflow resources through the template patch route', async () => {
+    global.fetch = createFetchMock({
+      template_id: 'wft_1',
+      name: 'Refund Workflow',
+      slug: 'refund-workflow',
+      description: '',
+      status: 'draft',
+      version: 1,
+      steps: [],
+      model_strategy_id: '',
+      linked_policy_ids: [],
+      linked_knowledge_collection_ids: [],
+      linked_capability_ids: [],
+      linked_prompt_template_ids: [],
+      linked_capability_tags: [],
+    });
+
+    const { default: WorkflowTemplateDetailPage } = await import('@/workflows/[templateId]/page.jsx');
+
+    render(<WorkflowTemplateDetailPage />);
+
+    await screen.findByRole('heading', { name: /refund workflow/i });
+
+    fireEvent.change(screen.getByLabelText(/model strategy/i), { target: { value: 'mst_support' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: /require approval for refunds/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save linked resources/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/workflows/templates/wft_1',
+        expect.objectContaining({
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: expect.any(String),
+        }),
+      );
+    });
+
+    const patchCalls = global.fetch.mock.calls.filter(([url, options]) => url === '/api/workflows/templates/wft_1' && options?.method === 'PATCH');
+    const requestBody = JSON.parse(patchCalls[0][1].body);
+
+    expect(requestBody).toMatchObject({
+      model_strategy_id: 'mst_support',
+      linked_policy_ids: ['gp_approval'],
     });
   });
 });

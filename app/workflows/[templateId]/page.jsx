@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowLeft, Rocket, Copy, FileText, ShieldCheck, BookOpen, Wrench, Cpu, ExternalLink,
+  ArrowLeft, Rocket, Copy, FileText, Cpu, ExternalLink,
 } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
@@ -12,8 +12,10 @@ import { Badge } from '../../components/ui/Badge';
 import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
 import WorkflowStepLegacyNotice from '../components/WorkflowStepLegacyNotice.jsx';
 import WorkflowReferenceHelp from '../components/WorkflowReferenceHelp.jsx';
+import WorkflowLinkedResourcesSection from '../components/WorkflowLinkedResourcesSection.jsx';
 import { normalizeWorkflowStepData, sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
 import { loadWorkflowBuilderResources, mergeWorkflowBuilderResourceOptions } from '../lib/workflowBuilderResources.js';
+import { compileWorkflowDraftPayload, createDefaultWorkflowDraft, decompileWorkflowTemplateToDraft } from '../lib/workflowDraftFormModel.js';
 
 const statusVariant = {
   draft: 'default',
@@ -25,71 +27,37 @@ export default function WorkflowTemplateDetailPage() {
   const router = useRouter();
   const { templateId } = useParams();
   const [template, setTemplate] = useState(null);
+  const [draft, setDraft] = useState(createDefaultWorkflowDraft());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [launching, setLaunching] = useState(false);
   const [launchResult, setLaunchResult] = useState(null);
   const [duplicating, setDuplicating] = useState(false);
   const [stepsView, setStepsView] = useState('builder');
-  const [pendingSteps, setPendingSteps] = useState(null);
   const [savingSteps, setSavingSteps] = useState(false);
+  const [savingLinks, setSavingLinks] = useState(false);
   const [workflowResources, setWorkflowResources] = useState({
+    modelStrategies: [],
+    policies: [],
     knowledgeCollections: [],
     capabilities: [],
     promptTemplates: [],
     errors: [],
-  });
-  const [linkedResources, setLinkedResources] = useState({
-    strategy: null,
-    knowledge: [],
-    capabilities: [],
   });
 
   const fetchTemplate = useCallback(async () => {
     try {
       const res = await fetch(`/api/workflows/templates/${templateId}`);
       if (!res.ok) {
-        if (res.status === 404) { setError('Template not found'); return; }
+        if (res.status === 404) {
+          setError('Template not found');
+          return;
+        }
         throw new Error('Failed to fetch template');
       }
-      const { template: t } = await res.json();
-      setTemplate(t);
-
-      // Hydrate linked resources (best-effort, don't block on failures)
-      const hydrated = { strategy: null, knowledge: [], capabilities: [] };
-      try {
-        const fetches = [];
-        if (t.model_strategy_id) {
-          fetches.push(
-            fetch(`/api/model-strategies/${t.model_strategy_id}`)
-              .then((r) => r.ok ? r.json() : null)
-              .then((d) => { if (d?.strategy) hydrated.strategy = d.strategy; })
-              .catch(() => {})
-          );
-        }
-        if (t.linked_knowledge_collection_ids?.length) {
-          for (const id of t.linked_knowledge_collection_ids) {
-            fetches.push(
-              fetch(`/api/knowledge/collections/${id}`)
-                .then((r) => r.ok ? r.json() : null)
-                .then((d) => { if (d?.collection) hydrated.knowledge.push(d.collection); })
-                .catch(() => {})
-            );
-          }
-        }
-        if (t.linked_capability_ids?.length) {
-          for (const id of t.linked_capability_ids) {
-            fetches.push(
-              fetch(`/api/capabilities/${id}`)
-                .then((r) => r.ok ? r.json() : null)
-                .then((d) => { if (d?.capability) hydrated.capabilities.push(d.capability); })
-                .catch(() => {})
-            );
-          }
-        }
-        await Promise.all(fetches);
-      } catch { /* hydration is best-effort */ }
-      setLinkedResources(hydrated);
+      const { template: nextTemplate } = await res.json();
+      setTemplate(nextTemplate);
+      setDraft(decompileWorkflowTemplateToDraft(nextTemplate));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -113,6 +81,8 @@ export default function WorkflowTemplateDetailPage() {
       .catch(() => {
         if (!active) return;
         setWorkflowResources({
+          modelStrategies: [],
+          policies: [],
           knowledgeCollections: [],
           capabilities: [],
           promptTemplates: [],
@@ -161,7 +131,9 @@ export default function WorkflowTemplateDetailPage() {
         router.push(`/workflows/${dup.template_id}`);
         return;
       }
-    } catch { /* noop */ }
+    } catch {
+      // noop
+    }
     setDuplicating(false);
   };
 
@@ -186,8 +158,11 @@ export default function WorkflowTemplateDetailPage() {
     );
   }
 
-  const stepData = normalizeWorkflowStepData(pendingSteps || template.steps);
-  const mergedWorkflowResources = mergeWorkflowBuilderResourceOptions(workflowResources, stepData.steps);
+  const persistedStepData = normalizeWorkflowStepData(template.steps);
+  const stepData = persistedStepData.mode === 'legacy'
+    ? persistedStepData
+    : normalizeWorkflowStepData(draft.steps);
+  const mergedWorkflowResources = mergeWorkflowBuilderResourceOptions(workflowResources, draft);
   const visibleStepCount = stepData.mode === 'builder'
     ? stepData.steps.length
     : (stepData.legacyFallback?.nodeCount || 0);
@@ -197,7 +172,7 @@ export default function WorkflowTemplateDetailPage() {
       title={template.name}
       subtitle={template.description || 'Workflow template'}
       breadcrumbs={['Studio', 'Workflows', template.slug]}
-      actions={
+      actions={(
         <div className="flex items-center gap-2">
           <Link
             href="/workflows"
@@ -220,9 +195,8 @@ export default function WorkflowTemplateDetailPage() {
             <Rocket size={14} /> {launching ? 'Launching...' : 'Launch'}
           </button>
         </div>
-      }
+      )}
     >
-      {/* Metadata row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card hover={false}>
           <CardContent className="p-4 text-center">
@@ -250,7 +224,6 @@ export default function WorkflowTemplateDetailPage() {
         </Card>
       </div>
 
-      {/* Launch result banner */}
       {launchResult && !launchResult.error && (
         <div className="mb-6 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
           <div className="flex items-center justify-between">
@@ -273,7 +246,6 @@ export default function WorkflowTemplateDetailPage() {
         </div>
       )}
 
-      {/* Workflow Steps Editor */}
       <Card className="mb-4">
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-3">
@@ -294,7 +266,7 @@ export default function WorkflowTemplateDetailPage() {
               </button>
             </div>
           </div>
-          {stepData.mode === 'builder' && pendingSteps && (
+          {stepData.mode === 'builder' && (
             <button
               onClick={async () => {
                 setSavingSteps(true);
@@ -302,13 +274,14 @@ export default function WorkflowTemplateDetailPage() {
                   const res = await fetch(`/api/workflows/templates/${templateId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ steps: sanitizeExecutableSteps(pendingSteps) }),
+                    body: JSON.stringify({ steps: sanitizeExecutableSteps(draft.steps) }),
                   });
                   if (res.ok) {
-                    setPendingSteps(null);
-                    fetchTemplate();
+                    await fetchTemplate();
                   }
-                } catch { /* noop */ }
+                } catch {
+                  // noop
+                }
                 setSavingSteps(false);
               }}
               disabled={savingSteps}
@@ -329,7 +302,7 @@ export default function WorkflowTemplateDetailPage() {
               <div className="space-y-4">
                 <WorkflowStepBuilder
                   steps={stepData.steps}
-                  onChange={(newSteps) => setPendingSteps(newSteps)}
+                  onChange={(nextSteps) => setDraft((prev) => ({ ...prev, steps: nextSteps }))}
                   resourceOptions={mergedWorkflowResources}
                 />
                 <WorkflowReferenceHelp />
@@ -339,13 +312,12 @@ export default function WorkflowTemplateDetailPage() {
             )
           ) : (
             <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
-              {JSON.stringify(pendingSteps || template.steps, null, 2)}
+              {JSON.stringify(stepData.mode === 'builder' ? draft.steps : template.steps, null, 2)}
             </pre>
           )}
         </CardContent>
       </Card>
 
-      {/* Objective + linked resources */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader title="Objective" icon={FileText} />
@@ -356,36 +328,41 @@ export default function WorkflowTemplateDetailPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader title="Linked Resources" icon={ShieldCheck} />
-          <CardContent className="p-5 pt-0 space-y-3">
-            {/* Model strategy — hydrated */}
-            <LinkedRow icon={Cpu} label="Model strategy"
-              value={linkedResources.strategy
-                ? `${linkedResources.strategy.name} (${linkedResources.strategy.config?.primary?.provider || '?'}/${linkedResources.strategy.config?.primary?.model || '?'})`
-                : template.model_strategy_id}
-              href={template.model_strategy_id ? `/model-strategies/${template.model_strategy_id}` : null}
-            />
-            <LinkedRow icon={ShieldCheck} label="Policies" value={template.linked_policy_ids} />
-            {/* Knowledge — hydrated */}
-            <LinkedRow icon={BookOpen} label="Knowledge"
-              value={linkedResources.knowledge.length > 0
-                ? linkedResources.knowledge.map((k) => `${k.name} (${k.doc_count} items)`)
-                : template.linked_knowledge_collection_ids}
-            />
-            {/* Capabilities — hydrated */}
-            <LinkedRow icon={Wrench} label="Capabilities"
-              value={linkedResources.capabilities.length > 0
-                ? linkedResources.capabilities.map((c) => `${c.name} [${c.risk_level}]`)
-                : template.linked_capability_ids}
-            />
-            <LinkedRow icon={FileText} label="Prompts" value={template.linked_prompt_template_ids} />
-            <LinkedRow icon={Wrench} label="Capability tags" value={template.linked_capability_tags} />
-          </CardContent>
-        </Card>
+        <WorkflowLinkedResourcesSection
+          draft={draft}
+          resourceOptions={mergedWorkflowResources}
+          onChange={(patch) => setDraft((prev) => ({ ...prev, ...patch }))}
+          saveAction={{
+            label: savingLinks ? 'Saving linked resources...' : 'Save linked resources',
+            disabled: savingLinks,
+            onClick: async () => {
+              setSavingLinks(true);
+              try {
+                const payload = compileWorkflowDraftPayload(draft);
+                const res = await fetch(`/api/workflows/templates/${templateId}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    model_strategy_id: payload.model_strategy_id,
+                    linked_policy_ids: payload.linked_policy_ids,
+                    linked_knowledge_collection_ids: payload.linked_knowledge_collection_ids,
+                    linked_capability_ids: payload.linked_capability_ids,
+                    linked_prompt_template_ids: payload.linked_prompt_template_ids,
+                    linked_capability_tags: payload.linked_capability_tags,
+                  }),
+                });
+                if (res.ok) {
+                  await fetchTemplate();
+                }
+              } catch {
+                // noop
+              }
+              setSavingLinks(false);
+            },
+          }}
+        />
       </div>
 
-      {/* Strategy snapshot */}
       {template.model_strategy_snapshot && (
         <Card className="mt-4">
           <CardHeader title="Last launched strategy snapshot" icon={Cpu} />
@@ -397,28 +374,5 @@ export default function WorkflowTemplateDetailPage() {
         </Card>
       )}
     </PageLayout>
-  );
-}
-
-function LinkedRow({ icon: Icon, label, value, href }) {
-  const isArray = Array.isArray(value);
-  const empty = isArray ? value.length === 0 : !value;
-  const display = isArray ? value.join(', ') : value;
-  return (
-    <div className="flex items-start gap-2">
-      <Icon size={14} className="text-zinc-500 mt-0.5" />
-      <div className="flex-1 min-w-0">
-        <div className="text-[10px] text-zinc-500 uppercase tracking-wider">{label}</div>
-        {empty ? (
-          <div className="text-xs text-zinc-600">None linked</div>
-        ) : href ? (
-          <Link href={href} className="text-xs text-brand hover:text-brand/80 font-mono truncate block transition-colors">
-            {display}
-          </Link>
-        ) : (
-          <div className="text-xs text-zinc-300 font-mono truncate">{display}</div>
-        )}
-      </div>
-    </div>
   );
 }

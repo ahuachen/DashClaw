@@ -13,6 +13,24 @@ export function normalizeCollectionOptions(collections = []) {
   })).filter((option) => option.value);
 }
 
+export function normalizeModelStrategyOptions(strategies = []) {
+  return (Array.isArray(strategies) ? strategies : []).map((strategy) => ({
+    value: strategy.strategy_id || strategy.id,
+    label: strategy.name || strategy.strategy_id || strategy.id,
+    subtitle: `${strategy.config?.primary?.provider || 'unknown'} · ${strategy.config?.primary?.model || 'unknown model'}`,
+    raw: strategy,
+  })).filter((option) => option.value);
+}
+
+export function normalizePolicyOptions(policies = []) {
+  return (Array.isArray(policies) ? policies : []).map((policy) => ({
+    value: policy.id,
+    label: policy.name || policy.id,
+    subtitle: policy.policy_type || 'policy',
+    raw: policy,
+  })).filter((option) => option.value);
+}
+
 export function normalizeCapabilityOptions(capabilities = []) {
   return (Array.isArray(capabilities) ? capabilities : []).map((capability) => ({
     value: capability.capability_id || capability.id,
@@ -62,11 +80,27 @@ function findActivePromptContent(versions = []) {
 export async function loadWorkflowBuilderResources(fetchImpl = fetch) {
   const errors = [];
 
-  const [collectionsRes, capabilitiesRes, promptTemplatesRes] = await Promise.allSettled([
+  const [modelStrategiesRes, policiesRes, collectionsRes, capabilitiesRes, promptTemplatesRes] = await Promise.allSettled([
+    fetchImpl('/api/model-strategies'),
+    fetchImpl('/api/policies'),
     fetchImpl('/api/knowledge/collections?limit=100'),
     fetchImpl('/api/capabilities?limit=100'),
     fetchImpl('/api/prompts/templates'),
   ]);
+
+  const modelStrategies = modelStrategiesRes.status === 'fulfilled' && modelStrategiesRes.value.ok
+    ? (await modelStrategiesRes.value.json()).strategies || []
+    : [];
+  if (modelStrategiesRes.status === 'rejected' || (modelStrategiesRes.status === 'fulfilled' && !modelStrategiesRes.value.ok)) {
+    errors.push('model_strategies');
+  }
+
+  const policies = policiesRes.status === 'fulfilled' && policiesRes.value.ok
+    ? (await policiesRes.value.json()).policies || []
+    : [];
+  if (policiesRes.status === 'rejected' || (policiesRes.status === 'fulfilled' && !policiesRes.value.ok)) {
+    errors.push('policies');
+  }
 
   const collections = collectionsRes.status === 'fulfilled' && collectionsRes.value.ok
     ? (await collectionsRes.value.json()).collections || []
@@ -110,6 +144,8 @@ export async function loadWorkflowBuilderResources(fetchImpl = fetch) {
   );
 
   return {
+    modelStrategies: normalizeModelStrategyOptions(modelStrategies),
+    policies: normalizePolicyOptions(policies),
     knowledgeCollections: normalizeCollectionOptions(collections),
     capabilities: normalizeCapabilityOptions(capabilities),
     promptTemplates: normalizePromptTemplateOptions(promptTemplatesWithContent),
@@ -118,19 +154,29 @@ export async function loadWorkflowBuilderResources(fetchImpl = fetch) {
 }
 
 export function buildWorkflowResourceLookups({
+  modelStrategies = [],
+  policies = [],
   knowledgeCollections = [],
   capabilities = [],
   promptTemplates = [],
 } = {}) {
   return {
+    modelStrategies: Object.fromEntries(modelStrategies.map((option) => [option.value, option.label])),
+    policies: Object.fromEntries(policies.map((option) => [option.value, option.label])),
     knowledgeCollections: Object.fromEntries(knowledgeCollections.map((option) => [option.value, option.label])),
     capabilities: Object.fromEntries(capabilities.map((option) => [option.value, option.label])),
     promptTemplates: Object.fromEntries(promptTemplates.map((option) => [option.value, { label: option.label, content: option.content || '' }])),
   };
 }
 
-export function mergeWorkflowBuilderResourceOptions(resources, steps = []) {
-  const normalizedSteps = Array.isArray(steps) ? steps : [];
+export function mergeWorkflowBuilderResourceOptions(resources, workflowDraftOrSteps = []) {
+  const draft = Array.isArray(workflowDraftOrSteps) ? {} : (workflowDraftOrSteps || {});
+  const normalizedSteps = Array.isArray(workflowDraftOrSteps) ? workflowDraftOrSteps : (workflowDraftOrSteps?.steps || []);
+  const selectedModelStrategies = draft.model_strategy_id ? [draft.model_strategy_id] : [];
+  const selectedPolicies = Array.isArray(draft.linked_policy_ids) ? draft.linked_policy_ids : [];
+  const linkedCollections = Array.isArray(draft.linked_knowledge_collection_ids) ? draft.linked_knowledge_collection_ids : [];
+  const linkedCapabilities = Array.isArray(draft.linked_capability_ids) ? draft.linked_capability_ids : [];
+  const linkedPromptTemplates = Array.isArray(draft.linked_prompt_template_ids) ? draft.linked_prompt_template_ids : [];
   const selectedCollections = normalizedSteps
     .filter((step) => step?.type === 'knowledge_search')
     .map((step) => step?.config?.collection_id)
@@ -142,7 +188,10 @@ export function mergeWorkflowBuilderResourceOptions(resources, steps = []) {
 
   return {
     ...resources,
-    knowledgeCollections: mergeMissingOptions(resources.knowledgeCollections || [], selectedCollections, 'Knowledge collection'),
-    capabilities: mergeMissingOptions(resources.capabilities || [], selectedCapabilities, 'Capability'),
+    modelStrategies: mergeMissingOptions(resources.modelStrategies || [], selectedModelStrategies, 'Model strategy'),
+    policies: mergeMissingOptions(resources.policies || [], selectedPolicies, 'Policy'),
+    knowledgeCollections: mergeMissingOptions(resources.knowledgeCollections || [], [...linkedCollections, ...selectedCollections], 'Knowledge collection'),
+    capabilities: mergeMissingOptions(resources.capabilities || [], [...linkedCapabilities, ...selectedCapabilities], 'Capability'),
+    promptTemplates: mergeMissingOptions(resources.promptTemplates || [], linkedPromptTemplates, 'Prompt template'),
   };
 }

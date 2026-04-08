@@ -1,0 +1,122 @@
+'use client';
+
+import { useState } from 'react';
+
+const PROVIDER_DEFAULTS = {
+  openai: 'gpt-4o-mini',
+  anthropic: 'claude-3-5-haiku-latest',
+  groq: 'llama-3.1-8b-instant',
+  together: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+  perplexity: 'sonar',
+};
+
+const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
+const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
+
+export default function WorkflowAiDraftPanel({
+  loading = false,
+  error = null,
+  onGenerate,
+}) {
+  const [description, setDescription] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [provider, setProvider] = useState('openai');
+  const [model, setModel] = useState(PROVIDER_DEFAULTS.openai);
+  const [preferExistingResources, setPreferExistingResources] = useState(true);
+
+  return (
+    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 space-y-4">
+      <div>
+        <div className="text-sm font-medium text-white uppercase tracking-wider">Generate with AI</div>
+        <p className="mt-2 text-sm text-zinc-400">
+          Describe the workflow in plain English and DashClaw will draft the basics, linked resources, and executable steps into this editor. Your API key is used only for this request and is not saved.
+        </p>
+      </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="workflow-ai-description" className={labelClass}>Workflow request</label>
+        <textarea
+          id="workflow-ai-description"
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          rows={5}
+          className={inputClass}
+          placeholder="When a customer asks for a refund, search the refund knowledge base, summarize the policy, then send the answer to Slack for an operator to review."
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div>
+          <label htmlFor="workflow-ai-provider" className={labelClass}>Provider</label>
+          <select
+            id="workflow-ai-provider"
+            value={provider}
+            onChange={(event) => {
+              const nextProvider = event.target.value;
+              setProvider(nextProvider);
+              setModel(PROVIDER_DEFAULTS[nextProvider] || '');
+            }}
+            className={inputClass}
+          >
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="groq">Groq</option>
+            <option value="together">Together</option>
+            <option value="perplexity">Perplexity</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="workflow-ai-model" className={labelClass}>Model</label>
+          <input
+            id="workflow-ai-model"
+            type="text"
+            value={model}
+            onChange={(event) => setModel(event.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="workflow-ai-api-key" className={labelClass}>API key</label>
+          <input
+            id="workflow-ai-api-key"
+            type="password"
+            value={apiKey}
+            onChange={(event) => setApiKey(event.target.value)}
+            className={inputClass}
+            placeholder="Paste a request-scoped key"
+          />
+        </div>
+      </div>
+
+      <label className="flex items-center gap-3 text-sm text-zinc-300">
+        <input
+          type="checkbox"
+          checked={preferExistingResources}
+          onChange={(event) => setPreferExistingResources(event.target.checked)}
+        />
+        Prefer existing linked DashClaw resources when possible
+      </label>
+
+      <button
+        type="button"
+        onClick={() => onGenerate({
+          description,
+          apiKey,
+          provider,
+          model,
+          preferExistingResources,
+        })}
+        disabled={loading || !description.trim() || !apiKey.trim()}
+        className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand/90 disabled:opacity-50"
+      >
+        {loading ? 'Generating draft...' : 'Generate draft'}
+      </button>
+    </div>
+  );
+}
