@@ -106,17 +106,22 @@ export function sanitizeExecutableSteps(steps) {
 }
 
 export function buildWorkflowStepSummary(step) {
+  let resourceLookups = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!step || !step.type) return 'Unsupported workflow step';
 
   switch (step.type) {
     case 'knowledge_search': {
-      const collection = step.config?.collection_id || 'a collection';
+      const collection = resourceLookups.knowledgeCollections?.[step.config?.collection_id]
+        || step.config?.collection_id
+        || 'a collection';
       const query = step.config?.query || 'a query';
       const topK = normalizeNumber(step.config?.top_k, 5);
       return `Search ${collection} for "${query}" and return top ${topK} matches.`;
     }
     case 'capability_invoke': {
-      const capability = step.config?.capability_id || 'a capability';
+      const capability = resourceLookups.capabilities?.[step.config?.capability_id]
+        || step.config?.capability_id
+        || 'a capability';
       const bodyKeys = Object.keys(step.config?.body || {});
       if (bodyKeys.length === 0) {
         return `Invoke ${capability} with an empty payload.`;
@@ -133,6 +138,73 @@ export function buildWorkflowStepSummary(step) {
     default:
       return 'Unsupported workflow step';
   }
+}
+
+export function insertVariableToken(currentValue, token) {
+  if (!token) return currentValue || '';
+  if (!currentValue) return token;
+
+  const separator = String(currentValue).includes('\n') ? '\n' : ' ';
+  return `${currentValue}${separator}${token}`;
+}
+
+export function buildWorkflowVariableGroups(steps, currentStepIndex) {
+  const normalizedSteps = sanitizeExecutableSteps(steps);
+  const previousSteps = normalizedSteps.slice(0, currentStepIndex);
+
+  const previousStepOptions = previousSteps.flatMap((step) => {
+    const generic = {
+      label: `${step.name} output`,
+      token: `\${steps.${step.id}.output}`,
+    };
+
+    if (step.type === 'knowledge_search') {
+      return [
+        generic,
+        {
+          label: `${step.name} top chunk`,
+          token: `\${steps.${step.id}.output.chunks[0].content}`,
+        },
+        {
+          label: `${step.name} query`,
+          token: `\${steps.${step.id}.output.query}`,
+        },
+      ];
+    }
+
+    if (step.type === 'prompt') {
+      return [
+        generic,
+        {
+          label: `${step.name} text`,
+          token: `\${steps.${step.id}.output.text}`,
+        },
+      ];
+    }
+
+    return [generic];
+  });
+
+  const groups = [
+    {
+      label: 'Workflow inputs',
+      options: [
+        {
+          label: 'Workflow input variable',
+          token: '${variables.input_name}',
+        },
+      ],
+    },
+  ];
+
+  if (previousStepOptions.length > 0) {
+    groups.push({
+      label: 'Previous step outputs',
+      options: previousStepOptions,
+    });
+  }
+
+  return groups;
 }
 
 export function isLegacyWorkflowGraph(input) {

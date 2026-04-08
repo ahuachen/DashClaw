@@ -1,18 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent } from '../../components/ui/Card';
 import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
+import WorkflowReferenceHelp from '../components/WorkflowReferenceHelp.jsx';
 import { sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
+import { loadWorkflowBuilderResources } from '../lib/workflowBuilderResources.js';
 
 export default function NewWorkflowTemplatePage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [resourceError, setResourceError] = useState(false);
+  const [resources, setResources] = useState({
+    knowledgeCollections: [],
+    capabilities: [],
+    promptTemplates: [],
+    errors: [],
+  });
   const [form, setForm] = useState({
     name: '',
     slug: '',
@@ -21,6 +30,25 @@ export default function NewWorkflowTemplatePage() {
     status: 'draft',
   });
   const [steps, setSteps] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    loadWorkflowBuilderResources()
+      .then((nextResources) => {
+        if (!active) return;
+        setResources(nextResources);
+        setResourceError(nextResources.errors.length > 0);
+      })
+      .catch(() => {
+        if (!active) return;
+        setResourceError(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const update = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }));
 
@@ -155,7 +183,15 @@ export default function NewWorkflowTemplatePage() {
             <span className="text-xs text-zinc-500 ml-2">Build a real ordered sequence of executable workflow steps.</span>
           </div>
           <CardContent className="p-5 pt-0">
-            <WorkflowStepBuilder steps={steps} onChange={setSteps} />
+            <div className="space-y-4">
+              {resourceError && (
+                <div className="px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+                  Some workflow resources could not be loaded. You can still author the workflow, but some selectors may be incomplete.
+                </div>
+              )}
+              <WorkflowStepBuilder steps={steps} onChange={setSteps} resourceOptions={resources} />
+              <WorkflowReferenceHelp />
+            </div>
           </CardContent>
         </Card>
 

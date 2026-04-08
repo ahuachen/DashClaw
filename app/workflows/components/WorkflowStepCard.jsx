@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Copy, MoveDown, MoveUp, Trash2 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
-import { buildWorkflowStepSummary, WORKFLOW_STEP_TYPES } from '../lib/workflowStepFormModel.js';
+import WorkflowVariableInsertButton from './WorkflowVariableInsertButton.jsx';
+import { buildWorkflowStepSummary, insertVariableToken, WORKFLOW_STEP_TYPES } from '../lib/workflowStepFormModel.js';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
 const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
@@ -35,6 +36,9 @@ export default function WorkflowStepCard({
   step,
   index,
   total,
+  resourceOptions,
+  resourceLookups,
+  variableGroups,
   onChange,
   onDuplicate,
   onDelete,
@@ -53,7 +57,10 @@ export default function WorkflowStepCard({
   const maxTokensId = makeFieldId(step.id, 'max-tokens');
   const temperatureId = makeFieldId(step.id, 'temperature');
 
-  const summary = useMemo(() => buildWorkflowStepSummary(step), [step]);
+  const summary = useMemo(() => buildWorkflowStepSummary(step, resourceLookups), [resourceLookups, step]);
+  const collections = resourceOptions?.knowledgeCollections || [];
+  const capabilities = resourceOptions?.capabilities || [];
+  const promptTemplates = resourceOptions?.promptTemplates || [];
 
   function updateStep(patch) {
     onChange({
@@ -74,6 +81,14 @@ export default function WorkflowStepCard({
   function updateBodyRow(nextRows) {
     setBodyRows(nextRows);
     updateConfig({ body: bodyRowsToObject(nextRows) });
+  }
+
+  function appendTokenToConfigField(field) {
+    return (token) => {
+      updateConfig({
+        [field]: insertVariableToken(step.config?.[field] || '', token),
+      });
+    };
   }
 
   return (
@@ -123,14 +138,22 @@ export default function WorkflowStepCard({
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor={collectionId} className={labelClass}>Knowledge collection</label>
-                <input
+                <select
                   id={collectionId}
-                  type="text"
                   value={step.config.collection_id}
                   onChange={(event) => updateConfig({ collection_id: event.target.value })}
                   className={inputClass}
-                  placeholder="kn_customer_faq"
-                />
+                >
+                  <option value="">Select a knowledge collection</option>
+                  {collections.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.unavailable ? `${option.label} (Unavailable)` : option.label}
+                    </option>
+                  ))}
+                </select>
+                {step.config.collection_id && resourceLookups?.knowledgeCollections?.[step.config.collection_id] && (
+                  <p className="mt-2 text-xs text-zinc-500">{resourceLookups.knowledgeCollections[step.config.collection_id]}</p>
+                )}
               </div>
               <div>
                 <label htmlFor={topResultsId} className={labelClass}>Top results</label>
@@ -144,7 +167,10 @@ export default function WorkflowStepCard({
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor={searchQueryId} className={labelClass}>Search query</label>
+                <div className="flex items-center justify-between gap-3 mb-1.5">
+                  <label htmlFor={searchQueryId} className={labelClass}>Search query</label>
+                  <WorkflowVariableInsertButton variableGroups={variableGroups} onInsert={appendTokenToConfigField('query')} />
+                </div>
                 <input
                   id={searchQueryId}
                   type="text"
@@ -161,14 +187,22 @@ export default function WorkflowStepCard({
             <div className="space-y-4">
               <div>
                 <label htmlFor={capabilityId} className={labelClass}>Capability</label>
-                <input
+                <select
                   id={capabilityId}
-                  type="text"
                   value={step.config.capability_id}
                   onChange={(event) => updateConfig({ capability_id: event.target.value })}
                   className={inputClass}
-                  placeholder="cap_slack_notify"
-                />
+                >
+                  <option value="">Select a capability</option>
+                  {capabilities.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.unavailable ? `${option.label} (Unavailable)` : option.label}
+                    </option>
+                  ))}
+                </select>
+                {step.config.capability_id && resourceLookups?.capabilities?.[step.config.capability_id] && (
+                  <p className="mt-2 text-xs text-zinc-500">{resourceLookups.capabilities[step.config.capability_id]}</p>
+                )}
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -208,6 +242,16 @@ export default function WorkflowStepCard({
                         className={inputClass}
                         placeholder="field value"
                       />
+                      <div className="sm:col-span-2">
+                        <WorkflowVariableInsertButton
+                          variableGroups={variableGroups}
+                          onInsert={(token) => {
+                            const nextRows = [...bodyRows];
+                            nextRows[rowIndex] = { ...row, value: insertVariableToken(row.value || '', token) };
+                            updateBodyRow(nextRows);
+                          }}
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={() => updateBodyRow(bodyRows.filter((_, candidateIndex) => candidateIndex !== rowIndex))}
@@ -225,7 +269,30 @@ export default function WorkflowStepCard({
           {step.type === 'prompt' && (
             <div className="space-y-4">
               <div>
-                <label htmlFor={promptTemplateId} className={labelClass}>Prompt template</label>
+                <label className={labelClass}>Load prompt template</label>
+                <select
+                  value=""
+                  onChange={(event) => {
+                    const selected = promptTemplates.find((option) => option.value === event.target.value);
+                    if (!selected) return;
+                    updateConfig({ prompt_template: selected.content || step.config.prompt_template });
+                    event.target.value = '';
+                  }}
+                  className={inputClass}
+                >
+                  <option value="">Choose a prompt template to load</option>
+                  {promptTemplates.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-1.5">
+                  <label htmlFor={promptTemplateId} className={labelClass}>Prompt template</label>
+                  <WorkflowVariableInsertButton variableGroups={variableGroups} onInsert={appendTokenToConfigField('prompt_template')} />
+                </div>
                 <textarea
                   id={promptTemplateId}
                   value={step.config.prompt_template}
@@ -236,7 +303,10 @@ export default function WorkflowStepCard({
                 />
               </div>
               <div>
-                <label htmlFor={systemPromptId} className={labelClass}>System prompt</label>
+                <div className="flex items-center justify-between gap-3 mb-1.5">
+                  <label htmlFor={systemPromptId} className={labelClass}>System prompt</label>
+                  <WorkflowVariableInsertButton variableGroups={variableGroups} onInsert={appendTokenToConfigField('system_prompt')} />
+                </div>
                 <textarea
                   id={systemPromptId}
                   value={step.config.system_prompt}

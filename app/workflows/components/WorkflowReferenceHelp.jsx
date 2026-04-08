@@ -1,0 +1,22 @@
+'use client';
+
+export default function WorkflowReferenceHelp() {
+  return (
+    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-4 space-y-3">
+      <div className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Reference help</div>
+      <p className="text-sm text-zinc-400">
+        Use the variable inserters to pull workflow inputs and outputs from earlier steps into later search queries, capability payloads, and prompts.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+          <div className="text-[10px] uppercase tracking-wider text-zinc-500">Workflow input</div>
+          <div className="mt-1 text-xs font-mono text-zinc-200">${'{variables.input_name}'}</div>
+        </div>
+        <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+          <div className="text-[10px] uppercase tracking-wider text-zinc-500">Previous step output</div>
+          <div className="mt-1 text-xs font-mono text-zinc-200">${'{steps.step_1.output.text}'}</div>
+        </div>
+      </div>
+    </div>
+  );
+}

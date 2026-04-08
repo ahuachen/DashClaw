@@ -11,7 +11,9 @@ import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
 import WorkflowStepLegacyNotice from '../components/WorkflowStepLegacyNotice.jsx';
+import WorkflowReferenceHelp from '../components/WorkflowReferenceHelp.jsx';
 import { normalizeWorkflowStepData, sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
+import { loadWorkflowBuilderResources, mergeWorkflowBuilderResourceOptions } from '../lib/workflowBuilderResources.js';
 
 const statusVariant = {
   draft: 'default',
@@ -31,6 +33,12 @@ export default function WorkflowTemplateDetailPage() {
   const [stepsView, setStepsView] = useState('builder');
   const [pendingSteps, setPendingSteps] = useState(null);
   const [savingSteps, setSavingSteps] = useState(false);
+  const [workflowResources, setWorkflowResources] = useState({
+    knowledgeCollections: [],
+    capabilities: [],
+    promptTemplates: [],
+    errors: [],
+  });
   const [linkedResources, setLinkedResources] = useState({
     strategy: null,
     knowledge: [],
@@ -92,6 +100,30 @@ export default function WorkflowTemplateDetailPage() {
   useEffect(() => {
     if (templateId) fetchTemplate();
   }, [templateId, fetchTemplate]);
+
+  useEffect(() => {
+    let active = true;
+    if (!templateId) return undefined;
+
+    loadWorkflowBuilderResources()
+      .then((resources) => {
+        if (!active) return;
+        setWorkflowResources(resources);
+      })
+      .catch(() => {
+        if (!active) return;
+        setWorkflowResources({
+          knowledgeCollections: [],
+          capabilities: [],
+          promptTemplates: [],
+          errors: ['load_failed'],
+        });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [templateId]);
 
   const handleLaunch = async () => {
     setLaunching(true);
@@ -155,6 +187,7 @@ export default function WorkflowTemplateDetailPage() {
   }
 
   const stepData = normalizeWorkflowStepData(pendingSteps || template.steps);
+  const mergedWorkflowResources = mergeWorkflowBuilderResourceOptions(workflowResources, stepData.steps);
   const visibleStepCount = stepData.mode === 'builder'
     ? stepData.steps.length
     : (stepData.legacyFallback?.nodeCount || 0);
@@ -286,12 +319,21 @@ export default function WorkflowTemplateDetailPage() {
           )}
         </div>
         <CardContent className="p-5 pt-0">
+          {workflowResources.errors?.length > 0 && stepData.mode === 'builder' && (
+            <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+              Some workflow resources could not be loaded. Saved values are preserved, but some selectors may be incomplete.
+            </div>
+          )}
           {stepsView === 'builder' ? (
             stepData.mode === 'builder' ? (
-              <WorkflowStepBuilder
-                steps={stepData.steps}
-                onChange={(newSteps) => setPendingSteps(newSteps)}
-              />
+              <div className="space-y-4">
+                <WorkflowStepBuilder
+                  steps={stepData.steps}
+                  onChange={(newSteps) => setPendingSteps(newSteps)}
+                  resourceOptions={mergedWorkflowResources}
+                />
+                <WorkflowReferenceHelp />
+              </div>
             ) : (
               <WorkflowStepLegacyNotice legacyFallback={stepData.legacyFallback} />
             )

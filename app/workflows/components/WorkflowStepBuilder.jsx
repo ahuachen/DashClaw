@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import WorkflowStepCard from './WorkflowStepCard.jsx';
 import WorkflowStepTypePicker from './WorkflowStepTypePicker.jsx';
-import { createDefaultWorkflowStep, sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
+import { buildWorkflowVariableGroups, createDefaultWorkflowStep, sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
+import { buildWorkflowResourceLookups } from '../lib/workflowBuilderResources.js';
 
-export default function WorkflowStepBuilder({ steps, onChange }) {
+export default function WorkflowStepBuilder({ steps, onChange, resourceOptions }) {
   const normalizedSteps = sanitizeExecutableSteps(steps);
   const hasSteps = normalizedSteps.length > 0;
   const [showEmptyStatePicker, setShowEmptyStatePicker] = useState(false);
+  const resourceLookups = buildWorkflowResourceLookups(resourceOptions);
 
   function updateSteps(nextSteps) {
     onChange(sanitizeExecutableSteps(nextSteps));
@@ -87,6 +89,9 @@ export default function WorkflowStepBuilder({ steps, onChange }) {
                 step={step}
                 index={index}
                 total={normalizedSteps.length}
+                resourceOptions={resourceOptions}
+                resourceLookups={resourceLookups}
+                variableGroups={buildWorkflowVariableGroups(normalizedSteps, index)}
                 onChange={(nextStep) => replaceStep(index, nextStep)}
                 onDuplicate={() => duplicateStep(index)}
                 onDelete={() => deleteStep(index)}
