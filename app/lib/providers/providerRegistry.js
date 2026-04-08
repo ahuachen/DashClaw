@@ -4,6 +4,7 @@ const PROVIDER_REGISTRY = Object.freeze({
     label: 'OpenAI',
     apiStyle: 'openai_chat_completions',
     baseUrl: 'https://api.openai.com/v1/chat/completions',
+    credentialKey: 'OPENAI_API_KEY',
     supportedUseCases: ['workflow_drafting', 'model_strategies', 'policy_generation', 'semantic_guard', 'predictive_risk'],
     defaults: {
       workflow_drafting: 'gpt-5.4',
@@ -26,6 +27,7 @@ const PROVIDER_REGISTRY = Object.freeze({
     label: 'Anthropic',
     apiStyle: 'anthropic_messages',
     baseUrl: 'https://api.anthropic.com/v1/messages',
+    credentialKey: 'ANTHROPIC_API_KEY',
     supportedUseCases: ['workflow_drafting', 'model_strategies', 'policy_generation', 'predictive_risk'],
     defaults: {
       workflow_drafting: 'claude-sonnet-4-6',
@@ -48,6 +50,7 @@ const PROVIDER_REGISTRY = Object.freeze({
     label: 'Groq',
     apiStyle: 'openai_compatible_chat',
     baseUrl: 'https://api.groq.com/openai/v1/chat/completions',
+    credentialKey: 'GROQ_API_KEY',
     supportedUseCases: ['workflow_drafting', 'model_strategies', 'predictive_risk'],
     defaults: {
       workflow_drafting: 'openai/gpt-oss-120b',
@@ -67,6 +70,7 @@ const PROVIDER_REGISTRY = Object.freeze({
     label: 'Together',
     apiStyle: 'openai_compatible_chat',
     baseUrl: 'https://api.together.xyz/v1/chat/completions',
+    credentialKey: 'TOGETHER_API_KEY',
     supportedUseCases: ['workflow_drafting', 'model_strategies', 'predictive_risk'],
     defaults: {
       workflow_drafting: 'moonshotai/Kimi-K2.5',
@@ -87,6 +91,7 @@ const PROVIDER_REGISTRY = Object.freeze({
     label: 'Perplexity',
     apiStyle: 'openai_compatible_chat',
     baseUrl: 'https://api.perplexity.ai/chat/completions',
+    credentialKey: 'PERPLEXITY_API_KEY',
     supportedUseCases: ['workflow_drafting', 'model_strategies', 'predictive_risk'],
     defaults: {
       workflow_drafting: 'sonar',
@@ -158,4 +163,12 @@ export function getModelLabel(provider, model) {
 
 export function getProviderApiStyle(provider) {
   return PROVIDER_REGISTRY[provider]?.apiStyle || null;
+}
+
+export function getProviderBaseUrl(provider) {
+  return PROVIDER_REGISTRY[provider]?.baseUrl || null;
+}
+
+export function getProviderCredentialKey(provider) {
+  return PROVIDER_REGISTRY[provider]?.credentialKey || null;
 }

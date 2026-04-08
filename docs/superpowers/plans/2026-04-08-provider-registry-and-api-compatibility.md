@@ -409,7 +409,22 @@ git add docs/providers/provider-doc-audit.md
 git commit -m "docs: add provider registry audit ledger"
 ```
 
-### Task 9: Final repo verification
+### Task 9: Converge backend provider execution behind registry (Completed 2026-04-08)
+
+**Files:**
+- Modify: `app/lib/providers/providerRegistry.js`
+- Modify: `app/lib/providers.js`
+- Modify: `__tests__/unit/provider-registry.test.js`
+
+- [x] **Step 1: Add `credentialKey` to every provider registry entry**
+- [x] **Step 2: Add `getProviderBaseUrl()` and `getProviderCredentialKey()` helpers**
+- [x] **Step 3: Replace `PROVIDER_KEY_MAP` in providers.js with registry lookup**
+- [x] **Step 4: Replace 5 per-provider handlers with 2 protocol handlers dispatched by `apiStyle`**
+- [x] **Step 5: Pass all 47 tests across 9 test files, docs:check, contracts:check, and build**
+
+---
+
+### Task 10: Final repo verification
 
 **Files:**
 - Verify all touched files from this plan

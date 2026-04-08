@@ -3,25 +3,22 @@
  * Resolves BYOK credentials from org settings, calls provider APIs via raw fetch,
  * handles fallback chains, enforces budget caps, and returns normalized responses.
  *
- * Supported providers: openai, anthropic, groq, together, perplexity.
- * Add new providers by extending PROVIDER_HANDLERS.
+ * Provider metadata (URLs, API styles, credential keys) comes from the canonical
+ * provider registry. Add new providers there; this module only owns protocol handlers.
  */
 
 import { getSettings } from './repositories/settings.repository.js';
 import { decrypt } from './encryption.js';
 import { estimateCost } from './billing.js';
 import { getModelPricing } from './repositories/settings.repository.js';
+import {
+  getProviderApiStyle,
+  getProviderBaseUrl,
+  getProviderCredentialKey,
+  getProviderLabel,
+} from './providers/providerRegistry.js';
 
 const PROVIDER_TIMEOUT = 30_000;
-
-// Map provider name → settings key name for BYOK credential lookup.
-const PROVIDER_KEY_MAP = {
-  openai: 'OPENAI_API_KEY',
-  anthropic: 'ANTHROPIC_API_KEY',
-  groq: 'GROQ_API_KEY',
-  together: 'TOGETHER_API_KEY',
-  perplexity: 'PERPLEXITY_API_KEY',
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Credential loading (same pattern as integration-health.js)
@@ -42,7 +39,7 @@ async function loadOrgCredentials(sql, orgId) {
 }
 
 function getProviderKey(creds, provider) {
-  const keyName = PROVIDER_KEY_MAP[provider];
+  const keyName = getProviderCredentialKey(provider);
   if (!keyName) return null;
   return creds[keyName] || null;
 }
@@ -61,167 +58,88 @@ async function providerFetch(url, options) {
   }
 }
 
-const PROVIDER_HANDLERS = {
-  openai: async (apiKey, model, messages, options) => {
-    const res = await providerFetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: options.max_tokens ?? 1024,
-        temperature: options.temperature ?? 0.7,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`OpenAI ${res.status}: ${body.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    return {
-      content: choice?.message?.content || '',
-      usage: {
-        input_tokens: data.usage?.prompt_tokens || 0,
-        output_tokens: data.usage?.completion_tokens || 0,
-      },
-      raw_model: data.model || model,
-    };
-  },
+// ─────────────────────────────────────────────────────────────────────────────
+// Protocol handlers — keyed by apiStyle from the provider registry.
+// Adding a new provider with an existing apiStyle requires zero changes here.
+// ─────────────────────────────────────────────────────────────────────────────
 
-  anthropic: async (apiKey, model, messages, options) => {
-    // Anthropic requires system message as a top-level field, not in messages array.
-    const systemParts = messages.filter((m) => m.role === 'system');
-    const nonSystem = messages.filter((m) => m.role !== 'system');
-    const systemText = systemParts.map((m) => m.content).join('\n') || undefined;
+async function openaiStyleCall(baseUrl, label, apiKey, model, messages, options) {
+  const res = await providerFetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      max_tokens: options.max_tokens ?? 1024,
+      temperature: options.temperature ?? 0.7,
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`${label} ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  const choice = data.choices?.[0];
+  return {
+    content: choice?.message?.content || '',
+    usage: {
+      input_tokens: data.usage?.prompt_tokens || 0,
+      output_tokens: data.usage?.completion_tokens || 0,
+    },
+    raw_model: data.model || model,
+  };
+}
 
-    const res = await providerFetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages: nonSystem,
-        max_tokens: options.max_tokens ?? 1024,
-        temperature: options.temperature ?? 0.7,
-        ...(systemText ? { system: systemText } : {}),
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`Anthropic ${res.status}: ${body.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    const textBlock = data.content?.find((b) => b.type === 'text');
-    return {
-      content: textBlock?.text || '',
-      usage: {
-        input_tokens: data.usage?.input_tokens || 0,
-        output_tokens: data.usage?.output_tokens || 0,
-      },
-      raw_model: data.model || model,
-    };
-  },
+async function anthropicStyleCall(baseUrl, label, apiKey, model, messages, options) {
+  const systemParts = messages.filter((m) => m.role === 'system');
+  const nonSystem = messages.filter((m) => m.role !== 'system');
+  const systemText = systemParts.map((m) => m.content).join('\n') || undefined;
 
-  groq: async (apiKey, model, messages, options) => {
-    // Groq uses OpenAI-compatible API.
-    const res = await providerFetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: options.max_tokens ?? 1024,
-        temperature: options.temperature ?? 0.7,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`Groq ${res.status}: ${body.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    return {
-      content: choice?.message?.content || '',
-      usage: {
-        input_tokens: data.usage?.prompt_tokens || 0,
-        output_tokens: data.usage?.completion_tokens || 0,
-      },
-      raw_model: data.model || model,
-    };
-  },
+  const res = await providerFetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages: nonSystem,
+      max_tokens: options.max_tokens ?? 1024,
+      temperature: options.temperature ?? 0.7,
+      ...(systemText ? { system: systemText } : {}),
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`${label} ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  const textBlock = data.content?.find((b) => b.type === 'text');
+  return {
+    content: textBlock?.text || '',
+    usage: {
+      input_tokens: data.usage?.input_tokens || 0,
+      output_tokens: data.usage?.output_tokens || 0,
+    },
+    raw_model: data.model || model,
+  };
+}
 
-  together: async (apiKey, model, messages, options) => {
-    // Together.ai uses OpenAI-compatible API.
-    const res = await providerFetch('https://api.together.xyz/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: options.max_tokens ?? 1024,
-        temperature: options.temperature ?? 0.7,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`Together ${res.status}: ${body.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    return {
-      content: choice?.message?.content || '',
-      usage: {
-        input_tokens: data.usage?.prompt_tokens || 0,
-        output_tokens: data.usage?.completion_tokens || 0,
-      },
-      raw_model: data.model || model,
-    };
-  },
-
-  perplexity: async (apiKey, model, messages, options) => {
-    // Perplexity uses OpenAI-compatible API.
-    const res = await providerFetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        max_tokens: options.max_tokens ?? 1024,
-        temperature: options.temperature ?? 0.7,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`Perplexity ${res.status}: ${body.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    return {
-      content: choice?.message?.content || '',
-      usage: {
-        input_tokens: data.usage?.prompt_tokens || 0,
-        output_tokens: data.usage?.completion_tokens || 0,
-      },
-      raw_model: data.model || model,
-    };
-  },
+const API_STYLE_HANDLERS = {
+  openai_chat_completions: openaiStyleCall,
+  openai_compatible_chat: openaiStyleCall,
+  anthropic_messages: anthropicStyleCall,
 };
+
+function getProviderHandler(provider) {
+  const apiStyle = getProviderApiStyle(provider);
+  if (!apiStyle) return null;
+  return API_STYLE_HANDLERS[apiStyle] || null;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Strategy resolution
@@ -300,12 +218,14 @@ export async function executeCompletion(sql, orgId, strategyConfig, messages, op
 
   for (let i = 0; i < chain.length; i++) {
     const { provider, model } = chain[i];
-    const handler = PROVIDER_HANDLERS[provider];
+    const handler = getProviderHandler(provider);
     if (!handler) {
       errors.push({ provider, model, error: `Unsupported provider: ${provider}` });
       continue;
     }
 
+    const baseUrl = getProviderBaseUrl(provider);
+    const label = getProviderLabel(provider);
     const apiKey = getProviderKey(creds, provider);
     if (!apiKey) {
       errors.push({ provider, model, error: `No API key configured for ${provider}` });
@@ -315,7 +235,7 @@ export async function executeCompletion(sql, orgId, strategyConfig, messages, op
     // Retry loop for this provider
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const result = await handler(apiKey, model, messages, options);
+        const result = await handler(baseUrl, label, apiKey, model, messages, options);
 
         // Budget enforcement
         const cost = estimateCost(

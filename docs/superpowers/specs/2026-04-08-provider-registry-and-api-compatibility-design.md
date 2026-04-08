@@ -222,6 +222,19 @@ Potential future command:
 
 This should validate repository consistency, not scrape the internet during CI.
 
+## Wave 4: Backend Execution Convergence (Completed 2026-04-08)
+
+The provider execution module (`app/lib/providers.js`) was converged behind the canonical registry:
+
+- `PROVIDER_KEY_MAP` removed — credential key names now come from `credentialKey` in each registry entry via `getProviderCredentialKey()`.
+- 5 copy-pasted per-provider handlers replaced with 2 protocol handlers (`openaiStyleCall`, `anthropicStyleCall`) dispatched by `apiStyle` from the registry.
+- Endpoint URLs now come from `getProviderBaseUrl()` instead of being hardcoded per handler.
+- Error message labels come from `getProviderLabel()` instead of hardcoded strings.
+- Adding a new provider with an existing `apiStyle` requires zero changes to `providers.js` — only a registry entry.
+
+New registry fields added: `credentialKey` on every provider entry.
+New registry helpers added: `getProviderBaseUrl()`, `getProviderCredentialKey()`.
+
 ## Non-Goals
 
 This design does not attempt to:

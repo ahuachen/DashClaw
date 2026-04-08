@@ -3,6 +3,8 @@ import {
   getDefaultProviderModel,
   getModelLabel,
   getProviderApiStyle,
+  getProviderBaseUrl,
+  getProviderCredentialKey,
   getProviderModelOptions,
   getProviderOptions,
   isSupportedProviderModel,
@@ -38,5 +40,30 @@ describe('providerRegistry', () => {
   it('returns labels and api compatibility metadata', () => {
     expect(getModelLabel('anthropic', 'claude-sonnet-4-6')).toBe('Claude Sonnet 4.6');
     expect(getProviderApiStyle('anthropic')).toBe('anthropic_messages');
+  });
+
+  it('returns base URLs for each provider', () => {
+    expect(getProviderBaseUrl('openai')).toBe('https://api.openai.com/v1/chat/completions');
+    expect(getProviderBaseUrl('anthropic')).toBe('https://api.anthropic.com/v1/messages');
+    expect(getProviderBaseUrl('groq')).toBe('https://api.groq.com/openai/v1/chat/completions');
+    expect(getProviderBaseUrl('unknown')).toBeNull();
+  });
+
+  it('returns credential key names for each provider', () => {
+    expect(getProviderCredentialKey('openai')).toBe('OPENAI_API_KEY');
+    expect(getProviderCredentialKey('anthropic')).toBe('ANTHROPIC_API_KEY');
+    expect(getProviderCredentialKey('groq')).toBe('GROQ_API_KEY');
+    expect(getProviderCredentialKey('together')).toBe('TOGETHER_API_KEY');
+    expect(getProviderCredentialKey('perplexity')).toBe('PERPLEXITY_API_KEY');
+    expect(getProviderCredentialKey('unknown')).toBeNull();
+  });
+
+  it('every provider has credentialKey, baseUrl, and apiStyle', () => {
+    const providers = getProviderOptions().map((p) => p.value);
+    for (const id of providers) {
+      expect(getProviderCredentialKey(id)).toBeTruthy();
+      expect(getProviderBaseUrl(id)).toBeTruthy();
+      expect(getProviderApiStyle(id)).toBeTruthy();
+    }
   });
 });
