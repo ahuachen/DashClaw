@@ -10,7 +10,7 @@ import { getActivePolicies } from '../../../lib/repositories/guardrails.reposito
 import { listCollections } from '../../../lib/repositories/knowledge.repository.js';
 import { listCapabilities } from '../../../lib/repositories/capabilities.repository.js';
 import { listTemplates } from '../../../lib/prompt.js';
-import { getDefaultProviderModel, PROVIDER_MODEL_OPTIONS } from '../../../workflows/lib/workflowAiModelCatalog.js';
+import { getDefaultProviderModel, isSupportedProviderModel, PROVIDER_MODEL_OPTIONS } from '../../../workflows/lib/workflowAiModelCatalog.js';
 
 const MAX_DESCRIPTION_LENGTH = 4000;
 
@@ -240,6 +240,9 @@ export async function POST(request) {
     }
     if (!Object.keys(PROVIDER_MODEL_OPTIONS).includes(provider)) {
       return NextResponse.json({ error: 'provider is not supported for workflow draft generation' }, { status: 400 });
+    }
+    if (!isSupportedProviderModel(provider, model)) {
+      return NextResponse.json({ error: 'model is not supported for the selected provider' }, { status: 400 });
     }
 
     const [
