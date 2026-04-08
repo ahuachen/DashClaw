@@ -10,15 +10,9 @@ import { getActivePolicies } from '../../../lib/repositories/guardrails.reposito
 import { listCollections } from '../../../lib/repositories/knowledge.repository.js';
 import { listCapabilities } from '../../../lib/repositories/capabilities.repository.js';
 import { listTemplates } from '../../../lib/prompt.js';
+import { getDefaultProviderModel, PROVIDER_MODEL_OPTIONS } from '../../../workflows/lib/workflowAiModelCatalog.js';
 
 const MAX_DESCRIPTION_LENGTH = 4000;
-const PROVIDER_DEFAULTS = {
-  openai: 'gpt-4o-mini',
-  anthropic: 'claude-3-5-haiku-latest',
-  groq: 'llama-3.1-8b-instant',
-  together: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-  perplexity: 'sonar',
-};
 
 function trimString(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -232,7 +226,7 @@ export async function POST(request) {
     const description = trimString(body.description);
     const apiKey = trimString(body.api_key);
     const provider = trimString(body.provider) || 'openai';
-    const model = trimString(body.model) || PROVIDER_DEFAULTS[provider] || PROVIDER_DEFAULTS.openai;
+    const model = trimString(body.model) || getDefaultProviderModel(provider) || getDefaultProviderModel('openai');
     const preferExistingResources = body.prefer_existing_resources !== false;
 
     if (!description) {
@@ -244,7 +238,7 @@ export async function POST(request) {
     if (!apiKey) {
       return NextResponse.json({ error: 'api_key is required' }, { status: 400 });
     }
-    if (!Object.keys(PROVIDER_DEFAULTS).includes(provider)) {
+    if (!Object.keys(PROVIDER_MODEL_OPTIONS).includes(provider)) {
       return NextResponse.json({ error: 'provider is not supported for workflow draft generation' }, { status: 400 });
     }
 

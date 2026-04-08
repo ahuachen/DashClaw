@@ -1,14 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-const PROVIDER_DEFAULTS = {
-  openai: 'gpt-4o-mini',
-  anthropic: 'claude-3-5-haiku-latest',
-  groq: 'llama-3.1-8b-instant',
-  together: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
-  perplexity: 'sonar',
-};
+import { getDefaultProviderModel, PROVIDER_MODEL_OPTIONS } from '../lib/workflowAiModelCatalog.js';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
 const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
@@ -21,8 +14,9 @@ export default function WorkflowAiDraftPanel({
   const [description, setDescription] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [provider, setProvider] = useState('openai');
-  const [model, setModel] = useState(PROVIDER_DEFAULTS.openai);
+  const [model, setModel] = useState(getDefaultProviderModel('openai'));
   const [preferExistingResources, setPreferExistingResources] = useState(true);
+  const modelOptions = PROVIDER_MODEL_OPTIONS[provider] || [];
 
   return (
     <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 space-y-4">
@@ -60,7 +54,7 @@ export default function WorkflowAiDraftPanel({
             onChange={(event) => {
               const nextProvider = event.target.value;
               setProvider(nextProvider);
-              setModel(PROVIDER_DEFAULTS[nextProvider] || '');
+              setModel(getDefaultProviderModel(nextProvider));
             }}
             className={inputClass}
           >
@@ -73,13 +67,18 @@ export default function WorkflowAiDraftPanel({
         </div>
         <div>
           <label htmlFor="workflow-ai-model" className={labelClass}>Model</label>
-          <input
+          <select
             id="workflow-ai-model"
-            type="text"
             value={model}
             onChange={(event) => setModel(event.target.value)}
             className={inputClass}
-          />
+          >
+            {modelOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="workflow-ai-api-key" className={labelClass}>API key</label>

@@ -29,6 +29,9 @@ class RecordingDashClaw(DashClaw):
             return {"action": {"status": "running", "approved_by": "operator"}}
         return {"ok": True}
 
+    def _connect_sse(self, action_id, timeout):
+        return None
+
 
 def normalize_call(call):
     parsed = urllib.parse.urlsplit(call["path"])

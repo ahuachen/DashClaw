@@ -408,6 +408,32 @@ class DashClaw:
 
         return None
 
+    def _evaluate_wait_for_approval_action(self, action_id, res, was_pending=False):
+        action = res.get("action", {}) if isinstance(res, dict) else {}
+
+        if action.get("status") == "pending_approval":
+            was_pending = True
+
+        if action.get("approved_by"):
+            print(f"[DashClaw] Action {action_id} approved by operator: {action.get('approved_by')}")
+            return res, was_pending
+
+        if action.get("status") in ["failed", "cancelled"]:
+            raise ApprovalDeniedError(
+                action.get("error_message") or "Operator denied the action.",
+                decision=action.get("status")
+            )
+
+        if was_pending and action.get("status") != "pending_approval":
+            raise DashClawError(
+                f"Action {action_id} left pending_approval state without explicit approval metadata (Status: {action.get('status')})"
+            )
+
+        if not was_pending and action.get("status") == "running":
+            return res, was_pending
+
+        return None, was_pending
+
     def wait_for_approval(self, action_id, timeout=300, interval=5):
         """Wait for human approval. Uses SSE for instant notification, falls back to polling."""
         start_time = time.time()
@@ -430,34 +456,20 @@ class DashClaw:
         except Exception:
             pass  # SSE failed — fall through to polling
 
-        # Polling fallback
         was_pending = False
+        res = self.get_action(action_id)
+        resolved, was_pending = self._evaluate_wait_for_approval_action(action_id, res, was_pending)
+        if resolved is not None:
+            return resolved
+
         while (time.time() - start_time) < timeout:
+            if interval > 0:
+                time.sleep(interval)
+
             res = self.get_action(action_id)
-            action = res.get("action", {})
-
-            if action.get("status") == "pending_approval":
-                was_pending = True
-
-            if action.get("approved_by"):
-                print(f"[DashClaw] Action {action_id} approved by operator: {action.get('approved_by')}")
-                return res
-
-            if action.get("status") in ["failed", "cancelled"]:
-                raise ApprovalDeniedError(
-                    action.get("error_message") or "Operator denied the action.",
-                    decision=action.get("status")
-                )
-
-            if was_pending and action.get("status") != "pending_approval":
-                raise DashClawError(
-                    f"Action {action_id} left pending_approval state without explicit approval metadata (Status: {action.get('status')})"
-                )
-
-            if not was_pending and action.get("status") == "running":
-                return res
-
-            time.sleep(interval)
+            resolved, was_pending = self._evaluate_wait_for_approval_action(action_id, res, was_pending)
+            if resolved is not None:
+                return resolved
 
         raise TimeoutError(f"[DashClaw] Timed out waiting for approval of action {action_id}")
 
