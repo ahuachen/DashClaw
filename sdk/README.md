@@ -571,12 +571,15 @@ const result = await caps.invoke('cap_123', {
   query: 'What is x402?'
 });
 console.log(result.governed, result.action_id);
+// When retry_policy is configured on the capability, the response includes retry_metadata:
+// result.retry_metadata → { total_attempts, retried, attempts: [...] }
 
-// Run a non-production validation call
+// Run a non-production validation call (bypasses circuit breaker)
 const testRun = await caps.test('cap_123', {
   query: 'What is x402?'
 });
 console.log(testRun.tested, testRun.health_status, testRun.certification_status);
+// testRun.retry_metadata is also present when the capability has retry_policy configured
 
 // Fetch derived capability health
 const health = await caps.getHealth('cap_123');

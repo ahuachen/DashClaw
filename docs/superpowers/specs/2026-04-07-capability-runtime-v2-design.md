@@ -408,6 +408,31 @@ retry_metadata: {
 
 Default behavior (max_retries: 0) is identical to pre-retry behavior — no retry_metadata emitted.
 
+### Circuit Breaker (Implemented 2026-04-08)
+
+Circuit breaker support is configured via `circuit_breaker` inside `invocation_schema`.
+
+Implemented fields:
+
+- `enabled` — boolean, default false
+- `consecutive_failures` — integer 1-50, default 5
+
+Behavior:
+
+- Before executing an invocation, the invoke route queries the last N `capability_invoke` action records
+- If all N are `'failed'` AND `capability.health_status !== 'healthy'`, returns 503 with `error: 'circuit_breaker_open'`
+- If `health_status === 'healthy'` (set by a successful test or successful invocation), the check is bypassed
+- The test route always bypasses the circuit breaker — operators can always test to reset
+- Successful invocations update `health_status` to `'healthy'` (fire-and-forget)
+
+Reset mechanism:
+
+1. Circuit trips after N consecutive invoke failures
+2. Operator runs a test via `/api/capabilities/:id/test` → test succeeds → sets `health_status` to `'healthy'`
+3. Next invoke sees `health_status === 'healthy'`, skips circuit check, executes normally
+
+Default behavior (circuit_breaker absent or enabled: false) is identical to pre-circuit behavior — no blocking check performed.
+
 ### Output Validation
 
 Phase 1 must validate outputs when `output_schema` exists.

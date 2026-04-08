@@ -228,10 +228,30 @@ Files changed:
 - `app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx` — retry config UI
 - `app/capabilities/new/components/CapabilitySummaryCard.jsx` — summary line
 
+## What Was Completed (2026-04-08, session 4)
+
+### Capability circuit breaker (Capability Gateway V2 M2)
+Added circuit breaker to auto-block invocations after consecutive failures:
+- `circuit_breaker` config in `invocation_schema`: enabled (boolean), consecutive_failures (1-50, default 5)
+- `checkCircuitBreaker()` in `capability-health.js` queries last N invoke actions
+- Returns 503 `circuit_breaker_open` when all recent invocations failed
+- Reset mechanism: operator runs a successful test → sets health_status to 'healthy' → bypasses breaker
+- Successful invocations also update health_status to 'healthy' (fire-and-forget)
+- Contract validation, form model, UI toggle + threshold in create page
+- 87 tests pass, all gates green
+
+### Workflow step retry (Workflow Runtime V2 M1)
+Added per-step retry policies to the workflow executor:
+- `retry_policy` on each step (sibling to config): max_retries (0-10), backoff (none/fixed/exponential), base_delay_ms, max_delay_ms
+- Executor wraps each step in a retry loop with backoff, reusing `calculateBackoffDelay` and `sleep` from capability-invoke.js
+- Step results include `retry_metadata` when retries occurred
+- `sanitizeRetryPolicy()` in step form model normalizes/validates fields
+- Retry config UI in WorkflowStepCard per step
+- 26 workflow tests pass, all gates green
+
 ## What Still Needs To Happen Next
 
 ### Capability Gateway V2 (remaining)
-- Circuit breaker / health degradation: auto-disable invocations when health is 'failing'
 - Capability certification badge flow
 - Error rate and p95 latency display on detail page (health cards exist but could be richer)
 

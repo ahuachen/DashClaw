@@ -139,6 +139,7 @@ const navItems = [
   { href: '#model-strategies-http', label: 'Model Strategies', indent: true },
   { href: '#knowledge-collections', label: 'Knowledge Collections', indent: true },
   { href: '#capability-registry', label: 'Capability Registry', indent: true },
+  { href: '#capability-runtime', label: 'Capability Runtime', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
@@ -1397,6 +1398,77 @@ results.forEach(r => console.log(\`\${(r.score * 100).toFixed(1)}%: \${r.content
   headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
   body: JSON.stringify({ health_status: 'degraded' })
 });`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+          </section>
+
+          {/* Capability Runtime */}
+          <section id="capability-runtime" className="scroll-mt-20 pt-8">
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Capability Runtime</h3>
+              <p className="text-xs text-zinc-500 mb-4">Governed capability invocation with retry policies, circuit breaker, and health tracking. Capabilities with retry_policy retry transient failures automatically. Capabilities with circuit_breaker auto-block after consecutive failures (reset via test route).</p>
+              <MethodEntry
+                id="invokeCapability"
+                signature="POST /api/capabilities/:capabilityId/invoke"
+                description="Execute a governed capability invocation. Evaluates guard policies, scans for sensitive data, enforces quota, runs the HTTP call with optional retry, and records a full action audit trail. Returns retry_metadata when retry_policy is configured. Returns 503 circuit_breaker_open when the circuit breaker is tripped."
+                example={
+                  <CodeBlock title="Invoke with payload">
+{`const res = await fetch(\`\${baseUrl}/api/capabilities/\${capabilityId}/invoke\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: 'What is x402?' })
+});
+const data = await res.json();
+// data.success, data.action_id, data.result, data.elapsed_ms, data.governed
+// data.retry_metadata (when retry_policy configured): { total_attempts, retried, attempts }`}
+                  </CodeBlock>
+                }
+              />
+              <MethodEntry
+                id="testCapability"
+                signature="POST /api/capabilities/:capabilityId/test"
+                description="Run a non-production validation call. Bypasses guard policies and circuit breaker. Updates capability health_status and certification_status based on the result. Use this to certify a capability or reset an open circuit breaker."
+                example={
+                  <CodeBlock title="Test a capability">
+{`const res = await fetch(\`\${baseUrl}/api/capabilities/\${capabilityId}/test\`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query: 'test input' })
+});
+const data = await res.json();
+// data.tested, data.health_status, data.certification_status`}
+                  </CodeBlock>
+                }
+              />
+              <MethodEntry
+                id="capabilityHealth"
+                signature="GET /api/capabilities/:capabilityId/health"
+                description="Fetch derived health summary including success rates (1d/7d), p95 latency, certification status, recent errors, and stale check. Computed from action_records over the past 7 days."
+                example={
+                  <CodeBlock title="Check capability health">
+{`const res = await fetch(\`\${baseUrl}/api/capabilities/\${capabilityId}/health\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const health = await res.json();
+// health.status (healthy|degraded|failing|untested)
+// health.certification_status (certified|stale|failed|uncertified)
+// health.success_rate_1d, health.success_rate_7d, health.p95_latency_ms`}
+                  </CodeBlock>
+                }
+              />
+              <MethodEntry
+                id="capabilityHistory"
+                signature="GET /api/capabilities/:capabilityId/history"
+                description="Fetch invocation and test event history for a capability. Filter by action_type (capability_invoke, capability_test) and status (completed, failed, running, pending_approval). Supports limit and offset pagination."
+                example={
+                  <CodeBlock title="Fetch recent failures">
+{`const res = await fetch(\`\${baseUrl}/api/capabilities/\${capabilityId}/history?status=failed&limit=10\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const history = await res.json();
+// history.events[].action_id, action_type, status, error_message, duration_ms`}
                   </CodeBlock>
                 }
               />
