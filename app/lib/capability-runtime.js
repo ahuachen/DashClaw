@@ -67,6 +67,7 @@ export async function executeCapabilityInvocation({
     requestMapping: schema.request_mapping,
     responseMapping: schema.response_mapping,
     timeoutMs: schema.timeout_ms || 60000,
+    retryPolicy: schema.retry_policy,
   });
 
   if (!result.success) {

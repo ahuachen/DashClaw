@@ -204,8 +204,38 @@ Stop hardcoding provider/model truth in isolated files and make one curated sour
 - `npm run contracts:check`
 - `npm run build`
 
+## What Was Completed (2026-04-08, session 3)
+
+### Capability retry policies (Capability Gateway V2 M2)
+Added operator-configurable retry policies to capability invocations:
+- `retry_policy` config in `invocation_schema`: max_retries (0-5), backoff (none/fixed/exponential), base_delay_ms, max_delay_ms, retryable_status_codes
+- Core retry loop with backoff in `capability-invoke.js` (extracted singleAttempt + retry wrapper)
+- Contract validation for all retry_policy fields in `capability-contracts.js`
+- Runtime passthrough in `capability-runtime.js`
+- `retry_metadata` in invoke and test route responses
+- Form model compilation + retry policy UI in create page
+- 75 tests pass across 11 capability test files, docs:check, contracts:check, build all green
+- Default is 0 retries — backward compatible, no behavior change for existing capabilities
+
+Files changed:
+- `app/lib/capability-invoke.js` — retry loop, backoff helpers, retryability checks
+- `app/lib/capability-contracts.js` — retry_policy validation
+- `app/lib/capability-runtime.js` — passthrough (1 line)
+- `app/api/capabilities/[capabilityId]/invoke/route.js` — retry_metadata in responses
+- `app/api/capabilities/[capabilityId]/test/route.js` — retry_metadata in responses
+- `app/capabilities/lib/capabilityFormModel.js` — compile retry_policy
+- `app/capabilities/new/page.jsx` — state + updateRuntime handler
+- `app/capabilities/new/components/CapabilityHttpRuntimeSection.jsx` — retry config UI
+- `app/capabilities/new/components/CapabilitySummaryCard.jsx` — summary line
+
 ## What Still Needs To Happen Next
 
+### Capability Gateway V2 (remaining)
+- Circuit breaker / health degradation: auto-disable invocations when health is 'failing'
+- Capability certification badge flow
+- Error rate and p95 latency display on detail page (health cards exist but could be richer)
+
+### Provider registry (remaining)
 Continue with the remaining AI/integration surfaces:
 - remaining settings/provider UIs
 - LLM status/help surfaces

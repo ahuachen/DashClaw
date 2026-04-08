@@ -65,6 +65,18 @@ export function compileCapabilityPayload(formState) {
     input_schema: buildInputSchema(runtime.inputFields),
   };
 
+  if (runtime.retry_policy && runtime.retry_policy.max_retries > 0) {
+    payload.invocation_schema.retry_policy = {
+      max_retries: runtime.retry_policy.max_retries,
+      backoff: runtime.retry_policy.backoff || 'none',
+      base_delay_ms: runtime.retry_policy.base_delay_ms || 1000,
+      max_delay_ms: runtime.retry_policy.max_delay_ms || 30000,
+      ...(runtime.retry_policy.retryable_status_codes
+        ? { retryable_status_codes: runtime.retry_policy.retryable_status_codes }
+        : {}),
+    };
+  }
+
   return payload;
 }
 

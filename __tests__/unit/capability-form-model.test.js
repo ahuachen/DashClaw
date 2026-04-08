@@ -139,6 +139,66 @@ describe('capabilityFormModel', () => {
     ]);
   });
 
+  it('compiles retry_policy into invocation_schema when max_retries > 0', () => {
+    const payload = compileCapabilityPayload({
+      mode: 'runnable_http',
+      metadata: { name: 'Test', risk_level: 'low' },
+      runtime: {
+        endpoint: 'https://api.example.com/test',
+        method: 'POST',
+        timeout_ms: 5000,
+        auth: { type: 'none' },
+        inputFields: [],
+        retry_policy: {
+          max_retries: 3,
+          backoff: 'exponential',
+          base_delay_ms: 1000,
+          max_delay_ms: 15000,
+        },
+      },
+    });
+
+    expect(payload.invocation_schema.retry_policy).toEqual({
+      max_retries: 3,
+      backoff: 'exponential',
+      base_delay_ms: 1000,
+      max_delay_ms: 15000,
+    });
+  });
+
+  it('omits retry_policy when max_retries is 0', () => {
+    const payload = compileCapabilityPayload({
+      mode: 'runnable_http',
+      metadata: { name: 'Test', risk_level: 'low' },
+      runtime: {
+        endpoint: 'https://api.example.com/test',
+        method: 'POST',
+        timeout_ms: 5000,
+        auth: { type: 'none' },
+        inputFields: [],
+        retry_policy: { max_retries: 0, backoff: 'none' },
+      },
+    });
+
+    expect(payload.invocation_schema).not.toHaveProperty('retry_policy');
+  });
+
+  it('omits retry_policy when retry_policy is absent from runtime', () => {
+    const payload = compileCapabilityPayload({
+      mode: 'runnable_http',
+      metadata: { name: 'Test', risk_level: 'low' },
+      runtime: {
+        endpoint: 'https://api.example.com/test',
+        method: 'POST',
+        timeout_ms: 5000,
+        auth: { type: 'none' },
+        inputFields: [],
+      },
+    });
+
+    expect(payload.invocation_schema).not.toHaveProperty('retry_policy');
+  });
+
   it('classifies runnable HTTP capabilities separately from registry-only entries', () => {
     const runnable = {
       source_type: 'http_api',

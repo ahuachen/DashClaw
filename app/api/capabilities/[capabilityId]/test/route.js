@@ -96,9 +96,12 @@ export async function POST(request, { params }) {
     const nextHealthStatus = result.success ? 'healthy' : 'failing';
     const nextCertificationStatus = result.success ? 'certified' : 'failed';
     const timestampEnd = new Date().toISOString();
+    const retryPrefix = result.retry_metadata?.retried
+      ? `[retried: ${result.retry_metadata.total_attempts} attempts] `
+      : '';
     const outputSummary = result.success
-      ? JSON.stringify(result.data).slice(0, 500)
-      : result.message || result.error;
+      ? retryPrefix + JSON.stringify(result.data).slice(0, 500 - retryPrefix.length)
+      : retryPrefix + (result.message || result.error);
 
     await updateActionOutcome(sql, orgId, actionId, {
       status: result.success ? 'completed' : 'failed',
@@ -122,6 +125,7 @@ export async function POST(request, { params }) {
           elapsed_ms: result.elapsed_ms,
           health_status: nextHealthStatus,
           certification_status: nextCertificationStatus,
+          retry_metadata: result.retry_metadata || undefined,
         },
         { status: mapExecutionStatus(result.error) },
       );
@@ -136,6 +140,7 @@ export async function POST(request, { params }) {
       elapsed_ms: result.elapsed_ms,
       health_status: nextHealthStatus,
       certification_status: nextCertificationStatus,
+      retry_metadata: result.retry_metadata || undefined,
     });
   } catch (error) {
     return apiErrorResponse(error, 'CAPABILITY_TEST');

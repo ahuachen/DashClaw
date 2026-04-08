@@ -14,6 +14,11 @@ export default function CapabilitySummaryCard({ mode, form, runtime, fieldCount 
         <li>Risk: {form.risk_level}</li>
         <li>Approval: {form.requires_approval ? 'Required' : 'Not required'}</li>
         <li>Input fields: {fieldCount}</li>
+        {mode === 'runnable_http' ? (
+          <li>Retry: {(runtime?.retry_policy?.max_retries || 0) > 0
+            ? `${runtime.retry_policy.max_retries}x ${runtime.retry_policy.backoff || 'none'}`
+            : 'disabled'}</li>
+        ) : null}
       </ul>
     </div>
   );

@@ -368,20 +368,45 @@ Standardize these error families:
 - `capability_downstream_error`
 - `capability_output_invalid`
 
-### Retry Policy
+### Retry Policy (Implemented 2026-04-08)
 
-Phase 1 retry support is runtime-controlled, not caller-controlled.
+Retry support is runtime-controlled via `retry_policy` inside `invocation_schema`.
 
-Minimum support:
+Implemented fields:
 
-- `max_attempts`
-- `backoff_ms`
-- `retry_on_status`
-- `retry_on_timeout`
+- `max_retries` — integer 0-5, default 0 (disabled)
+- `backoff` — `none` | `fixed` | `exponential`
+- `base_delay_ms` — integer 100-30000, default 1000
+- `max_delay_ms` — integer 100-60000, default 30000 (cap for exponential)
+- `retryable_status_codes` — array of HTTP status codes 400-599, defaults to [429, 500, 502, 503, 504]
 
-Default:
+Retryability rules:
 
-- disabled unless explicitly configured.
+- Always retry on `capability_timeout` and `capability_network_error`
+- Retry on `capability_error` when status is in `retryable_status_codes`
+- Never retry on input/output schema validation errors or auth errors
+
+Backoff algorithm:
+
+- `none`: 0ms delay (immediate retry)
+- `fixed`: constant `base_delay_ms` between attempts
+- `exponential`: `base_delay_ms * 2^attempt` with 10% jitter, capped at `max_delay_ms`
+
+Response includes `retry_metadata` when retries are configured:
+
+```js
+retry_metadata: {
+  total_attempts: 3,
+  retried: true,
+  attempts: [
+    { attempt: 1, error: 'capability_timeout', elapsed_ms: 5000 },
+    { attempt: 2, error: 'capability_error', status: 503, elapsed_ms: 450 },
+    { attempt: 3, success: true, elapsed_ms: 320 },
+  ]
+}
+```
+
+Default behavior (max_retries: 0) is identical to pre-retry behavior — no retry_metadata emitted.
 
 ### Output Validation
 

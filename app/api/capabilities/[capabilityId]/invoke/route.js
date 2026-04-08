@@ -218,9 +218,12 @@ export async function POST(request, { params }) {
 
     // 8. Update action outcome
     const timestamp_end = new Date().toISOString();
+    const retryPrefix = result.retry_metadata?.retried
+      ? `[retried: ${result.retry_metadata.total_attempts} attempts] `
+      : '';
     const outputSummary = result.success
-      ? JSON.stringify(result.data).slice(0, 500)
-      : result.message || result.error;
+      ? retryPrefix + JSON.stringify(result.data).slice(0, 500 - retryPrefix.length)
+      : retryPrefix + (result.message || result.error);
 
     await sql`
       UPDATE action_records
@@ -247,6 +250,7 @@ export async function POST(request, { params }) {
           message: result.message,
           elapsed_ms: result.elapsed_ms,
           governed: true,
+          retry_metadata: result.retry_metadata || undefined,
         },
         { status: statusCode },
       );
@@ -264,6 +268,7 @@ export async function POST(request, { params }) {
       result: result.data,
       elapsed_ms: result.elapsed_ms,
       governed: true,
+      retry_metadata: result.retry_metadata || undefined,
       quota_warning: capQuota.warning || undefined,
       security: {
         clean: dlpFindings.length === 0,

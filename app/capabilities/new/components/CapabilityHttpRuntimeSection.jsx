@@ -95,6 +95,79 @@ export default function CapabilityHttpRuntimeSection({
       </div>
 
       <div className="space-y-3">
+        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Retry policy</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <Label htmlFor="capability-max-retries">Max retries</Label>
+            <input
+              id="capability-max-retries"
+              aria-label="Max retries"
+              type="number"
+              min="0"
+              max="5"
+              step="1"
+              value={runtime.retry_policy?.max_retries ?? 0}
+              onChange={(event) => onRuntimeChange('retry_policy.max_retries', Number(event.target.value))}
+              className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+            />
+          </div>
+
+          {(runtime.retry_policy?.max_retries || 0) > 0 ? (
+            <>
+              <div>
+                <Label htmlFor="capability-backoff">Backoff strategy</Label>
+                <select
+                  id="capability-backoff"
+                  aria-label="Backoff strategy"
+                  value={runtime.retry_policy?.backoff || 'none'}
+                  onChange={(event) => onRuntimeChange('retry_policy.backoff', event.target.value)}
+                  className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+                >
+                  <option value="none">none (immediate)</option>
+                  <option value="fixed">fixed delay</option>
+                  <option value="exponential">exponential backoff</option>
+                </select>
+              </div>
+
+              {runtime.retry_policy?.backoff && runtime.retry_policy.backoff !== 'none' ? (
+                <div>
+                  <Label htmlFor="capability-base-delay">Base delay (ms)</Label>
+                  <input
+                    id="capability-base-delay"
+                    aria-label="Base delay (ms)"
+                    type="number"
+                    min="100"
+                    max="30000"
+                    step="100"
+                    value={runtime.retry_policy?.base_delay_ms ?? 1000}
+                    onChange={(event) => onRuntimeChange('retry_policy.base_delay_ms', Number(event.target.value))}
+                    className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+                  />
+                </div>
+              ) : null}
+
+              {runtime.retry_policy?.backoff === 'exponential' ? (
+                <div>
+                  <Label htmlFor="capability-max-delay">Max delay (ms)</Label>
+                  <input
+                    id="capability-max-delay"
+                    aria-label="Max delay (ms)"
+                    type="number"
+                    min="100"
+                    max="60000"
+                    step="1000"
+                    value={runtime.retry_policy?.max_delay_ms ?? 30000}
+                    onChange={(event) => onRuntimeChange('retry_policy.max_delay_ms', Number(event.target.value))}
+                    className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+                  />
+                </div>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Input fields</p>

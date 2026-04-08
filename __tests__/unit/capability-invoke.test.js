@@ -1,5 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { invokeCapability, resolveAuth, RISK_SCORE_MAP } from '../../app/lib/capability-invoke.js';
+import {
+  invokeCapability,
+  resolveAuth,
+  RISK_SCORE_MAP,
+  calculateBackoffDelay,
+  isRetryableResult,
+  sleep,
+} from '../../app/lib/capability-invoke.js';
 
 describe('RISK_SCORE_MAP', () => {
   it('maps risk levels to scores', () => {
@@ -116,5 +123,243 @@ describe('invokeCapability', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('capability_timeout');
+  });
+
+  it('does not include retry_metadata when retryPolicy is absent', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true }),
+    });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.retry_metadata).toBeUndefined();
+  });
+
+  it('retries on timeout and succeeds on second attempt', async () => {
+    const abortErr = new Error('aborted');
+    abortErr.name = 'AbortError';
+    global.fetch
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true }) });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(true);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(result.retry_metadata.total_attempts).toBe(2);
+    expect(result.retry_metadata.retried).toBe(true);
+  });
+
+  it('retries on network error and succeeds', async () => {
+    global.fetch
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true }) });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 1, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.retry_metadata.total_attempts).toBe(2);
+  });
+
+  it('retries on 503 status code', async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: false, status: 503, text: async () => 'Service Unavailable' })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true }) });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.retry_metadata.total_attempts).toBe(2);
+  });
+
+  it('does NOT retry on 400 bad request', async () => {
+    global.fetch.mockResolvedValueOnce({ ok: false, status: 400, text: async () => 'Bad Request' });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 3, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(false);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(result.retry_metadata.total_attempts).toBe(1);
+    expect(result.retry_metadata.retried).toBe(false);
+  });
+
+  it('does NOT retry on 401 auth error', async () => {
+    global.fetch.mockResolvedValueOnce({ ok: false, status: 401, text: async () => 'Unauthorized' });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 3, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(false);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('exhausts all retries and returns last failure', async () => {
+    global.fetch.mockResolvedValue({ ok: false, status: 503, text: async () => 'Down' });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none' },
+    });
+
+    expect(result.success).toBe(false);
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    expect(result.retry_metadata.total_attempts).toBe(3);
+    expect(result.retry_metadata.attempts).toHaveLength(3);
+  });
+
+  it('honors custom retryable_status_codes', async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: false, status: 502, text: async () => 'Bad Gateway' })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true }) });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none', retryable_status_codes: [502] },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.retry_metadata.total_attempts).toBe(2);
+  });
+
+  it('does NOT retry status code not in custom retryable list', async () => {
+    global.fetch.mockResolvedValueOnce({ ok: false, status: 503, text: async () => 'Down' });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none', retryable_status_codes: [502] },
+    });
+
+    expect(result.success).toBe(false);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('retry_metadata.attempts has correct shape', async () => {
+    const abortErr = new Error('aborted');
+    abortErr.name = 'AbortError';
+    global.fetch
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ ok: true }) });
+
+    const result = await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+      retryPolicy: { max_retries: 2, backoff: 'none' },
+    });
+
+    expect(result.retry_metadata.attempts[0]).toMatchObject({
+      attempt: 1,
+      error: 'capability_timeout',
+    });
+    expect(result.retry_metadata.attempts[0].elapsed_ms).toBeTypeOf('number');
+    expect(result.retry_metadata.attempts[1]).toMatchObject({
+      attempt: 2,
+      success: true,
+    });
+  });
+});
+
+describe('calculateBackoffDelay', () => {
+  it('returns 0 for backoff "none"', () => {
+    expect(calculateBackoffDelay(0, 'none', 1000, 30000)).toBe(0);
+  });
+
+  it('returns base_delay_ms for backoff "fixed"', () => {
+    expect(calculateBackoffDelay(0, 'fixed', 1000, 30000)).toBe(1000);
+    expect(calculateBackoffDelay(3, 'fixed', 2000, 30000)).toBe(2000);
+  });
+
+  it('doubles delay for exponential backoff', () => {
+    const d0 = calculateBackoffDelay(0, 'exponential', 1000, 100000);
+    const d1 = calculateBackoffDelay(1, 'exponential', 1000, 100000);
+    // With 10% jitter, d1 should be roughly 2x d0
+    expect(d1).toBeGreaterThanOrEqual(1800);
+    expect(d1).toBeLessThanOrEqual(2200);
+  });
+
+  it('caps at max_delay_ms for exponential', () => {
+    const delay = calculateBackoffDelay(10, 'exponential', 1000, 5000);
+    expect(delay).toBeLessThanOrEqual(5000);
+  });
+});
+
+describe('isRetryableResult', () => {
+  const codes = new Set([429, 500, 502, 503, 504]);
+
+  it('returns true for capability_timeout', () => {
+    expect(isRetryableResult({ success: false, error: 'capability_timeout' }, codes)).toBe(true);
+  });
+
+  it('returns true for capability_network_error', () => {
+    expect(isRetryableResult({ success: false, error: 'capability_network_error' }, codes)).toBe(true);
+  });
+
+  it('returns true for retryable status code', () => {
+    expect(isRetryableResult({ success: false, error: 'capability_error', status: 503 }, codes)).toBe(true);
+  });
+
+  it('returns false for non-retryable status code', () => {
+    expect(isRetryableResult({ success: false, error: 'capability_error', status: 400 }, codes)).toBe(false);
+  });
+
+  it('returns false for success', () => {
+    expect(isRetryableResult({ success: true }, codes)).toBe(false);
   });
 });

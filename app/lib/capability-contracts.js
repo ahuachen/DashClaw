@@ -1,5 +1,6 @@
 const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 const AUTH_TYPES = new Set(['none', 'bearer', 'api_key']);
+const BACKOFF_STRATEGIES = new Set(['none', 'fixed', 'exponential']);
 const SCHEMA_TYPES = new Set(['object', 'string', 'number', 'boolean', 'array']);
 
 function isPlainObject(value) {
@@ -85,6 +86,39 @@ export function validateInvocationSchema(sourceType, schema) {
   if (schema.timeout_ms !== undefined) {
     if (!Number.isInteger(schema.timeout_ms) || schema.timeout_ms < 1000 || schema.timeout_ms > 300000) {
       errors.push('invocation_schema.timeout_ms must be an integer between 1000 and 300000');
+    }
+  }
+
+  if (schema.retry_policy !== undefined) {
+    if (!isPlainObject(schema.retry_policy)) {
+      errors.push('invocation_schema.retry_policy must be an object');
+    } else {
+      const rp = schema.retry_policy;
+      if (rp.max_retries !== undefined) {
+        if (!Number.isInteger(rp.max_retries) || rp.max_retries < 0 || rp.max_retries > 5) {
+          errors.push('invocation_schema.retry_policy.max_retries must be an integer between 0 and 5');
+        }
+      }
+      if (rp.backoff !== undefined && !BACKOFF_STRATEGIES.has(rp.backoff)) {
+        errors.push(`invocation_schema.retry_policy.backoff must be one of ${Array.from(BACKOFF_STRATEGIES).join(', ')}`);
+      }
+      if (rp.base_delay_ms !== undefined) {
+        if (!Number.isInteger(rp.base_delay_ms) || rp.base_delay_ms < 100 || rp.base_delay_ms > 30000) {
+          errors.push('invocation_schema.retry_policy.base_delay_ms must be an integer between 100 and 30000');
+        }
+      }
+      if (rp.max_delay_ms !== undefined) {
+        if (!Number.isInteger(rp.max_delay_ms) || rp.max_delay_ms < 100 || rp.max_delay_ms > 60000) {
+          errors.push('invocation_schema.retry_policy.max_delay_ms must be an integer between 100 and 60000');
+        }
+      }
+      if (rp.retryable_status_codes !== undefined) {
+        if (!Array.isArray(rp.retryable_status_codes) || rp.retryable_status_codes.some(
+          (code) => !Number.isInteger(code) || code < 400 || code > 599
+        )) {
+          errors.push('invocation_schema.retry_policy.retryable_status_codes must be an array of HTTP status codes (400-599)');
+        }
+      }
     }
   }
 

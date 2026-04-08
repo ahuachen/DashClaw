@@ -51,6 +51,12 @@ export default function NewCapabilityPage() {
       type: 'none',
       token_setting: '',
     },
+    retry_policy: {
+      max_retries: 0,
+      backoff: 'none',
+      base_delay_ms: 1000,
+      max_delay_ms: 30000,
+    },
     inputFields: [],
   });
 
@@ -67,6 +73,17 @@ export default function NewCapabilityPage() {
           auth: {
             ...current.auth,
             [authKey]: value,
+          },
+        };
+      }
+
+      if (key.startsWith('retry_policy.')) {
+        const retryKey = key.replace('retry_policy.', '');
+        return {
+          ...current,
+          retry_policy: {
+            ...current.retry_policy,
+            [retryKey]: value,
           },
         };
       }
