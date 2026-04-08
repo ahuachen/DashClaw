@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 198,
+    "total_routes": 199,
     "stable_routes": 37,
     "beta_routes": 20,
-    "experimental_routes": 141
+    "experimental_routes": 142
   },
   "routes": [
     {
@@ -1894,6 +1894,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/webhooks",
       "file": "app/api/webhooks/[webhookId]/test/route.js"
+    },
+    {
+      "path": "/api/workflows/draft",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/draft/route.js"
     },
     {
       "path": "/api/workflows/templates",
