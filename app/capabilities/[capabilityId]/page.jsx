@@ -11,6 +11,10 @@ import CapabilityHealthCards from './components/CapabilityHealthCards';
 import CapabilityFactsCard from './components/CapabilityFactsCard';
 import CapabilityHistoryTable from './components/CapabilityHistoryTable';
 import CapabilityTestPanel from './components/CapabilityTestPanel';
+import {
+  deriveGeneratedInputFields,
+  isRunnableHttpCapability,
+} from '../lib/capabilityFormModel.js';
 
 async function readJson(response) {
   const body = await response.json().catch(() => ({}));
@@ -36,6 +40,8 @@ export default function CapabilityDetailPage({ params }) {
   const [testSubmitting, setTestSubmitting] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const hasInitializedHistory = useRef(false);
+  const generatedTestFields = deriveGeneratedInputFields(capability);
+  const canTestCapability = isRunnableHttpCapability(capability);
 
   const loadCapabilityDetail = useCallback(async () => {
     const capabilityBody = await fetch(`/api/capabilities/${capabilityId}`).then(readJson);
@@ -171,13 +177,13 @@ export default function CapabilityDetailPage({ params }) {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-6">
           <div className="space-y-6">
-            <CapabilityStatusHero
-              capability={capability}
-              health={health}
-              loading={loading}
-              onRefresh={handleRefresh}
-              onOpenTest={() => setTestPanelOpen(true)}
-            />
+              <CapabilityStatusHero
+                capability={capability}
+                health={health}
+                loading={loading}
+                onRefresh={handleRefresh}
+                onOpenTest={() => setTestPanelOpen(true)}
+              />
 
             <CapabilityHealthCards health={health} />
 
@@ -201,13 +207,20 @@ export default function CapabilityDetailPage({ params }) {
           </div>
 
           <div className="space-y-6">
-            {testPanelOpen ? (
-              <CapabilityTestPanel
-                isSubmitting={testSubmitting}
-                result={testResult}
-                onSubmit={handleTestSubmit}
-              />
-            ) : null}
+            {canTestCapability ? (
+              testPanelOpen ? (
+                <CapabilityTestPanel
+                  fields={generatedTestFields}
+                  isSubmitting={testSubmitting}
+                  result={testResult}
+                  onSubmit={handleTestSubmit}
+                />
+              ) : null
+            ) : (
+              <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
+                Testing is available for runnable HTTP capabilities only.
+              </div>
+            )}
 
             <CapabilityFactsCard capability={capability} health={health} />
           </div>

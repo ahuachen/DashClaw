@@ -59,6 +59,9 @@ describe('CapabilitiesPage', () => {
               risk_level: 'medium',
               source_type: 'http_api',
               health_status: 'healthy',
+              invocation_schema: {
+                endpoint: 'https://api.example.com/research',
+              },
               tags: ['research'],
             },
             {
@@ -69,14 +72,17 @@ describe('CapabilitiesPage', () => {
               source_type: 'http_api',
               health_status: 'unhealthy',
               requires_approval: true,
+              invocation_schema: {
+                endpoint: 'https://slack.example.com/api/messages',
+              },
               tags: ['slack'],
             },
             {
               capability_id: 'cap_3',
-              name: 'Calendar Create',
-              slug: 'calendar-create',
+              name: 'Calendar Registry',
+              slug: 'calendar-registry',
               risk_level: 'low',
-              source_type: 'http_api',
+              source_type: 'internal_sdk',
               health_status: 'unknown',
               tags: ['calendar'],
             },
@@ -136,12 +142,14 @@ describe('CapabilitiesPage', () => {
 
     expect(screen.getByRole('link', { name: /research agent/i })).toBeTruthy();
     expect(screen.getByRole('link', { name: /send slack message/i })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /calendar create/i })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /calendar registry/i })).toBeTruthy();
     expect(screen.getByText('certified')).toBeTruthy();
     expect(screen.getByText('failed')).toBeTruthy();
     expect(screen.getByText('uncertified')).toBeTruthy();
     expect(screen.getByText('Stale')).toBeTruthy();
     expect(screen.getByText(/Slack 403/i)).toBeTruthy();
+    expect(screen.getByText(/registry only/i)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /run test calendar registry/i })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: /unhealthy/i }));
 
@@ -156,14 +164,14 @@ describe('CapabilitiesPage', () => {
     await waitFor(() => {
       expect(screen.queryByText('Research Agent')).toBeNull();
       expect(screen.getByText('Send Slack Message')).toBeTruthy();
-      expect(screen.queryByText('Calendar Create')).toBeNull();
+      expect(screen.queryByText('Calendar Registry')).toBeNull();
     });
 
     fireEvent.click(screen.getByLabelText('Stale only'));
     fireEvent.click(screen.getByLabelText('Uncertified only'));
 
     await waitFor(() => {
-      expect(screen.getByText('Calendar Create')).toBeTruthy();
+      expect(screen.getByText('Calendar Registry')).toBeTruthy();
       expect(screen.queryByText('Send Slack Message')).toBeNull();
     });
 
@@ -188,6 +196,9 @@ describe('CapabilitiesPage', () => {
               source_type: 'http_api',
               health_status: 'unhealthy',
               requires_approval: true,
+              invocation_schema: {
+                endpoint: 'https://slack.example.com/api/messages',
+              },
             },
           ],
         });

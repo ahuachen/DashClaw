@@ -73,6 +73,18 @@ describe('CapabilityDetailPage', () => {
           slug: 'research-agent',
           risk_level: 'medium',
           source_type: 'http_api',
+          invocation_schema: {
+            endpoint: 'https://api.example.com/research',
+            input_schema: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  title: 'Search query',
+                },
+              },
+            },
+          },
         },
       }))
       .mockResolvedValueOnce(okJson({
@@ -121,6 +133,20 @@ describe('CapabilityDetailPage', () => {
           source_type: 'http_api',
           auth_type: 'oauth',
           requires_approval: true,
+          invocation_schema: {
+            endpoint: 'https://api.example.com/research',
+            input_schema: {
+              type: 'object',
+              required: ['query'],
+              properties: {
+                query: {
+                  type: 'string',
+                  title: 'Search query',
+                  description: 'Prompt or question to send to the research agent',
+                },
+              },
+            },
+          },
         },
       }))
       .mockResolvedValueOnce(okJson({
@@ -227,14 +253,11 @@ describe('CapabilityDetailPage', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: /run test/i }));
-    fireEvent.change(screen.getByLabelText('Test payload'), {
-      target: { value: '{' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: /submit test/i }));
-    expect(await screen.findByText(/payload must be valid json/i)).toBeTruthy();
+    expect(await screen.findByLabelText(/search query/i)).toBeTruthy();
+    expect(screen.queryByLabelText('Test payload')).toBeNull();
 
-    fireEvent.change(screen.getByLabelText('Test payload'), {
-      target: { value: '{"query":"What is x402?"}' },
+    fireEvent.change(screen.getByLabelText(/search query/i), {
+      target: { value: 'What is x402?' },
     });
     fireEvent.click(screen.getByRole('button', { name: /submit test/i }));
 
@@ -262,6 +285,18 @@ describe('CapabilityDetailPage', () => {
           slug: 'research-agent',
           risk_level: 'medium',
           source_type: 'http_api',
+          invocation_schema: {
+            endpoint: 'https://api.example.com/research',
+            input_schema: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  title: 'Search query',
+                },
+              },
+            },
+          },
         },
       }))
       .mockResolvedValueOnce(okJson({
@@ -301,6 +336,18 @@ describe('CapabilityDetailPage', () => {
           slug: 'research-agent',
           risk_level: 'medium',
           source_type: 'http_api',
+          invocation_schema: {
+            endpoint: 'https://api.example.com/research',
+            input_schema: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  title: 'Search query',
+                },
+              },
+            },
+          },
         },
       }))
       .mockResolvedValueOnce({
@@ -347,6 +394,18 @@ describe('CapabilityDetailPage', () => {
           slug: 'research-agent',
           risk_level: 'medium',
           source_type: 'http_api',
+          invocation_schema: {
+            endpoint: 'https://api.example.com/research',
+            input_schema: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  title: 'Search query',
+                },
+              },
+            },
+          },
         },
       }))
       .mockResolvedValueOnce(okJson({
@@ -376,6 +435,7 @@ describe('CapabilityDetailPage', () => {
     render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
 
     fireEvent.click(await screen.findByRole('button', { name: /run test/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /use advanced json/i }));
 
     const payload = await screen.findByLabelText('Test payload');
     const submit = screen.getByRole('button', { name: /submit test/i });
@@ -406,5 +466,38 @@ describe('CapabilityDetailPage', () => {
     });
 
     expect(await screen.findByText('ok')).toBeTruthy();
+  });
+
+  it('hides runtime test affordances for registry-only capabilities', async () => {
+    mockUseParams.mockReturnValue({});
+    global.fetch = vi.fn()
+      .mockResolvedValueOnce(okJson({
+        capability: {
+          capability_id: 'cap_1',
+          name: 'Slack Notify Registry',
+          slug: 'slack-notify-registry',
+          risk_level: 'medium',
+          source_type: 'internal_sdk',
+          auth_type: 'none',
+        },
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        status: 'unknown',
+        certification_status: 'uncertified',
+        stale_check: false,
+      }))
+      .mockResolvedValueOnce(okJson({
+        capability_id: 'cap_1',
+        events: [],
+      }));
+
+    const { default: CapabilityDetailPage } = await import('@/capabilities/[capabilityId]/page.jsx');
+
+    render(<CapabilityDetailPage params={{ capabilityId: 'cap_1' }} />);
+
+    expect(await screen.findByText('Slack Notify Registry')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /run test/i })).toBeNull();
+    expect(await screen.findByText(/testing is available for runnable http capabilities only/i)).toBeTruthy();
   });
 });

@@ -1,7 +1,11 @@
 import Link from 'next/link';
-import { AlertTriangle, FlaskConical, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, FlaskConical, ShieldAlert } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import {
+  deriveCapabilityMode,
+  isRunnableHttpCapability,
+} from '../lib/capabilityFormModel';
 
 const riskVariant = {
   low: 'success',
@@ -56,43 +60,50 @@ export default function CapabilityRegistryCard({
   testStatus,
 }) {
   const recentError = readRecentError(capability);
+  const currentHealth = capability.status || capability.health_status || 'unknown';
+  const capabilityMode = deriveCapabilityMode(capability);
+  const canRunTest = isRunnableHttpCapability(capability);
+  const modeLabel = capabilityMode === 'runnable_http' ? 'Runnable HTTP' : 'Registry only';
 
   return (
     <Card className="h-full" hover={false}>
       <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="mb-3 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span
-                className={`w-2 h-2 rounded-full ${healthDot[capability.status || capability.health_status] || healthDot.unknown}`}
-                title={`health: ${capability.status || capability.health_status || 'unknown'}`}
+                className={`h-2 w-2 rounded-full ${healthDot[currentHealth] || healthDot.unknown}`}
+                title={`health: ${currentHealth}`}
               />
               <Link
                 href={`/capabilities/${capability.capability_id}`}
-                className="text-sm font-semibold text-white truncate hover:text-brand"
+                className="truncate text-sm font-semibold text-white hover:text-brand"
               >
                 {capability.name}
               </Link>
             </div>
-            <div className="text-xs text-zinc-500 font-mono truncate mt-0.5">{capability.slug}</div>
+            <div className="mt-0.5 truncate font-mono text-xs text-zinc-500">{capability.slug}</div>
           </div>
 
           <Badge variant={riskVariant[capability.risk_level] || 'default'}>{capability.risk_level}</Badge>
         </div>
 
         {capability.description ? (
-          <div className="text-xs text-zinc-400 line-clamp-2 mb-3">{capability.description}</div>
+          <div className="mb-3 line-clamp-2 text-xs text-zinc-400">{capability.description}</div>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-1.5 mb-3">
-          <Badge variant={healthVariant[capability.status] || 'default'} size="xs">
-            {capability.status || capability.health_status || 'unknown'}
+        <div className="mb-3 flex flex-wrap items-center gap-1.5">
+          <Badge variant={healthVariant[currentHealth] || 'default'} size="xs">
+            {currentHealth}
           </Badge>
           <Badge variant={certificationVariant[capability.certification_status] || 'default'} size="xs">
             {capability.certification_status || 'uncertified'}
           </Badge>
           <Badge size="xs" variant={capability.stale_check ? 'warning' : 'success'}>
             {capability.stale_check ? 'Stale' : 'Fresh'}
+          </Badge>
+          <Badge size="xs" variant={canRunTest ? 'info' : 'default'}>
+            {modeLabel}
           </Badge>
           {capability.category ? <Badge size="xs">{capability.category}</Badge> : null}
           {capability.requires_approval ? (
@@ -108,7 +119,7 @@ export default function CapabilityRegistryCard({
           <Badge size="xs">{capability.source_type}</Badge>
         </div>
 
-        <div className="space-y-1.5 mb-4 text-xs text-zinc-400">
+        <div className="mb-4 space-y-1.5 text-xs text-zinc-400">
           <div>
             <span className="text-zinc-500">Last tested:</span>{' '}
             <span>{formatRelativeDate(capability.last_tested_at)}</span>
@@ -117,6 +128,9 @@ export default function CapabilityRegistryCard({
             <span className="text-zinc-500">Recent failures:</span>{' '}
             <span>{capability.recent_failure_count ?? capability.failed_invocations ?? 0}</span>
           </div>
+          {!canRunTest ? (
+            <div className="text-zinc-500">Metadata-only entry. Use detail view for registry facts.</div>
+          ) : null}
           {recentError ? (
             <div className="flex items-center gap-1 text-amber-300">
               <AlertTriangle size={12} />
@@ -126,11 +140,11 @@ export default function CapabilityRegistryCard({
         </div>
 
         {capability.tags?.length > 0 ? (
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="mb-4 flex flex-wrap gap-1">
             {capability.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 font-mono"
+                className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
               >
                 {tag}
               </span>
@@ -145,15 +159,17 @@ export default function CapabilityRegistryCard({
           >
             Open detail
           </Link>
-          <button
-            onClick={() => onRunTest(capability)}
-            disabled={testStatus?.submitting}
-            aria-label={`Run Test ${capability.name}`}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/10 disabled:opacity-50"
-          >
-            <FlaskConical size={12} />
-            {testStatus?.submitting ? 'Running…' : 'Run Test'}
-          </button>
+          {canRunTest ? (
+            <button
+              onClick={() => onRunTest(capability)}
+              disabled={testStatus?.submitting}
+              aria-label={`Run Test ${capability.name}`}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/10 disabled:opacity-50"
+            >
+              <FlaskConical size={12} />
+              {testStatus?.submitting ? 'Running...' : 'Run Test'}
+            </button>
+          ) : null}
         </div>
 
         {testStatus?.message ? (

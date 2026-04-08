@@ -17,6 +17,8 @@ const certificationVariant = {
 };
 
 export default function CapabilityStatusHero({ capability, health, loading, onRefresh, onOpenTest }) {
+  const canTest = capability?.source_type === 'http_api' && typeof capability?.invocation_schema?.endpoint === 'string';
+
   return (
     <Card hover={false}>
       <CardHeader
@@ -24,13 +26,15 @@ export default function CapabilityStatusHero({ capability, health, loading, onRe
         icon={Activity}
         action={(
           <div className="flex items-center gap-2">
-            <button
-              onClick={onOpenTest}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/10"
-            >
-              <FlaskConical size={14} />
-              Run Test
-            </button>
+            {canTest ? (
+              <button
+                onClick={onOpenTest}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/10"
+              >
+                <FlaskConical size={14} />
+                Run Test
+              </button>
+            ) : null}
             <button
               onClick={onRefresh}
               className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:text-white"

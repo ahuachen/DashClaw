@@ -1,0 +1,21 @@
+export default function CapabilitySummaryCard({ mode, form, runtime, fieldCount }) {
+  const runtimeSummary = mode === 'runnable_http'
+    ? `Runnable over ${runtime.method} ${runtime.endpoint || 'endpoint not set'}`
+    : `Registry-only ${form.source_type.replace(/_/g, ' ')}`;
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-surface-tertiary/40 p-4 space-y-3">
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Summary</p>
+        <p className="mt-1 text-sm text-white">{form.name || 'Untitled capability'}</p>
+      </div>
+      <p className="text-sm text-zinc-400">{runtimeSummary}</p>
+      <ul className="space-y-1 text-sm text-zinc-500">
+        <li>Risk: {form.risk_level}</li>
+        <li>Approval: {form.requires_approval ? 'Required' : 'Not required'}</li>
+        <li>Input fields: {fieldCount}</li>
+      </ul>
+    </div>
+  );
+}
+
