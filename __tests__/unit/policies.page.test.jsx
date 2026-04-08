@@ -258,4 +258,33 @@ describe('PoliciesPage', () => {
       agent_ids: JSON.stringify(['agent_1']),
     });
   });
+
+  it('keeps advanced import out of the default page flow and opens it on demand', async () => {
+    const { default: PoliciesPage } = await import('@/policies/page.jsx');
+
+    render(<PoliciesPage />);
+
+    expect(await screen.findByText('Deploy guard')).toBeTruthy();
+
+    expect(screen.getByRole('link', { name: /generate with ai/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /advanced import/i })).toBeTruthy();
+    expect(screen.queryByText(/yaml policy definition/i)).toBeNull();
+    expect(screen.queryByText(/import policy pack/i)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: /advanced import/i }));
+
+    expect(await screen.findByRole('heading', { name: /advanced import/i })).toBeTruthy();
+    expect(screen.getByText(/intended for expert users/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^policy pack$/i })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^raw yaml$/i }));
+    expect(screen.getByPlaceholderText(/paste your policy yaml here/i)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: /^policy pack$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^import$/i }));
+
+    expect(await screen.findByText(/0 imported/i)).toBeTruthy();
+    expect(screen.getByText(/0 skipped/i)).toBeTruthy();
+    expect(screen.getByText(/0 errors/i)).toBeTruthy();
+  });
 });

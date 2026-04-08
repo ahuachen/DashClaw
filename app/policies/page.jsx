@@ -5,7 +5,7 @@ import {
   Shield, Plus, Trash2, ToggleLeft, ToggleRight,
   ChevronDown, ChevronRight, AlertTriangle,
   Upload, Play, FileDown, Copy, Check, ChevronUp,
-  Pencil, X, Square, CheckSquare, Users, BookOpen,
+  Pencil, X, Square, CheckSquare, Users, BookOpen, Sparkles,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
@@ -17,6 +17,7 @@ import { isDemoMode } from '../lib/isDemoMode';
 import { useRealtime } from '../hooks/useRealtime';
 import { PACK_PREVIEWS } from '../lib/policyPackPreviews.js';
 import PolicyAuthoringPanel from './components/PolicyAuthoringPanel';
+import PolicyAdvancedImportPanel from './components/PolicyAdvancedImportPanel';
 import {
   buildPolicySummary,
   compilePolicyPayload,
@@ -366,6 +367,7 @@ export default function PoliciesPage() {
   const [importMode, setImportMode] = useState('pack');
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [showAdvancedImport, setShowAdvancedImport] = useState(false);
 
   // Template Gallery
   const [showGallery, setShowGallery] = useState(false);
@@ -790,12 +792,26 @@ export default function PoliciesPage() {
                 <BookOpen size={14} />
                 {showGallery ? 'Hide Templates' : 'Browse Templates'}
               </button>
+              <a
+                href="/policies/generate"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-zinc-300 text-xs font-medium hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+              >
+                <Sparkles size={14} />
+                Generate with AI
+              </a>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors"
               >
                 {showAddForm ? <ChevronDown size={14} /> : <Plus size={14} />}
                 {showAddForm ? 'Cancel' : 'Add Policy'}
+              </button>
+              <button
+                onClick={() => setShowAdvancedImport(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-medium border border-[rgba(255,255,255,0.08)] hover:bg-zinc-700 transition-colors"
+              >
+                <Upload size={14} />
+                Advanced import
               </button>
             </div>
           )}
@@ -1241,108 +1257,6 @@ export default function PoliciesPage() {
         </CardContent>
       </Card>
 
-      {/* Import Policy Pack */}
-      {canEdit && (
-        <Card className="mb-6">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-            <h2 className="text-sm font-medium text-white">Import Policy Pack</h2>
-            <Upload size={14} className="text-zinc-400" />
-          </div>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setImportMode('pack')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    importMode === 'pack'
-                      ? 'bg-brand text-white'
-                      : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                  }`}
-                >
-                  Select Pack
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setImportMode('yaml')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    importMode === 'yaml'
-                      ? 'bg-brand text-white'
-                      : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-                  }`}
-                >
-                  Raw YAML
-                </button>
-              </div>
-
-              {importMode === 'pack' ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Policy Pack</label>
-                    <select
-                      value={importPack}
-                      onChange={(e) => setImportPack(e.target.value)}
-                      className={selectClass}
-                    >
-                      <option value="enterprise-strict">Enterprise Strict</option>
-                      <option value="smb-safe">SMB Safe</option>
-                      <option value="startup-growth">Startup Growth</option>
-                      <option value="development">Development</option>
-                    </select>
-                  </div>
-
-                  {PACK_PREVIEWS[importPack] && (
-                    <div className="rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] p-3">
-                      <span className="text-xs font-medium text-white">{PACK_PREVIEWS[importPack].name}</span>
-                      <p className="text-[10px] text-zinc-500 mt-1">{PACK_PREVIEWS[importPack].description}</p>
-                      {PACK_PREVIEWS[importPack].recommended_for && (
-                        <p className="text-[10px] text-zinc-600 mt-1">Recommended for: {PACK_PREVIEWS[importPack].recommended_for}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">YAML Policy Definition</label>
-                  <textarea
-                    value={importYaml}
-                    onChange={(e) => setImportYaml(e.target.value)}
-                    placeholder="Paste your policy YAML here..."
-                    rows={6}
-                    className={`${inputClass} font-mono`}
-                  />
-                </div>
-              )}
-
-              <button
-                onClick={handleImport}
-                disabled={importing || !canEdit || (importMode === 'yaml' && !importYaml.trim())}
-                className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
-              >
-                {importing ? 'Importing...' : 'Import'}
-              </button>
-
-              {importResult && (
-                <div className="p-3 rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] text-sm space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="success">{importResult.imported ?? 0} imported</Badge>
-                    {(importResult.skipped ?? 0) > 0 && (
-                      <Badge variant="warning">{importResult.skipped} skipped</Badge>
-                    )}
-                    {(importResult.errors ?? 0) > 0 && (
-                      <Badge variant="error">{importResult.errors} errors</Badge>
-                    )}
-                  </div>
-                  {importResult.details && (
-                    <p className="text-xs text-zinc-400 mt-1">{importResult.details}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Policy Test Runner */}
       <Card className="mb-6">
         <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
@@ -1483,6 +1397,23 @@ export default function PoliciesPage() {
           )}
         </CardContent>
       </Card>
+
+      {canEdit && (
+        <PolicyAdvancedImportPanel
+          open={showAdvancedImport}
+          onClose={() => setShowAdvancedImport(false)}
+          importMode={importMode}
+          setImportMode={setImportMode}
+          importPack={importPack}
+          setImportPack={setImportPack}
+          importYaml={importYaml}
+          setImportYaml={setImportYaml}
+          importing={importing}
+          importResult={importResult}
+          handleImport={handleImport}
+          packPreviews={PACK_PREVIEWS}
+        />
+      )}
     </PageLayout>
   );
 }
