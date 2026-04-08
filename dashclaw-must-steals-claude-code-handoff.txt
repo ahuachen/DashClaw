@@ -1,0 +1,205 @@
+Claude Code Handoff: Implement DashClaw Must-Steal Features
+
+Run this in: C:\Projects\DashClaw
+
+You are implementing a focused product upgrade to DashClaw.
+
+Read first:
+- `README.md`
+- `app/README.md`
+- `docs/sdk-parity.md`
+- `app/lib/missionControl.js`
+- `app/lib/repositories/actions.repository.js`
+- `app/api/actions/route.js`
+- `app/api/actions/[actionId]/trace/route.js`
+- `app/decisions/[actionId]/page.js`
+- `public/downloads/dashclaw-platform-intelligence/references/api-surface.md`
+
+Primary implementation brief
+Use this file as the source of truth for scope and product framing:
+- `C:\Users\sandm\clawd\docs\dashclaw-must-steals-build-spec-for-claude-code.txt`
+
+Mission
+Implement the Phase 1 “must steals” from the spec in a way that strengthens DashClaw’s current governance-first architecture without turning it into a generic low-code blob.
+
+High-level priorities, in order:
+1. Execution Graph View
+2. Workflow Template Packaging
+3. Model Strategy Layer
+4. Knowledge Collections and Bindings
+5. Capability Registry Surface
+
+Hard constraints
+- Keep all changes additive and backwards compatible.
+- Reuse existing repository patterns, route structure, and UI conventions.
+- Do not break existing action logging, decision replay, trace, mission control, guard, or session flows.
+- Do not replace current decision replay. Extend it.
+- Do not build a full workflow runtime engine in this pass.
+- Do not build a full vector retrieval system in this pass.
+- Do not build external billing/payment execution in this pass.
+
+Detailed implementation requirements
+
+1. Execution Graph View
+Create a read-only graph representation for an action using existing trace data plus correlated governance artifacts.
+
+Backend:
+- Add `GET /api/actions/[actionId]/graph`
+- Base it on existing trace/repository logic. Do not duplicate query logic carelessly in the route.
+- Graph payload must include nodes and edges for:
+  - root action
+  - parent chain
+  - sub-actions
+  - related actions
+  - guard decisions linked to that action when available
+  - assumptions linked to that action
+  - open loops linked to that action
+- Use stable node IDs like `action:act_xxx`, `guard:gd_xxx`, `assumption:as_xxx`, `loop:lp_xxx`
+- Include status, riskScore, timestamps, labels, and enough metadata for the UI to render badges
+
+Frontend:
+- Extend the current decision replay area with a graph tab or linked graph page
+- Keep it read-only
+- Clicking a node should open the relevant action detail / decision replay if applicable
+- Make blocked, approval-required, invalidated-assumption, and open-loop states visually obvious
+
+2. Workflow Template Packaging
+Build a reusable packaging layer for operational workflows.
+
+Backend:
+- Add table/model/repository/API support for workflow templates
+- Include fields for:
+  - template_id
+  - org_id
+  - name
+  - slug
+  - description
+  - objective
+  - steps_json
+  - model_strategy_json or model_strategy_id
+  - linked_prompt_template_ids_json
+  - linked_policy_ids_json
+  - linked_knowledge_collection_ids_json
+  - linked_capability_tags_json and/or linked_capability_ids_json
+  - version
+  - status
+  - created_at / updated_at
+- Add routes for list/create/get/update/duplicate/launch
+
+Launch behavior for this phase:
+- launching a template should create a traceable DashClaw artifact, ideally an action record, session, or context thread with workflow metadata attached
+- do not build a full runtime orchestrator
+
+Frontend:
+- add workflow template management UI
+- list page
+- detail page
+- create/edit form
+- duplicate action
+- launch action
+
+3. Model Strategy Layer
+Create reusable model strategy records that can be attached to workflows and sessions.
+
+Backend:
+- Add a model strategies store + repository + CRUD API
+- Strategy should support:
+  - primary provider/model
+  - fallback provider/model list
+  - task-mode overrides
+  - cost sensitivity
+  - latency sensitivity
+  - max budget per run
+  - max retries
+  - allowed/disallowed providers
+- Add nullable references on launched workflow/session artifacts if appropriate
+- If useful, store a resolved strategy snapshot on launch
+
+Frontend:
+- create a basic management UI for strategies
+- show primary/fallback/budget/task modes clearly
+- allow linking from workflow templates
+
+4. Knowledge Collections and Bindings
+Build a lightweight knowledge metadata layer.
+
+Backend:
+- Add collections and collection-items support
+- Fields should cover:
+  - collection name, description, source_type, tags, ingestion_status, doc_count, last_synced_at
+  - item source_uri, title, mime_type, status, metadata_json
+- Add CRUD/list routes needed for Phase 1
+- Allow workflow templates to bind one or more knowledge collections
+- Preserve binding snapshots on launch if possible
+
+Frontend:
+- create collections list + detail page
+- show items and ingestion status
+- show linked collections on workflow templates
+
+Do not build actual vector retrieval from scratch in this pass unless there is already an obvious native path in the repo.
+
+5. Capability Registry Surface
+Build a governed registry of callable capabilities.
+
+Backend:
+- Add capabilities table/model/repository/API
+- Capability fields should include:
+  - name, slug, description, category
+  - source_type
+  - auth_type
+  - risk_level
+  - requires_approval
+  - tags_json
+  - pricing_json
+  - health_status
+  - docs_url
+  - invocation_schema_json
+- Add list/create/get/update support
+- Make workflow templates able to reference capabilities or capability tags
+
+Frontend:
+- searchable registry page
+- badges for risk, approval requirement, health, and pricing metadata presence
+
+Code quality expectations
+- follow the current project structure and conventions
+- prefer small, focused migrations
+- keep schema additions nullable/additive
+- add unit tests where appropriate, especially for:
+  - graph payload normalization
+  - workflow template repository logic
+  - model strategy repository logic
+  - knowledge/capability basic CRUD repository logic
+- if a feature gets too large, ship a credible thin slice rather than partial chaos
+
+Implementation strategy
+Work in this order:
+1. execution graph backend + UI
+2. workflow template schema/API/UI
+3. model strategy schema/API/UI
+4. knowledge collections schema/API/UI
+5. capability registry schema/API/UI
+
+Deliverables
+When finished, provide:
+1. a concise summary of what was added
+2. files changed
+3. any migrations added
+4. any follow-up gaps or deferred work
+5. test status
+
+Definition of done
+This implementation is successful if:
+- DashClaw has a usable read-only execution graph connected to current action trace concepts
+- operators can create reusable workflow templates
+- workflow templates can link model strategies, knowledge collections, and capabilities
+- launching a workflow template creates a traceable DashClaw artifact
+- the result feels like DashClaw got more legible and reusable, not like it lost its identity
+
+If you need to cut scope to finish cleanly, preserve this order of importance:
+1. execution graph
+2. workflow templates
+3. model strategy linking
+4. knowledge bindings
+5. capability registry polish

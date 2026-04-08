@@ -1,0 +1,518 @@
+DashClaw Build Spec: Must-Steal Features Inspired by Dify
+
+Audience: Claude Code implementing directly in the DashClaw codebase at C:\Projects\DashClaw
+Goal: Add the highest-leverage, Dify-like product features that materially strengthen DashClaw without derailing its core identity.
+
+Important framing
+DashClaw is not trying to become a generic low-code AI app builder. The codebase already has a stronger core than Dify in several areas:
+- governed action logging
+- decision replay and traceability
+- assumptions / loops / interventions
+- policy guard and approval flows
+- routing, scoring, drift, messaging, compliance, session lifecycle
+
+The right move is not to clone Dify. The right move is to steal the product-shaping pieces that make execution legible and reusable.
+
+Current repo reality observed
+The existing codebase already includes:
+- action ledger and trace endpoints (`/api/actions`, `/api/actions/:id`, `/api/actions/:id/trace`)
+- governance / guard engine (`/api/guard`, policies, proof, signals)
+- assumption and loop tracking
+- messaging and action-message correlation
+- mission-control style event normalization (`app/lib/missionControl.js`)
+- decisions replay UI (`app/decisions/[actionId]/page.js`)
+- settings / stream / dashboard / sessions / routing / prompts / evals / drift / compliance
+
+This means the must-steal work should be built as extensions of current primitives, not as a parallel architecture.
+
+Top-level product objective
+Add a lightweight “Execution Studio” layer on top of DashClaw’s existing governance substrate so that operators can:
+1. visually understand agent execution flows
+2. package repeatable agent workflows as reusable assets
+3. switch model/provider strategy per workflow step
+4. bind knowledge sources to workflows and agents
+5. discover callable capabilities through a richer registry surface
+
+Implement in phases. Phase 1 must ship with minimal schema risk and strong backwards compatibility.
+
+==================================================
+PHASE 1: MUST-STEAL FEATURES
+==================================================
+
+1. Execution Graph View
+
+Why this is must-steal
+Dify’s biggest product advantage is that execution is visually legible. DashClaw already has the underlying causal data. It needs a graph surface, not a new engine.
+
+Product requirement
+Add a graph view that renders action execution as nodes and edges using existing trace data plus minimal new derived metadata.
+
+What it should show
+- root action
+- parent chain
+- sub-actions
+- related actions
+- guard decisions attached to actions
+- open loops attached to actions
+- assumptions attached to actions
+- status, risk, approval-needed, blocked state
+- edge labels for: parent-child, related, governed-by, blocked-by, assumption-of, loop-from
+
+Do not do in Phase 1
+- drag/drop workflow editing
+- full visual workflow authoring
+- persistent canvas layout editing
+- collaborative editing
+
+Implementation plan
+Backend:
+- Add new endpoint: `GET /api/actions/{actionId}/graph`
+- This endpoint should build a graph payload from existing `getActionTraceData()` plus correlated guard/loop/assumption data.
+- Reuse repository logic where possible. Do not duplicate trace queries in route handlers.
+
+Suggested response shape:
+{
+  "rootActionId": "act_xxx",
+  "nodes": [
+    {
+      "id": "action:act_xxx",
+      "type": "action",
+      "label": "Release auth hotfix",
+      "status": "completed",
+      "riskScore": 82,
+      "agentId": "agent_1",
+      "timestamp": "...",
+      "meta": { ... }
+    },
+    {
+      "id": "guard:gd_xxx",
+      "type": "guard",
+      "label": "require_approval",
+      "status": "require_approval",
+      "meta": { ... }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_1",
+      "source": "action:act_parent",
+      "target": "action:act_child",
+      "type": "parent_child",
+      "label": "spawned"
+    }
+  ]
+}
+
+Frontend:
+- Add new route: `app/decisions/[actionId]/graph/page.js` or an in-page tab under current decision replay.
+- Use React Flow if already acceptable in repo; otherwise use a small graph lib with low bundle risk.
+- Start read-only.
+- Clicking a node should deep-link into existing decision replay pages.
+
+Acceptance criteria
+- Any action with traceable lineage renders a graph without schema migration requirements.
+- A blocked action clearly shows the guard decision node and relationship.
+- Invalidated assumptions and open loops are visually obvious.
+- The graph is usable from the existing decision replay context.
+
+
+2. Workflow Template Packaging
+
+Why this is must-steal
+Dify packages prompts + tools + model setup + knowledge bindings into reusable apps/workflows. DashClaw already has prompts, policies, routing, and actions. It needs a reusable packaging layer.
+
+Product requirement
+Add reusable workflow templates that package an operational pattern into a versioned asset.
+
+This is not a full workflow execution engine in Phase 1.
+This is a packaging + metadata + launch layer.
+
+Template should define
+- name
+- description
+- goal / use case
+- ordered steps (metadata only in Phase 1)
+- default action types expected in the flow
+- recommended model strategy
+- linked prompt templates
+- linked policies
+- linked knowledge collections (see feature 4)
+- linked capability tags / tools
+- version
+- status (draft, active, archived)
+
+Suggested data model
+Create a new table and API surface for workflow templates.
+
+Suggested table: `workflow_templates`
+Fields:
+- template_id
+- org_id
+- name
+- slug
+- description
+- objective
+- steps_json
+- model_strategy_json
+- linked_prompt_template_ids_json
+- linked_policy_ids_json
+- linked_knowledge_collection_ids_json
+- linked_capability_tags_json
+- version
+- status
+- created_at
+- updated_at
+
+Suggested endpoints
+- `GET /api/workflows/templates`
+- `POST /api/workflows/templates`
+- `GET /api/workflows/templates/{templateId}`
+- `PATCH /api/workflows/templates/{templateId}`
+- `POST /api/workflows/templates/{templateId}/duplicate`
+- `POST /api/workflows/templates/{templateId}/launch`
+
+Launch semantics for Phase 1
+Launching a workflow template does NOT need a full orchestrator.
+Instead it should:
+- create an initial action record or session with workflow metadata attached
+- optionally create a context thread
+- attach template metadata for downstream use
+
+UI requirements
+- New page under something like `app/workflows/page.js`
+- list templates
+- view template detail
+- create/edit template in form-based UI
+- show linked prompts, policies, knowledge, capability tags
+- launch button
+
+Acceptance criteria
+- An operator can create a reusable workflow template from the UI.
+- A template can be versioned and duplicated.
+- Launching a template creates a traceable DashClaw artifact tied back to the template.
+
+
+3. Model Strategy Layer
+
+Why this is must-steal
+Dify’s model abstraction matters. DashClaw already tracks cost, tokens, drift, and outputs, which makes model strategy even more valuable here.
+
+Product requirement
+Introduce a first-class “model strategy” object that can be attached to workflow templates and sessions.
+
+Phase 1 scope
+No provider execution proxy is required unless it already exists. Focus on configuration, persistence, and visibility.
+
+Model strategy should support
+- primary provider/model
+- fallback provider/model
+- task mode defaults (reasoning, extraction, synthesis, classification)
+- cost sensitivity (low, balanced, high-quality)
+- latency sensitivity
+- max budget per run
+- max retries
+- allowed providers
+- disallowed providers
+
+Suggested table: `model_strategies`
+Fields:
+- strategy_id
+- org_id
+- name
+- description
+- config_json
+- created_at
+- updated_at
+
+Suggested config shape
+{
+  "primary": { "provider": "openai", "model": "gpt-4.1" },
+  "fallback": [{ "provider": "google", "model": "gemini-2.5-pro" }],
+  "taskModes": {
+    "reasoning": { "provider": "anthropic", "model": "claude-sonnet-4" },
+    "classification": { "provider": "openai", "model": "gpt-4.1-mini" }
+  },
+  "costSensitivity": "balanced",
+  "latencySensitivity": "medium",
+  "maxBudgetUsd": 0.50,
+  "maxRetries": 2,
+  "allowedProviders": ["openai", "google", "anthropic"],
+  "disallowedProviders": []
+}
+
+Suggested endpoints
+- `GET /api/model-strategies`
+- `POST /api/model-strategies`
+- `GET /api/model-strategies/{strategyId}`
+- `PATCH /api/model-strategies/{strategyId}`
+- `DELETE /api/model-strategies/{strategyId}`
+
+Integration points
+- workflow templates can link a model strategy
+- sessions can optionally link a model strategy
+- action records can optionally capture the resolved strategy snapshot used at runtime
+
+Minimal schema addition to actions/sessions
+Prefer nullable fields:
+- `model_strategy_id`
+- `model_strategy_snapshot` (json/text)
+
+UI requirements
+- Settings or workflows subpage for managing strategies
+- clean display of primary, fallback, budget, and task modes
+
+Acceptance criteria
+- Operators can define reusable model strategies.
+- Workflow templates can link them.
+- When a workflow is launched, the resolved strategy is visible in the launched artifact.
+
+
+4. Knowledge Collections and Bindings
+
+Why this is must-steal
+Dify’s knowledge/RAG surface matters because operators need to understand what context a workflow or agent is using. DashClaw has context manager and memory health, but not a productized knowledge binding layer.
+
+Product requirement
+Add lightweight knowledge collections and allow workflows/templates/sessions to bind to them.
+
+Phase 1 scope
+Do not build a full vector store if one does not exist already.
+Do not build semantic retrieval from scratch in this phase.
+Build a clean metadata and attachment layer first.
+
+Knowledge collection should represent
+- a named collection of documents or sources
+- source type (files, URLs, external system, note set)
+- ingestion status
+- description
+- tags
+- optional stats (doc count, last synced)
+
+Suggested tables
+1. `knowledge_collections`
+- collection_id
+- org_id
+- name
+- description
+- source_type
+- tags_json
+- ingestion_status
+- doc_count
+- last_synced_at
+- created_at
+- updated_at
+
+2. `knowledge_collection_items`
+- item_id
+- collection_id
+- source_uri
+- title
+- mime_type
+- status
+- metadata_json
+- created_at
+- updated_at
+
+Suggested endpoints
+- `GET /api/knowledge/collections`
+- `POST /api/knowledge/collections`
+- `GET /api/knowledge/collections/{collectionId}`
+- `PATCH /api/knowledge/collections/{collectionId}`
+- `POST /api/knowledge/collections/{collectionId}/items`
+- `GET /api/knowledge/collections/{collectionId}/items`
+
+Binding rules
+- workflow templates can link multiple knowledge collections
+- sessions can link multiple knowledge collections
+- launched workflow/session should preserve the binding snapshot
+
+UI requirements
+- list of collections
+- collection detail page showing items and ingestion status
+- template/session page should show attached collections
+
+Acceptance criteria
+- Operators can create named knowledge collections.
+- Collections can be attached to workflows/templates.
+- Launch metadata shows what knowledge was bound.
+
+
+5. Capability Registry Surface
+
+Why this is must-steal
+Dify has a tool marketplace feel. For DashClaw, the important steal is not “marketplace UI” by itself. It is a richer capability registry surface that can later evolve toward priced, approved, and settled agent capability access.
+
+Product requirement
+Create a unified capability registry UI/API that surfaces callable capabilities, their trust/governance posture, and future economic metadata.
+
+Important constraint
+Do not try to implement x402 settlement or remote tool execution in this spec unless the current DashClaw repo already contains it. This phase is registry-first.
+
+Capability record should include
+- name
+- slug
+- description
+- category
+- source type (internal sdk, http api, webhook, human approval, external marketplace)
+- auth type
+- risk level
+- approval requirement
+- tags
+- pricing metadata (optional fields now, not enforced)
+- health status
+- docs url
+- invocation metadata / schema summary
+
+Suggested table: `capabilities`
+Fields:
+- capability_id
+- org_id
+- name
+- slug
+- description
+- category
+- source_type
+- auth_type
+- risk_level
+- requires_approval
+- tags_json
+- pricing_json
+- health_status
+- docs_url
+- invocation_schema_json
+- created_at
+- updated_at
+
+Suggested endpoints
+- `GET /api/capabilities`
+- `POST /api/capabilities`
+- `GET /api/capabilities/{capabilityId}`
+- `PATCH /api/capabilities/{capabilityId}`
+- `GET /api/capabilities/discovery` (optional aggregate/search route)
+
+UI requirements
+- searchable registry page
+- badges for approval required, risk, pricing present, health
+- ability to tag capabilities and link them from workflow templates
+
+Acceptance criteria
+- Operators can register capabilities as reusable governed assets.
+- Workflow templates can reference capability tags or explicit capability IDs.
+- The data model leaves room for future pricing/payment metadata.
+
+==================================================
+PHASE 1 IMPLEMENTATION NOTES
+==================================================
+
+Architecture rule
+Extend existing DashClaw patterns. Do not introduce a parallel backend style.
+
+Follow existing conventions
+- route files under `app/api/.../route.js`
+- repository logic under `app/lib/repositories/...`
+- UI pages under `app/...`
+- keep naming consistent with existing API surface docs
+
+Backward compatibility
+- all new schema fields must be nullable or additive
+- do not break existing action creation/update flows
+- do not break missionControl normalization logic
+- do not break decision replay page
+
+Observability requirements
+Every new top-level object should support:
+- created_at / updated_at
+- org_id scoping
+- list + get + create + update paths
+
+If feasible, add lightweight activity logging when:
+- a workflow template is created/updated/launched
+- a model strategy is created/updated
+- a knowledge collection is created/updated
+- a capability is registered/updated
+
+==================================================
+PHASE 2: GOOD NEXT STEPS AFTER PHASE 1
+==================================================
+
+These are not required for the first implementation pass, but the Phase 1 data model should not block them.
+
+1. Visual workflow authoring
+- drag/drop nodes
+- persisted graph layouts
+- step-level execution semantics
+- version diffs
+
+2. Step-level runtime orchestration
+- explicit workflow runs
+- per-step state machine
+- retries / branching / fallback logic
+
+3. Knowledge ingestion execution
+- actual sync jobs
+- embeddings / retrieval hooks
+- retrieval preview and citation display
+
+4. Capability economics
+- add price per call
+- settlement method
+- approval + spend policy integration
+- x402 / AgentCash style payment hooks later
+
+5. Runtime provider routing
+- actual model routing at execution time
+- policy-aware provider selection
+- cost + latency adaptive fallback
+
+==================================================
+NON-GOALS
+==================================================
+
+Do not do these in the first pass:
+- cloning Dify’s entire UX
+- building a chatbot app builder
+- building full prompt IDE parity
+- building an embedded vector database unless already present
+- building external billing or settlement infrastructure
+- replacing current decision replay with a new system
+
+==================================================
+RECOMMENDED DELIVERY ORDER
+==================================================
+
+Order of implementation:
+1. Execution Graph View
+2. Workflow Template Packaging
+3. Model Strategy Layer
+4. Knowledge Collections and Bindings
+5. Capability Registry Surface
+
+Reasoning:
+- Graph view gives immediate product lift using existing data
+- Workflow templates create reusable packaging
+- Model strategy becomes useful once templates exist
+- Knowledge and capabilities become natural attachments to templates
+
+==================================================
+DEFINITION OF DONE
+==================================================
+
+Phase 1 is done when:
+- there is a usable read-only execution graph in the DashClaw UI
+- operators can create and manage workflow templates
+- workflow templates can link model strategies, knowledge collections, and capability tags/IDs
+- launched workflow artifacts are traceable in current DashClaw primitives
+- the implementation preserves DashClaw’s core identity: governed execution, not generic low-code sprawl
+
+==================================================
+CODE QUALITY EXPECTATIONS
+==================================================
+
+- Keep changes additive and modular
+- Add unit tests for new repository logic and graph payload normalization
+- Reuse current mission/decision vocabulary where possible
+- Prefer small migrations over sweeping schema rewrites
+- If UI scope gets too large, ship feature-flagged sections incrementally rather than half-finished generalization
+
+Final guidance
+Build the smallest serious version of these features. The target is not “Dify inside DashClaw.” The target is “DashClaw becomes dramatically more legible, reusable, and packageable while staying governance-first.”
