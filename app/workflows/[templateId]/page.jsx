@@ -35,6 +35,8 @@ export default function WorkflowTemplateDetailPage() {
   const [duplicating, setDuplicating] = useState(false);
   const [stepsView, setStepsView] = useState('builder');
   const [savingSteps, setSavingSteps] = useState(false);
+  const [runs, setRuns] = useState([]);
+  const [runsLoading, setRunsLoading] = useState(false);
   const [savingLinks, setSavingLinks] = useState(false);
   const [workflowResources, setWorkflowResources] = useState({
     modelStrategies: [],
@@ -65,9 +67,27 @@ export default function WorkflowTemplateDetailPage() {
     }
   }, [templateId]);
 
+  const loadRuns = useCallback(async () => {
+    setRunsLoading(true);
+    try {
+      const res = await fetch(`/api/workflows/templates/${templateId}/runs?limit=10`);
+      if (res.ok) {
+        const data = await res.json();
+        setRuns(data.runs || []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setRunsLoading(false);
+    }
+  }, [templateId]);
+
   useEffect(() => {
-    if (templateId) fetchTemplate();
-  }, [templateId, fetchTemplate]);
+    if (templateId) {
+      fetchTemplate();
+      loadRuns();
+    }
+  }, [templateId, fetchTemplate, loadRuns]);
 
   useEffect(() => {
     let active = true;
@@ -264,9 +284,15 @@ export default function WorkflowTemplateDetailPage() {
               >
                 Source
               </button>
+              <button
+                onClick={() => setStepsView('runs')}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'runs' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Runs
+              </button>
             </div>
           </div>
-          {stepData.mode === 'builder' && (
+          {stepData.mode === 'builder' && stepsView !== 'runs' && (
             <button
               onClick={async () => {
                 setSavingSteps(true);
@@ -292,28 +318,56 @@ export default function WorkflowTemplateDetailPage() {
           )}
         </div>
         <CardContent className="p-5 pt-0">
-          {workflowResources.errors?.length > 0 && stepData.mode === 'builder' && (
-            <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
-              Some workflow resources could not be loaded. Saved values are preserved, but some selectors may be incomplete.
-            </div>
-          )}
-          {stepsView === 'builder' ? (
-            stepData.mode === 'builder' ? (
-              <div className="space-y-4">
-                <WorkflowStepBuilder
-                  steps={stepData.steps}
-                  onChange={(nextSteps) => setDraft((prev) => ({ ...prev, steps: nextSteps }))}
-                  resourceOptions={mergedWorkflowResources}
-                />
-                <WorkflowReferenceHelp />
+          {stepsView === 'runs' ? (
+            runsLoading ? (
+              <div className="text-sm text-zinc-500 py-4">Loading runs...</div>
+            ) : runs.length === 0 ? (
+              <div className="text-sm text-zinc-500 py-8 text-center">
+                No runs yet. Use the SDK or API to execute this workflow.
               </div>
             ) : (
-              <WorkflowStepLegacyNotice legacyFallback={stepData.legacyFallback} />
+              <div className="space-y-2">
+                {runs.map((run) => (
+                  <Link
+                    key={run.run_action_id}
+                    href={`/workflows/${templateId}/runs/${run.run_action_id}`}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[rgba(255,255,255,0.06)] hover:bg-white/[0.02] transition-colors"
+                  >
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${run.status === 'completed' ? 'bg-emerald-400' : run.status === 'failed' ? 'bg-red-400' : 'bg-blue-400'}`} />
+                    <span className="text-sm text-zinc-300 flex-1 truncate">{run.declared_goal || 'Workflow run'}</span>
+                    <span className="text-xs text-zinc-500">{run.steps_completed}/{run.step_count} steps</span>
+                    {run.duration_ms != null && <span className="text-xs font-mono text-zinc-500">{(run.duration_ms / 1000).toFixed(1)}s</span>}
+                    <span className="text-xs text-zinc-600">{run.started_at ? new Date(run.started_at).toLocaleString() : ''}</span>
+                  </Link>
+                ))}
+              </div>
             )
           ) : (
-            <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
-              {JSON.stringify(stepData.mode === 'builder' ? draft.steps : template.steps, null, 2)}
-            </pre>
+            <>
+              {workflowResources.errors?.length > 0 && stepData.mode === 'builder' && (
+                <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+                  Some workflow resources could not be loaded. Saved values are preserved, but some selectors may be incomplete.
+                </div>
+              )}
+              {stepsView === 'builder' ? (
+                stepData.mode === 'builder' ? (
+                  <div className="space-y-4">
+                    <WorkflowStepBuilder
+                      steps={stepData.steps}
+                      onChange={(nextSteps) => setDraft((prev) => ({ ...prev, steps: nextSteps }))}
+                      resourceOptions={mergedWorkflowResources}
+                    />
+                    <WorkflowReferenceHelp />
+                  </div>
+                ) : (
+                  <WorkflowStepLegacyNotice legacyFallback={stepData.legacyFallback} />
+                )
+              ) : (
+                <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
+                  {JSON.stringify(stepData.mode === 'builder' ? draft.steps : template.steps, null, 2)}
+                </pre>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
