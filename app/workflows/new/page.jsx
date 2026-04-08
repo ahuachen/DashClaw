@@ -148,6 +148,25 @@ export default function NewWorkflowTemplatePage() {
       )}
     >
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
+        <div className="rounded-xl border border-orange-500/20 bg-orange-500/10 p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-sm font-medium text-orange-100">Prefer to describe the workflow instead?</div>
+              <p className="mt-1 text-sm text-orange-200/80">
+                Use AI to draft the workflow basics, linked resources, and executable steps into this editor, then review and save it manually.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAiPanel((value) => !value)}
+              className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm text-white transition-colors hover:bg-brand/90"
+            >
+              <Sparkles size={14} />
+              {showAiPanel ? 'Hide AI Draft Builder' : 'Open AI Draft Builder'}
+            </button>
+          </div>
+        </div>
+
         {showAiPanel && (
           <WorkflowAiDraftPanel
             loading={generatingDraft}

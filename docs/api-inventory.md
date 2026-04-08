@@ -217,7 +217,7 @@ doc-type: architecture
 | `/api/webhooks/{webhookId}/test` | `POST` | `stable` | `/api/webhooks` | `app/api/webhooks/[webhookId]/test/route.js` |
 | `/api/workflows/draft` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/draft/route.js` |
 | `/api/workflows/templates` | `GET, POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/route.js` |
-| `/api/workflows/templates/{templateId}` | `GET, PATCH` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/route.js` |
+| `/api/workflows/templates/{templateId}` | `DELETE, GET, PATCH` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/route.js` |
 | `/api/workflows/templates/{templateId}/duplicate` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/duplicate/route.js` |
 | `/api/workflows/templates/{templateId}/execute` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/execute/route.js` |
 | `/api/workflows/templates/{templateId}/launch` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/launch/route.js` |

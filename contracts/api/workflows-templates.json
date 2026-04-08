@@ -10,7 +10,7 @@
     {
       "file": "app/api/workflows/templates/[templateId]/route.js",
       "path": "/api/workflows/templates/[templateId]",
-      "methods": ["GET", "PATCH"]
+      "methods": ["GET", "PATCH", "DELETE"]
     },
     {
       "file": "app/api/workflows/templates/[templateId]/duplicate/route.js",

@@ -231,6 +231,18 @@ export async function duplicateWorkflowTemplate(sql, orgId, templateId, override
   });
 }
 
+export async function deleteWorkflowTemplate(sql, orgId, templateId) {
+  const existing = await getWorkflowTemplate(sql, orgId, templateId);
+  if (!existing) return false;
+
+  await sql`
+    DELETE FROM workflow_templates
+    WHERE org_id = ${orgId} AND template_id = ${templateId}
+  `;
+
+  return true;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Launch — creates a traceable action record tied back to the template
 // ─────────────────────────────────────────────────────────────────────────────

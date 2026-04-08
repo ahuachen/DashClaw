@@ -8,6 +8,7 @@ import { apiErrorResponse } from '../../../../lib/apiErrors.js';
 import {
   getWorkflowTemplate,
   updateWorkflowTemplate,
+  deleteWorkflowTemplate,
 } from '../../../../lib/repositories/workflow-templates.repository.js';
 
 export async function GET(request, { params }) {
@@ -40,5 +41,27 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ template: updated });
   } catch (error) {
     return apiErrorResponse(error, 'WORKFLOW TEMPLATE PATCH');
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const sql = getSql();
+    const orgId = getOrgId(request);
+    const orgRole = request.headers.get('x-org-role') || '';
+    const { templateId } = await params;
+
+    if (orgRole !== 'admin') {
+      return NextResponse.json({ error: 'Admin role required' }, { status: 403 });
+    }
+
+    const deleted = await deleteWorkflowTemplate(sql, orgId, templateId);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ deleted: true, template_id: templateId });
+  } catch (error) {
+    return apiErrorResponse(error, 'WORKFLOW TEMPLATE DELETE');
   }
 }

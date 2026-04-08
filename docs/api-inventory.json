@@ -1917,6 +1917,7 @@
     {
       "path": "/api/workflows/templates/{templateId}",
       "methods": [
+        "DELETE",
         "GET",
         "PATCH"
       ],
