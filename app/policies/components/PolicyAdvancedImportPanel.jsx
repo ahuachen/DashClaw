@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { AlertTriangle, Upload, X } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent } from '../../components/ui/Card';
@@ -21,13 +22,32 @@ export default function PolicyAdvancedImportPanel({
   handleImport,
   packPreviews,
 }) {
+  useEffect(() => {
+    if (!open) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const preview = packPreviews?.[importPack];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[rgba(255,255,255,0.08)]">
+      <button
+        type="button"
+        aria-label="Close advanced import overlay"
+        onClick={onClose}
+        className="absolute inset-0 cursor-default"
+      />
+      <Card className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[rgba(255,255,255,0.08)]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -53,6 +73,43 @@ export default function PolicyAdvancedImportPanel({
                   Use this when you already have a validated YAML policy definition or you know exactly which policy pack you want to install.
                 </p>
               </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setImportMode('pack')}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  importMode === 'pack'
+                    ? 'border-brand bg-brand/10'
+                    : 'border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)]'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-white">Policy pack</span>
+                  <Badge variant="success" size="xs">Recommended</Badge>
+                </div>
+                <p className="mt-2 text-xs text-zinc-400">
+                  Start from a tested preset like Enterprise Strict or SMB Safe. Best when you want quick coverage without hand-authoring YAML.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportMode('yaml')}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  importMode === 'yaml'
+                    ? 'border-brand bg-brand/10'
+                    : 'border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.04)]'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-white">Raw YAML</span>
+                  <Badge variant="warning" size="xs">Expert</Badge>
+                </div>
+                <p className="mt-2 text-xs text-zinc-400">
+                  Import a prewritten definition directly. Use this only when the YAML is already validated and ready to load.
+                </p>
+              </button>
             </div>
 
             <div className="flex items-center gap-3">
@@ -112,10 +169,13 @@ export default function PolicyAdvancedImportPanel({
                 <textarea
                   value={importYaml}
                   onChange={(e) => setImportYaml(e.target.value)}
-                  placeholder="Paste your policy YAML here..."
+                  placeholder={'name: deploy-approval-gate\npolicy_type: require_approval\nrules:\n  action_types:\n    - deploy\n  action: require_approval'}
                   rows={8}
                   className={`${inputClass} font-mono`}
                 />
+                <p className="mt-2 text-[11px] text-zinc-500">
+                  DashClaw will send this directly to the import route. Use policy packs instead unless you already trust the YAML.
+                </p>
               </div>
             )}
 
@@ -132,7 +192,7 @@ export default function PolicyAdvancedImportPanel({
                 onClick={onClose}
                 className="px-4 py-2 rounded-lg bg-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-600 transition-colors"
               >
-                Close
+                Back to policies
               </button>
             </div>
 

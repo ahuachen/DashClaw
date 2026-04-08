@@ -278,7 +278,7 @@ describe('PoliciesPage', () => {
     expect(screen.getByRole('button', { name: /^policy pack$/i })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /^raw yaml$/i }));
-    expect(screen.getByPlaceholderText(/paste your policy yaml here/i)).toBeTruthy();
+    expect(screen.getByPlaceholderText(/deploy-approval-gate/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /^policy pack$/i }));
     fireEvent.click(screen.getByRole('button', { name: /^import$/i }));

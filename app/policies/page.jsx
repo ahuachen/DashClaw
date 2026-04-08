@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   Shield, Plus, Trash2, ToggleLeft, ToggleRight,
   ChevronDown, ChevronRight, AlertTriangle,
@@ -784,7 +785,7 @@ export default function PoliciesPage() {
             )}
           </div>
           {canEdit && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <button
                 onClick={handleBrowseTemplates}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-zinc-300 text-xs font-medium hover:bg-[rgba(255,255,255,0.08)] transition-colors"
@@ -792,13 +793,13 @@ export default function PoliciesPage() {
                 <BookOpen size={14} />
                 {showGallery ? 'Hide Templates' : 'Browse Templates'}
               </button>
-              <a
+              <Link
                 href="/policies/generate"
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-zinc-300 text-xs font-medium hover:bg-[rgba(255,255,255,0.08)] transition-colors"
               >
                 <Sparkles size={14} />
                 Generate with AI
-              </a>
+              </Link>
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors"
@@ -816,6 +817,20 @@ export default function PoliciesPage() {
             </div>
           )}
         </div>
+
+        {canEdit && (
+          <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)] bg-[rgba(255,255,255,0.02)]">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <Badge variant="success" size="xs">Recommended flow</Badge>
+              <span className="text-zinc-400">
+                Use <span className="text-white">Add Policy</span> for manual rules, <span className="text-white">Generate with AI</span> for draft suggestions, and <span className="text-white">Browse Templates</span> for packaged starting points.
+              </span>
+            </div>
+            <p className="mt-1 text-[11px] text-zinc-500">
+              Advanced import is for validated policy packs or prewritten YAML only.
+            </p>
+          </div>
+        )}
 
         {/* Add form */}
         {showAddForm && canEdit && (
