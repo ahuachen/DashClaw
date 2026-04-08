@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 
 const execFilePromise = promisify(execFileCallback);
 
-export const EXCLUDED_DIRS = new Set(['.git', '.next', 'node_modules', '.vercel']);
+export const EXCLUDED_DIRS = new Set(['.git', '.next', 'node_modules', '.vercel', 'graphify-pilot']);
 export const DOC_EXT = '.md';
 
 export async function collectTrackedMarkdownFiles({ root, execFile = execFilePromise }) {
