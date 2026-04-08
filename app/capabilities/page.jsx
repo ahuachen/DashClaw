@@ -1,49 +1,63 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { Wrench, Plus, Search, RotateCw, ShieldAlert, DollarSign } from 'lucide-react';
+import { Wrench, Plus, Search, RotateCw } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
-import { Card, CardContent } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
-
-const riskVariant = {
-  low: 'success',
-  medium: 'info',
-  high: 'warning',
-  critical: 'error',
-};
-
-const healthDot = {
-  healthy: 'bg-emerald-500',
-  degraded: 'bg-amber-500',
-  unhealthy: 'bg-red-500',
-  unknown: 'bg-zinc-500',
-};
+import CapabilityRegistrySummary from './components/CapabilityRegistrySummary';
+import CapabilityRegistryFilters from './components/CapabilityRegistryFilters';
+import CapabilityRegistryCard from './components/CapabilityRegistryCard';
 
 const RISK_LEVELS = ['all', 'low', 'medium', 'high', 'critical'];
 
 export default function CapabilitiesPage() {
   const [capabilities, setCapabilities] = useState([]);
+  const [healthRows, setHealthRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState('all');
+  const [healthFilter, setHealthFilter] = useState('all');
+  const [staleOnly, setStaleOnly] = useState(false);
+  const [uncertifiedOnly, setUncertifiedOnly] = useState(false);
   const [error, setError] = useState(null);
+  const [healthError, setHealthError] = useState(null);
+  const [testStatus, setTestStatus] = useState({});
 
   const fetchCapabilities = useCallback(async () => {
     try {
+      setError(null);
       const params = new URLSearchParams();
       if (search.trim()) params.set('search', search.trim());
       if (riskFilter !== 'all') params.set('risk_level', riskFilter);
       params.set('limit', '100');
-      const res = await fetch(`/api/capabilities?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
+
+      const [capabilityRes, healthRes] = await Promise.all([
+        fetch(`/api/capabilities?${params.toString()}`),
+        fetch(`/api/capabilities/health?${params.toString()}`),
+      ]);
+
+      if (capabilityRes.ok) {
+        const data = await capabilityRes.json();
         setCapabilities(data.capabilities || []);
+      } else {
+        setCapabilities([]);
+        setError('Failed to fetch capabilities');
+      }
+
+      if (healthRes.ok) {
+        const healthData = await healthRes.json();
+        setHealthRows(healthData.capabilities || []);
+        setHealthError(null);
+      } else {
+        setHealthRows([]);
+        setHealthError('Capability health unavailable');
       }
     } catch (err) {
       console.error('Failed to fetch capabilities:', err);
+      setError(err.message || 'Failed to fetch capabilities');
+      setCapabilities([]);
+      setHealthRows([]);
     } finally {
       setLoading(false);
     }
@@ -54,7 +68,74 @@ export default function CapabilitiesPage() {
     return () => clearTimeout(debounce);
   }, [fetchCapabilities]);
 
-  const hasPricing = (cap) => cap.pricing && Object.keys(cap.pricing).length > 0;
+  const mergedCapabilities = useMemo(() => {
+    const healthById = new Map(healthRows.map((row) => [row.capability_id, row]));
+    return capabilities.map((capability) => ({
+      ...capability,
+      ...(healthById.get(capability.capability_id) || {}),
+    }));
+  }, [capabilities, healthRows]);
+
+  const filteredCapabilities = useMemo(() => {
+    return mergedCapabilities.filter((capability) => {
+      const currentHealth = capability.status || capability.health_status || 'unknown';
+      const certificationStatus = capability.certification_status || 'uncertified';
+
+      if (healthFilter !== 'all' && currentHealth !== healthFilter) return false;
+      if (staleOnly && capability.stale_check !== true) return false;
+      if (uncertifiedOnly && certificationStatus !== 'uncertified') return false;
+
+      return true;
+    });
+  }, [mergedCapabilities, healthFilter, staleOnly, uncertifiedOnly]);
+
+  const summaryCounts = useMemo(() => ({
+    total: mergedCapabilities.length,
+    attention: mergedCapabilities.filter((capability) => ['unhealthy', 'degraded', 'failing'].includes(capability.status || capability.health_status)).length,
+    stale: mergedCapabilities.filter((capability) => capability.stale_check === true || capability.certification_status === 'stale').length,
+    uncertified: mergedCapabilities.filter((capability) => (capability.certification_status || 'uncertified') === 'uncertified').length,
+  }), [mergedCapabilities]);
+
+  const handleRunTest = useCallback(async (capability) => {
+    setTestStatus((current) => ({
+      ...current,
+      [capability.capability_id]: {
+        submitting: true,
+        message: null,
+        error: false,
+      },
+    }));
+
+    try {
+      const response = await fetch(`/api/capabilities/${capability.capability_id}/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      const body = await response.json().catch(() => ({}));
+      const message = body.message || body.error || 'Capability test completed';
+
+      setTestStatus((current) => ({
+        ...current,
+        [capability.capability_id]: {
+          submitting: false,
+          message,
+          error: !response.ok,
+        },
+      }));
+
+      await fetchCapabilities();
+    } catch (err) {
+      setTestStatus((current) => ({
+        ...current,
+        [capability.capability_id]: {
+          submitting: false,
+          message: err.message || 'Capability test failed',
+          error: true,
+        },
+      }));
+    }
+  }, [fetchCapabilities]);
 
   return (
     <PageLayout
@@ -78,6 +159,8 @@ export default function CapabilitiesPage() {
         </div>
       )}
     >
+      <CapabilityRegistrySummary counts={summaryCounts} />
+
       <div className="flex items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-md">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -106,15 +189,30 @@ export default function CapabilitiesPage() {
         </div>
       </div>
 
+      <CapabilityRegistryFilters
+        healthFilter={healthFilter}
+        onHealthFilterChange={setHealthFilter}
+        staleOnly={staleOnly}
+        onStaleOnlyChange={setStaleOnly}
+        uncertifiedOnly={uncertifiedOnly}
+        onUncertifiedOnlyChange={setUncertifiedOnly}
+      />
+
       {error ? (
         <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
           {error}
         </div>
       ) : null}
 
+      {healthError ? (
+        <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+          {healthError}
+        </div>
+      ) : null}
+
       {loading ? (
         <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
-      ) : capabilities.length === 0 ? (
+      ) : filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={Wrench}
           title="No capabilities match"
@@ -136,62 +234,13 @@ export default function CapabilitiesPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {capabilities.map((cap) => (
-            <Link
-              key={cap.capability_id}
-              href={`/capabilities/${cap.capability_id}`}
-              className="block h-full"
-            >
-              <Card className="h-full">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-2 h-2 rounded-full ${healthDot[cap.health_status] || healthDot.unknown}`}
-                          title={`health: ${cap.health_status}`}
-                        />
-                        <div className="text-sm font-semibold text-white truncate">{cap.name}</div>
-                      </div>
-                      <div className="text-xs text-zinc-500 font-mono truncate mt-0.5">{cap.slug}</div>
-                    </div>
-                    <Badge variant={riskVariant[cap.risk_level] || 'default'}>{cap.risk_level}</Badge>
-                  </div>
-
-                  {cap.description ? (
-                    <div className="text-xs text-zinc-400 line-clamp-2 mb-3">{cap.description}</div>
-                  ) : null}
-
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    {cap.category ? <Badge size="xs">{cap.category}</Badge> : null}
-                    {cap.requires_approval ? (
-                      <Badge size="xs" variant="warning">
-                        <ShieldAlert size={10} className="mr-1" /> approval
-                      </Badge>
-                    ) : null}
-                    {hasPricing(cap) ? (
-                      <Badge size="xs" variant="info">
-                        <DollarSign size={10} className="mr-1" /> priced
-                      </Badge>
-                    ) : null}
-                    <Badge size="xs">{cap.source_type}</Badge>
-                  </div>
-
-                  {cap.tags?.length > 0 ? (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {cap.tags.slice(0, 4).map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 font-mono"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            </Link>
+          {filteredCapabilities.map((capability) => (
+            <CapabilityRegistryCard
+              key={capability.capability_id}
+              capability={capability}
+              onRunTest={handleRunTest}
+              testStatus={testStatus[capability.capability_id]}
+            />
           ))}
         </div>
       )}

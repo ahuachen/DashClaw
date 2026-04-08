@@ -17,6 +17,7 @@ import ActivityTimeline from '../components/ActivityTimeline';
 import SwarmActivityLog from '../components/SwarmActivityLog';
 import QuickStart from '../components/QuickStart';
 import AgentSpendCard from '../components/AgentSpendCard';
+import MissionControlCapabilityHealthCard from '../components/MissionControlCapabilityHealthCard';
 import { isDemoMode } from '../lib/isDemoMode';
 import { computePosture } from '../components/SystemStatusBar';
 
@@ -131,6 +132,8 @@ export default function MissionControlPage() {
   const [actions, setActions] = useState([]);
   const [pendingActions, setPendingActions] = useState([]);
   const [decisionMetrics, setDecisionMetrics] = useState(null);
+  const [capabilityHealth, setCapabilityHealth] = useState([]);
+  const [capabilityHealthError, setCapabilityHealthError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('priority');
   const [showTelemetry, setShowTelemetry] = useState(false);
@@ -147,13 +150,14 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes, metricsRes] = await Promise.all([
+      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes, metricsRes, capabilityHealthRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
         fetch(withParams('/api/actions/loops', ['status=open', 'limit=20'])),
         fetch('/api/health'),
         fetch(withParams('/api/actions', ['limit=12'])),
         fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
         fetch(withParams('/api/actions/stats')),
+        fetch('/api/capabilities/health?limit=20'),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
@@ -168,8 +172,18 @@ export default function MissionControlPage() {
         const pendingJson = await pendingRes.json();
         setPendingActions(pendingJson.actions || []);
       }
+      if (capabilityHealthRes.ok) {
+        const capabilityHealthJson = await capabilityHealthRes.json();
+        setCapabilityHealth(capabilityHealthJson.capabilities || []);
+        setCapabilityHealthError(null);
+      } else {
+        setCapabilityHealth([]);
+        setCapabilityHealthError('Capability health unavailable');
+      }
     } catch (error) {
       console.error('Mission Control fetch error:', error);
+      setCapabilityHealth([]);
+      setCapabilityHealthError('Capability health unavailable');
     } finally {
       setLoading(false);
     }
@@ -478,6 +492,13 @@ export default function MissionControlPage() {
             <AgentSpendCard agentId={agentId} />
           </div>
         </Card>
+
+        {/* Card 6 — Capability Health */}
+        <MissionControlCapabilityHealthCard
+          loading={loading}
+          error={capabilityHealthError}
+          capabilities={capabilityHealth}
+        />
 
         {/* Card 4 — Decisions (24h) */}
         <Card>
