@@ -1,0 +1,133 @@
+import { describe, expect, it } from 'vitest';
+import {
+  buildPolicySummary,
+  compilePolicyPayload,
+  createDefaultPolicyFormState,
+  decompilePolicyForm,
+} from '../../app/policies/lib/policyFormModel.js';
+
+describe('policyFormModel', () => {
+  it('creates valid default manual authoring state', () => {
+    const state = createDefaultPolicyFormState();
+
+    expect(state.name).toBe('');
+    expect(state.type).toBe('risk_threshold');
+    expect(state.threshold).toBe(80);
+    expect(state.action).toBe('block');
+    expect(state.agentIds).toEqual([]);
+  });
+
+  it('compiles risk threshold form state into the current route payload', () => {
+    const payload = compilePolicyPayload({
+      name: 'Block high risk deploys',
+      type: 'risk_threshold',
+      threshold: 90,
+      action: 'block',
+      agentIds: ['agt_1', 'agt_2'],
+    });
+
+    expect(payload).toEqual({
+      name: 'Block high risk deploys',
+      policy_type: 'risk_threshold',
+      rules: JSON.stringify({
+        threshold: 90,
+        action: 'block',
+      }),
+      agent_ids: JSON.stringify(['agt_1', 'agt_2']),
+    });
+  });
+
+  it('compiles semantic check state into the current route payload', () => {
+    const payload = compilePolicyPayload({
+      name: 'Protect system files',
+      type: 'semantic_check',
+      instruction: 'Do not allow the agent to delete files in /system.',
+      fallback: 'allow',
+      agentIds: [],
+    });
+
+    expect(payload).toEqual({
+      name: 'Protect system files',
+      policy_type: 'semantic_check',
+      rules: JSON.stringify({
+        instruction: 'Do not allow the agent to delete files in /system.',
+        fallback: 'allow',
+      }),
+      agent_ids: null,
+    });
+  });
+
+  it('decompiles persisted policy into type-specific form state', () => {
+    const form = decompilePolicyForm({
+      id: 'gp_1',
+      name: 'Require deploy approval',
+      policy_type: 'require_approval',
+      rules: JSON.stringify({
+        action_types: ['deploy', 'security'],
+        action: 'require_approval',
+      }),
+      agent_ids: JSON.stringify(['agt_9']),
+    });
+
+    expect(form.name).toBe('Require deploy approval');
+    expect(form.type).toBe('require_approval');
+    expect(form.actionTypes).toEqual(['deploy', 'security']);
+    expect(form.agentIds).toEqual(['agt_9']);
+  });
+
+  it('builds readable summaries for each supported policy type', () => {
+    expect(
+      buildPolicySummary({
+        type: 'risk_threshold',
+        threshold: 80,
+        action: 'block',
+        agentIds: [],
+      })
+    ).toContain('Block actions when risk is 80 or higher');
+
+    expect(
+      buildPolicySummary({
+        type: 'require_approval',
+        actionTypes: ['deploy', 'security'],
+        agentIds: [],
+      })
+    ).toContain('Require approval for deploy and security actions');
+
+    expect(
+      buildPolicySummary({
+        type: 'block_action_type',
+        actionTypes: ['cleanup'],
+        agentIds: [],
+      })
+    ).toContain('Block cleanup actions entirely');
+
+    expect(
+      buildPolicySummary({
+        type: 'rate_limit',
+        maxActions: 50,
+        windowMinutes: 60,
+        action: 'warn',
+        agentIds: [],
+      })
+    ).toContain('Warn when an agent exceeds 50 actions in 60 minutes');
+
+    expect(
+      buildPolicySummary({
+        type: 'webhook_check',
+        webhookUrl: 'https://guard.example.com/check',
+        webhookTimeout: 5000,
+        webhookOnTimeout: 'allow',
+        agentIds: [],
+      })
+    ).toContain('guard.example.com');
+
+    expect(
+      buildPolicySummary({
+        type: 'semantic_check',
+        instruction: 'Do not allow deletion of system files.',
+        fallback: 'allow',
+        agentIds: [],
+      })
+    ).toContain('Do not allow deletion of system files');
+  });
+});

@@ -16,6 +16,13 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { useRealtime } from '../hooks/useRealtime';
 import { PACK_PREVIEWS } from '../lib/policyPackPreviews.js';
+import PolicyAuthoringPanel from './components/PolicyAuthoringPanel';
+import {
+  buildPolicySummary,
+  compilePolicyPayload,
+  createDefaultPolicyFormState,
+  decompilePolicyForm,
+} from './lib/policyFormModel';
 
 const POLICY_TYPES = [
   { value: 'risk_threshold', label: 'Risk Threshold', desc: 'Block or warn when risk score exceeds a threshold' },
@@ -80,6 +87,32 @@ function parseAgentIds(policy) {
     const parsed = JSON.parse(policy.agent_ids);
     return Array.isArray(parsed) ? parsed : [];
   } catch { return []; }
+}
+
+function formatPolicySummary(policy) {
+  try {
+    return buildPolicySummary(decompilePolicyForm(policy));
+  } catch {
+    return formatRules(policy);
+  }
+}
+
+function isWebhookConfigInvalid(form) {
+  if (form.type !== 'webhook_check') return false;
+  try {
+    const url = new URL(form.webhookUrl);
+    return url.protocol !== 'https:' || !url.hostname;
+  } catch {
+    return true;
+  }
+}
+
+function isAuthoringFormInvalid(form) {
+  if (!form.name?.trim()) return true;
+  if ((form.type === 'require_approval' || form.type === 'block_action_type') && form.actionTypes.length === 0) return true;
+  if (isWebhookConfigInvalid(form)) return true;
+  if (form.type === 'semantic_check' && !form.instruction.trim()) return true;
+  return false;
 }
 
 /** Parse rules from a policy into form-friendly shape */
@@ -309,12 +342,7 @@ export default function PoliciesPage() {
 
   // Create form
   const [showAddForm, setShowAddForm] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    name: '', type: 'risk_threshold', action: 'block', threshold: 80,
-    actionTypes: [], maxActions: 50, windowMinutes: 60,
-    webhookUrl: '', webhookTimeout: 5000, webhookOnTimeout: 'allow',
-    instruction: '', fallback: 'allow', agentIds: [],
-  });
+  const [createForm, setCreateForm] = useState(createDefaultPolicyFormState);
   const [creating, setCreating] = useState(false);
 
   // Edit form
@@ -425,8 +453,9 @@ export default function PoliciesPage() {
     let type = customType;
 
     if (!rules) {
-      rules = JSON.parse(buildRulesJson(createForm));
-      type = createForm.type;
+      const payload = compilePolicyPayload(createForm);
+      rules = JSON.parse(payload.rules);
+      type = payload.policy_type;
     }
 
     try {
@@ -493,22 +522,18 @@ export default function PoliciesPage() {
     e.preventDefault();
     setCreating(true);
     try {
+      const payload = compilePolicyPayload(createForm);
       const res = await fetch('/api/policies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: createForm.name,
-          policy_type: createForm.type,
-          rules: buildRulesJson(createForm),
-          agent_ids: createForm.agentIds.length > 0 ? JSON.stringify(createForm.agentIds) : null,
-        }),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
       if (!res.ok) {
         setError(json.error || 'Failed to create policy');
       } else {
         setShowAddForm(false);
-        setCreateForm(prev => ({ ...prev, name: '', actionTypes: [], webhookUrl: '', instruction: '', agentIds: [] }));
+        setCreateForm(createDefaultPolicyFormState());
         fetchData();
       }
     } catch {
@@ -520,7 +545,7 @@ export default function PoliciesPage() {
 
   const handleStartEdit = (policy) => {
     setEditingId(policy.id);
-    setEditForm(parseRulesForEdit(policy));
+    setEditForm(decompilePolicyForm(policy));
   };
 
   const handleCancelEdit = () => {
@@ -531,14 +556,13 @@ export default function PoliciesPage() {
   const handleSaveEdit = async (policyId) => {
     setSaving(true);
     try {
+      const payload = compilePolicyPayload(editForm);
       const res = await fetch('/api/policies', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: policyId,
-          name: editForm.name,
-          rules: buildRulesJson(editForm),
-          agent_ids: editForm.agentIds?.length > 0 ? JSON.stringify(editForm.agentIds) : null,
+          ...payload,
         }),
       });
       const json = await res.json();
@@ -780,47 +804,19 @@ export default function PoliciesPage() {
         {/* Add form */}
         {showAddForm && canEdit && (
           <form onSubmit={handleCreate} className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] space-y-4 bg-[rgba(255,255,255,0.02)]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1">Policy Name</label>
-                <input
-                  type="text"
-                  value={createForm.name}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g. Block high-risk deploys"
-                  required
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1">Policy Type</label>
-                <select
-                  value={createForm.type}
-                  onChange={(e) => setCreateForm(prev => ({ ...prev, type: e.target.value }))}
-                  className={selectClass}
-                >
-                  {POLICY_TYPES.map(pt => (
-                    <option key={pt.value} value={pt.value}>{pt.label}</option>
-                  ))}
-                </select>
-                <p className="text-xs text-zinc-500 mt-1">
-                  {POLICY_TYPES.find(pt => pt.value === createForm.type)?.desc}
-                </p>
-              </div>
-            </div>
-
-            <PolicyFormFields form={createForm} setForm={setCreateForm} />
-
-            <PolicyAgentScope
-              agentIds={createForm.agentIds}
-              setAgentIds={(ids) => setCreateForm(prev => ({ ...prev, agentIds: typeof ids === 'function' ? ids(prev.agentIds) : ids }))}
+            <PolicyAuthoringPanel
+              form={createForm}
+              policyTypes={POLICY_TYPES}
+              actionOptions={ACTION_OPTIONS}
               agents={agents}
+              summary={buildPolicySummary(createForm)}
+              onChange={setCreateForm}
             />
 
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                disabled={creating || !createForm.name.trim() || ((createForm.type === 'require_approval' || createForm.type === 'block_action_type') && createForm.actionTypes.length === 0) || (createForm.type === 'webhook_check' && (() => { try { const u = new URL(createForm.webhookUrl); return u.protocol !== 'https:' || !u.hostname; } catch { return true; } })()) || (createForm.type === 'semantic_check' && !createForm.instruction.trim())}
+                disabled={creating || isAuthoringFormInvalid(createForm)}
                 className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
               >
                 {creating ? 'Creating...' : 'Create Policy'}
@@ -828,7 +824,7 @@ export default function PoliciesPage() {
               <button
                 type="button"
                 onClick={() => handleSimulate(null, null, 'create')}
-                disabled={simulating || ((createForm.type === 'require_approval' || createForm.type === 'block_action_type') && createForm.actionTypes.length === 0) || (createForm.type === 'webhook_check' && (() => { try { const u = new URL(createForm.webhookUrl); return u.protocol !== 'https:' || !u.hostname; } catch { return true; } })()) || (createForm.type === 'semantic_check' && !createForm.instruction.trim())}
+                disabled={simulating || isAuthoringFormInvalid(createForm)}
                 className="px-4 py-2 rounded-lg bg-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-600 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 <Play size={14} />
@@ -889,32 +885,19 @@ export default function PoliciesPage() {
                             <X size={16} />
                           </button>
                         </div>
-                        <div>
-                          <label className="block text-xs text-zinc-400 mb-1">Policy Name</label>
-                          <input
-                            type="text"
-                            value={editForm.name}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                            className={inputClass}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-zinc-400 mb-1">Policy Type</label>
-                          <div className="text-sm text-zinc-300 py-2">
-                            <Badge variant="info">{(policy.policy_type || policy.type || '').replace(/_/g, ' ')}</Badge>
-                            <span className="text-xs text-zinc-500 ml-2">(type cannot be changed after creation)</span>
-                          </div>
-                        </div>
-                        <PolicyFormFields form={editForm} setForm={setEditForm} />
-                        <PolicyAgentScope
-                          agentIds={editForm.agentIds || []}
-                          setAgentIds={(ids) => setEditForm(prev => ({ ...prev, agentIds: typeof ids === 'function' ? ids(prev.agentIds || []) : ids }))}
+                        <PolicyAuthoringPanel
+                          form={editForm}
+                          policyTypes={POLICY_TYPES}
+                          actionOptions={ACTION_OPTIONS}
                           agents={agents}
+                          summary={buildPolicySummary(editForm)}
+                          onChange={setEditForm}
+                          typeLocked
                         />
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => handleSaveEdit(policy.id)}
-                            disabled={saving || !editForm.name?.trim()}
+                            disabled={saving || isAuthoringFormInvalid(editForm)}
                             className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
                           >
                             {saving ? 'Saving...' : 'Save Changes'}
@@ -951,7 +934,7 @@ export default function PoliciesPage() {
                               </Badge>
                               <Badge variant="info">{(policy.policy_type || policy.type || 'custom_policy').replace(/_/g, ' ')}</Badge>
                             </div>
-                            <p className="text-xs text-zinc-400">{formatRules(policy)}</p>
+                            <p className="text-xs text-zinc-400">{formatPolicySummary(policy)}</p>
                             {parseAgentIds(policy).length > 0 && (
                               <div className="flex items-center gap-1.5 mt-1">
                                 <Users size={10} className="text-zinc-500" />
@@ -983,6 +966,7 @@ export default function PoliciesPage() {
                               onClick={() => handleStartEdit(policy)}
                               className="text-zinc-500 hover:text-brand transition-colors p-1"
                               title="Edit"
+                              aria-label={`Edit ${policy.name}`}
                             >
                               <Pencil size={14} />
                             </button>
