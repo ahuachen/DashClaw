@@ -45,6 +45,7 @@ async function main() {
     cwd: process.cwd(),
     env: process.env,
     stdio: ['ignore', 'pipe', 'pipe'],
+    detached: process.platform !== 'win32',
   });
 
   const stdoutBuffer = createLogBuffer();
@@ -98,6 +99,7 @@ async function main() {
       child,
       hasExited: () => childExited,
       exitPromise,
+      isDetached: process.platform !== 'win32',
     });
   }
 }

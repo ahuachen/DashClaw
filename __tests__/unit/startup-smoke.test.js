@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { formatSetupStatusSummary, shutdownChildProcess, waitForConfiguredSetup } from '../../scripts/lib/startup-smoke.mjs';
+import {
+  formatSetupStatusSummary,
+  sendTerminationSignal,
+  shutdownChildProcess,
+  waitForConfiguredSetup,
+} from '../../scripts/lib/startup-smoke.mjs';
 
 describe('startup smoke runner', () => {
   it('returns immediately when setup status is configured', async () => {
@@ -111,5 +116,18 @@ describe('startup smoke runner', () => {
 
     expect(child.kill).toHaveBeenCalledWith('SIGTERM');
     expect(child.kill).toHaveBeenCalledWith('SIGKILL');
+  });
+
+  it('targets the detached process group on posix when sending termination signals', () => {
+    const killImpl = vi.fn();
+    sendTerminationSignal({
+      child: { pid: 4242, kill: vi.fn() },
+      signal: 'SIGTERM',
+      isDetached: true,
+      platform: 'linux',
+      killImpl,
+    });
+
+    expect(killImpl).toHaveBeenCalledWith(-4242, 'SIGTERM');
   });
 });

@@ -45,19 +45,41 @@ export async function waitForConfiguredSetup({
   throw new Error(`startup smoke timed out waiting for configured setup status from ${url}; last=${lastSummary}`);
 }
 
+export function sendTerminationSignal({
+  child,
+  signal,
+  isDetached = false,
+  platform = process.platform,
+  killImpl = process.kill,
+} = {}) {
+  if (!child) return;
+
+  if (platform !== 'win32' && isDetached && Number.isInteger(child.pid)) {
+    killImpl(-child.pid, signal);
+    return;
+  }
+
+  child.kill(signal);
+}
+
 export async function shutdownChildProcess({
   child,
   hasExited = () => false,
   exitPromise = Promise.resolve(),
   sleepImpl = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   graceMs = 5000,
+  isDetached = false,
+  platform = process.platform,
+  killImpl = process.kill,
 } = {}) {
   if (!child || hasExited()) return;
 
-  child.kill('SIGTERM');
+  sendTerminationSignal({ child, signal: 'SIGTERM', isDetached, platform, killImpl });
 
   if (graceMs <= 0) {
-    if (!hasExited()) child.kill('SIGKILL');
+    if (!hasExited()) {
+      sendTerminationSignal({ child, signal: 'SIGKILL', isDetached, platform, killImpl });
+    }
     return;
   }
 
@@ -67,6 +89,6 @@ export async function shutdownChildProcess({
   }
 
   if (!hasExited()) {
-    child.kill('SIGKILL');
+    sendTerminationSignal({ child, signal: 'SIGKILL', isDetached, platform, killImpl });
   }
 }
