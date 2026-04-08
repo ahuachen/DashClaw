@@ -57,9 +57,7 @@ describe('runPreCommitChecks', () => {
   });
 
   it('fails when OpenAPI generation fails', () => {
-    let callCount = 0;
     const execImpl = vi.fn().mockImplementation((cmd, args) => {
-      callCount++;
       if (args?.some((a) => a.includes('generate-openapi'))) {
         throw new Error('openapi generation failed');
       }
