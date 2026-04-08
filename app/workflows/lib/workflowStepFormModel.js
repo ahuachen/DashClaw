@@ -1,0 +1,175 @@
+export const WORKFLOW_STEP_TYPES = [
+  {
+    value: 'knowledge_search',
+    label: 'Knowledge Search',
+    description: 'Search a linked knowledge collection and return matching chunks.',
+  },
+  {
+    value: 'capability_invoke',
+    label: 'Capability Invoke',
+    description: 'Call a linked DashClaw capability with a structured payload.',
+  },
+  {
+    value: 'prompt',
+    label: 'Prompt',
+    description: 'Run a prompt step through the workflow model strategy.',
+  },
+];
+
+const STEP_CONFIG_DEFAULTS = {
+  knowledge_search: {
+    collection_id: '',
+    query: '',
+    top_k: 5,
+  },
+  capability_invoke: {
+    capability_id: '',
+    body: {},
+  },
+  prompt: {
+    prompt_template: '',
+    system_prompt: '',
+    max_tokens: 1024,
+    temperature: 0.3,
+  },
+};
+
+const STEP_NAME_PREFIX = {
+  knowledge_search: 'Knowledge search',
+  capability_invoke: 'Capability invoke',
+  prompt: 'Prompt',
+};
+
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function normalizeId(id, index) {
+  return typeof id === 'string' && id.trim() ? id.trim() : `step_${index + 1}`;
+}
+
+function normalizeName(name, type, index) {
+  if (typeof name === 'string' && name.trim()) return name.trim();
+  return `${STEP_NAME_PREFIX[type] || 'Step'} ${index + 1}`;
+}
+
+function normalizeNumber(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function sanitizeStepConfig(type, config = {}) {
+  switch (type) {
+    case 'knowledge_search':
+      return {
+        collection_id: typeof config.collection_id === 'string' ? config.collection_id.trim() : '',
+        query: typeof config.query === 'string' ? config.query : '',
+        top_k: normalizeNumber(config.top_k, 5),
+      };
+    case 'capability_invoke':
+      return {
+        capability_id: typeof config.capability_id === 'string' ? config.capability_id.trim() : '',
+        body: config.body && typeof config.body === 'object' && !Array.isArray(config.body) ? config.body : {},
+      };
+    case 'prompt':
+      return {
+        prompt_template: typeof config.prompt_template === 'string' ? config.prompt_template : '',
+        system_prompt: typeof config.system_prompt === 'string' ? config.system_prompt : '',
+        max_tokens: normalizeNumber(config.max_tokens, 1024),
+        temperature: normalizeNumber(config.temperature, 0.3),
+      };
+    default:
+      return {};
+  }
+}
+
+export function createDefaultWorkflowStep(type, ordinal = 1) {
+  return {
+    id: `step_${ordinal}`,
+    type,
+    name: `${STEP_NAME_PREFIX[type] || 'Step'} ${ordinal}`,
+    config: deepClone(STEP_CONFIG_DEFAULTS[type] || {}),
+  };
+}
+
+export function sanitizeExecutableSteps(steps) {
+  if (!Array.isArray(steps)) return [];
+
+  return steps
+    .filter((step) => step && typeof step === 'object' && WORKFLOW_STEP_TYPES.some((item) => item.value === step.type))
+    .map((step, index) => ({
+      id: normalizeId(step.id, index),
+      type: step.type,
+      name: normalizeName(step.name, step.type, index),
+      config: sanitizeStepConfig(step.type, step.config),
+    }));
+}
+
+export function buildWorkflowStepSummary(step) {
+  if (!step || !step.type) return 'Unsupported workflow step';
+
+  switch (step.type) {
+    case 'knowledge_search': {
+      const collection = step.config?.collection_id || 'a collection';
+      const query = step.config?.query || 'a query';
+      const topK = normalizeNumber(step.config?.top_k, 5);
+      return `Search ${collection} for "${query}" and return top ${topK} matches.`;
+    }
+    case 'capability_invoke': {
+      const capability = step.config?.capability_id || 'a capability';
+      const bodyKeys = Object.keys(step.config?.body || {});
+      if (bodyKeys.length === 0) {
+        return `Invoke ${capability} with an empty payload.`;
+      }
+      return `Invoke ${capability} with ${bodyKeys.length} payload field${bodyKeys.length === 1 ? '' : 's'}.`;
+    }
+    case 'prompt': {
+      const prompt = step.config?.prompt_template || '';
+      const preview = prompt.trim().slice(0, 60);
+      return preview
+        ? `Run prompt using the linked model strategy: "${preview}${prompt.trim().length > 60 ? '...' : ''}".`
+        : 'Run prompt using the linked model strategy.';
+    }
+    default:
+      return 'Unsupported workflow step';
+  }
+}
+
+export function isLegacyWorkflowGraph(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return false;
+  return Array.isArray(input.nodes) || Array.isArray(input.edges);
+}
+
+export function buildLegacyWorkflowFallback(input) {
+  const nodes = Array.isArray(input?.nodes) ? input.nodes : [];
+  const edges = Array.isArray(input?.edges) ? input.edges : [];
+  const previewSteps = nodes.slice(0, 5).map((node, index) => {
+    const label = node?.data?.label || node?.label || node?.id || `Legacy step ${index + 1}`;
+    const type = node?.data?.stepType || node?.type || 'unknown';
+    return `${label} (${type})`;
+  });
+  const nodeTypes = [...new Set(nodes.map((node) => node?.data?.stepType || node?.type || 'unknown'))];
+
+  return {
+    nodeCount: nodes.length,
+    edgeCount: edges.length,
+    nodeTypes,
+    previewSteps,
+  };
+}
+
+export function normalizeWorkflowStepData(input) {
+  if (isLegacyWorkflowGraph(input)) {
+    return {
+      mode: 'legacy',
+      steps: [],
+      legacyFallback: buildLegacyWorkflowFallback(input),
+    };
+  }
+
+  return {
+    mode: 'builder',
+    steps: sanitizeExecutableSteps(input),
+    legacyFallback: null,
+  };
+}

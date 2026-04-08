@@ -6,13 +6,12 @@ import Link from 'next/link';
 import {
   ArrowLeft, Rocket, Copy, FileText, ShieldCheck, BookOpen, Wrench, Cpu, ExternalLink,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-
-// Dynamic import avoids SSR for React Flow (canvas-heavy, browser-only)
-const WorkflowEditor = dynamic(() => import('../../components/WorkflowEditor'), { ssr: false });
+import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
+import WorkflowStepLegacyNotice from '../components/WorkflowStepLegacyNotice.jsx';
+import { normalizeWorkflowStepData, sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
 
 const statusVariant = {
   draft: 'default',
@@ -29,7 +28,7 @@ export default function WorkflowTemplateDetailPage() {
   const [launching, setLaunching] = useState(false);
   const [launchResult, setLaunchResult] = useState(null);
   const [duplicating, setDuplicating] = useState(false);
-  const [stepsView, setStepsView] = useState('visual'); // 'visual' | 'source'
+  const [stepsView, setStepsView] = useState('builder');
   const [pendingSteps, setPendingSteps] = useState(null);
   const [savingSteps, setSavingSteps] = useState(false);
   const [linkedResources, setLinkedResources] = useState({
@@ -155,6 +154,11 @@ export default function WorkflowTemplateDetailPage() {
     );
   }
 
+  const stepData = normalizeWorkflowStepData(pendingSteps || template.steps);
+  const visibleStepCount = stepData.mode === 'builder'
+    ? stepData.steps.length
+    : (stepData.legacyFallback?.nodeCount || 0);
+
   return (
     <PageLayout
       title={template.name}
@@ -201,7 +205,7 @@ export default function WorkflowTemplateDetailPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-semibold text-white">{template.steps?.length || 0}</div>
+            <div className="text-2xl font-semibold text-white">{visibleStepCount}</div>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Steps</div>
           </CardContent>
         </Card>
@@ -243,10 +247,11 @@ export default function WorkflowTemplateDetailPage() {
             <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps</span>
             <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
               <button
-                onClick={() => setStepsView('visual')}
-                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'visual' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+                onClick={() => setStepsView('builder')}
+                disabled={stepData.mode !== 'builder'}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'builder' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'} disabled:opacity-40 disabled:hover:text-zinc-400`}
               >
-                Visual
+                Builder
               </button>
               <button
                 onClick={() => setStepsView('source')}
@@ -256,7 +261,7 @@ export default function WorkflowTemplateDetailPage() {
               </button>
             </div>
           </div>
-          {pendingSteps && (
+          {stepData.mode === 'builder' && pendingSteps && (
             <button
               onClick={async () => {
                 setSavingSteps(true);
@@ -264,7 +269,7 @@ export default function WorkflowTemplateDetailPage() {
                   const res = await fetch(`/api/workflows/templates/${templateId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ steps: pendingSteps }),
+                    body: JSON.stringify({ steps: sanitizeExecutableSteps(pendingSteps) }),
                   });
                   if (res.ok) {
                     setPendingSteps(null);
@@ -281,13 +286,15 @@ export default function WorkflowTemplateDetailPage() {
           )}
         </div>
         <CardContent className="p-5 pt-0">
-          {stepsView === 'visual' ? (
-            <div className="relative">
-              <WorkflowEditor
-                steps={template.steps}
+          {stepsView === 'builder' ? (
+            stepData.mode === 'builder' ? (
+              <WorkflowStepBuilder
+                steps={stepData.steps}
                 onChange={(newSteps) => setPendingSteps(newSteps)}
               />
-            </div>
+            ) : (
+              <WorkflowStepLegacyNotice legacyFallback={stepData.legacyFallback} />
+            )
           ) : (
             <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
               {JSON.stringify(pendingSteps || template.steps, null, 2)}

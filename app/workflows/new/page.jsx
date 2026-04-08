@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { ArrowLeft, Save } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardContent } from '../../components/ui/Card';
-
-const WorkflowEditor = dynamic(() => import('../../components/WorkflowEditor'), { ssr: false });
+import WorkflowStepBuilder from '../components/WorkflowStepBuilder.jsx';
+import { sanitizeExecutableSteps } from '../lib/workflowStepFormModel.js';
 
 export default function NewWorkflowTemplatePage() {
   const router = useRouter();
@@ -21,18 +20,20 @@ export default function NewWorkflowTemplatePage() {
     objective: '',
     status: 'draft',
   });
-  const [steps, setSteps] = useState(null);
+  const [steps, setSteps] = useState([]);
 
-  const update = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  const update = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }));
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!form.name.trim()) {
       setError('Name is required');
       return;
     }
+
     setSaving(true);
     setError(null);
+
     try {
       const res = await fetch('/api/workflows/templates', {
         method: 'POST',
@@ -43,13 +44,15 @@ export default function NewWorkflowTemplatePage() {
           description: form.description.trim() || undefined,
           objective: form.objective.trim() || undefined,
           status: form.status,
-          ...(steps ? { steps } : {}),
+          steps: sanitizeExecutableSteps(steps),
         }),
       });
+
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || 'Failed to create template');
       }
+
       const { template } = await res.json();
       router.push(`/workflows/${template.template_id}`);
     } catch (err) {
@@ -63,16 +66,16 @@ export default function NewWorkflowTemplatePage() {
       title="New Workflow Template"
       subtitle="Define a reusable, versioned operational pattern"
       breadcrumbs={['Studio', 'Workflows', 'New']}
-      actions={
+      actions={(
         <Link
           href="/workflows"
           className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
         >
           <ArrowLeft size={14} /> Back
         </Link>
-      }
+      )}
     >
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
+      <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
         <Card>
           <CardContent className="p-5 space-y-4">
             <div>
@@ -81,6 +84,7 @@ export default function NewWorkflowTemplatePage() {
               </label>
               <input
                 type="text"
+                aria-label="Name"
                 value={form.name}
                 onChange={update('name')}
                 required
@@ -147,11 +151,11 @@ export default function NewWorkflowTemplatePage() {
 
         <Card>
           <div className="px-5 pt-5 pb-3">
-            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps (optional)</span>
-            <span className="text-xs text-zinc-500 ml-2">Drag nodes, connect edges. Saved with the template on create.</span>
+            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps</span>
+            <span className="text-xs text-zinc-500 ml-2">Build a real ordered sequence of executable workflow steps.</span>
           </div>
           <CardContent className="p-5 pt-0">
-            <WorkflowEditor steps={null} onChange={(s) => setSteps(s)} />
+            <WorkflowStepBuilder steps={steps} onChange={setSteps} />
           </CardContent>
         </Card>
 
