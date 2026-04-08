@@ -470,6 +470,17 @@ await claw.duplicateWorkflowTemplate(templateId);
 // If the template links a model_strategy_id, the resolved config is snapshotted.
 const { launch } = await claw.launchWorkflowTemplate(templateId, { agent_id: 'deploy-bot' });
 console.log(launch.action_id); // act_... — view it in /decisions/<action_id>
+
+// List past runs for a template (HTTP only — no SDK wrapper yet)
+const runs = await fetch(`${baseUrl}/api/workflows/templates/${templateId}/runs?limit=10`, {
+  headers: { 'x-api-key': apiKey },
+}).then(r => r.json());
+
+// Get full run detail with step inputs/outputs
+const run = await fetch(`${baseUrl}/api/workflows/templates/${templateId}/runs/${runActionId}`, {
+  headers: { 'x-api-key': apiKey },
+}).then(r => r.json());
+// run.steps[].input / run.steps[].output contain full JSON (no truncation)
 ```
 
 ### Model Strategies

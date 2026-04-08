@@ -1184,6 +1184,45 @@ console.log(\`\${baseUrl}/decisions/\${launch.action_id}\`);`}
                   </CodeBlock>
                 }
               />
+
+              <MethodEntry
+                id="listWorkflowRuns"
+                signature="GET /api/workflows/templates/:templateId/runs"
+                description="List past workflow executions for a template. Each run is a parent action_record with step counts from workflow_step_results. Supports status, agent_id, limit, and offset query params."
+                returns="{ template_id, runs: [{ run_action_id, template_id, status, agent_id, declared_goal, duration_ms, started_at, finished_at, step_count, steps_completed, steps_failed }], total }"
+                example={
+                  <CodeBlock title="List recent runs">
+{`const runs = await fetch(
+  \`\${baseUrl}/api/workflows/templates/\${templateId}/runs?limit=10\`,
+  { headers: { 'x-api-key': apiKey } }
+).then(r => r.json());
+
+runs.runs.forEach(r =>
+  console.log(\`\${r.status} — \${r.steps_completed}/\${r.step_count} steps — \${r.duration_ms}ms\`)
+);`}
+                  </CodeBlock>
+                }
+              />
+
+              <MethodEntry
+                id="getWorkflowRun"
+                signature="GET /api/workflows/templates/:templateId/runs/:runActionId"
+                description="Fetch full run detail including all step results with complete input/output JSON. Powers the run detail page. Each step includes the resolved input after variable interpolation and the full output (no truncation)."
+                returns="{ run_action_id, template_id, template_name, status, agent_id, declared_goal, duration_ms, started_at, finished_at, error_message, steps: [{ step_id, step_index, step_type, step_name, status, input, output, error_message, retry_count, duration_ms }] }"
+                example={
+                  <CodeBlock title="Inspect a failed run">
+{`const run = await fetch(
+  \`\${baseUrl}/api/workflows/templates/\${templateId}/runs/\${runActionId}\`,
+  { headers: { 'x-api-key': apiKey } }
+).then(r => r.json());
+
+const failed = run.steps.filter(s => s.status === 'failed');
+failed.forEach(s =>
+  console.log(\`Step \${s.step_name} failed: \${s.error_message}\`)
+);`}
+                  </CodeBlock>
+                }
+              />
             </div>
 
             {/* Model Strategies */}

@@ -79,14 +79,16 @@ Modular intelligence features that consume runtime data.
 | `GET/POST /api/capabilities` | Searchable capability registry. `GET` supports `category`, `risk_level`, and `search` (ILIKE on name/description/tags) filters. |
 | `GET/PATCH /api/capabilities/:capabilityId` | Fetch or update a capability record. |
 | `POST /api/capabilities/:capabilityId/invoke` | **Invoke an HTTP capability** through the full governance loop. Guard evaluation, action recording, BYOK auth resolution, request/response mapping, timeout handling, outcome tracking. Supports blocked (403), pending_approval (202), success (200). |
-| `POST /api/workflows/templates/:templateId/execute` | **Execute a workflow** synchronously (120s max). Runs steps sequentially with rolling context. 3 step types: `prompt` (LLM via model strategy), `capability_invoke` (HTTP capability), `knowledge_search` (semantic search). Each step creates a child action record. Guard on launch. |
+| `POST /api/workflows/templates/:templateId/execute` | **Execute a workflow** synchronously (120s max). Runs steps sequentially with rolling context. 3 step types: `prompt` (LLM via model strategy), `capability_invoke` (HTTP capability), `knowledge_search` (semantic search). Each step creates a child action record and a `workflow_step_results` row with full input/output. Guard on launch. |
+| `GET /api/workflows/templates/:templateId/runs` | List past workflow executions for a template. Joins `action_records` (parent) with `workflow_step_results` for step counts. Supports `status`, `agent_id`, `limit`, `offset` filters. |
+| `GET /api/workflows/templates/:templateId/runs/:runActionId` | Fetch full run detail: parent action metadata + all step results with complete input/output JSON. Powers the run detail page at `/workflows/:id/runs/:runId`. |
 | `GET /api/usage/costs` | Cost aggregation by action type and daily totals for the billing period. |
 | `POST /api/billing/checkout` | Create Stripe Checkout Session for pro/business subscription. |
 | `GET /api/billing/portal` | Create Stripe Customer Portal link for subscription management. |
 | `POST /api/webhooks/stripe` | Stripe webhook handler (checkout.session.completed, subscription.updated/deleted, invoice.payment_failed). |
 | `GET /api/cron/reset-meters` | Monthly meter archive + reset (Vercel Cron, 1st of month). |
 
-All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Five new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
+All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Six new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`, `workflow_step_results`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
 ### Tier 3: Archived (`app/api/_archive/`)
 Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory Health). These are physically quarantined to maintain a small, stable runtime boundary.
