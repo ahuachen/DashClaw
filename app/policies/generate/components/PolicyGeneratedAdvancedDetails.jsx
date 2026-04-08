@@ -1,0 +1,37 @@
+import { useState } from 'react';
+
+export default function PolicyGeneratedAdvancedDetails({ advancedDetails, rawPolicy }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-4">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="text-sm font-medium text-yellow-400"
+      >
+        Advanced details
+      </button>
+      {open && (
+        <div className="mt-4 space-y-4">
+          {advancedDetails && (
+            <div>
+              <div className="mb-2 text-xs uppercase tracking-wider text-zinc-500">Normalized advanced details</div>
+              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-zinc-300">
+                {JSON.stringify(advancedDetails, null, 2)}
+              </pre>
+            </div>
+          )}
+          {rawPolicy && (
+            <div>
+              <div className="mb-2 text-xs uppercase tracking-wider text-zinc-500">Raw generated policy</div>
+              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-zinc-300">
+                {JSON.stringify(rawPolicy, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
