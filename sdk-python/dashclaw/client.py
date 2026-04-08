@@ -2012,6 +2012,48 @@ class DashClaw:
         """Update a capability."""
         return self._request(f"/api/capabilities/{capability_id}", "PATCH", json=kwargs)
 
+    def invoke_capability(self, capability_id, payload=None, actor=None, reason=None):
+        """Invoke a governed capability."""
+        body = {}
+        if payload is not None:
+            body["payload"] = payload
+        if actor is not None:
+            body["actor"] = actor
+        if reason is not None:
+            body["reason"] = reason
+        return self._request(f"/api/capabilities/{capability_id}/invoke", "POST", json=body)
+
+    def test_capability(self, capability_id, payload=None):
+        """Run a non-production test of a capability."""
+        body = {}
+        if payload is not None:
+            body["payload"] = payload
+        return self._request(f"/api/capabilities/{capability_id}/test", "POST", json=body)
+
+    def get_capability_health(self, capability_id):
+        """Fetch derived health information for a capability."""
+        return self._request(f"/api/capabilities/{capability_id}/health", "GET")
+
+    def list_capability_health(self, status=None, certification_status=None, stale_only=None, limit=50, offset=0):
+        """List capability health entries with optional operator filters."""
+        params = {"limit": limit, "offset": offset}
+        if status is not None:
+            params["status"] = status
+        if certification_status is not None:
+            params["certification_status"] = certification_status
+        if stale_only is not None:
+            params["stale_only"] = stale_only
+        return self._request("/api/capabilities/health", "GET", params=params)
+
+    def get_capability_history(self, capability_id, action_type=None, status=None, limit=20, offset=0):
+        """Fetch recent capability test and invoke history."""
+        params = {"limit": limit, "offset": offset}
+        if action_type is not None:
+            params["action_type"] = action_type
+        if status is not None:
+            params["status"] = status
+        return self._request(f"/api/capabilities/{capability_id}/history", "GET", params=params)
+
 
 # Backward compatibility alias (Legacy)
 OpenClawAgent = DashClaw

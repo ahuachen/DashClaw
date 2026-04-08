@@ -18,6 +18,20 @@ async function readPythonVersion(rootDir) {
   return match[1];
 }
 
+async function readPythonMethods(rootDir) {
+  const clientPath = path.join(rootDir, 'sdk-python', 'dashclaw', 'client.py');
+  const raw = await fs.readFile(clientPath, 'utf8');
+  return Array.from(raw.matchAll(/^    def ([A-Za-z_][A-Za-z0-9_]*)\(/gm), (match) => match[1]);
+}
+
+function selectPythonMethods(methods, canonicalRoot) {
+  if (canonicalRoot === 'capabilities') {
+    return methods.filter((method) => method.includes('capability') || method.includes('capabilities'));
+  }
+
+  return methods.filter((method) => !method.startsWith('_'));
+}
+
 function discoverNodeMethods() {
   const sdk = new DashClaw({
     baseUrl: 'http://localhost',
@@ -32,6 +46,10 @@ export async function discoverSdkSurface(rootDir) {
 
   return {
     nodeMethods: discoverNodeMethods(),
+    pythonMethods: selectPythonMethods(
+      await readPythonMethods(rootDir),
+      (await readJson(rootDir, 'contracts/sdk/public-surface.json')).python?.canonical_root,
+    ),
     nodeVersion: nodePackage.version,
     pythonVersion: await readPythonVersion(rootDir),
   };
@@ -57,6 +75,24 @@ export async function checkSdkSurface(contracts, discoveredSurface = null) {
       findings.push({
         code: 'undeclared_node_sdk_method',
         message: `Node SDK execution.capabilities exposes undeclared public method "${method}". Update contracts/sdk/public-surface.json and contracts/sdk/release-plan.json.`,
+      });
+    }
+  }
+
+  for (const method of publicSurface.python?.required_methods || []) {
+    if (!(discovered.pythonMethods || []).includes(method)) {
+      findings.push({
+        code: 'missing_python_sdk_method',
+        message: `Python SDK ${publicSurface.python?.canonical_root || 'public surface'} is missing required method "${method}"`,
+      });
+    }
+  }
+
+  for (const method of discovered.pythonMethods || []) {
+    if (!(publicSurface.python?.required_methods || []).includes(method)) {
+      findings.push({
+        code: 'undeclared_python_sdk_method',
+        message: `Python SDK ${publicSurface.python?.canonical_root || 'public surface'} exposes undeclared public method "${method}". Update contracts/sdk/public-surface.json and contracts/sdk/release-plan.json.`,
       });
     }
   }

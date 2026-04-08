@@ -76,6 +76,18 @@ Where capability-runtime overlap exists, legacy should expose flat compatibility
 
 The Python SDK currently remains broader than the canonical Node SDK.
 
+For the capability-runtime domain, Python now exposes the same route-contract surface as the canonical Node SDK:
+
+- `list_capabilities(...)`
+- `create_capability(...)`
+- `get_capability(...)`
+- `update_capability(...)`
+- `invoke_capability(...)`
+- `test_capability(...)`
+- `get_capability_health(...)`
+- `list_capability_health(...)`
+- `get_capability_history(...)`
+
 That is acceptable temporarily, but it should not define future product direction on its own. New design work should still align with:
 
 - the canonical object model,
@@ -89,7 +101,7 @@ That is acceptable temporarily, but it should not define future product directio
 | Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK |
 | Sessions / action graph | Yes | Partial overlap | Yes | Stable, canonical in main SDK |
 | Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, continue promoting there |
-| Capabilities | Yes | Yes, as flat compatibility wrappers for current overlap | Yes | Canonical in main SDK; `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, `listHealth(...)`, and `getHistory(...)` promoted. Legacy should only shim to the same routes |
+| Capabilities | Yes | Yes, as flat compatibility wrappers for current overlap | Yes | Canonical in main SDK, with Python route-contract parity for registry plus runtime methods. Legacy should only shim to the same routes |
 | Model strategies | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Knowledge collections | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Messaging / handoffs / threads | Yes | Yes | Yes | Canonical in main SDK |

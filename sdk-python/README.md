@@ -1228,7 +1228,37 @@ claw.create_capability(
     health_status="healthy",
     docs_url="https://docs.example.com/slack",
 )
+
+# Governed runtime execution
+claw.invoke_capability(
+    "cap_123",
+    payload={"channel": "#ops", "text": "Deploy complete"},
+    actor="ops-agent",
+    reason="post-deploy notification",
+)
+
+# Non-production test run
+claw.test_capability("cap_123", payload={"channel": "#sandbox"})
+
+# Operator health surfaces
+health = claw.get_capability_health("cap_123")
+health_list = claw.list_capability_health(status="failing", certification_status="uncertified")
+history = claw.get_capability_history("cap_123", action_type="capability_test", status="failed")
 ```
+
+**Methods:**
+
+| Method | Description |
+|--------|-------------|
+| `list_capabilities(category=None, risk_level=None, search=None, limit=100, offset=0)` | Search the capability registry |
+| `create_capability(**kwargs)` | Register a capability |
+| `get_capability(capability_id)` | Fetch a single capability |
+| `update_capability(capability_id, **kwargs)` | Update a capability |
+| `invoke_capability(capability_id, payload=None, actor=None, reason=None)` | Execute a governed capability invocation |
+| `test_capability(capability_id, payload=None)` | Run a non-production capability test |
+| `get_capability_health(capability_id)` | Get derived health and certification data for one capability |
+| `list_capability_health(status=None, certification_status=None, stale_only=None, limit=50, offset=0)` | List capability health rows with operator filters |
+| `get_capability_history(capability_id, action_type=None, status=None, limit=20, offset=0)` | Fetch recent invoke/test history for one capability |
 
 ## License
 

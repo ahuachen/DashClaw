@@ -63,6 +63,7 @@ These are the first domains that should set the pattern:
 - Target: canonical execution namespace
 - Needed work:
   - keep `execution.capabilities.invoke(...)`, `test(...)`, `getHealth(...)`, `listHealth(...)`, and `getHistory(...)` as the canonical shipped paths,
+  - keep Python aligned to the same capability-runtime HTTP contracts via `invoke_capability(...)`, `test_capability(...)`, `get_capability_health(...)`, `list_capability_health(...)`, and `get_capability_history(...)`,
   - keep legacy flat methods as compatibility shims to the same routes where older integrations already expect them,
   - document the canonical path as primary.
 

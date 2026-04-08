@@ -14,7 +14,18 @@
     ]
   },
   "python": {
-    "required_methods": []
+    "canonical_root": "capabilities",
+    "required_methods": [
+      "list_capabilities",
+      "create_capability",
+      "get_capability",
+      "update_capability",
+      "invoke_capability",
+      "test_capability",
+      "get_capability_health",
+      "list_capability_health",
+      "get_capability_history"
+    ]
   },
   "legacy": {
     "compatibility_only": true
