@@ -1126,3 +1126,25 @@ CREATE INDEX IF NOT EXISTS "idx_knowledge_chunks_item" ON "knowledge_chunks" ("i
 -- Predictive risk: fast historical action lookups by (org, agent, action_type)
 CREATE INDEX IF NOT EXISTS idx_action_records_predictive
 ON action_records (org_id, agent_id, action_type, timestamp_start DESC);
+--> statement-breakpoint
+-- Workflow step results: full input/output for each step execution
+CREATE TABLE IF NOT EXISTS workflow_step_results (
+  id SERIAL PRIMARY KEY,
+  step_result_id TEXT UNIQUE NOT NULL,
+  run_action_id TEXT NOT NULL,
+  org_id TEXT NOT NULL,
+  template_id TEXT NOT NULL,
+  step_id TEXT NOT NULL,
+  step_index INTEGER NOT NULL,
+  step_type TEXT NOT NULL,
+  step_name TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  input_json TEXT,
+  output_json TEXT,
+  error_message TEXT,
+  retry_count INTEGER DEFAULT 0,
+  duration_ms INTEGER,
+  started_at TEXT,
+  finished_at TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
