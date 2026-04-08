@@ -19,9 +19,9 @@ describe('WorkflowAiDraftPanel', () => {
     fireEvent.change(screen.getByLabelText(/provider/i), {
       target: { value: 'anthropic' },
     });
-    expect(screen.getByLabelText(/model/i).value).toBe('claude-3-5-haiku-latest');
+    expect(screen.getByLabelText(/model/i).value).toBe('claude-sonnet-4-20250514');
     fireEvent.change(screen.getByLabelText(/model/i), {
-      target: { value: 'claude-sonnet-4' },
+      target: { value: 'claude-opus-4-1-20250805' },
     });
     fireEvent.click(screen.getByRole('checkbox', { name: /prefer existing linked dashclaw resources/i }));
     fireEvent.click(screen.getByRole('button', { name: /generate draft/i }));
@@ -30,7 +30,7 @@ describe('WorkflowAiDraftPanel', () => {
       description: 'Search the refund docs and send the answer to Slack.',
       apiKey: 'sk-test-123',
       provider: 'anthropic',
-      model: 'claude-sonnet-4',
+      model: 'claude-opus-4-1-20250805',
       preferExistingResources: false,
     });
   });
