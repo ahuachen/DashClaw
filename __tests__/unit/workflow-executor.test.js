@@ -141,6 +141,70 @@ describe('executeWorkflow', () => {
     expect(result.steps[0].retry_metadata).toBeUndefined();
   });
 
+  it('writes step_result records when persistStepResult is provided', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+
+    const persistStepResult = vi.fn().mockResolvedValue(undefined);
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {}, persistStepResult });
+
+    expect(result.success).toBe(true);
+    expect(persistStepResult).toHaveBeenCalledTimes(2);
+    expect(persistStepResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_id: 'step_1',
+        step_index: 0,
+        step_type: 'knowledge_search',
+        step_name: 'Search',
+        status: 'running',
+      }),
+    );
+    expect(persistStepResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_id: 'step_1',
+        status: 'completed',
+        output_json: expect.any(Object),
+        duration_ms: expect.any(Number),
+      }),
+    );
+  });
+
+  it('writes failed step_result on step failure', async () => {
+    handleCapabilityInvoke.mockRejectedValue(new Error('timeout'));
+
+    const persistStepResult = vi.fn().mockResolvedValue(undefined);
+
+    const steps = [
+      { id: 'step_1', type: 'capability_invoke', name: 'Call API', config: { capability_id: 'cap_1', body: {} } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {}, persistStepResult });
+
+    expect(result.success).toBe(false);
+    expect(persistStepResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_id: 'step_1',
+        status: 'failed',
+        error_message: 'timeout',
+      }),
+    );
+  });
+
+  it('skips step_result writes when persistStepResult is not provided', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+    expect(result.success).toBe(true);
+  });
+
   it('passes rolling context between steps', async () => {
     handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [{ content: 'found data' }], query: 'q' });
     handlePrompt.mockResolvedValueOnce({ text: 'done', tokens_in: 10, tokens_out: 5 });

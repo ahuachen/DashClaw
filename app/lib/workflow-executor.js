@@ -44,6 +44,7 @@ export async function executeWorkflow(
   workflowContext,
 ) {
   const context = { variables: variables || {}, steps: {} };
+  const persistStepResult = workflowContext.persistStepResult || null;
   const stepResults = [];
   const start = Date.now();
 
@@ -73,6 +74,20 @@ export async function executeWorkflow(
       timestamp_start: new Date().toISOString(),
     });
 
+    const stepIndex = steps.indexOf(step);
+
+    if (persistStepResult) {
+      await persistStepResult({
+        step_id: step.id,
+        step_index: stepIndex,
+        step_type: step.type,
+        step_name: step.name || step.id,
+        status: 'running',
+        input_json: resolveVars(step.config || {}, context),
+        started_at: new Date().toISOString(),
+      }).catch((err) => console.warn('[Executor] Step result write failed:', err.message));
+    }
+
     const maxRetries = step.retry_policy?.max_retries || 0;
     const backoff = step.retry_policy?.backoff || 'none';
     const baseDelayMs = step.retry_policy?.base_delay_ms || 1000;
@@ -96,6 +111,20 @@ export async function executeWorkflow(
         `;
 
         context.steps[step.id] = { output };
+
+        if (persistStepResult) {
+          await persistStepResult({
+            step_id: step.id,
+            step_index: stepIndex,
+            step_type: step.type,
+            step_name: step.name || step.id,
+            status: 'completed',
+            output_json: output,
+            retry_count: attempt,
+            duration_ms: stepElapsed,
+            finished_at: new Date().toISOString(),
+          }).catch((err) => console.warn('[Executor] Step result write failed:', err.message));
+        }
 
         stepResults.push({
           step_id: step.id,
@@ -138,6 +167,20 @@ export async function executeWorkflow(
         elapsed_ms: stepElapsed,
         ...(maxRetries > 0 ? { retry_metadata: { total_attempts: maxRetries + 1, retried: true } } : {}),
       });
+
+      if (persistStepResult) {
+        await persistStepResult({
+          step_id: step.id,
+          step_index: stepIndex,
+          step_type: step.type,
+          step_name: step.name || step.id,
+          status: 'failed',
+          error_message: lastError.message,
+          retry_count: maxRetries,
+          duration_ms: stepElapsed,
+          finished_at: new Date().toISOString(),
+        }).catch((err) => console.warn('[Executor] Step result write failed:', err.message));
+      }
 
       return {
         success: false,
