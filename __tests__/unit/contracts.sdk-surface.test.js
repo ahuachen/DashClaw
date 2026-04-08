@@ -11,8 +11,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke', 'test'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: [],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: [],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -22,7 +30,7 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke'],
-      pythonMethods: [],
+      pythonMethods: { capabilities: [], workflows: [] },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -41,8 +49,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: [],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: [],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -52,7 +68,7 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke'],
-      pythonMethods: [],
+      pythonMethods: { capabilities: [], workflows: [] },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -70,8 +86,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: [],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: [],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -81,7 +105,7 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke', 'test'],
-      pythonMethods: [],
+      pythonMethods: { capabilities: [], workflows: [] },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -100,8 +124,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['list', 'invoke', 'test'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: [],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: [],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -111,7 +143,7 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['list', 'invoke', 'test'],
-      pythonMethods: [],
+      pythonMethods: { capabilities: [], workflows: [] },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -129,8 +161,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: ['list_capabilities', 'invoke_capability', 'get_capability_history'],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: ['list_capabilities', 'invoke_capability', 'get_capability_history'],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -140,7 +180,10 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke'],
-      pythonMethods: ['list_capabilities', 'invoke_capability'],
+      pythonMethods: {
+        capabilities: ['list_capabilities', 'invoke_capability'],
+        workflows: [],
+      },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -159,8 +202,16 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: ['invoke_capability'],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: ['invoke_capability'],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -170,7 +221,10 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke'],
-      pythonMethods: ['invoke_capability', 'test_capability'],
+      pythonMethods: {
+        capabilities: ['invoke_capability', 'test_capability'],
+        workflows: [],
+      },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
@@ -189,18 +243,26 @@ describe('checkSdkSurface', () => {
             required_methods: ['invoke'],
           },
           python: {
-            canonical_root: 'capabilities',
-            required_methods: [
-              'list_capabilities',
-              'create_capability',
-              'get_capability',
-              'update_capability',
-              'invoke_capability',
-              'test_capability',
-              'get_capability_health',
-              'list_capability_health',
-              'get_capability_history',
-            ],
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: [
+                  'list_capabilities',
+                  'create_capability',
+                  'get_capability',
+                  'update_capability',
+                  'invoke_capability',
+                  'test_capability',
+                  'get_capability_health',
+                  'list_capability_health',
+                  'get_capability_history',
+                ],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [],
+              },
+            },
           },
         },
         'release-plan': {
@@ -210,22 +272,111 @@ describe('checkSdkSurface', () => {
       },
     }, {
       nodeMethods: ['invoke'],
-      pythonMethods: [
-        'list_capabilities',
-        'create_capability',
-        'get_capability',
-        'update_capability',
-        'invoke_capability',
-        'test_capability',
-        'get_capability_health',
-        'list_capability_health',
-        'get_capability_history',
-      ],
+      pythonMethods: {
+        capabilities: [
+          'list_capabilities',
+          'create_capability',
+          'get_capability',
+          'update_capability',
+          'invoke_capability',
+          'test_capability',
+          'get_capability_health',
+          'list_capability_health',
+          'get_capability_history',
+        ],
+        workflows: [],
+      },
       nodeVersion: '2.10.0',
       pythonVersion: '2.10.0',
     });
 
     expect(result.ok).toBe(true);
     expect(result.findings).toEqual([]);
+  });
+
+  it('fails when required Python workflow methods are missing', async () => {
+    const result = await checkSdkSurface({
+      sdk: {
+        'public-surface': {
+          node: {
+            canonical_root: 'execution.capabilities',
+            required_methods: ['invoke'],
+          },
+          python: {
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: ['invoke_capability'],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: [
+                  'list_workflow_templates',
+                  'launch_workflow_template',
+                  'execute_workflow_template',
+                ],
+              },
+            },
+          },
+        },
+        'release-plan': {
+          node: { current_version: '2.10.0', next_bump: 'minor' },
+          python: { current_version: '2.10.0', next_bump: 'minor' },
+        },
+      },
+    }, {
+      nodeMethods: ['invoke'],
+      pythonMethods: {
+        capabilities: ['invoke_capability'],
+        workflows: ['list_workflow_templates', 'launch_workflow_template'],
+      },
+      nodeVersion: '2.10.0',
+      pythonVersion: '2.10.0',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.findings[0].code).toBe('missing_python_sdk_method');
+    expect(result.findings[0].message).toMatch(/execute_workflow_template/i);
+  });
+
+  it('fails when the discovered Python workflow surface has undeclared methods', async () => {
+    const result = await checkSdkSurface({
+      sdk: {
+        'public-surface': {
+          node: {
+            canonical_root: 'execution.capabilities',
+            required_methods: ['invoke'],
+          },
+          python: {
+            domains: {
+              capabilities: {
+                canonical_root: 'capabilities',
+                required_methods: ['invoke_capability'],
+              },
+              workflows: {
+                canonical_root: 'workflows',
+                required_methods: ['launch_workflow_template'],
+              },
+            },
+          },
+        },
+        'release-plan': {
+          node: { current_version: '2.10.0', next_bump: 'minor' },
+          python: { current_version: '2.10.0', next_bump: 'minor' },
+        },
+      },
+    }, {
+      nodeMethods: ['invoke'],
+      pythonMethods: {
+        capabilities: ['invoke_capability'],
+        workflows: ['launch_workflow_template', 'execute_workflow_template'],
+      },
+      nodeVersion: '2.10.0',
+      pythonVersion: '2.10.0',
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.findings[0].code).toBe('undeclared_python_sdk_method');
+    expect(result.findings[0].message).toMatch(/execute_workflow_template/i);
   });
 });

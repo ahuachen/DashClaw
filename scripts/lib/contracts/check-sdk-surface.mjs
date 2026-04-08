@@ -29,7 +29,27 @@ function selectPythonMethods(methods, canonicalRoot) {
     return methods.filter((method) => method.includes('capability') || method.includes('capabilities'));
   }
 
+  if (canonicalRoot === 'workflows') {
+    return methods.filter((method) => method.includes('workflow') || method.includes('workflows'));
+  }
+
   return methods.filter((method) => !method.startsWith('_'));
+}
+
+function getPythonDomains(publicSurface) {
+  const domains = publicSurface.python?.domains;
+  if (domains) return domains;
+
+  if (publicSurface.python?.required_methods) {
+    return {
+      default: {
+        canonical_root: publicSurface.python?.canonical_root || 'public surface',
+        required_methods: publicSurface.python.required_methods,
+      },
+    };
+  }
+
+  return {};
 }
 
 function discoverNodeMethods() {
@@ -43,13 +63,19 @@ function discoverNodeMethods() {
 
 export async function discoverSdkSurface(rootDir) {
   const nodePackage = await readJson(rootDir, 'sdk/package.json');
+  const publicSurface = await readJson(rootDir, 'contracts/sdk/public-surface.json');
+  const pythonMethodList = await readPythonMethods(rootDir);
+  const pythonDomains = getPythonDomains(publicSurface);
+  const pythonMethods = Object.fromEntries(
+    Object.entries(pythonDomains).map(([name, domain]) => [
+      name,
+      selectPythonMethods(pythonMethodList, domain?.canonical_root),
+    ]),
+  );
 
   return {
     nodeMethods: discoverNodeMethods(),
-    pythonMethods: selectPythonMethods(
-      await readPythonMethods(rootDir),
-      (await readJson(rootDir, 'contracts/sdk/public-surface.json')).python?.canonical_root,
-    ),
+    pythonMethods,
     nodeVersion: nodePackage.version,
     pythonVersion: await readPythonVersion(rootDir),
   };
@@ -79,21 +105,29 @@ export async function checkSdkSurface(contracts, discoveredSurface = null) {
     }
   }
 
-  for (const method of publicSurface.python?.required_methods || []) {
-    if (!(discovered.pythonMethods || []).includes(method)) {
-      findings.push({
-        code: 'missing_python_sdk_method',
-        message: `Python SDK ${publicSurface.python?.canonical_root || 'public surface'} is missing required method "${method}"`,
-      });
-    }
-  }
+  const pythonDomains = getPythonDomains(publicSurface);
+  for (const domain of Object.values(pythonDomains)) {
+    const canonicalRoot = domain?.canonical_root || 'public surface';
+    const discoveredMethods = Array.isArray(discovered.pythonMethods)
+      ? discovered.pythonMethods
+      : discovered.pythonMethods?.[Object.keys(pythonDomains).find((key) => pythonDomains[key] === domain)] || [];
 
-  for (const method of discovered.pythonMethods || []) {
-    if (!(publicSurface.python?.required_methods || []).includes(method)) {
-      findings.push({
-        code: 'undeclared_python_sdk_method',
-        message: `Python SDK ${publicSurface.python?.canonical_root || 'public surface'} exposes undeclared public method "${method}". Update contracts/sdk/public-surface.json and contracts/sdk/release-plan.json.`,
-      });
+    for (const method of domain?.required_methods || []) {
+      if (!discoveredMethods.includes(method)) {
+        findings.push({
+          code: 'missing_python_sdk_method',
+          message: `Python SDK ${canonicalRoot} is missing required method "${method}"`,
+        });
+      }
+    }
+
+    for (const method of discoveredMethods) {
+      if (!(domain?.required_methods || []).includes(method)) {
+        findings.push({
+          code: 'undeclared_python_sdk_method',
+          message: `Python SDK ${canonicalRoot} exposes undeclared public method "${method}". Update contracts/sdk/public-surface.json and contracts/sdk/release-plan.json.`,
+        });
+      }
     }
   }
 

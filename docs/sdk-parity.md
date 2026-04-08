@@ -100,7 +100,7 @@ That is acceptable temporarily, but it should not define future product directio
 |---|---|---|---|---|
 | Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK |
 | Sessions / action graph | Yes | Partial overlap | Yes | Stable, canonical in main SDK |
-| Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, continue promoting there |
+| Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, with Python route-contract parity for template CRUD, launch, and execute |
 | Capabilities | Yes | Yes, as flat compatibility wrappers for current overlap | Yes | Canonical in main SDK, with Python route-contract parity for registry plus runtime methods. Legacy should only shim to the same routes |
 | Model strategies | Yes | Limited overlap | Yes | Canonical in main SDK |
 | Knowledge collections | Yes | Limited overlap | Yes | Canonical in main SDK |

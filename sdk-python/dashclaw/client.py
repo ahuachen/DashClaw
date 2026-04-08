@@ -1916,6 +1916,17 @@ class DashClaw:
         Resolves any linked model strategy into a snapshot at launch time."""
         return self._request(f"/api/workflows/templates/{template_id}/launch", "POST", json=kwargs)
 
+    def execute_workflow_template(self, template_id, variables=None, agent_id=None, declared_goal=None):
+        """Execute a workflow template through the governed runtime."""
+        body = {}
+        if variables is not None:
+            body["variables"] = variables
+        if agent_id is not None:
+            body["agent_id"] = agent_id
+        if declared_goal is not None:
+            body["declared_goal"] = declared_goal
+        return self._request(f"/api/workflows/templates/{template_id}/execute", "POST", json=body)
+
     # --- Execution Studio: Model Strategies ---------------
 
     def list_model_strategies(self):

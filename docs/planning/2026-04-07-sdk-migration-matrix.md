@@ -72,6 +72,7 @@ These are the first domains that should set the pattern:
 - Why: central to runtime story
 - Target: canonical execution namespace
 - Needed work:
+  - keep Python aligned to the workflow template HTTP contracts via `list_workflow_templates(...)`, `create_workflow_template(...)`, `get_workflow_template(...)`, `update_workflow_template(...)`, `duplicate_workflow_template(...)`, `launch_workflow_template(...)`, and `execute_workflow_template(...)`,
   - keep launch vs execute semantics explicit,
   - avoid legacy-first method design,
   - align workflow methods with artifact/evidence model.

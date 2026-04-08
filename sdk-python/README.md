@@ -1130,6 +1130,17 @@ launch = claw.launch_workflow_template(
     template["template_id"], agent_id="deploy-bot"
 )["launch"]
 print(launch["action_id"])  # act_... — view in /decisions/<action_id>
+
+# Execute — runs the workflow through the governed runtime and returns step output.
+execution = claw.execute_workflow_template(
+    template["template_id"],
+    variables={"environment": "production"},
+    agent_id="deploy-bot",
+    declared_goal="Run hotfix release workflow",
+)
+print(execution["success"])
+print(execution["action_id"])
+print(execution["total_elapsed_ms"])
 ```
 
 ### Model Strategies

@@ -14,18 +14,34 @@
     ]
   },
   "python": {
-    "canonical_root": "capabilities",
-    "required_methods": [
-      "list_capabilities",
-      "create_capability",
-      "get_capability",
-      "update_capability",
-      "invoke_capability",
-      "test_capability",
-      "get_capability_health",
-      "list_capability_health",
-      "get_capability_history"
-    ]
+    "domains": {
+      "capabilities": {
+        "canonical_root": "capabilities",
+        "required_methods": [
+          "list_capabilities",
+          "create_capability",
+          "get_capability",
+          "update_capability",
+          "invoke_capability",
+          "test_capability",
+          "get_capability_health",
+          "list_capability_health",
+          "get_capability_history"
+        ]
+      },
+      "workflows": {
+        "canonical_root": "workflows",
+        "required_methods": [
+          "list_workflow_templates",
+          "create_workflow_template",
+          "get_workflow_template",
+          "update_workflow_template",
+          "duplicate_workflow_template",
+          "launch_workflow_template",
+          "execute_workflow_template"
+        ]
+      }
+    }
   },
   "legacy": {
     "compatibility_only": true
