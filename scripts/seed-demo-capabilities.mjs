@@ -14,12 +14,37 @@
  * with DASHCLAW_API_KEY set.
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
   process.exit(1);
 });
 
-const BASE_URL = (process.env.DASHCLAW_URL || 'http://localhost:3000').replace(/\/$/, '');
+// Load .env file (same pattern as other DashClaw scripts)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+try {
+  const envPath = resolve(__dirname, '..', '.env');
+  const envContent = readFileSync(envPath, 'utf-8');
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const val = trimmed.slice(eqIdx + 1).trim();
+    if (!process.env[key]) process.env[key] = val;
+  }
+} catch { /* no .env file — use env vars */ }
+
+// Resolve URL: CLI arg > env var > NEXTAUTH_URL > localhost
+const BASE_URL = (
+  process.env.DASHCLAW_URL ||
+  process.env.NEXTAUTH_URL ||
+  'http://localhost:3000'
+).replace(/\/$/, '');
 const API_KEY = process.env.DASHCLAW_API_KEY || '';
 
 const headers = {
