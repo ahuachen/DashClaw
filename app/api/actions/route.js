@@ -52,6 +52,7 @@ export async function GET(request) {
     const agent_id = searchParams.get('agent_id') || undefined;
     const swarm_id = searchParams.get('swarm_id') || undefined;
     const status = searchParams.get('status') || undefined;
+    const exclude_status = searchParams.get('exclude_status') || undefined;
     const action_type = searchParams.get('action_type') || undefined;
     const risk_min = searchParams.get('risk_min') || undefined;
     const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 200);
@@ -61,6 +62,7 @@ export async function GET(request) {
       agent_id,
       swarm_id,
       status,
+      exclude_status,
       action_type,
       risk_min,
       limit,

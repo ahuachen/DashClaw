@@ -58,7 +58,8 @@ export default function DecisionsLedger() {
   const [filterAgent, setFilterAgent] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [filterRiskMin, setFilterRiskMin] = useState('');
+  const [filterRiskMin, setFilterRiskMin] = useState('1');
+  const [hideRoutine, setHideRoutine] = useState(true);
   const [page, setPage] = useState(0);
   const pageSize = 25;
 
@@ -74,6 +75,7 @@ export default function DecisionsLedger() {
       if (filterAgent) params.set('agent_id', filterAgent);
       if (filterType) params.set('action_type', filterType);
       if (filterStatus) params.set('status', filterStatus);
+      if (hideRoutine && !filterStatus) params.set('exclude_status', 'running');
       if (filterRiskMin) params.set('risk_min', filterRiskMin);
       params.set('limit', pageSize.toString());
       params.set('offset', (page * pageSize).toString());
@@ -91,7 +93,7 @@ export default function DecisionsLedger() {
     } finally {
       setLoading(false);
     }
-  }, [filterAgent, filterType, filterStatus, filterRiskMin, page]);
+  }, [filterAgent, filterType, filterStatus, filterRiskMin, hideRoutine, page]);
 
   useEffect(() => {
     setLoading(true);
@@ -328,10 +330,17 @@ export default function DecisionsLedger() {
             </select>
             <select value={filterRiskMin} onChange={(e) => { setFilterRiskMin(e.target.value); setPage(0); }} className={selectClass}>
               <option value="">Any Risk</option>
+              <option value="1">Governed (1+)</option>
               <option value="40">Medium+ (40+)</option>
               <option value="70">High (70+)</option>
               <option value="90">Critical (90+)</option>
             </select>
+            <button
+              onClick={() => { setHideRoutine(!hideRoutine); setPage(0); }}
+              className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${hideRoutine ? 'bg-brand/20 border-brand/40 text-brand' : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white'}`}
+            >
+              {hideRoutine ? 'Hiding routine' : 'Show all'}
+            </button>
           </div>
         </div>
       </Card>

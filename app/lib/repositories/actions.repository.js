@@ -61,6 +61,7 @@ export async function listActions(sql, orgId, filters = {}) {
     agent_id,
     swarm_id,
     status,
+    exclude_status,
     action_type,
     risk_min,
     limit = 50,
@@ -84,6 +85,9 @@ export async function listActions(sql, orgId, filters = {}) {
     }
     if (status) {
       conditions.push(`status = $${params.push(status)}`);
+    }
+    if (exclude_status && !status) {
+      conditions.push(`status != $${params.push(exclude_status)}`);
     }
     if (action_type) {
       conditions.push(`action_type = $${params.push(action_type)}`);
@@ -131,6 +135,7 @@ export async function listActions(sql, orgId, filters = {}) {
         ${agent_id ? sql`AND agent_id = ${agent_id}` : sql``}
         ${swarm_id ? sql`AND swarm_id = ${swarm_id}` : sql``}
         ${status ? sql`AND status = ${status}` : sql``}
+        ${exclude_status && !status ? sql`AND status != ${exclude_status}` : sql``}
         ${action_type ? sql`AND action_type = ${action_type}` : sql``}
         ${parsedRiskMin != null ? sql`AND risk_score >= ${parsedRiskMin}` : sql``}
       ORDER BY timestamp_start DESC
@@ -144,6 +149,7 @@ export async function listActions(sql, orgId, filters = {}) {
         ${agent_id ? sql`AND agent_id = ${agent_id}` : sql``}
         ${swarm_id ? sql`AND swarm_id = ${swarm_id}` : sql``}
         ${status ? sql`AND status = ${status}` : sql``}
+        ${exclude_status && !status ? sql`AND status != ${exclude_status}` : sql``}
         ${action_type ? sql`AND action_type = ${action_type}` : sql``}
         ${parsedRiskMin != null ? sql`AND risk_score >= ${parsedRiskMin}` : sql``}
     `,
@@ -162,6 +168,7 @@ export async function listActions(sql, orgId, filters = {}) {
         ${agent_id ? sql`AND agent_id = ${agent_id}` : sql``}
         ${swarm_id ? sql`AND swarm_id = ${swarm_id}` : sql``}
         ${status ? sql`AND status = ${status}` : sql``}
+        ${exclude_status && !status ? sql`AND status != ${exclude_status}` : sql``}
         ${action_type ? sql`AND action_type = ${action_type}` : sql``}
         ${parsedRiskMin != null ? sql`AND risk_score >= ${parsedRiskMin}` : sql``}
     `,
