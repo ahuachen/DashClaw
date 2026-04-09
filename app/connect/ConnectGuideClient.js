@@ -207,7 +207,7 @@ export default function ConnectGuideClient({ content }) {
           <Link href="/docs" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Read full SDK docs
           </Link>
-          <Link href="/agents" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
+          <Link href="/settings?tab=identity" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Enable verified agents <Shield size={14} />
           </Link>
           <Link href="/policies" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
