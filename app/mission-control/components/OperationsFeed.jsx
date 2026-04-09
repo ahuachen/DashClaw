@@ -1,0 +1,143 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { ShieldCheck } from 'lucide-react';
+import OperationsFeedItem from './OperationsFeedItem.jsx';
+
+const CATEGORIES = [
+  { key: null, label: 'All' },
+  { key: 'approval', label: 'Approvals' },
+  { key: 'failure', label: 'Failures' },
+  { key: 'signal', label: 'Signals' },
+  { key: 'health', label: 'Health' },
+  { key: 'stale', label: 'Stale' },
+];
+
+const SEVERITY_BADGE = {
+  critical: { color: 'bg-red-500', label: 'Critical' },
+  high: { color: 'bg-orange-500', label: 'High' },
+  medium: { color: 'bg-amber-500', label: 'Medium' },
+  low: { color: 'bg-blue-500', label: 'Low' },
+};
+
+export default function OperationsFeed({ agentId, onRefreshRequest }) {
+  const [items, setItems] = useState([]);
+  const [counts, setCounts] = useState({ critical: 0, high: 0, medium: 0, low: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const fetchFeed = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (activeCategory) params.set('category', activeCategory);
+      params.set('limit', '50');
+      const res = await fetch(`/api/operations/feed?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setItems(data.items || []);
+        setCounts(data.counts || { critical: 0, high: 0, medium: 0, low: 0, total: 0 });
+      }
+    } catch {
+      // Silently fail — feed is supplementary
+    } finally {
+      setLoading(false);
+    }
+  }, [activeCategory]);
+
+  useEffect(() => {
+    fetchFeed();
+    const interval = setInterval(fetchFeed, 30000);
+    return () => clearInterval(interval);
+  }, [fetchFeed]);
+
+  const handleApprove = async (actionId) => {
+    try {
+      const res = await fetch(`/api/approvals/${actionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: 'allow' }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((i) => i.source_id !== actionId));
+        setCounts((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+        if (onRefreshRequest) onRefreshRequest();
+      }
+    } catch { /* ignore */ }
+  };
+
+  const handleDeny = async (actionId) => {
+    try {
+      const res = await fetch(`/api/approvals/${actionId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: 'deny' }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((i) => i.source_id !== actionId));
+        setCounts((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+        if (onRefreshRequest) onRefreshRequest();
+      }
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <div className="rounded-xl border border-border bg-surface-secondary">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <h3 className="text-sm font-semibold text-white">Operations Feed</h3>
+        <div className="flex items-center gap-2">
+          {Object.entries(SEVERITY_BADGE).map(([sev, cfg]) => (
+            counts[sev] > 0 && (
+              <span key={sev} className="flex items-center gap-1">
+                <span className={`h-1.5 w-1.5 rounded-full ${cfg.color}`} />
+                <span className="text-[10px] font-medium text-zinc-400">{counts[sev]}</span>
+              </span>
+            )
+          ))}
+        </div>
+      </div>
+
+      {/* Category filter */}
+      <div className="flex gap-1 border-b border-border px-4 py-2">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.key || 'all'}
+            onClick={() => setActiveCategory(cat.key)}
+            className={`px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${
+              activeCategory === cat.key
+                ? 'bg-brand/10 text-brand border border-brand/20'
+                : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Feed items */}
+      <div className="max-h-[560px] overflow-y-auto">
+        {loading ? (
+          <div className="p-6 text-center">
+            <div className="animate-pulse text-sm text-zinc-500">Loading operations feed...</div>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="p-8 text-center">
+            <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-emerald-500/40" />
+            <p className="text-sm text-zinc-400">All clear — no items need attention.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[rgba(255,255,255,0.04)] p-2">
+            {items.map((item) => (
+              <OperationsFeedItem
+                key={item.id}
+                item={item}
+                onApprove={item.category === 'approval' ? handleApprove : undefined}
+                onDeny={item.category === 'approval' ? handleDeny : undefined}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
