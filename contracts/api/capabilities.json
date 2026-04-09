@@ -15,7 +15,7 @@
     {
       "file": "app/api/capabilities/[capabilityId]/route.js",
       "path": "/api/capabilities/[capabilityId]",
-      "methods": ["GET", "PATCH"]
+      "methods": ["GET", "PATCH", "DELETE"]
     },
     {
       "file": "app/api/capabilities/[capabilityId]/health/route.js",
