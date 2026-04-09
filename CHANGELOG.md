@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`Organism` Public API**: `from livingcode import Organism; o = Organism(repo_path); o.sense(); o.cycle()`.
 - **`organism.json`**: DashClaw's self-identity file at repo root — identity, growth/forbidden zones, quality standards, CI gates, lifecycle config.
 
+- **Claude Managed Agent Governed Example**: New `examples/managed-agent-governed/` with a Python agent running in Anthropic's cloud infrastructure, governed by DashClaw custom tools (`dashclaw_guard`, `dashclaw_invoke`, `dashclaw_record`). Demonstrates full governance loop for cloud-hosted autonomous agents.
+
 ### Infrastructure
 - `.organism/` directory: state-reports, heartbeats, backlog, cycle-history, baselines, cycle-counter. Ephemeral paths gitignored.
 - `baselines.json` seeded from first cycle run — immune system compares all future sensing against it.

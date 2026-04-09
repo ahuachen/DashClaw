@@ -81,7 +81,7 @@ DashClaw currently exposes a canonical Node SDK surface plus a legacy compatibil
 | **Core governance** | ✅ | ✅ |
 | **Scoring profiles** | ✅ | ✅ |
 | **Learning loop** | ✅ | ✅ |
-| **Framework integrations** | — | LangChain, CrewAI, AutoGen |
+| **Framework integrations** | — | LangChain, CrewAI, AutoGen, Claude Managed Agents |
 | **Compliance engine** | — | ✅ |
 | **Execution graphs** | — | ✅ |
 | **Webhooks management** | — | ✅ |

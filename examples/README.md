@@ -26,6 +26,7 @@ dashclaw approve act_<id shown in Terminal 1>
 | `python-research-agent` | None (simulated) | Python | File write governance |
 | `langgraph-governed` | LangGraph | Python | StateGraph governance node pattern |
 | `crewai-governed` | CrewAI | Python | @tool decorator governance pattern |
+| `managed-agent-governed` | Anthropic (Managed Agent) | Python | Cloud-hosted agent with custom governance tools |
 
 ### openai-governed-agent
 
@@ -50,6 +51,10 @@ A LangGraph StateGraph with a `governance_node` that runs guard checks and recor
 ### crewai-governed
 
 A CrewAI agent using the `@tool` decorator to wrap governance calls around tool execution. Demonstrates guard → create_action → update_outcome flow within CrewAI's tool abstraction. Requires Python 3.10+ and the DashClaw Python SDK. No OPENAI_API_KEY needed.
+
+### managed-agent-governed
+
+A Claude Managed Agent running in Anthropic's cloud infrastructure with DashClaw as the governance layer. The agent has full access to bash, file I/O, and web search, but all external API calls, risky modifications, and significant decisions go through DashClaw custom tools (`dashclaw_guard`, `dashclaw_invoke`, `dashclaw_record`). Requires an Anthropic API key and a running DashClaw instance.
 
 ## Prerequisites
 

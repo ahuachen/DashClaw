@@ -134,6 +134,10 @@ The canonical entry point for all agents is `sdk/dashclaw.js` (exported as `dash
 4. `recordAssumption(assumption)` — Record reasoning basis.
 5. `waitForApproval(id)` — Poll for human review.
 
+## Framework Integration Examples (`examples/`)
+
+Working examples for governed agent patterns across frameworks: OpenAI, Anthropic, LangGraph, CrewAI, AutoGen, and Claude Managed Agents. Each example demonstrates the full governance loop (guard, record, outcome) within its framework's execution model. See `examples/README.md` for the full list.
+
 ---
 
 ## Category Enforcement

@@ -16,6 +16,7 @@
 
 ## Exploring
 
+- **Claude Managed Agents Integration** — Cloud-hosted agents governed by DashClaw custom tools (guard, invoke, record). See `examples/managed-agent-governed/`
 - **Multi-Agent Task Topology** — Parent/child task model, dependency graph, ownership, escalation flows
 - **Trust & Permissions** — Agent roles, scoped capability access, delegated authority, approval chains
 - **Memory Architecture** — Unified episodic/semantic/procedural memory with freshness, trust, and compaction
