@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 201,
+    "total_routes": 202,
     "stable_routes": 37,
     "beta_routes": 20,
-    "experimental_routes": 144
+    "experimental_routes": 145
   },
   "routes": [
     {
@@ -1341,6 +1341,15 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/model-strategies/[strategyId]/complete/route.js"
+    },
+    {
+      "path": "/api/operations/feed",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/operations/feed/route.js"
     },
     {
       "path": "/api/orgs",
