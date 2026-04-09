@@ -91,6 +91,10 @@ function SectionNav({ items }) {
 
 const navItems = [
   { href: '#quick-start', label: 'Quick Start' },
+  { href: '#mcp-server', label: 'MCP Server' },
+  { href: '#mcp-tools', label: 'Tools (8)', indent: true },
+  { href: '#mcp-resources', label: 'Resources (4)', indent: true },
+  { href: '#mcp-config', label: 'Configuration', indent: true },
   { href: '#constructor', label: 'Constructor' },
   { href: '#behavior-guard', label: 'Behavior Guard' },
   { href: '#guard', label: 'guard', indent: true },
@@ -325,6 +329,107 @@ except Exception as e:
     claw.update_outcome(action_id, status="failed", error_message=str(e))`}
                   />
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── MCP Server ── */}
+          <section id="mcp-server" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.1)] flex items-center justify-center">
+                <Network size={16} className="text-violet-400" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">MCP Server</h2>
+            </div>
+            <p className="mt-2 mb-8 text-sm text-zinc-400 leading-relaxed">
+              <code className="font-mono text-zinc-300">@dashclaw/mcp-server</code> exposes DashClaw governance over Model Context Protocol. Any MCP-compatible client gets 8 governance tools and 4 read-only resources.
+            </p>
+
+            {/* Tools */}
+            <div id="mcp-tools" className="scroll-mt-20 mb-10">
+              <h3 className="text-lg font-semibold text-white mb-4">Tools (8)</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[rgba(255,255,255,0.06)]">
+                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Tool</th>
+                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Description</th>
+                      <th className="text-left py-2 text-zinc-400 font-medium">Key Inputs</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { tool: 'dashclaw_guard', desc: 'Evaluate policies before risky actions', inputs: 'action_type, declared_goal, risk_score' },
+                      { tool: 'dashclaw_record', desc: 'Log action to audit trail', inputs: 'action_type, declared_goal, status' },
+                      { tool: 'dashclaw_invoke', desc: 'Execute governed capability', inputs: 'capability_id, declared_goal, payload' },
+                      { tool: 'dashclaw_capabilities_list', desc: 'Discover available APIs', inputs: 'category, risk_level, search' },
+                      { tool: 'dashclaw_policies_list', desc: 'List active policies', inputs: 'agent_id' },
+                      { tool: 'dashclaw_wait_for_approval', desc: 'Wait for human decision', inputs: 'action_id, timeout_seconds' },
+                      { tool: 'dashclaw_session_start', desc: 'Register agent session', inputs: 'agent_id, workspace' },
+                      { tool: 'dashclaw_session_end', desc: 'Close session', inputs: 'session_id, status, summary' },
+                    ].map((row) => (
+                      <tr key={row.tool} className="border-b border-[rgba(255,255,255,0.03)]">
+                        <td className="py-2 pr-4 font-mono text-xs text-brand">{row.tool}</td>
+                        <td className="py-2 pr-4 text-xs text-zinc-400">{row.desc}</td>
+                        <td className="py-2 font-mono text-xs text-zinc-500">{row.inputs}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Resources */}
+            <div id="mcp-resources" className="scroll-mt-20 mb-10">
+              <h3 className="text-lg font-semibold text-white mb-4">Resources (4)</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[rgba(255,255,255,0.06)]">
+                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">URI</th>
+                      <th className="text-left py-2 text-zinc-400 font-medium">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { uri: 'dashclaw://policies', desc: 'Active policy set' },
+                      { uri: 'dashclaw://capabilities', desc: 'Available capabilities and health' },
+                      { uri: 'dashclaw://agent/{agent_id}/history', desc: 'Recent action history (last 50)' },
+                      { uri: 'dashclaw://status', desc: 'Instance health + operational metrics' },
+                    ].map((row) => (
+                      <tr key={row.uri} className="border-b border-[rgba(255,255,255,0.03)]">
+                        <td className="py-2 pr-4 font-mono text-xs text-brand">{row.uri}</td>
+                        <td className="py-2 text-xs text-zinc-400">{row.desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Configuration */}
+            <div id="mcp-config" className="scroll-mt-20">
+              <h3 className="text-lg font-semibold text-white mb-4">Configuration</h3>
+              <p className="text-xs text-zinc-500 mb-3">Config resolution: CLI args &gt; env vars &gt; defaults. Three config values: <code className="font-mono text-zinc-400">url</code> (<code className="font-mono text-zinc-400">DASHCLAW_URL</code>, default <code className="font-mono text-zinc-400">localhost:3000</code>), <code className="font-mono text-zinc-400">apiKey</code> (<code className="font-mono text-zinc-400">DASHCLAW_API_KEY</code>), <code className="font-mono text-zinc-400">agentId</code> (<code className="font-mono text-zinc-400">DASHCLAW_AGENT_ID</code>).</p>
+              <div className="space-y-4">
+                <CodeBlock title="stdio — Claude Code / Desktop (claude_desktop_config.json)">{`{
+  "mcpServers": {
+    "dashclaw": {
+      "command": "npx",
+      "args": ["@dashclaw/mcp-server"],
+      "env": {
+        "DASHCLAW_URL": "https://your-instance.vercel.app",
+        "DASHCLAW_API_KEY": "oc_live_..."
+      }
+    }
+  }
+}`}</CodeBlock>
+                <CodeBlock title="Streamable HTTP — Managed Agents (Python)">{`mcp_servers=[{
+    "type": "url",
+    "url": "https://your-instance.vercel.app/api/mcp",
+    "headers": {"x-api-key": "oc_live_..."},
+    "name": "dashclaw"
+}]`}</CodeBlock>
               </div>
             </div>
           </section>
