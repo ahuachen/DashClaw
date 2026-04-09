@@ -50,49 +50,45 @@ export default function MissionControlCapabilityHealthCard({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-white/5 bg-white/5 px-3 py-2">
-                <div className="text-lg font-semibold text-white">{unhealthyCount} unhealthy</div>
-                <div className="text-[10px] uppercase tracking-widest text-red-400">status</div>
-              </div>
-              <div className="rounded-lg border border-white/5 bg-white/5 px-3 py-2">
-                <div className="text-lg font-semibold text-white">{staleCount} stale</div>
-                <div className="text-[10px] uppercase tracking-widest text-amber-400">certifications</div>
-              </div>
-              <div className="rounded-lg border border-white/5 bg-white/5 px-3 py-2">
-                <div className="text-lg font-semibold text-white">{uncertifiedCount} uncertified</div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-400">capabilities</div>
-              </div>
+            <div className="flex items-center gap-3 text-xs">
+              {unhealthyCount > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                  <span className="font-medium text-red-400">{unhealthyCount} unhealthy</span>
+                </span>
+              )}
+              {staleCount > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <span className="font-medium text-amber-400">{staleCount} stale</span>
+                </span>
+              )}
+              {uncertifiedCount > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
+                  <span className="text-zinc-400">{uncertifiedCount} uncertified</span>
+                </span>
+              )}
+              {unhealthyCount === 0 && staleCount === 0 && uncertifiedCount === 0 && (
+                <span className="text-zinc-500">All capabilities healthy</span>
+              )}
             </div>
 
-            {urgentCapabilities.length === 0 ? (
-              <div className="text-sm text-zinc-500">No urgent capability issues.</div>
-            ) : (
-              <div className="space-y-2">
+            {urgentCapabilities.length > 0 && (
+              <div className="space-y-1">
                 {urgentCapabilities.map((capability) => (
                   <Link
                     key={capability.capability_id}
                     href={`/capabilities/${capability.capability_id}`}
-                    className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/5"
+                    className="flex items-center gap-2 rounded-lg px-1 py-0.5 transition-colors hover:bg-white/5"
                   >
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-medium text-white">
-                        {capability.capability_name || capability.name}
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Badge size="xs" variant={['unhealthy', 'failing'].includes(capability.status) ? 'error' : capability.status === 'degraded' ? 'warning' : 'default'}>
-                          {capability.status || 'unknown'}
-                        </Badge>
-                        <Badge size="xs" variant={(capability.certification_status || 'uncertified') === 'uncertified' ? 'default' : capability.certification_status === 'stale' ? 'warning' : capability.certification_status === 'failed' ? 'error' : 'success'}>
-                          {capability.certification_status || 'uncertified'}
-                        </Badge>
-                      </div>
-                    </div>
-                    {capability.stale_check ? (
-                      <ShieldAlert size={14} className="shrink-0 text-amber-400" />
-                    ) : (
-                      <AlertTriangle size={14} className="shrink-0 text-red-400" />
-                    )}
+                    <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${['unhealthy', 'failing'].includes(capability.status) ? 'bg-red-500' : capability.status === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500/40'}`} />
+                    <span className="flex-1 truncate text-xs text-zinc-400">
+                      {capability.capability_name || capability.name}
+                    </span>
+                    <Badge size="xs" variant={(capability.certification_status || 'uncertified') === 'uncertified' ? 'default' : capability.certification_status === 'stale' ? 'warning' : capability.certification_status === 'failed' ? 'error' : 'success'}>
+                      {capability.certification_status || 'uncertified'}
+                    </Badge>
                   </Link>
                 ))}
               </div>
