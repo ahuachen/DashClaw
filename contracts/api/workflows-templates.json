@@ -41,6 +41,11 @@
       "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/resume/route.js",
       "path": "/api/workflows/templates/[templateId]/runs/[runActionId]/resume",
       "methods": ["POST"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/cancel/route.js",
+      "path": "/api/workflows/templates/[templateId]/runs/[runActionId]/cancel",
+      "methods": ["POST"]
     }
   ]
 }
