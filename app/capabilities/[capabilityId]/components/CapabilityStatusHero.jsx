@@ -1,4 +1,5 @@
-import { Activity, FlaskConical, RotateCw } from 'lucide-react';
+import Link from 'next/link';
+import { Activity, FlaskConical, Pencil, RotateCw } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 
@@ -18,6 +19,7 @@ const certificationVariant = {
 
 export default function CapabilityStatusHero({ capability, health, loading, onRefresh, onOpenTest }) {
   const canTest = capability?.source_type === 'http_api' && typeof capability?.invocation_schema?.endpoint === 'string';
+  const capabilityId = capability?.capability_id;
 
   return (
     <Card hover={false}>
@@ -34,6 +36,15 @@ export default function CapabilityStatusHero({ capability, health, loading, onRe
                 <FlaskConical size={14} />
                 Run Test
               </button>
+            ) : null}
+            {capabilityId ? (
+              <Link
+                href={`/capabilities/${capabilityId}/edit`}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:text-white"
+              >
+                <Pencil size={14} />
+                Edit
+              </Link>
             ) : null}
             <button
               onClick={onRefresh}

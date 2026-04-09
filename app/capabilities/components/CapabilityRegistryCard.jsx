@@ -165,7 +165,7 @@ export default function CapabilityRegistryCard({
               Open detail
             </Link>
             <Link
-              href={`/capabilities/${capability.capability_id}?edit=true`}
+              href={`/capabilities/${capability.capability_id}/edit`}
               className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
               aria-label={`Edit ${capability.name}`}
             >
