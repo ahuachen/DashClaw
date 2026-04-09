@@ -93,7 +93,7 @@ export async function updateAssumption(sql, orgId, assumptionId, data) {
 
   const result = await sql`
     UPDATE assumptions
-    SET 
+    SET
       validated = COALESCE(${validated !== undefined ? (validated ? 1 : 0) : null}, validated),
       invalidated = COALESCE(${invalidated !== undefined ? (invalidated ? 1 : 0) : null}, invalidated),
       invalidated_reason = COALESCE(${invalidated_reason || null}, invalidated_reason),
@@ -103,4 +103,25 @@ export async function updateAssumption(sql, orgId, assumptionId, data) {
     RETURNING *
   `;
   return result[0] || null;
+}
+
+export async function getAssumptionsSummary(sql, orgId, agentId) {
+  const result = await sql.query(
+    `SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE a.validated = 1)::int AS validated,
+      COUNT(*) FILTER (WHERE a.invalidated = 1)::int AS invalidated,
+      COUNT(*) FILTER (WHERE a.validated = 0 AND a.invalidated = 0)::int AS unverified
+    FROM assumptions a
+    JOIN action_records ar ON a.action_id = ar.action_id AND ar.org_id = a.org_id
+    WHERE a.org_id = $1 AND ar.agent_id = $2`,
+    [orgId, agentId]
+  );
+  const row = result[0] || {};
+  return {
+    total: parseInt(row.total || '0', 10),
+    validated: parseInt(row.validated || '0', 10),
+    invalidated: parseInt(row.invalidated || '0', 10),
+    unverified: parseInt(row.unverified || '0', 10),
+  };
 }
