@@ -1148,3 +1148,25 @@ CREATE TABLE IF NOT EXISTS workflow_step_results (
   finished_at TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+--> statement-breakpoint
+-- Artifacts: durable output objects linked to actions and workflow steps
+CREATE TABLE IF NOT EXISTS artifacts (
+  id SERIAL PRIMARY KEY,
+  artifact_id TEXT UNIQUE NOT NULL,
+  org_id TEXT NOT NULL,
+  artifact_type TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  content_json TEXT,
+  content_url TEXT,
+  mime_type TEXT,
+  size_bytes INTEGER,
+  source_action_id TEXT,
+  source_step_id TEXT,
+  source_agent_id TEXT,
+  retention_days INTEGER,
+  tags_json TEXT DEFAULT '[]',
+  metadata_json TEXT DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
