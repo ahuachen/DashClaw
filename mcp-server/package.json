@@ -1,0 +1,43 @@
+{
+  "name": "@dashclaw/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for DashClaw governance — guard, record, invoke, and discover capabilities.",
+  "type": "module",
+  "bin": {
+    "dashclaw-mcp": "./bin/dashclaw-mcp.js"
+  },
+  "main": "./lib/server.js",
+  "exports": {
+    ".": "./lib/server.js",
+    "./client": "./lib/client.js",
+    "./tools": "./lib/tools.js",
+    "./resources": "./lib/resources.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "dashclaw",
+    "ai-governance",
+    "agent-governance"
+  ],
+  "author": "DashClaw",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/DashClaw.git",
+    "directory": "mcp-server"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^1.0.0",
+    "zod": "^3.25.0"
+  }
+}
