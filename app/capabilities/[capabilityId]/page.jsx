@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Wrench } from 'lucide-react';
+import { ShieldCheck, Wrench } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { EmptyState } from '../../components/ui/EmptyState';
 import CapabilityStatusHero from './components/CapabilityStatusHero';
@@ -11,6 +11,7 @@ import CapabilityHealthCards from './components/CapabilityHealthCards';
 import CapabilityFactsCard from './components/CapabilityFactsCard';
 import CapabilityHistoryTable from './components/CapabilityHistoryTable';
 import CapabilityTestPanel from './components/CapabilityTestPanel';
+import CapabilityAccessTab from './components/CapabilityAccessTab';
 import {
   deriveGeneratedInputFields,
   isRunnableHttpCapability,
@@ -224,6 +225,14 @@ export default function CapabilityDetailPage({ params }) {
             )}
 
             <CapabilityFactsCard capability={capability} health={health} />
+
+            <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-5">
+              <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-brand" />
+                Access Rules
+              </h3>
+              <CapabilityAccessTab capabilityId={capabilityId} />
+            </div>
           </div>
         </div>
       )}

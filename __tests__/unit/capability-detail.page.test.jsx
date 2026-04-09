@@ -167,6 +167,7 @@ describe('CapabilityDetailPage', () => {
           },
         ],
       }))
+      .mockResolvedValueOnce(okJson({ rules: [] }))
       .mockResolvedValueOnce(okJson({
         capability_id: 'cap_1',
         events: [
@@ -309,6 +310,7 @@ describe('CapabilityDetailPage', () => {
         ok: false,
         json: async () => ({ error: 'History unavailable' }),
       })
+      .mockResolvedValueOnce(okJson({ rules: [] }))
       .mockResolvedValueOnce(okJson({
         capability_id: 'cap_1',
         events: [],
@@ -418,6 +420,7 @@ describe('CapabilityDetailPage', () => {
         capability_id: 'cap_1',
         events: [],
       }))
+      .mockResolvedValueOnce(okJson({ rules: [] }))
       .mockImplementationOnce(() => pendingTest)
       .mockResolvedValueOnce(okJson({
         capability_id: 'cap_1',
