@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, CheckCircle2, XCircle, Loader2, SkipForward } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle2, XCircle, Loader2, SkipForward, RotateCcw } from 'lucide-react';
 
 const STATUS_CONFIG = {
   completed: { icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
@@ -9,6 +9,7 @@ const STATUS_CONFIG = {
   running: { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10' },
   skipped: { icon: SkipForward, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
   pending: { icon: Loader2, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
+  reused: { icon: RotateCcw, color: 'text-zinc-400', bg: 'bg-zinc-400/5' },
 };
 
 const TYPE_LABELS = {

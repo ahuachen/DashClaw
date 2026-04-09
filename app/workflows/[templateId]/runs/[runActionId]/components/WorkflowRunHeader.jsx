@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, RotateCcw } from 'lucide-react';
 
 const STATUS_BADGE = {
   completed: { label: 'Completed', color: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' },
@@ -9,7 +9,7 @@ const STATUS_BADGE = {
   running: { label: 'Running', color: 'bg-blue-400/10 text-blue-400 border-blue-400/20' },
 };
 
-export default function WorkflowRunHeader({ run, templateId }) {
+export default function WorkflowRunHeader({ run, templateId, onResume, resuming }) {
   const badge = STATUS_BADGE[run.status] || STATUS_BADGE.running;
 
   return (
@@ -30,9 +30,21 @@ export default function WorkflowRunHeader({ run, templateId }) {
             <p className="text-sm text-zinc-400 mt-1">{run.declared_goal}</p>
           )}
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${badge.color}`}>
-          {badge.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${badge.color}`}>
+            {badge.label}
+          </span>
+          {run.status === 'failed' && onResume && (
+            <button
+              onClick={onResume}
+              disabled={resuming}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand/10 text-brand border border-brand/20 hover:bg-brand/20 transition-colors disabled:opacity-50"
+            >
+              <RotateCcw className={`w-3 h-3 ${resuming ? 'animate-spin' : ''}`} />
+              {resuming ? 'Resuming...' : 'Resume from checkpoint'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-zinc-500">

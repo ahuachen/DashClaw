@@ -12,6 +12,7 @@ export default function WorkflowRunDetailPage() {
   const [run, setRun] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [resuming, setResuming] = useState(false);
 
   useEffect(() => {
     async function loadRun() {
@@ -35,6 +36,28 @@ export default function WorkflowRunDetailPage() {
     }
     loadRun();
   }, [templateId, runActionId]);
+
+  async function handleResume() {
+    setResuming(true);
+    try {
+      const res = await fetch(`/api/workflows/templates/${templateId}/runs/${runActionId}/resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        window.location.href = `/workflows/${templateId}/runs/${data.action_id}`;
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.message || 'Resume failed');
+      }
+    } catch {
+      alert('Resume failed');
+    } finally {
+      setResuming(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -73,7 +96,7 @@ export default function WorkflowRunDetailPage() {
   return (
     <PageLayout title={run.template_name || 'Workflow Run'}>
       <div className="space-y-8">
-        <WorkflowRunHeader run={run} templateId={templateId} />
+        <WorkflowRunHeader run={run} templateId={templateId} onResume={handleResume} resuming={resuming} />
         <div>
           <h2 className="text-sm font-medium text-zinc-300 mb-3">Steps</h2>
           <WorkflowRunTimeline steps={run.steps} />
