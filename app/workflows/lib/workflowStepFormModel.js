@@ -103,6 +103,8 @@ export function createDefaultWorkflowStep(type, ordinal = 1) {
     type,
     name: `${STEP_NAME_PREFIX[type] || 'Step'} ${ordinal}`,
     config: deepClone(STEP_CONFIG_DEFAULTS[type] || {}),
+    condition: '',
+    continue_on_failure: false,
   };
 }
 
@@ -120,6 +122,12 @@ export function sanitizeExecutableSteps(steps) {
       };
       const retryPolicy = sanitizeRetryPolicy(step.retry_policy);
       if (retryPolicy) sanitized.retry_policy = retryPolicy;
+      if (typeof step.condition === 'string' && step.condition.trim()) {
+        sanitized.condition = step.condition.trim();
+      }
+      if (step.continue_on_failure === true) {
+        sanitized.continue_on_failure = true;
+      }
       return sanitized;
     });
 }
@@ -128,6 +136,7 @@ export function buildWorkflowStepSummary(step) {
   let resourceLookups = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   if (!step || !step.type) return 'Unsupported workflow step';
 
+  let base;
   switch (step.type) {
     case 'knowledge_search': {
       const collection = resourceLookups.knowledgeCollections?.[step.config?.collection_id]
@@ -135,7 +144,8 @@ export function buildWorkflowStepSummary(step) {
         || 'a collection';
       const query = step.config?.query || 'a query';
       const topK = normalizeNumber(step.config?.top_k, 5);
-      return `Search ${collection} for "${query}" and return top ${topK} matches.`;
+      base = `Search ${collection} for "${query}" and return top ${topK} matches.`;
+      break;
     }
     case 'capability_invoke': {
       const capability = resourceLookups.capabilities?.[step.config?.capability_id]
@@ -143,20 +153,29 @@ export function buildWorkflowStepSummary(step) {
         || 'a capability';
       const bodyKeys = Object.keys(step.config?.body || {});
       if (bodyKeys.length === 0) {
-        return `Invoke ${capability} with an empty payload.`;
+        base = `Invoke ${capability} with an empty payload.`;
+      } else {
+        base = `Invoke ${capability} with ${bodyKeys.length} payload field${bodyKeys.length === 1 ? '' : 's'}.`;
       }
-      return `Invoke ${capability} with ${bodyKeys.length} payload field${bodyKeys.length === 1 ? '' : 's'}.`;
+      break;
     }
     case 'prompt': {
       const prompt = step.config?.prompt_template || '';
       const preview = prompt.trim().slice(0, 60);
-      return preview
+      base = preview
         ? `Run prompt using the linked model strategy: "${preview}${prompt.trim().length > 60 ? '...' : ''}".`
         : 'Run prompt using the linked model strategy.';
+      break;
     }
     default:
       return 'Unsupported workflow step';
   }
+
+  const suffixes = [];
+  if (step.condition) suffixes.push(`Condition: ${step.condition}`);
+  if (step.continue_on_failure) suffixes.push('Will continue on failure.');
+
+  return suffixes.length > 0 ? `${base} ${suffixes.join(' ')}` : base;
 }
 
 export function insertVariableToken(currentValue, token) {

@@ -22,6 +22,8 @@ describe('workflowStepFormModel', () => {
         query: '',
         top_k: 5,
       },
+      condition: '',
+      continue_on_failure: false,
     });
   });
 
@@ -218,6 +220,40 @@ describe('workflowStepFormModel', () => {
     ]);
 
     expect(steps[0].retry_policy).toBeUndefined();
+  });
+
+  it('default step includes condition and continue_on_failure fields', () => {
+    const step = createDefaultWorkflowStep('prompt', 1);
+    expect(step.condition).toBe('');
+    expect(step.continue_on_failure).toBe(false);
+  });
+
+  it('sanitizeExecutableSteps preserves condition and continue_on_failure', () => {
+    const steps = sanitizeExecutableSteps([
+      { id: 'step_1', type: 'prompt', name: 'Test', config: { prompt_template: 'hi' }, condition: '${variables.run}', continue_on_failure: true },
+    ]);
+    expect(steps[0].condition).toBe('${variables.run}');
+    expect(steps[0].continue_on_failure).toBe(true);
+  });
+
+  it('sanitizeExecutableSteps defaults missing condition and continue_on_failure', () => {
+    const steps = sanitizeExecutableSteps([
+      { id: 'step_1', type: 'prompt', name: 'Test', config: { prompt_template: 'hi' } },
+    ]);
+    expect(steps[0].condition).toBeUndefined();
+    expect(steps[0].continue_on_failure).toBeUndefined();
+  });
+
+  it('summary includes condition when set', () => {
+    const step = { id: 'step_1', type: 'prompt', name: 'Test', config: { prompt_template: 'hi' }, condition: '${steps.step_0.output.found}' };
+    const summary = buildWorkflowStepSummary(step);
+    expect(summary).toContain('Condition');
+  });
+
+  it('summary includes continue on failure when true', () => {
+    const step = { id: 'step_1', type: 'prompt', name: 'Test', config: { prompt_template: 'hi' }, continue_on_failure: true };
+    const summary = buildWorkflowStepSummary(step);
+    expect(summary).toContain('continue');
   });
 
   it('builds a legacy fallback preview directly', () => {
