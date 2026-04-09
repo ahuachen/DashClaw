@@ -324,6 +324,92 @@ describe('executeWorkflow', () => {
     );
   });
 
+  it('skips steps before resumeFromIndex and marks them as reused', async () => {
+    handlePrompt.mockResolvedValueOnce({ text: 'resumed result', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Summarize', config: { prompt_template: 'Based on: ${steps.step_1.output.chunks[0].content}' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, {
+      strategyConfig: {},
+      resumeContext: {
+        resumeFromIndex: 1,
+        priorSteps: {
+          step_1: { output: { chunks: [{ content: 'prior data' }], query: 'test' } },
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.steps).toHaveLength(2);
+    expect(result.steps[0].status).toBe('reused');
+    expect(result.steps[0].elapsed_ms).toBe(0);
+    expect(result.steps[1].status).toBe('completed');
+    expect(handleKnowledgeSearch).not.toHaveBeenCalled();
+    expect(handlePrompt).toHaveBeenCalled();
+  });
+
+  it('reused step outputs are available to resumed steps via context', async () => {
+    handlePrompt.mockResolvedValueOnce({ text: 'got it', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Use prior', config: { prompt_template: 'Data: ${steps.step_1.output.answer}' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, {
+      strategyConfig: {},
+      resumeContext: {
+        resumeFromIndex: 1,
+        priorSteps: {
+          step_1: { output: { answer: 'forty-two' } },
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+    // Verify the prompt received the resolved prior output
+    expect(handlePrompt).toHaveBeenCalledWith(
+      mockSql,
+      'org_1',
+      expect.objectContaining({
+        prompt_template: 'Data: forty-two',
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it('writes reused step_result via persistStepResult', async () => {
+    handlePrompt.mockResolvedValueOnce({ text: 'ok', tokens_in: 10, tokens_out: 5 });
+    const persistStepResult = vi.fn().mockResolvedValue(undefined);
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Go', config: { prompt_template: 'test' } },
+    ];
+
+    await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, {
+      strategyConfig: {},
+      persistStepResult,
+      resumeContext: {
+        resumeFromIndex: 1,
+        priorSteps: {
+          step_1: { output: { data: 'cached' } },
+        },
+      },
+    });
+
+    expect(persistStepResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_id: 'step_1',
+        status: 'reused',
+        output_json: { data: 'cached' },
+      }),
+    );
+  });
+
   it('writes skipped step_result via persistStepResult', async () => {
     const persistStepResult = vi.fn().mockResolvedValue(undefined);
 
