@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `213`
+- Total routes: `214`
 - Stable routes: `38`
 - Beta routes: `20`
-- Experimental routes: `155`
+- Experimental routes: `156`
 
 ## Routes
 
@@ -85,6 +85,7 @@ doc-type: architecture
 | `/api/agents/connections` | `GET, POST` | `experimental` | `/api/agents` | `app/api/agents/connections/route.js` |
 | `/api/agents/heartbeat` | `POST` | `experimental` | `/api/agents` | `app/api/agents/heartbeat/route.js` |
 | `/api/agents/{agentId}` | `GET` | `experimental` | `/api/agents` | `app/api/agents/[agentId]/route.js` |
+| `/api/agents/{agentId}/profile` | `GET` | `experimental` | `/api/agents` | `app/api/agents/[agentId]/profile/route.js` |
 | `/api/approvals/{actionId}` | `POST` | `experimental` | `(default)` | `app/api/approvals/[actionId]/route.js` |
 | `/api/artifacts` | `GET, POST` | `experimental` | `(default)` | `app/api/artifacts/route.js` |
 | `/api/artifacts/evidence-bundle` | `POST` | `experimental` | `(default)` | `app/api/artifacts/evidence-bundle/route.js` |

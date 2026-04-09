@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 213,
+    "total_routes": 214,
     "stable_routes": 38,
     "beta_routes": 20,
-    "experimental_routes": 155
+    "experimental_routes": 156
   },
   "routes": [
     {
@@ -658,6 +658,15 @@
       "maturity": "experimental",
       "matched_prefix": "/api/agents",
       "file": "app/api/agents/[agentId]/route.js"
+    },
+    {
+      "path": "/api/agents/{agentId}/profile",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/agents",
+      "file": "app/api/agents/[agentId]/profile/route.js"
     },
     {
       "path": "/api/approvals/{actionId}",
