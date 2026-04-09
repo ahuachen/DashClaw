@@ -5,6 +5,10 @@ The simplest way to govern a Claude Managed Agent with DashClaw.
 Instead of custom tools and HTTP boilerplate, the agent connects
 to DashClaw's MCP server and gets 8 governance tools automatically.
 
+Optionally attach the DashClaw governance skill for even better behavior —
+the skill teaches the agent the governance protocol so you don't need
+a detailed system prompt.
+
 Requirements:
   pip install anthropic python-dotenv
   cp .env.example .env  # fill in your keys
@@ -21,6 +25,7 @@ load_dotenv()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 DASHCLAW_URL = os.environ.get("DASHCLAW_URL", "http://localhost:3000")
 DASHCLAW_API_KEY = os.environ.get("DASHCLAW_API_KEY", "")
+DASHCLAW_SKILL_ID = os.environ.get("DASHCLAW_SKILL_ID", "")
 
 if not ANTHROPIC_API_KEY:
     print("Error: ANTHROPIC_API_KEY is required. Set it in .env or environment.")
@@ -31,18 +36,38 @@ def run_governed_session(task):
     """Run a governed managed agent session via MCP."""
     client = Anthropic()
 
-    # 1. Create agent with DashClaw MCP server
-    print("Creating governed agent (MCP)...")
-    agent = client.beta.agents.create(
-        name="DashClaw Governed Agent (MCP)",
-        model="claude-sonnet-4-6",
-        system=(
+    # Build agent config
+    has_skill = bool(DASHCLAW_SKILL_ID)
+
+    # With skill: short system prompt (skill carries governance instructions)
+    # Without skill: detailed system prompt
+    system_prompt = (
+        "You are a governed research agent."
+        if has_skill
+        else (
             "You are a governed research agent with DashClaw governance tools "
             "available via MCP. Before any risky action (external APIs, deploys, "
             "data modifications), call dashclaw_guard. Record significant outcomes "
             "with dashclaw_record. Use dashclaw_capabilities_list to discover "
             "available APIs."
-        ),
+        )
+    )
+
+    skills = []
+    if has_skill:
+        skills.append({
+            "type": "custom",
+            "skill_id": DASHCLAW_SKILL_ID,
+            "version": "latest",
+        })
+
+    # 1. Create agent with DashClaw MCP server (+ optional skill)
+    mode = "MCP + Skill" if has_skill else "MCP"
+    print(f"Creating governed agent ({mode})...")
+    agent = client.beta.agents.create(
+        name=f"DashClaw Governed Agent ({mode})",
+        model="claude-sonnet-4-6",
+        system=system_prompt,
         tools=[{"type": "agent_toolset_20260401"}],
         mcp_servers=[
             {
@@ -52,6 +77,7 @@ def run_governed_session(task):
                 "name": "dashclaw",
             }
         ],
+        skills=skills if skills else None,
     )
     print(f"  Agent ID: {agent.id}")
 
@@ -75,7 +101,7 @@ def run_governed_session(task):
     session = client.beta.sessions.create(
         agent=agent.id,
         environment_id=environment.id,
-        title=f"Governed (MCP): {task[:50]}",
+        title=f"Governed ({mode}): {task[:50]}",
     )
     print(f"  Session ID: {session.id}")
 

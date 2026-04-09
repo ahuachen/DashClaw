@@ -30,6 +30,34 @@ This gives the agent 8 governance tools and 4 resources automatically:
 | `dashclaw_session_start` | Register session |
 | `dashclaw_session_end` | Close session |
 
+## MCP + Skill (Recommended)
+
+For even better governance behavior, attach the DashClaw governance skill. The skill teaches the agent the full governance protocol — when to guard, how to interpret decisions, how to record actions — so you don't need a detailed system prompt.
+
+### Upload the skill once:
+
+```bash
+ANTHROPIC_API_KEY=sk-xxx node scripts/upload-skill.mjs
+# Returns: skill_id=skill_abc123
+```
+
+### Add to your .env:
+
+```bash
+DASHCLAW_SKILL_ID=skill_abc123
+```
+
+The example automatically detects the skill ID and attaches it. The system prompt shortens to just "You are a governed research agent" — the skill carries the rest.
+
+### Without skill vs with skill:
+
+| | MCP Only | MCP + Skill |
+|---|---|---|
+| System prompt | Detailed governance instructions | One sentence |
+| Agent behavior | Follows system prompt rules | Internalizes governance protocol |
+| Policy awareness | Must be told about policies | Reads policies from MCP resources at start |
+| Capability discovery | Must be prompted | Automatically discovers on session init |
+
 ## Setup
 
 ```bash
