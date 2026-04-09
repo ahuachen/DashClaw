@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+
+import { StdioServerTransport } from '@modelcontextprotocol/server';
+import { createServer } from '../lib/server.js';
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+  process.exit(1);
+});
+
+// Parse CLI args: --url, --key, --agent-id
+const args = process.argv.slice(2);
+const config = {};
+
+for (let i = 0; i < args.length; i++) {
+  switch (args[i]) {
+    case '--url':
+      config.url = args[++i];
+      break;
+    case '--key':
+      config.apiKey = args[++i];
+      break;
+    case '--agent-id':
+      config.agentId = args[++i];
+      break;
+    case '--help':
+      console.error(`Usage: dashclaw-mcp [options]
+
+Options:
+  --url <url>          DashClaw instance URL (default: http://localhost:3000)
+  --key <key>          API key (oc_live_ prefix)
+  --agent-id <id>      Default agent ID
+
+Environment variables (fallback):
+  DASHCLAW_URL         DashClaw instance URL
+  DASHCLAW_API_KEY     API key
+  DASHCLAW_AGENT_ID    Default agent ID`);
+      process.exit(0);
+      break;
+  }
+}
+
+// Env vars as fallback
+config.url = config.url || process.env.DASHCLAW_URL;
+config.apiKey = config.apiKey || process.env.DASHCLAW_API_KEY;
+config.agentId = config.agentId || process.env.DASHCLAW_AGENT_ID;
+
+const server = createServer(config);
+const transport = new StdioServerTransport();
+await server.connect(transport);
+console.error('@dashclaw/mcp-server running on stdio');
