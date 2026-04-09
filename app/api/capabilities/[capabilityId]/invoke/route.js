@@ -20,6 +20,7 @@ import {
 import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../lib/usage.js';
 import { checkCircuitBreaker } from '../../../../lib/capability-health.js';
 import { updateCapability } from '../../../../lib/repositories/capabilities.repository.js';
+import { evaluateAccess } from '../../../../lib/repositories/capability-access.repository.js';
 
 function redactAny(value, findings) {
   if (typeof value === 'string') {
@@ -210,6 +211,20 @@ export async function POST(request, { params }) {
         },
         { status: 503 },
       );
+    }
+
+    // Access control check
+    const agentId = body.agent_id || 'anonymous';
+    const accessResult = await evaluateAccess(sql, orgId, capabilityId, agentId);
+    if (accessResult.access === 'deny') {
+      return NextResponse.json({
+        success: false,
+        error: 'access_denied',
+        code: 'CAPABILITY_ACCESS_DENIED',
+        reason: accessResult.rule?.reason || 'Agent does not have access to this capability.',
+        capability_id: capabilityId,
+        agent_id: agentId,
+      }, { status: 403 });
     }
 
     // 6. Create running action record
