@@ -87,6 +87,7 @@ Modular intelligence features that consume runtime data.
 | `GET /api/billing/portal` | Create Stripe Customer Portal link for subscription management. |
 | `POST /api/webhooks/stripe` | Stripe webhook handler (checkout.session.completed, subscription.updated/deleted, invoice.payment_failed). |
 | `GET /api/cron/reset-meters` | Monthly meter archive + reset (Vercel Cron, 1st of month). |
+| `GET /api/operations/feed` | Unified operations feed aggregating pending approvals, failed actions (24h), risk signals, degraded capabilities, degraded integrations, and stale loops. Supports `category`, `severity`, `limit`, `offset` filters. Sorted by severity then timestamp. Powers the Mission Control operations feed. |
 
 All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Six new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`, `workflow_step_results`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
