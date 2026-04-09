@@ -1170,3 +1170,16 @@ CREATE TABLE IF NOT EXISTS artifacts (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+--> statement-breakpoint
+-- Capability access rules: per-agent access control on capabilities
+CREATE TABLE IF NOT EXISTS capability_access_rules (
+  id SERIAL PRIMARY KEY,
+  rule_id TEXT UNIQUE NOT NULL,
+  org_id TEXT NOT NULL,
+  capability_id TEXT NOT NULL,
+  agent_id TEXT,
+  access TEXT NOT NULL,
+  reason TEXT,
+  created_by TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
