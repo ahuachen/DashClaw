@@ -7,7 +7,7 @@
  *
  * Provider detection order:
  *   1. GUARD_LLM_KEY / OPENAI_API_KEY   OpenAI (gpt-4o-mini)
- *   2. ANTHROPIC_API_KEY   Anthropic (claude-3-haiku-20240307)
+ *   2. ANTHROPIC_API_KEY   Anthropic (claude-haiku-4-5)
  *   3. GOOGLE_AI_API_KEY   Google AI (gemini-1.5-flash, free tier available)
  *
  * Usage:
@@ -44,7 +44,7 @@ function _detectProvider() {
   } else if (anthropicKey) {
     _cachedProvider = {
       name: 'anthropic',
-      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-haiku-4-5',
       key: anthropicKey,
       baseUrl: 'https://api.anthropic.com/v1',
     };

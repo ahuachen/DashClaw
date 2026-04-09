@@ -20,7 +20,7 @@ describe('providerRegistry', () => {
   });
 
   it('returns model options in declared order', () => {
-    expect(getProviderModelOptions('anthropic')[0].value).toBe('claude-sonnet-4-6');
+    expect(getProviderModelOptions('anthropic')[0].value).toBe('claude-opus-4-6');
     expect(getProviderModelOptions('perplexity')[0].value).toBe('sonar');
   });
 
@@ -29,7 +29,7 @@ describe('providerRegistry', () => {
     expect(getDefaultProviderModel('openai', 'model_strategies')).toBe('gpt-4.1');
     expect(getDefaultProviderModel('openai', 'policy_generation')).toBe('gpt-4.1');
     expect(getDefaultProviderModel('openai', 'predictive_risk')).toBe('gpt-4.1-mini');
-    expect(getDefaultProviderModel('anthropic', 'predictive_risk')).toBe('claude-3-5-haiku-latest');
+    expect(getDefaultProviderModel('anthropic', 'predictive_risk')).toBe('claude-haiku-4-5');
   });
 
   it('validates provider/model membership', () => {

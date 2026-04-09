@@ -1576,7 +1576,7 @@ stream
 {`await claw.reportTokenUsage({
   tokens_in: 850,
   tokens_out: 215,
-  model: 'claude-3-5-sonnet-20250514'
+  model: 'claude-sonnet-4-6'
 });`}
                     </CodeBlock>
                   }
@@ -1609,7 +1609,7 @@ stream
 {`const anthropic = claw.wrapClient(new Anthropic());
 // usage is auto-reported after this call:
 const msg = await anthropic.messages.create({ 
-  model: 'claude-3-5-sonnet-20250514', 
+  model: 'claude-sonnet-4-6', 
   max_tokens: 1024, 
   messages: [{ role: 'user', content: 'Hello' }] 
 });`}

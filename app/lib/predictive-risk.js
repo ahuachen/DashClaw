@@ -16,7 +16,7 @@ const DEFAULT_STRATEGY_CONFIG = {
   fallback: [
     {
       provider: 'anthropic',
-      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+      model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-haiku-4-5',
     },
   ],
   maxRetries: 1,

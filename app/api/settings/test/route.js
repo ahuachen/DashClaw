@@ -217,7 +217,7 @@ async function testAnthropic(credentials) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-haiku-4-5',
         max_tokens: 1,
         messages: [{ role: 'user', content: 'ping' }],
       }),

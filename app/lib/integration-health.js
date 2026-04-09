@@ -36,7 +36,7 @@ const HEALTH_CHECKERS = {
       method: 'POST',
       headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-3-5-haiku-latest',
+        model: getDefaultProviderModel('anthropic', 'predictive_risk') || 'claude-haiku-4-5',
         max_tokens: 1,
         messages: [{ role: 'user', content: 'ping' }],
       }),

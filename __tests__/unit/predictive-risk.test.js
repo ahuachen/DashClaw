@@ -83,7 +83,7 @@ describe('predictive-risk', () => {
       expect(result.reasoning).toBe('High failure rate after hours');
       expect(mockExecuteCompletion.mock.calls[0][2]).toEqual({
         primary: { provider: 'openai', model: 'gpt-4.1-mini' },
-        fallback: [{ provider: 'anthropic', model: 'claude-3-5-haiku-latest' }],
+        fallback: [{ provider: 'anthropic', model: 'claude-haiku-4-5' }],
         maxRetries: 1,
         maxBudgetUsd: 0.05,
       });
