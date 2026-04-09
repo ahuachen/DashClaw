@@ -103,4 +103,46 @@ describe('DashClawClient', () => {
       );
     });
   });
+
+  describe('patch()', () => {
+    it('sends PATCH with JSON body and x-api-key header', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ updated: true }),
+      });
+
+      const result = await client.patch('/api/policies/pol_123', { status: 'inactive' });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/policies/pol_123',
+        expect.objectContaining({
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'oc_live_test123',
+          },
+          body: JSON.stringify({ status: 'inactive' }),
+        }),
+      );
+      expect(result).toEqual({ updated: true });
+    });
+
+    it('returns error object on non-OK response', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'Not Found' }),
+      });
+
+      const result = await client.patch('/api/policies/pol_missing', {});
+      expect(result).toEqual({ error: 'Not Found', _status: 404 });
+    });
+
+    it('returns error object on network failure', async () => {
+      mockFetch.mockRejectedValue(new Error('Connection refused'));
+
+      const result = await client.patch('/api/policies/pol_123', {});
+      expect(result).toEqual({ error: 'Connection refused', _status: 0 });
+    });
+  });
 });
