@@ -315,3 +315,82 @@ export async function attachAgentConnections(sql, orgId, agents) {
 
   return agents;
 }
+
+/**
+ * Aggregate trust posture for a single agent.
+ */
+export async function getAgentTrustPosture(sql, orgId, agentId) {
+  let permissionLevel = 'unknown';
+  let identityVerified = false;
+  let signatureEnforced = false;
+  let policies = [];
+  let approvalAllowed = 0;
+  let approvalDenied = 0;
+  let blocks30d = 0;
+
+  // Agent pairing — permission level
+  try {
+    const rows = await sql`SELECT permission_level, status FROM agent_pairings WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'active' LIMIT 1`;
+    if (rows[0]) permissionLevel = rows[0].permission_level || 'unknown';
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  // Agent identity — verified?
+  try {
+    const rows = await sql`SELECT agent_id FROM agent_identities WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1`;
+    identityVerified = rows.length > 0;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  // Signature enforcement setting
+  try {
+    const rows = await sql`SELECT value FROM settings WHERE org_id = ${orgId} AND key = 'ENFORCE_AGENT_SIGNATURES' LIMIT 1`;
+    signatureEnforced = rows[0]?.value === 'true';
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  // Policies that apply to this agent (global + agent-specific)
+  try {
+    const rows = await sql`SELECT id, policy_type, description, agent_ids FROM policies WHERE org_id = ${orgId} AND active = true`;
+    policies = (rows || []).filter(p => {
+      if (!p.agent_ids) return true; // global
+      try {
+        const ids = JSON.parse(p.agent_ids);
+        return Array.isArray(ids) && ids.includes(agentId);
+      } catch { return false; }
+    }).map(p => ({
+      policy_id: p.id,
+      type: p.policy_type,
+      description: p.description,
+      scope: p.agent_ids ? 'agent' : 'global',
+    }));
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  // Approval track record: actions that went through pending_approval
+  try {
+    const allowedRows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND approved_by IS NOT NULL`;
+    approvalAllowed = parseInt(allowedRows[0]?.count || '0', 10);
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  try {
+    const deniedRows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'failed' AND error_message LIKE '%Denied by human%'`;
+    approvalDenied = parseInt(deniedRows[0]?.count || '0', 10);
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  // Blocks in last 30 days
+  try {
+    const rows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'blocked' AND timestamp_start::timestamptz > NOW() - INTERVAL '30 days'`;
+    blocks30d = parseInt(rows[0]?.count || '0', 10);
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+
+  return {
+    permission_level: permissionLevel,
+    identity_verified: identityVerified,
+    signature_enforced: signatureEnforced,
+    active_policies_count: policies.length,
+    policies,
+    approval_record: {
+      total: approvalAllowed + approvalDenied,
+      allowed: approvalAllowed,
+      denied: approvalDenied,
+    },
+    blocks_30d: blocks30d,
+  };
+}

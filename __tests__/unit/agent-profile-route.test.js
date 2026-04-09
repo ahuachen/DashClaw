@@ -30,3 +30,43 @@ describe('getAssumptionsSummary', () => {
     expect(result).toEqual({ total: 0, validated: 0, invalidated: 0, unverified: 0 });
   });
 });
+
+describe('getAgentTrustPosture', () => {
+  it('aggregates trust data from multiple tables', async () => {
+    const sql = createSqlMock({
+      taggedResponses: [
+        // agent_pairings
+        [{ permission_level: 'workspace_write', status: 'active' }],
+        // agent_identities
+        [{ agent_id: 'agent_1' }],
+        // settings
+        [{ value: 'true' }],
+        // policies
+        [
+          { id: 1, policy_type: 'require_approval', description: 'High risk', agent_ids: null },
+          { id: 2, policy_type: 'rate_limit', description: 'Throttle', agent_ids: '["agent_1"]' },
+          { id: 3, policy_type: 'block_action_type', description: 'No deploy', agent_ids: '["agent_2"]' },
+        ],
+        // approved count
+        [{ count: '8' }],
+        // denied count
+        [{ count: '2' }],
+        // blocks 30d
+        [{ count: '1' }],
+      ],
+    });
+
+    const { getAgentTrustPosture } = await import(
+      '../../app/lib/repositories/agents.repository.js'
+    );
+    const result = await getAgentTrustPosture(sql, 'org_test', 'agent_1');
+
+    expect(result.permission_level).toBe('workspace_write');
+    expect(result.identity_verified).toBe(true);
+    expect(result.signature_enforced).toBe(true);
+    expect(result.active_policies_count).toBe(2); // global + agent_1 specific, not agent_2's
+    expect(result.policies).toHaveLength(2);
+    expect(result.approval_record).toEqual({ total: 10, allowed: 8, denied: 2 });
+    expect(result.blocks_30d).toBe(1);
+  });
+});
