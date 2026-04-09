@@ -10,12 +10,12 @@
       "label": "sql.query call"
     }
   ],
-  "files_scanned": 147,
-  "files_with_direct_sql": 30,
+  "files_scanned": 158,
+  "files_with_direct_sql": 31,
   "totals": {
-    "tagged_template": 74,
+    "tagged_template": 79,
     "query_call": 11,
-    "total": 85
+    "total": 90
   },
   "files": [
     {
@@ -95,6 +95,12 @@
       "tagged_template": 4,
       "query_call": 0,
       "total": 4
+    },
+    {
+      "file": "app/api/operations/summary/route.js",
+      "tagged_template": 5,
+      "query_call": 0,
+      "total": 5
     },
     {
       "file": "app/api/orgs/[orgId]/keys/route.js",

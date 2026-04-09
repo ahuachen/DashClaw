@@ -15,6 +15,7 @@ import { useRealtime } from '../hooks/useRealtime';
 import { getAgentColor } from '../lib/colors';
 import QuickStart from '../components/QuickStart';
 import OperationsFeed from './components/OperationsFeed.jsx';
+import RuntimeSummaryCard from './components/RuntimeSummaryCard.jsx';
 import AgentSpendCard from '../components/AgentSpendCard';
 import MissionControlCapabilityHealthCard from '../components/MissionControlCapabilityHealthCard';
 import { isDemoMode } from '../lib/isDemoMode';
@@ -517,7 +518,7 @@ export default function MissionControlPage() {
                   </div>
                 </div>
                 <div className="mb-4 text-xs text-zinc-500">vs yesterday</div>
-                
+
                 <div className="grid grid-cols-2 gap-y-3">
                   <div className="flex items-center justify-between pr-4">
                     <span className="text-xs text-zinc-500">Completed</span>
@@ -539,6 +540,11 @@ export default function MissionControlPage() {
               </>
             )}
           </div>
+        </Card>
+
+        {/* Card — Runtime Summary */}
+        <Card>
+          <RuntimeSummaryCard />
         </Card>
       </div>
 
