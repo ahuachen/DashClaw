@@ -137,7 +137,7 @@ The canonical entry point for all agents is `sdk/dashclaw.js` (exported as `dash
 
 ## Framework Integration Examples (`examples/`)
 
-Working examples for governed agent patterns across frameworks: OpenAI, Anthropic, LangGraph, CrewAI, AutoGen, Claude Managed Agents (custom tools), and Claude Managed Agents (MCP, recommended). Each example demonstrates the full governance loop (guard, record, outcome) within its framework's execution model. See `examples/README.md` for the full list.
+Working examples for governed agent patterns across frameworks: OpenAI, Anthropic, LangGraph, CrewAI, AutoGen, Claude Managed Agents (custom tools), and Claude Managed Agents (MCP), and Claude Managed Agents (MCP + Governance Skill, recommended). Each example demonstrates the full governance loop (guard, record, outcome) within its framework's execution model. See `examples/README.md` for the full list.
 
 ---
 
