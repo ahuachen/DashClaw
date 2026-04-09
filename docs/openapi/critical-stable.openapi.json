@@ -863,6 +863,47 @@
         "x-api-maturity": "stable"
       }
     },
+    "/api/guard/decisions": {
+      "get": {
+        "operationId": "get_api_guard_decisions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or request error"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "GET /api/guard/decisions",
+        "tags": [
+          "guard"
+        ],
+        "x-api-maturity": "stable"
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "get_api_health",
