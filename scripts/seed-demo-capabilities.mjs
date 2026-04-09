@@ -173,16 +173,16 @@ async function seedKnowledge() {
   const found = existing?.collections?.find(c => c.name === 'Company Strategy');
   if (found) {
     console.log('  Already exists, skipping.');
-    return found.id;
+    return found.collection_id || found.id;
   }
 
-  const { collection } = await post('/api/knowledge/collections', {
+  const result = await post('/api/knowledge/collections', {
     name: 'Company Strategy',
     description: 'Nexus AI strategic documents — product roadmap, competitive landscape, target markets.',
     source_type: 'notes',
     tags: ['strategy', 'demo'],
   });
-  const collId = collection.id;
+  const collId = result?.collection?.collection_id || result?.collection?.id;
   console.log(`  Collection: ${collId}`);
 
   // Add documents
@@ -298,14 +298,15 @@ async function seedCapabilities() {
     const found = existing?.capabilities?.find(c => c.name === cap.name);
     if (found) {
       console.log(`  Already exists: ${cap.name}`);
-      capIds[cap.name] = found.id;
+      capIds[cap.name] = found.capability_id || found.id;
       continue;
     }
 
     const result = await post('/api/capabilities', cap);
     if (result?.capability) {
-      capIds[cap.name] = result.capability.id;
-      console.log(`  + ${cap.name} (${cap.risk_level}) → ${result.capability.id}`);
+      const cid = result.capability.capability_id || result.capability.id;
+      capIds[cap.name] = cid;
+      console.log(`  + ${cap.name} (${cap.risk_level}) → ${cid}`);
     }
   }
 
@@ -357,7 +358,7 @@ async function seedModelStrategy() {
   const found = existing?.strategies?.find(s => s.name === 'Briefing Analysis');
   if (found) {
     console.log('  Already exists, skipping.');
-    return found.id;
+    return found.strategy_id || found.id;
   }
 
   const result = await post('/api/model-strategies', {
@@ -370,7 +371,7 @@ async function seedModelStrategy() {
     },
   });
 
-  const stratId = result?.strategy?.id;
+  const stratId = result?.strategy?.strategy_id || result?.strategy?.id;
   console.log(`  + Briefing Analysis → ${stratId}`);
   return stratId;
 }
@@ -382,7 +383,7 @@ async function seedWorkflow(knowledgeCollId, capIds, modelStrategyId) {
   const found = existing?.templates?.find(t => t.name === 'Daily Market Briefing');
   if (found) {
     console.log('  Already exists, skipping.');
-    return found.id;
+    return found.template_id || found.id;
   }
 
   const hnTopStoriesId = capIds['Hacker News Top Stories'];
@@ -470,7 +471,7 @@ Format as a concise briefing suitable for a leadership team.`,
     ],
   });
 
-  const tmplId = result?.template?.id;
+  const tmplId = result?.template?.template_id || result?.template?.id;
   console.log(`  + Daily Market Briefing → ${tmplId}`);
   return tmplId;
 }
