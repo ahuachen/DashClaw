@@ -5,6 +5,7 @@ import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
 import HeroScreenshot from './components/HeroScreenshot';
 import InlineCopyCommand from './components/InlineCopyCommand';
+import SetupBanner from './components/SetupBanner';
 import { allScreenshots } from './screenshotData';
 
 import {
@@ -26,6 +27,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#0a0a0a] text-white text-base">
       {/* ── 1. Navbar ── */}
       <PublicNavbar />
+      <SetupBanner />
 
       {/* ── 2. Hero ── */}
       <section className="pt-32 pb-20 px-6">
