@@ -18,6 +18,7 @@ import {
   createActionRecord,
   updateActionOutcome,
 } from '../../../../../../../lib/repositories/actions.repository.js';
+import { createArtifact as createArtifactRecord } from '../../../../../../../lib/repositories/artifacts.repository.js';
 import { executeWorkflow } from '../../../../../../../lib/workflow-executor.js';
 
 export async function POST(request, { params }) {
@@ -134,6 +135,19 @@ export async function POST(request, { params }) {
           orgId,
           stepData,
         });
+
+        // Auto-capture step output as artifact
+        if (stepData.status === 'completed' && stepData.output_json) {
+          createArtifactRecord(sql, orgId, {
+            artifact_type: 'json',
+            name: `Step output: ${stepData.step_name || stepData.step_id}`,
+            content_json: stepData.output_json,
+            source_action_id: action_id,
+            source_step_id: stepData.step_id,
+            source_agent_id: agentId,
+            tags: ['auto-captured', 'workflow-step-output'],
+          }).catch((err) => console.warn('[Resume] Artifact capture failed:', err.message));
+        }
       }
     };
 
