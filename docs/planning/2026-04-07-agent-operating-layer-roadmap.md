@@ -48,21 +48,24 @@ Use these rules when choosing what to build first:
 
 ## Roadmap Overview
 
-### Now
+### Now — SHIPPED (v2.9–v2.11)
 
-Time horizon: 0-8 weeks
+All NOW tier items have been delivered:
 
-Goal: make DashClaw commercially legible as a governed capability gateway plus workflow runtime.
+- Capability Gateway V2: contracts, runtime hardening (retry, circuit breaker), operator surface, health, certification
+- Workflow Runtime V2: run persistence, conditional execution, continue-on-failure, resume from checkpoint, cancel, run detail page
+- Operator Cockpit V1: unified operations feed, decision support actions (approve/deny/retry/disable/cancel), runtime summary
+- Docs/SDK Maturity: product story refresh, SDK tiers, ROADMAP.md, maturity labels on all UI pages
 
-### Next
+### Next — SHIPPED (v2.11)
 
-Time horizon: 2-4 months
-
-Goal: make DashClaw production-ready for more complex agent operations and visibly better for operators.
+- Artifact & Evidence Layer (M1+M2): durable artifacts table, CRUD routes, auto-capture from workflow steps, evidence bundle endpoint, artifacts tab on decision and run detail pages
+- Runtime Observability & Recovery: stuck workflow + approval backlog signals, cancel workflow action, runtime summary metrics widget
+- Pricing & Packaging: deferred (plan exists at `docs/superpowers/plans/2026-04-06-billing-metering.md`)
 
 ### Later
 
-Time horizon: 4-8 months
+Time horizon: next major cycle
 
 Goal: complete the transition into a differentiated operating layer for agent teams.
 

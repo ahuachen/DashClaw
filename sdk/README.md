@@ -481,6 +481,49 @@ const run = await fetch(`${baseUrl}/api/workflows/templates/${templateId}/runs/$
   headers: { 'x-api-key': apiKey },
 }).then(r => r.json());
 // run.steps[].input / run.steps[].output contain full JSON (no truncation)
+
+// Resume a failed run from the last completed checkpoint
+const resumed = await fetch(`${baseUrl}/api/workflows/templates/${templateId}/runs/${runActionId}/resume`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({}),
+}).then(r => r.json());
+// resumed.action_id is the new run; reused steps have status='reused'
+
+// Cancel a running workflow
+await fetch(`${baseUrl}/api/workflows/templates/${templateId}/runs/${runActionId}/cancel`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey },
+});
+```
+
+### Artifacts
+
+```javascript
+// List artifacts (optionally filter by action, step, agent, type)
+const { artifacts } = await fetch(`${baseUrl}/api/artifacts?action_id=${actionId}`, {
+  headers: { 'x-api-key': apiKey },
+}).then(r => r.json());
+
+// Create an artifact
+const { artifact } = await fetch(`${baseUrl}/api/artifacts`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    artifact_type: 'json',
+    name: 'Analysis results',
+    content_json: { findings: ['...'] },
+    source_action_id: actionId,
+  }),
+}).then(r => r.json());
+
+// Generate an evidence bundle for a governed action
+const bundle = await fetch(`${baseUrl}/api/artifacts/evidence-bundle`, {
+  method: 'POST',
+  headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ action_id: actionId }),
+}).then(r => r.json());
+// bundle.action + bundle.steps + bundle.artifacts
 ```
 
 ### Model Strategies
