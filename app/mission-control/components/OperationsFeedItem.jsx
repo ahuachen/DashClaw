@@ -28,7 +28,7 @@ function formatRelativeTime(ts) {
   return `${Math.floor(diffHours / 24)}d`;
 }
 
-export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, onDisable }) {
+export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, onDisable, onCancel }) {
   const dot = SEVERITY_DOT[item.severity] || SEVERITY_DOT.low;
   const pill = CATEGORY_PILL[item.category] || CATEGORY_PILL.signal;
 
@@ -79,6 +79,14 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
             className="px-2 py-1 rounded text-[10px] font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20 hover:bg-blue-400/20 transition-colors"
           >
             Retry
+          </button>
+        )}
+        {item.suggested_action === 'cancel' && onCancel && (
+          <button
+            onClick={() => onCancel(item.metadata)}
+            className="px-2 py-1 rounded text-[10px] font-medium bg-red-400/10 text-red-400 border border-red-400/20 hover:bg-red-400/20 transition-colors"
+          >
+            Cancel
           </button>
         )}
         {item.suggested_action === 'disable' && onDisable && (

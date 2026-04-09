@@ -95,6 +95,19 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
     } catch { /* ignore */ }
   };
 
+  const handleCancel = async (metadata) => {
+    if (!metadata?.template_id || !metadata?.run_action_id) return;
+    try {
+      const res = await fetch(`/api/workflows/templates/${metadata.template_id}/runs/${metadata.run_action_id}/cancel`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        fetchFeed();
+        if (onRefreshRequest) onRefreshRequest();
+      }
+    } catch { /* ignore */ }
+  };
+
   const handleDisable = async (metadata) => {
     if (!metadata?.capability_id) return;
     try {
@@ -166,6 +179,7 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
                 onDeny={item.category === 'approval' ? handleDeny : undefined}
                 onRetry={item.suggested_action === 'retry' ? handleRetry : undefined}
                 onDisable={item.suggested_action === 'disable' ? handleDisable : undefined}
+                onCancel={item.suggested_action === 'cancel' ? handleCancel : undefined}
               />
             ))}
           </div>

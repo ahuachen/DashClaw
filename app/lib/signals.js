@@ -98,7 +98,7 @@ export async function computeSignals(orgId, filterAgentId, sql) {
     `,
     // Workflow executions stuck running for > 30 minutes
     sql`
-      SELECT action_id, agent_id, agent_name, declared_goal, timestamp_start, duration_ms
+      SELECT action_id, agent_id, agent_name, declared_goal, timestamp_start, duration_ms, trigger
       FROM action_records
       WHERE status = 'running'
         AND org_id = ${orgId}
@@ -228,6 +228,7 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       help: 'Cancel the workflow from the operations feed or investigate the stuck step.',
       agent_id: row.agent_id,
       action_id: row.action_id,
+      trigger: row.trigger || null,
     });
   }
 

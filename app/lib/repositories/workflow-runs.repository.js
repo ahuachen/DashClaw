@@ -190,6 +190,45 @@ export async function listWorkflowRuns(sql, orgId, templateId, filters = {}) {
   };
 }
 
+export async function cancelWorkflowRun(sql, orgId, runActionId) {
+  // Verify the run exists and is running
+  const rows = await sql`
+    SELECT action_id, status
+    FROM action_records
+    WHERE org_id = ${orgId}
+      AND action_id = ${runActionId}
+      AND action_type = 'workflow_execute'
+    LIMIT 1
+  `;
+
+  if (rows.length === 0) return { found: false };
+  if (rows[0].status !== 'running') return { found: true, running: false, status: rows[0].status };
+
+  const now = new Date().toISOString();
+
+  // Cancel the parent action
+  await sql`
+    UPDATE action_records
+    SET status = 'cancelled',
+        error_message = 'Cancelled by operator',
+        timestamp_end = ${now}
+    WHERE action_id = ${runActionId} AND org_id = ${orgId}
+  `;
+
+  // Cancel any running step results
+  await sql`
+    UPDATE workflow_step_results
+    SET status = 'cancelled',
+        error_message = 'Cancelled by operator',
+        finished_at = ${now}
+    WHERE run_action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND status = 'running'
+  `;
+
+  return { found: true, running: true, status: 'cancelled' };
+}
+
 export async function getWorkflowRun(sql, orgId, runActionId) {
   const actionRows = await sql`
     SELECT

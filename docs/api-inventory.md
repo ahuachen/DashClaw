@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `203`
+- Total routes: `204`
 - Stable routes: `37`
 - Beta routes: `20`
-- Experimental routes: `146`
+- Experimental routes: `147`
 
 ## Routes
 
@@ -224,5 +224,6 @@ doc-type: architecture
 | `/api/workflows/templates/{templateId}/launch` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/launch/route.js` |
 | `/api/workflows/templates/{templateId}/runs` | `GET` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/runs/route.js` |
 | `/api/workflows/templates/{templateId}/runs/{runActionId}` | `GET` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/runs/[runActionId]/route.js` |
+| `/api/workflows/templates/{templateId}/runs/{runActionId}/cancel` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/runs/[runActionId]/cancel/route.js` |
 | `/api/workflows/templates/{templateId}/runs/{runActionId}/resume` | `POST` | `experimental` | `/api/workflows` | `app/api/workflows/templates/[templateId]/runs/[runActionId]/resume/route.js` |
 

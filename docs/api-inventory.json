@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 203,
+    "total_routes": 204,
     "stable_routes": 37,
     "beta_routes": 20,
-    "experimental_routes": 146
+    "experimental_routes": 147
   },
   "routes": [
     {
@@ -1978,6 +1978,15 @@
       "maturity": "experimental",
       "matched_prefix": "/api/workflows",
       "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/{templateId}/runs/{runActionId}/cancel",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "/api/workflows",
+      "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/cancel/route.js"
     },
     {
       "path": "/api/workflows/templates/{templateId}/runs/{runActionId}/resume",
