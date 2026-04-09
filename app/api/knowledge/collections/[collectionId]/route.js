@@ -8,6 +8,7 @@ import { apiErrorResponse } from '../../../../lib/apiErrors.js';
 import {
   getCollection,
   updateCollection,
+  deleteCollection,
 } from '../../../../lib/repositories/knowledge.repository.js';
 
 export async function GET(request, { params }) {
@@ -23,6 +24,22 @@ export async function GET(request, { params }) {
     return NextResponse.json({ collection });
   } catch (error) {
     return apiErrorResponse(error, 'KNOWLEDGE COLLECTION GET');
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const sql = getSql();
+    const orgId = getOrgId(request);
+    const { collectionId } = await params;
+
+    const deleted = await deleteCollection(sql, orgId, collectionId);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Collection not found' }, { status: 404 });
+    }
+    return NextResponse.json({ deleted: true, collection_id: collectionId });
+  } catch (error) {
+    return apiErrorResponse(error, 'KNOWLEDGE COLLECTION DELETE');
   }
 }
 

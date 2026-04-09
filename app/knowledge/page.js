@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { BookOpen, Plus, RotateCw, FileText, Globe, Archive, StickyNote } from 'lucide-react';
+import { BookOpen, Plus, RotateCw, FileText, Globe, Archive, StickyNote, Pencil, Trash2 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -32,6 +32,91 @@ function timeAgo(dateString) {
   return `${Math.floor(seconds / 86400)}d ago`;
 }
 
+function CollectionCard({ c, onDelete }) {
+  const Icon = sourceIcons[c.source_type] || FileText;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  return (
+    <Card className="h-full">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex items-start gap-2 min-w-0">
+            <Icon size={16} className="text-zinc-400 mt-0.5 flex-shrink-0" />
+            <div className="min-w-0">
+              <Link href={`/knowledge/${c.collection_id}`} className="text-sm font-semibold text-white truncate hover:text-brand block">
+                {c.name}
+              </Link>
+              {c.description && (
+                <div className="text-xs text-zinc-500 truncate">{c.description}</div>
+              )}
+            </div>
+          </div>
+          <Badge variant={ingestionVariant[c.ingestion_status] || 'default'}>
+            {c.ingestion_status}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-3 mt-3 text-[10px] text-zinc-500 uppercase tracking-wider">
+          <span>{c.doc_count} items</span>
+          <span>Synced {timeAgo(c.last_synced_at)}</span>
+        </div>
+        {c.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {c.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 font-mono"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-2 mt-3">
+          <Link
+            href={`/knowledge/${c.collection_id}`}
+            className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+            aria-label={`Edit ${c.name}`}
+          >
+            <Pencil size={11} /> Edit
+          </Link>
+          {confirmDelete ? (
+            <span className="inline-flex items-center gap-1.5 text-xs">
+              <span className="text-red-400">Delete?</span>
+              <button
+                onClick={async () => {
+                  setDeleting(true);
+                  await onDelete?.(c.collection_id);
+                  setDeleting(false);
+                  setConfirmDelete(false);
+                }}
+                disabled={deleting}
+                className="text-red-400 hover:text-red-300 disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Yes'}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="text-zinc-400 hover:text-white"
+              >
+                No
+              </button>
+            </span>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+              aria-label={`Delete ${c.name}`}
+            >
+              <Trash2 size={11} /> Delete
+            </button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function KnowledgePage() {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +138,20 @@ export default function KnowledgePage() {
   }, []);
 
   useEffect(() => { fetchCollections(); }, [fetchCollections]);
+
+  const handleDelete = useCallback(async (collectionId) => {
+    try {
+      const res = await fetch(`/api/knowledge/collections/${collectionId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || 'Failed to delete collection');
+        return;
+      }
+      await fetchCollections();
+    } catch (err) {
+      setError(err.message || 'Failed to delete collection');
+    }
+  }, [fetchCollections]);
 
   const createStarter = async () => {
     setCreating(true);
@@ -127,47 +226,9 @@ export default function KnowledgePage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {collections.map((c) => {
-            const Icon = sourceIcons[c.source_type] || FileText;
-            return (
-              <Link key={c.collection_id} href={`/knowledge/${c.collection_id}`}>
-                <Card className="h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-start gap-2 min-w-0">
-                        <Icon size={16} className="text-zinc-400 mt-0.5 flex-shrink-0" />
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-white truncate">{c.name}</div>
-                          {c.description && (
-                            <div className="text-xs text-zinc-500 truncate">{c.description}</div>
-                          )}
-                        </div>
-                      </div>
-                      <Badge variant={ingestionVariant[c.ingestion_status] || 'default'}>
-                        {c.ingestion_status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-3 mt-3 text-[10px] text-zinc-500 uppercase tracking-wider">
-                      <span>{c.doc_count} items</span>
-                      <span>Synced {timeAgo(c.last_synced_at)}</span>
-                    </div>
-                    {c.tags?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {c.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 font-mono"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+          {collections.map((c) => (
+            <CollectionCard key={c.collection_id} c={c} onDelete={handleDelete} />
+          ))}
         </div>
       )}
     </PageLayout>

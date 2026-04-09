@@ -143,7 +143,7 @@ doc-type: architecture
 | `/api/integrations/health` | `GET` | `experimental` | `(default)` | `app/api/integrations/health/route.js` |
 | `/api/keys` | `DELETE, GET, POST` | `stable` | `/api/keys` | `app/api/keys/route.js` |
 | `/api/knowledge/collections` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/route.js` |
-| `/api/knowledge/collections/{collectionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/route.js` |
+| `/api/knowledge/collections/{collectionId}` | `DELETE, GET, PATCH` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/route.js` |
 | `/api/knowledge/collections/{collectionId}/items` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/items/route.js` |
 | `/api/knowledge/collections/{collectionId}/search` | `POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/search/route.js` |
 | `/api/knowledge/collections/{collectionId}/sync` | `POST` | `experimental` | `(default)` | `app/api/knowledge/collections/[collectionId]/sync/route.js` |

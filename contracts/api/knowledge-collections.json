@@ -10,7 +10,7 @@
     {
       "file": "app/api/knowledge/collections/[collectionId]/route.js",
       "path": "/api/knowledge/collections/[collectionId]",
-      "methods": ["GET", "PATCH"]
+      "methods": ["GET", "PATCH", "DELETE"]
     },
     {
       "file": "app/api/knowledge/collections/[collectionId]/items/route.js",

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Workflow, Plus, RotateCw, FileText, CheckSquare, Trash2, Sparkles } from 'lucide-react';
+import { Workflow, Plus, RotateCw, FileText, CheckSquare, Trash2, Sparkles, Pencil } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -29,6 +29,108 @@ function toggleSelection(selectedIds, templateId) {
     : [...selectedIds, templateId];
 }
 
+function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const cardContent = (
+    <Card className={`h-full ${selected ? 'ring-1 ring-brand' : ''}`}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-2 gap-3">
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-white truncate">{t.name}</div>
+            <div className="text-xs text-zinc-500 font-mono truncate">{t.slug}</div>
+          </div>
+          <div className="flex items-center gap-2">
+            {selectionMode && (
+              <input
+                type="checkbox"
+                aria-label={`Select ${t.name}`}
+                checked={selected}
+                onChange={() => onToggleSelect(t.template_id)}
+                onClick={(event) => event.stopPropagation()}
+              />
+            )}
+            <Badge variant={statusVariant[t.status] || 'default'}>{t.status}</Badge>
+          </div>
+        </div>
+        {t.description && (
+          <div className="text-xs text-zinc-400 line-clamp-2 mb-3">{t.description}</div>
+        )}
+        <div className="flex items-center gap-3 text-[10px] text-zinc-500 uppercase tracking-wider">
+          <span className="flex items-center gap-1"><FileText size={11} />v{t.version}</span>
+          <span>{(t.linked_policy_ids?.length || 0)} policies</span>
+          <span>{(t.linked_capability_ids?.length || 0)} capabilities</span>
+        </div>
+        <div className="text-[10px] text-zinc-600 mt-2">Updated {timeAgo(t.updated_at)}</div>
+        {!selectionMode && (
+          <div className="flex items-center gap-2 mt-3">
+            <Link
+              href={`/workflows/${t.template_id}`}
+              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+              aria-label={`Edit ${t.name}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Pencil size={11} /> Edit
+            </Link>
+            {confirmDelete ? (
+              <span className="inline-flex items-center gap-1.5 text-xs">
+                <span className="text-red-400">Delete?</span>
+                <button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeleting(true);
+                    await onDelete?.(t.template_id);
+                    setDeleting(false);
+                    setConfirmDelete(false);
+                  }}
+                  disabled={deleting}
+                  className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Yes'}
+                </button>
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(false); }}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  No
+                </button>
+              </span>
+            ) : (
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(true); }}
+                className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+                aria-label={`Delete ${t.name}`}
+              >
+                <Trash2 size={11} /> Delete
+              </button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  if (selectionMode) {
+    return (
+      <button
+        type="button"
+        onClick={() => onToggleSelect(t.template_id)}
+        className="text-left"
+      >
+        {cardContent}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={`/workflows/${t.template_id}`}>
+      {cardContent}
+    </Link>
+  );
+}
+
 export default function WorkflowsPage() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +155,20 @@ export default function WorkflowsPage() {
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
+
+  const handleDelete = useCallback(async (templateId) => {
+    try {
+      const res = await fetch(`/api/workflows/templates/${templateId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.error(body.error || 'Failed to delete template');
+        return;
+      }
+      setTemplates((prev) => prev.filter((t) => t.template_id !== templateId));
+    } catch (err) {
+      console.error(err.message || 'Failed to delete template');
+    }
+  }, []);
 
   async function handleDeleteSelected() {
     if (selectedIds.length === 0 || deleting) return;
@@ -187,61 +303,16 @@ export default function WorkflowsPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {templates.map((t) => {
-            const selected = selectedIds.includes(t.template_id);
-            const cardBody = (
-              <Card className={`h-full ${selected ? 'ring-1 ring-brand' : ''}`}>
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between mb-2 gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{t.name}</div>
-                      <div className="text-xs text-zinc-500 font-mono truncate">{t.slug}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {selectionMode && (
-                        <input
-                          type="checkbox"
-                          aria-label={`Select ${t.name}`}
-                          checked={selected}
-                          onChange={() => setSelectedIds((prev) => toggleSelection(prev, t.template_id))}
-                          onClick={(event) => event.stopPropagation()}
-                        />
-                      )}
-                      <Badge variant={statusVariant[t.status] || 'default'}>{t.status}</Badge>
-                    </div>
-                  </div>
-                  {t.description && (
-                    <div className="text-xs text-zinc-400 line-clamp-2 mb-3">{t.description}</div>
-                  )}
-                  <div className="flex items-center gap-3 text-[10px] text-zinc-500 uppercase tracking-wider">
-                    <span className="flex items-center gap-1"><FileText size={11} />v{t.version}</span>
-                    <span>{(t.linked_policy_ids?.length || 0)} policies</span>
-                    <span>{(t.linked_capability_ids?.length || 0)} capabilities</span>
-                  </div>
-                  <div className="text-[10px] text-zinc-600 mt-2">Updated {timeAgo(t.updated_at)}</div>
-                </CardContent>
-              </Card>
-            );
-
-            if (selectionMode) {
-              return (
-                <button
-                  key={t.template_id}
-                  type="button"
-                  onClick={() => setSelectedIds((prev) => toggleSelection(prev, t.template_id))}
-                  className="text-left"
-                >
-                  {cardBody}
-                </button>
-              );
-            }
-
-            return (
-              <Link key={t.template_id} href={`/workflows/${t.template_id}`}>
-                {cardBody}
-              </Link>
-            );
-          })}
+          {templates.map((t) => (
+            <WorkflowCard
+              key={t.template_id}
+              t={t}
+              selected={selectedIds.includes(t.template_id)}
+              selectionMode={selectionMode}
+              onToggleSelect={(id) => setSelectedIds((prev) => toggleSelection(prev, id))}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
       )}
     </PageLayout>

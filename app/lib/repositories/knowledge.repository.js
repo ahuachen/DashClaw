@@ -126,6 +126,15 @@ export async function createCollection(sql, orgId, data) {
   return shapeCollection(rows[0]);
 }
 
+export async function deleteCollection(sql, orgId, collectionId) {
+  const rows = await sql`
+    DELETE FROM knowledge_collections
+    WHERE org_id = ${orgId} AND collection_id = ${collectionId}
+    RETURNING collection_id
+  `;
+  return rows.length > 0;
+}
+
 export async function updateCollection(sql, orgId, collectionId, patch = {}) {
   const existing = await getCollection(sql, orgId, collectionId);
   if (!existing) return null;
