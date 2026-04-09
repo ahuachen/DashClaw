@@ -562,6 +562,57 @@
         "x-api-maturity": "stable"
       }
     },
+    "/api/actions/{actionId}/artifacts": {
+      "get": {
+        "operationId": "get_api_actions_actionId_artifacts",
+        "parameters": [
+          {
+            "description": "Path parameter: actionId",
+            "in": "path",
+            "name": "actionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or request error"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "GET /api/actions/{actionId}/artifacts",
+        "tags": [
+          "actions"
+        ],
+        "x-api-maturity": "stable"
+      }
+    },
     "/api/actions/{actionId}/graph": {
       "get": {
         "operationId": "get_api_actions_actionId_graph",

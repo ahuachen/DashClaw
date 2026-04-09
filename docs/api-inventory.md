@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `205`
-- Stable routes: `37`
+- Total routes: `209`
+- Stable routes: `38`
 - Beta routes: `20`
-- Experimental routes: `148`
+- Experimental routes: `151`
 
 ## Routes
 
@@ -76,6 +76,7 @@ doc-type: architecture
 | `/api/actions/loops/{loopId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/loops/[loopId]/route.js` |
 | `/api/actions/stats` | `GET` | `stable` | `/api/actions` | `app/api/actions/stats/route.js` |
 | `/api/actions/{actionId}` | `GET, PATCH` | `stable` | `/api/actions` | `app/api/actions/[actionId]/route.js` |
+| `/api/actions/{actionId}/artifacts` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/artifacts/route.js` |
 | `/api/actions/{actionId}/graph` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/graph/route.js` |
 | `/api/actions/{actionId}/messages` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/messages/route.js` |
 | `/api/actions/{actionId}/trace` | `GET` | `stable` | `/api/actions` | `app/api/actions/[actionId]/trace/route.js` |
@@ -85,6 +86,9 @@ doc-type: architecture
 | `/api/agents/heartbeat` | `POST` | `experimental` | `/api/agents` | `app/api/agents/heartbeat/route.js` |
 | `/api/agents/{agentId}` | `GET` | `experimental` | `/api/agents` | `app/api/agents/[agentId]/route.js` |
 | `/api/approvals/{actionId}` | `POST` | `experimental` | `(default)` | `app/api/approvals/[actionId]/route.js` |
+| `/api/artifacts` | `GET, POST` | `experimental` | `(default)` | `app/api/artifacts/route.js` |
+| `/api/artifacts/evidence-bundle` | `POST` | `experimental` | `(default)` | `app/api/artifacts/evidence-bundle/route.js` |
+| `/api/artifacts/{artifactId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/artifacts/[artifactId]/route.js` |
 | `/api/assumptions` | `GET, POST` | `experimental` | `(default)` | `app/api/assumptions/route.js` |
 | `/api/assumptions/{assumptionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/assumptions/[assumptionId]/route.js` |
 | `/api/auth/config` | `GET` | `beta` | `/api/auth` | `app/api/auth/config/route.js` |
