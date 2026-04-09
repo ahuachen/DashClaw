@@ -28,7 +28,7 @@ function formatRelativeTime(ts) {
   return `${Math.floor(diffHours / 24)}d`;
 }
 
-export default function OperationsFeedItem({ item, onApprove, onDeny }) {
+export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, onDisable }) {
   const dot = SEVERITY_DOT[item.severity] || SEVERITY_DOT.low;
   const pill = CATEGORY_PILL[item.category] || CATEGORY_PILL.signal;
 
@@ -72,6 +72,22 @@ export default function OperationsFeedItem({ item, onApprove, onDeny }) {
               Deny
             </button>
           </>
+        )}
+        {item.suggested_action === 'retry' && onRetry && (
+          <button
+            onClick={() => onRetry(item.metadata)}
+            className="px-2 py-1 rounded text-[10px] font-medium bg-blue-400/10 text-blue-400 border border-blue-400/20 hover:bg-blue-400/20 transition-colors"
+          >
+            Retry
+          </button>
+        )}
+        {item.suggested_action === 'disable' && onDisable && (
+          <button
+            onClick={() => onDisable(item.metadata)}
+            className="px-2 py-1 rounded text-[10px] font-medium bg-amber-400/10 text-amber-400 border border-amber-400/20 hover:bg-amber-400/20 transition-colors"
+          >
+            Disable
+          </button>
         )}
         {item.category !== 'approval' && (
           <Link

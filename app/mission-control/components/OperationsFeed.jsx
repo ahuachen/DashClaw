@@ -80,6 +80,37 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
     } catch { /* ignore */ }
   };
 
+  const handleRetry = async (metadata) => {
+    if (!metadata?.template_id || !metadata?.run_action_id) return;
+    try {
+      const res = await fetch(`/api/workflows/templates/${metadata.template_id}/runs/${metadata.run_action_id}/resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        fetchFeed();
+        if (onRefreshRequest) onRefreshRequest();
+      }
+    } catch { /* ignore */ }
+  };
+
+  const handleDisable = async (metadata) => {
+    if (!metadata?.capability_id) return;
+    try {
+      const res = await fetch(`/api/capabilities/${metadata.capability_id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ health_status: 'disabled' }),
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((i) => i.source_id !== metadata.capability_id));
+        setCounts((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
+        if (onRefreshRequest) onRefreshRequest();
+      }
+    } catch { /* ignore */ }
+  };
+
   return (
     <div className="rounded-xl border border-border bg-surface-secondary">
       {/* Header */}
@@ -133,6 +164,8 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
                 item={item}
                 onApprove={item.category === 'approval' ? handleApprove : undefined}
                 onDeny={item.category === 'approval' ? handleDeny : undefined}
+                onRetry={item.suggested_action === 'retry' ? handleRetry : undefined}
+                onDisable={item.suggested_action === 'disable' ? handleDisable : undefined}
               />
             ))}
           </div>

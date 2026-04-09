@@ -40,6 +40,7 @@ export function mapFailures(actions) {
 
   return (actions || []).map((a) => {
     const agentCount = agentFailureCounts[a.agent_id || 'unknown'] || 1;
+    const isWorkflowRun = typeof a.trigger === 'string' && a.trigger.startsWith('workflow:');
     return {
       id: `failure:${a.action_id}`,
       category: 'failure',
@@ -55,7 +56,8 @@ export function mapFailures(actions) {
       agent_id: a.agent_id || null,
       timestamp: a.timestamp_start || a.created_at || new Date().toISOString(),
       action_url: `/decisions/${a.action_id}`,
-      suggested_action: 'investigate',
+      suggested_action: isWorkflowRun ? 'retry' : 'investigate',
+      ...(isWorkflowRun ? { metadata: { template_id: a.trigger.slice('workflow:'.length), run_action_id: a.action_id } } : {}),
     };
   });
 }
@@ -94,6 +96,7 @@ export function mapCapabilityHealth(capabilities) {
       timestamp: c.last_invocation || new Date().toISOString(),
       action_url: `/capabilities/${c.capability_id}`,
       suggested_action: c.status === 'failing' ? 'disable' : 'investigate',
+      metadata: { capability_id: c.capability_id },
     }));
 }
 
@@ -151,7 +154,7 @@ export async function buildOperationsFeed(sql, orgId, filters = {}) {
       LIMIT 50
     `,
     sql`
-      SELECT action_id, agent_id, declared_goal, error_message, duration_ms, timestamp_start, created_at
+      SELECT action_id, agent_id, declared_goal, error_message, duration_ms, timestamp_start, created_at, trigger
       FROM action_records
       WHERE org_id = ${orgId} AND status = 'failed'
         AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
