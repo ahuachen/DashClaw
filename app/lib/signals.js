@@ -4,7 +4,7 @@
  */
 
 /**
- * Compute all 11 risk signal types for an org.
+ * Compute all 13 risk signal types for an org.
  *
  * @param {string} orgId
  * @param {string|null} filterAgentId - optional agent filter
@@ -12,7 +12,7 @@
  * @returns {Promise<Array>} signals array
  */
 export async function computeSignals(orgId, filterAgentId, sql) {
-  const [autonomySpikes, highImpact, repeatedFailures, staleLoops, assumptionDrift, staleAssumptions, staleRunning, stalePresence] = await Promise.all([
+  const [autonomySpikes, highImpact, repeatedFailures, staleLoops, assumptionDrift, staleAssumptions, staleRunning, stalePresence, stuckWorkflows, staleApprovals] = await Promise.all([
     sql`
       SELECT agent_id, agent_name, COUNT(*) as action_count
       FROM action_records
@@ -94,6 +94,27 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       WHERE org_id = ${orgId}
         AND last_heartbeat_at::timestamptz < NOW() - INTERVAL '10 minutes'
         AND (status != 'offline' OR current_task_id IS NOT NULL)
+      LIMIT 10
+    `,
+    // Workflow executions stuck running for > 30 minutes
+    sql`
+      SELECT action_id, agent_id, agent_name, declared_goal, timestamp_start, duration_ms
+      FROM action_records
+      WHERE status = 'running'
+        AND org_id = ${orgId}
+        AND action_type = 'workflow_execute'
+        AND timestamp_start::timestamptz < NOW() - INTERVAL '30 minutes'
+      ORDER BY timestamp_start ASC
+      LIMIT 10
+    `,
+    // Pending approvals older than 1 hour
+    sql`
+      SELECT action_id, agent_id, agent_name, declared_goal, timestamp_start, risk_score
+      FROM action_records
+      WHERE status = 'pending_approval'
+        AND org_id = ${orgId}
+        AND timestamp_start::timestamptz < NOW() - INTERVAL '1 hour'
+      ORDER BY timestamp_start ASC
       LIMIT 10
     `
   ]);
@@ -194,6 +215,32 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       help: 'Stalled decisions leave the audit trail incomplete. Investigate whether the decision is stuck or should be finalized.',
       agent_id: action.agent_id,
       action_id: action.action_id
+    });
+  }
+
+  for (const row of stuckWorkflows) {
+    const ageMinutes = Math.round((Date.now() - new Date(row.timestamp_start).getTime()) / 60000);
+    signals.push({
+      type: 'workflow_stuck',
+      severity: ageMinutes > 60 ? 'red' : 'amber',
+      label: `Stuck workflow: ${row.declared_goal || 'Unknown'}`,
+      detail: `Running for ${ageMinutes}m without completing. Agent: ${row.agent_name || row.agent_id || 'unknown'}.`,
+      help: 'Cancel the workflow from the operations feed or investigate the stuck step.',
+      agent_id: row.agent_id,
+      action_id: row.action_id,
+    });
+  }
+
+  for (const row of staleApprovals) {
+    const ageHours = Math.round((Date.now() - new Date(row.timestamp_start).getTime()) / 3600000);
+    signals.push({
+      type: 'approval_backlog',
+      severity: ageHours >= 4 ? 'red' : 'amber',
+      label: `Stale approval: ${row.declared_goal || 'Unknown'}`,
+      detail: `Pending for ${ageHours}h. Risk: ${row.risk_score || 'unknown'}. Agent: ${row.agent_name || row.agent_id || 'unknown'}.`,
+      help: 'Review and approve or deny this action from the approvals queue.',
+      agent_id: row.agent_id,
+      action_id: row.action_id,
     });
   }
 

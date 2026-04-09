@@ -8,7 +8,13 @@ import RealtimeIndicator from './RealtimeIndicator';
 import DemoBanner from './DemoBanner';
 import SystemStatusBar from './SystemStatusBar';
 
-export default function PageLayout({ title, subtitle, breadcrumbs, actions, children }) {
+const MATURITY_BADGE = {
+  stable: { label: 'Stable', color: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' },
+  beta: { label: 'Beta', color: 'bg-amber-400/10 text-amber-400 border-amber-400/20' },
+  experimental: { label: 'Experimental', color: 'bg-purple-400/10 text-purple-400 border-purple-400/20' },
+};
+
+export default function PageLayout({ title, subtitle, breadcrumbs, actions, maturity, children }) {
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -30,7 +36,14 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, chil
                   ))}
                 </div>
               )}
-              <h1 className="text-2xl font-semibold tracking-tight text-white">{title}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-semibold tracking-tight text-white">{title}</h1>
+                {maturity && MATURITY_BADGE[maturity] && (
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${MATURITY_BADGE[maturity].color}`}>
+                    {MATURITY_BADGE[maturity].label}
+                  </span>
+                )}
+              </div>
               {subtitle && <p className="text-sm text-zinc-400 font-normal mt-0.5">{subtitle}</p>}
             </div>
             <div className="flex items-center gap-3">
