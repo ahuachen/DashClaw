@@ -47,6 +47,7 @@ export default function WorkflowStepCard({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [bodyRows, setBodyRows] = useState(() => bodyObjectToRows(step.config?.body));
+  const [showCondition, setShowCondition] = useState(!!step.condition);
   const stepNameId = makeFieldId(step.id, 'name');
   const collectionId = makeFieldId(step.id, 'collection-id');
   const topResultsId = makeFieldId(step.id, 'top-results');
@@ -56,6 +57,7 @@ export default function WorkflowStepCard({
   const systemPromptId = makeFieldId(step.id, 'system-prompt');
   const maxTokensId = makeFieldId(step.id, 'max-tokens');
   const temperatureId = makeFieldId(step.id, 'temperature');
+  const conditionId = makeFieldId(step.id, 'condition');
 
   const summary = useMemo(() => buildWorkflowStepSummary(step, resourceLookups), [resourceLookups, step]);
   const collections = resourceOptions?.knowledgeCollections || [];
@@ -344,6 +346,57 @@ export default function WorkflowStepCard({
               </div>
             </div>
           )}
+
+          {/* ── Condition & Failure Handling ── */}
+          <div className="border-t border-[rgba(255,255,255,0.06)] pt-4 mt-4 space-y-3">
+            {!showCondition ? (
+              <button
+                type="button"
+                onClick={() => setShowCondition(true)}
+                className="text-[10px] text-brand hover:text-brand-hover transition-colors"
+              >
+                + Add condition
+              </button>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor={conditionId} className={labelClass}>Condition (skip if falsy)</label>
+                  <button
+                    type="button"
+                    onClick={() => { setShowCondition(false); updateStep({ condition: '' }); }}
+                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    id={conditionId}
+                    type="text"
+                    value={step.condition || ''}
+                    onChange={(e) => updateStep({ condition: e.target.value })}
+                    placeholder="${steps.prev_step.output.found}"
+                    className={inputClass}
+                  />
+                  <WorkflowVariableInsertButton
+                    variableGroups={variableGroups}
+                    onInsert={(token) => updateStep({ condition: insertVariableToken(step.condition || '', token) })}
+                  />
+                </div>
+                <p className="text-[10px] text-zinc-600 mt-1">Step is skipped if this resolves to empty, 0, false, or null.</p>
+              </div>
+            )}
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!step.continue_on_failure}
+                onChange={(e) => updateStep({ continue_on_failure: e.target.checked })}
+                className="rounded border-white/20 bg-surface-tertiary text-brand focus:ring-brand/30"
+              />
+              <span className="text-xs text-zinc-400">Continue on failure</span>
+            </label>
+          </div>
 
           <div className="border-t border-[rgba(255,255,255,0.06)] pt-4 space-y-3">
             <p className={labelClass}>Retry policy</p>
