@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import PageLayout from '../../../../components/PageLayout.js';
 import WorkflowRunHeader from './components/WorkflowRunHeader.jsx';
 import WorkflowRunTimeline from './components/WorkflowRunTimeline.jsx';
-import ArtifactsTab from '../../../decisions/[actionId]/components/ArtifactsTab.jsx';
+import ArtifactsTab from '../../../../components/ArtifactsTab.jsx';
 import Link from 'next/link';
 
 export default function WorkflowRunDetailPage() {

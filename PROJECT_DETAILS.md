@@ -91,8 +91,12 @@ Modular intelligence features that consume runtime data.
 | `GET /api/operations/feed` | Unified operations feed aggregating pending approvals, failed actions (24h), risk signals, degraded capabilities, degraded integrations, and stale loops. Supports `category`, `severity`, `limit`, `offset` filters. Sorted by severity then timestamp. Powers the Mission Control operations feed. |
 | `GET /api/operations/summary` | Org-level runtime metrics: decision throughput (1h/24h), latency (p50/p95), approval backlog (count/oldest/avg wait), workflow health (running/failed/completed/avg duration), capability health (healthy/degraded/failing). Powers the Runtime Summary card on Mission Control. |
 | `POST /api/workflows/templates/:templateId/runs/:runActionId/cancel` | Cancel a running workflow. Updates parent action and any running step results to `cancelled` status. Only works on running workflows. |
+| `GET/POST /api/artifacts` | List or create durable artifacts. Supports `action_id`, `step_id`, `agent_id`, `type` filters. Artifacts are linked to actions and workflow steps. Workflow step outputs are auto-captured as JSON artifacts. |
+| `GET/DELETE /api/artifacts/:artifactId` | Fetch or delete a single artifact with full content. |
+| `GET /api/actions/:actionId/artifacts` | List artifacts linked to a specific governed action. |
+| `POST /api/artifacts/evidence-bundle` | Generate an evidence bundle for an action: bundles governance records, child steps, and linked artifacts into a single structured object. Optionally persists the bundle as an artifact. |
 
-All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Six new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`, `workflow_step_results`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
+All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Seven new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`, `workflow_step_results`, `artifacts`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
 ### Tier 3: Archived (`app/api/_archive/`)
 Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory Health). These are physically quarantined to maintain a small, stable runtime boundary.

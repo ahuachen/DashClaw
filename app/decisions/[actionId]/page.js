@@ -16,7 +16,7 @@ import { Badge } from '../../components/ui/Badge';
 import AssumptionGraph from '../../components/AssumptionGraph';
 import ExecutionGraph from '../../components/ExecutionGraph';
 import { TimelineMessage } from '../../components/MessageTrail';
-import ArtifactsTab from './components/ArtifactsTab';
+import ArtifactsTab from '../../components/ArtifactsTab';
 
 export default function DecisionReplayPage() {
   const params = useParams();
