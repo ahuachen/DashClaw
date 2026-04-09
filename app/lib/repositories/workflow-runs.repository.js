@@ -57,6 +57,39 @@ export function shapeStepResult(row) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Step result writes
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function insertStepResult(sql, { stepResultId, runActionId, orgId, templateId, stepData }) {
+  await sql`
+    INSERT INTO workflow_step_results (
+      step_result_id, run_action_id, org_id, template_id,
+      step_id, step_index, step_type, step_name,
+      status, input_json, started_at
+    ) VALUES (
+      ${stepResultId}, ${runActionId}, ${orgId}, ${templateId},
+      ${stepData.step_id}, ${stepData.step_index}, ${stepData.step_type}, ${stepData.step_name},
+      'running', ${JSON.stringify(stepData.input_json)}, ${stepData.started_at}
+    )
+  `;
+}
+
+export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
+  await sql`
+    UPDATE workflow_step_results
+    SET status = ${stepData.status},
+        output_json = ${stepData.output_json ? JSON.stringify(stepData.output_json) : null},
+        error_message = ${stepData.error_message || null},
+        retry_count = ${stepData.retry_count || 0},
+        duration_ms = ${stepData.duration_ms || null},
+        finished_at = ${stepData.finished_at || null}
+    WHERE run_action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND step_id = ${stepData.step_id}
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Query functions
 // ─────────────────────────────────────────────────────────────────────────────
 

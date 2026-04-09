@@ -16,6 +16,7 @@ import {
 } from '../../../../../lib/repositories/actions.repository.js';
 import { scanSensitiveData } from '../../../../../lib/security.js';
 import { executeWorkflow } from '../../../../../lib/workflow-executor.js';
+import { insertStepResult, updateStepResult } from '../../../../../lib/repositories/workflow-runs.repository.js';
 import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../../../../lib/usage.js';
 
 function redactAny(value, findings) {
@@ -163,32 +164,20 @@ export async function POST(request, { params }) {
 
     // 7. Build step result persistence callback
     const persistStepResult = async (stepData) => {
-      const stepResultId = `sr_${crypto.randomUUID()}`;
       if (stepData.status === 'running') {
-        await sql`
-          INSERT INTO workflow_step_results (
-            step_result_id, run_action_id, org_id, template_id,
-            step_id, step_index, step_type, step_name,
-            status, input_json, started_at
-          ) VALUES (
-            ${stepResultId}, ${action_id}, ${orgId}, ${templateId},
-            ${stepData.step_id}, ${stepData.step_index}, ${stepData.step_type}, ${stepData.step_name},
-            'running', ${JSON.stringify(stepData.input_json)}, ${stepData.started_at}
-          )
-        `;
+        await insertStepResult(sql, {
+          stepResultId: `sr_${crypto.randomUUID()}`,
+          runActionId: action_id,
+          orgId,
+          templateId,
+          stepData,
+        });
       } else {
-        await sql`
-          UPDATE workflow_step_results
-          SET status = ${stepData.status},
-              output_json = ${stepData.output_json ? JSON.stringify(stepData.output_json) : null},
-              error_message = ${stepData.error_message || null},
-              retry_count = ${stepData.retry_count || 0},
-              duration_ms = ${stepData.duration_ms || null},
-              finished_at = ${stepData.finished_at || null}
-          WHERE run_action_id = ${action_id}
-            AND org_id = ${orgId}
-            AND step_id = ${stepData.step_id}
-        `;
+        await updateStepResult(sql, {
+          runActionId: action_id,
+          orgId,
+          stepData,
+        });
       }
     };
 
