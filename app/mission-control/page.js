@@ -13,9 +13,8 @@ import { Badge } from '../components/ui/Badge';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 import { getAgentColor } from '../lib/colors';
-import ActivityTimeline from '../components/ActivityTimeline';
-import SwarmActivityLog from '../components/SwarmActivityLog';
 import QuickStart from '../components/QuickStart';
+import OperationsFeed from './components/OperationsFeed.jsx';
 import AgentSpendCard from '../components/AgentSpendCard';
 import MissionControlCapabilityHealthCard from '../components/MissionControlCapabilityHealthCard';
 import { isDemoMode } from '../lib/isDemoMode';
@@ -135,8 +134,6 @@ export default function MissionControlPage() {
   const [capabilityHealth, setCapabilityHealth] = useState([]);
   const [capabilityHealthError, setCapabilityHealthError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('priority');
-  const [showTelemetry, setShowTelemetry] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(true);
 
   const isDemo = isDemoMode();
@@ -544,28 +541,8 @@ export default function MissionControlPage() {
         </Card>
       </div>
 
-      {/* ═══ BAND 3: Activity Split (60/40) ═══ */}
-      <div className="grid h-[640px] grid-cols-1 gap-4 lg:grid-cols-5">
-        {/* Decision Timeline (60%) */}
-        <div className="lg:col-span-3">
-          <ActivityTimeline
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            showTelemetry={showTelemetry}
-            onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
-          />
-        </div>
-
-        {/* Mission Feed (40%) */}
-        <div className="lg:col-span-2">
-          <SwarmActivityLog
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            showTelemetry={showTelemetry}
-            onToggleTelemetry={() => setShowTelemetry((prev) => !prev)}
-          />
-        </div>
-      </div>
+      {/* ═══ BAND 3: Operations Feed ═══ */}
+      <OperationsFeed agentId={agentId} onRefreshRequest={fetchAll} />
     </PageLayout>
   );
 }
