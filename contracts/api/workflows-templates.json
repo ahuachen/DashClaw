@@ -36,6 +36,11 @@
       "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/route.js",
       "path": "/api/workflows/templates/[templateId]/runs/[runActionId]",
       "methods": ["GET"]
+    },
+    {
+      "file": "app/api/workflows/templates/[templateId]/runs/[runActionId]/resume/route.js",
+      "path": "/api/workflows/templates/[templateId]/runs/[runActionId]/resume",
+      "methods": ["POST"]
     }
   ]
 }
