@@ -52,6 +52,8 @@ export const platformFeatures = [
   { icon: DashClawLogo, title: 'Verified Agent Identity', description: 'Know which agent took which action. RSA signature verification ensures accountability at every step of the decision lifecycle.' },
   { icon: Terminal, title: 'CLI Approval Channel', description: 'Approve or deny agent actions from the terminal without opening a browser. Works with Claude Code, Codex, Gemini CLI, and any terminal-first workflow.' },
   { icon: Webhook, title: 'Claude Code Hooks', description: 'Govern Claude Code tool calls via PreToolUse and PostToolUse hooks. No SDK instrumentation required. Drop two Python scripts into .claude/hooks/ and every Bash, Edit, Write, and MultiEdit call is governed.' },
+  { icon: Network, title: 'MCP Server', description: 'Connect any MCP client to DashClaw governance with one config line. 8 tools and 4 resources over stdio or Streamable HTTP. Works with Claude Code, Claude Desktop, and Managed Agents.' },
+  { icon: FolderKanban, title: 'Execution Studio', description: 'Workflow templates, capability registry, knowledge collections, and model strategies. Chain governed actions into multi-step pipelines with conditional execution and resume-from-checkpoint.' },
 ];
 
 export const corePrimitives = [
@@ -83,6 +85,27 @@ export const corePrimitives = [
 ];
 
 export const frameworkQuickstarts = [
+  {
+    id: 'mcp',
+    name: 'MCP Server',
+    label: 'Zero-code governance',
+    code: `// Add to claude_desktop_config.json
+// or .mcp.json for Claude Code
+{
+  "mcpServers": {
+    "dashclaw": {
+      "command": "npx",
+      "args": ["@dashclaw/mcp-server"],
+      "env": {
+        "DASHCLAW_URL": "https://your-instance.vercel.app",
+        "DASHCLAW_API_KEY": "oc_live_..."
+      }
+    }
+  }
+}
+// 8 governance tools + 4 resources
+// No SDK. No code changes.`
+  },
   {
     id: 'langchain',
     name: 'LangChain',
@@ -241,6 +264,18 @@ export const shippedHighlights = [
     title: 'Operational Webhooks',
     description: 'Integrate DashClaw alerts into your existing PagerDuty or Slack workflows. React to risk signals in real-time.',
     href: '/webhooks',
+  },
+  {
+    icon: Network,
+    title: 'MCP Governance Server',
+    description: 'Plug DashClaw into any MCP-compatible client. Guard, record, invoke, and discover capabilities without writing integration code.',
+    href: '/docs#mcp-server',
+  },
+  {
+    icon: FolderKanban,
+    title: 'Execution Studio',
+    description: 'Workflow templates with 3 step types, capability registry with governed HTTP invocation, and knowledge collections with semantic search.',
+    href: '/workflows',
   },
   {
     icon: Scale,
