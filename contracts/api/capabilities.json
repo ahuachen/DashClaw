@@ -36,6 +36,21 @@
       "file": "app/api/capabilities/[capabilityId]/test/route.js",
       "path": "/api/capabilities/[capabilityId]/test",
       "methods": ["POST"]
+    },
+    {
+      "file": "app/api/capabilities/[capabilityId]/access/route.js",
+      "path": "/api/capabilities/[capabilityId]/access",
+      "methods": ["GET", "POST"]
+    },
+    {
+      "file": "app/api/capabilities/[capabilityId]/access/[ruleId]/route.js",
+      "path": "/api/capabilities/[capabilityId]/access/[ruleId]",
+      "methods": ["DELETE"]
+    },
+    {
+      "file": "app/api/capabilities/[capabilityId]/access/check/route.js",
+      "path": "/api/capabilities/[capabilityId]/access/check",
+      "methods": ["GET"]
     }
   ]
 }

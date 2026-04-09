@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `209`
+- Total routes: `212`
 - Stable routes: `38`
 - Beta routes: `20`
-- Experimental routes: `151`
+- Experimental routes: `154`
 
 ## Routes
 
@@ -98,6 +98,9 @@ doc-type: architecture
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
 | `/api/capabilities/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/health/route.js` |
 | `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
+| `/api/capabilities/{capabilityId}/access` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/route.js` |
+| `/api/capabilities/{capabilityId}/access/check` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/check/route.js` |
+| `/api/capabilities/{capabilityId}/access/{ruleId}` | `DELETE` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/[ruleId]/route.js` |
 | `/api/capabilities/{capabilityId}/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/health/route.js` |
 | `/api/capabilities/{capabilityId}/history` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/history/route.js` |
 | `/api/capabilities/{capabilityId}/invoke` | `POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/invoke/route.js` |
