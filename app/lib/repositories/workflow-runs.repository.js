@@ -90,6 +90,48 @@ export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Resume context
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Build resume context from a prior run's step results.
+ * Returns { resumeFromIndex, priorSteps, failedStepId } or null if nothing to resume.
+ *
+ * @param {Array} stepResults - step_result rows ordered by step_index
+ * @param {string|null} fromStepId - optional step_id to resume from (re-runs that step)
+ */
+export function buildResumeContext(stepResults, fromStepId = null) {
+  if (!stepResults || stepResults.length === 0) return null;
+
+  let resumeFromIndex;
+  let failedStepId = null;
+
+  if (fromStepId) {
+    const targetStep = stepResults.find((s) => s.step_id === fromStepId);
+    if (!targetStep) return null;
+    resumeFromIndex = targetStep.step_index;
+  } else {
+    const firstNonCompleted = stepResults.find(
+      (s) => s.status !== 'completed' && s.status !== 'skipped' && s.status !== 'reused',
+    );
+    if (!firstNonCompleted) return null; // all completed — nothing to resume
+    resumeFromIndex = firstNonCompleted.step_index;
+    failedStepId = firstNonCompleted.step_id;
+  }
+
+  const priorSteps = {};
+  for (const step of stepResults) {
+    if (step.step_index >= resumeFromIndex) break;
+    if (step.status !== 'completed') continue; // skip skipped/failed steps
+    priorSteps[step.step_id] = {
+      output: safeJsonParse(step.output_json),
+    };
+  }
+
+  return { resumeFromIndex, priorSteps, failedStepId };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Query functions
 // ─────────────────────────────────────────────────────────────────────────────
 
