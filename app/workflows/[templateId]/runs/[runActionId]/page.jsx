@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import PageLayout from '../../../../components/PageLayout.js';
 import WorkflowRunHeader from './components/WorkflowRunHeader.jsx';
 import WorkflowRunTimeline from './components/WorkflowRunTimeline.jsx';
+import ArtifactsTab from '../../../decisions/[actionId]/components/ArtifactsTab.jsx';
 import Link from 'next/link';
 
 export default function WorkflowRunDetailPage() {
@@ -100,6 +101,10 @@ export default function WorkflowRunDetailPage() {
         <div>
           <h2 className="text-sm font-medium text-zinc-300 mb-3">Steps</h2>
           <WorkflowRunTimeline steps={run.steps} />
+        </div>
+        <div>
+          <h2 className="text-sm font-medium text-zinc-300 mb-3">Artifacts</h2>
+          <ArtifactsTab actionId={runActionId} />
         </div>
       </div>
     </PageLayout>

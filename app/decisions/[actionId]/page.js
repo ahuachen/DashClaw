@@ -7,7 +7,8 @@ import {
   CheckCircle2, XCircle, Clock, Zap, Target, BarChart3, HelpCircle,
   RefreshCw, MapPin, Microscope, IdCard, Rocket, Search, ArrowUp,
   Link2, AlertTriangle, ShieldCheck, ShieldAlert, Scale, FileText,
-  Activity, Info, ChevronRight, Fingerprint, Database, LayoutPanelLeft, ExternalLink
+  Activity, Info, ChevronRight, Fingerprint, Database, LayoutPanelLeft, ExternalLink,
+  Package
 } from 'lucide-react';
 import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
@@ -15,6 +16,7 @@ import { Badge } from '../../components/ui/Badge';
 import AssumptionGraph from '../../components/AssumptionGraph';
 import ExecutionGraph from '../../components/ExecutionGraph';
 import { TimelineMessage } from '../../components/MessageTrail';
+import ArtifactsTab from './components/ArtifactsTab';
 
 export default function DecisionReplayPage() {
   const params = useParams();
@@ -324,6 +326,7 @@ export default function DecisionReplayPage() {
     { id: 'policies', label: 'Policies', icon: ShieldCheck },
     { id: 'assumptions', label: 'Assumptions', icon: HelpCircle },
     { id: 'signals', label: 'Signals', icon: ShieldAlert },
+    { id: 'artifacts', label: 'Artifacts', icon: Package },
     { id: 'evidence', label: 'Evidence', icon: IdCard },
   ];
 
@@ -939,6 +942,10 @@ export default function DecisionReplayPage() {
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {activeTab === 'artifacts' && (
+            <ArtifactsTab actionId={actionId} />
           )}
 
           {activeTab === 'evidence' && (
