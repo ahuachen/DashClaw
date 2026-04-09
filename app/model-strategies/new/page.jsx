@@ -69,6 +69,7 @@ export default function NewModelStrategyPage() {
       title="New Model Strategy"
       subtitle="Define provider, fallback chain, budget cap, and operating constraints without editing raw JSON."
       breadcrumbs={['Studio', 'Model Strategies', 'New']}
+      maturity="beta"
       actions={
         <Link
           href="/model-strategies"

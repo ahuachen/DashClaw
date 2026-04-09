@@ -82,6 +82,7 @@ export default async function SettingsPage({ searchParams }) {
       title="Settings"
       subtitle="Instance configuration, verification, model pricing, and agent identity."
       breadcrumbs={['System', 'Settings']}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-2">
           {!viewer.isAuthenticated && (

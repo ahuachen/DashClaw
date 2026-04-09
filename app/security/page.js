@@ -196,6 +196,7 @@ export default function SecurityDashboard() {
       title="Security"
       subtitle={`Decision Integrity & Risk Signals${lastUpdated ? ` -- Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Dashboard', 'Security']}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-2">
           <button

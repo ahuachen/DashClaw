@@ -152,6 +152,7 @@ export default function GlobalActivityFeed() {
       title="Activity Stream"
       subtitle={`Real-time operational telemetry across decisions, governance, and system events \u00B7 Updated ${lastUpdated}`}
       breadcrumbs={['Command', 'Activity']}
+      maturity="beta"
     >
       <div className="max-w-4xl mx-auto">
         <Card hover={false}>

@@ -192,6 +192,7 @@ export default function WorkflowTemplateDetailPage() {
       title={template.name}
       subtitle={template.description || 'Workflow template'}
       breadcrumbs={['Studio', 'Workflows', template.slug]}
+      maturity="beta"
       actions={(
         <div className="flex items-center gap-2">
           <Link

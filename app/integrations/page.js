@@ -246,6 +246,7 @@ export default function IntegrationsPage() {
       title="Integrations"
       subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
       breadcrumbs={['Dashboard', 'Integrations']}
+      maturity="stable"
     >
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">

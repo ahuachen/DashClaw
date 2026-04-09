@@ -157,6 +157,7 @@ export default function CapabilityDetailPage({ params }) {
       title={capability?.name || 'Capability Detail'}
       subtitle="Operator view for capability health, certification, and recent activity"
       breadcrumbs={['Studio', 'Capabilities', capability?.name || capabilityId || 'Detail']}
+      maturity="stable"
     >
       {loading ? (
         <div className="text-sm text-zinc-500 py-12 text-center">Loading capability...</div>

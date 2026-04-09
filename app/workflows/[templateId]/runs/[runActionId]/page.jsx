@@ -94,7 +94,7 @@ export default function WorkflowRunDetailPage() {
   }
 
   return (
-    <PageLayout title={run.template_name || 'Workflow Run'}>
+    <PageLayout title={run.template_name || 'Workflow Run'} maturity="beta">
       <div className="space-y-8">
         <WorkflowRunHeader run={run} templateId={templateId} onResume={handleResume} resuming={resuming} />
         <div>

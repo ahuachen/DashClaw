@@ -149,6 +149,7 @@ export default function DriftPage() {
       title="Drift Detection"
       subtitle="Statistical behavioral drift analysis"
       breadcrumbs={['Operations', 'Drift Detection']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <button onClick={handleRunDetection} disabled={running} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">

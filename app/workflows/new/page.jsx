@@ -129,6 +129,7 @@ export default function NewWorkflowTemplatePage() {
       title="New Workflow Template"
       subtitle="Define a reusable, versioned operational pattern"
       breadcrumbs={['Studio', 'Workflows', 'New']}
+      maturity="beta"
       actions={(
         <div className="flex items-center gap-2">
           <button

@@ -85,6 +85,7 @@ export default function KnowledgePage() {
       title="Knowledge Collections"
       subtitle="Named knowledge sources that workflows and agents can bind to"
       breadcrumbs={['Studio', 'Knowledge']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <button

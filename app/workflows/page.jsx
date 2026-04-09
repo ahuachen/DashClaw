@@ -85,6 +85,7 @@ export default function WorkflowsPage() {
       title="Workflow Templates"
       subtitle="Reusable, governed workflow packaging"
       breadcrumbs={['Studio', 'Workflows']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <button

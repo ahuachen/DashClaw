@@ -332,6 +332,7 @@ export default function DecisionReplayPage() {
       title="Decision Replay"
       subtitle={`${action.agent_name || action.agent_id} -- ${action.declared_goal}`}
       breadcrumbs={['Governance', 'Decisions', action.action_id]}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-3">
           {action.verified ? (

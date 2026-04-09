@@ -190,6 +190,7 @@ export default function EvaluationsPage() {
       title="Evaluations"
       subtitle="Score and measure agent decision quality"
       breadcrumbs={['Operations', 'Evaluations']}
+      maturity="beta"
       actions={
         <button onClick={fetchData} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
           <RefreshCw size={16} />

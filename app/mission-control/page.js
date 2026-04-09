@@ -302,6 +302,7 @@ export default function MissionControlPage() {
       subtitle="Fleet posture, interventions, and decision intelligence"
       breadcrumbs={['Mission Control']}
       actions={actionButton}
+      maturity="stable"
     >
       {/* ═══ Activation: Quick Start (Only if no agents or in demo mode for review) ═══ */}
       {!loading && (agents.length === 0 || isDemo) && showQuickStart && (

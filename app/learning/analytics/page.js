@@ -129,6 +129,7 @@ export default function LearningAnalyticsPage() {
       title="Learning Analytics"
       subtitle="Agent learning velocity and maturity tracking"
       breadcrumbs={['Operations', 'Learning', 'Analytics']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <button onClick={handleCompute} disabled={computing} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">

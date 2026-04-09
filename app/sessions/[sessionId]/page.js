@@ -107,6 +107,7 @@ export default function SessionDetailPage() {
       title={session.agent_id}
       subtitle={session.id}
       breadcrumbs={['Observe', 'Sessions', session.agent_id]}
+      maturity="beta"
       actions={
         <button
           onClick={() => { setLoading(true); fetchData(); }}

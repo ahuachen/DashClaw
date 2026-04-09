@@ -366,6 +366,7 @@ export default function AgentProfilePage() {
       title={agent.agent_name || agent.agent_id}
       subtitle={`Agent Governance Dossier \u00B7 ID: ${agent.agent_id}`}
       breadcrumbs={['Command', 'Agents', agent.agent_id]}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-3">
           {agent.verified ? (

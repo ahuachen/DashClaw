@@ -142,6 +142,7 @@ export default function CapabilitiesPage() {
       title="Capability Registry"
       subtitle="Governed registry of callable capabilities with risk, approval, and health metadata"
       breadcrumbs={['Studio', 'Capabilities']}
+      maturity="stable"
       actions={(
         <div className="flex items-center gap-2">
           <button

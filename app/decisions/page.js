@@ -261,6 +261,7 @@ export default function DecisionsLedger() {
       title="Decisions Ledger"
       subtitle={`Global stream of governed agent actions${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Governance', 'Decisions']}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-2">
           {isAdmin && selectedActions.size > 0 && (

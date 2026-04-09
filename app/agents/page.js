@@ -62,6 +62,7 @@ export default function AgentsFleetPage() {
 
   return (
     <PageLayout
+      maturity="stable"
       title="Agent Fleet"
       subtitle="Fleet-wide observability and permission governance"
       breadcrumbs={['Command', 'Agents']}

@@ -216,6 +216,7 @@ export default function ScoringPage() {
     <PageLayout
       title="Scoring Profiles"
       description="Define what 'good' means for your agents with weighted multi-dimensional scoring."
+      maturity="stable"
     >
       {/* Tab Bar */}
       <div className="flex gap-1 mb-6 bg-[#111] rounded-lg p-1 w-fit">

@@ -145,6 +145,7 @@ export default function ApiKeysPage() {
       title="API Keys"
       subtitle="Manage your workspace API keys"
       breadcrumbs={['Dashboard', 'API Keys']}
+      maturity="stable"
       actions={
         <div className="flex items-center gap-2">
           <ConnectAgentButton />

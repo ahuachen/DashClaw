@@ -52,6 +52,7 @@ export default function NewKnowledgeCollectionPage() {
       title="New Knowledge Collection"
       subtitle="Create a named container for documents and sources"
       breadcrumbs={['Studio', 'Knowledge', 'New']}
+      maturity="beta"
       actions={
         <Link href="/knowledge" className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors">
           <ArrowLeft size={14} /> Back

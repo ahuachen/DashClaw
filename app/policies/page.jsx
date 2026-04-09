@@ -747,6 +747,7 @@ export default function PoliciesPage() {
       title="Policies"
       subtitle="Guard rules that govern agent behavior before actions execute"
       breadcrumbs={['Policies']}
+      maturity="stable"
     >
       {isDemo && (
         <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm flex items-center gap-2">

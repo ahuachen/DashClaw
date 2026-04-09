@@ -68,6 +68,7 @@ export default function ApprovalsPage() {
       title="Approval Queue"
       subtitle="Human-in-the-loop intervention for sensitive agent actions"
       breadcrumbs={['Operations', 'Approvals']}
+      maturity="stable"
       actions={
         <button onClick={fetchPending} className="p-2 text-zinc-400 hover:text-white transition-colors">
           <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />

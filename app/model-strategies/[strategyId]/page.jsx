@@ -138,6 +138,7 @@ export default function ModelStrategyDetailPage() {
       title={strategy.name}
       subtitle="Guided model strategy configuration"
       breadcrumbs={['Studio', 'Model Strategies', strategy.name]}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <Link

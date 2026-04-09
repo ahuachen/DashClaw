@@ -84,6 +84,7 @@ export default function SessionsPage() {
       title="Agent Sessions"
       subtitle="Track active sessions, detect stalls, monitor health"
       breadcrumbs={['Observe', 'Sessions']}
+      maturity="beta"
       actions={
         <button
           onClick={() => { setLoading(true); fetchSessions(); }}

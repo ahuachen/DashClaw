@@ -106,6 +106,7 @@ export default function KnowledgeCollectionDetailPage() {
       title={collection.name}
       subtitle={collection.description || 'Knowledge collection'}
       breadcrumbs={['Studio', 'Knowledge', collection.name]}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <Link

@@ -243,6 +243,7 @@ export default function LearningDashboard() {
       title="Learning Database"
       subtitle={`Decisions, Outcomes & Lessons${lastUpdated ? ` -- Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Dashboard', 'Learning']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <Link href="/learning/analytics" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors">

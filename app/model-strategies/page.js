@@ -73,6 +73,7 @@ export default function ModelStrategiesPage() {
       title="Model Strategies"
       subtitle="Reusable provider/model strategy records linked to workflows"
       breadcrumbs={['Studio', 'Model Strategies']}
+      maturity="beta"
       actions={
         <div className="flex items-center gap-2">
           <button
