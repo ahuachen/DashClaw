@@ -6,6 +6,7 @@
 
 import crypto from 'crypto';
 import { resolveVars } from './template-vars.js';
+import { evaluateCondition } from './workflow-condition.js';
 import {
   handleKnowledgeSearch,
   handleCapabilityInvoke,
@@ -51,6 +52,55 @@ export async function executeWorkflow(
   for (const step of steps) {
     const stepStart = Date.now();
     const stepActionId = `act_${crypto.randomUUID()}`;
+
+    // Condition evaluation — skip if falsy
+    if (step.condition) {
+      const { shouldRun } = evaluateCondition(step.condition, context);
+      if (!shouldRun) {
+        const stepIndex = steps.indexOf(step);
+
+        await createActionRecord(sql, {
+          orgId,
+          action_id: stepActionId,
+          data: {
+            agent_id: workflowContext.agentId || 'anonymous',
+            action_type: `workflow_step:${step.type}`,
+            declared_goal: `Step: ${step.name || step.id}`,
+            parent_action_id: parentActionId,
+            risk_score: 0,
+            confidence: 100,
+            systems_touched: [`workflow_step:${step.type}`],
+            reversible: true,
+            input_summary: 'Condition not met',
+          },
+          actionStatus: 'skipped',
+          costEstimate: 0,
+          signature: null,
+          verified: false,
+          timestamp_start: new Date().toISOString(),
+        });
+
+        if (persistStepResult) {
+          await persistStepResult({
+            step_id: step.id,
+            step_index: stepIndex,
+            step_type: step.type,
+            step_name: step.name || step.id,
+            status: 'skipped',
+            duration_ms: 0,
+            finished_at: new Date().toISOString(),
+          }).catch((err) => console.warn('[Executor] Step result write failed:', err.message));
+        }
+
+        stepResults.push({
+          step_id: step.id,
+          type: step.type,
+          status: 'skipped',
+          elapsed_ms: 0,
+        });
+        continue;
+      }
+    }
 
     // Create child action record
     await createActionRecord(sql, {
@@ -180,6 +230,10 @@ export async function executeWorkflow(
           duration_ms: stepElapsed,
           finished_at: new Date().toISOString(),
         }).catch((err) => console.warn('[Executor] Step result write failed:', err.message));
+      }
+
+      if (step.continue_on_failure) {
+        continue;
       }
 
       return {

@@ -226,4 +226,119 @@ describe('executeWorkflow', () => {
       expect.any(Object),
     );
   });
+
+  it('skips step when condition resolves to falsy', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+
+    const persistStepResult = vi.fn().mockResolvedValue(undefined);
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Summarize', config: { prompt_template: 'test' }, condition: '${steps.step_1.output.chunks.length}' },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {}, persistStepResult });
+
+    expect(result.success).toBe(true);
+    expect(result.steps).toHaveLength(2);
+    expect(result.steps[0].status).toBe('completed');
+    expect(result.steps[1].status).toBe('skipped');
+    expect(handlePrompt).not.toHaveBeenCalled();
+  });
+
+  it('runs step when condition resolves to truthy', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [{ content: 'found' }], query: 'test' });
+    handlePrompt.mockResolvedValueOnce({ text: 'summary', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Summarize', config: { prompt_template: 'test' }, condition: '${steps.step_1.output.chunks.length}' },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    expect(result.steps).toHaveLength(2);
+    expect(result.steps[0].status).toBe('completed');
+    expect(result.steps[1].status).toBe('completed');
+    expect(handlePrompt).toHaveBeenCalled();
+  });
+
+  it('continues to next step when continue_on_failure is true', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+    handleCapabilityInvoke.mockRejectedValueOnce(new Error('capability_timeout'));
+    handlePrompt.mockResolvedValueOnce({ text: 'done', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'capability_invoke', name: 'Optional API', config: { capability_id: 'cap_1', body: {} }, continue_on_failure: true },
+      { id: 'step_3', type: 'prompt', name: 'Summarize', config: { prompt_template: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    expect(result.steps).toHaveLength(3);
+    expect(result.steps[0].status).toBe('completed');
+    expect(result.steps[1].status).toBe('failed');
+    expect(result.steps[2].status).toBe('completed');
+    expect(handlePrompt).toHaveBeenCalled();
+  });
+
+  it('aborts when continue_on_failure is false (default behavior)', async () => {
+    handleCapabilityInvoke.mockRejectedValueOnce(new Error('fatal'));
+
+    const steps = [
+      { id: 'step_1', type: 'capability_invoke', name: 'Required API', config: { capability_id: 'cap_1', body: {} } },
+      { id: 'step_2', type: 'prompt', name: 'Summarize', config: { prompt_template: 'test' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(false);
+    expect(result.steps).toHaveLength(1);
+    expect(handlePrompt).not.toHaveBeenCalled();
+  });
+
+  it('skipped step does not add to context.steps', async () => {
+    handleKnowledgeSearch.mockResolvedValueOnce({ chunks: [], query: 'test' });
+    handlePrompt.mockResolvedValueOnce({ text: 'result', tokens_in: 10, tokens_out: 5 });
+
+    const steps = [
+      { id: 'step_1', type: 'knowledge_search', name: 'Search', config: { collection_id: 'kc_1', query: 'test' } },
+      { id: 'step_2', type: 'prompt', name: 'Conditional', config: { prompt_template: 'test' }, condition: '${steps.step_1.output.chunks.length}' },
+      { id: 'step_3', type: 'prompt', name: 'Final', config: { prompt_template: 'Using: ${steps.step_2.output.text}' } },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {} });
+
+    expect(result.success).toBe(true);
+    // step_3 prompt_template should NOT have resolved step_2 output (it was skipped)
+    expect(handlePrompt).toHaveBeenCalledWith(
+      mockSql,
+      'org_1',
+      expect.objectContaining({
+        prompt_template: expect.stringContaining('${steps.step_2.output.text}'),
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it('writes skipped step_result via persistStepResult', async () => {
+    const persistStepResult = vi.fn().mockResolvedValue(undefined);
+
+    const steps = [
+      { id: 'step_1', type: 'prompt', name: 'Conditional', config: { prompt_template: 'test' }, condition: '${variables.run_this}' },
+    ];
+
+    const result = await executeWorkflow(mockSql, 'org_1', 'act_parent', steps, {}, { strategyConfig: {}, persistStepResult });
+
+    expect(result.success).toBe(true);
+    expect(persistStepResult).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_id: 'step_1',
+        status: 'skipped',
+      }),
+    );
+  });
 });
