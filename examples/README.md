@@ -60,6 +60,10 @@ A CrewAI agent using the `@tool` decorator to wrap governance calls around tool 
 
 A Claude Managed Agent running in Anthropic's cloud infrastructure with DashClaw as the governance layer. The agent has full access to bash, file I/O, and web search, but all external API calls, risky modifications, and significant decisions go through DashClaw custom tools (`dashclaw_guard`, `dashclaw_invoke`, `dashclaw_record`). Requires an Anthropic API key and a running DashClaw instance.
 
+### Market Intelligence Briefing (Full-Stack Demo)
+
+Not an example you run externally — this seeds demo data directly into your DashClaw instance. Run `node scripts/seed-demo-capabilities.mjs` to create a knowledge collection, 5 capabilities, 3 policies, and a 5-step workflow. Then execute "Daily Market Briefing" from the Workflows page. See [DEMO.md](../DEMO.md).
+
 ## Prerequisites
 
 All examples need:

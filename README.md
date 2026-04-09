@@ -182,6 +182,16 @@ No repo clone. No environment variables. No configuration. Just one command.
 
 ---
 
+### Try the Demo
+
+Seed a full-stack governance demo with one command — knowledge collections, capabilities, policies, and a 5-step workflow. See [DEMO.md](DEMO.md) for the full walkthrough.
+
+```bash
+node scripts/seed-demo-capabilities.mjs
+```
+
+---
+
 ## 🏗️ First Real Agent
 
 **Fastest**: Install the [dashclaw-platform-intelligence skill](#option-1-install-the-skill-30-seconds) and let your agent instrument itself.
