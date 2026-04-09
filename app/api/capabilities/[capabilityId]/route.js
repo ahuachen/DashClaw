@@ -8,6 +8,7 @@ import { apiErrorResponse } from '../../../lib/apiErrors.js';
 import {
   getCapability,
   updateCapability,
+  deleteCapability,
 } from '../../../lib/repositories/capabilities.repository.js';
 
 export async function GET(request, { params }) {
@@ -50,5 +51,21 @@ export async function PATCH(request, { params }) {
     }
   } catch (error) {
     return apiErrorResponse(error, 'CAPABILITY PATCH');
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const sql = getSql();
+    const orgId = getOrgId(request);
+    const { capabilityId } = await params;
+
+    const deleted = await deleteCapability(sql, orgId, capabilityId);
+    if (!deleted) {
+      return NextResponse.json({ error: 'Capability not found' }, { status: 404 });
+    }
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    return apiErrorResponse(error, 'CAPABILITY DELETE');
   }
 }

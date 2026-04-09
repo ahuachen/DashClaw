@@ -776,6 +776,7 @@
     {
       "path": "/api/capabilities/{capabilityId}",
       "methods": [
+        "DELETE",
         "GET",
         "PATCH"
       ],

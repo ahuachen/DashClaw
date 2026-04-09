@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, FlaskConical, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, FlaskConical, Pencil, ShieldAlert, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import {
@@ -57,8 +58,11 @@ function readRecentError(capability) {
 export default function CapabilityRegistryCard({
   capability,
   onRunTest,
+  onDelete,
   testStatus,
 }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const recentError = readRecentError(capability);
   const currentHealth = capability.status || capability.health_status || 'unknown';
   const capabilityMode = deriveCapabilityMode(capability);
@@ -153,12 +157,52 @@ export default function CapabilityRegistryCard({
         ) : null}
 
         <div className="flex items-center justify-between gap-2">
-          <Link
-            href={`/capabilities/${capability.capability_id}`}
-            className="text-xs text-brand hover:text-brand-hover"
-          >
-            Open detail
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/capabilities/${capability.capability_id}`}
+              className="text-xs text-brand hover:text-brand-hover"
+            >
+              Open detail
+            </Link>
+            <Link
+              href={`/capabilities/${capability.capability_id}?edit=true`}
+              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+              aria-label={`Edit ${capability.name}`}
+            >
+              <Pencil size={11} /> Edit
+            </Link>
+            {confirmDelete ? (
+              <span className="inline-flex items-center gap-1.5 text-xs">
+                <span className="text-red-400">Delete?</span>
+                <button
+                  onClick={async () => {
+                    setDeleting(true);
+                    await onDelete?.(capability.capability_id);
+                    setDeleting(false);
+                    setConfirmDelete(false);
+                  }}
+                  disabled={deleting}
+                  className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Yes'}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  No
+                </button>
+              </span>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+                aria-label={`Delete ${capability.name}`}
+              >
+                <Trash2 size={11} /> Delete
+              </button>
+            )}
+          </div>
           {canRunTest ? (
             <button
               onClick={() => onRunTest(capability)}

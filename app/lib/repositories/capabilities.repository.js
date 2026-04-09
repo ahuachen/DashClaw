@@ -220,6 +220,15 @@ export async function createCapability(sql, orgId, data) {
   return shapeCapability(rows[0]);
 }
 
+export async function deleteCapability(sql, orgId, capabilityId) {
+  const rows = await sql`
+    DELETE FROM capabilities
+    WHERE org_id = ${orgId} AND capability_id = ${capabilityId}
+    RETURNING capability_id
+  `;
+  return rows.length > 0;
+}
+
 export async function updateCapability(sql, orgId, capabilityId, patch = {}) {
   const existing = await getCapability(sql, orgId, capabilityId);
   if (!existing) return null;

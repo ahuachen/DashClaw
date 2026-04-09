@@ -133,16 +133,16 @@ describe('CapabilitiesPage', () => {
       expect(screen.queryByText('Loading...')).toBeNull();
     });
 
-    expect(await screen.findByRole('link', { name: /research agent/i })).toBeTruthy();
+    expect((await screen.findAllByRole('link', { name: /research agent/i })).length).toBeGreaterThan(0);
 
     expect(await screen.findByText('Total capabilities')).toBeTruthy();
     expect(screen.getByText('Attention needed')).toBeTruthy();
     expect(screen.getByText('Stale certifications')).toBeTruthy();
     expect(screen.getByText('Uncertified')).toBeTruthy();
 
-    expect(screen.getByRole('link', { name: /research agent/i })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /send slack message/i })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /calendar registry/i })).toBeTruthy();
+    expect(screen.getAllByRole('link', { name: /research agent/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /send slack message/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /calendar registry/i }).length).toBeGreaterThan(0);
     expect(screen.getByText('certified')).toBeTruthy();
     expect(screen.getByText('failed')).toBeTruthy();
     expect(screen.getByText('uncertified')).toBeTruthy();
@@ -177,8 +177,8 @@ describe('CapabilitiesPage', () => {
 
     fireEvent.click(screen.getByLabelText('Uncertified only'));
 
-    const link = screen.getByRole('link', { name: /research agent/i });
-    expect(link.getAttribute('href')).toBe('/capabilities/cap_1');
+    const links = screen.getAllByRole('link', { name: /research agent/i });
+    expect(links.some(l => l.getAttribute('href') === '/capabilities/cap_1')).toBe(true);
   });
 
   it('runs a lightweight test from the registry and refreshes capability health', async () => {

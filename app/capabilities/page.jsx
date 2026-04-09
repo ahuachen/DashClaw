@@ -137,6 +137,20 @@ export default function CapabilitiesPage() {
     }
   }, [fetchCapabilities]);
 
+  const handleDelete = useCallback(async (capabilityId) => {
+    try {
+      const res = await fetch(`/api/capabilities/${capabilityId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || 'Failed to delete capability');
+        return;
+      }
+      await fetchCapabilities();
+    } catch (err) {
+      setError(err.message || 'Failed to delete capability');
+    }
+  }, [fetchCapabilities]);
+
   return (
     <PageLayout
       title="Capability Registry"
@@ -240,6 +254,7 @@ export default function CapabilitiesPage() {
               key={capability.capability_id}
               capability={capability}
               onRunTest={handleRunTest}
+              onDelete={handleDelete}
               testStatus={testStatus[capability.capability_id]}
             />
           ))}

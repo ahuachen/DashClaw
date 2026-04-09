@@ -97,7 +97,7 @@ doc-type: architecture
 | `/api/billing/portal` | `GET` | `experimental` | `(default)` | `app/api/billing/portal/route.js` |
 | `/api/capabilities` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/route.js` |
 | `/api/capabilities/health` | `GET` | `experimental` | `(default)` | `app/api/capabilities/health/route.js` |
-| `/api/capabilities/{capabilityId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
+| `/api/capabilities/{capabilityId}` | `DELETE, GET, PATCH` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/route.js` |
 | `/api/capabilities/{capabilityId}/access` | `GET, POST` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/route.js` |
 | `/api/capabilities/{capabilityId}/access/check` | `GET` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/check/route.js` |
 | `/api/capabilities/{capabilityId}/access/{ruleId}` | `DELETE` | `experimental` | `(default)` | `app/api/capabilities/[capabilityId]/access/[ruleId]/route.js` |
