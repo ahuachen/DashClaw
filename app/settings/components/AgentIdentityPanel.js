@@ -19,6 +19,24 @@ function timeUntil(dateStr) {
   return `${mins}m remaining`;
 }
 
+const PERMISSION_LEVELS = ['readonly', 'workspace_write', 'prompt', 'allow', 'danger'];
+
+const PERMISSION_LABELS = {
+  readonly: 'Read Only',
+  workspace_write: 'Workspace Write',
+  prompt: 'Prompt',
+  allow: 'Allow',
+  danger: 'Danger',
+};
+
+const PERMISSION_COLORS = {
+  readonly: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20',
+  workspace_write: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+  prompt: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
+  allow: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+  danger: 'text-red-400 bg-red-500/10 border-red-500/20',
+};
+
 export default function AgentIdentityPanel({ highlightPairingId }) {
   const [enforcement, setEnforcement] = useState(false);
   const [enforcementLoading, setEnforcementLoading] = useState(true);
@@ -26,7 +44,9 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
   const [pairingsLoading, setPairingsLoading] = useState(true);
   const [identities, setIdentities] = useState([]);
   const [identitiesLoading, setIdentitiesLoading] = useState(true);
+  const [approvedPairings, setApprovedPairings] = useState([]);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [registerAgentId, setRegisterAgentId] = useState('');
   const [registerPublicKey, setRegisterPublicKey] = useState('');
@@ -76,6 +96,20 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
     finally { setPairingsLoading(false); }
   }, []);
 
+  // ── Fetch approved pairings (for permission_level on identity rows) ──
+  const fetchApprovedPairings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/pairings?status=approved&limit=200');
+      const data = await res.json();
+      if (res.ok) setApprovedPairings(data.pairings || []);
+    } catch { /* non-critical */ }
+  }, []);
+
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(null), 4000);
+  };
+
   const approveOne = async (id, { skipRefresh = false } = {}) => {
     setError(null);
     try {
@@ -92,6 +126,8 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
       if (!skipRefresh) {
         await fetchPairings();
         await fetchIdentities();
+        await fetchApprovedPairings();
+        showSuccess('Agent identity approved successfully');
       }
     } catch { setError(`Failed to approve pairing`); }
   };
@@ -103,6 +139,27 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
     }
     await fetchPairings();
     await fetchIdentities();
+    await fetchApprovedPairings();
+    showSuccess(`All ${pairings.length} pairing${pairings.length === 1 ? '' : 's'} approved successfully`);
+  };
+
+  const updatePermissionLevel = async (pairingId, permission_level) => {
+    setError(null);
+    try {
+      const res = await fetch(`/api/pairings/${encodeURIComponent(pairingId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ permission_level }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to update permission level');
+        return;
+      }
+      // Update local state immediately without full refetch
+      setPairings((prev) => prev.map((p) => p.id === pairingId ? { ...p, permission_level } : p));
+      setApprovedPairings((prev) => prev.map((p) => p.id === pairingId ? { ...p, permission_level } : p));
+    } catch { setError('Failed to update permission level'); }
   };
 
   // ── Fetch identities ──
@@ -116,6 +173,12 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
     } catch { setError('Failed to load identities'); }
     finally { setIdentitiesLoading(false); }
   }, []);
+
+  // Build a lookup map: agent_id -> approved pairing (for permission_level display)
+  const approvedPairingByAgent = approvedPairings.reduce((acc, p) => {
+    acc[p.agent_id] = p;
+    return acc;
+  }, {});
 
   const revokeIdentity = async (agentId) => {
     setError(null);
@@ -159,7 +222,8 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
     fetchEnforcement();
     fetchPairings();
     fetchIdentities();
-  }, [fetchEnforcement, fetchPairings, fetchIdentities]);
+    fetchApprovedPairings();
+  }, [fetchEnforcement, fetchPairings, fetchIdentities, fetchApprovedPairings]);
 
   // ── Scroll to highlighted pairing ──
   useEffect(() => {
@@ -175,6 +239,11 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
 
   return (
     <div className="space-y-6">
+      {successMsg && (
+        <div className="px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-400">
+          {successMsg}
+        </div>
+      )}
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center justify-between">
           <span>{error}</span>
@@ -226,9 +295,9 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
               <div
                 key={p.id}
                 id={`pairing-${p.id}`}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] transition-all"
+                className="flex items-start justify-between gap-3 p-3 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] transition-all"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-white">{p.agent_id}</span>
                     {p.agent_name && <span className="text-xs text-zinc-500">({p.agent_name})</span>}
@@ -236,10 +305,22 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
                   <div className="text-xs text-zinc-500 mt-1">
                     {timeUntil(p.expires_at)} · <span className="font-mono">{p.algorithm || 'RSASSA-PKCS1-v1_5'}</span>
                   </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <label className="text-xs text-zinc-500">Permission:</label>
+                    <select
+                      value={p.permission_level || 'danger'}
+                      onChange={(e) => updatePermissionLevel(p.id, e.target.value)}
+                      className="text-xs bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.08)] rounded px-2 py-1 text-zinc-300 focus:outline-none focus:border-brand/50"
+                    >
+                      {PERMISSION_LEVELS.map((lvl) => (
+                        <option key={lvl} value={lvl}>{PERMISSION_LABELS[lvl]}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <button
                   onClick={() => approveOne(p.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-white rounded-lg bg-brand hover:bg-brand/90 transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-white rounded-lg bg-brand hover:bg-brand/90 transition-colors shrink-0"
                 >
                   Approve
                 </button>
@@ -300,26 +381,51 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
           <div className="text-sm text-zinc-500 py-6 text-center">No agents enrolled. Share a pairing URL or register directly.</div>
         ) : (
           <div className="space-y-2">
-            {identities.map((id) => (
-              <div
-                key={id.agent_id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)]"
-              >
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-white font-mono">{id.agent_id}</div>
-                  <div className="text-xs text-zinc-500 mt-1">
-                    <span className="font-mono">{id.algorithm || 'RSASSA-PKCS1-v1_5'}</span> · Enrolled {formatDate(id.created_at)}
-                  </div>
-                </div>
-                <button
-                  onClick={() => revokeIdentity(id.agent_id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 rounded-lg transition-colors"
+            {identities.map((id) => {
+              const pairing = approvedPairingByAgent[id.agent_id];
+              const permLevel = pairing?.permission_level || null;
+              const permColor = permLevel ? PERMISSION_COLORS[permLevel] : 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20';
+              const permLabel = permLevel ? PERMISSION_LABELS[permLevel] : 'default';
+              return (
+                <div
+                  key={id.agent_id}
+                  className="flex items-start justify-between gap-3 p-3 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)]"
                 >
-                  <Trash2 size={14} />
-                  Revoke
-                </button>
-              </div>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-white font-mono">{id.agent_id}</span>
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium border ${permColor}`}>
+                        {permLabel}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-500 mt-1">
+                      <span className="font-mono">{id.algorithm || 'RSASSA-PKCS1-v1_5'}</span> · Enrolled {formatDate(id.created_at)}
+                    </div>
+                    {pairing && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <label className="text-xs text-zinc-500">Permission:</label>
+                        <select
+                          value={pairing.permission_level || 'danger'}
+                          onChange={(e) => updatePermissionLevel(pairing.id, e.target.value)}
+                          className="text-xs bg-[rgba(0,0,0,0.3)] border border-[rgba(255,255,255,0.08)] rounded px-2 py-1 text-zinc-300 focus:outline-none focus:border-brand/50"
+                        >
+                          {PERMISSION_LEVELS.map((lvl) => (
+                            <option key={lvl} value={lvl}>{PERMISSION_LABELS[lvl]}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => revokeIdentity(id.agent_id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/40 rounded-lg transition-colors shrink-0"
+                  >
+                    <Trash2 size={14} />
+                    Revoke
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
