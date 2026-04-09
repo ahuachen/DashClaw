@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2026-04-09
+
+### Added
+- **DashClaw MCP Server**: New `@dashclaw/mcp-server` npm package exposing DashClaw governance as an MCP server. 8 tools (guard, record, invoke, capabilities_list, policies_list, wait_for_approval, session_start, session_end) and 4 resources (policies, capabilities, agent history, status). Dual transport: stdio for Claude Code/Desktop, Streamable HTTP at `/api/mcp` for Claude Managed Agents.
+- **Managed Agent MCP Example**: New `examples/managed-agent-mcp/` — the recommended way to govern Claude Managed Agents with DashClaw. ~120 lines vs ~410 in the custom tools example. One config line gives the agent full governance.
+
 ## [2.11.0] - 2026-04-07
 
 ### Added

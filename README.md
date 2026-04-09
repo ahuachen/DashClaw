@@ -11,7 +11,7 @@
 
 <br />
 <p><strong>Works with:</strong></p>
-<p>LangChain • CrewAI • OpenClaw • OpenAI • Anthropic • AutoGen • Claude Managed Agents • Claude Code • Codex • Gemini CLI • Custom agents</p>
+<p>LangChain • CrewAI • OpenClaw • OpenAI • Anthropic • AutoGen • Claude Managed Agents • Claude Managed Agents (MCP) • Claude Code • Codex • Gemini CLI • Custom agents</p>
   <br />
   <p>Intercept decisions. Enforce policies. Record evidence.</p>
   <br />

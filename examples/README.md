@@ -52,6 +52,10 @@ A LangGraph StateGraph with a `governance_node` that runs guard checks and recor
 
 A CrewAI agent using the `@tool` decorator to wrap governance calls around tool execution. Demonstrates guard → create_action → update_outcome flow within CrewAI's tool abstraction. Requires Python 3.10+ and the DashClaw Python SDK. No OPENAI_API_KEY needed.
 
+### Claude Managed Agents (MCP) ⭐ Recommended
+
+`managed-agent-mcp/` — The simplest way to govern a Claude Managed Agent. Uses DashClaw's MCP server — one config line gives the agent 8 governance tools and 4 resources. ~120 lines.
+
 ### managed-agent-governed
 
 A Claude Managed Agent running in Anthropic's cloud infrastructure with DashClaw as the governance layer. The agent has full access to bash, file I/O, and web search, but all external API calls, risky modifications, and significant decisions go through DashClaw custom tools (`dashclaw_guard`, `dashclaw_invoke`, `dashclaw_record`). Requires an Anthropic API key and a running DashClaw instance.

@@ -98,6 +98,7 @@ Modular intelligence features that consume runtime data.
 | `GET/DELETE /api/artifacts/:artifactId` | Fetch or delete a single artifact with full content. |
 | `GET /api/actions/:actionId/artifacts` | List artifacts linked to a specific governed action. |
 | `POST /api/artifacts/evidence-bundle` | Generate an evidence bundle for an action: bundles governance records, child steps, and linked artifacts into a single structured object. Optionally persists the bundle as an artifact. |
+| `POST /api/mcp` | MCP Streamable HTTP endpoint — JSON-RPC handler for MCP tool calls and resource reads. Powers `@dashclaw/mcp-server` remote transport. |
 
 All routes are org-scoped via `getOrgId(request)` and follow the existing `route.js` → `repository` pattern with `apiErrorResponse` on failure. Eight new tables (`workflow_templates`, `model_strategies`, `knowledge_collections`, `knowledge_collection_items`, `capabilities`, `capability_access_rules`, `workflow_step_results`, `artifacts`) are appended to `drizzle/0000_clammy_falcon.sql` and applied idempotently by `scripts/auto-migrate.mjs` on deploy.
 
@@ -136,7 +137,7 @@ The canonical entry point for all agents is `sdk/dashclaw.js` (exported as `dash
 
 ## Framework Integration Examples (`examples/`)
 
-Working examples for governed agent patterns across frameworks: OpenAI, Anthropic, LangGraph, CrewAI, AutoGen, and Claude Managed Agents. Each example demonstrates the full governance loop (guard, record, outcome) within its framework's execution model. See `examples/README.md` for the full list.
+Working examples for governed agent patterns across frameworks: OpenAI, Anthropic, LangGraph, CrewAI, AutoGen, Claude Managed Agents (custom tools), and Claude Managed Agents (MCP, recommended). Each example demonstrates the full governance loop (guard, record, outcome) within its framework's execution model. See `examples/README.md` for the full list.
 
 ---
 

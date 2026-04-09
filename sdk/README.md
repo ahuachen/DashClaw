@@ -388,6 +388,26 @@ dashclaw deny <actionId>        # deny a specific action
 
 When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal or the dashboard, and the agent unblocks instantly.
 
+## MCP Server (Zero-Code Integration)
+
+If your agent supports MCP (Claude Code, Claude Desktop, Managed Agents), you can skip the SDK entirely:
+
+```json
+{
+  "mcpServers": {
+    "dashclaw": {
+      "command": "npx",
+      "args": ["@dashclaw/mcp-server"],
+      "env": { "DASHCLAW_URL": "...", "DASHCLAW_API_KEY": "oc_live_..." }
+    }
+  }
+}
+```
+
+The MCP server exposes the same governance surface as the SDK (guard, record, invoke, wait for approval) plus discovery (capabilities, policies) and session lifecycle.
+
+---
+
 ## Claude Code Hooks
 
 Govern Claude Code tool calls without any SDK instrumentation. Copy two files from the `hooks/` directory in the repo into your `.claude/hooks/` folder:

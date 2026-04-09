@@ -2,6 +2,7 @@
 
 ## Recently Shipped
 
+- **v2.12** — DashClaw MCP Server (`@dashclaw/mcp-server`), dual-transport governance (stdio + Streamable HTTP at `/api/mcp`), 8 tools + 4 resources, Managed Agent MCP example
 - **v2.11** — Artifact & evidence layer (durable artifacts, auto-capture from workflow steps, evidence bundles), runtime observability (stuck workflow + approval backlog signals, cancel workflow, runtime summary metrics), operator cockpit decision support (Retry/Disable/Cancel actions in operations feed), maturity labels across all UI pages
 - **v2.10** — Workflow Runtime V2 (run persistence with full step I/O, conditional execution, continue-on-failure, resume from checkpoint), Operator Cockpit V1 (unified operations feed replacing Mission Control activity split), SSE-powered `waitForApproval()` in Node + Python SDKs, AutoGen governed example, enhanced CrewAI/LangGraph examples
 - **v2.9** — AI Policy Generator with dry-run preview, predictive risk scoring in guard engine, guided UX for policies/capabilities/workflows/model strategies, capability runtime v2 (contracts, invoke, health, circuit breaker, retry), provider registry convergence
@@ -16,7 +17,6 @@
 
 ## Exploring
 
-- **Claude Managed Agents Integration** — Cloud-hosted agents governed by DashClaw custom tools (guard, invoke, record). See `examples/managed-agent-governed/`
 - **Multi-Agent Task Topology** — Parent/child task model, dependency graph, ownership, escalation flows
 - **Trust & Permissions** — Agent roles, scoped capability access, delegated authority, approval chains
 - **Memory Architecture** — Unified episodic/semantic/procedural memory with freshness, trust, and compaction
