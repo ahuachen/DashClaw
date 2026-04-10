@@ -21,7 +21,7 @@ export default async function ConnectPage() {
   const content = getConnectGuideContent({ host });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-surface-primary text-white">
       <PublicNavbar />
 
       <main className="px-6 pb-20 pt-28">
@@ -36,23 +36,29 @@ export default async function ConnectPage() {
 
           <ConnectGuideClient content={content} />
 
-          {/* MCP Server - Zero Code Path */}
-          <section className="mt-12 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6 sm:p-8">
+          {/* MCP Server — Zero Code Path */}
+          <section className="mt-12 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
             <div className="flex items-center gap-3">
-              <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Fastest path</p>
-              <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand border border-brand/20">Under 2 minutes</span>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Fastest path</p>
+              <span className="rounded-full border border-brand/20 bg-brand/10 px-2.5 py-0.5 text-[11px] font-medium text-brand">
+                Under 2 minutes
+              </span>
             </div>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">MCP Server <span className="text-zinc-500 font-normal">(Zero Code)</span></h2>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">
+              MCP Server <span className="font-normal text-zinc-500">(zero code)</span>
+            </h2>
             <p className="mt-2 text-sm text-zinc-400">
               Connect any MCP-compatible client — Claude Code, Claude Desktop, or Claude Managed Agents — to DashClaw governance with one config line. No SDK, no hooks, no code changes.
             </p>
 
             <div className="mt-6 space-y-4">
               {/* Claude Code / Claude Desktop */}
-              <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5">
-                <h3 className="text-sm font-semibold text-zinc-300">Claude Code / Claude Desktop</h3>
-                <p className="mt-1 text-xs text-zinc-500">Add to your <code className="text-zinc-400 bg-zinc-800 px-1 py-0.5 rounded">claude_desktop_config.json</code> or Claude Code settings:</p>
-                <pre className="mt-3 overflow-x-auto rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] p-4 text-xs text-zinc-300 leading-relaxed">{`{
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Claude Code / Claude Desktop</h3>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Add to your <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[11px] text-zinc-300">claude_desktop_config.json</code> or Claude Code settings:
+                </p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`{
   "mcpServers": {
     "dashclaw": {
       "command": "npx",
@@ -67,10 +73,10 @@ export default async function ConnectPage() {
               </div>
 
               {/* Claude Managed Agents */}
-              <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5">
-                <h3 className="text-sm font-semibold text-zinc-300">Claude Managed Agents</h3>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Claude Managed Agents</h3>
                 <p className="mt-1 text-xs text-zinc-500">Pass DashClaw as an MCP server when creating your agent:</p>
-                <pre className="mt-3 overflow-x-auto rounded-xl bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] p-4 text-xs text-zinc-300 leading-relaxed">{`agent = client.beta.agents.create(
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`agent = client.beta.agents.create(
     name="Governed Agent",
     model="claude-sonnet-4-6",
     tools=[{"type": "agent_toolset_20260401"}],
@@ -85,22 +91,22 @@ export default async function ConnectPage() {
             </div>
 
             {/* What you get */}
-            <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">What you get</p>
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mt-4 rounded-2xl border border-border bg-white/[0.02] p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">What you get</p>
+              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 mb-1.5">8 Governance Tools</p>
+                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-400">8 Governance Tools</p>
                   <div className="flex flex-wrap gap-1.5">
                     {['guard', 'record', 'invoke', 'capabilities_list', 'policies_list', 'wait_for_approval', 'session_start', 'session_end'].map((tool) => (
-                      <span key={tool} className="rounded-md bg-zinc-800/60 px-2 py-0.5 text-xs font-mono text-zinc-400">{tool}</span>
+                      <span key={tool} className="rounded-md border border-border bg-surface-tertiary px-2 py-0.5 font-mono text-[11px] text-zinc-300">{tool}</span>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 mb-1.5">4 Resources</p>
+                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-400">4 Resources</p>
                   <div className="flex flex-wrap gap-1.5">
                     {['policies', 'capabilities', 'agent history', 'status'].map((res) => (
-                      <span key={res} className="rounded-md bg-zinc-800/60 px-2 py-0.5 text-xs font-mono text-zinc-400">{res}</span>
+                      <span key={res} className="rounded-md border border-border bg-surface-tertiary px-2 py-0.5 font-mono text-[11px] text-zinc-300">{res}</span>
                     ))}
                   </div>
                 </div>
@@ -108,29 +114,28 @@ export default async function ConnectPage() {
             </div>
           </section>
 
-          {/* Framework Guides - per D-10 */}
-          <section className="mt-6 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6 sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Framework guides</p>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">Connect your framework</h2>
+          {/* Framework Guides */}
+          <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Framework guides</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">Connect your framework</h2>
             <p className="mt-2 text-sm text-zinc-400">Step-by-step guides for popular agent frameworks. Each takes under 20 minutes.</p>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Link href="/guides/claude-code" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
-                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">Claude Code</h3>
-                <p className="mt-1 text-sm text-zinc-400">Govern Bash, Edit, Write, and MultiEdit tool calls via PreToolUse hooks. Zero SDK code required.</p>
-              </Link>
-              <Link href="/guides/openai-agents-sdk" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
-                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">OpenAI Agents SDK</h3>
-                <p className="mt-1 text-sm text-zinc-400">Add guard-record-outcome governance to your OpenAI agent tools with the Node.js SDK.</p>
-              </Link>
-              <Link href="/guides/langgraph" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
-                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">LangGraph</h3>
-                <p className="mt-1 text-sm text-zinc-400">Add a governance node to your LangGraph StateGraph with the Python SDK. Includes runnable example.</p>
-              </Link>
-              <Link href="/guides/crewai" className="group rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-5 transition-colors hover:border-brand/30">
-                <h3 className="text-base font-semibold text-white group-hover:text-brand transition-colors">CrewAI</h3>
-                <p className="mt-1 text-sm text-zinc-400">Govern CrewAI tool calls using the @tool decorator pattern with the Python SDK. Includes runnable example.</p>
-              </Link>
+              {[
+                { href: '/guides/claude-code', title: 'Claude Code', desc: 'Govern Bash, Edit, Write, and MultiEdit tool calls via PreToolUse hooks. Zero SDK code required.' },
+                { href: '/guides/openai-agents-sdk', title: 'OpenAI Agents SDK', desc: 'Add guard-record-outcome governance to your OpenAI agent tools with the Node.js SDK.' },
+                { href: '/guides/langgraph', title: 'LangGraph', desc: 'Add a governance node to your LangGraph StateGraph with the Python SDK. Includes runnable example.' },
+                { href: '/guides/crewai', title: 'CrewAI', desc: 'Govern CrewAI tool calls using the @tool decorator pattern with the Python SDK. Includes runnable example.' },
+              ].map((g) => (
+                <Link
+                  key={g.href}
+                  href={g.href}
+                  className="group rounded-2xl border border-border bg-surface-tertiary p-5 transition-colors hover:border-brand/30"
+                >
+                  <h3 className="text-base font-semibold text-white transition-colors group-hover:text-brand">{g.title}</h3>
+                  <p className="mt-1 text-sm text-zinc-400">{g.desc}</p>
+                </Link>
+              ))}
             </div>
           </section>
         </div>

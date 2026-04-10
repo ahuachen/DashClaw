@@ -20,7 +20,7 @@ function CopyButton({ value }) {
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.08)] bg-[#161616] px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-[rgba(255,255,255,0.16)] hover:text-white"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
     >
       {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
       {copied ? 'Copied' : 'Copy'}
@@ -29,11 +29,11 @@ function CopyButton({ value }) {
 }
 
 function CodeCard({ title, body, tone = 'default' }) {
-  const toneClass = tone === 'accent' ? 'border-brand/30' : 'border-[rgba(255,255,255,0.08)]';
+  const toneClass = tone === 'accent' ? 'border-brand/30' : 'border-border';
 
   return (
-    <div className={`rounded-2xl border bg-[#111] ${toneClass}`}>
-      <div className="flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] px-4 py-3">
+    <div className={`rounded-2xl border bg-surface-secondary ${toneClass}`}>
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
         <p className="text-sm font-medium text-zinc-200">{title}</p>
         <CopyButton value={body} />
       </div>
@@ -44,7 +44,7 @@ function CodeCard({ title, body, tone = 'default' }) {
 
 function StepSection({ number, title, summary, children }) {
   return (
-    <section className="rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5 sm:p-6">
+    <section className="rounded-3xl border border-border bg-surface-secondary p-5 sm:p-6">
       <div className="flex items-start gap-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/15 text-sm font-semibold text-brand">
           {number}
@@ -78,9 +78,9 @@ export default function ConnectGuideClient({ content }) {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-brand/25 bg-[#111] p-6 sm:p-8">
+      <section className="rounded-3xl border border-brand/25 bg-surface-secondary p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.32em] text-brand">Golden path</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Connect your first agent</h1>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Connect your first agent</h1>
         <p className="mt-3 max-w-3xl text-sm text-zinc-300 sm:text-base">{content.intro}</p>
         <p className="mt-3 max-w-3xl text-sm text-zinc-400">{content.agentRequirementsNote}</p>
 
@@ -94,7 +94,7 @@ export default function ConnectGuideClient({ content }) {
                 className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                   active
                     ? 'border-brand/45 bg-brand/10 text-brand'
-                    : 'border-[rgba(255,255,255,0.08)] bg-[#161616] text-zinc-300 hover:text-white'
+                    : 'border-border bg-surface-tertiary text-zinc-300 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -110,7 +110,7 @@ export default function ConnectGuideClient({ content }) {
         summary={`Use the ${language.label} path below. This page keeps the first-action flow short and only switches the parts that differ by language.`}
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
+          <div className="rounded-2xl border border-border bg-surface-tertiary p-4">
             <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Selected SDK</p>
             <p className="mt-2 text-lg font-semibold text-white">{language.label}</p>
             <p className="mt-2 text-sm text-zinc-400">Install command:</p>
@@ -119,7 +119,7 @@ export default function ConnectGuideClient({ content }) {
               <InfoList items={content.baseUrlGuidance} icon={Terminal} />
             </div>
           </div>
-          <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
+          <div className="rounded-2xl border border-border bg-surface-tertiary p-4">
             <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">What the agent needs</p>
             <InfoList
               items={[
@@ -166,13 +166,13 @@ export default function ConnectGuideClient({ content }) {
         summary={language.validatorSummary}
       >
         <CodeCard title={`${language.label} validator`} body={language.validatorCommand} tone="accent" />
-        <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
+        <div className="mt-4 rounded-2xl border border-border bg-surface-tertiary p-4">
           <p className="text-sm text-zinc-300">{content.validatorNote}</p>
         </div>
-        <div className="mt-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
+        <div className="mt-4 rounded-2xl border border-border bg-surface-tertiary p-4">
           <p className="text-sm text-zinc-300">
             Successful validation can feed proof back into{' '}
-            <Link href="/setup" className="text-brand hover:text-brand/80">
+            <Link href="/setup" className="text-brand hover:text-brand-hover">
               /setup
             </Link>{' '}
             so the verification surface shows that a live SDK integration worked.
@@ -188,29 +188,29 @@ export default function ConnectGuideClient({ content }) {
         <InfoList items={content.successChecks} icon={Check} />
       </StepSection>
 
-      <section className="rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6">
+      <section className="rounded-3xl border border-border bg-surface-secondary p-6">
         <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Common mistakes</p>
         <div className="mt-4">
           <InfoList items={content.commonMistakes} icon={Terminal} />
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6">
+      <section className="rounded-3xl border border-border bg-surface-secondary p-6">
         <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Next steps</p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 px-4 py-2 text-sm text-brand hover:border-brand/60">
             Open dashboard <ExternalLink size={14} />
           </Link>
-          <Link href="/setup" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
+          <Link href="/setup" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Go to /setup
           </Link>
-          <Link href="/docs" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
+          <Link href="/docs" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Read full SDK docs
           </Link>
-          <Link href="/settings?tab=identity" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
+          <Link href="/settings?tab=identity" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Enable verified agents <Shield size={14} />
           </Link>
-          <Link href="/policies" className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.08)] px-4 py-2 text-sm text-zinc-300 hover:text-white">
+          <Link href="/policies" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-zinc-300 hover:text-white">
             Review policies
           </Link>
         </div>
