@@ -37,6 +37,7 @@ const navGroups = [
   {
     label: 'Measure',
     items: [
+      { href: '/analytics', icon: TrendingUp, label: 'Analytics' },
       { href: '/quality', icon: BarChart3, label: 'Quality' },
       { href: '/prompts', icon: Terminal, label: 'Prompts' },
       { href: '/feedback', icon: MessageSquare, label: 'Feedback' },
