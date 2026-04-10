@@ -11,14 +11,14 @@ export function Card({ children, className = '', hover = true }) {
 
 export function CardHeader({ title, icon: Icon, action, count, children }) {
   return (
-    <div className="flex items-center justify-between px-5 pt-5 pb-3">
-      <div className="flex items-center gap-2">
-        {Icon && <Icon size={16} className="text-zinc-400" />}
-        <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">{title}</span>
+    <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
+      <div className="flex min-w-0 items-center gap-2">
+        {Icon && <Icon size={14} className="shrink-0 text-zinc-500" />}
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{title}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {count !== undefined && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-brand-subtle text-brand">
+          <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-brand">
             {count}
           </span>
         )}

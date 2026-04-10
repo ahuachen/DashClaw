@@ -185,7 +185,7 @@ export default function SecurityDashboard() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'ok': return 'text-emerald-400';
-      case 'warning': return 'text-yellow-400';
+      case 'warning': return 'text-amber-400';
       case 'critical': return 'text-red-400';
       default: return 'text-zinc-400';
     }
@@ -202,14 +202,14 @@ export default function SecurityDashboard() {
           <button
             onClick={handleRunScan}
             disabled={scanning}
-            className="px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand-hover border border-brand rounded-lg transition-colors duration-150 flex items-center gap-1.5 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
           >
             <ShieldAlert size={14} />
-            {scanning ? 'Scanning...' : 'Run Security Check'}
+            {scanning ? 'Scanning…' : 'Run security check'}
           </button>
           <button
             onClick={fetchData}
-            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} />
             Refresh
@@ -220,22 +220,28 @@ export default function SecurityDashboard() {
       {/* Scan Results */}
       {scanResults && (
         <Card className="mb-6" hover={false}>
-          <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-            <h3 className="text-sm font-medium text-white">Scan Results</h3>
-            <button onClick={() => setScanResults(null)} className="text-zinc-500 hover:text-white"><XIcon size={14} /></button>
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Scan results</span>
+            <button
+              onClick={() => setScanResults(null)}
+              className="rounded-md p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+              aria-label="Close scan results"
+            >
+              <XIcon size={14} />
+            </button>
           </div>
           <CardContent>
             {scanResults.error ? (
-              <p className="text-xs text-red-400 flex items-center gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs text-red-400">
                 <ShieldX size={14} /> {scanResults.error}
               </p>
             ) : scanResults.score === 100 ? (
-              <p className="text-xs text-green-400 flex items-center gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs text-emerald-400">
                 <ShieldCheck size={14} /> All security checks passed — score 100/100
               </p>
             ) : (
               <div className="space-y-2">
-                <p className="text-xs text-zinc-400 mb-2">Score: {scanResults.score}/100</p>
+                <p className="mb-2 text-xs tabular-nums text-zinc-400">Score: {scanResults.score}/100</p>
                 {(scanResults.checks || []).map((check) => {
                   const Icon = getStatusIcon(check.status);
                   return (
@@ -254,59 +260,56 @@ export default function SecurityDashboard() {
         </Card>
       )}
 
-      {/* Stats Bar — Security Score + 4 stats inline */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Card hover={false}>
-          <CardContent className="pt-5 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${
-              securityScore >= 90 ? 'text-emerald-400' : securityScore >= 70 ? 'text-yellow-400' : 'text-red-400'
-            }`}>
-              {securityScore}
+      {/* Stats rail — Security Score + 4 inline */}
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface-tertiary">
+        <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-5">
+          {[
+            {
+              label: 'Score',
+              value: securityScore,
+              color: securityScore >= 90 ? 'text-emerald-400' : securityScore >= 70 ? 'text-amber-400' : 'text-red-400',
+            },
+            {
+              label: 'Active Signals',
+              value: totalSignals,
+              color: totalSignals > 0 ? 'text-red-400' : 'text-white',
+            },
+            {
+              label: 'High Risk · 24h',
+              value: highRisk24h,
+              color: highRisk24h > 0 ? 'text-amber-400' : 'text-white',
+            },
+            {
+              label: 'Unscoped',
+              value: unscopedCount,
+              color: unscopedCount > 0 ? 'text-amber-400' : 'text-white',
+            },
+            {
+              label: 'Invalidated · 7d',
+              value: invalidatedCount,
+              color: invalidatedCount > 0 ? 'text-red-400' : 'text-white',
+            },
+          ].map((stat, i) => (
+            <div
+              key={stat.label}
+              className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                {stat.label}
+              </div>
+              <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
             </div>
-            <div className="text-xs text-zinc-500 mt-1">Security Score</div>
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-5 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${totalSignals > 0 ? 'text-red-400' : 'text-white'}`}>
-              {totalSignals}
-            </div>
-            <div className="text-xs text-zinc-500 mt-1">Active Signals</div>
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-5 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${highRisk24h > 0 ? 'text-yellow-400' : 'text-white'}`}>
-              {highRisk24h}
-            </div>
-            <div className="text-xs text-zinc-500 mt-1">High-Risk (24h)</div>
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-5 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${unscopedCount > 0 ? 'text-yellow-400' : 'text-white'}`}>
-              {unscopedCount}
-            </div>
-            <div className="text-xs text-zinc-500 mt-1">Unscoped Actions</div>
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-5 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${invalidatedCount > 0 ? 'text-red-400' : 'text-white'}`}>
-              {invalidatedCount}
-            </div>
-            <div className="text-xs text-zinc-500 mt-1">Invalidated (7d)</div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
       </div>
 
       {/* Security Checks (compact row) */}
       {securityChecks.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="mb-6 flex flex-wrap gap-2">
           {securityChecks.map((check) => {
             const Icon = getStatusIcon(check.status);
             return (
-              <div key={check.id} className="flex items-center gap-2 bg-white/[0.02] px-3 py-2 rounded-lg border border-white/[0.04]">
+              <div key={check.id} className="flex items-center gap-2 rounded-md border border-border bg-white/[0.02] px-3 py-1.5">
                 <Icon size={14} className={`shrink-0 ${getStatusColor(check.status)}`} />
                 <span className="text-xs text-zinc-300">{check.label}</span>
               </div>
@@ -325,15 +328,15 @@ export default function SecurityDashboard() {
                 {activeSignals.length > 0 && (
                   <button
                     onClick={dismissAllVisible}
-                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                    className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
                   >
-                    Clear All
+                    Clear all
                   </button>
                 )}
                 {dismissedList.length > 0 && (
                   <button
                     onClick={() => setShowDismissed(!showDismissed)}
-                    className={`flex items-center gap-1 text-[10px] transition-colors ${showDismissed ? 'text-zinc-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+                    className={`flex items-center gap-1 text-[11px] tabular-nums transition-colors ${showDismissed ? 'text-zinc-300' : 'text-zinc-500 hover:text-zinc-300'}`}
                   >
                     <EyeOff size={10} />
                     {dismissedList.length} dismissed
@@ -365,7 +368,7 @@ export default function SecurityDashboard() {
                         >
                           <SeverityIcon
                             size={16}
-                            className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-yellow-400'}`}
+                            className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'}`}
                           />
                           <div className="min-w-0">
                             <div className="text-sm text-white truncate">{signal.label}</div>
@@ -384,12 +387,12 @@ export default function SecurityDashboard() {
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={(e) => { e.stopPropagation(); dismissSignal(signal); }}
-                            className="p-1 text-zinc-600 hover:text-zinc-300 transition-colors"
+                            className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
                             title="Dismiss signal"
                           >
                             <XIcon size={14} />
                           </button>
-                          <ChevronRight size={14} className="text-zinc-600 group-hover:text-zinc-400" />
+                          <ChevronRight size={14} className="text-zinc-500 group-hover:text-zinc-300" />
                         </div>
                       </div>
                     );
@@ -398,7 +401,7 @@ export default function SecurityDashboard() {
                   {/* Dismissed signals section */}
                   {showDismissed && dismissedList.length > 0 && (
                     <>
-                      <div className="text-[10px] text-zinc-500 uppercase tracking-wider pt-3 pb-1 px-1">Dismissed</div>
+                      <div className="px-1 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Dismissed</div>
                       {dismissedList.map((signal, idx) => {
                         const SeverityIcon = getSeverityIcon(signal.severity);
                         return (
@@ -412,7 +415,7 @@ export default function SecurityDashboard() {
                             >
                               <SeverityIcon
                                 size={16}
-                                className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-yellow-400'}`}
+                                className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'}`}
                               />
                               <div className="min-w-0">
                                 <div className="text-sm text-zinc-400 truncate">{signal.label}</div>
@@ -423,7 +426,7 @@ export default function SecurityDashboard() {
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); restoreSignal(signal); }}
-                              className="p-1 text-zinc-600 hover:text-zinc-300 transition-colors shrink-0"
+                              className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
                               title="Restore signal"
                             >
                               <Undo2 size={14} />
@@ -481,7 +484,7 @@ export default function SecurityDashboard() {
                               )}
                             </div>
                           </div>
-                          <ChevronRight size={14} className="text-zinc-600 group-hover:text-zinc-400 mt-0.5 shrink-0" />
+                          <ChevronRight size={14} className="text-zinc-500 group-hover:text-zinc-300 mt-0.5 shrink-0" />
                         </div>
                       </button>
                     );
