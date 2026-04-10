@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Rocket, Terminal, CheckCircle2, Copy, X, MousePointer2,
   Sparkles, FileText, Key, Globe
@@ -10,10 +10,13 @@ import { useRealtime } from '../hooks/useRealtime';
 import { isDemoMode } from '../lib/isDemoMode';
 import { getNodeStarterSnippet } from '../lib/starterSnippet';
 
+const API_KEY_PLACEHOLDER = '<your-api-key>';
+
 export default function QuickStart({ onDismiss }) {
   const [copied, setCopying] = useState(false);
   const [envCopied, setEnvCopied] = useState(false);
   const [step, setStep] = useState(1);
+  const [revealedKey, setRevealedKey] = useState(null);
 
   // In demo mode, show the placeholder — don't imply dashclaw.io is a hosted service.
   // For self-hosted instances, use the actual origin so the snippet works out of the box.
@@ -21,9 +24,27 @@ export default function QuickStart({ onDismiss }) {
     ? 'https://your-dashclaw.vercel.app'
     : (typeof window !== 'undefined' ? window.location.origin : 'https://your-dashclaw.vercel.app');
 
+  // Keep the Node snippet env-var-referenced so the user's source code never
+  // embeds a raw secret (screen shares, screenshots, pair sessions).
   const sdkCode = getNodeStarterSnippet({ baseUrl });
 
-  const envFileContent = `DASHCLAW_API_KEY=<your-api-key>\nDASHCLAW_BASE_URL=${baseUrl}`;
+  // Fetch the bootstrap API key once on mount so we can pre-fill the .env
+  // snippet. Skip in demo mode (no instance to fetch from) and silently
+  // tolerate auth failures — the placeholder fallback still works.
+  useEffect(() => {
+    if (isDemoMode()) return undefined;
+    let cancelled = false;
+    fetch('/api/keys/reveal', { credentials: 'same-origin' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.key) setRevealedKey(data.key);
+      })
+      .catch(() => { /* fall back to placeholder silently */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  const apiKeyForEnv = revealedKey || API_KEY_PLACEHOLDER;
+  const envFileContent = `DASHCLAW_API_KEY=${apiKeyForEnv}\nDASHCLAW_BASE_URL=${baseUrl}`;
 
   // Auto-advance steps based on real-time activity
   useRealtime((event) => {
@@ -185,7 +206,17 @@ export default function QuickStart({ onDismiss }) {
                 </button>
               </div>
               <p className="text-[10px] text-zinc-600 mt-1.5 leading-relaxed">
-                Your API key starts with <code className="text-zinc-500">oc_live_</code> — find it in <span className="text-zinc-400">Settings</span> or the Vercel deploy output.
+                {revealedKey ? (
+                  <>
+                    <span className="text-emerald-400">API key pre-filled from your instance.</span>{' '}
+                    Copy the block above and paste into your <code className="text-zinc-500">.env</code>.
+                  </>
+                ) : (
+                  <>
+                    Your API key starts with <code className="text-zinc-500">oc_live_</code> — find your key at{' '}
+                    <a href="/api-keys" className="text-brand hover:text-brand-hover underline">/api-keys</a>.
+                  </>
+                )}
               </p>
             </div>
 

@@ -359,7 +359,8 @@ async function main() {
   if (!env.NEXT_PUBLIC_DASHCLAW_MODE) env.NEXT_PUBLIC_DASHCLAW_MODE = env.DASHCLAW_MODE;
   env.NEXTAUTH_URL = deployUrl;
   if (!env.NEXTAUTH_SECRET) env.NEXTAUTH_SECRET = b64url(32);
-  if (!env.DASHCLAW_API_KEY) env.DASHCLAW_API_KEY = `oc_live_${crypto.randomBytes(24).toString('hex')}`;
+  const apiKeyWasGenerated = !env.DASHCLAW_API_KEY;
+  if (apiKeyWasGenerated) env.DASHCLAW_API_KEY = `oc_live_${crypto.randomBytes(24).toString('hex')}`;
   if (!env.ENCRYPTION_KEY) env.ENCRYPTION_KEY = b64url(32).slice(0, 32);
   if (!env.CRON_SECRET) env.CRON_SECRET = crypto.randomBytes(32).toString('hex');
 
@@ -367,6 +368,14 @@ async function main() {
 
   writeEnvFile(env);
   ok('Wrote .env.local');
+  if (apiKeyWasGenerated) {
+    // First run only: show the full key once so the user can save it.
+    // On re-runs, .env.local already holds the key and we only print the
+    // redacted summary below to avoid leaking it in scrollback.
+    console.log('');
+    console.log("  API Key (save this — it won't be shown in full again):");
+    console.log(`    ${env.DASHCLAW_API_KEY}`);
+  }
   console.log(`\n  API key: ${redactSecret(env.DASHCLAW_API_KEY)}`);
   console.log(`  Dashboard URL: ${deployUrl}`);
 

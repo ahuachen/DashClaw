@@ -13,6 +13,7 @@ import { WorkflowPanel } from './components/WorkflowPanel.js';
 import { VerificationSection } from './components/VerificationSection.js';
 import { RecommendedSteps } from './components/RecommendedSteps.js';
 import { ProofPanel } from './components/ProofPanel.js';
+import { ApiKeyReveal } from './components/ApiKeyReveal.js';
 import ModelPricingPanel from './components/ModelPricingPanel.js';
 import AgentIdentityPanel from './components/AgentIdentityPanel';
 import PageLayout from '../components/PageLayout';
@@ -239,12 +240,7 @@ export default async function SettingsPage({ searchParams }) {
                     {host}
                   </div>
                 </div>
-                <div>
-                  <div className="mb-1 text-[11px] font-medium text-zinc-500">API key</div>
-                  <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
-                    {maskedApiKey || 'Not set'}
-                  </div>
-                </div>
+                <ApiKeyReveal maskedApiKey={maskedApiKey} />
                 <div>
                   <div className="mb-1 text-[11px] font-medium text-zinc-500">Runtime</div>
                   <div className="rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
