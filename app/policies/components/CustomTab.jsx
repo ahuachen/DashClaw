@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import {
   Plus, Upload, Sparkles, Trash2, Play, Copy, Check, Pencil,
   ToggleLeft, ToggleRight, X,
@@ -76,6 +75,13 @@ export default function CustomTab() {
   const [importYaml, setImportYaml] = useState('');
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+
+  // AI Generator state
+  const [showGenerator, setShowGenerator] = useState(false);
+  const [genInput, setGenInput] = useState('');
+  const [genLoading, setGenLoading] = useState(false);
+  const [genError, setGenError] = useState(null);
+  const [genSuccess, setGenSuccess] = useState(null);
 
   // Row actions
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -245,6 +251,32 @@ export default function CustomTab() {
     }
   };
 
+  const handleGenerate = async () => {
+    setGenLoading(true);
+    setGenError(null);
+    setGenSuccess(null);
+    try {
+      const res = await fetch('/api/policies/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: genInput, dry_run: false }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setGenError(data.error || 'Failed to generate policies');
+        return;
+      }
+      const count = data.created_policies?.length || 0;
+      setGenSuccess(`Created ${count} ${count === 1 ? 'policy' : 'policies'} from your description.`);
+      setGenInput('');
+      fetchPolicies();
+    } catch (err) {
+      setGenError(err.message);
+    } finally {
+      setGenLoading(false);
+    }
+  };
+
   const summary = buildPolicySummary(authoringForm);
   const isFormInvalid = !authoringForm.name?.trim();
 
@@ -264,13 +296,50 @@ export default function CustomTab() {
         >
           <Upload size={12} /> Import
         </button>
-        <Link
-          href="/policies/generate"
+        <button
+          onClick={() => { setShowGenerator(!showGenerator); setShowAuthoring(false); setShowImport(false); }}
           className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:text-white transition-colors"
         >
           <Sparkles size={12} /> AI Generator
-        </Link>
+        </button>
       </div>
+
+      {/* AI Generator panel */}
+      {showGenerator && (
+        <div className="rounded-2xl border border-purple-500/20 bg-[#0d0d0d] p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={14} className="text-purple-400" />
+              <span className="text-sm font-semibold text-white">AI Policy Generator</span>
+            </div>
+            <button onClick={() => { setShowGenerator(false); setGenError(null); setGenSuccess(null); }} className="text-zinc-500 hover:text-white transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+          <p className="text-xs text-zinc-400">Describe what you want DashClaw to prevent or enforce in plain English.</p>
+          {genSuccess && <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">{genSuccess}</div>}
+          {genError && <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">{genError}</div>}
+          <textarea
+            value={genInput}
+            onChange={e => setGenInput(e.target.value)}
+            placeholder="e.g. Require approval before any agent can deploy to production or send external messages"
+            rows={3}
+            maxLength={5000}
+            className="w-full resize-none rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 placeholder-zinc-500 focus:outline-none focus:border-brand/50"
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-zinc-600">{genInput.length}/5000</span>
+            <button
+              onClick={handleGenerate}
+              disabled={genLoading || !genInput.trim()}
+              className="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand/80 disabled:opacity-50 transition-colors"
+            >
+              <Sparkles size={12} />
+              {genLoading ? 'Generating...' : 'Generate & Create'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Authoring panel — inline controlled form */}
       {showAuthoring && (
