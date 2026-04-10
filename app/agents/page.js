@@ -3,16 +3,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  Users, Activity, ShieldCheck, ShieldAlert, Zap,
+  Users, ShieldCheck, ShieldAlert,
   Search, Filter, RotateCw, ChevronRight, Brain,
-  Shield, CheckCircle2, XCircle, Clock, Info, Lock
+  CheckCircle2, XCircle, Info, Lock,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
+
+const statusDotMap = {
+  active: 'bg-emerald-500',
+  online: 'bg-emerald-500',
+  critical: 'bg-red-500',
+  error: 'bg-red-500',
+  degraded: 'bg-amber-500',
+  offline: 'bg-zinc-600',
+  unknown: 'bg-zinc-500',
+};
 
 export default function AgentsFleetPage() {
   const [agents, setAgents] = useState([]);
@@ -20,7 +29,6 @@ export default function AgentsFleetPage() {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState('');
 
   const fetchAgents = useCallback(async () => {
     try {
@@ -28,7 +36,6 @@ export default function AgentsFleetPage() {
       if (res.ok) {
         const data = await res.json();
         setAgents(data.agents || []);
-        setLastUpdated(new Date().toLocaleTimeString());
       }
     } catch (error) {
       console.error('Failed to fetch agents:', error);
@@ -44,12 +51,12 @@ export default function AgentsFleetPage() {
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.agent_id.toLowerCase().includes(search.toLowerCase()) ||
       (agent.name && agent.name.toLowerCase().includes(search.toLowerCase()));
-    
+
     if (filterStatus === 'all') return matchesSearch;
     if (filterStatus === 'online') return matchesSearch && (agent.status === 'active' || agent.status === 'online');
     if (filterStatus === 'critical') return matchesSearch && (agent.status === 'critical' || agent.status === 'error');
     if (filterStatus === 'offline') return matchesSearch && (agent.status === 'offline');
-    
+
     return matchesSearch;
   });
 
@@ -60,6 +67,13 @@ export default function AgentsFleetPage() {
     governed: agents.filter(a => a.governed).length || agents.length, // fallback
   };
 
+  const statRail = [
+    { label: 'Total', value: stats.total, color: 'text-white' },
+    { label: 'Online', value: stats.active, color: 'text-emerald-400' },
+    { label: 'Critical', value: stats.critical, color: stats.critical > 0 ? 'text-red-400' : 'text-zinc-400' },
+    { label: 'Governed', value: stats.governed, color: 'text-white' },
+  ];
+
   return (
     <PageLayout
       maturity="stable"
@@ -69,78 +83,67 @@ export default function AgentsFleetPage() {
       actions={
         <button
           onClick={() => { setLoading(true); fetchAgents(); }}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
         >
           <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
           Refresh
         </button>
       }
     >
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-white">{stats.total}</div>
-            <div className="text-xs text-zinc-500 mt-1">Total Agents</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-emerald-400">{stats.active}</div>
-            <div className="text-xs text-zinc-500 mt-1">Online</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-red-400">{stats.critical}</div>
-            <div className="text-xs text-zinc-500 mt-1">Critical</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-brand">{stats.governed}</div>
-            <div className="text-xs text-zinc-500 mt-1">Governed</div>
-          </div>
-        </Card>
+      {/* Stats rail */}
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface-tertiary">
+        <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-4">
+          {statRail.map((stat, i) => (
+            <div
+              key={stat.label}
+              className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                {stat.label}
+              </div>
+              <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Search & Filters */}
-      <div className="mb-6 flex items-center gap-3 relative">
+      <div className="relative mb-6 flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
           <input
             type="text"
-            placeholder="Search agents by ID, name or capability..."
+            placeholder="Search agents by ID or name…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-surface-secondary border border-white/5 rounded-lg text-sm text-white focus:outline-none focus:border-brand/50 transition-colors"
+            className="w-full rounded-lg border border-border bg-surface-secondary py-2 pl-10 pr-4 text-sm text-white transition-colors focus:border-brand/40 focus:outline-none"
           />
         </div>
-        <button 
+        <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`px-3 py-2 border rounded-lg text-sm transition-colors flex items-center gap-2 ${
-            showFilters || filterStatus !== 'all' 
-              ? 'bg-brand/10 border-brand text-brand' 
-              : 'bg-surface-secondary border-white/5 text-zinc-400 hover:text-white'
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+            showFilters || filterStatus !== 'all'
+              ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
+              : 'border-border bg-surface-secondary text-zinc-400 hover:border-border-hover hover:text-white'
           }`}
         >
           <Filter size={14} />
-          {filterStatus === 'all' ? 'Filters' : `Status: ${filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}`}
+          {filterStatus === 'all' ? 'Filter' : <span className="capitalize">Status · {filterStatus}</span>}
         </button>
 
         {showFilters && (
-          <div className="absolute right-0 top-full mt-2 w-48 bg-surface-secondary border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-border bg-surface-secondary py-1 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(0,0,0,0.45)]">
             {[
-              { id: 'all', label: 'All Agents', icon: Users, color: 'text-zinc-400' },
-              { id: 'online', label: 'Online Only', icon: CheckCircle2, color: 'text-emerald-400' },
-              { id: 'critical', label: 'Critical Only', icon: ShieldAlert, color: 'text-red-400' },
-              { id: 'offline', label: 'Offline Only', icon: XCircle, color: 'text-zinc-500' },
+              { id: 'all', label: 'All agents', icon: Users, color: 'text-zinc-400' },
+              { id: 'online', label: 'Online only', icon: CheckCircle2, color: 'text-emerald-400' },
+              { id: 'critical', label: 'Critical only', icon: ShieldAlert, color: 'text-red-400' },
+              { id: 'offline', label: 'Offline only', icon: XCircle, color: 'text-zinc-500' },
             ].map((f) => (
               <button
                 key={f.id}
                 onClick={() => { setFilterStatus(f.id); setShowFilters(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/5 ${
-                  filterStatus === f.id ? 'text-brand bg-brand/5' : 'text-zinc-400'
+                className={`flex w-full items-center gap-3 px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/5 ${
+                  filterStatus === f.id ? 'bg-brand/5 text-brand' : 'text-zinc-400'
                 }`}
               >
                 <f.icon size={14} className={f.color} />
@@ -155,13 +158,13 @@ export default function AgentsFleetPage() {
       <Card hover={false}>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-6 space-y-4">
+            <div className="space-y-4 p-6">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-16 w-full rounded-lg" />
               ))}
             </div>
           ) : filteredAgents.length === 0 ? (
-            <div className="p-12">
+            <div className="p-8">
               <EmptyState
                 icon={Users}
                 title="No agents connected"
@@ -170,85 +173,97 @@ export default function AgentsFleetPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-white/5 text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">
+                  <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                     <th className="px-6 py-4">Agent</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Governance</th>
                     <th className="px-6 py-4">Last Action</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
+                    <th className="px-6 py-4 text-right">Inspect</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
-                  {filteredAgents.map((agent) => (
-                    <tr key={agent.agent_id} className="hover:bg-white/[0.02] transition-colors group">
-                      <td className="px-6 py-4">
-                        <Link href={`/agents/${encodeURIComponent(agent.agent_id)}`} className="flex items-center gap-3 group/name">
-                          <div className="w-8 h-8 rounded bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
-                            <Brain size={16} />
+                <tbody className="divide-y divide-border">
+                  {filteredAgents.map((agent) => {
+                    const dotColor = statusDotMap[agent.status] || statusDotMap.unknown;
+                    return (
+                      <tr key={agent.agent_id} className="transition-colors hover:bg-white/[0.02]">
+                        <td className="px-6 py-4">
+                          <Link href={`/agents/${encodeURIComponent(agent.agent_id)}`} className="group/name flex items-center gap-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded border border-border bg-white/[0.03] text-zinc-400">
+                              <Brain size={16} />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium text-white transition-colors group-hover/name:text-brand">
+                                {agent.name || agent.agent_id}
+                              </div>
+                              <div className="mt-0.5 text-[11px] text-zinc-500">
+                                {agent.action_count != null
+                                  ? `${agent.action_count} decisions`
+                                  : agent.agent_id !== (agent.name || agent.agent_id)
+                                    ? agent.agent_id
+                                    : 'No activity yet'}
+                              </div>
+                            </div>
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
+                            <span className="text-xs capitalize text-zinc-300">{agent.status || 'unknown'}</span>
                           </div>
-                          <div>
-                            <div className="text-sm font-medium text-white group-hover/name:text-brand transition-colors">{agent.name || agent.agent_id}</div>
-                            <div className="text-[10px] text-zinc-500 mt-0.5">
-                              {agent.action_count != null ? `${agent.action_count} decisions` : agent.agent_id !== (agent.name || agent.agent_id) ? agent.agent_id : 'No activity yet'}
-                            </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1.5">
+                            {agent.governed !== false ? (
+                              <Badge variant="success" size="xs">
+                                <ShieldCheck size={10} className="mr-1" />
+                                Active
+                              </Badge>
+                            ) : (
+                              <Badge variant="warning" size="xs">
+                                <ShieldAlert size={10} className="mr-1" />
+                                Passive
+                              </Badge>
+                            )}
+                            {agent.verified ? (
+                              <div
+                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-emerald-400"
+                                title="Agent identity cryptographically verified"
+                              >
+                                <Lock size={10} /> Verified
+                              </div>
+                            ) : (
+                              <div
+                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500"
+                                title="Agent is using an unsigned session"
+                              >
+                                <Info size={10} /> Unsigned
+                              </div>
+                            )}
                           </div>
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            agent.status === 'active' || agent.status === 'online' ? 'bg-emerald-500' :
-                            agent.status === 'critical' ? 'bg-red-500' : 'bg-zinc-500'
-                          }`} />
-                          <span className="text-xs text-zinc-300 capitalize">{agent.status || 'unknown'}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1.5">
-                          {agent.governed !== false ? (
-                            <Badge variant="success" size="xs">
-                              <ShieldCheck size={10} className="mr-1" />
-                              Active
-                            </Badge>
-                          ) : (
-                            <Badge variant="warning" size="xs">
-                              <ShieldAlert size={10} className="mr-1" />
-                              Passive
-                            </Badge>
-                          )}
-                          {agent.verified ? (
-                            <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500 uppercase tracking-tighter" title="Agent identity cryptographically verified">
-                              <Lock size={10} /> Verified Identity
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase tracking-tighter" title="Agent is using an unsigned session">
-                              <Info size={10} /> Unsigned
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-xs text-zinc-400">
+                        </td>
+                        <td className="px-6 py-4">
                           {agent.last_action_at ? (
-                            <div className="flex flex-col">
-                              <span>{new Date(agent.last_action_at).toLocaleDateString()}</span>
-                              <span className="text-[10px] opacity-50">{new Date(agent.last_action_at).toLocaleTimeString()}</span>
+                            <div className="flex flex-col text-xs">
+                              <span className="text-zinc-300 tabular-nums">{new Date(agent.last_action_at).toLocaleDateString()}</span>
+                              <span className="text-[11px] text-zinc-500 tabular-nums">{new Date(agent.last_action_at).toLocaleTimeString()}</span>
                             </div>
-                          ) : 'Never'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/agents/${encodeURIComponent(agent.agent_id)}`}
-                          className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand/80 transition-colors"
-                        >
-                          View Control <ChevronRight size={14} />
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                          ) : (
+                            <span className="text-xs text-zinc-500">Never</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link
+                            href={`/agents/${encodeURIComponent(agent.agent_id)}`}
+                            className="inline-flex items-center gap-1 text-xs font-medium text-brand transition-colors hover:text-brand-hover"
+                          >
+                            Inspect <ChevronRight size={14} />
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
