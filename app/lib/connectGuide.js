@@ -43,9 +43,9 @@ export function getConnectGuideContent({ host = '' } = {}) {
     envNote:
       'Do not use the marketing site URL. DASHCLAW_BASE_URL must point to your deployed DashClaw app.',
     validatorNote:
-      'This command assumes you downloaded and extracted dashclaw-platform-intelligence.zip so the validator lives in ./dashclaw-platform-intelligence/scripts/. If you installed it elsewhere, adjust the path.',
+      'If you extracted the bundle to a different directory, adjust the path in the command above.',
     successChecks: [
-      'Your first action appears in the dashboard and recent activity.',
+      'Your first governed action will appear in **Mission Control** within a few seconds — look for it in the **Operations Feed** at the bottom of the page.',
       'The agent shows up in live DashClaw traffic once it starts sending actions.',
       'If you enable verified mode, the pairing shows as approved.',
       'If policies are active, future risky actions can route into guard and approvals.',

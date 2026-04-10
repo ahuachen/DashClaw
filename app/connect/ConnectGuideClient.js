@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, Copy, CircleDot, Shield, Terminal, ExternalLink } from 'lucide-react';
+import { Check, Copy, CircleDot, Shield, Terminal, ExternalLink, Download } from 'lucide-react';
 
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
@@ -59,13 +59,27 @@ function StepSection({ number, title, summary, children }) {
   );
 }
 
+// Render "plain text with **bold** segments" as React nodes. Keeps content
+// strings in connectGuide.js portable (no JSX in data) while letting us
+// emphasize surface names like **Mission Control** inline in a list item.
+function renderInlineStrong(text) {
+  const parts = text.split(/\*\*([^*]+)\*\*/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="font-semibold text-white">{part}</strong>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
+}
+
 function InfoList({ items, icon: Icon = CircleDot }) {
   return (
     <div className="space-y-2">
       {items.map((item) => (
         <div key={item} className="flex items-start gap-2 text-sm text-zinc-300">
           <Icon size={14} className="mt-0.5 shrink-0 text-zinc-500" />
-          <span>{item}</span>
+          <span>{renderInlineStrong(item)}</span>
         </div>
       ))}
     </div>
@@ -165,6 +179,19 @@ export default function ConnectGuideClient({ content }) {
         title="Validate the connection"
         summary={language.validatorSummary}
       >
+        <div className="mb-5 rounded-2xl border border-border bg-surface-tertiary p-5">
+          <p className="text-sm text-zinc-300">Download the platform intelligence bundle:</p>
+          <a
+            href="/downloads/dashclaw-platform-intelligence.zip"
+            download
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/60 hover:bg-brand/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
+          >
+            <Download size={14} aria-hidden="true" />
+            dashclaw-platform-intelligence.zip
+          </a>
+          <p className="mt-4 text-sm text-zinc-300">Unzip it in your project directory:</p>
+          <pre className="mt-2 overflow-x-auto rounded-lg border border-border bg-surface-primary px-3 py-2 font-mono text-xs text-zinc-300">unzip dashclaw-platform-intelligence.zip</pre>
+        </div>
         <CodeCard title={`${language.label} validator`} body={language.validatorCommand} tone="accent" />
         <div className="mt-4 rounded-2xl border border-border bg-surface-tertiary p-4">
           <p className="text-sm text-zinc-300">{content.validatorNote}</p>
