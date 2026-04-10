@@ -293,6 +293,31 @@ async function testEachCapability() {
   return { passed, failed };
 }
 
+/**
+ * Auto-heal known workflow-template drift on the live DB.
+ *
+ * The seed script historically wrote `config.prompt` for `type: "prompt"`
+ * steps, but the step handler in app/lib/step-handlers.js expects
+ * `config.prompt_template` and throws "prompt step requires prompt_template"
+ * at execute time. Rename the field in-place on any drifted step.
+ *
+ * Returns the (possibly new) steps array and a boolean indicating whether
+ * anything changed.
+ */
+function healWorkflowSteps(steps) {
+  let changed = false;
+  const healed = steps.map((step) => {
+    if (step.type !== 'prompt') return step;
+    const config = step.config || {};
+    if (config.prompt_template) return step; // already migrated
+    if (!config.prompt) return step; // nothing to migrate
+    changed = true;
+    const { prompt, ...rest } = config;
+    return { ...step, config: { ...rest, prompt_template: prompt } };
+  });
+  return { steps: healed, changed };
+}
+
 async function executeWorkflow() {
   phaseHeader('Daily Market Briefing Workflow');
 
@@ -308,6 +333,26 @@ async function executeWorkflow() {
   }
   const templateId = tmpl.template_id || tmpl.id;
   info(`Template: ${tmpl.name} (${templateId})`);
+
+  // Auto-heal known step-config drift before execution. This matches the
+  // endpoint-drift auto-heal pattern used for the capability layer.
+  const heal = healWorkflowSteps(tmpl.steps || []);
+  if (heal.changed) {
+    info('Template has prompt/prompt_template drift — auto-healing ...');
+    const patchRes = await apiPatch(
+      `/api/workflows/templates/${templateId}`,
+      { steps: heal.steps },
+    );
+    if (!patchRes.ok) {
+      fail(`Failed to migrate workflow template (HTTP ${patchRes.status})`);
+      if (patchRes.data?.error) {
+        console.log(C.dim(`      ${patchRes.data.error}`));
+      }
+      return { success: false, steps: [] };
+    }
+    check('Template migrated: prompt → prompt_template');
+  }
+
   info('Executing workflow (up to 120s) ...');
 
   const exec = await apiPost(

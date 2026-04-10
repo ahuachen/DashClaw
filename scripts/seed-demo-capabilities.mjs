@@ -430,7 +430,11 @@ async function seedWorkflow(knowledgeCollId, capIds, modelStrategyId) {
         name: 'Analyze Relevance',
         type: 'prompt',
         config: {
-          prompt: `You are a market intelligence analyst for Nexus AI.
+          // The prompt step handler (app/lib/step-handlers.js:handlePrompt)
+          // reads config.prompt_template, not config.prompt. Using the wrong
+          // field name throws "prompt step requires prompt_template" at
+          // execute time.
+          prompt_template: `You are a market intelligence analyst for Nexus AI.
 
 Given our strategic context:
 \${steps.search_strategy.output}
