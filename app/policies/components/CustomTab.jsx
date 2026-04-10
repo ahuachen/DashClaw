@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   Plus, Upload, Sparkles, Trash2, Play, Copy, Check, Pencil,
   ToggleLeft, ToggleRight, X,
@@ -263,12 +264,12 @@ export default function CustomTab() {
         >
           <Upload size={12} /> Import
         </button>
-        <button
-          onClick={openCreate}
+        <Link
+          href="/policies/generate"
           className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:text-white transition-colors"
         >
           <Sparkles size={12} /> AI Generator
-        </button>
+        </Link>
       </div>
 
       {/* Authoring panel — inline controlled form */}
