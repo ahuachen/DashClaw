@@ -18,6 +18,8 @@ def _run_lint(repo_path: str) -> str:
             cwd=repo_path,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=60,
         )
         return "pass" if result.returncode == 0 else "fail"

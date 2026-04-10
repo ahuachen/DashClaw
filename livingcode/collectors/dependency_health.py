@@ -12,7 +12,13 @@ def _run_npm(args: list[str], cwd: str) -> tuple[int, str]:
     """Run an npm command. Returns (exit_code, stdout)."""
     try:
         result = subprocess.run(
-            ["npm"] + args, cwd=cwd, capture_output=True, text=True, timeout=60,
+            ["npm"] + args,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=60,
         )
         return result.returncode, result.stdout
     except (subprocess.TimeoutExpired, FileNotFoundError):

@@ -8,7 +8,13 @@ def _run_gh(args: list[str], cwd: str) -> tuple[int, str]:
     """Run a gh CLI command. Returns (exit_code, stdout)."""
     try:
         result = subprocess.run(
-            ["gh"] + args, cwd=cwd, capture_output=True, text=True, timeout=30,
+            ["gh"] + args,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
         )
         return result.returncode, result.stdout.strip()
     except (subprocess.TimeoutExpired, FileNotFoundError):

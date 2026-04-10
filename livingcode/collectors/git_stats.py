@@ -12,6 +12,8 @@ def _run_git(args: list[str], repo_path: str) -> str:
             cwd=repo_path,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=30,
         )
         return result.stdout.strip()

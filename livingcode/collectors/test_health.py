@@ -10,7 +10,13 @@ def _run_command(args: list[str], cwd: str) -> tuple[int, str]:
     """Run a command, return (exit_code, combined_output)."""
     try:
         result = subprocess.run(
-            args, cwd=cwd, capture_output=True, text=True, timeout=120,
+            args,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=120,
         )
         return result.returncode, result.stdout + result.stderr
     except (subprocess.TimeoutExpired, FileNotFoundError):
