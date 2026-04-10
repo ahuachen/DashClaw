@@ -130,7 +130,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       help: presence.current_task_id 
         ? 'Agent is silent while assigned to an active task. Investigate potential process crash or network failure.'
         : 'Agent heartbeat lost. It may be offline or unable to reach the dashboard.',
-      agent_id: presence.agent_id
+      agent_id: presence.agent_id,
+      detected_at: presence.last_heartbeat_at,
     });
   }
 
@@ -141,7 +142,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       label: `Governance alert: ${spike.agent_name || spike.agent_id} (${spike.action_count} ungoverned decisions/hr)`,
       detail: `This agent made ${spike.action_count} decisions in the last hour without proportional oversight, exceeding the governance threshold of 10.`,
       help: 'High decision frequency without oversight may indicate ungoverned autonomy. Review recent decisions and enforce policy throttling.',
-      agent_id: spike.agent_id
+      agent_id: spike.agent_id,
+      detected_at: new Date().toISOString(), // aggregated signal, no single source timestamp
     });
   }
 
@@ -153,7 +155,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       detail: `${action.agent_name || action.agent_id} is executing an irreversible decision (risk: ${action.risk_score}) without governance authorization.`,
       help: 'High-risk irreversible decisions must have explicit authorization_scope. Enforce policy compliance before execution.',
       agent_id: action.agent_id,
-      action_id: action.action_id
+      action_id: action.action_id,
+      detected_at: action.timestamp_start,
     });
   }
 
@@ -164,7 +167,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       label: `Decision reliability degraded: ${fail.agent_name || fail.agent_id} (${fail.failure_count} failures in 24h)`,
       detail: `This agent's decision reliability has degraded with ${fail.failure_count} failures in the last 24 hours, exceeding the integrity threshold of 3.`,
       help: 'Repeated decision failures indicate degraded reliability. Review decision rationale and underlying assumptions.',
-      agent_id: fail.agent_id
+      agent_id: fail.agent_id,
+      detected_at: new Date().toISOString(), // aggregated signal
     });
   }
 
@@ -177,7 +181,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       detail: `Unresolved dependency for ${loop.agent_name || loop.agent_id || 'unknown agent'} has been blocking decision completion for ${hoursOld} hours.`,
       help: 'Unresolved dependencies weaken decision integrity. Resolve or cancel to restore the governance chain.',
       agent_id: loop.agent_id,
-      loop_id: loop.loop_id
+      loop_id: loop.loop_id,
+      detected_at: loop.created_at,
     });
   }
 
@@ -188,7 +193,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       label: `Decision basis degrading: ${drift.agent_name || drift.agent_id} (${drift.invalidation_count} assumptions invalidated)`,
       detail: `${drift.invalidation_count} assumptions invalidated in the last 7 days, indicating the decision basis for this agent is eroding.`,
       help: 'Frequent assumption invalidations degrade the decision basis. Review and re-validate the foundational assumptions.',
-      agent_id: drift.agent_id
+      agent_id: drift.agent_id,
+      detected_at: new Date().toISOString(), // aggregated signal
     });
   }
 
@@ -201,7 +207,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       detail: `This assumption has not been verified for ${daysOld} days and may no longer support sound decisions.`,
       help: 'Unverified assumptions weaken the decision basis. Validate or invalidate to maintain decision integrity.',
       agent_id: asm.agent_id,
-      assumption_id: asm.assumption_id
+      assumption_id: asm.assumption_id,
+      detected_at: asm.created_at,
     });
   }
 
@@ -214,7 +221,8 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       detail: `${action.agent_name || action.agent_id} has had this decision executing for ${hoursRunning} hours without resolution. The governance record is incomplete.`,
       help: 'Stalled decisions leave the audit trail incomplete. Investigate whether the decision is stuck or should be finalized.',
       agent_id: action.agent_id,
-      action_id: action.action_id
+      action_id: action.action_id,
+      detected_at: action.timestamp_start,
     });
   }
 
@@ -229,6 +237,7 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       agent_id: row.agent_id,
       action_id: row.action_id,
       trigger: row.trigger || null,
+      detected_at: row.timestamp_start,
     });
   }
 
@@ -242,6 +251,7 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       help: 'Review and approve or deny this action from the approvals queue.',
       agent_id: row.agent_id,
       action_id: row.action_id,
+      detected_at: row.timestamp_start,
     });
   }
 
