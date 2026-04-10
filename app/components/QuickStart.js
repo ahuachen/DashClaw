@@ -8,6 +8,7 @@ import {
 import { Card } from './ui/Card';
 import { useRealtime } from '../hooks/useRealtime';
 import { isDemoMode } from '../lib/isDemoMode';
+import { getNodeStarterSnippet } from '../lib/starterSnippet';
 
 export default function QuickStart({ onDismiss }) {
   const [copied, setCopying] = useState(false);
@@ -20,19 +21,7 @@ export default function QuickStart({ onDismiss }) {
     ? 'https://your-dashclaw.vercel.app'
     : (typeof window !== 'undefined' ? window.location.origin : 'https://your-dashclaw.vercel.app');
 
-  const sdkCode = `// 1. node --env-file=.env demo.js
-import { DashClaw } from 'dashclaw'
-
-const claw = new DashClaw({
-  baseUrl: process.env.DASHCLAW_BASE_URL || '${baseUrl}',
-  apiKey: process.env.DASHCLAW_API_KEY,
-  agentId: 'my-first-agent'
-})
-
-await claw.guard({
-  actionType: "deploy",
-  riskScore: 85
-})`;
+  const sdkCode = getNodeStarterSnippet({ baseUrl });
 
   const envFileContent = `DASHCLAW_API_KEY=<your-api-key>\nDASHCLAW_BASE_URL=${baseUrl}`;
 

@@ -1,36 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-
-const NODE_SNIPPET = `npm install dashclaw
-
-import { DashClaw } from 'dashclaw';
-
-const claw = new DashClaw({
-  baseUrl: process.env.DASHCLAW_BASE_URL,
-  apiKey: '<YOUR_API_KEY>',
-  agentId: 'my-agent',
-});
-
-const { action_id } = await claw.createAction({
-  action_type: 'test',
-  declared_goal: 'Verify DashClaw connection',
-});`;
-
-const PYTHON_SNIPPET = `pip install dashclaw
-
-from dashclaw import DashClaw
-
-claw = DashClaw(
-    base_url="<YOUR_BASE_URL>",
-    api_key="<YOUR_API_KEY>",
-    agent_id="my-agent",
-)
-
-claw.create_action(
-    action_type="test",
-    declared_goal="Verify DashClaw connection",
-)`;
+import { getNodeStarterSnippet, getPythonStarterSnippet } from '../../lib/starterSnippet';
 
 function getCurlSnippet(host) {
   return `curl -X POST ${host}/api/actions \\
@@ -134,8 +105,8 @@ export function ConnectNextStepPanel({ maskedApiKey, host, isAuthenticated, over
       {/* SDK snippet cards */}
       {showSnippets && (
         <div className="grid gap-4 lg:grid-cols-3">
-          <SnippetCard label="Node" code={NODE_SNIPPET} />
-          <SnippetCard label="Python" code={PYTHON_SNIPPET} />
+          <SnippetCard label="Node" code={getNodeStarterSnippet({ baseUrl: host })} />
+          <SnippetCard label="Python" code={getPythonStarterSnippet({ baseUrl: host })} />
           <SnippetCard label="cURL" code={getCurlSnippet(host)} />
         </div>
       )}

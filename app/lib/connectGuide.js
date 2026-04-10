@@ -1,4 +1,5 @@
 import { getSdkCommands } from './readiness.mjs';
+import { getNodeStarterSnippet, getPythonStarterSnippet } from './starterSnippet.js';
 
 const DEPLOYED_BASE_URL_PLACEHOLDER = 'https://your-dashclaw-instance.example.com';
 const LOCAL_BASE_URL_PLACEHOLDER = 'http://localhost:3000';
@@ -61,19 +62,7 @@ export function getConnectGuideContent({ host = '' } = {}) {
         installCommand: 'npm install dashclaw',
         envBlock: `DASHCLAW_API_KEY=<your-workspace-api-key>
 DASHCLAW_BASE_URL=${baseUrl}`,
-        starterSnippet: `// 1. node --env-file=.env demo.js
-import { DashClaw } from 'dashclaw'
-
-const claw = new DashClaw({
-  apiKey: process.env.DASHCLAW_API_KEY,
-  baseUrl: process.env.DASHCLAW_BASE_URL,
-  agentId: 'my-first-agent',
-})
-
-await claw.guard({
-  actionType: "deploy",
-  riskScore: 85
-})`,
+        starterSnippet: getNodeStarterSnippet(),
         optionalPairingSnippet: `const privateJwk = JSON.parse(process.env.AGENT_PRIVATE_KEY_JWK);
 
 const { pairing, pairing_url } = await claw.createPairingFromPrivateJwk(privateJwk, {
@@ -91,21 +80,7 @@ await claw.waitForPairing(pairing.id);`,
         installCommand: 'pip install dashclaw',
         envBlock: `DASHCLAW_API_KEY=<your-workspace-api-key>
 DASHCLAW_BASE_URL=${baseUrl}`,
-        starterSnippet: `import os
-from dashclaw import DashClaw
-
-claw = DashClaw(
-    base_url=os.environ["DASHCLAW_BASE_URL"],
-    api_key=os.environ["DASHCLAW_API_KEY"],
-    agent_id="my-agent",
-    agent_name="My Agent",
-)
-
-claw.create_action(
-    action_type="test",
-    declared_goal="Verify DashClaw connection",
-    risk_score=10,
-)`,
+        starterSnippet: getPythonStarterSnippet(),
         optionalPairingSnippet: `private_jwk = {
     "kty": "<your-private-jwk-type>",
     "n": "<...>",
