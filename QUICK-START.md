@@ -46,21 +46,26 @@ Open `http://localhost:3000/setup`. This page verifies your database connection 
 
 ---
 
-## Step 3: See a Blocked Action (The Aha! Moment)
-The fastest way to see DashClaw in action is to run the canonical example.
+## Step 3: Run the Starter Agent (The Aha! Moment)
+Run the canonical starter to record a real governed action.
 
 1. **Enter the example directory**:
    ```bash
-   cd examples/dashclaw-example-openai-agent
+   cd examples/openai-governed-agent
    ```
-2. **Install and Run**:
+2. **Install and configure**:
    ```bash
    npm install
-   export DASHCLAW_BASE_URL=http://localhost:3000
-   export DASHCLAW_API_KEY=your_key_from_settings
+   cp .env.example .env
+   ```
+   Edit `.env` and set `DASHCLAW_API_KEY` to the key from your instance (found in `.env.local` after `node scripts/setup.mjs`, or generate a new one at `/api-keys`). `OPENAI_API_KEY` is optional — the agent falls back to a simulated deployment response when it is unset.
+3. **Run it**:
+   ```bash
    node index.js
    ```
-**Result:** You will see the agent attempt a deployment and DashClaw **block it** based on the default safety policy.
+**Result:** The agent runs the full 4-step governance loop — `guard` → `createAction` → `recordAssumption` → `updateOutcome`. Open [Mission Control](http://localhost:3000/mission-control) and watch the Operations Feed light up with the new action, then click through to the Decision Replay to inspect the recorded evidence.
+
+> **See the approval gate fire:** A fresh instance has no policies, so `guard` returns `allow` by default. To see DashClaw pause a risky action for human review, run `node scripts/seed-demo-capabilities.mjs` from the repo root first — the seeded `require_approval` policy will hold the agent at the deploy step until you approve it at [`/approvals`](http://localhost:3000/approvals).
 
 ---
 
