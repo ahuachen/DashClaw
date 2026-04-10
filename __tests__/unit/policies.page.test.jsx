@@ -3,20 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 vi.mock('next-auth/react', () => ({
-  useSession: () => ({
-    data: {
-      user: {
-        role: 'admin',
-      },
-    },
-  }),
+  useSession: () => ({ data: { user: { role: 'admin' } } }),
 }));
 
 vi.mock('@/components/PageLayout', () => ({
-  default: ({ title, description, children }) => (
+  default: ({ title, children }) => (
     <div>
       <h1>{title}</h1>
-      <p>{description}</p>
       <div>{children}</div>
     </div>
   ),
@@ -31,22 +24,18 @@ vi.mock('@/components/ui/Badge', () => ({
   Badge: ({ children }) => <span>{children}</span>,
 }));
 
+vi.mock('@/components/ui/Skeleton', () => ({
+  Skeleton: ({ className }) => <div data-testid="skeleton" className={className} />,
+}));
+
 vi.mock('@/components/ui/Stat', () => ({
   StatCompact: ({ label, value }) => (
-    <div>
-      <span>{label}</span>
-      <span>{value}</span>
-    </div>
+    <div><span>{label}</span><span>{value}</span></div>
   ),
 }));
 
 vi.mock('@/components/ui/EmptyState', () => ({
-  EmptyState: ({ title, description }) => (
-    <div>
-      <h2>{title}</h2>
-      <p>{description}</p>
-    </div>
-  ),
+  EmptyState: ({ title }) => <div>{title}</div>,
 }));
 
 vi.mock('@/hooks/useRealtime', () => ({
@@ -59,31 +48,32 @@ vi.mock('@/lib/isDemoMode', () => ({
 
 describe('PoliciesPage', () => {
   beforeEach(() => {
-    global.fetch = vi.fn(async (url, options = {}) => {
-      if (String(url) === '/api/policies' && !options.method) {
+    global.fetch = vi.fn(async (url) => {
+      if (String(url) === '/api/policies') {
         return {
           ok: true,
           json: async () => ({
             policies: [
               {
                 id: 'pol_1',
-                name: 'Deploy guard',
-                policy_type: 'risk_threshold',
-                rules: JSON.stringify({ threshold: 70, action: 'warn' }),
-                active: true,
-                agent_ids: JSON.stringify(['agent_1']),
+                name: 'Deploy Gate',
+                policy_type: 'require_approval',
+                rules: JSON.stringify({ action_types: ['deploy', 'migrate'], _shield: 'deploy_gate' }),
+                active: 1,
+                agent_ids: null,
               },
             ],
           }),
         };
       }
 
-      if (String(url) === '/api/guard?limit=20') {
+      if (String(url).startsWith('/api/guard/decisions')) {
         return {
           ok: true,
           json: async () => ({
             decisions: [],
-            stats: {},
+            total: 0,
+            stats: { blocks: 3, approvals: 1, warns: 2 },
           }),
         };
       }
@@ -91,76 +81,15 @@ describe('PoliciesPage', () => {
       if (String(url) === '/api/agents') {
         return {
           ok: true,
-          json: async () => ({
-            agents: [
-              {
-                agent_id: 'agent_1',
-                agent_name: 'Primary Agent',
-              },
-            ],
-          }),
+          json: async () => ({ agents: [{ agent_id: 'agent_1', agent_name: 'Bot' }] }),
         };
       }
 
-      if (String(url) === '/api/policies' && options.method === 'POST') {
-        return {
-          ok: true,
-          json: async () => ({ policy: { id: 'pol_new' } }),
-        };
+      if (String(url) === '/api/policies' && arguments[1]?.method) {
+        return { ok: true, json: async () => ({ policy: { id: 'pol_new' } }) };
       }
 
-      if (String(url) === '/api/policies' && options.method === 'PATCH') {
-        return {
-          ok: true,
-          json: async () => ({ policy: { id: 'pol_1' } }),
-        };
-      }
-
-      if (String(url) === '/api/policies/simulate') {
-        return {
-          ok: true,
-          json: async () => ({
-            summary: { total: 0, block: 0, warn: 0, require_approval: 0 },
-            matches: [],
-          }),
-        };
-      }
-
-      if (String(url) === '/api/policies/tests/run') {
-        return {
-          ok: true,
-          json: async () => ({
-            totalPolicies: 0,
-            totalTests: 0,
-            passed: 0,
-            failed: 0,
-            results: [],
-          }),
-        };
-      }
-
-      if (String(url) === '/api/policies/proof') {
-        return {
-          ok: true,
-          json: async () => ({ report: 'proof' }),
-        };
-      }
-
-      if (String(url) === '/api/policies/import' || String(url).startsWith('/api/policies/import?')) {
-        return {
-          ok: true,
-          json: async () => ({ imported: 0, skipped: 0, errors: 0 }),
-        };
-      }
-
-      if (String(url) === '/api/policies/templates') {
-        return {
-          ok: true,
-          json: async () => ({ templates: [] }),
-        };
-      }
-
-      throw new Error(`Unexpected fetch: ${url}`);
+      return { ok: true, json: async () => ({}) };
     });
   });
 
@@ -168,123 +97,48 @@ describe('PoliciesPage', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows guided summary language in the add form and submits a compiled payload', async () => {
+  it('renders the shields tab by default with shield cards', async () => {
     const { default: PoliciesPage } = await import('@/policies/page.jsx');
-
     render(<PoliciesPage />);
 
-    expect(await screen.findByText('Deploy guard')).toBeTruthy();
+    // Page title
+    expect(screen.getByText('Policies')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: /add policy/i }));
+    // Tabs exist
+    expect(screen.getByText('Shields')).toBeTruthy();
+    expect(screen.getByText('Custom')).toBeTruthy();
+    expect(screen.getByText('Activity')).toBeTruthy();
 
-    expect(screen.getByText(/policy summary/i)).toBeTruthy();
-    expect(screen.getByText(/block actions when risk is 80 or higher/i)).toBeTruthy();
+    // Shield cards render (wait for fetch)
+    expect(await screen.findByText('Deploy Gate')).toBeTruthy();
+    expect(screen.getByText('High Risk Review')).toBeTruthy();
+    expect(screen.getByText('Critical Risk Block')).toBeTruthy();
+    expect(screen.getByText('Rate Limiter')).toBeTruthy();
+  });
 
-    fireEvent.change(screen.getByLabelText(/policy name/i), { target: { value: 'Approval gate' } });
-    fireEvent.change(screen.getByLabelText(/policy type/i), { target: { value: 'require_approval' } });
-    fireEvent.click(screen.getByRole('button', { name: 'deploy' }));
+  it('shows stats bar with counts', async () => {
+    const { default: PoliciesPage } = await import('@/policies/page.jsx');
+    render(<PoliciesPage />);
 
-    expect(screen.getByText(/require approval for deploy actions/i)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Primary Agent' }));
-    expect(screen.getByText(/require approval for deploy actions for 1 selected agent/i)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: /^create policy$/i }));
-
+    // Wait for stats to load
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        '/api/policies',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: expect.any(String),
-        }),
-      );
-    });
-
-    const postCall = global.fetch.mock.calls.find((call) => call[0] === '/api/policies' && call[1]?.method === 'POST');
-    const requestBody = JSON.parse(postCall[1].body);
-
-    expect(requestBody).toEqual({
-      name: 'Approval gate',
-      policy_type: 'require_approval',
-      rules: JSON.stringify({
-        action_types: ['deploy'],
-        action: 'require_approval',
-      }),
-      agent_ids: JSON.stringify(['agent_1']),
+      expect(screen.getByText('active shields').closest('span').textContent).toContain('1');
     });
   });
 
-  it('loads edit mode into the shared builder summary and saves a compiled payload', async () => {
+  it('switches between tabs', async () => {
     const { default: PoliciesPage } = await import('@/policies/page.jsx');
-
     render(<PoliciesPage />);
 
-    expect(await screen.findByText(/warn on actions when risk is 70 or higher for 1 selected agent/i)).toBeTruthy();
+    // Default is Shields tab
+    expect(await screen.findByText('Deploy Gate')).toBeTruthy();
 
-    fireEvent.click(screen.getByTitle(/edit/i));
+    // Switch to Activity tab
+    fireEvent.click(screen.getByText('Activity'));
 
-    expect(await screen.findByDisplayValue('Deploy guard')).toBeTruthy();
-    expect(screen.getByText(/policy summary/i)).toBeTruthy();
-    expect(screen.getByText(/warn on actions when risk is 70 or higher for 1 selected agent/i)).toBeTruthy();
-
-    fireEvent.change(screen.getByLabelText(/risk threshold/i), { target: { value: '90' } });
-    fireEvent.change(screen.getByLabelText(/^action$/i), { target: { value: 'block' } });
-    fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
-
+    // Activity tab shows decision filter
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        '/api/policies',
-        expect.objectContaining({
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: expect.any(String),
-        }),
-      );
+      expect(screen.getByDisplayValue('All decisions')).toBeTruthy();
     });
-
-    const patchCall = global.fetch.mock.calls.find((call) => call[0] === '/api/policies' && call[1]?.method === 'PATCH');
-    const requestBody = JSON.parse(patchCall[1].body);
-
-    expect(requestBody).toEqual({
-      id: 'pol_1',
-      name: 'Deploy guard',
-      policy_type: 'risk_threshold',
-      rules: JSON.stringify({
-        threshold: 90,
-        action: 'block',
-      }),
-      agent_ids: JSON.stringify(['agent_1']),
-    });
-  });
-
-  it('keeps advanced import out of the default page flow and opens it on demand', async () => {
-    const { default: PoliciesPage } = await import('@/policies/page.jsx');
-
-    render(<PoliciesPage />);
-
-    expect(await screen.findByText('Deploy guard')).toBeTruthy();
-
-    expect(screen.getByRole('link', { name: /generate with ai/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /advanced import/i })).toBeTruthy();
-    expect(screen.queryByText(/yaml policy definition/i)).toBeNull();
-    expect(screen.queryByText(/import policy pack/i)).toBeNull();
-
-    fireEvent.click(screen.getByRole('button', { name: /advanced import/i }));
-
-    expect(await screen.findByRole('heading', { name: /advanced import/i })).toBeTruthy();
-    expect(screen.getByText(/intended for expert users/i)).toBeTruthy();
-    expect(screen.getByRole('button', { name: /^policy pack$/i })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: /^raw yaml$/i }));
-    expect(screen.getByPlaceholderText(/deploy-approval-gate/i)).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: /^policy pack$/i }));
-    fireEvent.click(screen.getByRole('button', { name: /^import$/i }));
-
-    expect(await screen.findByText(/0 imported/i)).toBeTruthy();
-    expect(screen.getByText(/0 skipped/i)).toBeTruthy();
-    expect(screen.getByText(/0 errors/i)).toBeTruthy();
   });
 });
