@@ -72,14 +72,20 @@ async function singleAttempt({
   const timer = setTimeout(() => controller.abort(), timeoutMs || 60000);
   const start = Date.now();
 
+  // GET and HEAD cannot carry a request body per the fetch/undici spec.
+  // Attaching one causes an immediate "Request with GET/HEAD method cannot
+  // have body" TypeError before the request ever leaves the process.
+  const normalizedMethod = (method || 'POST').toUpperCase();
+  const bodylessMethod = normalizedMethod === 'GET' || normalizedMethod === 'HEAD';
+
   try {
     const response = await fetch(endpoint, {
-      method: method || 'POST',
+      method: normalizedMethod,
       headers: {
-        'Content-Type': 'application/json',
+        ...(bodylessMethod ? {} : { 'Content-Type': 'application/json' }),
         ...authHeaders,
       },
-      body: JSON.stringify(mappedBody),
+      ...(bodylessMethod ? {} : { body: JSON.stringify(mappedBody) }),
       signal: controller.signal,
     });
 

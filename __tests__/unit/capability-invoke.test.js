@@ -102,6 +102,110 @@ describe('invokeCapability', () => {
     expect(result.status).toBe(500);
   });
 
+  it('omits body and Content-Type when method is GET', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 1, title: 'Y Combinator' }),
+    });
+
+    const result = await invokeCapability({
+      endpoint: 'https://hacker-news.firebaseio.com/v0/item/1.json',
+      method: 'GET',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+    });
+
+    expect(result.success).toBe(true);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    const [, init] = global.fetch.mock.calls[0];
+    expect(init.method).toBe('GET');
+    expect(init).not.toHaveProperty('body');
+    expect(init.headers).not.toHaveProperty('Content-Type');
+  });
+
+  it('omits body and Content-Type when method is HEAD', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+
+    await invokeCapability({
+      endpoint: 'http://example.com/ping',
+      method: 'HEAD',
+      authHeaders: {},
+      body: { ignored: 'field' },
+      timeoutMs: 5000,
+    });
+
+    const [, init] = global.fetch.mock.calls[0];
+    expect(init.method).toBe('HEAD');
+    expect(init).not.toHaveProperty('body');
+    expect(init.headers).not.toHaveProperty('Content-Type');
+  });
+
+  it('normalizes lowercase method to uppercase and treats "get" as bodyless', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+
+    await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'get',
+      authHeaders: {},
+      body: {},
+      timeoutMs: 5000,
+    });
+
+    const [, init] = global.fetch.mock.calls[0];
+    expect(init.method).toBe('GET');
+    expect(init).not.toHaveProperty('body');
+  });
+
+  it('preserves auth headers on bodyless GET', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+
+    await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'GET',
+      authHeaders: { Authorization: 'Bearer token' },
+      body: {},
+      timeoutMs: 5000,
+    });
+
+    const [, init] = global.fetch.mock.calls[0];
+    expect(init.headers).toEqual({ Authorization: 'Bearer token' });
+  });
+
+  it('still sends body and Content-Type on POST (regression guard)', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ ok: true }),
+    });
+
+    await invokeCapability({
+      endpoint: 'http://example.com/api',
+      method: 'POST',
+      authHeaders: {},
+      body: { query: 'test' },
+      timeoutMs: 5000,
+    });
+
+    const [, init] = global.fetch.mock.calls[0];
+    expect(init.method).toBe('POST');
+    expect(init.body).toBe(JSON.stringify({ query: 'test' }));
+    expect(init.headers['Content-Type']).toBe('application/json');
+  });
+
   it('returns failure on timeout', async () => {
     global.fetch.mockImplementationOnce(() => {
       return new Promise((_, reject) => {
