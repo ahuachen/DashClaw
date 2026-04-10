@@ -10,7 +10,6 @@ import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
@@ -169,33 +168,53 @@ export default function CompliancePage() {
   const remediations = gapAnalysis?.remediations || [];
   const riskLevel = gapAnalysis?.risk_level || 'unknown';
 
+  const coverageTextColor =
+    coveragePercent >= 80 ? 'text-emerald-400'
+    : coveragePercent >= 50 ? 'text-amber-400'
+    : 'text-red-400';
+  const coverageBarColor =
+    coveragePercent >= 80 ? 'success'
+    : coveragePercent >= 50 ? 'warning'
+    : 'error';
+
   return (
     <PageLayout
       title="Compliance"
       subtitle="Map policies to regulatory frameworks and track control coverage"
       breadcrumbs={['Compliance']}
       actions={
-        <Link href="/compliance/exports" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors">
-          <FileDown size={14} /> Exports
+        <Link
+          href="/compliance/exports"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+        >
+          <FileDown size={14} aria-hidden="true" /> Exports
         </Link>
       }
     >
       {isDemo && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm flex items-center gap-2">
-          <AlertTriangle size={14} /> Demo mode: compliance data is read-only.
+        <div role="note" className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
+          <AlertTriangle size={14} aria-hidden="true" className="text-amber-400" />
+          Demo mode · compliance data is read-only.
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
-          <AlertTriangle size={14} /> {error}
-          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">&times;</button>
+        <div role="alert" className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+          <AlertTriangle size={14} aria-hidden="true" />
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="ml-auto rounded px-2 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            aria-label="Dismiss error"
+          >
+            &times;
+          </button>
         </div>
       )}
 
       {/* Framework Selector */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         {loading ? (
-          <div className="text-sm text-zinc-500">Loading frameworks...</div>
+          <div className="text-sm text-zinc-500">Loading frameworks…</div>
         ) : frameworks.length === 0 ? (
           <div className="text-sm text-zinc-500">No frameworks available</div>
         ) : (
@@ -207,10 +226,11 @@ export default function CompliancePage() {
               <button
                 key={id}
                 onClick={() => { setSelectedFramework(id); setReport(''); }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                aria-pressed={isActive}
+                className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-brand text-white'
-                    : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-zinc-500'
+                    ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/50 hover:bg-brand/15'
+                    : 'border-border bg-surface-tertiary text-zinc-400 hover:border-border-hover hover:text-white'
                 }`}
               >
                 {label}
@@ -220,29 +240,49 @@ export default function CompliancePage() {
         )}
       </div>
 
-      {/* Coverage Stats */}
+      {/* Coverage instrument rail */}
       {controlMap && (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-3">
-            <StatCompact label="Total Controls" value={coverage.total ?? 0} />
-            <StatCompact label="Covered" value={coverage.covered ?? 0} color="text-emerald-400" />
-            <StatCompact label="Partial" value={coverage.partial ?? 0} color="text-amber-400" />
-            <StatCompact label="Gaps" value={coverage.gaps ?? 0} color="text-red-400" />
-            <StatCompact label="Coverage" value={`${coveragePercent}%`} color={coveragePercent >= 80 ? 'text-emerald-400' : coveragePercent >= 50 ? 'text-amber-400' : 'text-red-400'} />
+        <div className="mb-6">
+          <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-5">
+            <div className="p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total controls</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{coverage.total ?? 0}</div>
+            </div>
+            <div className="p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Covered</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{coverage.covered ?? 0}</div>
+            </div>
+            <div className="p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Partial</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{coverage.partial ?? 0}</div>
+            </div>
+            <div className="p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Gaps</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{coverage.gaps ?? 0}</div>
+            </div>
+            <div className="p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Coverage</div>
+              <div className={`mt-1 text-2xl font-semibold tabular-nums ${coverageTextColor}`}>{coveragePercent}%</div>
+            </div>
           </div>
-          <ProgressBar value={coveragePercent} color={coveragePercent >= 80 ? 'success' : coveragePercent >= 50 ? 'warning' : 'error'} className="mb-6" />
-        </>
+          <ProgressBar value={coveragePercent} color={coverageBarColor} className="mt-3" />
+        </div>
       )}
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         {/* Left: Control Map (3/5) */}
         <div className="lg:col-span-3">
           <Card>
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white flex items-center">Control Map<HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} /></h2>
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <h2 className="flex items-center text-sm font-semibold text-white">
+                Control map
+                <HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} />
+              </h2>
               {controls.length > 0 && (
-                <span className="text-xs text-zinc-500">{controls.length} controls</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+                  {controls.length} controls
+                </span>
               )}
             </div>
             <CardContent>
@@ -261,7 +301,7 @@ export default function CompliancePage() {
                   description="No controls found for this framework."
                 />
               ) : (
-                <div className="max-h-[600px] overflow-y-auto divide-y divide-[rgba(255,255,255,0.04)]">
+                <div className="max-h-[600px] divide-y divide-border overflow-y-auto">
                   {controls.map(control => {
                     const cid = control.control_id || control.id;
                     const isExpanded = expandedControls[cid];
@@ -271,26 +311,34 @@ export default function CompliancePage() {
                       <div key={cid} className="py-2.5">
                         <button
                           onClick={() => toggleControl(cid)}
-                          className="w-full flex items-center gap-2 text-left"
+                          aria-expanded={isExpanded}
+                          className="flex w-full items-center gap-2 text-left"
                         >
-                          {isExpanded ? <ChevronDown size={14} className="text-zinc-500 flex-shrink-0" /> : <ChevronRight size={14} className="text-zinc-500 flex-shrink-0" />}
+                          {isExpanded
+                            ? <ChevronDown size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />
+                            : <ChevronRight size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />}
                           <Badge variant={STATUS_VARIANTS[control.status] || 'default'} size="xs">
                             {control.status}
                           </Badge>
-                          <span className="text-xs text-zinc-500 font-mono">{control.control_id || control.id}</span>
-                          <span className="text-sm text-zinc-300 truncate">{control.title || control.name}</span>
+                          <span className="font-mono text-xs text-zinc-500">{control.control_id || control.id}</span>
+                          <span className="truncate text-sm text-zinc-300">{control.title || control.name}</span>
                         </button>
                         {isExpanded && (
-                          <div className="ml-6 mt-2 space-y-2">
+                          <div className="ml-6 mt-2 space-y-3">
                             {control.description && (
-                              <p className="text-xs text-zinc-500">{control.description}</p>
+                              <p className="text-xs text-zinc-400">{control.description}</p>
                             )}
                             {policies.length > 0 && (
                               <div>
-                                <span className="text-[10px] text-zinc-600 uppercase">Matched Policies</span>
-                                <div className="flex flex-wrap gap-1 mt-1">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                  Matched policies
+                                </div>
+                                <div className="mt-1 flex flex-wrap gap-1">
                                   {policies.map((p, i) => (
-                                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-emerald-400 border border-green-500/20">
+                                    <span
+                                      key={i}
+                                      className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-400"
+                                    >
                                       {typeof p === 'string' ? p : p.name || p.id}
                                     </span>
                                   ))}
@@ -299,11 +347,13 @@ export default function CompliancePage() {
                             )}
                             {recs.length > 0 && (
                               <div>
-                                <span className="text-[10px] text-zinc-600 uppercase">Recommendations</span>
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                  Recommendations
+                                </div>
                                 <ul className="mt-1 space-y-1">
                                   {recs.map((r, i) => (
-                                    <li key={i} className="text-xs text-zinc-400 flex items-start gap-1.5">
-                                      <AlertCircle size={12} className="text-yellow-500 mt-0.5 flex-shrink-0" />
+                                    <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-400">
+                                      <AlertCircle size={12} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
                                       {typeof r === 'string' ? r : r.text || r.description}
                                     </li>
                                   ))}
@@ -322,11 +372,14 @@ export default function CompliancePage() {
         </div>
 
         {/* Right column (2/5) */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Gap Analysis */}
           <Card>
-            <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white flex items-center">Gap Analysis<HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} /></h2>
+            <div className="border-b border-border px-5 py-3">
+              <h2 className="flex items-center text-sm font-semibold text-white">
+                Gap analysis
+                <HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} />
+              </h2>
             </div>
             <CardContent>
               {!gapAnalysis ? (
@@ -334,7 +387,7 @@ export default function CompliancePage() {
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">Risk Level:</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Risk level</span>
                     <Badge variant={riskLevel === 'high' ? 'error' : riskLevel === 'medium' ? 'warning' : 'success'}>
                       {riskLevel}
                     </Badge>
@@ -344,17 +397,19 @@ export default function CompliancePage() {
                   )}
                   {gapAnalysis.quick_wins && (
                     <div>
-                      <span className="text-[10px] text-zinc-600 uppercase">Quick Wins</span>
-                      <p className="text-xs text-zinc-400 mt-0.5">{gapAnalysis.quick_wins}</p>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Quick wins</div>
+                      <p className="mt-1 text-xs text-zinc-400">{gapAnalysis.quick_wins}</p>
                     </div>
                   )}
                   {gaps.length > 0 && (
                     <div>
-                      <span className="text-[10px] text-zinc-600 uppercase">Critical Gaps ({gaps.length})</span>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                        Critical gaps <span className="tabular-nums">({gaps.length})</span>
+                      </div>
                       <ul className="mt-1 space-y-1">
                         {gaps.slice(0, 5).map((g, i) => (
-                          <li key={i} className="text-xs text-zinc-400 flex items-start gap-1.5">
-                            <AlertCircle size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-400">
+                            <AlertCircle size={12} className="mt-0.5 shrink-0 text-red-400" aria-hidden="true" />
                             {typeof g === 'string' ? g : g.title || g.control || g.description}
                           </li>
                         ))}
@@ -363,10 +418,10 @@ export default function CompliancePage() {
                   )}
                   {remediations.length > 0 && (
                     <div>
-                      <span className="text-[10px] text-zinc-600 uppercase">Top Remediations</span>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Top remediations</div>
                       <ul className="mt-1 space-y-1.5">
                         {remediations.slice(0, 5).map((r, i) => (
-                          <li key={i} className="text-xs text-zinc-400 flex items-center gap-2">
+                          <li key={i} className="flex items-center gap-2 text-xs text-zinc-400">
                             <span className="flex-1">{typeof r === 'string' ? r : r.action || r.description}</span>
                             {r.effort && (
                               <Badge variant={EFFORT_VARIANTS[r.effort] || 'default'} size="xs">
@@ -385,29 +440,32 @@ export default function CompliancePage() {
 
           {/* Enforcement Evidence */}
           <Card>
-            <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white flex items-center">Enforcement Evidence<HelpIcon sectionKey="guard-decisions" tip={HELP_TIPS['guard-decisions']} /></h2>
+            <div className="border-b border-border px-5 py-3">
+              <h2 className="flex items-center text-sm font-semibold text-white">
+                Enforcement evidence
+                <HelpIcon sectionKey="guard-decisions" tip={HELP_TIPS['guard-decisions']} />
+              </h2>
             </div>
-            <CardContent>
+            <CardContent className="p-0">
               {!evidence ? (
-                <ListSkeleton rows={3} />
+                <div className="p-5"><ListSkeleton rows={3} /></div>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-white tabular-nums">{evidence.guard_decisions ?? 0}</div>
-                    <div className="text-[10px] text-zinc-500">Guard Decisions</div>
+                <div className="grid grid-cols-2 divide-x divide-y divide-border">
+                  <div className="p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Guard decisions</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-white">{evidence.guard_decisions ?? 0}</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-red-400 tabular-nums">{evidence.blocked ?? 0}</div>
-                    <div className="text-[10px] text-zinc-500">Blocked</div>
+                  <div className="p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Blocked</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-red-400">{evidence.blocked ?? 0}</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-amber-400 tabular-nums">{evidence.approval_requests ?? 0}</div>
-                    <div className="text-[10px] text-zinc-500">Approval Requests</div>
+                  <div className="p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Approval requests</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-amber-400">{evidence.approval_requests ?? 0}</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-blue-400 tabular-nums">{evidence.actions_recorded ?? 0}</div>
-                    <div className="text-[10px] text-zinc-500">Actions Recorded</div>
+                  <div className="p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Actions recorded</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-blue-400">{evidence.actions_recorded ?? 0}</div>
                   </div>
                 </div>
               )}
@@ -416,10 +474,10 @@ export default function CompliancePage() {
 
           {/* Live Integrity Signals */}
           <Card>
-            <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white flex items-center gap-2">
-                <ShieldAlert size={14} className="text-amber-400" />
-                Live Integrity Signals
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
+                <ShieldAlert size={14} className="text-amber-400" aria-hidden="true" />
+                Live integrity signals
               </h2>
             </div>
             <CardContent>
@@ -427,26 +485,30 @@ export default function CompliancePage() {
                 <ListSkeleton rows={2} />
               ) : signals.length === 0 ? (
                 <div className="flex items-center gap-2 py-2">
-                  <CheckCircle size={14} className="text-emerald-400" />
+                  <CheckCircle size={14} className="text-emerald-400" aria-hidden="true" />
                   <span className="text-xs text-emerald-400">All clear — no active integrity signals</span>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {signals.map((signal, i) => {
-                    const controls = SIGNAL_CONTROL_MAP[signal.type] || [];
+                    const affectedControls = SIGNAL_CONTROL_MAP[signal.type] || [];
                     return (
-                      <div key={i} className="py-2 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                      <div key={i} className="border-b border-border py-2 last:border-0">
                         <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                            signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500'
-                          }`} />
+                          <span
+                            aria-hidden="true"
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500'}`}
+                          />
                           <span className="text-sm text-white">{signal.label || signal.type.replace(/_/g, ' ')}</span>
                         </div>
-                        {controls.length > 0 && (
-                          <div className="ml-4 mt-1 flex flex-wrap gap-1">
-                            <span className="text-[10px] text-zinc-500">Affects:</span>
-                            {controls.map((c, j) => (
-                              <span key={j} className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
+                        {affectedControls.length > 0 && (
+                          <div className="ml-3.5 mt-1 flex flex-wrap items-center gap-1">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Affects</span>
+                            {affectedControls.map((c, j) => (
+                              <span
+                                key={j}
+                                className="rounded border border-border bg-surface-tertiary px-1.5 py-0.5 text-[10px] text-zinc-400"
+                              >
                                 {c}
                               </span>
                             ))}
@@ -455,7 +517,10 @@ export default function CompliancePage() {
                       </div>
                     );
                   })}
-                  <Link href="/security" className="text-xs text-brand hover:text-brand/80 mt-1 inline-block">
+                  <Link
+                    href="/security"
+                    className="mt-1 inline-block text-xs text-brand transition-colors hover:text-brand-hover"
+                  >
                     View all signals →
                   </Link>
                 </div>
@@ -465,15 +530,17 @@ export default function CompliancePage() {
 
           {/* Report Generation */}
           <Card>
-            <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
-              <h2 className="text-sm font-medium text-white">Compliance Report</h2>
+            <div className="border-b border-border px-5 py-3">
+              <h2 className="text-sm font-semibold text-white">Compliance report</h2>
             </div>
             <CardContent>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="mb-3 flex items-center gap-2">
+                <label htmlFor="report-format" className="sr-only">Report format</label>
                 <select
+                  id="report-format"
                   value={reportFormat}
                   onChange={(e) => setReportFormat(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-brand"
+                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
                 >
                   <option value="markdown">Markdown</option>
                   <option value="json">JSON</option>
@@ -481,22 +548,28 @@ export default function CompliancePage() {
                 <button
                   onClick={handleGenerateReport}
                   disabled={generatingReport || !selectedFramework}
-                  className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50"
+                  className="rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
                 >
-                  {generatingReport ? 'Generating...' : 'Generate'}
+                  {generatingReport ? 'Generating…' : 'Generate'}
                 </button>
               </div>
               {report && (
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <button onClick={handleCopyReport} className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
-                      <Copy size={12} /> Copy
+                  <div className="mb-2 flex items-center gap-3">
+                    <button
+                      onClick={handleCopyReport}
+                      className="flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-white"
+                    >
+                      <Copy size={12} aria-hidden="true" /> Copy
                     </button>
-                    <button onClick={handleDownloadReport} className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
-                      <FileDown size={12} /> Download
+                    <button
+                      onClick={handleDownloadReport}
+                      className="flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-white"
+                    >
+                      <FileDown size={12} aria-hidden="true" /> Download
                     </button>
                   </div>
-                  <pre className="whitespace-pre-wrap text-xs text-zinc-300 bg-[#111] p-4 rounded-lg border border-[rgba(255,255,255,0.06)] max-h-[500px] overflow-y-auto font-mono">
+                  <pre className="max-h-[500px] overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-tertiary p-4 font-mono text-xs text-zinc-300">
                     {report}
                   </pre>
                 </div>

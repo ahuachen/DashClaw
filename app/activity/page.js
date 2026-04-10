@@ -3,14 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useRealtime } from '../hooks/useRealtime';
-import { 
-  Activity, Zap, Shield, Clock, Search, Terminal,
-  ChevronRight, Box, Cpu, AlertTriangle, CheckCircle2,
-  Info, KeyRound, Settings, Webhook, UsersRound
+import {
+  Activity, Zap, Shield, Terminal,
+  ChevronRight, AlertTriangle,
 } from 'lucide-react';
 import { getAgentColor } from '../lib/colors';
 
@@ -45,7 +43,7 @@ export default function GlobalActivityFeed() {
           id: `act-${a.action_id}`,
           timestamp: a.timestamp_start,
           category: 'decision',
-          label: a.status === 'completed' ? 'Decision Finalized' : 'Intent Declared',
+          label: a.status === 'completed' ? 'Decision finalized' : 'Intent declared',
           actor: a.agent_name || a.agent_id,
           actorId: a.agent_id,
           detail: a.declared_goal,
@@ -56,7 +54,7 @@ export default function GlobalActivityFeed() {
           id: `grd-${g.id}`,
           timestamp: g.created_at,
           category: 'guard',
-          label: 'Policy Evaluation',
+          label: 'Policy evaluation',
           actor: g.agent_name || g.agent_id,
           actorId: g.agent_id,
           detail: `${g.decision.toUpperCase()}: ${g.reason}`,
@@ -67,7 +65,7 @@ export default function GlobalActivityFeed() {
           id: `aud-${l.id}`,
           timestamp: l.created_at,
           category: 'audit',
-          label: 'System Event',
+          label: 'System event',
           actor: l.actor_name || 'System',
           actorId: l.actor_id,
           detail: `${l.action.replace(/\./g, ' ')}`,
@@ -100,7 +98,7 @@ export default function GlobalActivityFeed() {
         id: `act-${payload.action_id}-${Date.now()}`,
         timestamp: payload.timestamp_start || new Date().toISOString(),
         category: 'decision',
-        label: 'Intent Declared',
+        label: 'Intent declared',
         actor: payload.agent_name || payload.agent_id,
         actorId: payload.agent_id,
         detail: payload.declared_goal,
@@ -112,7 +110,7 @@ export default function GlobalActivityFeed() {
         id: `grd-${payload.id}-${Date.now()}`,
         timestamp: payload.created_at || new Date().toISOString(),
         category: 'guard',
-        label: 'Policy Evaluation',
+        label: 'Policy evaluation',
         actor: payload.agent_name || payload.agent_id,
         actorId: payload.agent_id,
         detail: `${payload.decision.toUpperCase()}: ${payload.reason}`,
@@ -129,15 +127,15 @@ export default function GlobalActivityFeed() {
 
   const getStatusColor = (category, status) => {
     if (category === 'guard') {
-      if (status === 'block') return 'text-red-400 bg-red-400/10 border-red-400/20';
-      if (status === 'warn') return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-      if (status === 'require_approval') return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
-      return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+      if (status === 'block') return 'text-red-400 bg-red-500/10 border-red-500/30';
+      if (status === 'warn') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+      if (status === 'require_approval') return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
+      return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
     }
-    if (status === 'completed' || status === 'success') return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    if (status === 'failed' || status === 'error') return 'text-red-400 bg-red-400/10 border-red-400/20';
-    if (status === 'running' || status === 'pending') return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-    return 'text-zinc-400 bg-zinc-400/10 border-zinc-400/20';
+    if (status === 'completed' || status === 'success') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+    if (status === 'failed' || status === 'error') return 'text-red-400 bg-red-500/10 border-red-500/30';
+    if (status === 'running' || status === 'pending') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+    return 'text-zinc-400 bg-white/5 border-border';
   };
 
   const formatTime = (ts) => {
@@ -149,68 +147,75 @@ export default function GlobalActivityFeed() {
 
   return (
     <PageLayout
-      title="Activity Stream"
-      subtitle={`Real-time operational telemetry across decisions, governance, and system events \u00B7 Updated ${lastUpdated}`}
+      title="Activity stream"
+      subtitle={`Real-time operational telemetry across decisions, governance, and system events${lastUpdated ? ` · Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Command', 'Activity']}
       maturity="beta"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         <Card hover={false}>
-          <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <h2 className="text-sm font-medium text-white uppercase tracking-wider">Live Feed</h2>
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Live feed</h2>
             </div>
-            <div className="text-[10px] text-zinc-500 font-mono">RETENTION: 50 EVENTS</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+              Retention · 50 events
+            </div>
           </div>
           <CardContent className="p-0">
             {loading ? (
-              <div className="p-6 space-y-4">
+              <div className="space-y-4 p-6">
                 {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
               </div>
             ) : events.length === 0 ? (
               <div className="p-12">
-                <EmptyState icon={Activity} title="No activity recorded" description="Waiting for agent actions or system events..." />
+                <EmptyState icon={Activity} title="No activity recorded" description="Waiting for agent actions or system events…" />
               </div>
             ) : (
-              <div className="divide-y divide-white/[0.04]">
+              <div className="divide-y divide-border">
                 {events.map((evt) => {
                   const Icon = categoryIconMap[evt.category] || Activity;
                   return (
-                    <div key={evt.id} className="group p-4 hover:bg-white/[0.01] transition-colors relative">
+                    <div key={evt.id} className="group relative p-4 transition-colors hover:bg-white/[0.02]">
                       <div className="flex items-start gap-4">
                         {/* Time & Icon */}
-                        <div className="flex flex-col items-center gap-2 min-w-[60px] pt-1">
-                          <span className="text-[10px] text-zinc-600 font-mono">{formatTime(evt.timestamp)}</span>
-                          <div className={`p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] group-hover:border-white/[0.1] transition-colors`}>
-                            <Icon size={14} className="text-zinc-400" />
+                        <div className="flex min-w-[60px] flex-col items-center gap-2 pt-1">
+                          <span className="font-mono text-[11px] tabular-nums text-zinc-500">
+                            {formatTime(evt.timestamp)}
+                          </span>
+                          <div className="rounded-lg border border-border bg-surface-tertiary p-1.5 transition-colors group-hover:border-border-hover">
+                            <Icon size={14} className="text-zinc-400" aria-hidden="true" />
                           </div>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">{evt.label}</span>
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getAgentColor(evt.actorId)}`}>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex flex-wrap items-center gap-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                              {evt.label}
+                            </span>
+                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(evt.actorId)}`}>
                               {evt.actor}
                             </span>
                           </div>
-                          <div className="text-sm text-zinc-200 line-clamp-2 leading-relaxed">
+                          <div className="line-clamp-2 text-sm leading-relaxed text-zinc-200">
                             {evt.detail}
                           </div>
                         </div>
 
                         {/* Status & Action */}
-                        <div className="flex flex-col items-end gap-3 pt-1">
-                          <div className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter border ${getStatusColor(evt.category, evt.status)}`}>
+                        <div className="flex flex-col items-end gap-2 pt-1">
+                          <div className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(evt.category, evt.status)}`}>
                             {evt.status}
                           </div>
                           {evt.link && (
-                            <a 
+                            <a
                               href={evt.link}
-                              className="text-[10px] text-zinc-600 hover:text-brand flex items-center gap-1 transition-colors uppercase font-bold tracking-tighter"
+                              className="flex items-center gap-0.5 text-[11px] font-medium text-zinc-400 transition-colors hover:text-brand"
                             >
-                              Details <ChevronRight size={10} />
+                              Details
+                              <ChevronRight size={11} aria-hidden="true" />
                             </a>
                           )}
                         </div>

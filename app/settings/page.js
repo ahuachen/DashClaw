@@ -77,10 +77,19 @@ export default async function SettingsPage({ searchParams }) {
     { key: 'identity', label: 'Agent Identity', href: '/settings?tab=identity' },
   ];
 
+  const quickLinks = [
+    { href: '/integrations', label: 'Integrations', hint: 'Configure services' },
+    { href: '/webhooks', label: 'Webhooks', hint: 'Event notifications' },
+    { href: '/usage', label: 'Usage & billing', hint: 'Token spend' },
+    { href: '/api-keys', label: 'API keys', hint: 'Manage keys' },
+    { href: '/docs', label: 'API documentation', hint: 'Reference' },
+    { href: '/self-host', label: 'Deployment guide', hint: 'Self-host docs' },
+  ];
+
   return (
     <PageLayout
       title="Settings"
-      subtitle="Instance configuration, verification, model pricing, and agent identity."
+      subtitle="Instance configuration, verification, model pricing, and agent identity"
       breadcrumbs={['System', 'Settings']}
       maturity="stable"
       actions={
@@ -88,10 +97,10 @@ export default async function SettingsPage({ searchParams }) {
           {!viewer.isAuthenticated && (
             <Link
               href="/login"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/20 text-brand text-xs font-medium hover:bg-brand/20 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
             >
-              <LogIn size={14} />
-              Sign In
+              <LogIn size={14} aria-hidden="true" />
+              Sign in
             </Link>
           )}
           <ModeBadge isAuthenticated={viewer.isAuthenticated} />
@@ -99,34 +108,37 @@ export default async function SettingsPage({ searchParams }) {
       }
     >
       {/* Tab bar */}
-      <div className="flex gap-1 mb-6 border-b border-white/10 pb-0">
-        {tabs.map((t) => (
-          <a
-            key={t.key}
-            href={t.href}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-              tab === t.key
-                ? 'text-white'
-                : 'text-zinc-500 hover:text-zinc-300'
-            }`}
-          >
-            {t.label}
-            {tab === t.key && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-t" />
-            )}
-          </a>
-        ))}
+      <div role="tablist" className="mb-6 flex items-center gap-1 border-b border-border">
+        {tabs.map((t) => {
+          const isActive = tab === t.key;
+          return (
+            <a
+              key={t.key}
+              href={t.href}
+              role="tab"
+              aria-selected={isActive}
+              className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {t.label}
+              {isActive && (
+                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+              )}
+            </a>
+          );
+        })}
       </div>
 
       {/* Setup & Verify tab */}
       {tab === 'setup' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column: Connection & Verification */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Host + Summary */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Host */}
             <div className="flex items-center justify-between">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">
-                Host: <span className="text-zinc-400">{host}</span>
+              <div className="font-mono text-[11px] tabular-nums text-zinc-500">
+                Host: <span className="text-zinc-300">{host}</span>
               </div>
             </div>
 
@@ -140,12 +152,12 @@ export default async function SettingsPage({ searchParams }) {
             />
 
             {view.notice ? (
-              <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] px-5 py-4">
+              <div className="rounded-xl border border-border bg-surface-secondary px-5 py-4">
                 <p className="text-sm text-zinc-300">{view.notice}</p>
               </div>
             ) : null}
             {liveProofToken && !liveProof ? (
-              <div className="rounded-2xl border border-red-900/50 bg-[#111] px-5 py-4">
+              <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4">
                 <p className="text-sm text-red-300">
                   The supplied live validation proof token could not be verified. Run the validator again and use the latest setup URL it returns.
                 </p>
@@ -166,59 +178,49 @@ export default async function SettingsPage({ searchParams }) {
           {/* Right Column: Quick Access */}
           <div className="space-y-6">
             {/* Quick Links */}
-            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-4">Quick Links</div>
+            <div className="rounded-xl border border-border bg-surface-secondary p-5">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                Quick links
+              </div>
               <div className="space-y-2">
-                <Link href="/integrations" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">Integrations</span>
-                  <span className="text-[10px] text-zinc-600">Configure services</span>
-                </Link>
-                <Link href="/webhooks" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">Webhooks</span>
-                  <span className="text-[10px] text-zinc-600">Event notifications</span>
-                </Link>
-                <Link href="/usage" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">Usage & Billing</span>
-                  <span className="text-[10px] text-zinc-600">Token spend</span>
-                </Link>
-                <Link href="/api-keys" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">API Keys</span>
-                  <span className="text-[10px] text-zinc-600">Manage keys</span>
-                </Link>
-                <Link href="/docs" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">API Documentation</span>
-                  <span className="text-[10px] text-zinc-600">Reference</span>
-                </Link>
-                <Link href="/self-host" className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-                  <span className="text-sm text-zinc-300 group-hover:text-white">Deployment Guide</span>
-                  <span className="text-[10px] text-zinc-600">Self-host docs</span>
-                </Link>
+                {quickLinks.map(link => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="group flex items-center justify-between rounded-lg border border-border bg-surface-tertiary p-3 transition-colors hover:border-border-hover"
+                  >
+                    <span className="text-sm text-zinc-300 group-hover:text-white">{link.label}</span>
+                    <span className="text-xs text-zinc-500">{link.hint}</span>
+                  </Link>
+                ))}
               </div>
             </div>
 
             {/* Instance Info */}
-            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-4">Instance</div>
+            <div className="rounded-xl border border-border bg-surface-secondary p-5">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                Instance
+              </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-zinc-500">Version</span>
-                  <span className="text-xs text-white font-mono">v2.5</span>
+                  <span className="font-mono text-xs tabular-nums text-white">v2.5</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-zinc-500">Mode</span>
                   <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                    {process.env.DASHCLAW_MODE === 'demo' ? 'Demo' : 'Self-Hosted'}
+                    {process.env.DASHCLAW_MODE === 'demo' ? 'Demo' : 'Self-hosted'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-zinc-500">Database</span>
                   <span className={`text-xs font-medium ${view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'Connected' : 'Not Connected'}
+                    {view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'Connected' : 'Not connected'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-zinc-500">Auth</span>
-                  <span className={`text-xs font-medium ${viewer.isAuthenticated ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                  <span className={`text-xs font-medium ${viewer.isAuthenticated ? 'text-emerald-400' : 'text-zinc-400'}`}>
                     {viewer.isAuthenticated ? 'Configured' : 'Not configured'}
                   </span>
                 </div>
@@ -226,23 +228,27 @@ export default async function SettingsPage({ searchParams }) {
             </div>
 
             {/* Environment */}
-            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-4">Environment</div>
+            <div className="rounded-xl border border-border bg-surface-secondary p-5">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                Environment
+              </div>
               <div className="space-y-3">
                 <div>
-                  <div className="text-[10px] text-zinc-600 mb-1">Host</div>
-                  <div className="text-xs font-mono text-zinc-400 bg-black/40 p-2 rounded break-all border border-white/5">{host}</div>
+                  <div className="mb-1 text-[11px] font-medium text-zinc-500">Host</div>
+                  <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
+                    {host}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-zinc-600 mb-1">API Key</div>
-                  <div className="text-xs font-mono text-zinc-400 bg-black/40 p-2 rounded break-all border border-white/5">
+                  <div className="mb-1 text-[11px] font-medium text-zinc-500">API key</div>
+                  <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
                     {maskedApiKey || 'Not set'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-zinc-600 mb-1">Runtime</div>
-                  <div className="text-xs font-mono text-zinc-400 bg-black/40 p-2 rounded border border-white/5">
-                    Node {typeof process !== 'undefined' ? process.version : '\u2014'}
+                  <div className="mb-1 text-[11px] font-medium text-zinc-500">Runtime</div>
+                  <div className="rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
+                    Node {typeof process !== 'undefined' ? process.version : '—'}
                   </div>
                 </div>
               </div>
@@ -252,26 +258,34 @@ export default async function SettingsPage({ searchParams }) {
             <ProofPanel view={view} proofDownloadHref={proofDownloadHref} />
 
             {/* Auth Status */}
-            <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-              <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3">Session</div>
+            <div className="rounded-xl border border-border bg-surface-secondary p-5">
+              <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                Session
+              </div>
               {viewer.isAuthenticated ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
                     <span className="text-sm text-emerald-400">Authenticated</span>
                   </div>
-                  <Link href="/mission-control" className="block text-center py-2 px-4 rounded-lg bg-brand/10 border border-brand/20 text-brand text-sm font-medium hover:bg-brand/20 transition-colors">
+                  <Link
+                    href="/mission-control"
+                    className="block rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-center text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
+                  >
                     Go to Mission Control
                   </Link>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-zinc-600" />
-                    <span className="text-sm text-zinc-500">Not signed in</span>
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-zinc-500" />
+                    <span className="text-sm text-zinc-400">Not signed in</span>
                   </div>
-                  <Link href="/login" className="block text-center py-2 px-4 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-sm font-medium hover:bg-white/10 transition-colors">
-                    Sign In
+                  <Link
+                    href="/login"
+                    className="block rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-center text-sm font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
+                  >
+                    Sign in
                   </Link>
                 </div>
               )}
