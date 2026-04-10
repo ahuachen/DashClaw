@@ -24,7 +24,7 @@ export default function UserMenu() {
   }, []);
 
   if (status === 'loading') {
-    return <div className="w-8 h-8 rounded-full bg-zinc-800 animate-pulse" />;
+    return <div className="h-8 w-8 animate-pulse rounded-full bg-surface-tertiary" />;
   }
 
   const { user } = session || { user: { name: 'Local Admin', email: 'Admin Mode' } };
@@ -33,7 +33,10 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-zinc-600 transition-all"
+        aria-label="User menu"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-border-hover focus:outline-none focus:ring-2 focus:ring-brand/40"
       >
         {user.image ? (
           <Image
@@ -45,42 +48,47 @@ export default function UserMenu() {
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
-            <User size={16} className="text-zinc-400" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-tertiary">
+            <User size={16} className="text-zinc-400" aria-hidden="true" />
           </div>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-56 rounded-lg bg-[#1a1a1a] border border-[rgba(255,255,255,0.08)] shadow-xl z-50">
-          <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.06)]">
-            <p className="text-sm font-medium text-white truncate">{user.name || 'User'}</p>
-            <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-surface-elevated shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+        >
+          <div className="border-b border-border px-4 py-3">
+            <p className="truncate text-sm font-medium text-white">{user.name || 'User'}</p>
+            <p className="truncate text-xs text-zinc-500">{user.email}</p>
           </div>
           <div className="p-1.5">
             <button
               onClick={() => { resetAllTips(); window.location.reload(); }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-[rgba(255,255,255,0.06)] rounded-md transition-colors"
+              role="menuitem"
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              Reset Tips
+              Reset tips
             </button>
           </div>
           {!isDemo && (
-            <div className="p-1.5">
+            <div className="border-t border-border p-1.5">
               <button
                 onClick={async () => {
                   await fetch('/api/auth/local', { method: 'DELETE' });
                   signOut({ callbackUrl: '/' });
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-[rgba(255,255,255,0.06)] rounded-md transition-colors"
+                role="menuitem"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
               >
-                <LogOut size={14} />
-                Sign Out
+                <LogOut size={14} aria-hidden="true" />
+                Sign out
               </button>
             </div>
           )}
           {isDemo && (
-            <div className="p-1.5">
+            <div className="border-t border-border p-1.5">
               {/* Cookie-based demo: user can exit back to real mode.
                   Env-based demo (NEXT_PUBLIC_DASHCLAW_MODE=demo): no real mode exists. */}
               {process.env.NEXT_PUBLIC_DASHCLAW_MODE === 'demo' ? (
@@ -93,10 +101,11 @@ export default function UserMenu() {
                     document.cookie = 'dashclaw_demo=; path=/; max-age=0';
                     window.location.href = '/';
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-[rgba(255,255,255,0.06)] rounded-md transition-colors"
+                  role="menuitem"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                 >
-                  <LogOut size={14} />
-                  Exit Demo
+                  <LogOut size={14} aria-hidden="true" />
+                  Exit demo
                 </button>
               )}
             </div>

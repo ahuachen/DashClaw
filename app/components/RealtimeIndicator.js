@@ -1,16 +1,23 @@
 'use client';
 
 import { useRealtime } from '../hooks/useRealtime';
-import { Wifi } from 'lucide-react';
 
+// Per .impeccable.md "calm under pressure": the header-level live indicator
+// does not pulse. A single static dot in the corner signals "connected"
+// just as well and does not put motion in the operator's peripheral vision
+// every second of their workday.
 export default function RealtimeIndicator() {
   // Just hooking into it keeps the connection alive
   useRealtime(() => {});
 
   return (
-    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-      <Wifi size={12} className="text-emerald-500 animate-pulse" />
-      <span className="text-[10px] font-medium text-emerald-500">LIVE</span>
+    <div
+      role="status"
+      aria-label="Realtime connection live"
+      className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5"
+    >
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400">Live</span>
     </div>
   );
 }

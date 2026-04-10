@@ -6,14 +6,14 @@ import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 
 const SIGNAL_TYPES = [
-  { value: 'all', label: 'All Signal Types' },
-  { value: 'autonomy_spike', label: 'Autonomy Spike' },
-  { value: 'high_impact_low_oversight', label: 'High Impact / Low Oversight' },
-  { value: 'repeated_failures', label: 'Repeated Failures' },
-  { value: 'stale_loop', label: 'Stale Open Loop' },
-  { value: 'assumption_drift', label: 'Assumption Drift' },
-  { value: 'stale_assumption', label: 'Stale Assumption' },
-  { value: 'stale_running_action', label: 'Stale Running Action' },
+  { value: 'all', label: 'All signal types' },
+  { value: 'autonomy_spike', label: 'Autonomy spike' },
+  { value: 'high_impact_low_oversight', label: 'High impact, low oversight' },
+  { value: 'repeated_failures', label: 'Repeated failures' },
+  { value: 'stale_loop', label: 'Stale open loop' },
+  { value: 'assumption_drift', label: 'Assumption drift' },
+  { value: 'stale_assumption', label: 'Stale assumption' },
+  { value: 'stale_running_action', label: 'Stale running action' },
 ];
 
 export default function NotificationsPage() {
@@ -123,8 +123,11 @@ export default function NotificationsPage() {
     >
       {/* Success banner */}
       {showSuccess && (
-        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-emerald-400 flex items-center gap-3">
-          <Check size={20} className="shrink-0" />
+        <div
+          role="status"
+          className="mb-6 flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400"
+        >
+          <Check size={20} className="shrink-0" aria-hidden="true" />
           <span className="text-sm font-medium">Preferences saved</span>
         </div>
       )}
@@ -132,32 +135,35 @@ export default function NotificationsPage() {
       <div className="max-w-3xl">
         {/* Email Alerts Card */}
         <Card hover={false}>
-          <CardHeader title="Email Alerts" icon={Mail} />
+          <CardHeader title="Email alerts" icon={Mail} />
           <CardContent>
             {loading ? (
               <div className="space-y-4">
-                <div className="h-10 bg-zinc-800/50 rounded animate-pulse" />
-                <div className="h-32 bg-zinc-800/50 rounded animate-pulse" />
+                <div className="h-10 animate-pulse rounded bg-white/5" />
+                <div className="h-32 animate-pulse rounded bg-white/5" />
               </div>
             ) : (
               <div className="space-y-6">
                 {/* Enable/Disable Toggle */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium text-zinc-200">Email Notifications</div>
-                    <div className="text-xs text-zinc-400 mt-1">
+                    <div className="text-sm font-medium text-zinc-200">Email notifications</div>
+                    <div className="mt-1 text-xs text-zinc-500">
                       Receive alerts when security signals are detected
                     </div>
                   </div>
                   <button
                     type="button"
+                    role="switch"
+                    aria-checked={emailEnabled}
+                    aria-label="Toggle email notifications"
                     onClick={() => setEmailEnabled(!emailEnabled)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      emailEnabled ? 'bg-brand' : 'bg-zinc-700'
+                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand/40 focus:ring-offset-2 focus:ring-offset-surface-secondary ${
+                      emailEnabled ? 'bg-brand' : 'bg-white/10'
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
                         emailEnabled ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
@@ -166,10 +172,13 @@ export default function NotificationsPage() {
 
                 {/* RESEND_API_KEY not configured warning */}
                 {!resendConfigured && (
-                  <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50 flex items-start gap-3">
-                    <AlertCircle size={16} className="text-zinc-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-zinc-400">
-                      Email alerts require the RESEND_API_KEY environment variable to be configured.
+                  <div
+                    role="note"
+                    className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                  >
+                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
+                    <p className="text-xs text-amber-300">
+                      Email alerts require the <code className="font-mono text-amber-200">RESEND_API_KEY</code> environment variable to be configured.
                     </p>
                   </div>
                 )}
@@ -177,20 +186,22 @@ export default function NotificationsPage() {
                 {/* Signal Types (shown when enabled) */}
                 {emailEnabled && (
                   <div className="space-y-3">
-                    <div className="text-sm font-medium text-zinc-200">Signal Types</div>
-                    <div className="space-y-2 pl-1">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                      Signal types
+                    </div>
+                    <div className="space-y-2">
                       {SIGNAL_TYPES.map((signal) => (
                         <label
                           key={signal.value}
-                          className="flex items-center gap-3 cursor-pointer group"
+                          className="group flex cursor-pointer items-center gap-3"
                         >
                           <input
                             type="checkbox"
                             checked={signalTypes.includes(signal.value)}
                             onChange={() => toggleSignalType(signal.value)}
-                            className="w-4 h-4 rounded border-zinc-600 bg-zinc-800 text-brand focus:ring-brand focus:ring-offset-0 focus:ring-2 cursor-pointer"
+                            className="h-4 w-4 cursor-pointer accent-brand"
                           />
-                          <span className="text-sm text-zinc-300 group-hover:text-zinc-200 transition-colors">
+                          <span className="text-sm text-zinc-300 transition-colors group-hover:text-white">
                             {signal.label}
                           </span>
                         </label>
@@ -198,10 +209,13 @@ export default function NotificationsPage() {
                     </div>
 
                     {signalTypes.length === 0 && (
-                      <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20 flex items-start gap-3">
-                        <ShieldAlert size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                        <p className="text-xs text-amber-400">
-                          Select at least one signal type to receive email alerts
+                      <div
+                        role="alert"
+                        className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                      >
+                        <ShieldAlert size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
+                        <p className="text-xs text-amber-300">
+                          Select at least one signal type to receive email alerts.
                         </p>
                       </div>
                     )}
@@ -217,21 +231,17 @@ export default function NotificationsPage() {
           <button
             onClick={handleSave}
             disabled={!isDirty || saving || loading}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-              !isDirty || saving || loading
-                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                : 'bg-brand hover:bg-brand/90 text-white'
-            }`}
+            className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand/10 px-5 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-brand/20 disabled:hover:bg-brand/10"
           >
             {saving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Saving...
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand/30 border-t-brand" />
+                Saving…
               </>
             ) : (
               <>
-                <Check size={16} />
-                Save Preferences
+                <Check size={16} aria-hidden="true" />
+                Save preferences
               </>
             )}
           </button>
