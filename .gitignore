@@ -92,6 +92,7 @@ secrets/
 .organism/state-reports/
 .organism/heartbeats/
 .organism/cycle-history/
+.organism/logs/
 .organism/active-cycle.json
 .organism/kill-switch
 .organism/paused
