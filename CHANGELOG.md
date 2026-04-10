@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.13.0] - 2026-04-09
+
+### Added
+- **Agent Profiles**: Full governance profile per agent at `/agents/[agentId]`. Vitals strip (status, name, action count, last seen), trust posture (permission level, identity verification, signature enforcement, active policies, approval record, blocks), active signals, filtered decision history with expandable rows, assumptions track record, and policies section. New `GET /api/agents/[agentId]/profile` endpoint and `getAgentTrustPosture` / `getAssumptionsSummary` repository functions.
+- **Policy Builder (Shields)**: Complete rebuild of `/policies` as a shields-first experience. 8 pre-built safety switches (Deploy Gate, High Risk Review, Critical Risk Block, Destructive Ops Block, Rate Limiter, API Call Review, Secret Exposure Guard, Outbound Message Gate) toggleable instantly. Three tabs: Shields (default), Custom (full CRUD + AI generator + YAML import), Activity (guard decision feed with risk score breakdowns). Inline configure panels per shield type with auto-save, risk score explainer, and agent scope picker.
+- **Cost & Usage Analytics** (`/analytics`): Hero stats with trend comparison (total cost, actions, active agents, avg latency), cost trend area chart, action volume stacked bar chart, breakdowns by agent / action type / policy enforcement, and token efficiency summary with top consumers. Time range toggle (7d / 30d / 90d). New `GET /api/analytics` endpoint.
+- **Guard Decisions API** (`GET /api/guard/decisions`): Query guard decision history with filters (decision type, agent_id), pagination, and 7-day stats.
+- **59 new route tests**: Covering core governance routes (approvals, assumptions, signals) and tier 2 extension routes (knowledge collections, model strategies, operations feed, operations summary).
+- **Webhooks sidebar entry**: Existing `/webhooks` page now accessible from the Configure sidebar section.
+
+### Changed
+- **All plan quotas removed**: Free, pro, business, and enterprise tiers all have Infinity limits. DashClaw is fully unlimited while open-source. Metering infrastructure preserved for future monetization.
+- **Implicit heartbeat on action submission**: `POST /api/actions` now auto-updates agent presence. Agents that actively submit actions show as "online" without requiring explicit `heartbeat()` calls.
+- **Mission Control responsive header**: PageLayout header now wraps gracefully at narrow widths. Non-essential items (LIVE indicator, agent filter) hide at small breakpoints.
+- **Mission Control readability**: All `text-[10px]` bumped to `text-xs` (12px). Low-contrast `text-zinc-500`/`text-zinc-600` labels bumped to `text-zinc-400`. Fleet agent names brighter. View Decisions button redesigned as borderless pill.
+
+### Fixed
+- **Operations feed "now" bug**: Signals from `computeSignals()` now carry `detected_at` using the best source timestamp. The operations feed no longer displays every signal as "now".
+- **Runtime card stuck loading**: Operations summary queries individually wrapped in `safe()` fallbacks. `PERCENTILE_CONT` replaced with `AVG`/`MAX` for broader Postgres compatibility. Card shows "Unable to load" error state instead of infinite spinner.
+- **Shield toggle overflow**: Toggle knob on shield cards now stays within card bounds (fixed `translate-x` overflow with proper `left` positioning + `overflow-hidden`).
+- **AI Generator navigation**: Fixed AI Generator button in Custom policies tab to open an inline panel instead of navigating to a separate page with no sidebar.
+- **Skeleton.js JSX transform**: Renamed `app/components/ui/Skeleton.js` to `Skeleton.jsx` to fix vitest transform errors in tests that imported it.
+
 ## [2.12.0] - 2026-04-09
 
 ### Added

@@ -107,6 +107,8 @@ The context manager auto-cleans up on exceptions. Messages and assumptions sent 
 
 Monitor agent uptime and status in real-time. Use heartbeats to detect when an agent crashes or loses network connectivity.
 
+> **As of DashClaw 2.13.0, heartbeats are implicit on `create_action()`.** Agents that actively submit actions will automatically show as "online" without needing to call `heartbeat()`. Use the methods below only when you want to report presence without recording an action (e.g., idle polling, background threads).
+
 ```python
 # Report presence manually
 claw.heartbeat(status="busy", current_task_id="task_123")

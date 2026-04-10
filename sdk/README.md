@@ -117,7 +117,7 @@ The v2 SDK exposes the stable governance runtime plus promoted execution domains
 - `getSignals()` -- Get current risk signals across all agents.
 
 ### Swarm & Connectivity
-- `heartbeat(status, metadata)` -- Report agent presence and health.
+- `heartbeat(status, metadata)` -- Report agent presence and health. **As of DashClaw 2.13.0, heartbeats are implicit on `createAction()` — you only need this if you want to report presence without recording an action.**
 - `reportConnections(connections)` -- Report active provider connections.
 
 ### Learning & Optimization
