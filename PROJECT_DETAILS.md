@@ -9,6 +9,18 @@ doc-type: architecture
 
 DashClaw is a focused policy firewall and governance runtime for AI agent fleets. It provides the minimal infrastructure needed to intercept, govern, and verify agent actions before they reach production systems.
 
+## Essential UI Surfaces
+
+| Surface | Path | Purpose |
+|:---|:---|:---|
+| Mission Control | `/mission-control` | Strategic posture, interventions, and live decision stream. |
+| Decisions | `/decisions` | Visual causal chain ledger of all governed actions. |
+| Setup | `/setup` | Readiness verification and instance health. |
+| Connect | `/connect` | The 8-minute path to first governed action. |
+| Agent Profiles | `/agents/[agentId]` | Governance-focused agent profile with trust posture, decision history, assumptions, signals, and policies. |
+| Policy Builder | `/policies` | Shields-first policy experience with pre-built safety switches, custom policy management, and guard activity feed. |
+| Analytics | `/analytics` | Cost trends, action volume, agent/type breakdowns, policy enforcement stats, and token efficiency. |
+
 ## Operational Maturity
 
 ### Testing (Vitest)
@@ -86,6 +98,9 @@ Modular intelligence features that consume runtime data.
 | `GET /api/workflows/templates/:templateId/runs` | List past workflow executions for a template. Joins `action_records` (parent) with `workflow_step_results` for step counts. Supports `status`, `agent_id`, `limit`, `offset` filters. |
 | `GET /api/workflows/templates/:templateId/runs/:runActionId` | Fetch full run detail: parent action metadata + all step results with complete input/output JSON. Powers the run detail page at `/workflows/:id/runs/:runId`. |
 | `POST /api/workflows/templates/:templateId/runs/:runActionId/resume` | Resume a failed workflow run from the last completed checkpoint. Reuses prior step outputs (`reused` status), creates a new run, and continues execution from the first non-completed step. Supports optional `from_step` override and `variables` override. |
+| `GET /api/analytics` | Cost and usage analytics aggregation — trends, action volume, agent/type breakdowns, policy enforcement stats, token efficiency. |
+| `GET /api/guard/decisions` | Guard decision history with filters (agent, action type, outcome, date range). |
+| `GET /api/agents/[agentId]/profile` | Agent governance profile aggregation — trust posture, decision history, assumptions, signals, and policies. |
 | `GET /api/usage/costs` | Cost aggregation by action type and daily totals for the billing period. |
 | `POST /api/billing/checkout` | Create Stripe Checkout Session for pro/business subscription. |
 | `GET /api/billing/portal` | Create Stripe Customer Portal link for subscription management. |
@@ -119,7 +134,7 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `workflow-executor.js`: Sequential workflow executor — iterates steps, manages rolling context, dispatches to step handlers, creates child action records.
 - `step-handlers.js`: Step type handlers for workflow execution (knowledge_search, capability_invoke, prompt).
 - `template-vars.js`: Variable substitution engine for workflow step configs — resolves `${variables.x}` and `${steps.step_id.output.y}`.
-- `usage.js`: Plan limits (PLAN_LIMITS), quota enforcement with grace buffer (checkQuota), meter increment/read, cost estimation.
+- `usage.js`: Plan limits (PLAN_LIMITS), quota enforcement with grace buffer (checkQuota), meter increment/read, cost estimation. **Note: all plans are currently unlimited while DashClaw is open-source.**
 - `billing.js`: Token cost estimation for LLM calls (DEFAULT_PRICING for 20+ models).
 - `policy-generator.js`: LLM-powered natural language to guard policy conversion with prompt construction, response parsing, validation, and dry-run preview.
 - `predictive-risk.js`: Statistical + LLM-enhanced risk scoring for guard evaluations. Queries historical action outcomes and optionally consults LLM for high-stakes actions. Controlled by `PREDICTIVE_RISK_ENABLED` and `PREDICTIVE_RISK_THRESHOLD` settings.
