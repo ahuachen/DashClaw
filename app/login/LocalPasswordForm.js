@@ -37,37 +37,43 @@ export default function LocalPasswordForm() {
   return (
     <div className="mt-6">
       <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[var(--color-border,rgba(255,255,255,0.1))]"></div>
+        <div aria-hidden="true" className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-[#0a0a0a] px-2 text-[var(--color-text-muted,#71717a)]">or</span>
+        <div className="relative flex justify-center">
+          <span className="bg-surface-primary px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            or
+          </span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <label htmlFor="local-password" className="sr-only">
+            Admin password
+          </label>
           <input
+            id="local-password"
             type="password"
-            placeholder="Admin Password"
+            placeholder="Admin password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full px-3 py-2 bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:opacity-50"
             required
           />
         </div>
-        
+
         {error && (
-          <p className="text-xs text-red-500 mt-1">{error}</p>
+          <p role="alert" className="text-xs text-red-400">{error}</p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-4 py-2.5 bg-zinc-100 text-black hover:bg-zinc-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          className="w-full rounded-lg border border-brand/20 bg-brand/10 px-4 py-2.5 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
         >
-          {loading ? 'Signing in...' : 'Sign in with Password'}
+          {loading ? 'Signing in…' : 'Sign in with password'}
         </button>
       </form>
     </div>

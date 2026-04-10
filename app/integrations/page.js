@@ -3,14 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import {
-  Plug,
-  Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings
+  Plug, Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings,
 } from 'lucide-react';
 import { INTEGRATION_CONFIGS, CATEGORY_ICONS, CATEGORIES } from '../lib/integrationConfigs';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
 
@@ -185,24 +182,20 @@ export default function IntegrationsPage() {
   };
 
   const getStatusDot = (status) => {
-    switch (status) {
-      case 'connected':
-        return <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />;
-      case 'agent_connected':
-        return <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />;
-      case 'configured':
-        return <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block" />;
-      default:
-        return <span className="w-2 h-2 rounded-full bg-zinc-500 inline-block" />;
-    }
+    const color =
+      status === 'connected' ? 'bg-emerald-500'
+      : status === 'agent_connected' ? 'bg-blue-500'
+      : status === 'configured' ? 'bg-amber-500'
+      : 'bg-zinc-500';
+    return <span aria-hidden="true" className={`inline-block h-1.5 w-1.5 rounded-full ${color}`} />;
   };
 
   const getStatusLabel = (status) => {
     switch (status) {
       case 'connected': return 'Connected';
-      case 'agent_connected': return 'Agent Connected';
+      case 'agent_connected': return 'Agent connected';
       case 'configured': return 'Partial';
-      default: return 'Not Set';
+      default: return 'Not set';
     }
   };
 
@@ -234,8 +227,20 @@ export default function IntegrationsPage() {
         subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
         breadcrumbs={['Dashboard', 'Integrations']}
       >
-        <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading integrations...</div>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4 sm:divide-x sm:divide-border">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="p-4">
+                <div className="h-3 w-20 animate-pulse rounded bg-white/5" />
+                <div className="mt-2 h-7 w-16 animate-pulse rounded bg-white/5" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-32 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+            ))}
+          </div>
         </div>
       </PageLayout>
     );
@@ -248,57 +253,57 @@ export default function IntegrationsPage() {
       breadcrumbs={['Dashboard', 'Integrations']}
       maturity="stable"
     >
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Available" value={allIntegrations.length} color="text-white" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Connected" value={connectedCount} color="text-emerald-400" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Agent Overrides" value={agentOverrideCount} color="text-blue-400" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Not Configured" value={notConfiguredCount} color="text-zinc-500" />
-          </CardContent>
-        </Card>
+      {/* Instrument rail */}
+      <div className="mb-6 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4">
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Available</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{allIntegrations.length}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Connected</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{connectedCount}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Agent overrides</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{agentOverrideCount}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Not configured</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-zinc-400">{notConfiguredCount}</div>
+        </div>
       </div>
 
       {/* Search Bar */}
-      <div className="mb-4 relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+      <div className="relative mb-4">
+        <label htmlFor="integration-search" className="sr-only">Search integrations</label>
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
         <input
+          id="integration-search"
           type="text"
-          placeholder="Search integrations..."
+          placeholder="Search integrations…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg pl-10 pr-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
+          className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-10 pr-4 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         />
       </div>
 
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         {CATEGORIES.map((cat) => {
           const CatIcon = CATEGORY_ICONS[cat.id];
+          const isActive = activeCategory === cat.id;
           return (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 flex items-center gap-1.5 ${
-                activeCategory === cat.id
-                  ? 'bg-brand text-white'
-                  : 'bg-surface-tertiary text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
+              aria-pressed={isActive}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
+                isActive
+                  ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/50 hover:bg-brand/15'
+                  : 'border-border bg-surface-tertiary text-zinc-400 hover:border-border-hover hover:text-white'
               }`}
             >
-              <CatIcon size={14} />
+              <CatIcon size={14} aria-hidden="true" />
               {cat.name}
             </button>
           );
@@ -307,26 +312,26 @@ export default function IntegrationsPage() {
 
       {/* Results count */}
       {(activeCategory !== 'all' || searchQuery) && (
-        <p className="text-xs text-zinc-500 mb-4">
+        <p className="mb-4 tabular-nums text-xs text-zinc-500">
           Showing {integrationsList.length} of {allIntegrations.length} integrations
         </p>
       )}
 
       {/* Integrations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {integrationsList.map(([key, config]) => {
           const status = getIntegrationStatus(key);
           return (
             <Card
               key={key}
-              className={isAdmin ? 'cursor-pointer group' : 'group'}
+              className={isAdmin ? 'group cursor-pointer' : 'group'}
               hover={isAdmin}
             >
               <div className="p-5" onClick={() => isAdmin ? openEditor(key) : null}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-surface-tertiary rounded-lg flex items-center justify-center">
-                      <Plug size={16} className="text-zinc-400" />
+                <div className="mb-3 flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
+                      <Plug size={16} className="text-zinc-400" aria-hidden="true" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">{config.name}</div>
@@ -334,36 +339,45 @@ export default function IntegrationsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-2">
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     {getStatusDot(status)}
-                    <span className="text-xs text-zinc-500">{getStatusLabel(status)}</span>
+                    <span className="text-xs text-zinc-400">{getStatusLabel(status)}</span>
                     {agentCountByProvider[key] > 0 && (
-                      <span className="text-[10px] text-zinc-600 ml-1">
+                      <span className="ml-1 tabular-nums text-[11px] text-zinc-500">
                         {agentCountByProvider[key]} agent{agentCountByProvider[key] !== 1 ? 's' : ''}
                       </span>
                     )}
                     {healthData[key]?.status === 'healthy' && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400" title={`Verified: ${healthData[key]?.message}`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] text-emerald-400"
+                        title={`Verified: ${healthData[key]?.message}`}
+                      >
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Live
                       </span>
                     )}
                     {healthData[key]?.status === 'error' && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-red-400" title={healthData[key]?.message}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] text-red-400"
+                        title={healthData[key]?.message}
+                      >
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
                         Error
                       </span>
                     )}
                     {healthData[key]?.status === 'degraded' && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-amber-400" title={healthData[key]?.message}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] text-amber-400"
+                        title={healthData[key]?.message}
+                      >
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                         Degraded
                       </span>
                     )}
                   </div>
                   {isAdmin && (
-                    <span className="text-xs text-zinc-500 group-hover:text-brand transition-colors">
+                    <span className="text-xs text-zinc-500 transition-colors group-hover:text-brand">
                       Configure
                     </span>
                   )}
@@ -376,13 +390,19 @@ export default function IntegrationsPage() {
 
       {/* Edit Modal (admin only) */}
       {editingIntegration && isAdmin && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${INTEGRATION_CONFIGS[editingIntegration].name} settings`}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) closeEditor(); }}
+        >
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-surface-tertiary rounded-lg flex items-center justify-center">
-                    <Plug size={16} className="text-zinc-400" />
+              <div className="mb-6 flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
+                    <Plug size={16} className="text-zinc-400" aria-hidden="true" />
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-white">
@@ -391,12 +411,15 @@ export default function IntegrationsPage() {
                     <p className="text-sm text-zinc-400">
                       {INTEGRATION_CONFIGS[editingIntegration].description}
                     </p>
-                    <p className="text-[10px] text-zinc-500 mt-1">Org-wide default. Agents can override from their profile.</p>
+                    <p className="mt-1 text-[11px] text-zinc-500">
+                      Org-wide default. Agents can override from their profile.
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={closeEditor}
-                  className="text-zinc-400 hover:text-white transition-colors"
+                  aria-label="Close"
+                  className="rounded p-1 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                 >
                   <X size={20} />
                 </button>
@@ -410,41 +433,48 @@ export default function IntegrationsPage() {
                         <label className="text-sm font-medium text-zinc-300">{field.label}</label>
                         <button
                           type="button"
+                          role="switch"
+                          aria-checked={formData[field.key] === 'true'}
+                          aria-label={`Toggle ${field.label}`}
                           onClick={() => setFormData({ ...formData, [field.key]: formData[field.key] === 'true' ? 'false' : 'true' })}
-                          className={`relative w-10 h-5 rounded-full transition-colors ${
-                            formData[field.key] === 'true' ? 'bg-brand' : 'bg-zinc-600'
+                          className={`relative h-5 w-10 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand/40 focus:ring-offset-2 focus:ring-offset-surface-elevated ${
+                            formData[field.key] === 'true' ? 'bg-brand' : 'bg-white/10'
                           }`}
                         >
-                          <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                            formData[field.key] === 'true' ? 'translate-x-5' : ''
-                          }`} />
+                          <span
+                            className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                              formData[field.key] === 'true' ? 'translate-x-5' : ''
+                            }`}
+                          />
                         </button>
                       </div>
                     ) : (
                       <>
-                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                        <label htmlFor={`field-${field.key}`} className="mb-1 block text-sm font-medium text-zinc-300">
                           {field.label}
-                          {field.required && <span className="text-red-400 ml-1">*</span>}
+                          {field.required && <span aria-label="required" className="ml-1 text-red-400">*</span>}
                         </label>
                         <div className="relative">
                           <input
+                            id={`field-${field.key}`}
                             type={showValues[field.key] ? 'text' : field.type}
                             value={formData[field.key] || ''}
                             onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
                             placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                            className="w-full bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-4 py-2.5 text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-brand transition-colors"
+                            className="w-full rounded-lg border border-border bg-surface-tertiary px-4 py-2.5 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
                           />
                           {field.type === 'password' && (
                             <button
                               type="button"
                               onClick={() => toggleShowValue(field.key)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors"
+                              aria-label={showValues[field.key] ? 'Hide value' : 'Show value'}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-white"
                             >
                               {showValues[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                           )}
                         </div>
-                        <p className="text-xs text-zinc-500 mt-1">
+                        <p className="mt-1 font-mono text-[11px] text-zinc-500">
                           {field.key}
                         </p>
                       </>
@@ -455,29 +485,34 @@ export default function IntegrationsPage() {
 
               {/* Test Result */}
               {testResult && (
-                <div className={`mt-4 p-3 rounded-lg text-sm ${
-                  testResult.status === 'success' ? 'bg-green-500/10 text-emerald-400 border border-green-500/20' :
-                  testResult.status === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                  'bg-surface-tertiary text-zinc-300'
-                }`}>
+                <div
+                  role="status"
+                  className={`mt-4 rounded-lg border p-3 text-sm ${
+                    testResult.status === 'success'
+                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                      : testResult.status === 'error'
+                      ? 'border-red-500/30 bg-red-500/10 text-red-400'
+                      : 'border-border bg-surface-tertiary text-zinc-300'
+                  }`}
+                >
                   {testResult.message}
                 </div>
               )}
 
               {/* Actions */}
-              <div className="flex gap-3 mt-6">
+              <div className="mt-6 flex gap-3">
                 <button
                   onClick={testConnection}
-                  className="flex-1 px-3 py-2.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 font-medium"
+                  className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
                 >
-                  Test Connection
+                  Test connection
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 bg-brand hover:bg-brand/90 text-white py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                  className="flex-1 rounded-lg border border-brand/20 bg-brand/10 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Settings'}
+                  {saving ? 'Saving…' : 'Save settings'}
                 </button>
               </div>
             </div>
@@ -487,19 +522,19 @@ export default function IntegrationsPage() {
 
       {/* Info Section */}
       <Card hover={false} className="mt-8">
-        <CardHeader title="About Settings" icon={Info} />
+        <CardHeader title="About settings" icon={Info} />
         <CardContent>
-          <div className="text-sm text-zinc-300 space-y-2">
+          <div className="space-y-2 text-sm text-zinc-300">
             <p className="flex items-center gap-2">
-              <Shield size={14} className="text-zinc-400 shrink-0" />
+              <Shield size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
               <span><strong className="text-white">Security:</strong> Sensitive values are encrypted and masked in the UI</span>
             </p>
             <p className="flex items-center gap-2">
-              <Cloud size={14} className="text-zinc-400 shrink-0" />
-              <span><strong className="text-white">Cloud Sync:</strong> Settings are stored in your Neon database</span>
+              <Cloud size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
+              <span><strong className="text-white">Cloud sync:</strong> Settings are stored in your Neon database</span>
             </p>
             <p className="flex items-center gap-2">
-              <Settings size={14} className="text-zinc-400 shrink-0" />
+              <Settings size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
               <span><strong className="text-white">Environment:</strong> For agent gateway settings, update your config file</span>
             </p>
           </div>

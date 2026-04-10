@@ -3,13 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Webhook, Plus, Trash2, Play, Check, Copy, ChevronDown, ChevronRight,
-  AlertTriangle, ArrowRight,
+  AlertTriangle,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoWebhooks, demoWebhookDeliveries } from '../lib/demoWebhooksData';
@@ -48,14 +47,14 @@ const WEBHOOK_TEMPLATES = [
 ];
 
 const EVENT_TYPES = [
-  { value: 'all', label: 'All Events' },
-  { value: 'autonomy_spike', label: 'Autonomy Spike' },
-  { value: 'high_impact_low_oversight', label: 'High Impact Low Oversight' },
-  { value: 'repeated_failures', label: 'Repeated Failures' },
-  { value: 'stale_loop', label: 'Stale Loop' },
-  { value: 'assumption_drift', label: 'Assumption Drift' },
-  { value: 'stale_assumption', label: 'Stale Assumption' },
-  { value: 'stale_running_action', label: 'Stale Running Action' },
+  { value: 'all', label: 'All events' },
+  { value: 'autonomy_spike', label: 'Autonomy spike' },
+  { value: 'high_impact_low_oversight', label: 'High impact, low oversight' },
+  { value: 'repeated_failures', label: 'Repeated failures' },
+  { value: 'stale_loop', label: 'Stale loop' },
+  { value: 'assumption_drift', label: 'Assumption drift' },
+  { value: 'stale_assumption', label: 'Stale assumption' },
+  { value: 'stale_running_action', label: 'Stale running action' },
 ];
 
 export default function WebhooksPage() {
@@ -262,6 +261,11 @@ export default function WebhooksPage() {
     }
   };
 
+  const primaryBtn = 'flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50';
+  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-sm text-zinc-400 transition-colors hover:border-border-hover hover:text-white';
+  const inputClass = 'w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const fieldLabel = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500';
+
   return (
     <PageLayout
       breadcrumbs={['Dashboard', 'Webhooks']}
@@ -275,65 +279,63 @@ export default function WebhooksPage() {
               setError(null);
               setNewSecret(null);
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
+            className={primaryBtn}
           >
-            <Plus size={16} />
-            Add Webhook
+            <Plus size={16} aria-hidden="true" />
+            Add webhook
           </button>
         )
       }
     >
       {isDemo && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm">
-          Demo mode: webhooks are read-only.
+        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
+          Demo mode · webhooks are read-only.
         </div>
       )}
-      {/* Stats bar */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card hover={false}>
-          <CardContent className="py-4">
-            <StatCompact label="Total Webhooks" value={stats.total} />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="py-4">
-            <StatCompact label="Active" value={stats.active} color="text-emerald-400" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="py-4">
-            <StatCompact label="Failed" value={stats.failed} color="text-amber-400" />
-          </CardContent>
-        </Card>
+
+      {/* Instrument rail */}
+      <div className="mb-6 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary">
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total webhooks</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.total}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.active}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Failed</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{stats.failed}</div>
+        </div>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-start gap-3">
-          <AlertTriangle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
+        <div role="alert" className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-400" aria-hidden="true" />
           <div className="text-sm text-red-400">{error}</div>
         </div>
       )}
 
       {/* New secret banner (show once after creation) */}
       {newSecret && (
-        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-          <div className="flex items-start gap-3 mb-2">
-            <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-emerald-400 font-medium">
+        <div role="status" className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+          <div className="mb-2 flex items-start gap-3">
+            <Check size={16} className="mt-0.5 shrink-0 text-emerald-400" aria-hidden="true" />
+            <div className="text-sm font-medium text-emerald-400">
               Webhook created successfully. Save your signing secret now — it will not be shown again.
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-3">
-            <code className="flex-1 p-2 rounded bg-surface-tertiary border border-[rgba(255,255,255,0.06)] font-mono text-xs text-zinc-200 break-all">
+          <div className="mt-3 flex items-center gap-2">
+            <code className="flex-1 break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-200">
               {newSecret}
             </code>
             <button
               onClick={handleCopySecret}
-              className="px-3 py-2 rounded bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 hover:text-white transition-colors flex items-center gap-2"
+              className="flex items-center gap-2 rounded border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
             >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              <span className="text-xs">{copied ? 'Copied' : 'Copy'}</span>
+              {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
@@ -346,8 +348,8 @@ export default function WebhooksPage() {
             <div className="space-y-4">
               {/* Template selector */}
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">Start from Template</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                <div className={fieldLabel}>Start from template</div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                   {WEBHOOK_TEMPLATES.map((tpl) => (
                     <button
                       key={tpl.name}
@@ -356,42 +358,43 @@ export default function WebhooksPage() {
                         setUrl(tpl.urlPlaceholder);
                         setSelectedEvents(tpl.defaultEvents);
                       }}
-                      className="text-left p-3 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] hover:border-brand/50 transition-colors group"
+                      className="group rounded-lg border border-border bg-surface-tertiary p-3 text-left transition-colors hover:border-border-hover"
                     >
                       <div className="text-xs font-medium text-zinc-200 group-hover:text-white">{tpl.name}</div>
-                      <div className="text-[10px] text-zinc-500 mt-1 line-clamp-2">{tpl.description}</div>
+                      <div className="mt-1 line-clamp-2 text-[11px] text-zinc-500">{tpl.description}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">Webhook URL</label>
+                <label htmlFor="webhook-url" className={fieldLabel}>Webhook URL</label>
                 <input
+                  id="webhook-url"
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/webhook"
-                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  className={inputClass}
                 />
-                <div className="text-xs text-zinc-500 mt-1">Must use HTTPS</div>
+                <div className="mt-1 text-xs text-zinc-500">Must use HTTPS</div>
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">Event Types</label>
+                <div className={fieldLabel}>Event types</div>
                 <div className="grid grid-cols-2 gap-2">
                   {EVENT_TYPES.map((event) => (
                     <label
                       key={event.value}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] cursor-pointer hover:border-brand/50 transition-colors"
+                      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface-tertiary px-3 py-2 transition-colors hover:border-border-hover"
                     >
                       <input
                         type="checkbox"
                         checked={selectedEvents.includes(event.value)}
                         onChange={() => handleEventToggle(event.value)}
-                        className="w-4 h-4 rounded border-zinc-700 bg-surface-primary text-brand focus:ring-2 focus:ring-brand/50"
+                        className="h-4 w-4 accent-brand"
                       />
-                      <span className="text-sm text-zinc-200">{event.label}</span>
+                      <span className="text-sm text-zinc-300">{event.label}</span>
                     </label>
                   ))}
                 </div>
@@ -401,9 +404,9 @@ export default function WebhooksPage() {
                 <button
                   onClick={handleCreate}
                   disabled={creating || !url.trim()}
-                  className="px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={primaryBtn}
                 >
-                  {creating ? 'Creating...' : 'Create Webhook'}
+                  {creating ? 'Creating…' : 'Create webhook'}
                 </button>
                 <button
                   onClick={() => {
@@ -412,7 +415,7 @@ export default function WebhooksPage() {
                     setSelectedEvents(['all']);
                     setError(null);
                   }}
-                  className="px-4 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-300 text-sm hover:text-white transition-colors"
+                  className={secondaryBtn}
                 >
                   Cancel
                 </button>
@@ -424,11 +427,11 @@ export default function WebhooksPage() {
 
       {/* Webhook list */}
       {loading ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-zinc-500">
-            Loading webhooks...
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+          ))}
+        </div>
       ) : webhooks.length === 0 ? (
         <Card>
           <CardContent className="py-6">
@@ -442,12 +445,9 @@ export default function WebhooksPage() {
               }
               action={
                 canEdit && (
-                  <button
-                    onClick={() => setShowAddForm(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand text-white text-sm font-medium hover:bg-brand/90 transition-colors"
-                  >
-                    <Plus size={16} />
-                    Add Webhook
+                  <button onClick={() => setShowAddForm(true)} className={primaryBtn}>
+                    <Plus size={16} aria-hidden="true" />
+                    Add webhook
                   </button>
                 )
               }
@@ -465,19 +465,19 @@ export default function WebhooksPage() {
             return (
               <Card key={webhook.id}>
                 <CardContent className="py-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <code className="font-mono text-xs text-zinc-200 truncate block max-w-md">
-                          {webhook.url.length > 60 ? webhook.url.slice(0, 60) + '...' : webhook.url}
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <code className="block max-w-md truncate font-mono text-xs text-zinc-300">
+                          {webhook.url}
                         </code>
                         {webhook.active ? (
-                          <Badge variant="success">Active</Badge>
+                          <Badge variant="success" size="xs">Active</Badge>
                         ) : (
-                          <Badge variant="error">Disabled</Badge>
+                          <Badge variant="error" size="xs">Disabled</Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex flex-wrap items-center gap-2">
                         {events.map((event) => (
                           <Badge key={event} variant="default" size="xs">
                             {EVENT_TYPES.find((e) => e.value === event)?.label || event}
@@ -486,30 +486,30 @@ export default function WebhooksPage() {
                       </div>
                       {webhook.failure_count > 0 && (
                         <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
-                          <AlertTriangle size={12} />
-                          <span>{webhook.failure_count} recent failures</span>
+                          <AlertTriangle size={12} aria-hidden="true" />
+                          <span className="tabular-nums">{webhook.failure_count} recent failures</span>
                         </div>
                       )}
-                      <div className="mt-2 text-xs text-zinc-500">
+                      <div className="mt-2 tabular-nums text-xs text-zinc-500">
                         Last triggered: {formatTimestamp(webhook.last_triggered_at)}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex shrink-0 items-center gap-2">
                       {canEdit && (
                         <>
                           <button
                             onClick={() => handleTest(webhook.id)}
                             disabled={testResult === 'testing'}
-                            className="p-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-300 hover:text-white hover:border-brand/50 transition-colors disabled:opacity-50"
-                            title="Test webhook"
+                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
+                            aria-label="Test webhook"
                           >
                             <Play size={14} />
                           </button>
                           <button
                             onClick={() => handleDelete(webhook.id)}
-                            className="p-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-300 hover:text-red-400 hover:border-red-500/30 transition-colors"
-                            title="Delete webhook"
+                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                            aria-label="Delete webhook"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -517,8 +517,9 @@ export default function WebhooksPage() {
                       )}
                       <button
                         onClick={() => toggleDeliveries(webhook.id)}
-                        className="p-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-300 hover:text-white transition-colors"
-                        title="Toggle delivery history"
+                        className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                        aria-label={isExpanded ? 'Hide delivery history' : 'Show delivery history'}
+                        aria-expanded={isExpanded}
                       >
                         {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       </button>
@@ -528,13 +529,14 @@ export default function WebhooksPage() {
                   {/* Test result */}
                   {testResult && testResult !== 'testing' && (
                     <div
-                      className={`mt-3 p-2 rounded-lg text-xs flex items-center gap-2 ${
+                      role="status"
+                      className={`mt-3 flex items-center gap-2 rounded-lg border p-2 text-xs ${
                         testResult.success
-                          ? 'bg-green-500/10 border border-green-500/30 text-emerald-400'
-                          : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                          : 'border-red-500/30 bg-red-500/10 text-red-400'
                       }`}
                     >
-                      {testResult.success ? <Check size={12} /> : <AlertTriangle size={12} />}
+                      {testResult.success ? <Check size={12} aria-hidden="true" /> : <AlertTriangle size={12} aria-hidden="true" />}
                       <span>
                         {testResult.success ? 'Test successful' : 'Test failed'} (HTTP {testResult.status})
                       </span>
@@ -543,27 +545,29 @@ export default function WebhooksPage() {
 
                   {/* Delivery history */}
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-                      <div className="text-xs text-zinc-400 font-medium mb-3">Delivery History</div>
+                    <div className="mt-4 border-t border-border pt-4">
+                      <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                        Delivery history
+                      </div>
                       {loadingDeliveries ? (
-                        <div className="text-xs text-zinc-500 py-4 text-center">Loading deliveries...</div>
+                        <div className="py-4 text-center text-xs text-zinc-500">Loading deliveries…</div>
                       ) : webhookDeliveries.length === 0 ? (
-                        <div className="text-xs text-zinc-500 py-4 text-center">No deliveries yet</div>
+                        <div className="py-4 text-center text-xs text-zinc-500">No deliveries yet</div>
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs">
                             <thead>
-                              <tr className="border-b border-[rgba(255,255,255,0.06)]">
-                                <th className="text-left text-zinc-500 font-medium pb-2">Event Type</th>
-                                <th className="text-left text-zinc-500 font-medium pb-2">Status</th>
-                                <th className="text-left text-zinc-500 font-medium pb-2">HTTP Status</th>
-                                <th className="text-left text-zinc-500 font-medium pb-2">Time</th>
-                                <th className="text-left text-zinc-500 font-medium pb-2">Duration</th>
+                              <tr className="border-b border-border">
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Event type</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Status</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">HTTP</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Time</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Duration</th>
                               </tr>
                             </thead>
                             <tbody>
                               {webhookDeliveries.slice(0, 20).map((delivery) => (
-                                <tr key={delivery.id} className="border-b border-[rgba(255,255,255,0.04)]">
+                                <tr key={delivery.id} className="border-b border-border last:border-0">
                                   <td className="py-2 text-zinc-300">
                                     {EVENT_TYPES.find((e) => e.value === delivery.event_type)?.label ||
                                       delivery.event_type}
@@ -582,10 +586,10 @@ export default function WebhooksPage() {
                                       {delivery.status}
                                     </Badge>
                                   </td>
-                                  <td className="py-2 font-mono text-zinc-400">{delivery.response_status || '-'}</td>
-                                  <td className="py-2 text-zinc-400">{formatTimestamp(delivery.attempted_at)}</td>
-                                  <td className="py-2 text-zinc-400">
-                                    {delivery.duration_ms ? `${delivery.duration_ms}ms` : '-'}
+                                  <td className="py-2 font-mono tabular-nums text-zinc-400">{delivery.response_status || '—'}</td>
+                                  <td className="py-2 tabular-nums text-zinc-400">{formatTimestamp(delivery.attempted_at)}</td>
+                                  <td className="py-2 tabular-nums text-zinc-400">
+                                    {delivery.duration_ms ? `${delivery.duration_ms}ms` : '—'}
                                   </td>
                                 </tr>
                               ))}
@@ -607,10 +611,10 @@ export default function WebhooksPage() {
         <Card className="mt-6">
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
               <div>
-                <div className="text-sm text-zinc-300 font-medium mb-1">Admin Only</div>
-                <div className="text-xs text-zinc-500">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Admin only</div>
+                <div className="text-xs text-zinc-400">
                   Only workspace admins can add, test, or delete webhooks. Contact an admin to manage webhook
                   configurations.
                 </div>

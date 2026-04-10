@@ -41,21 +41,21 @@ export default function LoginClient({ localAuthEnabled }) {
 
   if (status === 'loading' || status === 'authenticated') {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-surface-primary">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" aria-label="Loading" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center bg-surface-primary px-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex justify-center">
             <DashClawLogo size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-white">Sign in to DashClaw</h1>
-          <p className="text-sm text-zinc-400 mt-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-white">Sign in to DashClaw</h1>
+          <p className="mt-2 text-sm text-zinc-400">
             {localPasswordEnabled
               ? 'Use the admin password you set during setup, or choose an identity provider.'
               : 'Agent governance starts here.'}
@@ -67,21 +67,21 @@ export default function LoginClient({ localAuthEnabled }) {
             <button
               key={provider.id}
               onClick={() => signIn(provider.id, { callbackUrl: '/mission-control' })}
-              className={`w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex w-full items-center justify-center gap-2.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                 provider.id === 'github'
                   ? 'bg-white text-black hover:bg-zinc-200'
-                  : 'bg-[#1a1a1a] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[#222]'
+                  : 'border border-border bg-surface-tertiary text-zinc-300 hover:border-border-hover hover:text-white'
               }`}
             >
-              {provider.id === 'github' && <Github size={18} />}
+              {provider.id === 'github' && <Github size={18} aria-hidden="true" />}
               {provider.id === 'google' && <GoogleIcon />}
-              {provider.id === 'oidc' && <Key size={18} />}
+              {provider.id === 'oidc' && <Key size={18} aria-hidden="true" />}
               Continue with {provider.name}
             </button>
           ))}
 
           {providers.length === 0 && !localPasswordEnabled && (
-            <p className="text-xs text-amber-300 text-center py-4">
+            <p className="py-4 text-center text-xs text-amber-400">
               {authMessage || 'No dashboard sign-in method is configured yet.'}
             </p>
           )}
@@ -90,13 +90,19 @@ export default function LoginClient({ localAuthEnabled }) {
         </div>
 
         {!isProd && !providers.some(p => p.id === 'oidc') && (
-          <div className="mt-6 p-3 rounded bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-500 text-center">
-            <p className="font-semibold text-zinc-400 mb-1">Want to use Authentik/OIDC?</p>
-            Add <code className="bg-black px-1 py-0.5 rounded text-zinc-300">OIDC_CLIENT_ID</code>, <code className="bg-black px-1 py-0.5 rounded text-zinc-300">OIDC_CLIENT_SECRET</code>, and <code className="bg-black px-1 py-0.5 rounded text-zinc-300">OIDC_ISSUER_URL</code> to your .env file.
+          <div className="mt-6 rounded-lg border border-border bg-surface-secondary p-3 text-center text-xs text-zinc-400">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Want to use Authentik / OIDC?
+            </p>
+            Add{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_CLIENT_ID</code>,{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_CLIENT_SECRET</code>, and{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_ISSUER_URL</code>{' '}
+            to your .env file.
           </div>
         )}
 
-        <p className="text-xs text-zinc-600 text-center mt-6">
+        <p className="mt-6 text-center text-xs text-zinc-500">
           By signing in, you agree to our terms of service.
         </p>
       </div>
