@@ -54,7 +54,7 @@ Open `/mission-control` and watch the operations feed in real-time:
 
 Navigate to **Approvals** (or click the pending item in Mission Control). You'll see the publish action waiting for your decision:
 
-- **Approve** — The briefing is published to dpaste.org and the workflow completes
+- **Approve** — The briefing is published to the demo endpoint (`jsonplaceholder.typicode.com/posts`) and the workflow completes
 - **Deny** — The publish step fails but the workflow still completes (`continue_on_failure: true`)
 
 ### Step 5: Review the trail
