@@ -43,7 +43,9 @@ export async function createInvite(sql, { orgId, email, role, invitedBy }) {
   if (!VALID_ROLES.includes(role)) {
     throw new Error(`Invalid role: ${role}`);
   }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  // RFC 5321 caps email address length at 254 chars — enforce it before the
+  // regex to bound worst-case matching time on adversarial input.
+  if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
     throw new Error('Invalid email address');
   }
 

@@ -15,7 +15,9 @@ function safeJsonParse(value, fallback) {
 }
 
 function slugify(name) {
+  // Cap input length before the regexes to bound worst-case matching time.
   return String(name || '')
+    .slice(0, 200)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
