@@ -22,8 +22,8 @@ const SCOPES = [
 const SEVERITY_CONFIG = {
   critical: { variant: 'error', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
   high:     { variant: 'warning', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
-  medium:   { variant: 'warning', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-  low:      { variant: 'success', color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  medium:   { variant: 'warning', color: 'text-amber-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  low:      { variant: 'success', color: 'text-emerald-400', bg: 'bg-green-500/10', border: 'border-green-500/20' },
 };
 
 export default function BugHunterPage() {
@@ -119,12 +119,12 @@ export default function BugHunterPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
-            <StatCompact label="Issues Found" value={stats.issuesFound} color="text-yellow-400" />
+            <StatCompact label="Issues Found" value={stats.issuesFound} color="text-amber-400" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
-            <StatCompact label="Resolved" value={stats.resolved} color="text-green-400" />
+            <StatCompact label="Resolved" value={stats.resolved} color="text-emerald-400" />
           </CardContent>
         </Card>
         <Card hover={false}>

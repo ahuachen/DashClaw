@@ -43,8 +43,8 @@ export default function InspirationCard() {
   }, []);
 
   const getScoreColor = (score) => {
-    if (score >= 8) return 'text-green-400';
-    if (score >= 6) return 'text-yellow-400';
+    if (score >= 8) return 'text-emerald-400';
+    if (score >= 6) return 'text-amber-400';
     return 'text-red-400';
   };
 

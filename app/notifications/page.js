@@ -123,7 +123,7 @@ export default function NotificationsPage() {
     >
       {/* Success banner */}
       {showSuccess && (
-        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 flex items-center gap-3">
+        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-emerald-400 flex items-center gap-3">
           <Check size={20} className="shrink-0" />
           <span className="text-sm font-medium">Preferences saved</span>
         </div>
@@ -199,8 +199,8 @@ export default function NotificationsPage() {
 
                     {signalTypes.length === 0 && (
                       <div className="p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20 flex items-start gap-3">
-                        <ShieldAlert size={16} className="text-yellow-400 shrink-0 mt-0.5" />
-                        <p className="text-xs text-yellow-400">
+                        <ShieldAlert size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-400">
                           Select at least one signal type to receive email alerts
                         </p>
                       </div>

@@ -1,6 +1,6 @@
 function confidenceTone(confidence) {
-  if (confidence >= 0.9) return 'text-green-400';
-  if (confidence >= 0.7) return 'text-yellow-400';
+  if (confidence >= 0.9) return 'text-emerald-400';
+  if (confidence >= 0.7) return 'text-amber-400';
   return 'text-red-400';
 }
 
@@ -34,7 +34,7 @@ export default function PolicyDraftCandidateCard({
       </div>
       <p className="mt-3 text-sm text-zinc-300">{draft.summary}</p>
       {draft.hasAdvancedDetails && (
-        <div className="mt-3 text-xs text-yellow-400">
+        <div className="mt-3 text-xs text-amber-400">
           Advanced review needed
         </div>
       )}

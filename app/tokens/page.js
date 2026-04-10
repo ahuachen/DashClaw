@@ -264,7 +264,7 @@ export default function TokensDashboard() {
                     </div>
                     <div className="flex items-center text-sm">
                       <div className="flex space-x-4">
-                        <span className="text-green-400 text-xs tabular-nums">In: {formatNumber(op.tokensIn)}</span>
+                        <span className="text-emerald-400 text-xs tabular-nums">In: {formatNumber(op.tokensIn)}</span>
                         <span className="text-blue-400 text-xs tabular-nums">Out: {formatNumber(op.tokensOut)}</span>
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function TokensDashboard() {
               </ul>
             </div>
             <div className="bg-surface-tertiary p-4 rounded-lg border-l-4 border-l-yellow-500">
-              <div className="text-sm text-yellow-400 font-semibold mb-2">Model Selection</div>
+              <div className="text-sm text-amber-400 font-semibold mb-2">Model Selection</div>
               <ul className="text-sm text-zinc-300 space-y-1">
                 <li>Complex reasoning: Opus</li>
                 <li>Automation/execution: Sonnet</li>

@@ -74,7 +74,7 @@ export default function ActivityTab() {
         <span>&middot;</span>
         <span><span className="text-amber-400 font-medium">{stats.approvals}</span> approvals (7d)</span>
         <span>&middot;</span>
-        <span><span className="text-yellow-400 font-medium">{stats.warns}</span> warns (7d)</span>
+        <span><span className="text-amber-400 font-medium">{stats.warns}</span> warns (7d)</span>
       </div>
 
       {/* Filter */}

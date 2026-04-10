@@ -148,7 +148,7 @@ export default function TokenBudgetCard() {
             <div className="bg-surface-tertiary rounded-lg px-3 py-2.5">
               <div className="grid grid-cols-3 gap-2">
                 <StatCompact label="Today" value={formatTokens(data.todayTokens)} color="text-white" />
-                <StatCompact label="Cost" value={formatCost(data.todayCost)} color="text-green-400" />
+                <StatCompact label="Cost" value={formatCost(data.todayCost)} color="text-emerald-400" />
                 <StatCompact label="Compacts" value={data.compactions} color="text-zinc-300" />
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function TokenBudgetCard() {
                   <ArrowDown size={11} className="text-green-500" />
                   <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Input</span>
                 </div>
-                <div className="text-sm font-semibold tabular-nums text-green-400">
+                <div className="text-sm font-semibold tabular-nums text-emerald-400">
                   {formatTokens(data.todayTokensIn)}
                 </div>
               </div>

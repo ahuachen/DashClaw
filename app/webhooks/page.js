@@ -297,7 +297,7 @@ export default function WebhooksPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="py-4">
-            <StatCompact label="Active" value={stats.active} color="text-green-400" />
+            <StatCompact label="Active" value={stats.active} color="text-emerald-400" />
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -319,8 +319,8 @@ export default function WebhooksPage() {
       {newSecret && (
         <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
           <div className="flex items-start gap-3 mb-2">
-            <Check size={16} className="text-green-400 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-green-400 font-medium">
+            <Check size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-emerald-400 font-medium">
               Webhook created successfully. Save your signing secret now — it will not be shown again.
             </div>
           </div>
@@ -530,7 +530,7 @@ export default function WebhooksPage() {
                     <div
                       className={`mt-3 p-2 rounded-lg text-xs flex items-center gap-2 ${
                         testResult.success
-                          ? 'bg-green-500/10 border border-green-500/30 text-green-400'
+                          ? 'bg-green-500/10 border border-green-500/30 text-emerald-400'
                           : 'bg-red-500/10 border border-red-500/30 text-red-400'
                       }`}
                     >

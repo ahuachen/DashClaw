@@ -363,7 +363,7 @@ export default function PromptsPage() {
                                 </div>
                                 <div className="flex items-center gap-1">
                                   {!v.is_active && (
-                                    <button onClick={() => handleActivate(v.id)} className="p-1 rounded text-zinc-500 hover:text-green-400 transition-colors" title="Activate this version">
+                                    <button onClick={() => handleActivate(v.id)} className="p-1 rounded text-zinc-500 hover:text-emerald-400 transition-colors" title="Activate this version">
                                       <CheckCircle size={14} />
                                     </button>
                                   )}

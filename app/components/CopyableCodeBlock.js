@@ -24,7 +24,7 @@ export default function CopyableCodeBlock({ title, children, copyText }) {
         className="absolute top-2 right-2 p-1.5 rounded bg-[#181818] hover:bg-[#222] opacity-0 group-hover:opacity-100 transition-opacity"
         title="Copy"
       >
-        {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-zinc-400" />}
+        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-zinc-400" />}
       </button>
     </div>
   );

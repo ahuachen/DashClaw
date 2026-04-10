@@ -192,12 +192,12 @@ export default function IdentitiesPage() {
 
       {/* Success banner */}
       {successMsg && (
-        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-green-400 flex items-center justify-between">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-emerald-400 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle size={14} />
             <span>{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg(null)} className="text-green-400 hover:text-green-300 ml-4">&times;</button>
+          <button onClick={() => setSuccessMsg(null)} className="text-emerald-400 hover:text-green-300 ml-4">&times;</button>
         </div>
       )}
 
@@ -218,7 +218,7 @@ export default function IdentitiesPage() {
             <StatCompact
               label="Signature Enforcement"
               value={enforcementOn ? 'On' : 'Off'}
-              color={enforcementOn ? 'text-green-400' : 'text-zinc-500'}
+              color={enforcementOn ? 'text-emerald-400' : 'text-zinc-500'}
             />
           </CardContent>
         </Card>
@@ -315,7 +315,7 @@ export default function IdentitiesPage() {
       {/* Approved Identities */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Shield size={16} className="text-green-400" />
+          <Shield size={16} className="text-emerald-400" />
           <h2 className="text-sm font-medium text-zinc-200">Approved Identities</h2>
           {identities.length > 0 && (
             <Badge variant="success" size="xs">{identities.length}</Badge>
@@ -342,7 +342,7 @@ export default function IdentitiesPage() {
                 return (
                   <div key={identity.agent_id} className="px-5 py-4 flex items-center gap-4">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Fingerprint size={14} className="text-green-400" />
+                      <Fingerprint size={14} className="text-emerald-400" />
                     </div>
 
                     <div className="flex-1 min-w-0">

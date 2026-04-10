@@ -27,7 +27,7 @@ function SignalDetail({ signal, onClose, onDismiss }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
-          <ShieldAlert size={18} className={signal.severity === 'red' ? 'text-red-400' : 'text-yellow-400'} />
+          <ShieldAlert size={18} className={signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'} />
           <div>
             <div className="text-sm font-medium text-white">{signal.label}</div>
             <div className="flex items-center gap-2 mt-1.5">
@@ -144,14 +144,14 @@ function ActionDetail({ action }) {
       {/* Reversible / Side effects */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <Undo2 size={14} className={action.reversible === 1 ? 'text-green-400' : 'text-red-400'} />
+          <Undo2 size={14} className={action.reversible === 1 ? 'text-emerald-400' : 'text-red-400'} />
           <span className="text-xs text-zinc-300">
             {action.reversible === 1 ? 'Reversible' : 'Irreversible'}
           </span>
         </div>
         {action.side_effects && (
           <div className="flex items-center gap-1.5">
-            <AlertTriangle size={14} className="text-yellow-400" />
+            <AlertTriangle size={14} className="text-amber-400" />
             <span className="text-xs text-zinc-300">Has side effects</span>
           </div>
         )}

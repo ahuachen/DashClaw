@@ -132,8 +132,8 @@ export default function LearningDashboard() {
 
   const getConfidenceColor = (conf) => {
     const c = conf || 0;
-    if (c >= 90) return 'text-green-400';
-    if (c >= 70) return 'text-yellow-400';
+    if (c >= 90) return 'text-emerald-400';
+    if (c >= 70) return 'text-amber-400';
     return 'text-red-400';
   };
 
@@ -536,7 +536,7 @@ export default function LearningDashboard() {
               onClick={() => setShowLessonModal(true)}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-yellow-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
                 <Lightbulb size={14} />
                 Add Lesson
               </div>
@@ -684,7 +684,7 @@ export default function LearningDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowLessonModal(false)}>
           <div className="bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-xl p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Lightbulb size={18} className="text-yellow-400" />
+              <Lightbulb size={18} className="text-amber-400" />
               Add Lesson
             </h3>
 

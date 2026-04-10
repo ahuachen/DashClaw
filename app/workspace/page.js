@@ -124,7 +124,7 @@ function OverviewTab({ agentId, dense }) {
     { label: 'Decisions', value: d.decisions?.total || 0, color: 'text-blue-400' },
     { label: 'Lessons', value: d.lessons?.total || 0, color: 'text-emerald-400' },
     { label: 'Content', value: d.content?.total || 0, color: 'text-purple-400' },
-    { label: 'Ideas', value: d.ideas?.total || 0, color: 'text-yellow-400' },
+    { label: 'Ideas', value: d.ideas?.total || 0, color: 'text-amber-400' },
     { label: 'Interactions', value: d.interactions?.total || 0, color: 'text-cyan-400' },
     { label: 'Goals', value: d.goals?.total || 0, color: 'text-rose-400' },
   ];
@@ -895,7 +895,7 @@ function PreferencesTab({ agentId, dense }) {
                   <CardContent className={dense ? "pt-2 pb-2" : "pt-3 pb-3"}>
                     <div className="text-sm text-zinc-200">{item.approach}</div>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-green-400">{item.success_count || 0} success</span>
+                      <span className="text-xs text-emerald-400">{item.success_count || 0} success</span>
                       <span className="text-xs text-red-400">{item.fail_count || 0} fail</span>
                       <span className="text-xs text-zinc-400">{ratio}% rate</span>
                     </div>
@@ -975,7 +975,7 @@ function PreferencesTab({ agentId, dense }) {
                 return (
                   <div key={i} className="flex items-center gap-2">
                     <span className="text-xs text-zinc-300 truncate flex-1">{a.approach}</span>
-                    <span className="text-[10px] text-green-400">{a.success_count || 0}</span>
+                    <span className="text-[10px] text-emerald-400">{a.success_count || 0}</span>
                     <span className="text-[10px] text-zinc-600">/</span>
                     <span className="text-[10px] text-red-400">{a.fail_count || 0}</span>
                     <span className="text-[10px] text-zinc-500">{ratio}%</span>
@@ -1025,7 +1025,7 @@ function MemoryTab({ agentId, dense }) {
   const entities = memory.entities || [];
   const topics = memory.topics || [];
 
-  const scoreColor = score >= 80 ? 'text-green-400' : score >= 50 ? 'text-yellow-400' : 'text-red-400';
+  const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400';
 
   const metrics = [
     { label: 'Total Files', value: health.totalFiles ?? health.total_files ?? '-' },
@@ -1064,7 +1064,7 @@ function MemoryTab({ agentId, dense }) {
               <StatCompact
                 label={m.label}
                 value={m.value}
-                color={m.warn ? 'text-yellow-400' : 'text-white'}
+                color={m.warn ? 'text-amber-400' : 'text-white'}
               />
             </CardContent>
           </Card>

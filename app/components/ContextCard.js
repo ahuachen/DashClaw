@@ -131,7 +131,7 @@ export default function ContextCard() {
             {/* Stats Row */}
             {hasStats && (
               <div className="grid grid-cols-3 gap-2 bg-surface-tertiary rounded-lg p-3 flex-shrink-0">
-                <StatCompact label="Success" value={`${contextData.stats.successRate}%`} color="text-green-400" />
+                <StatCompact label="Success" value={`${contextData.stats.successRate}%`} color="text-emerald-400" />
                 <StatCompact label="Decisions" value={contextData.stats.totalDecisions || 0} />
                 <StatCompact label="Patterns" value={contextData.stats.patterns || 0} color="text-purple-400" />
               </div>

@@ -507,7 +507,7 @@ export default function SwarmIntelligencePage() {
                   <>
                     {context.shared_actions.slice(0, 3).map((act, i) => {
                       const statusColor = act.status === 'completed' ? 'bg-green-400' : act.status === 'failed' ? 'bg-red-400' : 'bg-yellow-400';
-                      const riskColor = act.risk_score >= 70 ? 'text-red-400' : 'text-yellow-400';
+                      const riskColor = act.risk_score >= 70 ? 'text-red-400' : 'text-amber-400';
                       return (
                         <a
                           key={i}
@@ -602,7 +602,7 @@ export default function SwarmIntelligencePage() {
               <h2 className="text-2xl font-bold text-white leading-none mb-2">{action.action_type}</h2>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0.5 px-2 border-none ${
-                  action.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                  action.status === 'completed' ? 'bg-green-500/10 text-emerald-400' :
                   action.status === 'failed' ? 'bg-red-500/10 text-red-400' : 'bg-zinc-800 text-zinc-400'
                 }`}>{action.status}</Badge>
                 <span className="text-[10px] text-zinc-500 font-mono tracking-tight">{action.action_id}</span>
@@ -618,7 +618,7 @@ export default function SwarmIntelligencePage() {
               <div className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold mb-3 flex items-center gap-2">
                 <Target size={14} className="text-zinc-600" /> Risk Score
               </div>
-              <div className={`text-3xl font-mono tracking-tight ${action.risk_score > 70 ? 'text-red-400' : action.risk_score > 40 ? 'text-yellow-400' : 'text-green-400'}`}>
+              <div className={`text-3xl font-mono tracking-tight ${action.risk_score > 70 ? 'text-red-400' : action.risk_score > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {action.risk_score || 0}%
               </div>
             </div>
@@ -750,7 +750,7 @@ export default function SwarmIntelligencePage() {
                       <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2"><Zap size={10} className="text-brand" /> Live Performance</h4>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-zinc-500 mb-1">Actions</div><div className="text-lg font-mono text-white">{selectedAgent.actions || 0}</div></div>
-                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-zinc-500 mb-1">Stability</div><div className="text-lg font-mono text-green-400">99.8%</div></div>
+                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-zinc-500 mb-1">Stability</div><div className="text-lg font-mono text-emerald-400">99.8%</div></div>
                       </div>
                     </div>
 
@@ -769,8 +769,8 @@ export default function SwarmIntelligencePage() {
                               <div className="flex justify-between items-start">
                                 <span className="text-[12px] font-bold text-white group-hover:text-brand transition-colors truncate max-w-[140px]">{action.action_type}</span>
                                 <Badge variant="outline" className={`text-[9px] py-0 px-1.5 border-none font-bold ${
-                                  action.status === 'completed' ? 'text-green-400 bg-green-400/10' : 
-                                  action.status === 'failed' ? 'text-red-400 bg-red-400/10' : 'text-yellow-400 bg-yellow-400/10'
+                                  action.status === 'completed' ? 'text-emerald-400 bg-green-400/10' : 
+                                  action.status === 'failed' ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-yellow-400/10'
                                 }`}>
                                   {action.status?.toUpperCase()}
                                 </Badge>

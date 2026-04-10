@@ -296,7 +296,7 @@ await claw.createAction({
             {generatedKey && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-surface-elevated px-3 py-2 rounded-lg text-xs text-green-400 font-mono truncate">
+                  <code className="flex-1 bg-surface-elevated px-3 py-2 rounded-lg text-xs text-emerald-400 font-mono truncate">
                     {generatedKey}
                   </code>
                   <button
@@ -304,10 +304,10 @@ await claw.createAction({
                     className="p-2 hover:bg-surface-elevated rounded-lg transition-colors"
                     title="Copy key"
                   >
-                    {copied === 'key' ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-zinc-400" />}
+                    {copied === 'key' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-zinc-400" />}
                   </button>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-yellow-400">
+                <div className="flex items-center gap-1.5 text-xs text-amber-400">
                   <AlertTriangle size={12} />
                   Save this key now. It won&apos;t be shown again.
                 </div>
@@ -390,7 +390,7 @@ await claw.createAction({
               </div>
             )}
             {(steps.first_action_sent || actionDetected) && (
-              <p className="text-xs text-green-400 mt-1">Action received!</p>
+              <p className="text-xs text-emerald-400 mt-1">Action received!</p>
             )}
           </StepRow>
         </div>
@@ -400,8 +400,8 @@ await claw.createAction({
           <div className="mt-4 pt-4 border-t border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-green-400" />
-                <span className="text-sm text-green-400 font-medium">You&apos;re all set!</span>
+                <CheckCircle2 size={16} className="text-emerald-400" />
+                <span className="text-sm text-emerald-400 font-medium">You&apos;re all set!</span>
               </div>
               <button
                 onClick={handleFinish}
@@ -426,7 +426,7 @@ function StepRow({ step, completed, active, future, children }) {
           completed ? 'bg-green-500/20' : active ? 'bg-brand/20' : 'bg-white/5'
         }`}>
           {completed ? (
-            <CheckCircle2 size={14} className="text-green-400" />
+            <CheckCircle2 size={14} className="text-emerald-400" />
           ) : (
             <Icon size={14} className={active ? 'text-brand' : 'text-zinc-600'} />
           )}
@@ -453,7 +453,7 @@ function CodeBlock({ code, copyId, copied, onCopy }) {
         className="absolute top-2 right-2 p-1.5 bg-surface-tertiary hover:bg-surface-secondary rounded opacity-0 group-hover:opacity-100 transition-opacity"
         title="Copy"
       >
-        {copied === copyId ? <Check size={12} className="text-green-400" /> : <Copy size={12} className="text-zinc-400" />}
+        {copied === copyId ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} className="text-zinc-400" />}
       </button>
     </div>
   );

@@ -23,7 +23,7 @@ const TABS = [
 const CATEGORIES = ['general', 'quality', 'performance', 'accuracy', 'safety', 'ux'];
 
 const SENTIMENT_CONFIG = {
-  positive: { icon: ThumbsUp, variant: 'success', color: 'text-green-400' },
+  positive: { icon: ThumbsUp, variant: 'success', color: 'text-emerald-400' },
   negative: { icon: ThumbsDown, variant: 'error', color: 'text-red-400' },
   neutral: { icon: Minus, variant: 'default', color: 'text-zinc-400' },
 };
@@ -35,7 +35,7 @@ function StarRating({ rating, size = 14 }) {
         <Star
           key={i}
           size={size}
-          className={i <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700'}
+          className={i <= rating ? 'text-amber-400 fill-yellow-400' : 'text-zinc-700'}
         />
       ))}
     </div>
@@ -47,7 +47,7 @@ function RatingBar({ rating, count, maxCount }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-zinc-400 w-4 text-right">{rating}</span>
-      <Star size={10} className="text-yellow-400 fill-yellow-400 shrink-0" />
+      <Star size={10} className="text-amber-400 fill-yellow-400 shrink-0" />
       <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
         <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${pct}%` }} />
       </div>
@@ -171,12 +171,12 @@ export default function FeedbackPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-green-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-yellow-400' : 'text-red-400'} />
+              <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-emerald-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-amber-400' : 'text-red-400'} />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Positive" value={overall.positive_count || 0} color="text-green-400" />
+              <StatCompact label="Positive" value={overall.positive_count || 0} color="text-emerald-400" />
             </CardContent>
           </Card>
           <Card hover={false}>
@@ -186,7 +186,7 @@ export default function FeedbackPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-yellow-400' : 'text-zinc-400'} />
+              <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
             </CardContent>
           </Card>
         </div>
@@ -225,7 +225,7 @@ export default function FeedbackPage() {
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(i => (
                     <button key={i} onClick={() => setNewFeedback(s => ({ ...s, rating: s.rating === i ? 0 : i }))} className="p-0.5">
-                      <Star size={20} className={i <= newFeedback.rating ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700 hover:text-zinc-500'} />
+                      <Star size={20} className={i <= newFeedback.rating ? 'text-amber-400 fill-yellow-400' : 'text-zinc-700 hover:text-zinc-500'} />
                     </button>
                   ))}
                 </div>
@@ -269,7 +269,7 @@ export default function FeedbackPage() {
                             {fb.resolved ? (
                               <Badge variant="success" size="xs">resolved</Badge>
                             ) : (
-                              <button onClick={() => handleResolve(fb.id)} className="p-1 rounded text-zinc-600 hover:text-green-400 transition-colors" title="Mark resolved">
+                              <button onClick={() => handleResolve(fb.id)} className="p-1 rounded text-zinc-600 hover:text-emerald-400 transition-colors" title="Mark resolved">
                                 <CheckCircle size={14} />
                               </button>
                             )}
@@ -361,7 +361,7 @@ export default function FeedbackPage() {
                         <span className="text-sm text-zinc-300">{a.agent_id}</span>
                         <div className="flex items-center gap-3">
                           <span className="text-xs text-zinc-500 tabular-nums">{a.count} entries</span>
-                          <span className="text-xs text-green-400 tabular-nums">{a.positive}+</span>
+                          <span className="text-xs text-emerald-400 tabular-nums">{a.positive}+</span>
                           <span className="text-xs text-red-400 tabular-nums">{a.negative}-</span>
                           <span className="text-xs text-zinc-400 tabular-nums">{a.avg_rating}/5</span>
                         </div>

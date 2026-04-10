@@ -8,7 +8,7 @@ export default function PolicyGeneratedAdvancedDetails({ advancedDetails, rawPol
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="text-sm font-medium text-yellow-400"
+        className="text-sm font-medium text-amber-400"
       >
         Advanced details
       </button>

@@ -65,8 +65,8 @@ export default function FollowUpsCard() {
 
   const getDaysColor = (days) => {
     if (days <= 1) return 'text-red-400';
-    if (days <= 3) return 'text-yellow-400';
-    return 'text-green-400';
+    if (days <= 3) return 'text-amber-400';
+    return 'text-emerald-400';
   };
 
   const ITEM_H = 80;

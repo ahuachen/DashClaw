@@ -158,7 +158,7 @@ export default function OpenLoopsCard() {
           <div className="grid grid-cols-3 gap-2">
             <StatCompact label="Open" value={openCount} color="text-white" />
             <StatCompact label="High" value={highCount} color="text-amber-400" />
-            <StatCompact label="Resolved" value={resolvedCount} color="text-green-400" />
+            <StatCompact label="Resolved" value={resolvedCount} color="text-emerald-400" />
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export default function OpenLoopsCard() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleResolve(loop.loop_id, 'resolved')}
-                          className="px-2 py-1 text-xs bg-green-500/10 text-green-400 border border-green-500/20 rounded hover:bg-green-500/20 transition-colors"
+                          className="px-2 py-1 text-xs bg-green-500/10 text-emerald-400 border border-green-500/20 rounded hover:bg-green-500/20 transition-colors"
                         >
                           Resolve
                         </button>
@@ -230,7 +230,7 @@ export default function OpenLoopsCard() {
                     <div className="mt-1.5 pl-7 flex gap-1">
                       <button
                         onClick={() => setResolving(loop.loop_id)}
-                        className="text-[10px] text-zinc-500 hover:text-green-400 transition-colors"
+                        className="text-[10px] text-zinc-500 hover:text-emerald-400 transition-colors"
                       >
                         resolve
                       </button>

@@ -207,7 +207,7 @@ export default function EvaluationsPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Avg Score" value={overall.avg_score ? `${Math.round(overall.avg_score * 100)}%` : '--'} color={overall.avg_score >= 0.8 ? 'text-green-400' : overall.avg_score >= 0.5 ? 'text-yellow-400' : 'text-red-400'} />
+              <StatCompact label="Avg Score" value={overall.avg_score ? `${Math.round(overall.avg_score * 100)}%` : '--'} color={overall.avg_score >= 0.8 ? 'text-emerald-400' : overall.avg_score >= 0.5 ? 'text-amber-400' : 'text-red-400'} />
             </CardContent>
           </Card>
           <Card hover={false}>
@@ -287,7 +287,7 @@ export default function EvaluationsPage() {
                   <input value={newScorer.description} onChange={e => setNewScorer(s => ({ ...s, description: e.target.value }))} placeholder="Description (optional)" className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
                   <textarea value={newScorer.config} onChange={e => setNewScorer(s => ({ ...s, config: e.target.value }))} placeholder='{"pattern": "success|completed"}' rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand font-mono" />
                   {newScorer.scorer_type === 'llm_judge' && !llmAvailable && (
-                    <div className="flex items-center gap-2 text-xs text-yellow-400">
+                    <div className="flex items-center gap-2 text-xs text-amber-400">
                       <AlertCircle size={14} /> AI provider not configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_AI_API_KEY to enable LLM-as-judge.
                     </div>
                   )}
@@ -365,7 +365,7 @@ export default function EvaluationsPage() {
                     {runs.map(run => (
                       <div key={run.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.04)]">
                         <div className="flex items-center gap-3 min-w-0">
-                          {run.status === 'completed' && <CheckCircle size={14} className="text-green-400 shrink-0" />}
+                          {run.status === 'completed' && <CheckCircle size={14} className="text-emerald-400 shrink-0" />}
                           {run.status === 'running' && <RefreshCw size={14} className="text-blue-400 shrink-0 animate-spin" />}
                           {run.status === 'failed' && <XCircle size={14} className="text-red-400 shrink-0" />}
                           {run.status === 'pending' && <Clock size={14} className="text-zinc-500 shrink-0" />}

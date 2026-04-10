@@ -206,7 +206,7 @@ export default async function SettingsPage({ searchParams }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-zinc-500">Mode</span>
-                  <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-emerald-400' : 'text-yellow-400'}`}>
+                  <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-emerald-400' : 'text-amber-400'}`}>
                     {process.env.DASHCLAW_MODE === 'demo' ? 'Demo' : 'Self-Hosted'}
                   </span>
                 </div>

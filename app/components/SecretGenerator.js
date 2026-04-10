@@ -78,7 +78,7 @@ function SecretRow({ name, value, label }) {
         className="shrink-0 p-1.5 rounded bg-[#181818] hover:bg-[#222] transition-colors"
         title={`Copy ${name}`}
       >
-        {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} className="text-zinc-400" />}
+        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-zinc-400" />}
       </button>
     </div>
   );
@@ -153,7 +153,7 @@ export default function SecretGenerator() {
             onClick={handleCopyAll}
             className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand-hover transition-colors font-medium"
           >
-            {allCopied ? <><Check size={12} className="text-green-400" /> Copied!</> : <><Copy size={12} /> Copy All</>}
+            {allCopied ? <><Check size={12} className="text-emerald-400" /> Copied!</> : <><Copy size={12} /> Copy All</>}
           </button>
         </div>
         <pre className="p-5 font-mono text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">{buildEnvBlock()}</pre>

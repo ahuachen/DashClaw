@@ -257,7 +257,7 @@ export default function IntegrationsPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Connected" value={connectedCount} color="text-green-400" />
+            <StatCompact label="Connected" value={connectedCount} color="text-emerald-400" />
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -456,7 +456,7 @@ export default function IntegrationsPage() {
               {/* Test Result */}
               {testResult && (
                 <div className={`mt-4 p-3 rounded-lg text-sm ${
-                  testResult.status === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                  testResult.status === 'success' ? 'bg-green-500/10 text-emerald-400 border border-green-500/20' :
                   testResult.status === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
                   'bg-surface-tertiary text-zinc-300'
                 }`}>

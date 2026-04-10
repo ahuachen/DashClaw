@@ -32,7 +32,7 @@ const PERMISSION_LABELS = {
 const PERMISSION_COLORS = {
   readonly: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20',
   workspace_write: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
-  prompt: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
+  prompt: 'text-amber-400 bg-yellow-500/10 border-yellow-500/20',
   allow: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
   danger: 'text-red-400 bg-red-500/10 border-red-500/20',
 };

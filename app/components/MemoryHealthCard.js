@@ -46,8 +46,8 @@ export default function MemoryHealthCard() {
   }, []);
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
+    if (score >= 80) return 'text-emerald-400';
+    if (score >= 60) return 'text-amber-400';
     return 'text-red-400';
   };
 
@@ -71,8 +71,8 @@ export default function MemoryHealthCard() {
     switch (type) {
       case 'person': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'tool': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'service': return 'bg-green-500/10 text-green-400 border-green-500/20';
-      case 'file': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+      case 'service': return 'bg-green-500/10 text-emerald-400 border-green-500/20';
+      case 'file': return 'bg-yellow-500/10 text-amber-400 border-yellow-500/20';
       default: return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
     }
   };
@@ -122,14 +122,14 @@ export default function MemoryHealthCard() {
 
             {/* Issues */}
             <div className="flex gap-4 text-xs">
-              <div className={`flex items-center gap-1 ${health.duplicates > 5 ? 'text-yellow-400' : 'text-green-400'}`}>
+              <div className={`flex items-center gap-1 ${health.duplicates > 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {health.duplicates > 5
                   ? <AlertTriangle size={14} />
                   : <CheckCircle2 size={14} />
                 }
                 {health.duplicates} duplicates
               </div>
-              <div className={`flex items-center gap-1 ${health.staleCount > 0 ? 'text-yellow-400' : 'text-green-400'}`}>
+              <div className={`flex items-center gap-1 ${health.staleCount > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
                 {health.staleCount > 0
                   ? <AlertTriangle size={14} />
                   : <CheckCircle2 size={14} />

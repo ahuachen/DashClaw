@@ -388,7 +388,7 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Guard Policy</span>
-                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-green-400 font-bold uppercase tracking-tighter">active</span>
+                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-emerald-400 font-bold uppercase tracking-tighter">active</span>
                           </div>
                           <div className="text-[11px] font-bold text-zinc-200 mb-1 leading-tight">Block if risk &gt; 80</div>
                           <div className="text-[10px] font-mono text-brand mb-2">Risk &gt;= 80 → block</div>
@@ -420,7 +420,7 @@ if (decision === "allow") {
                             <span className="text-[10px] font-bold text-zinc-400 tracking-tight uppercase">Execution</span>
                             <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[8px] text-blue-400 font-bold uppercase tracking-tighter">success</span>
                           </div>
-                          <div className="text-[11px] font-bold text-green-400 mb-1 tracking-tight">ACTION SUCCESSFUL</div>
+                          <div className="text-[11px] font-bold text-emerald-400 mb-1 tracking-tight">ACTION SUCCESSFUL</div>
                           <div className="text-[9px] text-zinc-400 mb-2 leading-tight italic">Synced 80 rows + 6 calendar events</div>
                           <div className="pt-2 border-t border-zinc-800/50 text-[9px] text-zinc-500">
                             Duration: 6.25s
@@ -538,7 +538,7 @@ if (decision === "allow") {
                   <span className="text-zinc-300">({'{'}</span>
                 </div>
                 <div className="text-zinc-300 pl-4">
-                  actionType: <span className="text-green-400">&apos;deploy&apos;</span>,
+                  actionType: <span className="text-emerald-400">&apos;deploy&apos;</span>,
                 </div>
                 <div className="text-zinc-300 pl-4">
                   riskScore: <span className="text-cyan-300">85</span>
@@ -547,7 +547,7 @@ if (decision === "allow") {
                 
                 <div className="mt-6 text-zinc-500">{'// 3. Follow the decision'}</div>
                 <div className="text-zinc-300">
-                  <span className="text-purple-400">if</span> (decision === <span className="text-green-400">&apos;allowed&apos;</span>) {'{'}
+                  <span className="text-purple-400">if</span> (decision === <span className="text-emerald-400">&apos;allowed&apos;</span>) {'{'}
                 </div>
                 <div className="text-zinc-300 pl-4 text-zinc-500">
                   {'// execute real-world action'}
@@ -580,8 +580,8 @@ if (decision === "allow") {
               </p>
               <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[11px] overflow-x-auto text-zinc-300 shadow-lg">
                 <span className="text-purple-400">const</span> decision = <span className="text-purple-400">await</span> claw.guard({'{'}
-                <div className="pl-4">actionType: <span className="text-green-400">&quot;deploy&quot;</span>,</div>
-                <div className="pl-4">environment: <span className="text-green-400">&quot;production&quot;</span>,</div>
+                <div className="pl-4">actionType: <span className="text-emerald-400">&quot;deploy&quot;</span>,</div>
+                <div className="pl-4">environment: <span className="text-emerald-400">&quot;production&quot;</span>,</div>
                 <div className="pl-4">riskScore: <span className="text-cyan-300">92</span></div>
                 {'}'})
               </div>
@@ -604,8 +604,8 @@ if (decision === "allow") {
               </p>
               <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[11px] overflow-x-auto text-zinc-300 shadow-lg">
                 <span className="text-purple-400">await</span> claw.guard({'{'}
-                <div className="pl-4">actionType: <span className="text-green-400">&quot;external_api_call&quot;</span>,</div>
-                <div className="pl-4">provider: <span className="text-green-400">&quot;stripe&quot;</span>,</div>
+                <div className="pl-4">actionType: <span className="text-emerald-400">&quot;external_api_call&quot;</span>,</div>
+                <div className="pl-4">provider: <span className="text-emerald-400">&quot;stripe&quot;</span>,</div>
                 <div className="pl-4">amount: <span className="text-cyan-300">2000</span></div>
                 {'}'})
               </div>
@@ -647,7 +647,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-white">
-                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
+                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-emerald-400">
                   <FileJson size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Produce audit trails</h3>
@@ -655,7 +655,7 @@ if (decision === "allow") {
               <p className="text-zinc-400 text-sm leading-relaxed">
                 Every governed action generates structured evidence records ready for compliance and review.
               </p>
-              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[10px] overflow-x-auto text-green-400/80 shadow-lg">
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[10px] overflow-x-auto text-emerald-400/80 shadow-lg">
                 <pre>{`{
   "agent": "deployment-bot",
   "action": "deploy",

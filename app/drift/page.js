@@ -24,7 +24,7 @@ const TABS = [
 
 const SEVERITY_CONFIG = {
   critical: { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30', variant: 'error' },
-  warning: { icon: AlertCircle, color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/30', variant: 'warning' },
+  warning: { icon: AlertCircle, color: 'text-amber-400', bg: 'bg-yellow-500/10 border-yellow-500/30', variant: 'warning' },
   info: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30', variant: 'info' },
 };
 
@@ -177,7 +177,7 @@ export default function DriftPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Warning" value={overall.warning_count || 0} color="text-yellow-400" />
+              <StatCompact label="Warning" value={overall.warning_count || 0} color="text-amber-400" />
             </CardContent>
           </Card>
           <Card hover={false}>
@@ -187,7 +187,7 @@ export default function DriftPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Unacknowledged" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-yellow-400' : 'text-zinc-400'} />
+              <StatCompact label="Unacknowledged" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
             </CardContent>
           </Card>
         </div>
@@ -231,7 +231,7 @@ export default function DriftPage() {
                             <DirIcon size={14} className={alert.direction === 'increasing' ? 'text-red-400' : 'text-blue-400'} />
                             <span className="text-xs text-zinc-500">{alert.pct_change > 0 ? '+' : ''}{alert.pct_change}%</span>
                             {!alert.acknowledged && (
-                              <button onClick={() => handleAcknowledge(alert.id)} className="p-1 rounded text-zinc-600 hover:text-green-400 transition-colors" title="Acknowledge">
+                              <button onClick={() => handleAcknowledge(alert.id)} className="p-1 rounded text-zinc-600 hover:text-emerald-400 transition-colors" title="Acknowledge">
                                 <CheckCircle size={14} />
                               </button>
                             )}

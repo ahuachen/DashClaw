@@ -27,7 +27,7 @@ export default function InlineCopyCommand({ command, className = "", highlight =
       <span>{command}</span>
       <div className="ml-1 pl-2 border-l border-white/5">
         {copied ? (
-          <Check size={12} className="text-green-400" />
+          <Check size={12} className="text-emerald-400" />
         ) : (
           <Copy size={12} className="opacity-0 group-hover/term:opacity-100 transition-opacity" />
         )}

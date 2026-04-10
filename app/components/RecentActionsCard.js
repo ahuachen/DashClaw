@@ -46,11 +46,11 @@ const TYPE_ICONS = {
 function StatusIcon({ status }) {
   switch (status) {
     case 'completed':
-      return <CheckCircle2 size={14} className="text-green-400" />;
+      return <CheckCircle2 size={14} className="text-emerald-400" />;
     case 'failed':
       return <XCircle size={14} className="text-red-400" />;
     case 'pending':
-      return <Clock size={14} className="text-yellow-400" />;
+      return <Clock size={14} className="text-amber-400" />;
     case 'in-progress':
       return <Loader2 size={14} className="text-blue-400" />;
     case 'cancelled':
@@ -215,7 +215,7 @@ export default function RecentActionsCard() {
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${agentColorClass} bg-opacity-10`}>
                         {action.agentName}
                         {action.verified && (
-                          <ShieldCheck size={10} className="ml-1 text-green-400" aria-label="Verified Identity" />
+                          <ShieldCheck size={10} className="ml-1 text-emerald-400" aria-label="Verified Identity" />
                         )}
                       </span>
                       <span className="text-[10px] text-zinc-500">•</span>

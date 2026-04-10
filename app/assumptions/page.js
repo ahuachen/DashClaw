@@ -17,7 +17,7 @@ import { isDemoMode } from '../lib/isDemoMode';
 const STATUS_CONFIG = {
   validated: { icon: CheckCircle2, color: 'text-emerald-400', variant: 'success' },
   invalidated: { icon: XCircle, color: 'text-red-400', variant: 'error' },
-  pending: { icon: HelpCircle, color: 'text-yellow-400', variant: 'warning' },
+  pending: { icon: HelpCircle, color: 'text-amber-400', variant: 'warning' },
   awaiting_validation: { icon: Clock, color: 'text-blue-400', variant: 'info' },
 };
 
@@ -88,7 +88,7 @@ export default function AssumptionsPage() {
         </Card>
         <Card hover={false}>
           <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-yellow-400">{stats.pending}</div>
+            <div className="text-2xl font-semibold text-amber-400">{stats.pending}</div>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Pending</div>
           </div>
         </Card>

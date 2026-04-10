@@ -59,8 +59,8 @@ export default function DriftCard() {
       <CardContent>
         <div className="flex items-center justify-around mb-3">
           <StatCompact label="Critical" value={overall.critical_count || 0} color="text-red-400" />
-          <StatCompact label="Warning" value={overall.warning_count || 0} color="text-yellow-400" />
-          <StatCompact label="Unack" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-yellow-400' : 'text-zinc-400'} />
+          <StatCompact label="Warning" value={overall.warning_count || 0} color="text-amber-400" />
+          <StatCompact label="Unack" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
         </div>
 
         {stats?.by_agent && stats.by_agent.length > 0 && (

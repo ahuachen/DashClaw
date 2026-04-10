@@ -196,7 +196,7 @@ export default function DecisionReplayPage() {
     const s = parseInt(score, 10);
     if (s >= 70) return 'text-red-400 bg-red-500/10 border-red-500/20';
     if (s >= 40) return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-    return 'text-green-400 bg-green-500/10 border-green-500/20';
+    return 'text-emerald-400 bg-green-500/10 border-green-500/20';
   };
 
   // --- Assumption actions ---
@@ -395,7 +395,7 @@ export default function DecisionReplayPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${action.reversible ? 'text-green-400' : 'text-red-400'}`}>
+            <div className={`text-2xl font-semibold tabular-nums ${action.reversible ? 'text-emerald-400' : 'text-red-400'}`}>
               {action.reversible ? 'Yes' : 'No'}
             </div>
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Reversible</div>
@@ -472,7 +472,7 @@ export default function DecisionReplayPage() {
                                 <span className="text-zinc-500 uppercase font-medium">Guard</span>
                               </div>
                               <div className="text-sm text-zinc-300">
-                                Decision: <span className={event.data.decision === 'allow' ? 'text-green-400' : 'text-red-400'}>{event.data.decision?.toUpperCase()}</span>
+                                Decision: <span className={event.data.decision === 'allow' ? 'text-emerald-400' : 'text-red-400'}>{event.data.decision?.toUpperCase()}</span>
                                 {event.data.risk_score != null && <span className="text-zinc-500 ml-2">(risk {event.data.risk_score})</span>}
                               </div>
                             </div>
@@ -516,7 +516,7 @@ export default function DecisionReplayPage() {
                               <div className="flex items-center gap-2 text-xs mb-1">
                                 <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
                                 <span className="text-zinc-500 uppercase font-medium">Assumption</span>
-                                {event.data.validated ? <CheckCircle2 size={12} className="text-green-400" /> : event.data.invalidated ? <XCircle size={12} className="text-red-400" /> : <Clock size={12} className="text-zinc-500" />}
+                                {event.data.validated ? <CheckCircle2 size={12} className="text-emerald-400" /> : event.data.invalidated ? <XCircle size={12} className="text-red-400" /> : <Clock size={12} className="text-zinc-500" />}
                               </div>
                               <div className="text-sm text-zinc-300">{event.data.assumption}</div>
                             </div>
@@ -529,7 +529,7 @@ export default function DecisionReplayPage() {
                           <div key={`outcome-${idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
                               <div className={`w-8 h-8 rounded-full ${isSuccessOutcome ? 'bg-green-500/20' : 'bg-red-500/20'} flex items-center justify-center flex-shrink-0`}>
-                                {isSuccessOutcome ? <CheckCircle2 size={14} className="text-green-400" /> : <XCircle size={14} className="text-red-400" />}
+                                {isSuccessOutcome ? <CheckCircle2 size={14} className="text-emerald-400" /> : <XCircle size={14} className="text-red-400" />}
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
@@ -555,7 +555,7 @@ export default function DecisionReplayPage() {
                           <div key={`loop-${event.data.loop_id || idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
                               <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
-                                <AlertTriangle size={14} className="text-yellow-400" />
+                                <AlertTriangle size={14} className="text-amber-400" />
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
@@ -805,7 +805,7 @@ export default function DecisionReplayPage() {
                             <div className="flex items-start space-x-3">
                               <span className="mt-1">
                                 {asm.validated
-                                  ? <CheckCircle2 size={18} className="text-green-400" />
+                                  ? <CheckCircle2 size={18} className="text-emerald-400" />
                                   : asm.invalidated
                                     ? <XCircle size={18} className="text-red-400" />
                                     : <HelpCircle size={18} className="text-amber-400" />
@@ -897,7 +897,7 @@ export default function DecisionReplayPage() {
                           <div className="flex items-center justify-between mb-3">
                             <div className="text-white font-semibold text-sm flex items-center gap-2">
                               {indicator.type === 'invalidated_assumptions' && <XCircle size={14} className="text-red-400" />}
-                              {indicator.type === 'unresolved_loops' && <RefreshCw size={14} className="text-yellow-400" />}
+                              {indicator.type === 'unresolved_loops' && <RefreshCw size={14} className="text-amber-400" />}
                               {indicator.type === 'parent_failures' && <ArrowUp size={14} className="text-amber-400" />}
                               <span className="uppercase tracking-wider text-xs">{indicator.type.replace(/_/g, ' ')}</span>
                             </div>

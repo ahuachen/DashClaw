@@ -23,16 +23,16 @@ const TABS = [
 
 const MATURITY_CONFIG = {
   master: { color: 'text-purple-400', bg: 'bg-purple-500', variant: 'info' },
-  expert: { color: 'text-green-400', bg: 'bg-green-500', variant: 'success' },
+  expert: { color: 'text-emerald-400', bg: 'bg-green-500', variant: 'success' },
   proficient: { color: 'text-blue-400', bg: 'bg-blue-500', variant: 'info' },
-  competent: { color: 'text-yellow-400', bg: 'bg-yellow-500', variant: 'warning' },
+  competent: { color: 'text-amber-400', bg: 'bg-yellow-500', variant: 'warning' },
   developing: { color: 'text-orange-400', bg: 'bg-orange-500', variant: 'warning' },
   novice: { color: 'text-zinc-400', bg: 'bg-zinc-500', variant: 'default' },
   unknown: { color: 'text-zinc-600', bg: 'bg-zinc-700', variant: 'default' },
 };
 
 function VelocityArrow({ velocity }) {
-  if (velocity > 0.5) return <TrendingUp size={14} className="text-green-400" />;
+  if (velocity > 0.5) return <TrendingUp size={14} className="text-emerald-400" />;
   if (velocity < -0.5) return <TrendingDown size={14} className="text-red-400" />;
   return <Minus size={14} className="text-zinc-500" />;
 }
@@ -152,12 +152,12 @@ export default function LearningAnalyticsPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Avg Score" value={overall.avg_score || '--'} color={parseFloat(overall.avg_score) >= 70 ? 'text-green-400' : parseFloat(overall.avg_score) >= 50 ? 'text-yellow-400' : 'text-red-400'} />
+              <StatCompact label="Avg Score" value={overall.avg_score || '--'} color={parseFloat(overall.avg_score) >= 70 ? 'text-emerald-400' : parseFloat(overall.avg_score) >= 50 ? 'text-amber-400' : 'text-red-400'} />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Success Rate" value={overall.success_rate ? `${Math.round(overall.success_rate * 100)}%` : '--'} color="text-green-400" />
+              <StatCompact label="Success Rate" value={overall.success_rate ? `${Math.round(overall.success_rate * 100)}%` : '--'} color="text-emerald-400" />
             </CardContent>
           </Card>
           <Card hover={false}>
@@ -262,7 +262,7 @@ export default function LearningAnalyticsPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <VelocityArrow velocity={Number(v.velocity)} />
-                          <span className={`text-xs tabular-nums ${Number(v.velocity) > 0 ? 'text-green-400' : Number(v.velocity) < 0 ? 'text-red-400' : 'text-zinc-500'}`}>
+                          <span className={`text-xs tabular-nums ${Number(v.velocity) > 0 ? 'text-emerald-400' : Number(v.velocity) < 0 ? 'text-red-400' : 'text-zinc-500'}`}>
                             {Number(v.velocity) > 0 ? '+' : ''}{v.velocity} pts/period
                           </span>
                         </div>
@@ -339,7 +339,7 @@ export default function LearningAnalyticsPage() {
                             <div className="text-[9px] text-zinc-600">Success</div>
                           </div>
                           <div className="text-center">
-                            <div className={`text-xs tabular-nums ${a.velocity > 0 ? 'text-green-400' : a.velocity < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
+                            <div className={`text-xs tabular-nums ${a.velocity > 0 ? 'text-emerald-400' : a.velocity < 0 ? 'text-red-400' : 'text-zinc-400'}`}>
                               {a.velocity !== null ? (a.velocity > 0 ? '+' : '') + a.velocity : '--'}
                             </div>
                             <div className="text-[9px] text-zinc-600">Velocity</div>

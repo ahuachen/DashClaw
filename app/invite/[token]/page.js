@@ -127,7 +127,7 @@ export default function InviteAcceptPage() {
   const getStatusDisplay = () => {
     if (accepted) {
       return {
-        icon: <Check size={24} className="text-green-400" />,
+        icon: <Check size={24} className="text-emerald-400" />,
         iconBg: 'bg-green-500/10',
         title: 'Invite Accepted!',
         desc: 'Redirecting to dashboard...',

@@ -82,8 +82,8 @@ export default function NotificationCenter() {
   const getTypeIcon = (type) => {
     switch (type) {
       case 'error': return <XCircle size={14} className="text-red-400" />;
-      case 'warning': return <AlertTriangle size={14} className="text-yellow-400" />;
-      case 'success': return <CheckCircle2 size={14} className="text-green-400" />;
+      case 'warning': return <AlertTriangle size={14} className="text-amber-400" />;
+      case 'success': return <CheckCircle2 size={14} className="text-emerald-400" />;
       default: return <Info size={14} className="text-blue-400" />;
     }
   };

@@ -225,10 +225,10 @@ export default function CompliancePage() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-3">
             <StatCompact label="Total Controls" value={coverage.total ?? 0} />
-            <StatCompact label="Covered" value={coverage.covered ?? 0} color="text-green-400" />
-            <StatCompact label="Partial" value={coverage.partial ?? 0} color="text-yellow-400" />
+            <StatCompact label="Covered" value={coverage.covered ?? 0} color="text-emerald-400" />
+            <StatCompact label="Partial" value={coverage.partial ?? 0} color="text-amber-400" />
             <StatCompact label="Gaps" value={coverage.gaps ?? 0} color="text-red-400" />
-            <StatCompact label="Coverage" value={`${coveragePercent}%`} color={coveragePercent >= 80 ? 'text-green-400' : coveragePercent >= 50 ? 'text-yellow-400' : 'text-red-400'} />
+            <StatCompact label="Coverage" value={`${coveragePercent}%`} color={coveragePercent >= 80 ? 'text-emerald-400' : coveragePercent >= 50 ? 'text-amber-400' : 'text-red-400'} />
           </div>
           <ProgressBar value={coveragePercent} color={coveragePercent >= 80 ? 'success' : coveragePercent >= 50 ? 'warning' : 'error'} className="mb-6" />
         </>
@@ -290,7 +290,7 @@ export default function CompliancePage() {
                                 <span className="text-[10px] text-zinc-600 uppercase">Matched Policies</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
                                   {policies.map((p, i) => (
-                                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">
+                                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-emerald-400 border border-green-500/20">
                                       {typeof p === 'string' ? p : p.name || p.id}
                                     </span>
                                   ))}
@@ -402,7 +402,7 @@ export default function CompliancePage() {
                     <div className="text-[10px] text-zinc-500">Blocked</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-semibold text-yellow-400 tabular-nums">{evidence.approval_requests ?? 0}</div>
+                    <div className="text-lg font-semibold text-amber-400 tabular-nums">{evidence.approval_requests ?? 0}</div>
                     <div className="text-[10px] text-zinc-500">Approval Requests</div>
                   </div>
                   <div className="text-center">
@@ -427,8 +427,8 @@ export default function CompliancePage() {
                 <ListSkeleton rows={2} />
               ) : signals.length === 0 ? (
                 <div className="flex items-center gap-2 py-2">
-                  <CheckCircle size={14} className="text-green-400" />
-                  <span className="text-xs text-green-400">All clear — no active integrity signals</span>
+                  <CheckCircle size={14} className="text-emerald-400" />
+                  <span className="text-xs text-emerald-400">All clear — no active integrity signals</span>
                 </div>
               ) : (
                 <div className="space-y-2">

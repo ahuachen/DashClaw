@@ -71,8 +71,8 @@ export default function RelationshipsDashboard() {
   const getDaysColor = (days) => {
     if (days === null) return '';
     if (days <= 0) return 'text-red-400';
-    if (days <= 2) return 'text-yellow-400';
-    return 'text-green-400';
+    if (days <= 2) return 'text-amber-400';
+    return 'text-emerald-400';
   };
 
   const handleAddContact = async () => {
@@ -193,7 +193,7 @@ export default function RelationshipsDashboard() {
                       className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
                         tempFilter === temp
                           ? temp === 'HOT' ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                            : temp === 'WARM' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'
+                            : temp === 'WARM' ? 'bg-yellow-500/20 text-amber-400 border border-yellow-500/40'
                             : temp === 'COLD' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
                             : 'bg-white/10 text-white border border-[rgba(255,255,255,0.2)]'
                           : 'bg-surface-tertiary text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'

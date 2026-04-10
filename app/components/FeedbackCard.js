@@ -70,9 +70,9 @@ export default function FeedbackCard() {
       />
       <CardContent>
         <div className="flex items-center justify-around mb-4">
-          <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-green-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-yellow-400' : 'text-red-400'} />
-          <StatCompact label="Positive" value={`${posRate}%`} color="text-green-400" />
-          <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-yellow-400' : 'text-zinc-400'} />
+          <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-emerald-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-amber-400' : 'text-red-400'} />
+          <StatCompact label="Positive" value={`${posRate}%`} color="text-emerald-400" />
+          <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
         </div>
 
         {/* Sentiment bar */}

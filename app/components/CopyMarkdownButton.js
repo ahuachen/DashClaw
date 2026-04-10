@@ -36,8 +36,8 @@ export default function CopyMarkdownButton({
       >
         {copied ? (
           <>
-            <Check size={16} className="text-green-400" />
-            <span className="text-green-400">Copied!</span>
+            <Check size={16} className="text-emerald-400" />
+            <span className="text-emerald-400">Copied!</span>
           </>
         ) : (
           <>

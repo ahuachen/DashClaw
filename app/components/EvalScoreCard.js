@@ -58,7 +58,7 @@ export default function EvalScoreCard() {
   }
 
   const avgPct = overall.avg_score ? Math.round(overall.avg_score * 100) : 0;
-  const avgColor = avgPct >= 80 ? 'text-green-400' : avgPct >= 50 ? 'text-yellow-400' : 'text-red-400';
+  const avgColor = avgPct >= 80 ? 'text-emerald-400' : avgPct >= 50 ? 'text-amber-400' : 'text-red-400';
 
   return (
     <Card className="h-full" ref={sizeRef}>

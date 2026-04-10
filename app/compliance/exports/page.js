@@ -24,7 +24,7 @@ const FRAMEWORKS = [
 ];
 
 const STATUS_CONFIG = {
-  completed: { icon: CheckCircle, variant: 'success', color: 'text-green-400' },
+  completed: { icon: CheckCircle, variant: 'success', color: 'text-emerald-400' },
   running: { icon: Loader2, variant: 'info', color: 'text-blue-400', animate: true },
   failed: { icon: XCircle, variant: 'error', color: 'text-red-400' },
   pending: { icon: Clock, variant: 'default', color: 'text-zinc-500' },
@@ -199,7 +199,7 @@ export default function ComplianceExportsPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Completed" value={completedExports} color="text-green-400" />
+              <StatCompact label="Completed" value={completedExports} color="text-emerald-400" />
             </CardContent>
           </Card>
           <Card hover={false}>
@@ -371,7 +371,7 @@ export default function ComplianceExportsPage() {
                         <Badge size="xs" variant="info">{sch.cron_expression}</Badge>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => handleToggleSchedule(sch.id, sch.enabled)} className={`px-2 py-0.5 rounded text-xs transition-colors ${sch.enabled ? 'text-green-400 hover:text-red-400' : 'text-zinc-500 hover:text-green-400'}`}>
+                        <button onClick={() => handleToggleSchedule(sch.id, sch.enabled)} className={`px-2 py-0.5 rounded text-xs transition-colors ${sch.enabled ? 'text-emerald-400 hover:text-red-400' : 'text-zinc-500 hover:text-emerald-400'}`}>
                           {sch.enabled ? 'Disable' : 'Enable'}
                         </button>
                         <button onClick={() => handleDeleteSchedule(sch.id)} className="p-1 rounded text-zinc-600 hover:text-red-400 transition-colors">

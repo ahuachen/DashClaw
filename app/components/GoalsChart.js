@@ -83,7 +83,7 @@ export default function GoalsChart() {
           <div className="grid grid-cols-4 gap-2">
             <StatCompact label="Total" value={totalGoals} />
             <StatCompact label="Active" value={stats.active || 0} color="text-blue-400" />
-            <StatCompact label="Done" value={stats.completed || 0} color="text-green-400" />
+            <StatCompact label="Done" value={stats.completed || 0} color="text-emerald-400" />
             <StatCompact label="Avg %" value={`${stats.avgProgress || 0}%`} color="text-brand" />
           </div>
         </div>

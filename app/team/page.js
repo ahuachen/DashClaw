@@ -258,24 +258,24 @@ export default function TeamPage() {
           <CardContent className="pt-5">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Link2 size={16} className="text-green-400" />
+                <Link2 size={16} className="text-emerald-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-green-400 mb-1">
+                <div className="text-sm font-medium text-emerald-400 mb-1">
                   Invite Created{newInvite.email ? ` for ${newInvite.email}` : ''}
                 </div>
                 <p className="text-xs text-zinc-400 mb-3">
                   Share this link with the person you want to invite. It expires in 7 days.
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm font-mono text-green-400 overflow-x-auto">
+                  <code className="flex-1 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm font-mono text-emerald-400 overflow-x-auto">
                     {newInvite.invite_url}
                   </code>
                   <button
                     onClick={() => handleCopy(newInvite.invite_url)}
                     className="flex items-center gap-1.5 px-3 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg text-sm text-zinc-300 hover:text-white hover:border-[rgba(255,255,255,0.12)] transition-colors flex-shrink-0"
                   >
-                    {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                    {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </div>

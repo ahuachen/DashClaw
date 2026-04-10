@@ -198,7 +198,7 @@ export default function ScoringPage() {
 
   const scoreColor = (score) => {
     if (score >= 80) return 'text-emerald-400';
-    if (score >= 60) return 'text-yellow-400';
+    if (score >= 60) return 'text-amber-400';
     if (score >= 40) return 'text-orange-400';
     return 'text-red-400';
   };
@@ -512,7 +512,7 @@ export default function ScoringPage() {
 
           {calibration && calibration.status === 'insufficient_data' && (
             <Card className="p-4">
-              <p className="text-sm text-yellow-400">{calibration.message}</p>
+              <p className="text-sm text-amber-400">{calibration.message}</p>
             </Card>
           )}
 
@@ -562,7 +562,7 @@ export default function ScoringPage() {
                       <div key={j} className={`p-2 rounded text-center ${
                         rule.label === 'excellent' ? 'bg-emerald-500/10 text-emerald-400' :
                         rule.label === 'good' ? 'bg-blue-500/10 text-blue-400' :
-                        rule.label === 'acceptable' ? 'bg-yellow-500/10 text-yellow-400' :
+                        rule.label === 'acceptable' ? 'bg-yellow-500/10 text-amber-400' :
                         'bg-red-500/10 text-red-400'
                       }`}>
                         <div className="text-xs font-medium">{rule.label}</div>

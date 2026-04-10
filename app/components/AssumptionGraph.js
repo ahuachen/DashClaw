@@ -216,12 +216,12 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
 
   const NodeIcon = ({ node }) => {
     if (node.type === 'assumption') {
-      if (node.validated) return <CheckCircle2 size={14} className="text-green-400 flex-shrink-0" />;
+      if (node.validated) return <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />;
       if (node.invalidated) return <XCircle size={14} className="text-red-400 flex-shrink-0" />;
       return <HelpCircle size={14} className="text-amber-400 flex-shrink-0" />;
     }
     if (node.type === 'loop') {
-      if (node.status === 'resolved') return <CheckCircle2 size={14} className="text-green-400 flex-shrink-0" />;
+      if (node.status === 'resolved') return <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />;
       if (node.status === 'cancelled') return <XCircle size={14} className="text-zinc-400 flex-shrink-0" />;
       return <RefreshCw size={14} className="text-amber-400 flex-shrink-0" />;
     }
@@ -339,7 +339,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-green-400' :
+                node.status === 'completed' ? 'text-emerald-400' :
                 node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
               }`}>
                 {node.status}
@@ -368,7 +368,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-green-400' :
+                node.status === 'completed' ? 'text-emerald-400' :
                 node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
               }`}>
                 {node.status}
@@ -439,7 +439,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-green-400' :
+                node.status === 'completed' ? 'text-emerald-400' :
                 node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
               }`}>
                 {node.status}

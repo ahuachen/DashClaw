@@ -104,7 +104,7 @@ export default function GuardSimulation() {
                     </div>
                     <div className="pl-6">
                       <span className="text-zinc-400">action: </span>
-                      <span className="text-green-400">&quot;db_migration&quot;</span>
+                      <span className="text-emerald-400">&quot;db_migration&quot;</span>
                       <span className="text-zinc-400">,</span>
                     </div>
                     <div className="pl-6">
@@ -138,10 +138,10 @@ export default function GuardSimulation() {
                     )}
 
                     {step === 'finished' && (
-                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'} animate-in zoom-in-95 duration-300 shadow-lg`}>
+                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'} animate-in zoom-in-95 duration-300 shadow-lg`}>
                         <div className="flex items-center gap-3 mb-2">
-                          {decision === 'allowed' ? <ShieldCheck size={20} className="text-green-400" /> : <ShieldAlert size={20} className="text-red-400" />}
-                          <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-green-400' : 'text-red-400'}`}>
+                          {decision === 'allowed' ? <ShieldCheck size={20} className="text-emerald-400" /> : <ShieldAlert size={20} className="text-red-400" />}
+                          <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-emerald-400' : 'text-red-400'}`}>
                             {decision === 'allowed' ? 'APPROVED' : 'BLOCKED'}
                           </span>
                         </div>
@@ -268,7 +268,7 @@ export default function GuardSimulation() {
                     step === 'finished' ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
                   }`}>
                     <div className="p-4 rounded-2xl bg-black border border-white/5 text-center space-y-3 shadow-xl h-full flex flex-col justify-center">
-                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 text-green-400 mb-1">
+                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 text-emerald-400 mb-1">
                         <ShieldCheck size={20} />
                       </div>
                       <div className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest">Evidence Recorded</div>
@@ -277,8 +277,8 @@ export default function GuardSimulation() {
                           act_9283_dec_signed_v1...
                         </div>
                         <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20">
-                          <CheckCircle2 size={10} className="text-green-400" />
-                          <span className="text-[8px] font-bold text-green-400 uppercase tracking-tighter">verified</span>
+                          <CheckCircle2 size={10} className="text-emerald-400" />
+                          <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-tighter">verified</span>
                         </div>
                       </div>
                     </div>

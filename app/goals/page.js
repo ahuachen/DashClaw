@@ -184,7 +184,7 @@ export default function GoalsDashboard() {
                           <div key={milestone.id} className="bg-surface-tertiary rounded-lg p-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {milestone.status === 'completed' ? (
-                                <CheckCircle2 size={16} className="text-green-400" />
+                                <CheckCircle2 size={16} className="text-emerald-400" />
                               ) : (
                                 <Circle size={16} className="text-zinc-600" />
                               )}
@@ -216,7 +216,7 @@ export default function GoalsDashboard() {
               }}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-green-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-emerald-400 flex items-center gap-1.5">
                 <Search size={14} />
                 Health Check
               </div>
@@ -242,7 +242,7 @@ export default function GoalsDashboard() {
               }}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-yellow-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
                 <BarChart3 size={14} />
                 Update Progress
               </div>

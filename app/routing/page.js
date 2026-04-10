@@ -247,10 +247,10 @@ export default function TaskRoutingPage() {
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <StatCompact label="Total Agents" value={stats?.total_agents ?? '\u2014'} />
-        <StatCompact label="Available" value={stats?.available_agents ?? '\u2014'} color="text-green-400" />
-        <StatCompact label="Busy" value={stats?.busy_agents ?? '\u2014'} color="text-yellow-400" />
+        <StatCompact label="Available" value={stats?.available_agents ?? '\u2014'} color="text-emerald-400" />
+        <StatCompact label="Busy" value={stats?.busy_agents ?? '\u2014'} color="text-amber-400" />
         <StatCompact label="Pending Tasks" value={stats?.pending_tasks ?? '\u2014'} />
-        <StatCompact label="Completed" value={stats?.completed_tasks ?? '\u2014'} color="text-green-400" />
+        <StatCompact label="Completed" value={stats?.completed_tasks ?? '\u2014'} color="text-emerald-400" />
         <StatCompact label="Decisions" value={stats?.routing_decisions ?? '\u2014'} />
       </div>
 
@@ -370,7 +370,7 @@ export default function TaskRoutingPage() {
                       return (
                         <div key={task.id} className="py-3 flex items-start gap-3">
                           <StatusIcon size={14} className={`mt-0.5 flex-shrink-0 ${
-                            task.status === 'completed' ? 'text-green-400' :
+                            task.status === 'completed' ? 'text-emerald-400' :
                             task.status === 'failed' ? 'text-red-400' :
                             task.status === 'assigned' ? 'text-blue-400' :
                             'text-zinc-500'
