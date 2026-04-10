@@ -1,14 +1,14 @@
 {
   "node": {
-    "current_version": "2.10.0",
-    "next_bump": "minor",
-    "reason": "capability runtime and operator surface expansion",
-    "domains": ["execution.capabilities"]
+    "current_version": "2.11.0",
+    "next_bump": "patch",
+    "reason": "README update: heartbeats now implicit on createAction (no API change)",
+    "domains": []
   },
   "python": {
-    "current_version": "2.10.0",
-    "next_bump": "minor",
-    "reason": "capability, workflow, model strategy, and knowledge runtime convergence with canonical SDK contracts",
-    "domains": ["capabilities", "workflows", "model_strategies", "knowledge"]
+    "current_version": "2.11.0",
+    "next_bump": "patch",
+    "reason": "README update: heartbeats now implicit on create_action (no API change)",
+    "domains": []
   }
 }
