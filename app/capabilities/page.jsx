@@ -161,41 +161,41 @@ export default function CapabilitiesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchCapabilities}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
           <Link
             href="/capabilities/new"
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
           >
-            <Plus size={14} /> Register Capability
+            <Plus size={14} /> Register capability
           </Link>
         </div>
       )}
     >
       <CapabilityRegistrySummary counts={summaryCounts} />
 
-      <div className="flex items-center gap-3 mb-6">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="relative max-w-md flex-1">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, description, tags..."
-            className="w-full pl-9 pr-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
+            placeholder="Search name, description, tags…"
+            className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-9 pr-3 text-sm text-white transition-colors focus:border-brand/40 focus:outline-none"
           />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1.5">
           {RISK_LEVELS.map((level) => (
             <button
               key={level}
               onClick={() => setRiskFilter(level)}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+              className={`rounded-md border px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${
                 riskFilter === level
-                  ? 'bg-brand text-white'
-                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                  ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
+                  : 'border-transparent text-zinc-500 hover:border-border hover:text-zinc-300'
               }`}
             >
               {level}
@@ -214,19 +214,19 @@ export default function CapabilitiesPage() {
       />
 
       {error ? (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+        <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
         </div>
       ) : null}
 
       {healthError ? (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+        <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
           {healthError}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
+        <div className="py-12 text-center text-sm text-zinc-500">Loading…</div>
       ) : filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={Wrench}
@@ -240,7 +240,7 @@ export default function CapabilitiesPage() {
             !search && riskFilter === 'all' ? (
               <Link
                 href="/capabilities/new"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
               >
                 <Plus size={14} /> Register your first capability
               </Link>

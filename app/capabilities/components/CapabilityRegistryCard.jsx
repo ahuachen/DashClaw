@@ -148,7 +148,7 @@ export default function CapabilityRegistryCard({
             {capability.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                className="rounded border border-border bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
               >
                 {tag}
               </span>
@@ -184,7 +184,7 @@ export default function CapabilityRegistryCard({
                   disabled={deleting}
                   className="text-red-400 hover:text-red-300 disabled:opacity-50"
                 >
-                  {deleting ? 'Deleting...' : 'Yes'}
+                  {deleting ? 'Deleting…' : 'Yes'}
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
@@ -207,11 +207,11 @@ export default function CapabilityRegistryCard({
             <button
               onClick={() => onRunTest(capability)}
               disabled={testStatus?.submitting}
-              aria-label={`Run Test ${capability.name}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white transition-colors hover:bg-white/10 disabled:opacity-50"
+              aria-label={`Run test ${capability.name}`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
             >
               <FlaskConical size={12} />
-              {testStatus?.submitting ? 'Running...' : 'Run Test'}
+              {testStatus?.submitting ? 'Running…' : 'Run test'}
             </button>
           ) : null}
         </div>
