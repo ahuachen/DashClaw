@@ -9,7 +9,7 @@ import {
   Settings, BarChart3, Clock, PanelLeftClose,
   PanelLeft, Menu, X, Activity, Shield, Microscope,
   Terminal, TrendingUp, GraduationCap, Plug,
-  MessageSquare, Download, Workflow, Cpu, BookOpen, Wrench, Fingerprint,
+  MessageSquare, Download, Workflow, Cpu, BookOpen, Wrench, Fingerprint, Bell,
 } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
 
@@ -63,6 +63,7 @@ const navGroups = [
     label: 'Configure',
     items: [
       { href: '/integrations', icon: Plug, label: 'Integrations' },
+      { href: '/webhooks', icon: Bell, label: 'Webhooks' },
       { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
       { href: '/identities', icon: Fingerprint, label: 'Identities' },
       { href: '/settings', icon: Settings, label: 'Settings' },
