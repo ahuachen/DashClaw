@@ -22,35 +22,37 @@ export function getCurrentPeriod() {
  * Resources using period 'current' (agents, api_keys, members, knowledge_collections)
  * are snapshot-based; others reset monthly.
  */
+// All plans are unlimited while DashClaw is open-source.
+// Metering infrastructure is preserved for future monetization.
 export const PLAN_LIMITS = {
   free: {
-    governed_actions: 5000,
-    actions_per_month: 5000,
-    agents: 3,
-    api_keys: Infinity,
-    members: 5,
-    capability_invocations: 100,
-    workflow_executions: 50,
-    knowledge_collections: 3,
-  },
-  pro: {
-    governed_actions: 50000,
-    actions_per_month: 50000,
-    agents: 25,
-    api_keys: Infinity,
-    members: 25,
-    capability_invocations: 5000,
-    workflow_executions: 2500,
-    knowledge_collections: 25,
-  },
-  business: {
-    governed_actions: 500000,
-    actions_per_month: 500000,
+    governed_actions: Infinity,
+    actions_per_month: Infinity,
     agents: Infinity,
     api_keys: Infinity,
     members: Infinity,
-    capability_invocations: 50000,
-    workflow_executions: 25000,
+    capability_invocations: Infinity,
+    workflow_executions: Infinity,
+    knowledge_collections: Infinity,
+  },
+  pro: {
+    governed_actions: Infinity,
+    actions_per_month: Infinity,
+    agents: Infinity,
+    api_keys: Infinity,
+    members: Infinity,
+    capability_invocations: Infinity,
+    workflow_executions: Infinity,
+    knowledge_collections: Infinity,
+  },
+  business: {
+    governed_actions: Infinity,
+    actions_per_month: Infinity,
+    agents: Infinity,
+    api_keys: Infinity,
+    members: Infinity,
+    capability_invocations: Infinity,
+    workflow_executions: Infinity,
     knowledge_collections: Infinity,
   },
   enterprise: {

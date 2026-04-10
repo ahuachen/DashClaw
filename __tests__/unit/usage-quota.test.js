@@ -6,13 +6,11 @@ describe('PLAN_LIMITS', () => {
     expect(Object.keys(PLAN_LIMITS)).toEqual(['free', 'pro', 'business', 'enterprise']);
   });
 
-  it('free tier has 5000 governed_actions', () => {
-    expect(PLAN_LIMITS.free.governed_actions).toBe(5000);
-  });
-
-  it('enterprise tier has Infinity for all resources', () => {
-    for (const value of Object.values(PLAN_LIMITS.enterprise)) {
-      expect(value).toBe(Infinity);
+  it('all tiers have Infinity for all resources (open-source, no limits)', () => {
+    for (const tier of Object.values(PLAN_LIMITS)) {
+      for (const value of Object.values(tier)) {
+        expect(value).toBe(Infinity);
+      }
     }
   });
 });
