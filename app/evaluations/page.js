@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  BarChart3, Plus, Play, Trash2, ChevronRight, ChevronDown,
+  BarChart3, Plus, Play, Trash2,
   AlertCircle, CheckCircle, XCircle, Clock, Filter, RefreshCw,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { Stat, StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
@@ -22,11 +21,11 @@ const TABS = [
 ];
 
 const SCORER_TYPES = [
-  { value: 'regex', label: 'Regex Match', description: 'Match action outcomes against a regex pattern' },
-  { value: 'contains', label: 'Keyword Contains', description: 'Check if outcome contains specific keywords' },
-  { value: 'numeric_range', label: 'Numeric Range', description: 'Check if a numeric field falls in a range' },
-  { value: 'custom_function', label: 'Custom Expression', description: 'Write a JS expression that returns 0.0-1.0' },
-  { value: 'llm_judge', label: 'LLM-as-Judge', description: 'AI evaluates action quality (requires AI provider)' },
+  { value: 'regex', label: 'Regex match', description: 'Match action outcomes against a regex pattern' },
+  { value: 'contains', label: 'Keyword contains', description: 'Check if outcome contains specific keywords' },
+  { value: 'numeric_range', label: 'Numeric range', description: 'Check if a numeric field falls in a range' },
+  { value: 'custom_function', label: 'Custom expression', description: 'Write a JS expression that returns 0.0-1.0' },
+  { value: 'llm_judge', label: 'LLM-as-judge', description: 'AI evaluates action quality (requires AI provider)' },
 ];
 
 const SCORE_VARIANT = (score) => {
@@ -36,15 +35,15 @@ const SCORE_VARIANT = (score) => {
 };
 
 function ScoreBar({ score }) {
-  if (score === null || score === undefined) return <span className="text-zinc-500">--</span>;
+  if (score === null || score === undefined) return <span className="text-xs text-zinc-500">—</span>;
   const pct = Math.round(score * 100);
-  const color = score >= 0.8 ? 'bg-green-500' : score >= 0.5 ? 'bg-yellow-500' : 'bg-red-500';
+  const color = score >= 0.8 ? 'bg-emerald-500' : score >= 0.5 ? 'bg-amber-500' : 'bg-red-500';
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs tabular-nums text-zinc-300">{pct}%</span>
+      <span className="w-8 tabular-nums text-xs text-zinc-300">{pct}%</span>
     </div>
   );
 }
@@ -185,6 +184,16 @@ export default function EvaluationsPage() {
 
   const overall = stats?.overall || {};
 
+  const avgScoreColor =
+    overall.avg_score >= 0.8 ? 'text-emerald-400'
+    : overall.avg_score >= 0.5 ? 'text-amber-400'
+    : overall.avg_score ? 'text-red-400' : 'text-white';
+
+  const inputClass = 'rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
+
+  const primaryBtn = 'flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50';
+  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white';
+
   return (
     <PageLayout
       title="Evaluations"
@@ -192,68 +201,83 @@ export default function EvaluationsPage() {
       breadcrumbs={['Operations', 'Evaluations']}
       maturity="beta"
       actions={
-        <button onClick={fetchData} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-          <RefreshCw size={16} />
+        <button
+          onClick={fetchData}
+          aria-label="Refresh"
+          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+        >
+          <RefreshCw size={16} aria-hidden="true" />
         </button>
       }
     >
-      <div className="p-6 space-y-6">
-        {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Total Scores" value={overall.total_scores || 0} />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Avg Score" value={overall.avg_score ? `${Math.round(overall.avg_score * 100)}%` : '--'} color={overall.avg_score >= 0.8 ? 'text-emerald-400' : overall.avg_score >= 0.5 ? 'text-amber-400' : 'text-red-400'} />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Active Scorers" value={overall.unique_scorers || scorers.length || 0} />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Scored Today" value={overall.today_count || 0} />
-            </CardContent>
-          </Card>
+      <div className="space-y-6">
+        {/* Instrument rail */}
+        <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4">
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total scores</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.total_scores || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Avg score</div>
+            <div className={`mt-1 text-2xl font-semibold tabular-nums ${avgScoreColor}`}>
+              {overall.avg_score ? `${Math.round(overall.avg_score * 100)}%` : '—'}
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active scorers</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.unique_scorers || scorers.length || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Scored today</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.today_count || 0}</div>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-[rgba(255,255,255,0.06)]">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id ? 'text-white border-brand' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div role="tablist" className="flex items-center gap-1 border-b border-border">
+          {TABS.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {tab.label}
+                {isActive && (
+                  <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Tab content */}
         {activeTab === 'scores' && (
           <Card>
-            <CardHeader title="Recent Scores" icon={BarChart3} count={scores.length} />
+            <CardHeader title="Recent scores" icon={BarChart3} count={scores.length} />
             <CardContent>
               {scores.length === 0 ? (
                 <EmptyState icon={BarChart3} title="No scores yet" description="Create a scorer and run an evaluation, or submit scores via the SDK." />
               ) : (
                 <div className="space-y-2">
                   {scores.map(score => (
-                    <div key={score.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.04)]">
-                      <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      key={score.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
                         <Badge variant={SCORE_VARIANT(score.score)} size="xs">{score.label || (score.score >= 0.5 ? 'pass' : 'fail')}</Badge>
-                        <span className="text-xs text-zinc-400 truncate">{score.scorer_name}</span>
-                        <span className="text-[10px] text-zinc-600 truncate">{score.action_id}</span>
+                        <span className="truncate text-xs text-zinc-300">{score.scorer_name}</span>
+                        <span className="truncate font-mono text-[11px] text-zinc-500">{score.action_id}</span>
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex shrink-0 items-center gap-3">
                         <ScoreBar score={score.score} />
-                        <span className="text-[10px] text-zinc-600">{score.evaluated_by}</span>
+                        <span className="text-[11px] text-zinc-500">{score.evaluated_by}</span>
                       </div>
                     </div>
                   ))}
@@ -266,8 +290,8 @@ export default function EvaluationsPage() {
         {activeTab === 'scorers' && (
           <div className="space-y-4">
             <div className="flex justify-end">
-              <button onClick={() => setShowCreateScorer(!showCreateScorer)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors">
-                <Plus size={14} /> New Scorer
+              <button onClick={() => setShowCreateScorer(!showCreateScorer)} className={primaryBtn}>
+                <Plus size={14} aria-hidden="true" /> New scorer
               </button>
             </div>
 
@@ -275,8 +299,21 @@ export default function EvaluationsPage() {
               <Card>
                 <CardContent className="space-y-3 pt-5">
                   <div className="grid grid-cols-2 gap-3">
-                    <input value={newScorer.name} onChange={e => setNewScorer(s => ({ ...s, name: e.target.value }))} placeholder="Scorer name" className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
-                    <select value={newScorer.scorer_type} onChange={e => setNewScorer(s => ({ ...s, scorer_type: e.target.value }))} className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-brand">
+                    <label htmlFor="scorer-name" className="sr-only">Scorer name</label>
+                    <input
+                      id="scorer-name"
+                      value={newScorer.name}
+                      onChange={e => setNewScorer(s => ({ ...s, name: e.target.value }))}
+                      placeholder="Scorer name"
+                      className={inputClass}
+                    />
+                    <label htmlFor="scorer-type" className="sr-only">Scorer type</label>
+                    <select
+                      id="scorer-type"
+                      value={newScorer.scorer_type}
+                      onChange={e => setNewScorer(s => ({ ...s, scorer_type: e.target.value }))}
+                      className={inputClass}
+                    >
                       {SCORER_TYPES.map(t => (
                         <option key={t.value} value={t.value} disabled={t.value === 'llm_judge' && !llmAvailable}>
                           {t.label}{t.value === 'llm_judge' && !llmAvailable ? ' (no AI key)' : ''}
@@ -284,16 +321,32 @@ export default function EvaluationsPage() {
                       ))}
                     </select>
                   </div>
-                  <input value={newScorer.description} onChange={e => setNewScorer(s => ({ ...s, description: e.target.value }))} placeholder="Description (optional)" className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
-                  <textarea value={newScorer.config} onChange={e => setNewScorer(s => ({ ...s, config: e.target.value }))} placeholder='{"pattern": "success|completed"}' rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand font-mono" />
+                  <label htmlFor="scorer-description" className="sr-only">Description</label>
+                  <input
+                    id="scorer-description"
+                    value={newScorer.description}
+                    onChange={e => setNewScorer(s => ({ ...s, description: e.target.value }))}
+                    placeholder="Description (optional)"
+                    className={`w-full ${inputClass}`}
+                  />
+                  <label htmlFor="scorer-config" className="sr-only">Config</label>
+                  <textarea
+                    id="scorer-config"
+                    value={newScorer.config}
+                    onChange={e => setNewScorer(s => ({ ...s, config: e.target.value }))}
+                    placeholder='{"pattern": "success|completed"}'
+                    rows={3}
+                    className={`w-full font-mono ${inputClass}`}
+                  />
                   {newScorer.scorer_type === 'llm_judge' && !llmAvailable && (
-                    <div className="flex items-center gap-2 text-xs text-amber-400">
-                      <AlertCircle size={14} /> AI provider not configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_AI_API_KEY to enable LLM-as-judge.
+                    <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-300">
+                      <AlertCircle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                      <span>AI provider not configured. Set <code className="font-mono">OPENAI_API_KEY</code>, <code className="font-mono">ANTHROPIC_API_KEY</code>, or <code className="font-mono">GOOGLE_AI_API_KEY</code> to enable LLM-as-judge.</span>
                     </div>
                   )}
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => setShowCreateScorer(false)} className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-white transition-colors">Cancel</button>
-                    <button onClick={handleCreateScorer} disabled={!newScorer.name} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">Create Scorer</button>
+                    <button onClick={() => setShowCreateScorer(false)} className={secondaryBtn}>Cancel</button>
+                    <button onClick={handleCreateScorer} disabled={!newScorer.name} className={primaryBtn}>Create scorer</button>
                   </div>
                 </CardContent>
               </Card>
@@ -307,16 +360,23 @@ export default function EvaluationsPage() {
                 ) : (
                   <div className="space-y-2">
                     {scorers.map(scorer => (
-                      <div key={scorer.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.04)]">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-sm text-white font-medium">{scorer.name}</span>
+                      <div
+                        key={scorer.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="text-sm font-medium text-white">{scorer.name}</span>
                           <Badge size="xs">{scorer.scorer_type}</Badge>
-                          {scorer.description && <span className="text-xs text-zinc-500 truncate">{scorer.description}</span>}
+                          {scorer.description && <span className="truncate text-xs text-zinc-500">{scorer.description}</span>}
                         </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-xs text-zinc-500">{scorer.total_scores || 0} scores</span>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className="tabular-nums text-xs text-zinc-500">{scorer.total_scores || 0} scores</span>
                           {scorer.avg_score !== null && scorer.avg_score !== undefined && <ScoreBar score={parseFloat(scorer.avg_score)} />}
-                          <button onClick={() => handleDeleteScorer(scorer.id)} className="p-1 rounded text-zinc-600 hover:text-red-400 transition-colors">
+                          <button
+                            onClick={() => handleDeleteScorer(scorer.id)}
+                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                            aria-label={`Delete ${scorer.name}`}
+                          >
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -332,8 +392,12 @@ export default function EvaluationsPage() {
         {activeTab === 'runs' && (
           <div className="space-y-4">
             <div className="flex justify-end">
-              <button onClick={() => setShowCreateRun(!showCreateRun)} disabled={scorers.length === 0} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">
-                <Play size={14} /> New Run
+              <button
+                onClick={() => setShowCreateRun(!showCreateRun)}
+                disabled={scorers.length === 0}
+                className={primaryBtn}
+              >
+                <Play size={14} aria-hidden="true" /> New run
               </button>
             </div>
 
@@ -341,39 +405,55 @@ export default function EvaluationsPage() {
               <Card>
                 <CardContent className="space-y-3 pt-5">
                   <div className="grid grid-cols-2 gap-3">
-                    <input value={newRun.name} onChange={e => setNewRun(s => ({ ...s, name: e.target.value }))} placeholder="Run name (optional)" className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
-                    <select value={newRun.scorer_id} onChange={e => setNewRun(s => ({ ...s, scorer_id: e.target.value }))} className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-brand">
-                      <option value="">Select scorer...</option>
+                    <label htmlFor="run-name" className="sr-only">Run name</label>
+                    <input
+                      id="run-name"
+                      value={newRun.name}
+                      onChange={e => setNewRun(s => ({ ...s, name: e.target.value }))}
+                      placeholder="Run name (optional)"
+                      className={inputClass}
+                    />
+                    <label htmlFor="run-scorer" className="sr-only">Scorer</label>
+                    <select
+                      id="run-scorer"
+                      value={newRun.scorer_id}
+                      onChange={e => setNewRun(s => ({ ...s, scorer_id: e.target.value }))}
+                      className={inputClass}
+                    >
+                      <option value="">Select scorer…</option>
                       {scorers.map(s => <option key={s.id} value={s.id}>{s.name} ({s.scorer_type})</option>)}
                     </select>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => setShowCreateRun(false)} className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-white transition-colors">Cancel</button>
-                    <button onClick={handleCreateRun} disabled={!newRun.scorer_id} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">Start Run</button>
+                    <button onClick={() => setShowCreateRun(false)} className={secondaryBtn}>Cancel</button>
+                    <button onClick={handleCreateRun} disabled={!newRun.scorer_id} className={primaryBtn}>Start run</button>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             <Card>
-              <CardHeader title="Evaluation Runs" icon={Play} count={runs.length} />
+              <CardHeader title="Evaluation runs" icon={Play} count={runs.length} />
               <CardContent>
                 {runs.length === 0 ? (
                   <EmptyState icon={Play} title="No evaluation runs" description={scorers.length === 0 ? 'Create a scorer first, then run an evaluation.' : 'Start a run to batch-evaluate agent actions.'} />
                 ) : (
                   <div className="space-y-2">
                     {runs.map(run => (
-                      <div key={run.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.04)]">
-                        <div className="flex items-center gap-3 min-w-0">
-                          {run.status === 'completed' && <CheckCircle size={14} className="text-emerald-400 shrink-0" />}
-                          {run.status === 'running' && <RefreshCw size={14} className="text-blue-400 shrink-0 animate-spin" />}
-                          {run.status === 'failed' && <XCircle size={14} className="text-red-400 shrink-0" />}
-                          {run.status === 'pending' && <Clock size={14} className="text-zinc-500 shrink-0" />}
-                          <span className="text-sm text-white font-medium">{run.name}</span>
-                          <Badge size="xs">{run.scorer_name || run.scorer_type || '--'}</Badge>
+                      <div
+                        key={run.id}
+                        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          {run.status === 'completed' && <CheckCircle size={14} className="shrink-0 text-emerald-400" aria-hidden="true" />}
+                          {run.status === 'running' && <RefreshCw size={14} className="shrink-0 animate-spin text-blue-400" aria-hidden="true" />}
+                          {run.status === 'failed' && <XCircle size={14} className="shrink-0 text-red-400" aria-hidden="true" />}
+                          {run.status === 'pending' && <Clock size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />}
+                          <span className="text-sm font-medium text-white">{run.name}</span>
+                          <Badge size="xs">{run.scorer_name || run.scorer_type || '—'}</Badge>
                         </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-xs text-zinc-500">{run.scored_count || 0}/{run.total_actions || '?'} scored</span>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className="tabular-nums text-xs text-zinc-500">{run.scored_count || 0}/{run.total_actions || '?'} scored</span>
                           {run.avg_score !== null && run.avg_score !== undefined && <ScoreBar score={parseFloat(run.avg_score)} />}
                           <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'error' : run.status === 'running' ? 'info' : 'default'} size="xs">{run.status}</Badge>
                         </div>
@@ -389,20 +469,23 @@ export default function EvaluationsPage() {
         {/* Score Distribution (shown on all tabs) */}
         {stats?.distribution && stats.distribution.length > 0 && (
           <Card>
-            <CardHeader title="Score Distribution" />
+            <CardHeader title="Score distribution" />
             <CardContent>
-              <div className="flex items-end gap-2 h-20">
-                {stats.distribution.map((bucket, i) => {
+              <div className="flex h-20 items-end gap-2">
+                {stats.distribution.map((bucket) => {
                   const maxCount = Math.max(...stats.distribution.map(b => parseInt(b.count) || 0));
                   const height = maxCount > 0 ? ((parseInt(bucket.count) || 0) / maxCount) * 100 : 0;
-                  const color = bucket.bucket === 'excellent' ? 'bg-green-500' : bucket.bucket === 'acceptable' ? 'bg-yellow-500' : 'bg-red-500';
+                  const color =
+                    bucket.bucket === 'excellent' ? 'bg-emerald-500'
+                    : bucket.bucket === 'acceptable' ? 'bg-amber-500'
+                    : 'bg-red-500';
                   return (
-                    <div key={bucket.bucket} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-[10px] text-zinc-500 tabular-nums">{bucket.count}</span>
+                    <div key={bucket.bucket} className="flex flex-1 flex-col items-center gap-1">
+                      <span className="text-[11px] tabular-nums text-zinc-500">{bucket.count}</span>
                       <div className="w-full rounded-t" style={{ height: `${Math.max(height, 4)}%` }}>
-                        <div className={`w-full h-full rounded-t ${color}`} />
+                        <div className={`h-full w-full rounded-t ${color}`} />
                       </div>
-                      <span className="text-[10px] text-zinc-500 capitalize">{bucket.bucket}</span>
+                      <span className="text-[11px] capitalize text-zinc-500">{bucket.bucket}</span>
                     </div>
                   );
                 })}

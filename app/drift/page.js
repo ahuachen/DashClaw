@@ -3,13 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Activity, AlertTriangle, AlertCircle, Info, CheckCircle,
-  RefreshCw, Play, Zap, TrendingUp, TrendingDown, Minus,
-  XCircle, BarChart3, Shield,
+  RefreshCw, Play, TrendingUp, TrendingDown, Minus,
+  XCircle, BarChart3,
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
@@ -24,7 +23,7 @@ const TABS = [
 
 const SEVERITY_CONFIG = {
   critical: { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30', variant: 'error' },
-  warning: { icon: AlertCircle, color: 'text-amber-400', bg: 'bg-yellow-500/10 border-yellow-500/30', variant: 'warning' },
+  warning: { icon: AlertCircle, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', variant: 'warning' },
   info: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30', variant: 'info' },
 };
 
@@ -38,13 +37,15 @@ function ZScoreBar({ zScore }) {
   const absZ = Math.abs(zScore);
   const maxZ = 5;
   const pct = Math.min((absZ / maxZ) * 100, 100);
-  const color = absZ >= 3 ? 'bg-red-500' : absZ >= 2 ? 'bg-yellow-500' : 'bg-blue-500';
+  const color = absZ >= 3 ? 'bg-red-500' : absZ >= 2 ? 'bg-amber-500' : 'bg-blue-500';
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-zinc-500 tabular-nums w-8">{zScore > 0 ? '+' : ''}{zScore}</span>
+      <span className="w-8 tabular-nums text-[11px] text-zinc-500">
+        {zScore > 0 ? '+' : ''}{zScore}
+      </span>
     </div>
   );
 }
@@ -136,7 +137,7 @@ export default function DriftPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Drift Detection" subtitle="Statistical behavioral drift analysis">
+      <PageLayout title="Drift detection" subtitle="Statistical behavioral drift analysis">
         <ListSkeleton />
       </PageLayout>
     );
@@ -146,68 +147,83 @@ export default function DriftPage() {
 
   return (
     <PageLayout
-      title="Drift Detection"
+      title="Drift detection"
       subtitle="Statistical behavioral drift analysis"
-      breadcrumbs={['Operations', 'Drift Detection']}
+      breadcrumbs={['Operations', 'Drift detection']}
       maturity="beta"
       actions={
         <div className="flex items-center gap-2">
-          <button onClick={handleRunDetection} disabled={running} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">
-            {running ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-            {running ? 'Running...' : 'Run Detection'}
+          <button
+            onClick={handleRunDetection}
+            disabled={running}
+            className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
+          >
+            {running ? <RefreshCw size={14} className="animate-spin" aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
+            {running ? 'Running…' : 'Run detection'}
           </button>
-          <button onClick={fetchData} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
-            <RefreshCw size={16} />
+          <button
+            onClick={fetchData}
+            aria-label="Refresh"
+            className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+          >
+            <RefreshCw size={16} aria-hidden="true" />
           </button>
         </div>
       }
     >
-      <div className="p-6 space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Total Alerts" value={overall.total_alerts || 0} />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Critical" value={overall.critical_count || 0} color="text-red-400" />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Warning" value={overall.warning_count || 0} color="text-amber-400" />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Info" value={overall.info_count || 0} color="text-blue-400" />
-            </CardContent>
-          </Card>
-          <Card hover={false}>
-            <CardContent className="py-4">
-              <StatCompact label="Unacknowledged" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
-            </CardContent>
-          </Card>
+      <div className="space-y-6">
+        {/* Instrument rail */}
+        <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-5">
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total alerts</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.total_alerts || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Critical</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{overall.critical_count || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Warning</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{overall.warning_count || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Info</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{overall.info_count || 0}</div>
+          </div>
+          <div className="p-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unacknowledged</div>
+            <div className={`mt-1 text-2xl font-semibold tabular-nums ${parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
+              {overall.unacknowledged || 0}
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-[rgba(255,255,255,0.06)]">
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id ? 'text-white border-brand' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div role="tablist" className="flex items-center gap-1 border-b border-border">
+          {TABS.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {tab.label}
+                {isActive && (
+                  <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {activeTab === 'alerts' && (
           <Card>
-            <CardHeader title="Drift Alerts" icon={Activity} count={alerts.length} />
+            <CardHeader title="Drift alerts" icon={Activity} count={alerts.length} />
             <CardContent>
               {alerts.length === 0 ? (
                 <EmptyState icon={Activity} title="No drift detected" description="Run drift detection to analyze behavioral patterns against baselines." />
@@ -218,33 +234,54 @@ export default function DriftPage() {
                     const SevIcon = sevConf.icon;
                     const DirIcon = DIRECTION_ICON[alert.direction] || Minus;
                     return (
-                      <div key={alert.id} className={`py-3 px-3 rounded-lg border ${alert.acknowledged ? 'bg-[#0a0a0a] border-[rgba(255,255,255,0.02)]' : sevConf.bg}`}>
-                        <div className="flex items-center justify-between mb-1">
+                      <div
+                        key={alert.id}
+                        className={`rounded-lg border px-3 py-3 ${
+                          alert.acknowledged
+                            ? 'border-border bg-surface-tertiary opacity-75'
+                            : sevConf.bg
+                        }`}
+                      >
+                        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <SevIcon size={14} className={sevConf.color} />
+                            <SevIcon size={14} className={sevConf.color} aria-hidden="true" />
                             <Badge variant={sevConf.variant} size="xs">{alert.severity}</Badge>
                             <Badge size="xs">{alert.metric}</Badge>
                             <span className="text-xs text-zinc-400">{alert.agent_id}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <ZScoreBar zScore={Number(alert.z_score)} />
-                            <DirIcon size={14} className={alert.direction === 'increasing' ? 'text-red-400' : 'text-blue-400'} />
-                            <span className="text-xs text-zinc-500">{alert.pct_change > 0 ? '+' : ''}{alert.pct_change}%</span>
+                            <DirIcon
+                              size={14}
+                              className={alert.direction === 'increasing' ? 'text-red-400' : 'text-blue-400'}
+                              aria-hidden="true"
+                            />
+                            <span className="tabular-nums text-xs text-zinc-500">
+                              {alert.pct_change > 0 ? '+' : ''}{alert.pct_change}%
+                            </span>
                             {!alert.acknowledged && (
-                              <button onClick={() => handleAcknowledge(alert.id)} className="p-1 rounded text-zinc-600 hover:text-emerald-400 transition-colors" title="Acknowledge">
+                              <button
+                                onClick={() => handleAcknowledge(alert.id)}
+                                className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-emerald-400"
+                                aria-label={`Acknowledge ${alert.metric} alert`}
+                              >
                                 <CheckCircle size={14} />
                               </button>
                             )}
                             {alert.acknowledged && <Badge variant="success" size="xs">ack</Badge>}
-                            <button onClick={() => handleDelete(alert.id)} className="p-1 rounded text-zinc-600 hover:text-red-400 transition-colors">
+                            <button
+                              onClick={() => handleDelete(alert.id)}
+                              className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                              aria-label={`Delete ${alert.metric} alert`}
+                            >
                               <XCircle size={12} />
                             </button>
                           </div>
                         </div>
-                        <p className="text-xs text-zinc-400 mt-1">{alert.description}</p>
-                        <div className="flex items-center gap-4 mt-1.5 text-[10px] text-zinc-600">
-                          <span>Baseline: {alert.baseline_mean} +/- {alert.baseline_stddev}</span>
-                          <span>Current: {alert.current_mean} +/- {alert.current_stddev}</span>
+                        <p className="mt-1 text-xs text-zinc-400">{alert.description}</p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-4 text-[11px] tabular-nums text-zinc-500">
+                          <span>Baseline: {alert.baseline_mean} ± {alert.baseline_stddev}</span>
+                          <span>Current: {alert.current_mean} ± {alert.current_stddev}</span>
                           <span>Samples: {alert.sample_count}</span>
                           <span className="ml-auto">{new Date(alert.created_at).toLocaleDateString()}</span>
                         </div>
@@ -258,23 +295,26 @@ export default function DriftPage() {
         )}
 
         {activeTab === 'baselines' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {stats?.recent_baselines && stats.recent_baselines.length > 0 ? (
               <>
                 <Card>
-                  <CardHeader title="Recent Baselines" icon={BarChart3} count={stats.recent_baselines.length} />
+                  <CardHeader title="Recent baselines" icon={BarChart3} count={stats.recent_baselines.length} />
                   <CardContent>
                     <div className="space-y-2">
                       {stats.recent_baselines.map((b, i) => (
-                        <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded bg-[#111] border border-[rgba(255,255,255,0.04)]">
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5"
+                        >
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-zinc-300">{b.agent_id}</span>
                             <Badge size="xs">{b.metric}</Badge>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs text-zinc-400 tabular-nums">mean: {Number(b.mean).toFixed(2)}</span>
-                            <span className="text-xs text-zinc-500 tabular-nums">std: {Number(b.stddev).toFixed(2)}</span>
-                            <span className="text-[10px] text-zinc-600">{b.sample_count} samples</span>
+                          <div className="flex items-center gap-3 text-xs tabular-nums">
+                            <span className="text-zinc-300">mean: {Number(b.mean).toFixed(2)}</span>
+                            <span className="text-zinc-500">std: {Number(b.stddev).toFixed(2)}</span>
+                            <span className="text-zinc-500">{b.sample_count} samples</span>
                           </div>
                         </div>
                       ))}
@@ -284,15 +324,15 @@ export default function DriftPage() {
 
                 {stats?.by_metric && stats.by_metric.length > 0 && (
                   <Card>
-                    <CardHeader title="Alerts by Metric" />
+                    <CardHeader title="Alerts by metric" />
                     <CardContent>
                       <div className="space-y-2">
                         {stats.by_metric.map(m => (
                           <div key={m.metric} className="flex items-center justify-between py-1.5">
                             <span className="text-sm text-zinc-300">{m.metric}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="text-xs text-zinc-500 tabular-nums">{m.count} alerts</span>
-                              <span className="text-xs text-zinc-400 tabular-nums">avg |z|: {m.avg_z_score}</span>
+                            <div className="flex items-center gap-3 text-xs tabular-nums">
+                              <span className="text-zinc-500">{m.count} alerts</span>
+                              <span className="text-zinc-400">avg |z|: {m.avg_z_score}</span>
                             </div>
                           </div>
                         ))}
@@ -304,21 +344,21 @@ export default function DriftPage() {
             ) : (
               <Card>
                 <CardContent className="py-16">
-                  <EmptyState icon={BarChart3} title="No baselines computed" description="Click 'Run Detection' to compute statistical baselines from your agent data." />
+                  <EmptyState icon={BarChart3} title="No baselines computed" description="Click 'Run detection' to compute statistical baselines from your agent data." />
                 </CardContent>
               </Card>
             )}
 
             {stats?.by_agent && stats.by_agent.length > 0 && (
               <Card>
-                <CardHeader title="Alerts by Agent" />
+                <CardHeader title="Alerts by agent" />
                 <CardContent>
                   <div className="space-y-2">
                     {stats.by_agent.map(a => (
                       <div key={a.agent_id} className="flex items-center justify-between py-1.5">
                         <span className="text-sm text-zinc-300">{a.agent_id}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-zinc-500 tabular-nums">{a.count} alerts</span>
+                          <span className="text-xs tabular-nums text-zinc-500">{a.count} alerts</span>
                           {a.critical > 0 && <Badge variant="error" size="xs">{a.critical} crit</Badge>}
                           {a.warning > 0 && <Badge variant="warning" size="xs">{a.warning} warn</Badge>}
                         </div>
@@ -333,23 +373,26 @@ export default function DriftPage() {
 
         {activeTab === 'trends' && (
           <Card>
-            <CardHeader title="Metric Snapshots" icon={TrendingUp} count={snapshots.length} />
+            <CardHeader title="Metric snapshots" icon={TrendingUp} count={snapshots.length} />
             <CardContent>
               {snapshots.length === 0 ? (
                 <EmptyState icon={TrendingUp} title="No snapshot data" description="Snapshots are recorded when you run drift detection. Run it daily for trend data." />
               ) : (
                 <div className="space-y-2">
                   {snapshots.map((s, i) => (
-                    <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded bg-[#111] border border-[rgba(255,255,255,0.04)]">
+                    <div
+                      key={i}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5"
+                    >
                       <div className="flex items-center gap-2">
                         <Badge size="xs">{s.metric}</Badge>
                         {s.agent_id && <span className="text-xs text-zinc-400">{s.agent_id}</span>}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-zinc-300 tabular-nums">mean: {Number(s.mean).toFixed(2)}</span>
-                        <span className="text-xs text-zinc-500 tabular-nums">std: {Number(s.stddev).toFixed(2)}</span>
-                        <span className="text-[10px] text-zinc-600">{s.sample_count} samples</span>
-                        <span className="text-[10px] text-zinc-700">{new Date(s.period_start).toLocaleDateString()}</span>
+                      <div className="flex items-center gap-3 text-xs tabular-nums">
+                        <span className="text-zinc-300">mean: {Number(s.mean).toFixed(2)}</span>
+                        <span className="text-zinc-500">std: {Number(s.stddev).toFixed(2)}</span>
+                        <span className="text-zinc-500">{s.sample_count} samples</span>
+                        <span className="text-zinc-500">{new Date(s.period_start).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}
