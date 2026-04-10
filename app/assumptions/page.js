@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Brain, CheckCircle2, XCircle, HelpCircle, RefreshCw,
-  AlertTriangle, Clock, ChevronRight,
+  Brain, CheckCircle2, XCircle, HelpCircle, Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import PageLayout from '../components/PageLayout';
-import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
@@ -20,6 +19,13 @@ const STATUS_CONFIG = {
   pending: { icon: HelpCircle, color: 'text-amber-400', variant: 'warning' },
   awaiting_validation: { icon: Clock, color: 'text-blue-400', variant: 'info' },
 };
+
+const FILTER_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'awaiting_validation', label: 'Awaiting validation' },
+  { value: 'validated', label: 'Validated' },
+  { value: 'invalidated', label: 'Invalidated' },
+];
 
 export default function AssumptionsPage() {
   const { selectedAgentId } = useAgentFilter();
@@ -66,48 +72,47 @@ export default function AssumptionsPage() {
       subtitle="Decision basis tracking — what agents believe while acting"
       breadcrumbs={['Governance', 'Assumptions']}
     >
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-white">{stats.total}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Total</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-emerald-400">{stats.validated}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Validated</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-red-400">{stats.invalidated}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Invalidated</div>
-          </div>
-        </Card>
-        <Card hover={false}>
-          <div className="p-4 text-center">
-            <div className="text-2xl font-semibold text-amber-400">{stats.pending}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Pending</div>
-          </div>
-        </Card>
+      {/* Instrument rail — one container, divided columns */}
+      <div className="mb-8 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4 md:divide-y-0">
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.total}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Validated</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.validated}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Invalidated</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{stats.invalidated}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Pending</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{stats.pending}</div>
+        </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-1 mb-6 border-b border-white/5">
-        {['all', 'awaiting_validation', 'validated', 'invalidated'].map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2.5 text-xs font-medium transition-colors relative ${
-              filter === f ? 'text-brand' : 'text-zinc-500 hover:text-zinc-300'
-            }`}
-          >
-            {f === 'all' ? 'All' : f.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-            {filter === f && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand" />}
-          </button>
-        ))}
+      <div role="tablist" className="mb-6 flex items-center gap-1 border-b border-border">
+        {FILTER_OPTIONS.map(opt => {
+          const isActive = filter === opt.value;
+          return (
+            <button
+              key={opt.value}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setFilter(opt.value)}
+              className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {opt.label}
+              {isActive && (
+                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* List */}
@@ -126,23 +131,28 @@ export default function AssumptionsPage() {
             const StatusIcon = cfg.icon;
             return (
               <Card key={a.id} hover={false}>
-                <div className="p-4 flex items-start gap-4">
-                  <div className={`mt-0.5 ${cfg.color}`}>
-                    <StatusIcon size={18} />
+                <div className="flex items-start gap-4 p-4">
+                  <div className={`mt-0.5 shrink-0 ${cfg.color}`}>
+                    <StatusIcon size={18} aria-hidden="true" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-white mb-1">{a.assumption}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 text-sm font-medium text-white">{a.assumption}</div>
                     {a.basis && (
-                      <div className="text-xs text-zinc-500 mb-2">Basis: {a.basis}</div>
+                      <div className="mb-2 text-xs text-zinc-500">Basis: {a.basis}</div>
                     )}
-                    <div className="flex items-center gap-3 text-[10px] text-zinc-600">
-                      <span className="font-mono">{a.agent_id}</span>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                      <span className="font-mono text-zinc-400">{a.agent_id}</span>
                       {a.action_id && (
-                        <Link href={`/actions/${a.action_id}`} className="text-brand hover:underline">
-                          {a.action_id.slice(0, 16)}...
+                        <Link
+                          href={`/actions/${a.action_id}`}
+                          className="font-mono text-brand transition-colors hover:text-brand-hover"
+                        >
+                          {a.action_id.slice(0, 16)}…
                         </Link>
                       )}
-                      {a.created_at && <span>{new Date(a.created_at).toLocaleString()}</span>}
+                      {a.created_at && (
+                        <span className="tabular-nums">{new Date(a.created_at).toLocaleString()}</span>
+                      )}
                     </div>
                   </div>
                   <Badge variant={cfg.variant} size="xs">

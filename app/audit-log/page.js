@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Clock, KeyRound, Mail, UsersRound, Settings, CreditCard,
-  ShieldAlert, Webhook, Bell, Filter, ChevronDown, User, Cog, BarChart3
+  Clock, KeyRound, Mail, UsersRound, Settings,
+  ShieldAlert, Webhook, Filter, ChevronDown, User, Cog, BarChart3,
 } from 'lucide-react';
 import Image from 'next/image';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoAuditLogs, demoAuditStats } from '../lib/demoAuditData';
@@ -155,34 +154,47 @@ export default function AuditLogPage() {
   };
 
   const actionTypes = [
-    { value: 'all', label: 'All Actions' },
-    { value: 'key.created', label: 'API Key Created' },
-    { value: 'key.revoked', label: 'API Key Revoked' },
-    { value: 'invite.created', label: 'Invite Created' },
-    { value: 'invite.revoked', label: 'Invite Revoked' },
-    { value: 'invite.accepted', label: 'Invite Accepted' },
-    { value: 'role.changed', label: 'Role Changed' },
-    { value: 'member.removed', label: 'Member Removed' },
-    { value: 'member.left', label: 'Member Left' },
-    { value: 'setting.updated', label: 'Setting Updated' },
-    { value: 'setting.deleted', label: 'Setting Deleted' },
-    { value: 'usage.limit_reached', label: 'Usage Limit Reached' },
-    { value: 'webhook.created', label: 'Webhook Created' },
-    { value: 'webhook.deleted', label: 'Webhook Deleted' },
-    { value: 'webhook.tested', label: 'Webhook Tested' },
-    { value: 'webhook.fired', label: 'Webhook Fired' },
-    { value: 'signal.detected', label: 'Signal Detected' },
-    { value: 'alert.email_sent', label: 'Alert Email Sent' },
+    { value: 'all', label: 'All actions' },
+    { value: 'key.created', label: 'API key created' },
+    { value: 'key.revoked', label: 'API key revoked' },
+    { value: 'invite.created', label: 'Invite created' },
+    { value: 'invite.revoked', label: 'Invite revoked' },
+    { value: 'invite.accepted', label: 'Invite accepted' },
+    { value: 'role.changed', label: 'Role changed' },
+    { value: 'member.removed', label: 'Member removed' },
+    { value: 'member.left', label: 'Member left' },
+    { value: 'setting.updated', label: 'Setting updated' },
+    { value: 'setting.deleted', label: 'Setting deleted' },
+    { value: 'usage.limit_reached', label: 'Usage limit reached' },
+    { value: 'webhook.created', label: 'Webhook created' },
+    { value: 'webhook.deleted', label: 'Webhook deleted' },
+    { value: 'webhook.tested', label: 'Webhook tested' },
+    { value: 'webhook.fired', label: 'Webhook fired' },
+    { value: 'signal.detected', label: 'Signal detected' },
+    { value: 'alert.email_sent', label: 'Alert email sent' },
   ];
 
   if (loading) {
     return (
       <PageLayout
-        title="Audit Log"
+        title="Audit log"
         subtitle="Permanent record of system and administrative events"
-        breadcrumbs={['Evidence', 'Audit Log']}
-      >        <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading activity...</div>
+        breadcrumbs={['Evidence', 'Audit log']}
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-0 overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-3 sm:divide-x sm:divide-border">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-4">
+                <div className="h-3 w-20 animate-pulse rounded bg-white/5" />
+                <div className="mt-2 h-7 w-16 animate-pulse rounded bg-white/5" />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2 rounded-xl border border-border bg-surface-secondary p-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-white/5" />
+            ))}
+          </div>
         </div>
       </PageLayout>
     );
@@ -190,65 +202,70 @@ export default function AuditLogPage() {
 
   return (
     <PageLayout
-      title="Audit Log"
+      title="Audit log"
       subtitle="Permanent record of system and administrative events"
-      breadcrumbs={['Evidence', 'Audit Log']}
+      breadcrumbs={['Evidence', 'Audit log']}
       actions={
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] text-zinc-300 text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          aria-expanded={showFilters}
         >
-          <Filter size={14} />
+          <Filter size={14} aria-hidden="true" />
           Filters
-          <ChevronDown size={12} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          <ChevronDown size={12} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
       }
     >
       {/* Error banner */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center justify-between">
+        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300 ml-4">&times;</button>
+          <button
+            onClick={() => setError(null)}
+            className="ml-4 rounded px-2 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            aria-label="Dismiss error"
+          >
+            &times;
+          </button>
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Total Events" value={stats?.total || 0} color="text-white" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Today's Events" value={stats?.today || 0} color="text-brand" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Unique Actors" value={stats?.unique_actors || 0} color="text-blue-400" />
-          </CardContent>
-        </Card>
+      {/* Instrument rail */}
+      <div className="mb-6 grid grid-cols-1 gap-0 overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-3 sm:divide-x sm:divide-border">
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total events</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats?.total || 0}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Today</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-brand">{stats?.today || 0}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unique actors</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{stats?.unique_actors || 0}</div>
+        </div>
       </div>
 
       {/* Filter bar */}
       {showFilters && (
-        <Card hover={false} className="mb-6 bg-surface-tertiary">
-          <CardContent className="pt-5">
-            <div className="flex items-center gap-4">
-              <label className="text-sm text-zinc-400 font-medium">Action Type:</label>
-              <select
-                value={actionFilter}
-                onChange={(e) => setActionFilter(e.target.value)}
-                className="flex-1 bg-surface-secondary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand transition-colors"
-              >
-                {actionTypes.map((type) => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mb-6 rounded-xl border border-border bg-surface-secondary p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <label htmlFor="action-filter" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Action type
+            </label>
+            <select
+              id="action-filter"
+              value={actionFilter}
+              onChange={(e) => setActionFilter(e.target.value)}
+              className="min-w-[220px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+            >
+              {actionTypes.map((type) => (
+                <option key={type.value} value={type.value}>{type.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       )}
 
       {/* Activity timeline */}
@@ -263,37 +280,37 @@ export default function AuditLogPage() {
               />
             </div>
           ) : (
-            <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+            <div className="divide-y divide-border">
               {logs.map((log) => {
                 const ActionIcon = getActionIcon(log.action);
                 const details = parseDetails(log.details);
 
                 return (
-                  <div key={log.id} className="py-4 flex items-start gap-4">
+                  <div key={log.id} className="flex items-start gap-4 py-4">
                     {/* Icon */}
-                    <div className="w-8 h-8 rounded-lg bg-surface-tertiary flex items-center justify-center flex-shrink-0 mt-1">
-                      <ActionIcon size={14} className="text-zinc-400" />
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
+                      <ActionIcon size={14} className="text-zinc-400" aria-hidden="true" />
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       {/* Action label */}
-                      <div className="text-sm text-zinc-200 font-medium mb-1">
+                      <div className="mb-1 text-sm font-medium text-zinc-200">
                         {formatActionLabel(log.action)}
                       </div>
 
                       {/* Actor */}
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="mb-1 flex items-center gap-2">
                         {log.actor_image ? (
                           <Image
                             src={log.actor_image}
                             alt=""
                             width={16}
                             height={16}
-                            className="w-4 h-4 rounded-full"
+                            className="h-4 w-4 rounded-full"
                           />
                         ) : (
-                          <User size={12} className="text-zinc-600" />
+                          <User size={12} className="text-zinc-500" aria-hidden="true" />
                         )}
                         <span className="text-xs text-zinc-400">
                           {getActorLabel(log)}
@@ -305,13 +322,13 @@ export default function AuditLogPage() {
 
                       {/* Resource ID */}
                       {log.resource_id && (
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
-                            {log.resource_type}:
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                            {log.resource_type}
                           </span>
-                          <code className="font-mono text-xs text-zinc-500">
+                          <code className="font-mono text-xs text-zinc-400">
                             {log.resource_id.length > 24
-                              ? `${log.resource_id.substring(0, 24)}...`
+                              ? `${log.resource_id.substring(0, 24)}…`
                               : log.resource_id}
                           </code>
                         </div>
@@ -319,14 +336,14 @@ export default function AuditLogPage() {
 
                       {/* Details */}
                       {details && (
-                        <div className="mt-2 p-2 bg-surface-tertiary rounded-lg border border-[rgba(255,255,255,0.04)]">
+                        <div className="mt-2 rounded-lg border border-border bg-surface-tertiary p-3">
                           <div className="space-y-1">
                             {Object.entries(details).map(([key, value]) => (
-                              <div key={key} className="flex items-start gap-2">
-                                <span className="text-[10px] text-zinc-600 uppercase tracking-wider min-w-[80px]">
-                                  {key}:
+                              <div key={key} className="flex items-start gap-3">
+                                <span className="min-w-[80px] text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                  {key}
                                 </span>
-                                <span className="text-xs text-zinc-400 flex-1 break-words">
+                                <span className="flex-1 break-words text-xs text-zinc-400">
                                   {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                                 </span>
                               </div>
@@ -337,12 +354,12 @@ export default function AuditLogPage() {
                     </div>
 
                     {/* Timestamp */}
-                    <div className="flex-shrink-0 text-right">
-                      <div className="flex items-center gap-1 text-xs text-zinc-500">
-                        <Clock size={10} />
+                    <div className="shrink-0 text-right">
+                      <div className="flex items-center justify-end gap-1 text-xs tabular-nums text-zinc-400">
+                        <Clock size={10} aria-hidden="true" />
                         {formatRelativeTime(log.created_at)}
                       </div>
-                      <div className="text-[10px] text-zinc-600 mt-0.5 font-mono">
+                      <div className="mt-0.5 font-mono text-[11px] tabular-nums text-zinc-500">
                         {new Date(log.created_at).toLocaleTimeString()}
                       </div>
                     </div>
@@ -354,13 +371,13 @@ export default function AuditLogPage() {
 
           {/* Load More */}
           {logs.length > 0 && hasMore && (
-            <div className="pt-4 pb-2 text-center border-t border-[rgba(255,255,255,0.04)]">
+            <div className="border-t border-border pb-2 pt-4 text-center">
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="px-4 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] text-zinc-300 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
               >
-                {loadingMore ? 'Loading...' : 'Load More'}
+                {loadingMore ? 'Loading…' : 'Load more'}
               </button>
             </div>
           )}
