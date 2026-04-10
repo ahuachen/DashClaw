@@ -389,7 +389,126 @@ async function executeWorkflow() {
     console.log(`      ${mark} ${label}${ms}${suffix}`);
   }
 
-  return { success: !!exec.data?.success, steps };
+  const runActionId = exec.data?.action_id || null;
+  return { success: !!exec.data?.success, steps, templateId, runActionId };
+}
+
+// ── Step output rendering ───────────────────────────────────────────────────
+//
+// After the workflow runs, we fetch the full run detail from
+// /api/workflows/templates/{id}/runs/{action_id} and print what each step
+// actually produced. This is the "proof it worked" section: the LLM
+// briefing text, the HN stories, the webhook response, the published
+// resource id — the evidence the operator cares about.
+
+function renderStepOutput(step, lines) {
+  if (!step.output) {
+    lines.push(C.dim('      (no output captured)'));
+    return;
+  }
+
+  const output = step.output;
+
+  // LLM prompt step — print the briefing text verbatim with token counts.
+  if (step.step_type === 'prompt') {
+    const toks = [];
+    if (output.tokens_in !== undefined) toks.push(`${output.tokens_in} in`);
+    if (output.tokens_out !== undefined) toks.push(`${output.tokens_out} out`);
+    if (toks.length) lines.push(C.dim(`      tokens: ${toks.join(' → ')}`));
+    lines.push(C.dim('      ' + '─'.repeat(50)));
+    const text =
+      typeof output.text === 'string'
+        ? output.text
+        : output.content || JSON.stringify(output, null, 2);
+    for (const line of text.split('\n')) lines.push(`      ${line}`);
+    lines.push(C.dim('      ' + '─'.repeat(50)));
+    return;
+  }
+
+  // Knowledge search — list the top matches.
+  if (step.step_type === 'knowledge_search') {
+    const results = output.results || output.documents || output.matches || [];
+    if (Array.isArray(results) && results.length > 0) {
+      lines.push(C.dim(`      ${results.length} matching document(s):`));
+      for (const r of results.slice(0, 5)) {
+        const title =
+          r.title ||
+          r.name ||
+          r.document_name ||
+          r.id ||
+          (typeof r === 'string'
+            ? r.slice(0, 100)
+            : JSON.stringify(r).slice(0, 100));
+        lines.push(`      · ${title}`);
+      }
+      if (results.length > 5) {
+        lines.push(C.dim(`      ... and ${results.length - 5} more`));
+      }
+      return;
+    }
+  }
+
+  // Capability invoke — show the data payload, with array preview for
+  // list-returning capabilities like HN top stories.
+  if (step.step_type === 'capability_invoke') {
+    const data = output.data !== undefined ? output.data : output;
+    if (Array.isArray(data)) {
+      lines.push(C.dim(`      array of ${data.length} items`));
+      const preview = JSON.stringify(data.slice(0, 10));
+      lines.push(`      ${preview}${data.length > 10 ? ' ...' : ''}`);
+      return;
+    }
+    if (typeof data === 'object' && data !== null) {
+      const json = JSON.stringify(data, null, 2);
+      const truncated =
+        json.length > 800 ? json.slice(0, 800) + '\n      ... [truncated]' : json;
+      for (const l of truncated.split('\n')) lines.push(C.dim(`      ${l}`));
+      return;
+    }
+    lines.push(`      ${data}`);
+    return;
+  }
+
+  // Generic JSON fallback for unknown step types.
+  const json =
+    typeof output === 'string' ? output : JSON.stringify(output, null, 2);
+  const truncated =
+    json.length > 1000 ? json.slice(0, 1000) + '\n      ... [truncated]' : json;
+  for (const l of truncated.split('\n')) lines.push(C.dim(`      ${l}`));
+}
+
+async function showWorkflowOutputs(templateId, runActionId) {
+  phaseHeader('What Actually Happened');
+
+  const res = await apiGet(
+    `/api/workflows/templates/${templateId}/runs/${runActionId}`,
+  );
+  if (!res.ok) {
+    warn(`Could not fetch run detail (HTTP ${res.status}) — outputs unavailable`);
+    return;
+  }
+  const run = res.data;
+  if (!run?.steps?.length) {
+    warn('Run has no step results to display');
+    return;
+  }
+
+  for (const step of run.steps) {
+    const label = step.step_name || step.step_id;
+    const typeInfo = `${step.step_type || '?'}, ${step.duration_ms || 0}ms`;
+    console.log('');
+    console.log(`  ${C.bold(label)} ${C.dim(`(${typeInfo})`)}`);
+
+    if (step.status !== 'completed') {
+      const msg = step.error_message ? `: ${step.error_message}` : '';
+      console.log(C.red(`      ${step.status}${msg}`));
+      continue;
+    }
+
+    const lines = [];
+    renderStepOutput(step, lines);
+    for (const line of lines) console.log(line);
+  }
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
@@ -407,7 +526,9 @@ async function main() {
   console.log('    3. Patch two drifted demo capability endpoints (idempotent)');
   console.log('    4. Test all 5 demo capabilities individually');
   console.log('    5. Execute the Daily Market Briefing workflow end-to-end');
-  console.log('    6. Print a pass/fail summary');
+  console.log('    6. Show what each step actually produced (HN stories, LLM');
+  console.log('       briefing text, webhook response, published resource)');
+  console.log('    7. Print a pass/fail summary');
   console.log('');
   console.log(C.bold('  Paste your DashClaw admin API key below.'));
   console.log(C.dim(`  Get it from: ${BASE_URL}/api-keys`));
@@ -430,6 +551,13 @@ async function main() {
   await syncCapabilityEndpoints();
   const capResults = await testEachCapability();
   const workflow = await executeWorkflow();
+
+  // Show the actual outputs from each step if the run produced any, even
+  // when the overall workflow failed — partial outputs still tell the
+  // operator what worked and where it broke.
+  if (workflow.runActionId) {
+    await showWorkflowOutputs(workflow.templateId, workflow.runActionId);
+  }
 
   phaseHeader('Summary');
   console.log(
