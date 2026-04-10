@@ -7,7 +7,9 @@
  * demo works against a live DashClaw instance. Performs the following
  * phases in order, stopping on the first phase that fails:
  *
- *   1. Prompt for DashClaw admin API key (hidden input).
+ *   1. Prompt for DashClaw admin API key. Input is visible as you type
+ *      (the readline mute trick breaks on legacy Windows PowerShell);
+ *      the key is used only for this session and never written to disk.
  *   2. Health check the instance and confirm the key is accepted.
  *   3. Check whether ANTHROPIC_API_KEY is configured. If missing,
  *      prompt the user for one and POST it to /api/settings (encrypted)
@@ -81,23 +83,23 @@ function phaseHeader(title) {
   console.log(C.bold(`── ${title} `.padEnd(60, '─')));
 }
 
-// ── Prompt helpers ──────────────────────────────────────────────────────────
+// ── Prompt helper ───────────────────────────────────────────────────────────
+//
+// Visible input. We deliberately do NOT mute the terminal: the readline
+// mute trick breaks the prompt text on legacy Windows PowerShell (conhost),
+// leaving the user staring at a blinking cursor with zero context. Keys
+// entered here are visible on screen as you type — same as `gh auth login`
+// or `stripe login`. Since this is a local dev tool you run in your own
+// terminal, that's a fair tradeoff for a prompt that actually shows up.
 
-function promptHidden(question) {
+function prompt(question) {
   return new Promise((resolve) => {
-    stdout.write(question);
     const rl = readline.createInterface({
       input: stdin,
       output: stdout,
-      terminal: true,
     });
-    // Suppress echo of the user's typed characters. The user knows what
-    // they're typing; missing echo is preferable to broken asterisk
-    // animation on Windows terminals that don't handle cursor rewrites.
-    rl._writeToOutput = () => {};
-    rl.question('', (answer) => {
+    rl.question(question, (answer) => {
       rl.close();
-      stdout.write('\n');
       resolve((answer || '').trim());
     });
   });
@@ -165,8 +167,17 @@ async function ensureAnthropicKey() {
 
   warn('ANTHROPIC_API_KEY is not configured on the live instance');
   info('The workflow analyze step uses Claude Sonnet and will fail without it.');
-  const key = await promptHidden('      Anthropic API key (sk-ant-..., or Enter to skip): ');
+  info('Get a key from https://console.anthropic.com/settings/keys');
+  console.log('');
+  console.log(C.bold('  Paste your Anthropic API key below (or press Enter to skip).'));
+  console.log(C.dim('  Format: sk-ant-api03-...'));
+  console.log(C.dim('  Note: the key will be visible as you type/paste. It will be'));
+  console.log(C.dim('        sent ONLY to your DashClaw instance, stored encrypted'));
+  console.log(C.dim('        via POST /api/settings, and never printed back.'));
+  console.log('');
+  const key = await prompt('  Anthropic API key: ');
   if (!key) {
+    console.log('');
     warn('Skipping — the analyze step will fail without an LLM key');
     return false;
   }
@@ -342,14 +353,32 @@ async function main() {
   console.log('');
   console.log(C.bold('DashClaw Demo E2E Verification'));
   console.log(C.dim('─'.repeat(60)));
+  console.log('');
+  console.log(`  Target instance: ${C.cyan(BASE_URL)}`);
+  console.log('');
+  console.log('  This script will:');
+  console.log('    1. Verify your instance is reachable and your API key works');
+  console.log('    2. Make sure ANTHROPIC_API_KEY is configured (prompt if missing)');
+  console.log('    3. Patch two drifted demo capability endpoints (idempotent)');
+  console.log('    4. Test all 5 demo capabilities individually');
+  console.log('    5. Execute the Daily Market Briefing workflow end-to-end');
+  console.log('    6. Print a pass/fail summary');
+  console.log('');
+  console.log(C.bold('  Paste your DashClaw admin API key below.'));
+  console.log(C.dim(`  Get it from: ${BASE_URL}/api-keys`));
+  console.log(C.dim('  Format: oc_live_... (or oc_test_... for test keys)'));
+  console.log(C.dim('  Note: the key will be visible as you type/paste. It is used'));
+  console.log(C.dim('        only for this session and never written to disk.'));
+  console.log('');
 
-  API_KEY = await promptHidden(
-    '  DashClaw admin API key (oc_live_...): ',
-  );
+  API_KEY = await prompt('  DashClaw API key: ');
   if (!API_KEY) {
-    console.error(C.red('No API key provided. Exiting.'));
+    console.log('');
+    console.error(C.red('  No API key provided. Exiting.'));
+    console.log('');
     process.exit(1);
   }
+  console.log('');
 
   await checkHealth();
   await ensureAnthropicKey();
