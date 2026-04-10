@@ -5,7 +5,6 @@ import Link from 'next/link';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
-import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
 import { getAgentColor } from '../lib/colors';
@@ -34,8 +33,22 @@ const statusIconMap = {
   completed: CheckCircle2, failed: XCircle, pending: Clock, running: Loader2, cancelled: Ban, blocked: Ban,
 };
 
-const statusVariantMap = {
-  completed: 'success', failed: 'error', running: 'warning', cancelled: 'default', pending: 'info', blocked: 'error',
+const statusDotMap = {
+  completed: 'bg-emerald-500',
+  running: 'bg-amber-500',
+  pending: 'bg-blue-500',
+  failed: 'bg-red-500',
+  blocked: 'bg-red-500',
+  cancelled: 'bg-zinc-500',
+};
+
+const statusTextMap = {
+  completed: 'text-emerald-400',
+  running: 'text-amber-400',
+  pending: 'text-blue-400',
+  failed: 'text-red-400',
+  blocked: 'text-red-400',
+  cancelled: 'text-zinc-500',
 };
 
 export default function DecisionsLedger() {
@@ -222,15 +235,14 @@ export default function DecisionsLedger() {
 
   const getStatusIcon = (status) => {
     const Icon = statusIconMap[status] || Clock;
-    const colors = { completed: 'text-green-400', failed: 'text-red-400', running: 'text-yellow-400', pending: 'text-blue-400', cancelled: 'text-zinc-500' };
-    return <Icon size={14} className={colors[status] || 'text-zinc-400'} />;
+    return <Icon size={14} className={statusTextMap[status] || 'text-zinc-400'} />;
   };
 
   const getRiskColor = (score) => {
     const s = parseInt(score, 10);
     if (s >= 70) return 'text-red-400';
     if (s >= 40) return 'text-amber-400';
-    return 'text-green-400';
+    return 'text-emerald-400';
   };
 
   const formatTime = (ts) => {
@@ -256,7 +268,7 @@ export default function DecisionsLedger() {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  const selectClass = 'px-3 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg text-white text-sm focus:outline-none focus:border-brand transition-colors duration-150';
+  const selectClass = 'px-3 py-2 bg-surface-tertiary border border-border rounded-lg text-white text-sm focus:outline-none focus:border-brand transition-colors duration-150';
 
   return (
     <PageLayout
@@ -270,25 +282,25 @@ export default function DecisionsLedger() {
             <button
               onClick={handleBulkDeleteSelected}
               disabled={bulkDeleting}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors duration-150 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:border-red-500/40 hover:bg-red-500/20 disabled:opacity-50"
             >
               <Trash2 size={14} />
-              {bulkDeleting ? 'Deleting...' : `Delete ${selectedActions.size} selected`}
+              {bulkDeleting ? 'Deleting…' : `Delete ${selectedActions.size} selected`}
             </button>
           )}
           {isAdmin && (
             <button
               onClick={handleClearActions}
               disabled={clearing}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-red-500/30 transition-colors duration-150 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:border-red-500/30 hover:text-red-300 disabled:opacity-50"
             >
               <Trash2 size={14} />
-              {clearing ? 'Clearing...' : 'Clear Actions'}
+              {clearing ? 'Clearing…' : 'Clear actions'}
             </button>
           )}
           <button
             onClick={() => { setLoading(true); fetchActions(); }}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} />
             Refresh
@@ -296,40 +308,53 @@ export default function DecisionsLedger() {
         </div>
       }
     >
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        {[
-          { label: 'Total', value: stats.total || 0, color: 'text-white' },
-          { label: 'Success Rate', value: `${successRate}%`, color: 'text-green-400' },
-          { label: 'Running', value: stats.running || 0, color: 'text-yellow-400' },
-          { label: 'High Risk', value: stats.high_risk || 0, color: parseInt(stats.high_risk, 10) > 0 ? 'text-red-400' : 'text-green-400' },
-          { label: 'Total Cost', value: `$${parseFloat(stats.total_cost || 0).toFixed(2)}`, color: 'text-purple-400' },
-        ].map((stat) => (
-          <Card key={stat.label} hover={false}>
-            <div className="p-4 text-center">
-              <div className={`text-2xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
-              <div className="text-xs text-zinc-500 mt-1">{stat.label}</div>
+      {/* Stats rail — instrument strip, not a grid of identical cards */}
+      <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface-tertiary">
+        <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-5">
+          {[
+            { label: 'Total', value: stats.total || 0, color: 'text-white' },
+            { label: 'Success', value: `${successRate}%`, color: 'text-emerald-400' },
+            { label: 'Running', value: stats.running || 0, color: 'text-amber-400' },
+            {
+              label: 'High Risk',
+              value: stats.high_risk || 0,
+              color: parseInt(stats.high_risk, 10) > 0 ? 'text-red-400' : 'text-emerald-400',
+            },
+            {
+              label: 'Spend',
+              value: `$${parseFloat(stats.total_cost || 0).toFixed(2)}`,
+              color: 'text-white',
+            },
+          ].map((stat, i) => (
+            <div
+              key={stat.label}
+              className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                {stat.label}
+              </div>
+              <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
             </div>
-          </Card>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Filters */}
       <Card hover={false} className="mb-6">
         <div className="p-4">
-          <div className="grid grid-cols-3 gap-3">
-            <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(0); }} className={selectClass}>
-              <option value="">All Types</option>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
+              <option value="">All types</option>
               {['build','deploy','post','apply','security','message','api','calendar','research','review','fix','refactor','test','config','monitor','alert','cleanup','sync','migrate','other'].map(t => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
-            <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }} className={selectClass}>
-              <option value="">All Statuses</option>
+            <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
+              <option value="">All statuses</option>
               {['running','completed','failed','cancelled','pending','blocked'].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <select value={filterRiskMin} onChange={(e) => { setFilterRiskMin(e.target.value); setPage(0); }} className={selectClass}>
-              <option value="">Any Risk</option>
+            <select value={filterRiskMin} onChange={(e) => { setFilterRiskMin(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
+              <option value="">Any risk</option>
               <option value="1">Governed (1+)</option>
               <option value="40">Medium+ (40+)</option>
               <option value="70">High (70+)</option>
@@ -337,9 +362,13 @@ export default function DecisionsLedger() {
             </select>
             <button
               onClick={() => { setHideRoutine(!hideRoutine); setPage(0); }}
-              className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${hideRoutine ? 'bg-brand/20 border-brand/40 text-brand' : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white'}`}
+              className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                hideRoutine
+                  ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
+                  : 'border-border bg-white/5 text-zinc-400 hover:border-border-hover hover:text-white'
+              }`}
             >
-              {hideRoutine ? 'Hiding routine' : 'Show all'}
+              {hideRoutine ? 'Hiding routine' : 'Showing all'}
             </button>
           </div>
         </div>
@@ -347,17 +376,32 @@ export default function DecisionsLedger() {
 
       {/* Actions List */}
       <Card hover={false}>
-        <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-zinc-200 uppercase tracking-wider">
-            Decisions <span className="text-xs font-normal text-zinc-500 normal-case ml-2">({total} total)</span>
-          </h2>
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Decisions
+            </h2>
+            <span className="text-[11px] tabular-nums text-zinc-500">· {total}</span>
+          </div>
           {totalPages > 1 && (
-            <div className="flex items-center gap-2 text-sm">
-              <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="p-1 rounded hover:bg-white/5 disabled:opacity-30 text-zinc-400 transition-colors">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/5 disabled:opacity-30"
+                aria-label="Previous page"
+              >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-xs text-zinc-500 tabular-nums">{page + 1} / {totalPages}</span>
-              <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="p-1 rounded hover:bg-white/5 disabled:opacity-30 text-zinc-400 transition-colors">
+              <span className="px-1 text-[11px] tabular-nums text-zinc-500">
+                {page + 1} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/5 disabled:opacity-30"
+                aria-label="Next page"
+              >
                 <ChevronRight size={16} />
               </button>
             </div>
@@ -396,154 +440,158 @@ export default function DecisionsLedger() {
                 const artifacts = parseJsonArray(action.artifacts_created);
 
                 return (
-                  <div key={action.action_id} className="bg-surface-tertiary rounded-lg border border-[rgba(255,255,255,0.04)] overflow-hidden">
+                  <div key={action.action_id} className="overflow-hidden rounded-lg border border-border bg-surface-tertiary transition-colors hover:border-border-hover">
                     <div
                       onClick={() => toggleExpand(action.action_id)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleExpand(action.action_id); }}
-                      className="w-full p-4 text-left hover:bg-white/[0.02] transition-colors duration-150 cursor-pointer"
+                      className="w-full cursor-pointer p-4 text-left transition-colors hover:bg-white/[0.02] focus:bg-white/[0.02] focus:outline-none"
                     >
-                      <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center">
                         {/* Checkbox for multi-select */}
                         {isAdmin && (
                           <button
                             onClick={(e) => toggleSelectAction(action.action_id, e)}
-                            className="text-zinc-500 hover:text-white transition-colors p-0.5 flex-shrink-0 hidden md:block"
+                            className="hidden flex-shrink-0 p-0.5 text-zinc-500 transition-colors hover:text-white md:block"
+                            aria-label="Select decision"
                           >
                             {selectedActions.has(action.action_id)
                               ? <CheckSquare size={16} className="text-brand" />
                               : <Square size={16} />}
                           </button>
                         )}
+
                         {/* 1. Agent & Intent */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <div className={`w-1.5 h-1.5 rounded-full ${action.status === 'completed' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getAgentColor(action.agent_id)}`}>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1.5 flex items-center gap-2">
+                            <span className={`h-1.5 w-1.5 rounded-full ${statusDotMap[action.status] || 'bg-zinc-500'}`} />
+                            <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(action.agent_id)}`}>
                               {action.agent_name || action.agent_id}
                             </span>
-                            <span className="text-[10px] text-zinc-600 font-mono">{formatTime(action.timestamp_start)}</span>
+                            <span className="font-mono text-[11px] tabular-nums text-zinc-500">{formatTime(action.timestamp_start)}</span>
                           </div>
-                          <div className="font-medium text-sm text-white truncate pl-3.5 border-l border-white/5">
+                          <div className="truncate border-l border-white/5 pl-3.5 text-sm font-medium text-white">
                             {action.declared_goal}
                           </div>
                         </div>
 
-                        {/* Lineage Arrow */}
-                        <div className="hidden md:block text-zinc-700">
-                          <ChevronRight size={16} />
-                        </div>
-
-                        {/* 2. Policy Evaluation (Simplified) */}
-                        <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02] rounded-lg border border-white/5 min-w-[140px]">
+                        {/* 2. Governance — risk score */}
+                        <div className="flex items-center gap-3 rounded-lg border border-border bg-white/[0.02] px-3 py-2 md:min-w-[140px]">
                           <Shield size={14} className={action.risk_score >= 70 ? 'text-red-400' : 'text-emerald-400'} />
                           <div>
-                            <div className="text-[9px] text-zinc-500 uppercase font-bold tracking-tighter">Governance</div>
-                            <div className={`text-xs font-semibold ${getRiskColor(action.risk_score)}`}>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Governance</div>
+                            <div className={`text-xs font-semibold tabular-nums ${getRiskColor(action.risk_score)}`}>
                               Risk {action.risk_score || 0}
                             </div>
                           </div>
                         </div>
 
-                        {/* Lineage Arrow */}
-                        <div className="hidden md:block text-zinc-700">
-                          <ChevronRight size={16} />
-                        </div>
-
                         {/* 3. Outcome */}
-                        <div className="flex items-center justify-between gap-4 min-w-[200px]">
-                          <div className="flex flex-col items-end gap-1.5 mr-2">
+                        <div className="flex items-center justify-between gap-4 md:min-w-[200px]">
+                          <div className="mr-2 flex flex-col items-end gap-1">
                             {action.verified ? (
-                              <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/5 px-1.5 py-0.5 rounded border border-emerald-500/10" title="Cryptographically signed by agent">
+                              <div className="inline-flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-400" title="Cryptographically signed by agent">
                                 <ShieldCheck size={10} /> Verified
                               </div>
                             ) : action.signature ? (
-                              <div className="flex items-center gap-1 text-[9px] font-bold text-red-500 uppercase tracking-tighter bg-red-500/5 px-1.5 py-0.5 rounded border border-red-500/10" title="Signature invalid or tampered">
+                              <div className="inline-flex items-center gap-1 rounded border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-red-400" title="Signature invalid or tampered">
                                 <ShieldAlert size={10} /> Invalid
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1 text-[9px] font-bold text-zinc-500 uppercase tracking-tighter bg-white/5 px-1.5 py-0.5 rounded border border-white/5" title="No cryptographic signature provided">
+                              <div className="inline-flex items-center gap-1 rounded border border-border bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500" title="No cryptographic signature provided">
                                 <Info size={10} /> Unsigned
                               </div>
                             )}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
                               {getStatusIcon(action.status)}
-                              <span className={`text-xs font-bold uppercase tracking-wide ${
-                                action.status === 'completed' ? 'text-emerald-400' :
-                                action.status === 'failed' || action.status === 'blocked' ? 'text-red-400' : 'text-zinc-400'
-                              }`}>
+                              <span className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${statusTextMap[action.status] || 'text-zinc-400'}`}>
                                 {action.status}
                               </span>
                             </div>
                             {action.cost_estimate > 0 && (
-                              <div className="flex flex-col items-end gap-0.5">
-                                <span className="font-mono text-[10px] text-purple-400">
+                              <div className="flex flex-col items-end">
+                                <span className="font-mono text-[11px] tabular-nums text-zinc-300">
                                   {formatCost(action.cost_estimate)}
                                 </span>
                                 {(action.tokens_in > 0 || action.tokens_out > 0) && (
-                                  <span className="font-mono text-[9px] text-zinc-600">
-                                    {formatTokens(action.tokens_in)} in / {formatTokens(action.tokens_out)} out
+                                  <span className="font-mono text-[10px] tabular-nums text-zinc-500">
+                                    {formatTokens(action.tokens_in)} in · {formatTokens(action.tokens_out)} out
                                   </span>
                                 )}
                               </div>
                             )}
                           </div>
-                          
-                          <div className="flex items-center gap-2">
+
+                          <div className="flex items-center gap-1">
                             {isAdmin && (
                               <button
                                 onClick={(e) => handleDeleteAction(action.action_id, e)}
                                 disabled={deletingId === action.action_id}
-                                className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                                title="Delete action"
+                                className="rounded-md p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                                aria-label="Delete decision"
+                                title="Delete decision"
                               >
                                 <Trash2 size={13} />
                               </button>
                             )}
-                            {isExpanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
+                            {isExpanded
+                              ? <ChevronUp size={14} className="text-zinc-500" />
+                              : <ChevronDown size={14} className="text-zinc-500" />}
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-[rgba(255,255,255,0.04)] p-4 bg-surface-secondary space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-5 border-t border-border bg-surface-secondary p-5">
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Decision Rationale</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Decision Rationale</div>
                             <div className="text-sm text-zinc-300">{action.reasoning || 'Not specified'}</div>
                           </div>
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Authorization</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Authorization</div>
                             <div className="text-sm text-zinc-300">{action.authorization_scope || 'Not specified'}</div>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                          <div><span className="text-zinc-500">Confidence: </span><span className="text-white">{action.confidence || 50}%</span></div>
-                          <div><span className="text-zinc-500">Reversible: </span><span className={action.reversible ? 'text-green-400' : 'text-red-400'}>{action.reversible ? 'Yes' : 'No'}</span></div>
-                          <div><span className="text-zinc-500">Duration: </span><span className="text-white">{action.duration_ms ? `${(action.duration_ms / 1000).toFixed(1)}s` : '--'}</span></div>
-                          <div><span className="text-zinc-500">Cost: </span><span className="text-white font-mono">${parseFloat(action.cost_estimate || 0).toFixed(4)}</span></div>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm md:grid-cols-4">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Confidence</span>
+                            <span className="tabular-nums text-white">{action.confidence || 50}%</span>
+                          </div>
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Reversible</span>
+                            <span className={action.reversible ? 'text-emerald-400' : 'text-red-400'}>{action.reversible ? 'Yes' : 'No'}</span>
+                          </div>
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Duration</span>
+                            <span className="tabular-nums text-white">{action.duration_ms ? `${(action.duration_ms / 1000).toFixed(1)}s` : '--'}</span>
+                          </div>
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Cost</span>
+                            <span className="font-mono tabular-nums text-white">${parseFloat(action.cost_estimate || 0).toFixed(4)}</span>
+                          </div>
                         </div>
 
                         {action.output_summary && (
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Output</div>
-                            <div className="text-sm text-zinc-300 bg-black/20 p-2 rounded font-mono">{action.output_summary}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Output</div>
+                            <div className="rounded-md border border-border bg-surface-primary p-3 font-mono text-xs text-zinc-300">{action.output_summary}</div>
                           </div>
                         )}
 
                         {action.error_message && (
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Error</div>
-                            <div className="text-sm text-red-400 bg-red-500/5 border border-red-500/10 p-2 rounded font-mono">{action.error_message}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Error</div>
+                            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-3 font-mono text-xs text-red-300">{action.error_message}</div>
                           </div>
                         )}
 
                         {sideEffects.length > 0 && (
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Side Effects ({sideEffects.length})</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Side Effects · {sideEffects.length}</div>
                             <div className="flex flex-wrap gap-1">
                               {sideEffects.map((se, i) => <Badge key={i} variant="warning" size="xs">{se}</Badge>)}
                             </div>
@@ -552,7 +600,7 @@ export default function DecisionsLedger() {
 
                         {artifacts.length > 0 && (
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Artifacts ({artifacts.length})</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Artifacts · {artifacts.length}</div>
                             <div className="flex flex-wrap gap-1">
                               {artifacts.map((a, i) => <Badge key={i} variant="info" size="xs">{a}</Badge>)}
                             </div>
@@ -563,13 +611,13 @@ export default function DecisionsLedger() {
                           <>
                             {detail.open_loops?.length > 0 && (
                               <div>
-                                <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Open Loops ({detail.open_loops.length})</div>
+                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Open Loops · {detail.open_loops.length}</div>
                                 <div className="space-y-1">
                                   {detail.open_loops.map(loop => (
                                     <div key={loop.loop_id} className="flex items-center gap-2 text-sm">
-                                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${loop.status === 'open' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${loop.status === 'open' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                                       <span className="text-zinc-300">{loop.description}</span>
-                                      <span className="text-xs text-zinc-600">({loop.loop_type} / {loop.priority})</span>
+                                      <span className="text-[11px] text-zinc-500">({loop.loop_type} · {loop.priority})</span>
                                     </div>
                                   ))}
                                 </div>
@@ -578,11 +626,15 @@ export default function DecisionsLedger() {
 
                             {detail.assumptions?.length > 0 && (
                               <div>
-                                <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Assumptions ({detail.assumptions.length})</div>
+                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Assumptions · {detail.assumptions.length}</div>
                                 <div className="space-y-1">
                                   {detail.assumptions.map(asm => (
                                     <div key={asm.assumption_id} className="flex items-center gap-2 text-sm">
-                                      {asm.validated ? <CheckCircle2 size={14} className="text-green-400" /> : asm.invalidated ? <XCircle size={14} className="text-red-400" /> : <Clock size={14} className="text-zinc-500" />}
+                                      {asm.validated
+                                        ? <CheckCircle2 size={14} className="shrink-0 text-emerald-400" />
+                                        : asm.invalidated
+                                          ? <XCircle size={14} className="shrink-0 text-red-400" />
+                                          : <Clock size={14} className="shrink-0 text-zinc-500" />}
                                       <span className="text-zinc-300">{asm.assumption}</span>
                                     </div>
                                   ))}
@@ -600,21 +652,24 @@ export default function DecisionsLedger() {
                           </>
                         )}
 
-                        <div className="pt-2 flex items-center gap-4">
-                          <Link href={`/decisions/${action.action_id}`} className="text-sm text-brand hover:text-brand-hover transition-colors duration-150">
-                            View full decision record
+                        <div className="flex items-center gap-4 border-t border-border pt-4">
+                          <Link
+                            href={`/decisions/${action.action_id}`}
+                            className="text-sm font-medium text-brand transition-colors hover:text-brand-hover"
+                          >
+                            View full decision record →
                           </Link>
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.stopPropagation();
                               const url = `${window.location.origin}/replay/${action.action_id}`;
                               navigator.clipboard.writeText(url);
-                              alert('Replay link copied to clipboard!');
+                              alert('Replay link copied to clipboard.');
                             }}
-                            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-white transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
                           >
                             <ExternalLink size={12} />
-                            Share Replay
+                            Share replay
                           </button>
                         </div>
                       </div>
