@@ -144,6 +144,9 @@ const navItems = [
   { href: '#knowledge-collections', label: 'Knowledge Collections', indent: true },
   { href: '#capability-registry', label: 'Capability Registry', indent: true },
   { href: '#capability-runtime', label: 'Capability Runtime', indent: true },
+  { href: '#analytics', label: 'Analytics' },
+  { href: '#guard-decisions', label: 'Guard Decisions', indent: true },
+  { href: '#agent-profile', label: 'Agent Profile', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
@@ -196,7 +199,7 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK (v2.5.0). Node.js and Python parity across all core governance features.
+            Canonical reference for the DashClaw SDK (v2.10.0). Node.js and Python parity across all core governance features.
           </p>
           <Suspense fallback={null}>
             <CopyDocsButton />
@@ -1613,6 +1616,83 @@ const health = await res.json();
 });
 const history = await res.json();
 // history.events[].action_id, action_type, status, error_message, duration_ms`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+          </section>
+
+          {/* ── Analytics ── */}
+          <section id="analytics" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+                <BarChart3 size={16} className="text-brand" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Analytics</h2>
+            </div>
+            <MethodEntry
+              id="getAnalytics"
+              signature="GET /api/analytics"
+              description="Fetch aggregated governance analytics for the organization over a rolling window. Includes action counts, guard decision totals, signal summaries, and assumption stats. Supports ?days (1–365, default 30)."
+              params={[
+                { name: 'days', type: 'number', required: false, desc: 'Rolling window in days (1–365). Defaults to 30.' },
+              ]}
+              returns="{ actions_total, actions_by_status, guard_decisions_total, guard_decisions_by_outcome, signals_total, assumptions_total }"
+              example={
+                <CodeBlock title="Fetch 7-day analytics">
+{`const res = await fetch(\`\${baseUrl}/api/analytics?days=7\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const data = await res.json();
+// data.actions_total, data.guard_decisions_total, data.signals_total`}
+                </CodeBlock>
+              }
+            />
+
+            {/* Guard Decisions */}
+            <div id="guard-decisions" className="scroll-mt-20 pt-6">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Guard Decisions</h3>
+              <MethodEntry
+                id="listGuardDecisions"
+                signature="GET /api/guard/decisions"
+                description="List guard evaluation records for the organization. Returns paginated decisions with matched policies and declared goal context. Supports filtering by ?decision (allow|block|flag), ?agent_id, ?limit (max 200), and ?offset."
+                params={[
+                  { name: 'decision', type: 'string', required: false, desc: 'Filter by outcome: allow | block | flag' },
+                  { name: 'agent_id', type: 'string', required: false, desc: 'Filter to a specific agent' },
+                  { name: 'limit', type: 'number', required: false, desc: 'Page size (max 200, default 50)' },
+                  { name: 'offset', type: 'number', required: false, desc: 'Pagination offset (default 0)' },
+                ]}
+                returns="{ decisions: Array<{ id, agent_id, action_type, decision, matched_policies, declared_goal, agent_name, created_at }>, total, stats }"
+                example={
+                  <CodeBlock title="List blocked decisions">
+{`const res = await fetch(\`\${baseUrl}/api/guard/decisions?decision=block&limit=25\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const { decisions, total, stats } = await res.json();
+// decisions[].decision, decisions[].matched_policies, decisions[].declared_goal`}
+                  </CodeBlock>
+                }
+              />
+            </div>
+
+            {/* Agent Profile */}
+            <div id="agent-profile" className="scroll-mt-20 pt-6">
+              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Agent Profile</h3>
+              <MethodEntry
+                id="getAgentProfile"
+                signature="GET /api/agents/:agentId/profile"
+                description="Fetch the full governance profile for a specific agent. Includes identity, presence (heartbeat state), trust posture, computed risk signals, and assumptions summary. Returns 404 if the agent has not been seen by the instance."
+                params={[
+                  { name: 'agentId', type: 'string', required: true, desc: 'The agent identifier (path parameter)' },
+                ]}
+                returns="{ agent: { agent_id, agent_name, action_count, last_active, presence: { status, last_heartbeat_at, current_task_id } }, trust, signals, assumptions_summary }"
+                example={
+                  <CodeBlock title="Fetch agent profile">
+{`const res = await fetch(\`\${baseUrl}/api/agents/my-agent/profile\`, {
+  headers: { 'x-api-key': apiKey }
+});
+const { agent, trust, signals, assumptions_summary } = await res.json();
+// agent.presence.status, trust.risk_score, signals, assumptions_summary`}
                   </CodeBlock>
                 }
               />
