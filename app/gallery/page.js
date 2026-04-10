@@ -69,44 +69,49 @@ function GalleryContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-surface-primary text-white">
       <PublicNavbar />
 
-      <main className="pt-28 pb-20 px-6 max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors">
-            <ArrowLeft size={18} />
+      <main className="mx-auto max-w-6xl px-6 pb-20 pt-28">
+        <div className="mb-8 flex items-center gap-3">
+          <Link
+            href="/"
+            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            aria-label="Back to home"
+          >
+            <ArrowLeft size={18} aria-hidden="true" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Product Gallery</h1>
-            <p className="text-zinc-400 mt-1">Click any image to view fullscreen. Use ← → keys or the arrows to browse. Click anywhere to close.</p>
+            <h1 className="text-3xl font-semibold tracking-tight">Product gallery</h1>
+            <p className="mt-1 text-sm text-zinc-400">
+              Click any image to view fullscreen. Use ← → keys or the arrows to browse. Click anywhere to close.
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {galleryItems.map((s, idx) => {
-            return (
-              <button
-                key={s.src}
-                className="group flex flex-col gap-3 text-left cursor-zoom-in"
-                onClick={() => setSelectedIndex(idx)}
-              >
-                <div className="relative aspect-[16/10] rounded-xl overflow-hidden border border-[rgba(255,255,255,0.08)] bg-[#111]">
-                  <Image
-                    src={s.src}
-                    alt={s.alt}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{s.title}</h3>
-                  <p className="text-sm text-zinc-400 mt-1 leading-relaxed">{s.description}</p>
-                </div>
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {galleryItems.map((s, idx) => (
+            <button
+              key={s.src}
+              className="group flex cursor-zoom-in flex-col gap-3 text-left focus:outline-none"
+              onClick={() => setSelectedIndex(idx)}
+              aria-label={`View ${s.title} fullscreen`}
+            >
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-surface-secondary transition-colors group-hover:border-border-hover group-focus-visible:ring-2 group-focus-visible:ring-brand/40">
+                <Image
+                  src={s.src}
+                  alt={s.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">{s.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-400">{s.description}</p>
+              </div>
+            </button>
+          ))}
         </div>
       </main>
 
@@ -126,7 +131,7 @@ function GalleryContent() {
 
 export default function GalleryPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-surface-primary" />}>
       <GalleryContent />
     </Suspense>
   );

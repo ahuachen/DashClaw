@@ -155,13 +155,23 @@ export default function CapabilityDetailPage({ params }) {
 
   return (
     <PageLayout
-      title={capability?.name || 'Capability Detail'}
+      title={capability?.name || 'Capability detail'}
       subtitle="Operator view for capability health, certification, and recent activity"
       breadcrumbs={['Studio', 'Capabilities', capability?.name || capabilityId || 'Detail']}
       maturity="stable"
     >
       {loading ? (
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading capability...</div>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+          <div className="space-y-6">
+            <div className="h-32 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+            <div className="h-40 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+            <div className="h-48 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+          </div>
+          <div className="space-y-6">
+            <div className="h-48 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+            <div className="h-40 animate-pulse rounded-xl border border-border bg-surface-secondary" />
+          </div>
+        </div>
       ) : error ? (
         <EmptyState
           icon={Wrench}
@@ -170,27 +180,27 @@ export default function CapabilityDetailPage({ params }) {
           action={(
             <Link
               href="/capabilities"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
             >
               Back to registry
             </Link>
           )}
         />
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-6">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
           <div className="space-y-6">
-              <CapabilityStatusHero
-                capability={capability}
-                health={health}
-                loading={loading}
-                onRefresh={handleRefresh}
-                onOpenTest={() => setTestPanelOpen(true)}
-              />
+            <CapabilityStatusHero
+              capability={capability}
+              health={health}
+              loading={loading}
+              onRefresh={handleRefresh}
+              onOpenTest={() => setTestPanelOpen(true)}
+            />
 
             <CapabilityHealthCards health={health} />
 
             {healthError ? (
-              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+              <div role="alert" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
                 <span className="font-medium">Health summary unavailable.</span>{' '}
                 <span>{healthError}</span>
               </div>
@@ -219,17 +229,17 @@ export default function CapabilityDetailPage({ params }) {
                 />
               ) : null
             ) : (
-              <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
+              <div className="rounded-lg border border-border bg-surface-tertiary px-4 py-3 text-sm text-zinc-400">
                 Testing is available for runnable HTTP capabilities only.
               </div>
             )}
 
             <CapabilityFactsCard capability={capability} health={health} />
 
-            <div className="rounded-xl border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] p-5">
-              <h3 className="text-sm font-semibold text-zinc-200 mb-3 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-brand" />
-                Access Rules
+            <div className="rounded-xl border border-border bg-surface-secondary p-5">
+              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                <ShieldCheck className="h-4 w-4 text-brand" aria-hidden="true" />
+                Access rules
               </h3>
               <CapabilityAccessTab capabilityId={capabilityId} />
             </div>

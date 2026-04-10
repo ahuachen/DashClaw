@@ -64,11 +64,11 @@ export default function AgentProfilePage() {
 
   if (loading) {
     return (
-      <PageLayout title="Agent Profile" breadcrumbs={['Observe', 'Fleet', 'Profile']}>
-        <div className="space-y-4 max-w-5xl mx-auto">
-          <Skeleton className="h-20 w-full rounded-2xl" />
-          <Skeleton className="h-16 w-full rounded-2xl" />
-          <Skeleton className="h-64 w-full rounded-2xl" />
+      <PageLayout title="Agent profile" breadcrumbs={['Observe', 'Fleet', 'Profile']}>
+        <div className="mx-auto max-w-5xl space-y-4">
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </PageLayout>
     );
@@ -76,13 +76,18 @@ export default function AgentProfilePage() {
 
   if (error || !profile) {
     return (
-      <PageLayout title="Agent Not Found" breadcrumbs={['Observe', 'Fleet', decodedAgentId]}>
-        <div className="max-w-md mx-auto mt-12 text-center">
+      <PageLayout title="Agent not found" breadcrumbs={['Observe', 'Fleet', decodedAgentId]}>
+        <div className="mx-auto mt-12 max-w-md text-center">
           <Card hover={false}>
             <CardContent className="pt-8">
-              <ShieldAlert size={32} className="text-zinc-600 mx-auto mb-3" />
-              <div className="text-lg font-medium text-white mb-2">{error || 'Agent not found'}</div>
-              <Link href="/agents" className="text-brand hover:underline text-sm font-medium">Back to Fleet</Link>
+              <ShieldAlert size={32} className="mx-auto mb-3 text-zinc-500" aria-hidden="true" />
+              <div className="mb-2 text-lg font-semibold text-white">{error || 'Agent not found'}</div>
+              <Link
+                href="/agents"
+                className="inline-flex items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-hover"
+              >
+                <ArrowLeft size={12} aria-hidden="true" /> Back to fleet
+              </Link>
             </CardContent>
           </Card>
         </div>
@@ -96,19 +101,23 @@ export default function AgentProfilePage() {
       breadcrumbs={['Observe', 'Fleet', profile.agent.agent_name]}
       actions={
         <div className="flex items-center gap-2">
-          <Link href="/agents" className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors">
-            <ArrowLeft size={14} /> Fleet
+          <Link
+            href="/agents"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          >
+            <ArrowLeft size={14} aria-hidden="true" /> Fleet
           </Link>
           <button
             onClick={fetchProfile}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            aria-label="Refresh"
           >
-            <RotateCw size={14} /> Refresh
+            <RotateCw size={14} aria-hidden="true" /> Refresh
           </button>
         </div>
       }
     >
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <AgentVitalsStrip
           agent={profile.agent}
           identityVerified={profile.trust.identity_verified}

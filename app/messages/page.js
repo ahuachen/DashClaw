@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
-import { StatCompact } from '../components/ui/Stat';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { isDemoMode } from '../lib/isDemoMode';
 import { useRealtime } from '../hooks/useRealtime';
@@ -338,6 +337,8 @@ export default function MessagesPage() {
 
   // ── Render ────────────────────────────────────────────────────
 
+  const kbdClass = 'rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-400';
+
   return (
     <PageLayout
       title="Messages"
@@ -347,68 +348,67 @@ export default function MessagesPage() {
         <button
           onClick={() => { setComposePrefill(null); setShowCompose(true); }}
           disabled={isDemo}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-brand text-white hover:bg-brand/90 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
         >
-          <Plus size={14} /> Compose
+          <Plus size={14} aria-hidden="true" /> Compose
         </button>
       }
     >
       {isDemo && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm">
-          Demo mode: messaging is read-only.
+        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
+          Demo mode · messaging is read-only.
         </div>
       )}
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Unread" value={stats.unread} color="text-brand" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Today" value={stats.today} color="text-blue-400" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Active Threads" value={stats.activeThreads} color="text-emerald-400" />
-          </CardContent>
-        </Card>
-        <Card hover={false}>
-          <CardContent className="pt-4 pb-4">
-            <StatCompact label="Shared Docs" value={stats.docCount} color="text-white" />
-          </CardContent>
-        </Card>
+      {/* Instrument rail */}
+      <div className="mb-4 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4">
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unread</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-brand">{stats.unread}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Today</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{stats.today}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active threads</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.activeThreads}</div>
+        </div>
+        <div className="p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Shared docs</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.docCount}</div>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-4 border-b border-[rgba(255,255,255,0.06)] pb-px">
+      <div role="tablist" className="mb-4 flex items-center gap-1 border-b border-border">
         {TABS.map(t => {
           const Icon = t.icon;
-          const active = tab === t.key;
+          const isActive = tab === t.key;
           return (
             <button
               key={t.key}
+              role="tab"
+              aria-selected={isActive}
               onClick={() => { setTab(t.key); setSelected(null); setSelectedIndex(-1); }}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-colors ${
-                active
-                  ? 'text-brand border-b-2 border-brand'
-                  : 'text-zinc-400 hover:text-zinc-200'
+              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors ${
+                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Icon size={14} />
+              <Icon size={14} aria-hidden="true" />
               {t.label}
               {t.key === 'inbox' && stats.unread > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-brand/20 text-brand">
+                <span className="ml-1 rounded-full border border-brand/20 bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-brand">
                   {stats.unread}
                 </span>
               )}
               {t.key === 'threads' && stats.activeThreads > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400">
+                <span className="ml-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-400">
                   {stats.activeThreads}
                 </span>
+              )}
+              {isActive && (
+                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
               )}
             </button>
           );
@@ -418,16 +418,16 @@ export default function MessagesPage() {
             {stats.unread > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-300 hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+                className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
               >
-                <CheckCheck size={12} /> Mark All Read
+                <CheckCheck size={12} aria-hidden="true" /> Mark all read
               </button>
             )}
             <button
               onClick={handleArchiveAll}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-zinc-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
             >
-              <Archive size={12} /> Archive All
+              <Archive size={12} aria-hidden="true" /> Archive all
             </button>
           </div>
         )}
@@ -435,34 +435,38 @@ export default function MessagesPage() {
           <div className="ml-auto">
             <button
               onClick={() => setShowCreateThread(prev => !prev)}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-brand/10 text-brand hover:bg-brand/20 transition-colors"
+              className="flex items-center gap-1 rounded-lg border border-brand/20 bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
             >
-              <Plus size={12} /> New Thread
+              <Plus size={12} aria-hidden="true" /> New thread
             </button>
           </div>
         )}
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-between">
+        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300">
+          <button onClick={() => setError(null)} aria-label="Dismiss error" className="rounded p-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300">
             <X size={14} />
           </button>
         </div>
       )}
 
       {loading ? (
-        <div className="text-center text-zinc-500 py-12 text-sm">Loading messages...</div>
+        <div className="space-y-2 rounded-xl border border-border bg-surface-secondary p-5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-14 animate-pulse rounded-lg bg-white/5" />
+          ))}
+        </div>
       ) : selectedType === 'thread' && selected ? (
         /* Full-width thread conversation view */
         <Card hover={false}>
           <CardContent className="pt-4">
             <button
               onClick={() => { setSelected(null); setSelectedType(null); setSelectedIndex(-1); }}
-              className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-200 mb-3 transition-colors"
+              className="mb-3 flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
             >
-              <ArrowLeft size={14} /> Back to Threads
+              <ArrowLeft size={14} aria-hidden="true" /> Back to threads
             </button>
             <ThreadConversation
               thread={selected}
@@ -475,7 +479,7 @@ export default function MessagesPage() {
       ) : (
         <div className="flex gap-4">
           {/* Main list */}
-          <div className={`flex-1 min-w-0 ${selected ? 'hidden md:block md:w-2/3' : ''}`}>
+          <div className={`min-w-0 flex-1 ${selected ? 'hidden md:block md:w-2/3' : ''}`}>
             {tab === 'inbox' ? (
               <SmartInbox
                 messages={messages}
@@ -522,14 +526,18 @@ export default function MessagesPage() {
 
           {/* Detail panel */}
           {selected && selectedType !== 'thread' && (
-            <div className="w-full md:w-1/3 min-w-[300px]">
+            <div className="w-full min-w-[300px] md:w-1/3">
               <Card hover={false}>
                 <CardContent className="pt-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs text-zinc-500 uppercase tracking-wide">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                       {selectedType === 'message' ? 'Message' : 'Document'}
                     </span>
-                    <button onClick={() => { setSelected(null); setSelectedIndex(-1); }} className="text-zinc-500 hover:text-zinc-300">
+                    <button
+                      onClick={() => { setSelected(null); setSelectedIndex(-1); }}
+                      aria-label="Close detail"
+                      className="rounded p-0.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+                    >
                       <X size={14} />
                     </button>
                   </div>
@@ -552,16 +560,16 @@ export default function MessagesPage() {
       )}
 
       {/* Keyboard shortcuts hint */}
-      <div className="hidden md:flex items-center justify-center gap-3 mt-4 text-xs text-zinc-600">
-        <span><kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">j</kbd>/<kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">k</kbd> navigate</span>
-        <span className="text-zinc-700">·</span>
-        <span><kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">r</kbd> reply</span>
-        <span className="text-zinc-700">·</span>
-        <span><kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">e</kbd> archive</span>
-        <span className="text-zinc-700">·</span>
-        <span><kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">Enter</kbd> open thread</span>
-        <span className="text-zinc-700">·</span>
-        <span><kbd className="px-1 py-0.5 rounded bg-[rgba(255,255,255,0.06)] text-zinc-500 font-mono">Esc</kbd> close</span>
+      <div className="mt-4 hidden items-center justify-center gap-3 text-xs text-zinc-500 md:flex">
+        <span><kbd className={kbdClass}>j</kbd>/<kbd className={kbdClass}>k</kbd> navigate</span>
+        <span aria-hidden="true" className="text-zinc-700">·</span>
+        <span><kbd className={kbdClass}>r</kbd> reply</span>
+        <span aria-hidden="true" className="text-zinc-700">·</span>
+        <span><kbd className={kbdClass}>e</kbd> archive</span>
+        <span aria-hidden="true" className="text-zinc-700">·</span>
+        <span><kbd className={kbdClass}>Enter</kbd> open thread</span>
+        <span aria-hidden="true" className="text-zinc-700">·</span>
+        <span><kbd className={kbdClass}>Esc</kbd> close</span>
       </div>
 
       {/* Compose modal */}
