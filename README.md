@@ -356,6 +356,9 @@ Approval requests also push to Discord and Slack.
 | Session Lifecycle | Automatic tracking with stall detection, recovery, and graduated autonomy | [CHANGELOG](./CHANGELOG.md) |
 | Capability Registry | Full CRUD, HTTP invocation, health monitoring, and per-agent access rules | [Capability Runtime](./sdk/README.md#capability-runtime) |
 | Workflow Engine | 3 step types, variable substitution, `continue_on_failure`, resume from checkpoint | [DEMO.md](./DEMO.md) |
+| Agent Profiles | Per-agent governance dashboard: trust posture, decision history, assumptions, active signals, and policies at `/agents/[agentId]` | [PROJECT_DETAILS.md](./PROJECT_DETAILS.md) |
+| Policy Builder | Shields-first policy experience with 8 pre-built safety switches (Deploy Gate, Risk Threshold, Rate Limiter, etc.), AI generator, YAML import, and guard activity feed at `/policies` | [PROJECT_DETAILS.md](./PROJECT_DETAILS.md) |
+| Analytics | Cost trends, action volume, agent and type breakdowns, policy enforcement stats, and token efficiency with 7d/30d/90d time ranges at `/analytics` | [PROJECT_DETAILS.md](./PROJECT_DETAILS.md) |
 
 ---
 
