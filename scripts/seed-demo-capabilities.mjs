@@ -267,7 +267,10 @@ async function seedCapabilities() {
       risk_level: 'medium',
       tags: ['notification', 'webhook', 'demo'],
       invocation_schema: {
-        endpoint: 'https://httpbin.org/post',
+        // postman-echo.com/post is a reliable JSON-native echo endpoint.
+        // Previously used httpbin.org/post, which routinely returned 503s
+        // and 20s+ latencies that exceeded the capability timeout.
+        endpoint: 'https://postman-echo.com/post',
         method: 'POST',
         timeout_ms: 15000,
         auth: { type: 'none' },
@@ -282,7 +285,11 @@ async function seedCapabilities() {
       requires_approval: true,
       tags: ['publish', 'external', 'demo'],
       invocation_schema: {
-        endpoint: 'https://dpaste.org/api/',
+        // jsonplaceholder.typicode.com/posts is a reliable JSON-native mock
+        // endpoint that returns 201 with a generated id on POST — semantically
+        // equivalent to "published, here is the resource handle". Previously
+        // used dpaste.org/api/, which now returns 405 Method Not Allowed.
+        endpoint: 'https://jsonplaceholder.typicode.com/posts',
         method: 'POST',
         timeout_ms: 15000,
         auth: { type: 'none' },
