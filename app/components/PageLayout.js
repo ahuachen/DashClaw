@@ -22,8 +22,8 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
         <DemoBanner />
         {/* Page header */}
         <header className="sticky top-0 z-10 bg-surface-primary/80 backdrop-blur-sm border-b border-[rgba(255,255,255,0.06)]">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div>
+          <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+            <div className="min-w-0">
               {breadcrumbs && (
                 <div className="text-xs text-zinc-500 mb-1 flex items-center gap-1.5">
                   {breadcrumbs.map((crumb, i) => (
@@ -37,18 +37,18 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-white">{title}</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-white truncate">{title}</h1>
                 {maturity && MATURITY_BADGE[maturity] && (
-                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium border ${MATURITY_BADGE[maturity].color}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium border shrink-0 ${MATURITY_BADGE[maturity].color}`}>
                     {MATURITY_BADGE[maturity].label}
                   </span>
                 )}
               </div>
-              {subtitle && <p className="text-sm text-zinc-400 font-normal mt-0.5">{subtitle}</p>}
+              {subtitle && <p className="text-sm text-zinc-400 font-normal mt-0.5 hidden sm:block">{subtitle}</p>}
             </div>
-            <div className="flex items-center gap-3">
-              <RealtimeIndicator />
-              <AgentFilterDropdown />
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <span className="hidden md:flex"><RealtimeIndicator /></span>
+              <span className="hidden sm:flex"><AgentFilterDropdown /></span>
               {actions}
               <NotificationCenter />
               <UserMenu />
