@@ -16,18 +16,37 @@ function MetricRow({ icon: Icon, label, value, sub, color = 'text-white' }) {
 
 export default function RuntimeSummaryCard() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch('/api/operations/summary');
-        if (res.ok) setData(await res.json());
-      } catch { /* ignore */ }
+        if (res.ok) {
+          setData(await res.json());
+          setError(false);
+        } else {
+          console.warn('[RuntimeSummary] API returned', res.status);
+          setError(true);
+        }
+      } catch (err) {
+        console.warn('[RuntimeSummary] Fetch failed:', err.message);
+        setError(true);
+      }
     }
     load();
     const interval = setInterval(load, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  if (error && !data) {
+    return (
+      <div className="p-4 space-y-3">
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Runtime</div>
+        <div className="text-xs text-zinc-500">Unable to load runtime metrics.</div>
+      </div>
+    );
+  }
 
   if (!data) {
     return (

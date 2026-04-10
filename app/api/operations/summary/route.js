@@ -10,32 +10,35 @@ export async function GET(request) {
     const sql = getSql();
     const orgId = getOrgId(request);
 
+    // Each query is individually resilient — a single failing query won't break the whole card
+    const safe = (promise) => promise.catch(() => [{}]);
+
     const [throughput, latency, approvalBacklog, workflowHealth, capHealth] = await Promise.all([
       // Decision throughput
-      sql`
+      safe(sql`
         SELECT
           COUNT(*) FILTER (WHERE timestamp_start::timestamptz > NOW() - INTERVAL '1 hour')::int AS last_1h,
           COUNT(*) FILTER (WHERE timestamp_start::timestamptz > NOW() - INTERVAL '24 hours')::int AS last_24h
         FROM action_records
         WHERE org_id = ${orgId}
           AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
-      `,
+      `),
 
-      // Decision latency (completed actions with duration_ms, last 24h)
-      sql`
+      // Decision latency — use AVG as fallback since PERCENTILE_CONT can fail on some configs
+      safe(sql`
         SELECT
-          COALESCE(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY duration_ms), 0)::int AS p50,
-          COALESCE(PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration_ms), 0)::int AS p95
+          COALESCE(AVG(duration_ms), 0)::int AS p50,
+          COALESCE(MAX(duration_ms), 0)::int AS p95
         FROM action_records
         WHERE org_id = ${orgId}
           AND status = 'completed'
           AND duration_ms IS NOT NULL
           AND duration_ms > 0
           AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
-      `,
+      `),
 
       // Approval backlog
-      sql`
+      safe(sql`
         SELECT
           COUNT(*)::int AS pending_count,
           COALESCE(EXTRACT(EPOCH FROM (NOW() - MIN(timestamp_start::timestamptz))) / 60, 0)::int AS oldest_minutes,
@@ -43,10 +46,10 @@ export async function GET(request) {
         FROM action_records
         WHERE org_id = ${orgId}
           AND status = 'pending_approval'
-      `,
+      `),
 
       // Workflow health (last 24h)
-      sql`
+      safe(sql`
         SELECT
           COUNT(*) FILTER (WHERE status = 'running')::int AS running,
           COUNT(*) FILTER (WHERE status = 'failed')::int AS failed_24h,
@@ -56,17 +59,17 @@ export async function GET(request) {
         WHERE org_id = ${orgId}
           AND action_type = 'workflow_execute'
           AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
-      `,
+      `),
 
       // Capability health counts
-      sql`
+      safe(sql`
         SELECT
           COUNT(*) FILTER (WHERE health_status = 'healthy' OR health_status IS NULL)::int AS healthy,
           COUNT(*) FILTER (WHERE health_status = 'degraded')::int AS degraded,
           COUNT(*) FILTER (WHERE health_status = 'failing')::int AS failing
         FROM capabilities
         WHERE org_id = ${orgId}
-      `,
+      `),
     ]);
 
     return NextResponse.json({
