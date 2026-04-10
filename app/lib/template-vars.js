@@ -25,10 +25,30 @@ function resolveString(str, context) {
     return resolved !== undefined ? resolved : str;
   }
 
-  // Mixed string — replace all ${...} with string values
+  // Mixed string — replace all ${...} with string values.
+  //
+  // Objects and arrays get JSON-stringified rather than passed through
+  // String(), which would produce the infamous "[object Object]". This
+  // matters for LLM prompts like `${steps.search.output}` that expect
+  // the step's actual output data, not a placeholder.
   return str.replace(/\$\{([^}]+)\}/g, (match, varPath) => {
     const resolved = resolvePath(context, varPath);
-    return resolved !== undefined ? String(resolved) : match;
+    if (resolved === undefined) return match;
+    if (typeof resolved === 'string') return resolved;
+    if (
+      resolved === null ||
+      typeof resolved === 'number' ||
+      typeof resolved === 'boolean'
+    ) {
+      return String(resolved);
+    }
+    // Object or array — serialize so the downstream consumer (often an
+    // LLM) sees real content instead of "[object Object]".
+    try {
+      return JSON.stringify(resolved, null, 2);
+    } catch {
+      return String(resolved);
+    }
   });
 }
 

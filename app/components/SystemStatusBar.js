@@ -1,15 +1,19 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ShieldAlert, ShieldCheck, Activity } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 
-// POSTURE LOGIC: Standardized across the platform
+// POSTURE LOGIC: Standardized across the platform.
+// Per .impeccable.md "calm under pressure": the bar does not pulse. A live
+// status bar that breathes in the peripheral vision every second crosses from
+// "quiet confidence" into "vigilant alertness". Attention-grabbing motion is
+// reserved for incoming decisions and approval arrivals elsewhere in the UI.
 export function computePosture(redCount, amberCount) {
-  if (redCount >= 1) return { label: 'CRITICAL', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', pulse: true };
-  if (amberCount >= 1) return { label: 'ELEVATED', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', pulse: true };
-  return { label: 'NOMINAL', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', pulse: false };
+  if (redCount >= 1) return { label: 'Critical', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', dot: 'bg-red-500' };
+  if (amberCount >= 1) return { label: 'Elevated', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', dot: 'bg-amber-500' };
+  return { label: 'Nominal', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', dot: 'bg-emerald-500' };
 }
 
 export default function SystemStatusBar() {
@@ -61,40 +65,44 @@ export default function SystemStatusBar() {
   const state = computePosture(redCount, amberCount);
 
   return (
-    <div className="flex items-center justify-between px-6 py-1.5 bg-surface-primary border-b border-[rgba(255,255,255,0.04)] text-xs">
+    <div className="flex items-center justify-between gap-4 border-b border-border bg-surface-primary px-6 py-1.5">
       <div className="flex items-center gap-4">
         {/* System Posture Badge */}
-        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${state.bg} border ${state.border}`}>
-          <Activity size={10} className={`${state.color} ${state.pulse ? 'animate-pulse' : ''}`} />
-          <span className={`font-black tracking-widest text-[9px] ${state.color}`}>{state.label}</span>
+        <div
+          role="status"
+          aria-label={`System posture ${state.label}`}
+          className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 ${state.bg} ${state.border}`}
+        >
+          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${state.dot}`} />
+          <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${state.color}`}>{state.label}</span>
         </div>
 
         {/* Signal Counts */}
-        <div className="flex items-center gap-3 text-zinc-500">
+        <div className="flex items-center gap-3">
           {redCount > 0 && (
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              <span className="text-red-400 font-medium">{redCount} Critical</span>
+            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-red-400">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              {redCount} Critical
             </span>
           )}
           {amberCount > 0 && (
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-              <span className="text-amber-400 font-medium">{amberCount} Amber</span>
+            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-amber-400">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              {amberCount} Elevated
             </span>
           )}
           {redCount === 0 && amberCount === 0 && (
-            <span className="flex items-center gap-1">
-              <ShieldCheck size={11} className="text-emerald-500" />
-              <span className="text-emerald-400 uppercase font-black text-[9px] tracking-widest">All clear</span>
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
+              <ShieldCheck size={11} aria-hidden="true" />
+              All clear
             </span>
           )}
         </div>
       </div>
 
       {/* Total count */}
-      <span className="text-zinc-600 tabular-nums font-medium">
-        {totalCount} ACTIVE GOVERNANCE SIGNAL{totalCount !== 1 ? 'S' : ''}
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+        {totalCount} active governance signal{totalCount !== 1 ? 's' : ''}
       </span>
     </div>
   );

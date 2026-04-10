@@ -448,24 +448,29 @@ function renderStepOutput(step, lines) {
     }
   }
 
-  // Capability invoke — show the data payload, with array preview for
-  // list-returning capabilities like HN top stories.
+  // Capability invoke — show the whole response. The handler returns the
+  // raw array for list-shaped responses (HN top stories) or the full
+  // object for object-shaped ones (postman-echo, jsonplaceholder). We no
+  // longer peek into output.data first because that was hiding the
+  // postman-echo response body (which contains its own `data` field
+  // that's the echoed payload, not the whole envelope).
   if (step.step_type === 'capability_invoke') {
-    const data = output.data !== undefined ? output.data : output;
-    if (Array.isArray(data)) {
-      lines.push(C.dim(`      array of ${data.length} items`));
-      const preview = JSON.stringify(data.slice(0, 10));
-      lines.push(`      ${preview}${data.length > 10 ? ' ...' : ''}`);
+    if (Array.isArray(output)) {
+      lines.push(C.dim(`      array of ${output.length} items`));
+      const preview = JSON.stringify(output.slice(0, 10));
+      lines.push(`      ${preview}${output.length > 10 ? ' ...' : ''}`);
       return;
     }
-    if (typeof data === 'object' && data !== null) {
-      const json = JSON.stringify(data, null, 2);
+    if (typeof output === 'object' && output !== null) {
+      const json = JSON.stringify(output, null, 2);
       const truncated =
-        json.length > 800 ? json.slice(0, 800) + '\n      ... [truncated]' : json;
+        json.length > 1500
+          ? json.slice(0, 1500) + '\n      ... [truncated]'
+          : json;
       for (const l of truncated.split('\n')) lines.push(C.dim(`      ${l}`));
       return;
     }
-    lines.push(`      ${data}`);
+    lines.push(`      ${output}`);
     return;
   }
 

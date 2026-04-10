@@ -58,16 +58,16 @@ export default function ShieldsGrid() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-36 w-full rounded-2xl" />
+          <Skeleton key={i} className="h-36 w-full rounded-xl" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {SHIELDS.map(shield => (
         <ShieldCard
           key={shield.id}

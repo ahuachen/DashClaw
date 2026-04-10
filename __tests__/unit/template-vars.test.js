@@ -56,4 +56,45 @@ describe('resolveVars', () => {
     const arr = ['${variables.query}', 'literal'];
     expect(resolveVars(arr, context)).toEqual(['What is x402?', 'literal']);
   });
+
+  it('JSON-stringifies objects in inline string substitution (no [object Object])', () => {
+    const result = resolveVars(
+      'Context: ${steps.step_1.output}\nEnd.',
+      context,
+    );
+    expect(result).not.toContain('[object Object]');
+    expect(result).toContain('"chunks"');
+    expect(result).toContain('"chunk text"');
+    expect(result).toContain('"query"');
+    expect(result).toContain('End.');
+  });
+
+  it('JSON-stringifies arrays in inline string substitution', () => {
+    const ctx = {
+      variables: {},
+      steps: { fetch: { output: [42141, 42140, 42139] } },
+    };
+    const result = resolveVars('IDs: ${steps.fetch.output}', ctx);
+    expect(result).toBe('IDs: [\n  42141,\n  42140,\n  42139\n]');
+  });
+
+  it('preserves object identity for single-variable templates', () => {
+    // Single-var form returns the raw value so downstream code can
+    // inspect the object. Only inline substitutions get JSON-stringified.
+    const obj = resolveVars('${steps.step_1.output}', context);
+    expect(obj).toEqual({
+      chunks: [{ content: 'chunk text' }],
+      query: 'x402',
+    });
+  });
+
+  it('stringifies null in inline substitution (not "[object Null]")', () => {
+    const ctx = { variables: { x: null }, steps: {} };
+    expect(resolveVars('Value: ${variables.x}', ctx)).toBe('Value: null');
+  });
+
+  it('stringifies booleans in inline substitution', () => {
+    const ctx = { variables: { flag: true }, steps: {} };
+    expect(resolveVars('Flag: ${variables.flag}', ctx)).toBe('Flag: true');
+  });
 });

@@ -45,35 +45,38 @@ export default function PoliciesPage() {
       breadcrumbs={['Governance', 'Policies']}
       maturity="stable"
     >
-      {/* Stats bar */}
-      <div className="mb-6 flex items-center gap-3 text-xs text-zinc-400">
-        <span><span className="text-white font-medium">{stats.active}</span> active shields</span>
-        <span className="text-zinc-600">&middot;</span>
-        <span><span className="text-red-400 font-medium">{stats.blocks}</span> blocks this week</span>
-        <span className="text-zinc-600">&middot;</span>
-        <span><span className="text-amber-400 font-medium">{stats.approvals}</span> approvals this week</span>
-        <span className="text-zinc-600">&middot;</span>
-        <span><span className="text-white font-medium">{stats.agents}</span> agents governed</span>
+      {/* Stats bar — prose rail, not another card grid */}
+      <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+        <span><span className="font-semibold tabular-nums text-white">{stats.active}</span> active shields</span>
+        <span aria-hidden="true" className="text-zinc-700">&middot;</span>
+        <span><span className="font-semibold tabular-nums text-red-400">{stats.blocks}</span> blocks this week</span>
+        <span aria-hidden="true" className="text-zinc-700">&middot;</span>
+        <span><span className="font-semibold tabular-nums text-amber-400">{stats.approvals}</span> approvals this week</span>
+        <span aria-hidden="true" className="text-zinc-700">&middot;</span>
+        <span><span className="font-semibold tabular-nums text-white">{stats.agents}</span> agents governed</span>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex items-center gap-1 border-b border-[rgba(255,255,255,0.06)]">
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-              activeTab === tab.id
-                ? 'text-white'
-                : 'text-zinc-500 hover:text-zinc-300'
-            }`}
-          >
-            {tab.label}
-            {activeTab === tab.id && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand rounded-full" />
-            )}
-          </button>
-        ))}
+      <div role="tablist" className="mb-6 flex items-center gap-1 border-b border-border">
+        {TABS.map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {tab.label}
+              {isActive && (
+                <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab content */}

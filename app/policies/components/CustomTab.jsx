@@ -283,59 +283,63 @@ export default function CustomTab() {
   return (
     <div className="space-y-4">
       {/* Actions bar */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={openCreate}
-          className="flex items-center gap-1.5 rounded-lg border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs text-brand hover:border-brand/60 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
         >
-          <Plus size={12} /> New Policy
+          <Plus size={12} aria-hidden="true" /> New policy
         </button>
         <button
           onClick={openImport}
-          className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
         >
-          <Upload size={12} /> Import
+          <Upload size={12} aria-hidden="true" /> Import
         </button>
         <button
           onClick={() => { setShowGenerator(!showGenerator); setShowAuthoring(false); setShowImport(false); }}
-          className="flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-xs text-zinc-300 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
         >
-          <Sparkles size={12} /> AI Generator
+          <Sparkles size={12} aria-hidden="true" /> AI generator
         </button>
       </div>
 
       {/* AI Generator panel */}
       {showGenerator && (
-        <div className="rounded-2xl border border-purple-500/20 bg-[#0d0d0d] p-5 space-y-3">
+        <div className="space-y-3 rounded-xl border border-border bg-surface-secondary p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles size={14} className="text-purple-400" />
-              <span className="text-sm font-semibold text-white">AI Policy Generator</span>
+              <Sparkles size={14} className="text-brand" aria-hidden="true" />
+              <span className="text-sm font-semibold text-white">AI policy generator</span>
             </div>
-            <button onClick={() => { setShowGenerator(false); setGenError(null); setGenSuccess(null); }} className="text-zinc-500 hover:text-white transition-colors">
+            <button
+              onClick={() => { setShowGenerator(false); setGenError(null); setGenSuccess(null); }}
+              className="text-zinc-500 transition-colors hover:text-white"
+              aria-label="Close AI generator"
+            >
               <X size={16} />
             </button>
           </div>
           <p className="text-xs text-zinc-400">Describe what you want DashClaw to prevent or enforce in plain English.</p>
-          {genSuccess && <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">{genSuccess}</div>}
-          {genError && <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">{genError}</div>}
+          {genSuccess && <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">{genSuccess}</div>}
+          {genError && <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">{genError}</div>}
           <textarea
             value={genInput}
             onChange={e => setGenInput(e.target.value)}
             placeholder="e.g. Require approval before any agent can deploy to production or send external messages"
             rows={3}
             maxLength={5000}
-            className="w-full resize-none rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 placeholder-zinc-500 focus:outline-none focus:border-brand/50"
+            className="w-full resize-none rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
           />
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-zinc-600">{genInput.length}/5000</span>
+            <span className="text-[11px] tabular-nums text-zinc-500">{genInput.length}/5000</span>
             <button
               onClick={handleGenerate}
               disabled={genLoading || !genInput.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand/80 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
             >
-              <Sparkles size={12} />
-              {genLoading ? 'Generating...' : 'Generate & Create'}
+              <Sparkles size={12} aria-hidden="true" />
+              {genLoading ? 'Generating…' : 'Generate & create'}
             </button>
           </div>
         </div>
@@ -343,12 +347,16 @@ export default function CustomTab() {
 
       {/* Authoring panel — inline controlled form */}
       {showAuthoring && (
-        <div className="rounded-2xl border border-brand/20 bg-[#0d0d0d] p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-brand/20 bg-surface-secondary p-5">
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold text-white">
-              {editingId ? 'Edit Policy' : 'New Policy'}
+              {editingId ? 'Edit policy' : 'New policy'}
             </div>
-            <button onClick={closeAuthoring} className="text-zinc-500 hover:text-white transition-colors">
+            <button
+              onClick={closeAuthoring}
+              className="text-zinc-500 transition-colors hover:text-white"
+              aria-label="Close policy editor"
+            >
               <X size={16} />
             </button>
           </div>
@@ -370,13 +378,13 @@ export default function CustomTab() {
             <button
               onClick={handleSave}
               disabled={saving || isFormInvalid}
-              className="rounded-lg bg-brand px-4 py-1.5 text-xs font-medium text-white hover:bg-brand/90 disabled:opacity-50 transition-colors"
+              className="rounded-lg border border-brand/20 bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
             >
-              {saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Policy'}
+              {saving ? 'Saving…' : editingId ? 'Save changes' : 'Create policy'}
             </button>
             <button
               onClick={closeAuthoring}
-              className="rounded-lg border border-white/5 px-4 py-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+              className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
             >
               Cancel
             </button>
@@ -401,31 +409,37 @@ export default function CustomTab() {
       />
 
       {/* Search + filters */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor="policy-search" className="sr-only">Search policies</label>
         <input
+          id="policy-search"
           type="text"
-          placeholder="Search policies..."
+          placeholder="Search policies…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] rounded-lg border border-white/5 bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-brand/50"
+          className="min-w-[200px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         />
+        <label htmlFor="policy-type-filter" className="sr-only">Filter by type</label>
         <select
+          id="policy-type-filter"
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
-          className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-brand/50"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All types</option>
-          <option value="risk_threshold">Risk Threshold</option>
-          <option value="require_approval">Require Approval</option>
-          <option value="block_action_type">Block Action Type</option>
-          <option value="rate_limit">Rate Limit</option>
-          <option value="webhook_check">Webhook Check</option>
-          <option value="semantic_check">Semantic Check</option>
+          <option value="risk_threshold">Risk threshold</option>
+          <option value="require_approval">Require approval</option>
+          <option value="block_action_type">Block action type</option>
+          <option value="rate_limit">Rate limit</option>
+          <option value="webhook_check">Webhook check</option>
+          <option value="semantic_check">Semantic check</option>
         </select>
+        <label htmlFor="policy-status-filter" className="sr-only">Filter by status</label>
         <select
+          id="policy-status-filter"
           value={filterActive}
           onChange={e => setFilterActive(e.target.value)}
-          className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-brand/50"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All</option>
           <option value="active">Active</option>
@@ -434,9 +448,9 @@ export default function CustomTab() {
       </div>
 
       {/* Policy list */}
-      <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111]">
+      <div className="rounded-xl border border-border bg-surface-secondary">
         {loading ? (
-          <div className="p-5 space-y-3">
+          <div className="space-y-3 p-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-14 w-full rounded-lg" />
             ))}
@@ -450,68 +464,69 @@ export default function CustomTab() {
             />
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-border">
             {filtered.map(p => {
               const agentCount = parseAgentIds(p).length;
+              const isActive = p.active === 1;
               return (
-                <div key={p.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                <div key={p.id} className="flex items-center justify-between gap-3 px-5 py-3">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-white truncate">{p.name}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="truncate text-sm font-medium text-white">{p.name}</span>
                       <Badge size="xs">{p.policy_type}</Badge>
-                      <Badge variant={p.active === 1 ? 'success' : 'default'} size="xs">
-                        {p.active === 1 ? 'active' : 'inactive'}
+                      <Badge variant={isActive ? 'success' : 'default'} size="xs">
+                        {isActive ? 'active' : 'inactive'}
                       </Badge>
                     </div>
-                    <div className="mt-0.5 text-xs text-zinc-500 truncate">
-                      {formatRules(p)} &middot; {agentCount === 0 ? 'All agents' : `${agentCount} agents`} &middot; {p.id}
+                    <div className="mt-0.5 truncate text-xs text-zinc-500">
+                      {formatRules(p)} <span aria-hidden="true" className="text-zinc-700">&middot;</span> {agentCount === 0 ? 'All agents' : `${agentCount} agents`} <span aria-hidden="true" className="text-zinc-700">&middot;</span> {p.id}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       onClick={() => handleToggleActive(p)}
-                      className="text-zinc-500 hover:text-white"
-                      title={p.active === 1 ? 'Deactivate' : 'Activate'}
+                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      aria-label={isActive ? `Deactivate ${p.name}` : `Activate ${p.name}`}
                     >
-                      {p.active === 1
+                      {isActive
                         ? <ToggleRight size={16} className="text-brand" />
                         : <ToggleLeft size={16} />}
                     </button>
                     <button
                       onClick={() => openEdit(p)}
-                      className="text-zinc-500 hover:text-white"
-                      title="Edit"
+                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      aria-label={`Edit ${p.name}`}
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => handleSimulate(p)}
-                      className="text-zinc-500 hover:text-white"
-                      title="Simulate"
+                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      aria-label={`Simulate ${p.name}`}
                     >
                       <Play size={13} />
                     </button>
                     <button
                       onClick={() => handleExport(p)}
-                      className="text-zinc-500 hover:text-white"
-                      title="Export JSON"
+                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      aria-label={`Export ${p.name} as JSON`}
                     >
                       {copiedId === p.id
                         ? <Check size={13} className="text-emerald-400" />
                         : <Copy size={13} />}
                     </button>
                     {confirmDeleteId === p.id ? (
-                      <span className="flex items-center gap-1 text-xs">
+                      <span className="flex items-center gap-1 pl-1 text-xs">
                         <button
                           onClick={() => handleDelete(p.id)}
                           disabled={deleting}
-                          className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                          className="rounded px-1.5 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
                         >
-                          {deleting ? '...' : 'Yes'}
+                          {deleting ? '…' : 'Yes'}
                         </button>
                         <button
                           onClick={() => setConfirmDeleteId(null)}
-                          className="text-zinc-400 hover:text-white"
+                          className="rounded px-1.5 py-0.5 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                         >
                           No
                         </button>
@@ -519,8 +534,8 @@ export default function CustomTab() {
                     ) : (
                       <button
                         onClick={() => setConfirmDeleteId(p.id)}
-                        className="text-zinc-500 hover:text-red-400"
-                        title="Delete"
+                        className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/40"
+                        aria-label={`Delete ${p.name}`}
                       >
                         <Trash2 size={13} />
                       </button>

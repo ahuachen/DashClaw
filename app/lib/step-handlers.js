@@ -58,7 +58,25 @@ export async function handleCapabilityInvoke(sql, orgId, config) {
     throw new Error(`Capability invocation failed: ${result.error} — ${result.message || ''}`);
   }
 
-  return { ...result.data, elapsed_ms: result.elapsed_ms };
+  // Preserve arrays as-is. Spreading an array into an object (the old
+  // behavior) corrupts numeric-keyed list responses like HN top stories
+  // into { "0": id, "1": id, ..., "elapsed_ms": N }, which then breaks
+  // downstream template substitution and LLM prompts that expect the
+  // raw list shape. Step duration is already tracked separately on the
+  // step result record via duration_ms, so we don't need to smuggle
+  // elapsed_ms through the data payload for arrays.
+  if (Array.isArray(result.data)) {
+    return result.data;
+  }
+
+  // For object responses, merge in elapsed_ms so downstream steps can
+  // still reference it via ${steps.X.output.elapsed_ms}.
+  if (result.data && typeof result.data === 'object') {
+    return { ...result.data, elapsed_ms: result.elapsed_ms };
+  }
+
+  // Primitive or nullish — wrap so downstream has a stable shape.
+  return { data: result.data, elapsed_ms: result.elapsed_ms };
 }
 
 /**

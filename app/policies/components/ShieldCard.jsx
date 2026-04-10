@@ -38,21 +38,31 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
   })();
 
   return (
-    <div className={`rounded-2xl border transition-colors ${
-      isActive ? 'border-brand/30 bg-[#111]' : 'border-[rgba(255,255,255,0.06)] bg-[#111] opacity-60'
-    }`}>
+    <div
+      className={`rounded-xl border bg-surface-secondary transition-colors ${
+        isActive
+          ? 'border-brand/30 hover:border-brand/40'
+          : 'border-border hover:border-border-hover'
+      }`}
+    >
       <div className="p-5">
         {/* Header row */}
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-              isActive ? 'bg-brand/10 text-brand' : 'bg-white/5 text-zinc-500'
-            }`}>
-              <Icon size={18} />
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+                isActive
+                  ? 'border-brand/20 bg-brand/10 text-brand'
+                  : 'border-border bg-surface-tertiary text-zinc-500'
+              }`}
+            >
+              <Icon size={18} aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold text-white">{shield.name}</div>
-              <div className="text-xs text-zinc-400 mt-0.5">{shield.description}</div>
+              <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-zinc-300'}`}>
+                {shield.name}
+              </div>
+              <div className="mt-0.5 text-xs text-zinc-500">{shield.description}</div>
             </div>
           </div>
 
@@ -60,20 +70,24 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
           <button
             onClick={handleToggle}
             disabled={toggling}
-            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 overflow-hidden ${
-              isActive ? 'bg-brand' : 'bg-zinc-700'
+            role="switch"
+            aria-checked={isActive}
+            className={`relative h-6 w-11 shrink-0 overflow-hidden rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand/40 focus:ring-offset-2 focus:ring-offset-surface-secondary ${
+              isActive ? 'bg-brand' : 'bg-white/10'
             } ${toggling ? 'opacity-50' : ''}`}
             aria-label={`${isActive ? 'Disable' : 'Enable'} ${shield.name}`}
           >
-            <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
-              isActive ? 'left-[22px]' : 'left-0.5'
-            }`} />
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+                isActive ? 'left-[22px]' : 'left-0.5'
+              }`}
+            />
           </button>
         </div>
 
         {/* Stats strip */}
         {isActive && statsText && (
-          <div className="mt-3 rounded-lg bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400">
+          <div className="mt-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs tabular-nums text-zinc-400">
             {statsText}
           </div>
         )}
@@ -86,7 +100,7 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
             </span>
             <button
               onClick={() => setExpanded(!expanded)}
-              className="text-xs text-brand hover:text-brand/80 transition-colors"
+              className="text-xs text-brand transition-colors hover:text-brand-hover"
             >
               {expanded ? 'Close' : 'Configure'}
             </button>

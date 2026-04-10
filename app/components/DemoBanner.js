@@ -1,25 +1,43 @@
 'use client';
 
 import Link from 'next/link';
-import { ShieldAlert } from 'lucide-react';
+import { FlaskConical } from 'lucide-react';
 import { isDemoMode } from '../lib/isDemoMode';
 
+// Demo mode is a sustained "this is not production data" notice. Per
+// .impeccable.md, brand orange is reserved for signal — not ambient wallpaper —
+// so the banner sits on a neutral elevated surface with an amber accent
+// (warning-state token) rather than an always-on brand wash.
 export default function DemoBanner() {
   if (!isDemoMode()) return null;
 
   return (
-    <div className="border-b border-[rgba(249,115,22,0.25)] bg-[rgba(249,115,22,0.06)]">
-      <div className="px-6 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="flex items-center gap-2 text-xs text-zinc-300">
-          <ShieldAlert size={14} className="text-brand" />
-          <span className="font-bold text-zinc-100 uppercase tracking-tighter">Demo Mode:</span>
-          <span>Simulated data. Deploy your own DashClaw instance to connect real agents.</span>
+    <div
+      role="note"
+      aria-label="Demo mode"
+      className="border-b border-border bg-surface-secondary"
+    >
+      <div className="flex flex-col gap-2 px-6 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 text-xs text-zinc-400">
+          <span className="flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-400">
+            <FlaskConical size={11} aria-hidden="true" />
+            Demo
+          </span>
+          <span className="text-zinc-300">
+            Simulated data. Deploy your own DashClaw instance to connect real agents.
+          </span>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <Link href="/self-host" className="text-brand hover:text-brand-hover transition-colors">
-            Get Started
+        <div className="flex items-center gap-4 text-xs">
+          <Link
+            href="/self-host"
+            className="text-brand transition-colors hover:text-brand-hover"
+          >
+            Get started
           </Link>
-          <Link href="/" className="text-zinc-400 hover:text-white transition-colors">
+          <Link
+            href="/"
+            className="text-zinc-400 transition-colors hover:text-white"
+          >
             What is DashClaw?
           </Link>
         </div>

@@ -14,7 +14,7 @@ const decisionVariant = {
 const decisionDot = {
   block: 'bg-red-500',
   require_approval: 'bg-amber-500',
-  warn: 'bg-yellow-500',
+  warn: 'bg-blue-500',
   allow: 'bg-emerald-500',
 };
 
@@ -68,34 +68,38 @@ export default function ActivityTab() {
 
   return (
     <div className="space-y-4">
-      {/* Stats strip */}
-      <div className="flex items-center gap-4 text-xs text-zinc-400">
-        <span><span className="text-red-400 font-medium">{stats.blocks}</span> blocks (7d)</span>
-        <span>&middot;</span>
-        <span><span className="text-amber-400 font-medium">{stats.approvals}</span> approvals (7d)</span>
-        <span>&middot;</span>
-        <span><span className="text-amber-400 font-medium">{stats.warns}</span> warns (7d)</span>
+      {/* Stats strip — prose rail */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+        <span><span className="font-semibold tabular-nums text-red-400">{stats.blocks}</span> blocks (7d)</span>
+        <span aria-hidden="true" className="text-zinc-700">&middot;</span>
+        <span><span className="font-semibold tabular-nums text-amber-400">{stats.approvals}</span> approvals (7d)</span>
+        <span aria-hidden="true" className="text-zinc-700">&middot;</span>
+        <span><span className="font-semibold tabular-nums text-blue-400">{stats.warns}</span> warns (7d)</span>
       </div>
 
       {/* Filter */}
       <div className="flex items-center gap-2">
+        <label htmlFor="decision-filter" className="sr-only">
+          Filter decisions
+        </label>
         <select
+          id="decision-filter"
           value={filterDecision}
           onChange={e => setFilterDecision(e.target.value)}
-          className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-brand/50"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All decisions</option>
           <option value="block">Blocked</option>
-          <option value="require_approval">Require Approval</option>
+          <option value="require_approval">Require approval</option>
           <option value="warn">Warn</option>
           <option value="allow">Allowed</option>
         </select>
       </div>
 
       {/* Feed */}
-      <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111]">
+      <div className="rounded-xl border border-border bg-surface-secondary">
         {loading && decisions.length === 0 ? (
-          <div className="p-5 space-y-3">
+          <div className="space-y-3 p-5">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-16 w-full rounded-lg" />
             ))}
@@ -103,19 +107,19 @@ export default function ActivityTab() {
         ) : decisions.length === 0 ? (
           <div className="px-5 py-12 text-center text-sm text-zinc-500">No guard decisions yet.</div>
         ) : (
-          <div className="divide-y divide-white/[0.04]">
+          <div className="divide-y divide-border">
             {decisions.map(d => (
               <div key={d.id} className="px-5 py-4">
                 <div className="flex items-start gap-3">
-                  <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${decisionDot[d.decision] || 'bg-zinc-500'}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
+                  <span aria-hidden="true" className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${decisionDot[d.decision] || 'bg-zinc-500'}`} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Badge variant={decisionVariant[d.decision] || 'default'} size="xs">{d.decision}</Badge>
-                      <span className="text-xs text-zinc-500">{d.action_type}</span>
-                      <span className="text-xs text-zinc-500">&middot;</span>
-                      <span className="text-xs text-zinc-400">{d.agent_name || d.agent_id || 'unknown'}</span>
-                      <span className="text-xs text-zinc-500">&middot;</span>
-                      <span className="text-xs text-zinc-500">{formatRelativeTime(d.created_at)}</span>
+                      <span className="text-xs text-zinc-400">{d.action_type}</span>
+                      <span aria-hidden="true" className="text-xs text-zinc-700">&middot;</span>
+                      <span className="text-xs text-zinc-300">{d.agent_name || d.agent_id || 'unknown'}</span>
+                      <span aria-hidden="true" className="text-xs text-zinc-700">&middot;</span>
+                      <span className="text-xs tabular-nums text-zinc-500">{formatRelativeTime(d.created_at)}</span>
                     </div>
                     {d.matched_policies?.length > 0 && (
                       <div className="mt-1 text-xs text-zinc-500">
@@ -124,11 +128,11 @@ export default function ActivityTab() {
                     )}
                     {d.risk_score != null && (
                       <div className="mt-0.5 text-xs text-zinc-500">
-                        Risk: <span className={`font-mono ${d.risk_score >= 70 ? 'text-red-400' : d.risk_score >= 30 ? 'text-amber-400' : 'text-zinc-300'}`}>{d.risk_score}</span>
+                        Risk: <span className={`tabular-nums font-semibold ${d.risk_score >= 70 ? 'text-red-400' : d.risk_score >= 30 ? 'text-amber-400' : 'text-zinc-300'}`}>{d.risk_score}</span>
                       </div>
                     )}
                     {d.declared_goal && (
-                      <div className="mt-1 text-xs text-zinc-400 truncate">{d.declared_goal}</div>
+                      <div className="mt-1 truncate text-xs text-zinc-400">{d.declared_goal}</div>
                     )}
                     {d.reason && (
                       <div className="mt-0.5 text-xs text-zinc-500">{d.reason}</div>
@@ -140,13 +144,13 @@ export default function ActivityTab() {
           </div>
         )}
         {decisions.length < total && (
-          <div className="border-t border-white/[0.04] px-5 py-3 text-center">
+          <div className="border-t border-border px-5 py-3 text-center">
             <button
               onClick={() => setOffset(decisions.length)}
               disabled={loading}
-              className="text-xs text-brand hover:text-brand/80 disabled:opacity-50"
+              className="text-xs text-brand transition-colors hover:text-brand-hover disabled:opacity-50"
             >
-              {loading ? 'Loading...' : `Load more (${decisions.length} of ${total})`}
+              {loading ? 'Loading…' : `Load more (${decisions.length} of ${total})`}
             </button>
           </div>
         )}
