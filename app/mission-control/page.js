@@ -291,7 +291,7 @@ export default function MissionControlPage() {
   const actionButton = (
     <Link
       href="/decisions"
-      className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm text-brand transition-colors hover:bg-brand/20"
+      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-brand bg-brand/10 transition-colors hover:bg-brand/20"
     >
       View Decisions <ArrowRight size={14} />
     </Link>
@@ -316,10 +316,10 @@ export default function MissionControlPage() {
           <div className="flex flex-wrap items-center gap-y-2 divide-x divide-border/50">
             {/* System Posture */}
             <div className="flex items-center gap-2 pr-5">
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Posture</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Posture</span>
               <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 ${posture.bg} ${posture.border}`}>
                 <div className={`h-1.5 w-1.5 rounded-full ${posture.color.replace('text-', 'bg-')} ${posture.pulse ? 'animate-pulse' : ''}`} />
-                <span className={`text-[10px] font-black uppercase tracking-widest ${posture.color}`}>
+                <span className={`text-xs font-black uppercase tracking-widest ${posture.color}`}>
                   {posture.label}
                 </span>
               </div>
@@ -334,7 +334,7 @@ export default function MissionControlPage() {
 
             {/* DB Health */}
             <div className="flex items-center gap-2 px-5">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">DB Health</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">DB Health</span>
               <span className={`h-2 w-2 rounded-full ${healthDot}`} />
               <span className={`text-sm font-medium ${healthColor}`}>{healthLabel}</span>
             </div>
@@ -361,9 +361,9 @@ export default function MissionControlPage() {
         <Card className={`border-l-4 ${interventionBorder} !bg-surface-secondary`} hover={false}>
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Intervention Required</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Intervention Required</span>
               {interventions.length > 0 && (
-                <Link href="/approvals" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                <Link href="/approvals" className="inline-flex items-center gap-0.5 text-xs text-brand transition-colors hover:text-brand-hover">
                   Queue <ArrowRight size={10} />
                 </Link>
               )}
@@ -389,7 +389,7 @@ export default function MissionControlPage() {
                       >
                         {item.kind === 'approval' ? 'Approval' : 'Loop'}
                       </Badge>
-                      <span className={`max-w-[72px] shrink-0 truncate rounded border px-1 py-0.5 text-[10px] ${getAgentColor(item.agentId)}`}>
+                      <span className={`max-w-[80px] shrink-0 truncate rounded border px-1.5 py-0.5 text-xs ${getAgentColor(item.agentId)}`}>
                         {(item.agentName || '').substring(0, 12) || item.agentId?.substring(0, 8) || 'system'}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-zinc-300">
@@ -399,7 +399,7 @@ export default function MissionControlPage() {
                     </Link>
                   ))}
                   {interventions.length > 4 && (
-                    <Link href="/approvals" className="block px-2 text-[10px] text-brand transition-colors hover:text-brand-hover">
+                    <Link href="/approvals" className="block px-2 text-xs text-brand transition-colors hover:text-brand-hover">
                       +{interventions.length - 4} more
                     </Link>
                   )}
@@ -413,8 +413,8 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Risk Signals</span>
-              <Link href="/security" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Risk Signals</span>
+              <Link href="/security" className="inline-flex items-center gap-0.5 text-xs text-brand transition-colors hover:text-brand-hover">
                 View <ArrowRight size={10} />
               </Link>
             </div>
@@ -449,8 +449,8 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Fleet Status</span>
-              <Link href="/agents" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Fleet Status</span>
+              <Link href="/agents" className="inline-flex items-center gap-0.5 text-xs text-brand transition-colors hover:text-brand-hover">
                 Manage <ArrowRight size={10} />
               </Link>
             </div>
@@ -468,7 +468,7 @@ export default function MissionControlPage() {
                       className="flex items-center gap-2 rounded-lg px-1 py-0.5 transition-colors hover:bg-white/5"
                     >
                       <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-amber-500' : 'bg-emerald-500/40'}`} />
-                      <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-amber-300' : 'text-zinc-500'}`}>
+                      <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-amber-300' : 'text-zinc-300'}`}>
                         {agent.name || agent.agent_id}
                       </span>
                       {isCritical && <AlertTriangle size={10} className="shrink-0 text-red-400" />}
@@ -476,7 +476,7 @@ export default function MissionControlPage() {
                   );
                 })}
                 {agents.length > 5 && (
-                  <Link href="/agents" className="block px-1 text-[10px] text-zinc-600 transition-colors hover:text-zinc-400">
+                  <Link href="/agents" className="block px-1 text-xs text-zinc-500 transition-colors hover:text-zinc-300">
                     +{agents.length - 5} more
                   </Link>
                 )}
@@ -503,8 +503,8 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Decisions (24h)</span>
-              <Link href="/decisions" className="inline-flex items-center gap-0.5 text-[10px] text-brand transition-colors hover:text-brand-hover">
+              <span className="text-xs font-semibold uppercase tracking-widest text-zinc-400">Decisions (24h)</span>
+              <Link href="/decisions" className="inline-flex items-center gap-0.5 text-xs text-brand transition-colors hover:text-brand-hover">
                 History <ArrowRight size={10} />
               </Link>
             </div>
