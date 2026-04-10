@@ -10,63 +10,56 @@ import {
   PanelLeft, Menu, X, Activity, Shield, Microscope,
   Terminal, TrendingUp, GraduationCap, Plug,
   MessageSquare, Download, Workflow, Cpu, BookOpen, Wrench, Fingerprint, Bell,
+  FlaskConical, ChevronDown,
 } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
 
 const navGroups = [
   {
-    label: 'Governance',
+    label: 'Govern',
     items: [
       { href: '/mission-control', icon: Radar, label: 'Mission Control' },
       { href: '/decisions', icon: Zap, label: 'Decisions' },
       { href: '/approvals', icon: Clock, label: 'Approvals' },
       { href: '/policies', icon: Shield, label: 'Policies' },
-      { href: '/assumptions', icon: Microscope, label: 'Assumptions' },
+      { href: '/agents', icon: Users, label: 'Fleet' },
     ],
   },
   {
     label: 'Observe',
     items: [
-      { href: '/agents', icon: Users, label: 'Fleet' },
-      { href: '/sessions', icon: Activity, label: 'Sessions' },
       { href: '/security', icon: ShieldAlert, label: 'Security' },
-      { href: '/drift', icon: TrendingUp, label: 'Drift' },
-      { href: '/learning', icon: GraduationCap, label: 'Learning' },
-    ],
-  },
-  {
-    label: 'Measure',
-    items: [
       { href: '/analytics', icon: TrendingUp, label: 'Analytics' },
-      { href: '/quality', icon: BarChart3, label: 'Quality' },
-      { href: '/prompts', icon: Terminal, label: 'Prompts' },
-      { href: '/feedback', icon: MessageSquare, label: 'Feedback' },
-    ],
-  },
-  {
-    label: 'Studio',
-    items: [
-      { href: '/workflows', icon: Workflow, label: 'Workflows' },
-      { href: '/model-strategies', icon: Cpu, label: 'Model Strategies' },
-      { href: '/knowledge', icon: BookOpen, label: 'Knowledge' },
-      { href: '/capabilities', icon: Wrench, label: 'Capabilities' },
-    ],
-  },
-  {
-    label: 'Compliance',
-    items: [
       { href: '/activity', icon: Activity, label: 'Activity' },
-      { href: '/compliance/exports', icon: Download, label: 'Exports' },
+      { href: '/compliance/exports', icon: Download, label: 'Compliance' },
     ],
   },
   {
     label: 'Configure',
     items: [
+      { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
       { href: '/integrations', icon: Plug, label: 'Integrations' },
       { href: '/webhooks', icon: Bell, label: 'Webhooks' },
-      { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
       { href: '/identities', icon: Fingerprint, label: 'Identities' },
       { href: '/settings', icon: Settings, label: 'Settings' },
+    ],
+  },
+  {
+    label: 'Labs',
+    collapsible: true,
+    headerIcon: FlaskConical,
+    items: [
+      { href: '/assumptions', icon: Microscope, label: 'Assumptions' },
+      { href: '/sessions', icon: Activity, label: 'Sessions' },
+      { href: '/drift', icon: TrendingUp, label: 'Drift' },
+      { href: '/learning', icon: GraduationCap, label: 'Learning' },
+      { href: '/quality', icon: BarChart3, label: 'Quality' },
+      { href: '/prompts', icon: Terminal, label: 'Prompts' },
+      { href: '/feedback', icon: MessageSquare, label: 'Feedback' },
+      { href: '/workflows', icon: Workflow, label: 'Workflows' },
+      { href: '/model-strategies', icon: Cpu, label: 'Model Strategies' },
+      { href: '/knowledge', icon: BookOpen, label: 'Knowledge' },
+      { href: '/capabilities', icon: Wrench, label: 'Capabilities' },
     ],
   },
 ];
@@ -75,6 +68,10 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Labs group starts closed to keep the sidebar calm (principle 3).
+  // The persisted value is applied in the effect below so SSR and the
+  // first client render agree — avoids a hydration mismatch.
+  const [labsOpen, setLabsOpen] = useState(false);
   const demo = isDemoMode();
   const navRef = useRef(null);
 
@@ -84,15 +81,54 @@ export default function Sidebar() {
       const saved = sessionStorage.getItem('sidebar-scroll');
       if (saved) nav.scrollTop = parseInt(saved, 10);
     }
+    try {
+      const savedLabs = sessionStorage.getItem('sidebar-labs-open');
+      if (savedLabs === 'true') setLabsOpen(true);
+    } catch { /* sessionStorage may be unavailable */ }
   }, []);
 
   const handleNavScroll = useCallback((e) => {
     sessionStorage.setItem('sidebar-scroll', String(e.target.scrollTop));
   }, []);
 
+  const toggleLabs = useCallback(() => {
+    setLabsOpen((prev) => {
+      const next = !prev;
+      try {
+        sessionStorage.setItem('sidebar-labs-open', String(next));
+      } catch { /* sessionStorage may be unavailable */ }
+      return next;
+    });
+  }, []);
+
   const isActive = (href) => {
     if (href === '/mission-control') return pathname === '/mission-control' || pathname === '/';
     return pathname.startsWith(href);
+  };
+
+  const renderNavItem = (item) => {
+    const Icon = item.icon;
+    const active = isActive(item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={active ? 'page' : undefined}
+        onClick={() => setMobileOpen(false)}
+        title={collapsed ? item.label : undefined}
+        className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 ${
+          active
+            ? 'bg-white/5 text-white'
+            : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        {active && (
+          <span aria-hidden="true" className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r bg-brand" />
+        )}
+        <Icon size={16} className={`shrink-0 ${active ? 'text-brand' : ''}`} aria-hidden="true" />
+        {!collapsed && <span>{item.label}</span>}
+      </Link>
+    );
   };
 
   const sidebarContent = (
@@ -123,39 +159,57 @@ export default function Sidebar() {
         aria-label="Primary"
         className="flex-1 overflow-y-auto px-2 py-3"
       >
-        {navGroups.map((group) => (
-          <div key={group.label} className="mb-4">
-            {!collapsed && (
-              <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                {group.label}
-              </div>
-            )}
-            {group.items.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  onClick={() => setMobileOpen(false)}
-                  title={collapsed ? item.label : undefined}
-                  className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 ${
-                    active
-                      ? 'bg-white/5 text-white'
-                      : 'text-zinc-400 hover:bg-white/5 hover:text-white'
-                  }`}
+        {navGroups.map((group) => {
+          const isCollapsible = Boolean(group.collapsible);
+          const itemsVisible = !isCollapsible || labsOpen;
+          const HeaderIcon = group.headerIcon;
+          const groupId = isCollapsible ? `nav-group-${group.label.toLowerCase()}` : undefined;
+          return (
+            <div key={group.label} className="mb-4">
+              {isCollapsible ? (
+                <button
+                  type="button"
+                  onClick={toggleLabs}
+                  aria-expanded={labsOpen}
+                  aria-controls={groupId}
+                  title={collapsed ? group.label : undefined}
+                  className={
+                    collapsed
+                      ? 'relative mb-1 flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors duration-150 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
+                      : 'mb-1.5 flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 transition-colors hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
+                  }
                 >
-                  {active && (
-                    <span aria-hidden="true" className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r bg-brand" />
+                  {collapsed ? (
+                    HeaderIcon ? <HeaderIcon size={16} aria-hidden="true" /> : null
+                  ) : (
+                    <>
+                      <span className="flex items-center gap-2">
+                        {HeaderIcon ? <HeaderIcon size={12} aria-hidden="true" /> : null}
+                        {group.label}
+                      </span>
+                      <ChevronDown
+                        size={12}
+                        aria-hidden="true"
+                        className={`shrink-0 transition-transform duration-150 motion-reduce:transition-none ${
+                          labsOpen ? 'rotate-0' : '-rotate-90'
+                        }`}
+                      />
+                    </>
                   )}
-                  <Icon size={16} className={`shrink-0 ${active ? 'text-brand' : ''}`} aria-hidden="true" />
-                  {!collapsed && <span>{item.label}</span>}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+                </button>
+              ) : (
+                !collapsed && (
+                  <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    {group.label}
+                  </div>
+                )
+              )}
+              <div id={groupId} hidden={!itemsVisible}>
+                {group.items.map(renderNavItem)}
+              </div>
+            </div>
+          );
+        })}
       </nav>
 
       {/* Bottom */}
