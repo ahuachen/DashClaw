@@ -1,13 +1,13 @@
 const SUMMARY_ITEMS = [
-  { key: 'total', label: 'Total', toneFor: () => 'text-white' },
+  { key: 'total', label: 'Total capabilities', toneFor: () => 'text-white' },
   {
     key: 'attention',
-    label: 'Attention',
+    label: 'Attention needed',
     toneFor: (value) => (value > 0 ? 'text-red-400' : 'text-emerald-400'),
   },
   {
     key: 'stale',
-    label: 'Stale',
+    label: 'Stale certifications',
     toneFor: (value) => (value > 0 ? 'text-amber-400' : 'text-zinc-400'),
   },
   {
