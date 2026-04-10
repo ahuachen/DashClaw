@@ -1,11 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { makeRequest, createSqlMock } from '../helpers.js';
+import { makeRequest } from '../helpers.js';
 
 const mockGetOrgId = vi.fn(() => 'org_test');
-let mockSqlInstance;
+const mockSqlInstance = vi.fn();
+const mockListGuardDecisions = vi.fn();
+const mockGetGuardDecisionStats = vi.fn();
 
 vi.mock('../../app/lib/db.js', () => ({ getSql: () => mockSqlInstance }));
 vi.mock('../../app/lib/org.js', () => ({ getOrgId: (...a) => mockGetOrgId(...a) }));
+vi.mock('../../app/lib/repositories/guardrails.repository.js', () => ({
+  listGuardDecisions: (...a) => mockListGuardDecisions(...a),
+  getGuardDecisionStats: (...a) => mockGetGuardDecisionStats(...a),
+}));
 
 const { GET } = await import('../../app/api/guard/decisions/route.js');
 
@@ -19,13 +25,13 @@ describe('GET /api/guard/decisions', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('returns decisions with stats', async () => {
-    mockSqlInstance = createSqlMock({
-      queryResponses: [
-        [{ id: 'gd_1', decision: 'block', risk_score: 90, agent_id: 'a1', action_type: 'deploy', reason: 'Risk >= 90', matched_policies: '["Critical Risk Block"]', context: '{"declared_goal":"Push to prod","agent_name":"Bot"}', created_at: '2026-04-09T10:00:00Z' }],
-        [{ total: '1' }],
-        [{ blocks: '5', approvals: '3', warns: '2' }],
+    mockListGuardDecisions.mockResolvedValueOnce({
+      decisions: [
+        { id: 'gd_1', decision: 'block', risk_score: 90, agent_id: 'a1', action_type: 'deploy', reason: 'Risk >= 90', matched_policies: '["Critical Risk Block"]', context: '{"declared_goal":"Push to prod","agent_name":"Bot"}', created_at: '2026-04-09T10:00:00Z' },
       ],
+      total: 1,
     });
+    mockGetGuardDecisionStats.mockResolvedValueOnce({ blocks: 5, approvals: 3, warns: 2 });
 
     const res = await GET(getReq());
     const data = await res.json();
@@ -41,32 +47,33 @@ describe('GET /api/guard/decisions', () => {
     expect(data.stats).toEqual({ blocks: 5, approvals: 3, warns: 2 });
   });
 
-  it('filters by decision type', async () => {
-    mockSqlInstance = createSqlMock({
-      queryResponses: [[], [{ total: '0' }], [{ blocks: '0', approvals: '0', warns: '0' }]],
-    });
+  it('passes decision filter to repository', async () => {
+    mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0 });
+    mockGetGuardDecisionStats.mockResolvedValueOnce({ blocks: 0, approvals: 0, warns: 0 });
 
     await GET(getReq('?decision=block'));
 
-    expect(mockSqlInstance.queryCalls[0].text).toContain('gd.decision =');
-    expect(mockSqlInstance.queryCalls[0].params).toContain('block');
+    expect(mockListGuardDecisions).toHaveBeenCalledWith(
+      expect.anything(), 'org_test',
+      expect.objectContaining({ decision: 'block' })
+    );
   });
 
-  it('filters by agent_id', async () => {
-    mockSqlInstance = createSqlMock({
-      queryResponses: [[], [{ total: '0' }], [{ blocks: '0', approvals: '0', warns: '0' }]],
-    });
+  it('passes agent_id filter to repository', async () => {
+    mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0 });
+    mockGetGuardDecisionStats.mockResolvedValueOnce({ blocks: 0, approvals: 0, warns: 0 });
 
     await GET(getReq('?agent_id=agent_42'));
 
-    expect(mockSqlInstance.queryCalls[0].text).toContain('gd.agent_id =');
-    expect(mockSqlInstance.queryCalls[0].params).toContain('agent_42');
+    expect(mockListGuardDecisions).toHaveBeenCalledWith(
+      expect.anything(), 'org_test',
+      expect.objectContaining({ agentId: 'agent_42' })
+    );
   });
 
   it('returns empty with zero stats on no data', async () => {
-    mockSqlInstance = createSqlMock({
-      queryResponses: [[], [{ total: '0' }], [{}]],
-    });
+    mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0 });
+    mockGetGuardDecisionStats.mockResolvedValueOnce({ blocks: 0, approvals: 0, warns: 0 });
 
     const res = await GET(getReq());
     const data = await res.json();
@@ -77,8 +84,7 @@ describe('GET /api/guard/decisions', () => {
   });
 
   it('returns 500 on error', async () => {
-    mockSqlInstance = createSqlMock({});
-    mockSqlInstance.query = async () => { throw new Error('DB down'); };
+    mockListGuardDecisions.mockRejectedValueOnce(new Error('DB down'));
 
     const res = await GET(getReq());
     expect(res.status).toBe(500);

@@ -42,6 +42,66 @@ export async function deletePoliciesByIds(sql, orgId, idList) {
   `;
 }
 
+export async function listGuardDecisions(sql, orgId, filters = {}) {
+  const { decision, agentId, limit = 50, offset = 0 } = filters;
+
+  let paramIdx = 1;
+  const conditions = [`gd.org_id = $${paramIdx++}`];
+  const params = [orgId];
+
+  if (decision) {
+    conditions.push(`gd.decision = $${paramIdx++}`);
+    params.push(decision);
+  }
+  if (agentId) {
+    conditions.push(`gd.agent_id = $${paramIdx++}`);
+    params.push(agentId);
+  }
+
+  const where = `WHERE ${conditions.join(' AND ')}`;
+
+  const decisionsQuery = `
+    SELECT gd.id, gd.decision, gd.risk_score, gd.agent_id, gd.action_type,
+           gd.reason, gd.matched_policies, gd.context, gd.created_at
+    FROM guard_decisions gd
+    ${where}
+    ORDER BY gd.created_at DESC
+    LIMIT $${paramIdx++} OFFSET $${paramIdx++}
+  `;
+  params.push(limit, offset);
+
+  const countQuery = `SELECT COUNT(*)::int AS total FROM guard_decisions gd ${where}`;
+  const countParams = params.slice(0, -2);
+
+  const [decisions, countResult] = await Promise.all([
+    sql.query(decisionsQuery, params),
+    sql.query(countQuery, countParams),
+  ]);
+
+  return {
+    decisions: decisions || [],
+    total: parseInt(countResult[0]?.total || '0', 10),
+  };
+}
+
+export async function getGuardDecisionStats(sql, orgId) {
+  const result = await sql.query(
+    `SELECT
+      COUNT(*) FILTER (WHERE decision = 'block')::int AS blocks,
+      COUNT(*) FILTER (WHERE decision = 'require_approval')::int AS approvals,
+      COUNT(*) FILTER (WHERE decision = 'warn')::int AS warns
+    FROM guard_decisions
+    WHERE org_id = $1 AND created_at > NOW() - INTERVAL '7 days'`,
+    [orgId]
+  );
+  const row = result[0] || {};
+  return {
+    blocks: parseInt(row.blocks || '0', 10),
+    approvals: parseInt(row.approvals || '0', 10),
+    warns: parseInt(row.warns || '0', 10),
+  };
+}
+
 export async function insertPolicy(sql, orgId, { id, name, policyType, rules, agentIds }) {
   const now = new Date().toISOString();
   const result = await sql`
