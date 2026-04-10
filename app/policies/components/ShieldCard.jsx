@@ -60,13 +60,13 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
           <button
             onClick={handleToggle}
             disabled={toggling}
-            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 overflow-hidden ${
               isActive ? 'bg-brand' : 'bg-zinc-700'
             } ${toggling ? 'opacity-50' : ''}`}
             aria-label={`${isActive ? 'Disable' : 'Enable'} ${shield.name}`}
           >
-            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-              isActive ? 'translate-x-[22px]' : 'translate-x-0.5'
+            <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+              isActive ? 'left-[22px]' : 'left-0.5'
             }`} />
           </button>
         </div>
