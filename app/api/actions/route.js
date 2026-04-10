@@ -15,6 +15,7 @@ import { evaluateGuard } from '../../lib/guard.js';
 import { fireActionAlert } from '../../lib/actionAlerts.js';
 import { fireWebhooksForApproval } from '../../lib/webhooks.js';
 import { scanSensitiveData } from '../../lib/security.js';
+import { upsertAgentPresence } from '../../lib/repositories/agents.repository.js';
 import {
   createActionRecord,
   createBlockedActionRecord,
@@ -245,10 +246,24 @@ export async function POST(request) {
       timestamp_start,
     });
 
-    // Fire-and-forget meter increments (don't block response)
+    // Fire-and-forget meter increments and presence update (don't block response)
     const meterUpdates = [incrementMeter(orgId, 'actions_per_month', sql)];
     if (isNewAgent) {
       meterUpdates.push(incrementMeter(orgId, 'agents', sql));
+    }
+
+    // Implicit heartbeat: submitting an action means the agent is online
+    if (data.agent_id) {
+      meterUpdates.push(
+        upsertAgentPresence(sql, orgId, {
+          agent_id: data.agent_id,
+          agent_name: data.agent_name || null,
+          status: 'online',
+          current_task_id: action_id,
+          metadata: null,
+          timestamp: new Date().toISOString(),
+        }).catch(() => {}) // best-effort, never block action creation
+      );
     }
     
     // Background indexing for behavioral anomaly detection
