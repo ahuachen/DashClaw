@@ -7,6 +7,7 @@ Four coarse phases take DashClaw from *"207 stars, ~4 real users, no clear audie
 ## Phases
 
 - [ ] **Phase 1: Foundation** — Fix activation bugs, run first-ever user interviews, commit to personal dogfood
+- [ ] **Phase 1.5: Governance Runtime Bugfix** *(INSERTED 2026-04-11)* — Fix two bugs caught during live dogfood: `handle_block` has no audit trail (BUG-02) and `/api/guard` semantic check is deterministic-falling-back to block (BUG-01). Blocks Phase 2 launch
 - [ ] **Phase 2: Claude Code Beachhead** — Ship the 5-minute install-to-first-approval integration
 - [ ] **Phase 3: Public Launch** — Flagship demo, homepage rewrite, launch content, monetization trigger
 - [ ] **Phase 4: Growth Flywheel** — DashClaw-governed agents doing research + content, publicly visible
@@ -35,6 +36,28 @@ Plans:
 - [x] 01-01: **Activation fixes** — close the four known blockers (lucide-react #71, docs 502 #31, Lief's LAN/CSP fixes, Elpolini's migration compat). Each fix gets a failing test first where practical, then the fix, then a clean-machine validation. (FIX-01..04)
 - [ ] 01-02: **First-ever user research pass** — write outreach messages for Lief, Elpolini, Jory, Jasmeet; send them; complete ≥2 interviews; write up findings in `.planning/research/INTERVIEW-NOTES.md`; surface any REQUIREMENTS edits that emerge. (USR-01, USR-02)
 - [ ] 01-03: **Founder dogfood commitment + weekly ritual** — Wes's personal DashClaw instance pointed at his own Claude Code, Discord approvals flowing daily; weekly research ritual scheduled; both instrumented so we can *prove* the commitment is being kept. (DOG-01, USR-03)
+
+---
+
+### Phase 1.5: Governance Runtime Bugfix *(INSERTED 2026-04-11)*
+**Goal**: Fix two stacked bugs in DashClaw's own governance runtime that were caught during a live dogfood session on 2026-04-11 when the `dashclaw_pretool.py` hook blocked a legitimate `gsd-tools` bash call and the block vanished with zero audit trail. Phase 2's Claude Code beachhead cannot credibly ship on a product that silently fails closed and loses audit trails, and Phase 1 / Plan 01-03's dogfood proof mechanism (≥5/7 days of approvals in the ledger) is structurally broken until these fix.
+
+**Depends on**: Nothing technical (the bugs are independent of Phase 1's plans), but **blocks Phase 2**. This is a hard prerequisite for the Claude Code beachhead — you cannot demo governance-as-a-product when the governance layer itself fails silently.
+
+**Requirements**: BUG-01, BUG-02
+
+**Success Criteria** (what must be TRUE):
+1. `handle_block` in `hooks/dashclaw_pretool.py` records every blocked action via `create_action(context, status="blocked")` before exiting. Blocks are persisted, queryable at `/api/actions?status=blocked`, and visible in the decisions ledger at `/decisions`
+2. The server accepts `"blocked"` as a valid action status (enum extended if necessary, or documented as already unconstrained)
+3. The "Secret Exposure Guard" policy's semantic check no longer deterministic-falls-back to block on ordinary commands — the root cause in `/api/guard`'s server-side classifier is diagnosed, fixed, and proven with a reproduced-then-cleared test case
+4. When the originally blocked command (`node gsd-tools.cjs init progress`) is re-fired with policies re-enabled, it either succeeds or legitimately blocks with a visible audit trail entry — never with the fallback string `"Semantic check failed (fallback: block)"`
+5. A regression test covers `handle_block`'s audit-trail behavior so future regressions on the block path get caught automatically
+6. None of the existing guardrails (`route-sql:check`, `openapi:check`, `api-inventory:check`, `npm test`) regress
+
+**Plans**: 1 plan
+
+Plans:
+- [ ] 01.5-01: **Governance runtime bugfix** — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Also captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
 
 ---
 
@@ -112,6 +135,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
+| 1.5. Governance Runtime Bugfix *(INSERTED)* | 0/1 | Not started | - |
 | 2. Claude Code Beachhead | 0/3 | Not started | - |
 | 3. Public Launch | 0/3 | Not started | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |

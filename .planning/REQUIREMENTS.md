@@ -59,6 +59,15 @@ We're not charging yet. We're making sure "free first, paid later" has an actual
 - [ ] **MON-01**: A **specific monetization trigger** is defined, written down in PROJECT.md, and publicly committed to. Candidate triggers: 500 WAU, 50 Claude Code integrations verifiably running in the wild, 20 hours/week of founder time on DashClaw, or first unsolicited "take my money" inbound message. Pick one, commit.
 - [ ] **MON-02**: **Pro tier feature boundaries are designed** (which features will be paid, which stay free forever) and the code is architected to support the split — without shipping the paywall. When the trigger fires, flipping to paid is configuration, not a rewrite.
 
+### Governance Runtime Bugfixes (BUG) *(ADDED 2026-04-11 after live dogfood bug discovery)*
+
+Two stacked bugs caught during a `/gsd-progress` session when DashClaw's own pretool hook silently blocked a legitimate bash call with zero audit trail. These bugs directly contradict DashClaw's core value proposition (*"audit-ready decision trails"*) and make Phase 1 / Plan 01-03's dogfood proof mechanism structurally impossible until they fix. **They block Phase 2's Claude Code beachhead launch** — you cannot credibly ship "the control plane for coding agents" on a control plane that silently fails closed.
+
+- [ ] **BUG-01**: The `"Secret Exposure Guard"` policy (`gp_178772c27d0f40e69240f82f`) in `POST /api/guard` runs a semantic classification step that is **erroring deterministically** on the hosted DashClaw instance. When it errors, the policy falls back to `decision: "block"` with reason string `"Secret Exposure Guard: Semantic check failed (fallback: block)"`. Root cause must be diagnosed (top suspect: `cd9dbaf5 chore: lazy openai, version env wiring` regression on the hosted Vercel instance, or a missing LLM provider API key), fixed, and verified by re-running the originally blocked command and confirming it no longer deterministic-blocks.
+- [ ] **BUG-02**: `hooks/dashclaw_pretool.py:344 handle_block()` **never calls `create_action()`** before exiting with code 2. Every other decision handler (`handle_allow`, `handle_warn`, `handle_require_approval`) records the action. Blocks vanish into stderr with zero audit trail — directly contradicting *"audit-ready decision trails"*. Fix: record the blocked action via `create_action(context, status="blocked")` at the top of `handle_block`, ensure the server accepts `"blocked"` as a valid action status (extend enum if necessary), and verify the block appears in the decisions ledger at `/decisions` after firing. Also add a regression test on the block-audit path.
+
+**Related but scoped out of this category**: `BUG-03` (founder is member-not-admin on own instance, can't approve/deny actions from the UI). Tracked as a separate follow-up — likely a Phase 1.5 Plan 2 or Phase 1.6.
+
 ---
 
 ## v2 Requirements
@@ -125,6 +134,8 @@ Mapped against `.planning/ROADMAP.md` phases.
 | USR-02 | Phase 1 — Foundation | Pending |
 | USR-03 | Phase 1 — Foundation | Pending |
 | DOG-01 | Phase 1 — Foundation | Pending |
+| BUG-01 | Phase 1.5 — Governance Runtime Bugfix | Pending |
+| BUG-02 | Phase 1.5 — Governance Runtime Bugfix | Pending |
 | CCI-01 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-02 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-03 | Phase 2 — Claude Code Beachhead | Pending |
@@ -140,10 +151,10 @@ Mapped against `.planning/ROADMAP.md` phases.
 | FLY-03 | Phase 4 — Growth Flywheel | Pending |
 
 **Coverage:**
-- v1 requirements: 21 total
-- Mapped to phases: 21
+- v1 requirements: 23 total (21 original + 2 added in Phase 1.5 insertion)
+- Mapped to phases: 23
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-11 after discovery session*
+*Last updated: 2026-04-11 after live dogfood bug discovery (added BUG-01, BUG-02, Phase 1.5 insertion)*
