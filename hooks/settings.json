@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/dashclaw_pretool.py"
+            "command": "python \"C:/Projects/DashClaw/.claude/hooks/dashclaw_pretool.py\""
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/dashclaw_posttool.py"
+            "command": "python \"C:/Projects/DashClaw/.claude/hooks/dashclaw_posttool.py\""
           }
         ]
       }

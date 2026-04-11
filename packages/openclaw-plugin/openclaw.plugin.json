@@ -1,0 +1,52 @@
+{
+  "id": "dashclaw-governance",
+  "name": "DashClaw Governance",
+  "description": "Policy enforcement, human-in-the-loop approval, and decision recording for every OpenClaw tool call. Powered by DashClaw.",
+  "version": "1.0.0",
+  "entry": "src/index.ts",
+  "main": "./src/index.ts",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["dashclawUrl", "dashclawApiKey"],
+    "properties": {
+      "dashclawUrl": {
+        "type": "string",
+        "description": "URL of your DashClaw instance (e.g. https://my-dashclaw.vercel.app)"
+      },
+      "dashclawApiKey": {
+        "type": "string",
+        "description": "DashClaw API key (starts with oc_live_)"
+      },
+      "agentId": {
+        "type": "string",
+        "default": "openclaw",
+        "description": "Agent identifier in DashClaw"
+      },
+      "failClosed": {
+        "type": "boolean",
+        "default": true,
+        "description": "If true, block tool calls when DashClaw is unreachable. If false, allow them to proceed."
+      },
+      "riskScoreDefault": {
+        "type": "number",
+        "default": 50,
+        "description": "Default risk score for tool calls that don't have a specific mapping"
+      },
+      "highRiskTools": {
+        "type": "array",
+        "items": { "type": "string" },
+        "default": [],
+        "description": "Tool names that should always get risk_score 80+ (e.g. bash, exec, deploy)"
+      }
+    }
+  },
+  "uiHints": {
+    "dashclawApiKey": { "sensitive": true, "label": "DashClaw API Key" },
+    "dashclawUrl": { "label": "DashClaw URL", "placeholder": "https://my-dashclaw.vercel.app" },
+    "agentId": { "label": "Agent ID" },
+    "failClosed": { "label": "Fail-closed when DashClaw unreachable", "advanced": true },
+    "riskScoreDefault": { "label": "Default risk score", "advanced": true },
+    "highRiskTools": { "label": "High-risk tool names", "advanced": true }
+  }
+}

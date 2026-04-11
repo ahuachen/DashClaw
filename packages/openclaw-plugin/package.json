@@ -1,0 +1,51 @@
+{
+  "name": "@dashclaw/openclaw-plugin",
+  "version": "1.0.0",
+  "description": "DashClaw governance for OpenClaw — policy enforcement, human approval, and decision recording for every tool call.",
+  "main": "src/index.ts",
+  "type": "module",
+  "license": "MIT",
+  "author": "DashClaw",
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "dashclaw",
+    "governance",
+    "ai-safety",
+    "hitl",
+    "approval"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/DashClaw.git",
+    "directory": "packages/openclaw-plugin"
+  },
+  "homepage": "https://github.com/ucsandman/DashClaw/tree/main/packages/openclaw-plugin#readme",
+  "files": [
+    "src/",
+    "openclaw.plugin.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "openclaw": {
+    "extensions": ["./src/index.ts"],
+    "hooks": ["./src/index.ts"]
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dashclaw": "^2.10.0"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2025.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": { "optional": false }
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.11.0"
+  }
+}
