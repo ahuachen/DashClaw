@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## SDK [2.11.1] - 2026-04-11
+
+### Fixed
+- **Legacy SDK starved the approval queue on `require_approval`** (`sdk/legacy/dashclaw-v1.js:_guardCheck`): the guard handler treated `require_approval` as equivalent to `block`, so in `guardMode='enforce'` it threw `GuardBlockedError` **before** `POST /api/actions` ever fired. The server therefore never persisted a `pending_approval` row, `fireActionAlert('pending_approval')` and the `approval_pending` webhook never ran, and the approval queue UI stayed empty even though the guard-decision callback still surfaced a "Requires approval" notification on the home screen. Only `block` is a hard stop now; `require_approval` falls through so the server's own `evaluateGuard` re-evaluation can set `actionStatus='pending_approval'` and the row lands in the queue. Also hardens the warn-mode log line against guard decisions that carry a scalar `reason` instead of a `reasons[]` array. Adds 4 regression tests (`__tests__/unit/sdk-legacy-guard-approval.test.js`) covering block/enforce, require_approval/enforce, hitlMode off, and hitlMode='wait'. Ships as `dashclaw/legacy` subpath export of the `dashclaw` npm package. The v2 Node SDK (`sdk/dashclaw.js`) and the Python SDK are not affected.
+
 ## [2.13.1] - 2026-04-10
 
 ### Fixed
