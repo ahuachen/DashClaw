@@ -31,6 +31,63 @@ function safeVibrate(pattern) {
   }
 }
 
+// Correlate pending actions to the guard decision that put them in
+// pending_approval. The action_records table does not persist the matched
+// policy, so we fetch /api/guard/decisions in parallel and match by
+// (agent_id + declared_goal), falling back to the most recent require_approval
+// decision for the same agent within a 5-minute window.
+function buildDecisionIndex(decisions) {
+  const byGoal = new Map();
+  const byAgent = new Map();
+  for (const d of decisions) {
+    if (d.decision !== 'require_approval') continue;
+    const agentKey = d.agent_id || '';
+    if (d.declared_goal) {
+      const goalKey = `${agentKey}|${d.declared_goal.toLowerCase()}`;
+      if (!byGoal.has(goalKey)) byGoal.set(goalKey, d);
+    }
+    const existing = byAgent.get(agentKey);
+    if (!existing || new Date(d.created_at) > new Date(existing.created_at)) {
+      byAgent.set(agentKey, d);
+    }
+  }
+  return { byGoal, byAgent };
+}
+
+function findMatchingDecision(action, index) {
+  const agentKey = action.agent_id || '';
+  if (action.declared_goal) {
+    const goalKey = `${agentKey}|${action.declared_goal.toLowerCase()}`;
+    if (index.byGoal.has(goalKey)) return index.byGoal.get(goalKey);
+  }
+  const candidate = index.byAgent.get(agentKey);
+  if (!candidate) return null;
+  const actionTime = new Date(action.timestamp_start || action.created_at || 0).getTime();
+  const decisionTime = new Date(candidate.created_at || 0).getTime();
+  if (!Number.isFinite(actionTime) || !Number.isFinite(decisionTime)) return null;
+  return Math.abs(actionTime - decisionTime) < 5 * 60 * 1000 ? candidate : null;
+}
+
+function extractPolicyLabel(decision) {
+  if (!decision) return null;
+  const list = Array.isArray(decision.matched_policies) ? decision.matched_policies : [];
+  const top = list[0];
+  if (!top) return null;
+  return top.name || top.policy_name || top.id || top.policy_id || null;
+}
+
+function enrichWithPolicyContext(rawActions, rawDecisions) {
+  const index = buildDecisionIndex(rawDecisions);
+  return rawActions.map((action) => {
+    const match = findMatchingDecision(action, index);
+    return {
+      ...action,
+      _matchedPolicy: extractPolicyLabel(match),
+      _guardReason: match?.reason || null,
+    };
+  });
+}
+
 function SkeletonCard() {
   return (
     <div className="h-40 animate-pulse rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#111]" />
@@ -57,12 +114,30 @@ export default function ApprovePage() {
 
   const fetchPending = useCallback(async () => {
     try {
-      const res = await fetch('/api/actions?status=pending_approval&limit=50', {
-        cache: 'no-store',
-      });
-      if (!res.ok) throw new Error('Failed to load pending actions');
-      const json = await res.json();
-      setActions(Array.isArray(json.actions) ? json.actions : []);
+      // Fetch pending actions and require_approval guard decisions in parallel.
+      // The guard decisions supply the matched policy + reason that the actions
+      // table doesn't persist. Decision fetch is best-effort — if it fails
+      // (e.g. demo mode returns 403), we fall back to the agent's own reasoning.
+      const [actionsRes, decisionsRes] = await Promise.all([
+        fetch('/api/actions?status=pending_approval&limit=50', { cache: 'no-store' }),
+        fetch('/api/guard/decisions?decision=require_approval&limit=100', { cache: 'no-store' })
+          .catch(() => null),
+      ]);
+      if (!actionsRes.ok) throw new Error('Failed to load pending actions');
+      const actionsJson = await actionsRes.json();
+      const rawActions = Array.isArray(actionsJson.actions) ? actionsJson.actions : [];
+
+      let rawDecisions = [];
+      if (decisionsRes && decisionsRes.ok) {
+        try {
+          const decisionsJson = await decisionsRes.json();
+          rawDecisions = Array.isArray(decisionsJson.decisions) ? decisionsJson.decisions : [];
+        } catch {
+          // Non-JSON response — skip enrichment.
+        }
+      }
+
+      setActions(enrichWithPolicyContext(rawActions, rawDecisions));
     } catch {
       // Network / auth failure — surface via toast only on explicit user refresh.
     } finally {
@@ -110,6 +185,23 @@ export default function ApprovePage() {
       fetchPending();
     }
   });
+
+  // PWA home-screen icon badge — reflects pending count so the installed app
+  // shows a live "N waiting" dot. Supported on iOS 16.4+, modern Chrome, Edge.
+  // Graceful no-op on unsupported browsers.
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return;
+    const count = actions.length;
+    try {
+      if (count > 0 && typeof navigator.setAppBadge === 'function') {
+        navigator.setAppBadge(count).catch(() => {});
+      } else if (typeof navigator.clearAppBadge === 'function') {
+        navigator.clearAppBadge().catch(() => {});
+      }
+    } catch {
+      // setAppBadge unsupported or blocked — not fatal.
+    }
+  }, [actions.length]);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -335,6 +427,25 @@ export default function ApprovePage() {
                       {timeAgo(action.timestamp_start || action.created_at)}
                     </span>
                   </div>
+
+                  {(action._matchedPolicy || action._guardReason || action.reasoning) && (
+                    <div className="mt-3 rounded-lg border border-[rgba(255,255,255,0.06)] bg-white/[0.02] p-2.5">
+                      {action._matchedPolicy && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                          <ShieldAlert size={10} className="text-orange-400" />
+                          Triggered by
+                          <span className="ml-1 font-mono normal-case tracking-normal text-zinc-300">
+                            {action._matchedPolicy}
+                          </span>
+                        </div>
+                      )}
+                      {(action._guardReason || action.reasoning) && (
+                        <p className={`text-xs text-zinc-400 ${action._matchedPolicy ? 'mt-1' : ''}`}>
+                          {action._guardReason || action.reasoning}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <button
