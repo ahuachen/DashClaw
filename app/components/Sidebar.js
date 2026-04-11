@@ -216,7 +216,7 @@ export default function Sidebar() {
       <div className="border-t border-border px-4 py-3">
         {!collapsed && (
           <div className="space-y-1">
-            <div className="text-[11px] tabular-nums text-zinc-500">DashClaw v2.5</div>
+            <div className="text-[11px] tabular-nums text-zinc-500">DashClaw v{process.env.NEXT_PUBLIC_DASHCLAW_VERSION || '2.13.0'}</div>
             <div className="text-[11px] text-zinc-500">
               Powered by{' '}
               <Link href="/practical-systems" className="text-zinc-400 transition-colors hover:text-brand">

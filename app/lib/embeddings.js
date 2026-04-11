@@ -1,18 +1,23 @@
-import OpenAI from 'openai';
 import { scanSensitiveData } from './security.js';
 
 /**
  * Embedding utility for Behavioral AI Guardrails.
  * Converts agent actions into vector representations for anomaly detection.
+ *
+ * The `openai` package is loaded lazily via dynamic import so that the core
+ * governance runtime (`/api/guard`, `/api/actions`, `/api/approvals`,
+ * `/api/assumptions`, `/api/signals`, `/api/health`) never pulls it in at
+ * module load time. DashClaw must work with zero LLM configuration.
  */
 
 let _openai;
-function getOpenAI() {
+async function getOpenAI() {
   if (_openai) return _openai;
   const apiKey = process.env.OPENAI_API_KEY || process.env.GUARD_LLM_KEY;
   if (!apiKey) {
     return null;
   }
+  const { default: OpenAI } = await import('openai');
   _openai = new OpenAI({ apiKey });
   return _openai;
 }
@@ -32,7 +37,7 @@ export async function generateActionEmbedding(action) {
   if (!isEmbeddingsEnabled()) {
     return null;
   }
-  const openai = getOpenAI();
+  const openai = await getOpenAI();
   if (!openai) {
     return null;
   }

@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { DashClaw, GuardBlockedError } from 'dashclaw';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -30,9 +29,14 @@ async function main() {
   });
 
   // Initialize OpenAI (Optional but shown for "Real Agent" flow)
+  // Lazy-loaded so the package only resolves when a real key is present.
   const openaiKey = process.env.OPENAI_API_KEY;
   const hasOpenAI = openaiKey && openaiKey !== 'sk-fake-key';
-  const openai = hasOpenAI ? new OpenAI({ apiKey: openaiKey }) : null;
+  let openai = null;
+  if (hasOpenAI) {
+    const { default: OpenAI } = await import('openai');
+    openai = new OpenAI({ apiKey: openaiKey });
+  }
 
   const deployTarget = 'production';
   const serviceName = 'auth-service-v2';

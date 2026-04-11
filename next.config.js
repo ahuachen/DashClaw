@@ -2,6 +2,9 @@
 const nextConfig = {
   output: 'standalone',
   productionBrowserSourceMaps: false,
+  env: {
+    NEXT_PUBLIC_DASHCLAW_VERSION: require('./package.json').version,
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },

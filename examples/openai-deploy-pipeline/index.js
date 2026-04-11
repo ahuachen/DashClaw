@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { DashClaw, ApprovalDeniedError, GuardBlockedError } from 'dashclaw';
 import dotenv from 'dotenv';
 
@@ -30,7 +29,12 @@ async function main() {
 
   const openaiKey = process.env.OPENAI_API_KEY;
   const simulateAI = !openaiKey || openaiKey === 'your_openai_api_key';
-  const openai = simulateAI ? null : new OpenAI({ apiKey: openaiKey });
+  // Lazy-loaded so the package only resolves when a real key is present.
+  let openai = null;
+  if (!simulateAI) {
+    const { default: OpenAI } = await import('openai');
+    openai = new OpenAI({ apiKey: openaiKey });
+  }
 
   const targetEnv = process.env.TARGET_ENV || 'production';
   const serviceName = process.env.SERVICE_NAME || 'auth-service-v2';

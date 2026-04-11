@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { DashClaw } from '../sdk/dashclaw.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -6,12 +5,10 @@ dotenv.config();
 /**
  * Node.js Parity for Kimi/Moonshot Example
  * Demonstrates: guard -> createAction -> recordAssumption -> updateOutcome
+ *
+ * The `openai` package is loaded lazily inside main() so this file can be
+ * imported (e.g. for static analysis) without pulling in the SDK.
  */
-
-const moonshot = new OpenAI({
-  apiKey: process.env.MOONSHOT_API_KEY,
-  baseURL: 'https://api.moonshot.ai/v1',
-});
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL || 'http://localhost:3000',
@@ -27,6 +24,12 @@ function sendEmail(recipient, subject, body) {
 
 async function main() {
   const userPrompt = 'Write a short follow up email to Acme asking for a meeting next week.';
+
+  const { default: OpenAI } = await import('openai');
+  const moonshot = new OpenAI({
+    apiKey: process.env.MOONSHOT_API_KEY,
+    baseURL: 'https://api.moonshot.ai/v1',
+  });
 
   const completion = await moonshot.chat.completions.create({
     model: 'kimi-k2-turbo-preview',

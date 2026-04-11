@@ -10,8 +10,8 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'DashClaw — Governance for AI Agent Fleets',
-  description: 'Open-source control plane for AI agents. Record every decision with reasoning, enforce policies before agents act, and get risk signals before they become incidents. Self-hosted, MIT licensed, connects in 10 minutes.',
+  title: 'DashClaw — Decision Infrastructure for AI Agents',
+  description: 'The governance control plane for AI agent fleets. Enforce policies, require human approval, and record verifiable evidence. Open source, self-hosted, MIT licensed.',
   icons: {
     icon: [
       { url: '/favicons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -21,16 +21,24 @@ export const metadata = {
   },
   manifest: '/config/site.webmanifest',
   openGraph: {
+    title: 'DashClaw — Decision Infrastructure for AI Agents',
+    description: 'The governance control plane for AI agent fleets. Enforce policies, require human approval, and record verifiable evidence. Open source, self-hosted, MIT licensed.',
+    url: 'https://dashclaw.io',
+    siteName: 'DashClaw',
+    type: 'website',
     images: [
       {
         url: '/social/og-image.png',
         width: 1200,
         height: 630,
+        alt: 'DashClaw governance control plane for AI agents',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'DashClaw — Decision Infrastructure for AI Agents',
+    description: 'The governance control plane for AI agent fleets. Open source, self-hosted, MIT licensed.',
     images: ['/social/twitter-card.png'],
   },
 }
