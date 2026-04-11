@@ -9,7 +9,7 @@ const ACTION_TYPES = [
   'monitor', 'alert', 'cleanup', 'sync', 'migrate', 'other'
 ];
 
-const ACTION_STATUSES = ['running', 'completed', 'failed', 'cancelled', 'pending', 'pending_approval'];
+const ACTION_STATUSES = ['running', 'completed', 'failed', 'cancelled', 'pending', 'pending_approval', 'blocked'];
 const LOOP_TYPES = ['followup', 'question', 'dependency', 'approval', 'review', 'handoff', 'other'];
 const LOOP_STATUSES = ['open', 'resolved', 'cancelled'];
 const LOOP_PRIORITIES = ['low', 'medium', 'high', 'critical'];
