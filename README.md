@@ -40,13 +40,12 @@
 ### After deploy
 
 1. **Open your app** — Visit `https://your-app.vercel.app` and sign in.
-2. **Copy the snippet** — Mission Control shows a ready-to-run code example with your API key and base URL pre-filled.
+2. **Copy the snippet** — Mission Control shows a ready-to-run code example with your base URL pre-filled and your API key one click away.
 3. **Run it** — `node --env-file=.env demo.js` and watch governance happen.
 
 #### Optional
 
 - **Live decision stream** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel env vars. Without this, Mission Control uses in-memory events (fine for getting started, but won't persist across serverless invocations).
-- **Verify at /setup** — Open `https://your-app.vercel.app/setup` to confirm all systems are green.
 
 ## Connect Your Agent
 
@@ -300,7 +299,7 @@ const action = await claw.createAction({
 // 3. Verify -> "I believe Y is true while doing X."
 await claw.recordAssumption({
   action_id: action.action_id,
-  assumption: 'The database is read-only for this credentials'
+  assumption: 'The database is read-only for these credentials'
 });
 
 try {
@@ -313,8 +312,6 @@ try {
   await claw.updateOutcome(action.action_id, { status: 'failed', error_message: error.message });
 }
 ```
-
-> **Learning loop**: The guard response includes a `learning` field with your agent's historical performance — recent scores, drift status, and patterns learned from past outcomes. Your agent gets smarter every cycle.
 
 ---
 
@@ -334,21 +331,13 @@ dashclaw deny <actionId> --reason "Outside change window"
 
 When an agent calls `waitForApproval()`, the SDK prints the action ID, risk score, and replay link to stdout. Approve from any terminal and the agent unblocks instantly via SSE.
 
-### Discord & Slack Notifications
-
-Approval requests also push to Discord and Slack.
-
-<div align="center">
-<img src="public/images/screenshots/discord.png" alt="DashClaw Discord approval notification" width="520" />
-</div>
-
 ---
 
 ## Beyond the Basics
 
 | Feature | Description | Docs |
 |---|---|---|
-| Drift Detection | Monitors reasoning and metric drift across sessions, surfaces signals on deviation | [SDK Reference](./docs/sdk-reference.md) |
+| Drift Detection | Monitors reasoning and metric drift across sessions, surfaces signals on deviation | [SDK: Learning Loop](./sdk/README.md#learning-loop) |
 | Recovery Recipes | 6 built-in recipes mapping signals to remediations and auto-actions | [SDK: Recovery](./sdk/README.md#learning-loop) |
 | Scoring Profiles | Multi-dimensional evaluation with weighted composites and auto-calibration | [SDK: Scoring](./sdk/README.md#scoring-profiles) |
 | Learning Loop | Guard responses include historical context — score averages, drift status, patterns | [SDK: Learning](./sdk/README.md#learning-loop) |
@@ -372,20 +361,12 @@ python scripts/test-sdk-agent.py --full
 
 ---
 
-## Self-Monitoring
-
-The `livingcode/` framework monitors DashClaw's own codebase health — commit velocity, test coverage, code quality, dependency vulnerabilities, and CI pass rate — using the same governance principles it provides to agents.
-
-```bash
-python -m livingcode sense     # 5 collectors, zero dependencies
-python -m livingcode cycle     # SENSE -> PLAN -> REVIEW -> REFLECT
-```
-
----
-
 ## Documentation
 
-- [SDK Reference](./docs/sdk-reference.md) — Complete API surface for Node and Python SDKs
+- [SDK README](./sdk/README.md) — Canonical reference for the `dashclaw` npm package (80 v2 methods + canonical HITL flow)
+- [SDK Parity Matrix](./docs/sdk-parity.md) — Node v2 vs Node legacy vs Python surface coverage
+- [Architecture](./PROJECT_DETAILS.md) — System map, boundary rules, and SDK surface inventory
+- [Runtime API](./docs/architecture/runtime-api.md) — The minimal core governance endpoints
 - [Roadmap](./ROADMAP.md) — What's shipped, in progress, and exploring
 - [CHANGELOG](./CHANGELOG.md) — Detailed release history
 

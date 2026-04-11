@@ -70,13 +70,21 @@ Run the canonical starter to record a real governed action.
 ---
 
 ## Step 4: Integrate Your Own Agent
-Open `http://localhost:3000/connect`. This page provides the **Golden Path** for connecting any real agent (OpenAI, LangChain, CrewAI) using the minimal v2 SDK.
+Open `http://localhost:3000/connect`. This page provides the **Golden Path** for connecting any real agent (OpenAI, LangChain, CrewAI) using the v2 SDK.
 
-### The 4-Step Governance Loop:
-1. **Guard** &rarr; `claw.guard()` checks intent against policy.
-2. **Record** &rarr; `claw.createAction()` logs the start of the action.
-3. **Verify** &rarr; `claw.recordAssumption()` tracks reasoning basis.
-4. **Outcome** &rarr; `claw.updateOutcome()` records the final evidence.
+### The Governance Loop (with optional human review):
+1. **Guard** &rarr; `claw.guard()` checks intent against policy. Abort on `block`.
+2. **Record** &rarr; `claw.createAction()` logs the start of the action. The
+   server may gate it here with `action.status === 'pending_approval'`.
+3. **Wait (optional)** &rarr; If the action is `pending_approval`, call
+   `claw.waitForApproval(action_id)` using **the `action_id` from step 2** —
+   not the one from step 1. This is where the mobile PWA queue, the CLI
+   approval channel, and the dashboard approvals feed unblock your agent.
+4. **Verify** &rarr; `claw.recordAssumption()` tracks reasoning basis.
+5. **Outcome** &rarr; `claw.updateOutcome()` records the final evidence.
+
+Full canonical HITL flow (including the `action_id` pitfall to avoid) is
+documented in [`sdk/README.md` → Human-in-the-Loop (HITL) Approval Flow](./sdk/README.md#human-in-the-loop-hitl-approval-flow).
 
 ---
 

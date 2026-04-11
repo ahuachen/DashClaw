@@ -32,7 +32,7 @@ npm install dashclaw
 Create a quick test script:
 
 ```js
-import { DashClaw } from 'dashclaw';
+import { DashClaw, GuardBlockedError, ApprovalDeniedError } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL,
@@ -40,31 +40,53 @@ const claw = new DashClaw({
   agentId: process.env.DASHCLAW_AGENT_ID || 'my-agent',
 });
 
-// 1. Check policy before acting
+// 1. Check policy before acting — abort on hard block
 const decision = await claw.guard({
   action_type: 'test',
   declared_goal: 'Verify DashClaw connection',
   risk_score: 5,
 });
+if (decision.decision === 'block') {
+  throw new GuardBlockedError(decision);
+}
 
-// 2. Record the action
-const { action_id } = await claw.createAction({
+// 2. Record the action. The server re-evaluates policy here and is
+//    the authoritative source for whether human review is required.
+const { action, action_id } = await claw.createAction({
   action_type: 'test',
   declared_goal: 'Verify DashClaw connection',
   risk_score: 5,
 });
 
-// 3. Record what you assumed
+// 3. If the server gated this, wait for a human operator.
+//    Use createAction's action_id — NOT decision.action_id from guard().
+if (action?.status === 'pending_approval') {
+  try {
+    await claw.waitForApproval(action_id);
+  } catch (err) {
+    if (err instanceof ApprovalDeniedError) {
+      console.log('Operator denied the smoke test.');
+      return;
+    }
+    throw err;
+  }
+}
+
+// 4. Record what you assumed
 await claw.recordAssumption({
   action_id,
   assumption: 'DashClaw instance is reachable',
 });
 
-// 4. Close the loop
+// 5. Close the loop
 await claw.updateOutcome(action_id, { status: 'completed' });
 
 console.log('DashClaw action recorded:', action_id);
 ```
+
+> **Canonical HITL flow:** For the full explanation of why the `action_id`
+> distinction matters and how `waitForApproval` interacts with the server,
+> see [`sdk/README.md` → Human-in-the-Loop (HITL) Approval Flow](../../sdk/README.md#human-in-the-loop-hitl-approval-flow).
 
 Run it and confirm you can see the action in the dashboard (`/decisions`).
 
@@ -100,13 +122,26 @@ High-level flow:
 3. User clicks approve (or bulk approves in `/pairings`).
 4. DashClaw stores the public key, and the agent's signed actions become `verified`.
 
-Node example (private JWK in memory):
+Node example (private JWK in memory).
+
+> **Important:** `createPairingFromPrivateJwk` and `waitForPairing` only exist
+> on the **legacy** SDK surface — they are not available on the canonical
+> `dashclaw` import. Use the `dashclaw/legacy` subpath for pairing flows:
 
 ```js
+// Pairing flows require the v1 legacy SDK subpath.
+import { DashClaw } from 'dashclaw/legacy';
+
+const clawLegacy = new DashClaw({
+  baseUrl: process.env.DASHCLAW_BASE_URL,
+  apiKey: process.env.DASHCLAW_API_KEY,
+  agentId: process.env.DASHCLAW_AGENT_ID,
+});
+
 // privateKeyJwk: the agent's RSA private key (JWK)
-const { pairing, pairing_url } = await claw.createPairingFromPrivateJwk(privateKeyJwk);
+const { pairing, pairing_url } = await clawLegacy.createPairingFromPrivateJwk(privateKeyJwk);
 console.log('Approve this agent:', pairing_url);
-await claw.waitForPairing(pairing.id);
+await clawLegacy.waitForPairing(pairing.id);
 ```
 
 After approval, send a signed action and confirm the dashboard marks it verified.

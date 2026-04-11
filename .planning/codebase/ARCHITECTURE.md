@@ -194,10 +194,11 @@
 - Responsibilities: Compute signals, validate credentials, archive meters
 
 **SDK Entry Point:**
-- Location: `sdk/dashclaw.js` (Node.js), `sdk-python/dashclaw/__init__.py` (Python)
-- Exported as: `import dashclaw from 'dashclaw'` or `from dashclaw import DashClaw`
-- Methods: `guard()`, `createAction()`, `updateOutcome()`, `recordAssumption()`, `waitForApproval()`
-- Pattern: All methods make HTTP calls to base URL with API key auth
+- Location: `sdk/dashclaw.js` (Node, v2.11.1), `sdk-python/dashclaw/__init__.py` (Python)
+- Imports: `import { DashClaw } from 'dashclaw'` (named export — not a default export) or `from dashclaw import DashClaw`
+- Methods: 80 v2 methods spanning Core Governance, Decision Integrity, Scoring, Messaging, Handoffs, Sessions, and Execution Studio (workflow templates, model strategies, knowledge collections, capability runtime). The minimal governance loop is `guard` → `createAction` → (optional) `waitForApproval` → `updateOutcome`. Full surface in `sdk/README.md`.
+- Legacy subpath: `import { DashClaw } from 'dashclaw/legacy'` exposes the broader v1 compatibility surface (~2800 lines) for older integrations — pairing, SSE events, compliance, drift, activity logs, webhooks CRUD.
+- Pattern: All methods make HTTP calls to the base URL with `x-api-key` header auth.
 
 ## Error Handling
 

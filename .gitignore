@@ -20,6 +20,9 @@ dist/
 # Vercel
 .vercel/
 
+# context-handoff-bundle session state (local tooling, not project artifact)
+.context-handoffs/
+
 # Debug logs
 npm-debug.log*
 yarn-debug.log*

@@ -79,18 +79,29 @@ Records beliefs underpinning the decision. Used to detect drift.
 ---
 
 ## SDK Compatibility
-The **DashClaw SDK v2** is a 1:1 wrapper for this minimal API surface.
+The **DashClaw v2 SDK** (`dashclaw` on npm, currently 2.11.1) wraps this
+minimal runtime plus a broader set of extension surfaces (Scoring, Execution
+Studio, Sessions, Messaging, Handoffs, etc.) for a total of **80 methods**.
+The 4 endpoints on this page are the minimum needed to participate in the
+governance lifecycle — everything else is additive. See
+[`sdk/README.md`](../../sdk/README.md) for the full method catalogue and
+the [canonical HITL flow](../../sdk/README.md#human-in-the-loop-hitl-approval-flow).
 
 ```javascript
-import { DashClaw } from 'dashclaw';
+import { DashClaw, GuardBlockedError } from 'dashclaw';
 
 const claw = new DashClaw({ baseUrl, apiKey, agentId });
 
-// The minimal governance loop
+// The minimal governance loop (with the optional approval branch)
 const decision = await claw.guard({ action_type: 'deploy', risk_score: 85 });
-const action = await claw.createAction({ action_type: 'deploy' });
-await claw.updateOutcome(action.action_id, { status: 'completed' });
+if (decision.decision === 'block') throw new GuardBlockedError(decision);
+
+const { action, action_id } = await claw.createAction({ action_type: 'deploy' });
+if (action?.status === 'pending_approval') {
+  await claw.waitForApproval(action_id);  // pass createAction's ID, not guard's
+}
+await claw.updateOutcome(action_id, { status: 'completed' });
 ```
 
 ## Legacy Support
-Legacy v1 endpoints (e.g., `/api/actions/signals`, `/api/actions/assumptions`) are automatically routed to the new runtime via server-side rewrites.
+Legacy v1 endpoints (e.g., `/api/actions/signals`, `/api/actions/assumptions`, `/api/actions/:id/approve`) are automatically routed to the new runtime via server-side rewrites configured in `next.config.js`. Both the legacy and canonical paths are live; new code should target the canonical routes.

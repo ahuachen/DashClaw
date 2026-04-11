@@ -18,11 +18,16 @@ pip install dashclaw
 
 ## The Governance Loop
 
-DashClaw v2 is designed around a single 4-step loop.
+DashClaw v2 is designed around a 4-step loop, with an optional
+human-in-the-loop (HITL) branch when policy requires approval.
+
+```
+guard ─▶ createAction ─▶ (if pending_approval: waitForApproval) ─▶ updateOutcome
+```
 
 ### Node.js
 ```javascript
-import { DashClaw } from 'dashclaw';
+import { DashClaw, GuardBlockedError, ApprovalDeniedError } from 'dashclaw';
 
 const claw = new DashClaw({
   baseUrl: process.env.DASHCLAW_BASE_URL,
@@ -31,42 +36,175 @@ const claw = new DashClaw({
 });
 
 // 1. Ask permission
-const res = await claw.guard({ action_type: 'deploy' });
+const decision = await claw.guard({
+  action_type: 'deploy',
+  declared_goal: 'Ship v2.4.0 to production',
+  risk_score: 90,
+});
+if (decision.decision === 'block') {
+  throw new GuardBlockedError(decision);
+}
 
-// 2. Log intent
-const { action_id } = await claw.createAction({ action_type: 'deploy' });
+// 2. Log intent. Server may gate this if policy requires approval —
+//    check action.status before assuming you're clear to execute.
+const { action, action_id } = await claw.createAction({
+  action_type: 'deploy',
+  declared_goal: 'Ship v2.4.0 to production',
+  risk_score: 90,
+});
 
-// 3. Log evidence
-await claw.recordAssumption({ action_id, assumption: 'Tests passed' });
+// 3. If the server flagged this for human review, wait for an operator.
+if (action?.status === 'pending_approval') {
+  try {
+    await claw.waitForApproval(action_id);
+  } catch (err) {
+    if (err instanceof ApprovalDeniedError) return; // operator denied
+    throw err;
+  }
+}
 
-// 4. Update result
-await claw.updateOutcome(action_id, { status: 'completed' });
+// 4. Execute the real work, then record the outcome
+await claw.recordAssumption({ action_id, assumption: 'Staging tests passed' });
+try {
+  await myDeployFunction();
+  await claw.updateOutcome(action_id, { status: 'completed' });
+} catch (err) {
+  await claw.updateOutcome(action_id, { status: 'failed', error_message: err.message });
+}
 ```
 
 ### Python
 ```python
 import os
-from dashclaw import DashClaw
+from dashclaw import DashClaw, GuardBlockedError, ApprovalDeniedError
 
 claw = DashClaw(
     base_url=os.environ["DASHCLAW_BASE_URL"],
     api_key=os.environ["DASHCLAW_API_KEY"],
-    agent_id="my-agent"
+    agent_id="my-agent",
 )
 
 # 1. Ask permission
-res = claw.guard({"action_type": "deploy"})
+decision = claw.guard({
+    "action_type": "deploy",
+    "declared_goal": "Ship v2.4.0 to production",
+    "risk_score": 90,
+})
+if decision["decision"] == "block":
+    raise GuardBlockedError(decision)
 
 # 2. Log intent
-action = claw.create_action(action_type="deploy")
+action = claw.create_action(
+    action_type="deploy",
+    declared_goal="Ship v2.4.0 to production",
+    risk_score=90,
+)
 action_id = action["action_id"]
 
-# 3. Log evidence
-claw.record_assumption({"action_id": action_id, "assumption": "Tests passed"})
+# 3. If the server flagged this for human review, wait for an operator.
+if action.get("action", {}).get("status") == "pending_approval":
+    try:
+        claw.wait_for_approval(action_id)
+    except ApprovalDeniedError:
+        pass  # operator denied — stop here
 
-# 4. Update result
+# 4. Execute and record outcome
+claw.record_assumption({"action_id": action_id, "assumption": "Staging tests passed"})
 claw.update_outcome(action_id, status="completed")
 ```
+
+---
+
+## Human-in-the-Loop (HITL) Approval Flow
+
+When a guard policy, a capability `requires_approval` flag, or any server-side
+rule triggers human review, the server responds to `createAction()` with
+`action.status === 'pending_approval'` and HTTP **202**. Your agent's job is to
+pause on `waitForApproval()` until an operator clicks **Approve** or **Deny**
+from the dashboard, the CLI, or the mobile PWA.
+
+### The rule every agent author needs to know
+
+**`waitForApproval()` must be called with the `action_id` returned by
+`createAction()`, NOT with the `action_id` returned by `guard()`.**
+
+These are two different records in two different tables:
+
+| Call | Returns `action_id` that refers to… | Prefix |
+|---|---|---|
+| `guard()` | A row in `guard_decisions` (the decision log) | `act_gd_…` |
+| `createAction()` | A row in `action_records` (the thing you're actually doing) | `act_…` |
+
+`waitForApproval()` polls `GET /api/actions/:id`, which is the
+`action_records` table. Passing it a `guard_decisions` ID (`act_gd_…`) will
+either return 404 or time out waiting on a row that doesn't exist. This was a
+real bug in an early version of the OpenClaw plugin — don't reproduce it.
+
+### Correct sequence
+
+```javascript
+// 1. Guard — advisory; may return 'allow', 'block', 'warn', or 'require_approval'
+const decision = await claw.guard({
+  action_type: 'post_message',
+  declared_goal: 'Notify #ops of deploy start',
+  risk_score: 40,
+});
+if (decision.decision === 'block') {
+  throw new GuardBlockedError(decision);
+}
+
+// 2. Create the action. The server re-evaluates policy at this point and is
+//    the authoritative source for whether human review is required. Even if
+//    guard returned 'allow', the server may still set status='pending_approval'
+//    (for example, if a capability has requires_approval=true).
+const { action, action_id } = await claw.createAction({
+  action_type: 'post_message',
+  declared_goal: 'Notify #ops of deploy start',
+  risk_score: 40,
+});
+
+// 3. Check the SERVER's verdict, not the guard decision.
+if (action?.status === 'pending_approval') {
+  try {
+    // Use createAction's action_id, never the guard decision's action_id.
+    await claw.waitForApproval(action_id, { timeout: 600_000 });
+  } catch (err) {
+    if (err instanceof ApprovalDeniedError) {
+      // Operator denied — do NOT execute the action
+      return { denied: true, reason: err.message };
+    }
+    throw err;
+  }
+}
+
+// 4. Execute and record outcome
+await doTheWork();
+await claw.updateOutcome(action_id, { status: 'completed' });
+```
+
+### What `waitForApproval()` does under the hood
+
+- Opens an SSE connection to `/api/stream` and watches for
+  `action.updated` events scoped to the given `actionId`.
+- Falls back to HTTP polling of `GET /api/actions/:id` every 5 seconds if
+  SSE is unavailable.
+- Resolves when `action.approved_by` is set (operator approved).
+- Throws `ApprovalDeniedError` when `action.status` becomes `failed` or
+  `cancelled` (operator denied).
+- Throws a timeout error after `options.timeout` milliseconds (default
+  `300_000` = 5 minutes).
+
+### Why guard and the server can disagree
+
+`guard()` is fast, in-memory, advisory. The server's `createAction` handler
+re-runs the exact same `evaluateGuard()` pipeline against the **persisted**
+action record, plus any capability-specific `requires_approval` flags and
+org-scoped rules that can only be resolved at write time. So the authoritative
+answer to "does this need human review?" is always `action.status` on the
+`createAction()` response — not `decision.decision` on the `guard()` response.
+
+Short version: **trust `action.status`, not `decision.decision`, for HITL
+branching.**
 
 ---
 
@@ -117,14 +255,14 @@ The v2 SDK exposes the stable governance runtime plus promoted execution domains
 - `getSignals()` -- Get current risk signals across all agents.
 
 ### Swarm & Connectivity
-- `heartbeat(status, metadata)` -- Report agent presence and health. **As of DashClaw 2.13.0, heartbeats are implicit on `createAction()` — you only need this if you want to report presence without recording an action.**
+- `heartbeat(status, metadata)` -- Report agent presence and health. **As of DashClaw platform 2.13.0 (server-side change, independent of SDK version), heartbeats are implicit on `createAction()` — you only need this if you want to report presence without recording an action.**
 - `reportConnections(connections)` -- Report active provider connections.
 
 ### Learning & Optimization
 - `getLearningVelocity()` -- Track agent improvement rate.
 - `getLearningCurves()` -- Measure efficiency gains per action type.
 - `getLessons({ actionType, limit })` -- Fetch consolidated lessons from scored outcomes.
-- `renderPrompt(context)` -- Fetch rendered prompt templates from DashClaw.
+- `renderPrompt({ template_id, version_id, variables, record })` -- Fetch a rendered prompt template from DashClaw. `template_id` is required; `version_id` defaults to the active version; `variables` is an object of mustache values; `record: true` persists the render as a governance event.
 
 ### Learning Loop
 
@@ -367,8 +505,8 @@ Messages sent through the context are automatically correlated with the action i
 
 DashClaw uses standard HTTP status codes and custom error classes:
 
-- `GuardBlockedError` -- Thrown when `claw.guard()` returns a `block` decision.
-- `ApprovalDeniedError` -- Thrown when an operator denies an action during `waitForApproval()`.
+- `GuardBlockedError` -- Thrown by **any** SDK call when the server returns HTTP 403 with `{ decision: { decision: 'block' } }`. Note that a successful `guard()` call returning `{ decision: 'block' }` in a **200** body does **not** throw — it just returns the decision object. Always check `decision.decision === 'block'` after `guard()` and throw `new GuardBlockedError(decision)` yourself if you want to abort early, as shown in the governance loop above.
+- `ApprovalDeniedError` -- Thrown by `waitForApproval()` when an operator denies the action (server sets `status` to `failed` or `cancelled`).
 
 ---
 

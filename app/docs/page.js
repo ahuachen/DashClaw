@@ -199,7 +199,7 @@ export default async function DocsPage({ searchParams }) {
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
           <p className="text-zinc-400 max-w-2xl leading-relaxed">
-            Canonical reference for the DashClaw SDK (v2.11.0). Node.js and Python parity across all core governance features.
+            Canonical reference for the DashClaw SDK (v2.11.1). Node.js and Python parity across all core governance features.
           </p>
           <Suspense fallback={null}>
             <CopyDocsButton />
@@ -269,25 +269,32 @@ claw = DashClaw(
                 </div>
                 <div className="pl-10">
                   <DocsCodeTabs 
-                    nodeSnippet={`// 1. Ask permission
-const result = await claw.guard({
+                    nodeSnippet={`// 1. Ask permission — abort on hard block
+const decision = await claw.guard({
   action_type: 'deploy',
   risk_score: 85,
   declared_goal: 'Update auth service to v2.1.1'
 });
 
-if (result.decision === 'block') {
-  throw new Error(\`Blocked: \${result.reasons.join(', ')}\`);
+if (decision.decision === 'block') {
+  throw new Error(\`Blocked: \${decision.reason || decision.reasons?.join(', ')}\`);
 }
 
-// 2. Log intent
-const { action_id } = await claw.createAction({
+// 2. Log intent. The server re-evaluates policy here and is the
+//    authoritative source for HITL gating.
+const { action, action_id } = await claw.createAction({
   action_type: 'deploy',
   declared_goal: 'Update auth service to v2.1.1'
 });
 
+// 3. If the server flagged this, wait for a human operator.
+//    Pass createAction's action_id — NOT decision.action_id.
+if (action?.status === 'pending_approval') {
+  await claw.waitForApproval(action_id);
+}
+
 try {
-  // 3. Log evidence
+  // 4. Log evidence
   await claw.recordAssumption({
     action_id,
     assumption: 'Tests passed'
@@ -295,30 +302,34 @@ try {
 
   // ... deploy ...
 
-  // 4. Record outcome
+  // 5. Record outcome
   await claw.updateOutcome(action_id, { status: 'completed' });
 } catch (err) {
   await claw.updateOutcome(action_id, { status: 'failed', error_message: err.message });
 }`}
-                    pythonSnippet={`# 1. Ask permission
-result = claw.guard({
+                    pythonSnippet={`# 1. Ask permission — abort on hard block
+decision = claw.guard({
     "action_type": "deploy",
     "risk_score": 85,
     "declared_goal": "Update auth service to v2.1.1"
 })
 
-if result["decision"] == "block":
-    raise Exception(f"Blocked: {', '.join(result['reasons'])}")
+if decision["decision"] == "block":
+    raise Exception(f"Blocked: {decision.get('reason') or ', '.join(decision.get('reasons', []))}")
 
 # 2. Log intent
-action = claw.create_action(
+created = claw.create_action(
     action_type="deploy",
     declared_goal="Update auth service to v2.1.1"
 )
-action_id = action["action_id"]
+action_id = created["action_id"]
+
+# 3. If the server flagged this, wait for a human operator.
+if created.get("action", {}).get("status") == "pending_approval":
+    claw.wait_for_approval(action_id)
 
 try:
-    # 3. Log evidence
+    # 4. Log evidence
     claw.record_assumption({
         "action_id": action_id,
         "assumption": "Tests passed"
@@ -326,7 +337,7 @@ try:
 
     # ... deploy ...
 
-    # 4. Record outcome
+    # 5. Record outcome
     claw.update_outcome(action_id, status="completed")
 except Exception as e:
     claw.update_outcome(action_id, status="failed", error_message=str(e))`}
@@ -490,23 +501,34 @@ except Exception as e:
             <MethodEntry
               id="createAction"
               signature="claw.createAction(action) / claw.create_action(**kwargs)"
-              description="Create a new action record."
-              returns="Promise<{ action_id: string }>"
+              description="Create a governance action record. The server re-evaluates policy at this point, so this call is the authoritative source for HITL gating: if policy requires human review, the response is HTTP 202 with action.status='pending_approval'. Always check action.status before assuming the action is clear to execute."
+              returns="Promise<{ action: { action_id, status, ... }, action_id, decision, security }>"
               example={
-                <DocsCodeTabs 
-                  nodeSnippet="const { action_id } = await claw.createAction({ action_type: 'deploy' });"
-                  pythonSnippet='action = claw.create_action(action_type="deploy")'
+                <DocsCodeTabs
+                  nodeSnippet={`const { action, action_id } = await claw.createAction({ action_type: 'deploy' });
+if (action?.status === 'pending_approval') {
+  // gate execution on waitForApproval — see the method below
+}`}
+                  pythonSnippet={`created = claw.create_action(action_type="deploy")
+if created.get("action", {}).get("status") == "pending_approval":
+    claw.wait_for_approval(created["action_id"])`}
                 />
               }
             />
             <MethodEntry
               id="waitForApproval"
-              signature="claw.waitForApproval(id) / claw.wait_for_approval(id)"
-              description="Poll for human approval."
+              signature="claw.waitForApproval(actionId, { timeout?, interval? }) / claw.wait_for_approval(action_id, timeout=300, interval=5)"
+              description="Wait for a human operator to approve or deny an action. Opens an SSE stream on /api/stream and falls back to polling /api/actions/:id every 5 seconds. Resolves when action.approved_by is set; throws ApprovalDeniedError when the operator denies; throws on timeout. IMPORTANT: pass the action_id returned by createAction() — NOT the action_id returned by guard(). They refer to different database tables and waiting on a guard decision ID will never resolve."
               example={
-                <DocsCodeTabs 
-                  nodeSnippet="await claw.waitForApproval(action_id);"
-                  pythonSnippet="claw.wait_for_approval(action_id)"
+                <DocsCodeTabs
+                  nodeSnippet={`// Correct — wait on createAction's action_id
+const { action, action_id } = await claw.createAction({ action_type: 'deploy' });
+if (action?.status === 'pending_approval') {
+  await claw.waitForApproval(action_id, { timeout: 600_000 });
+}`}
+                  pythonSnippet={`created = claw.create_action(action_type="deploy")
+if created.get("action", {}).get("status") == "pending_approval":
+    claw.wait_for_approval(created["action_id"], timeout=600)`}
                 />
               }
             />
@@ -1176,7 +1198,7 @@ const { identities } = await claw.getIdentities();`}
               <h2 className="text-2xl font-bold tracking-tight">Execution Studio (HTTP API)</h2>
             </div>
             <p className="text-sm text-zinc-400 leading-relaxed mb-6">
-              Phase 1 governance packaging: workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph on actions. <strong className="text-zinc-300">These are HTTP-only in Phase 1 — no SDK wrapper methods exist yet in Node or Python.</strong> Call them directly against <code className="font-mono text-brand">DASHCLAW_BASE_URL</code> with your API key. SDK wrappers will land in Phase 2. Full OpenAPI definitions are at <code className="font-mono text-zinc-500">docs/openapi/critical-stable.openapi.json</code>.
+              Governance packaging: workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph on actions. <strong className="text-zinc-300">Every surface here has a canonical SDK wrapper method in the v2 Node SDK (see <code className="font-mono text-brand">sdk/dashclaw.js</code>, 80 methods total).</strong> The HTTP examples below are shown first because they&apos;re language-agnostic; the equivalent SDK calls (<code className="font-mono text-brand">claw.listWorkflowTemplates</code>, <code className="font-mono text-brand">claw.execution.capabilities.invoke</code>, etc.) are in <a href="https://github.com/ucsandman/DashClaw/blob/main/sdk/README.md#execution-studio" className="text-brand underline">sdk/README.md → Execution Studio</a>. Full OpenAPI definitions are at <code className="font-mono text-zinc-500">docs/openapi/critical-stable.openapi.json</code>.
             </p>
 
             {/* Execution Graph */}

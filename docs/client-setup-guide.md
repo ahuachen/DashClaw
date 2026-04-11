@@ -8,7 +8,7 @@ This is a thin pointer document. Client setup content is maintained on several c
 | Connect your first agent (Node / Python / MCP) | `/connect` on your running instance (rendered from [`app/connect/page.js`](../app/connect/page.js) and [`app/lib/connectGuide.js`](../app/lib/connectGuide.js)) |
 | Install and use the SDK | [`sdk/README.md`](../sdk/README.md) · Python: [`sdk-python/README.md`](../sdk-python/README.md) |
 | Local auth without OAuth | [`docs/deploy-without-oauth.md`](./deploy-without-oauth.md) |
-| Full SDK method reference | [`docs/sdk-reference.md`](./sdk-reference.md) |
+| Full SDK method reference | [`sdk/README.md`](../sdk/README.md) |
 | API surface inventory | [`docs/api-inventory.md`](./api-inventory.md) |
 | Runtime governance loop | [`docs/architecture/runtime-api.md`](./architecture/runtime-api.md) |
 

@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Two version tracks
+
+DashClaw ships two independently versioned artifacts from this repo:
+
+- **Platform** — the Next.js app, API routes, dashboard, and supporting
+  libraries. Current: **2.13.1**. This is the version of the DashClaw instance
+  you deploy to Vercel. Governance features, UI changes, new API routes, and
+  database migrations land on this track.
+- **SDK** — the `dashclaw` npm package published from `sdk/`. Current:
+  **2.11.1**. This is what agents install with `npm install dashclaw`. Entries
+  on this track are prefixed `## SDK [x.y.z]` so they don't visually collide
+  with platform entries.
+
+Entries are listed newest-first by **release date**, not by version number,
+which is why SDK 2.11.1 (2026-04-11) appears above platform 2.13.1
+(2026-04-10). The two tracks move at different cadences on purpose — SDK
+releases only ship client changes, platform releases can ship anything.
+Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
+are prefixed with the package name.
+
+## @dashclaw/openclaw-plugin [1.0.1] - 2026-04-11
+
+### Fixed
+- **`waitForApproval` was called with the wrong `action_id`, starving the PWA approval queue.** `packages/openclaw-plugin/src/index.ts` called `client.waitForApproval(decision.action_id)` on the `require_approval` branch, where `decision.action_id` is a row in the `guard_decisions` table (prefix `act_gd_…`, written by `app/lib/guard.js:218`). But `waitForApproval` polls `GET /api/actions/:id`, which resolves against the `action_records` table — so the wait target never existed, the operator never saw the action in the PWA queue, and the plugin either timed out or failed in a confusing way. The flow is now **createAction first, then waitForApproval on the action_records ID**, which matches what `/api/actions/route.js:291-301` actually returns for `pending_approval` cases (HTTP 202 with `action.status='pending_approval'`). The fix also trusts the server's `action.status` over the guard advice, so actions the server independently gates (e.g. capabilities with `requires_approval=true`) are waited on correctly even when guard itself returned `allow`. `dashclaw` peer dep bumped to `^2.11.1`.
+
+## Docs & Surface Sync - 2026-04-11
+
+### Changed
+- **`sdk/README.md`**: Added a dedicated **Human-in-the-Loop (HITL) Approval Flow** section with the canonical `guard → createAction → waitForApproval → updateOutcome` sequence, and an explicit warning that `waitForApproval` must be passed the `action_id` from `createAction()`, not the decision ID from `guard()`. Governance Loop example updated to check the guard decision and branch on `action.status`. Fixed `renderPrompt` signature (was `renderPrompt(context)`, actually `renderPrompt({ template_id, version_id, variables, record })`). Fixed `GuardBlockedError` description — it is only thrown by the SDK's `_request` on HTTP 403 with a block decision payload, not every time `guard()` returns `block`. Heartbeat note now correctly attributes the implicit-heartbeat behavior to **platform 2.13.0** (not the SDK package version).
+- **`PROJECT_DETAILS.md`**: Replaced the obsolete "5-method core surface" claim with the real v2 method count — **80 methods** across Core Governance, Decision Integrity, Scoring, Execution Studio, Sessions, Messaging, Handoffs, and Capability Runtime, verified against `sdk/dashclaw.js`. Core Runtime route table now has 8 rows (was mis-titled "7 endpoints"). Added explicit note about the `next.config.js` rewrites for `/api/actions/signals`, `/api/actions/assumptions`, and `/api/actions/:id/approve` so the relationship between legacy and canonical paths is documented.
+- **`CLAUDE.md`**: Fixed the Tech Stack line that still said "SDK: v2 (5-method core surface)" — now lists current versions (platform 2.13.1, `dashclaw` 2.11.1, 80 methods) and points to `sdk/README.md` and `docs/sdk-parity.md`.
+- **`docs/agent-bootstrap.md`**: Rewrote the golden-path example — previously it called `guard()` and immediately ignored the decision before calling `createAction()`, which would have let a `block` decision sail through into production. Now checks `decision.decision`, throws `GuardBlockedError` on block, and shows the `action.status === 'pending_approval'` + `waitForApproval(action_id)` branch.
+- **`docs/prompts/dashclaw-agent-connect.md`**: Same anti-pattern fix in the smoke-test example. Also fixed a silent v1/v2 import mix — the pairing example used `claw.createPairingFromPrivateJwk(...)` against the bare `'dashclaw'` import, but that method only exists in the legacy subpath; the example now explicitly imports from `'dashclaw/legacy'`.
+- **`app/docs/page.js`**: Removed the stale "Phase 1 — no SDK wrapper methods exist yet in Node or Python" banner from the Execution Studio section (every surface there has had a v2 SDK wrapper since 2.10.0). Quick Start sample now shows the approval branch. `createAction` and `waitForApproval` MethodEntry cards updated with HITL guidance and the action-ID distinction. Version stamp bumped to 2.11.1.
+- **`QUICK-START.md`**: Governance loop now shows the optional approval step as step 3, with a link to the canonical HITL flow in `sdk/README.md`.
+- **`docs/architecture/runtime-api.md`**: Removed the obsolete "DashClaw SDK v2 is a 1:1 wrapper for this minimal API surface" claim — the v2 SDK spans 80 methods, not 4. Minimal governance loop example now shows the approval branch. Legacy-support section now references the specific `next.config.js` rewrites.
+- **`.planning/codebase/ARCHITECTURE.md`**: Fixed the broken `import dashclaw from 'dashclaw'` syntax (that was a default import; `DashClaw` is a named export and the default would resolve to `undefined`). Methods list updated from 5 to 80 with domain summary.
+- **`README.md`** (root): Documentation section now points to `sdk/README.md` as the canonical SDK reference, plus `sdk-parity.md`, `PROJECT_DETAILS.md`, and `runtime-api.md`. Removed the stale `docs/sdk-reference.md` link from the Drift Detection row. Root `package.json` pin for `dashclaw` bumped from `^2.10.0` to `^2.11.1`.
+- **`CHANGELOG.md`**: Added a "Two version tracks" header explaining that SDK (2.11.x) and platform (2.13.x) move on separate cadences, so readers no longer get whiplash when `[SDK 2.11.1]` appears above `[2.13.1]`.
+
+### Archived
+- **`docs/sdk-reference.md`**: Retired as a second source of truth. This file had drifted to claim "45 methods" while the real v2 surface had grown to 80, and was missing the entire HITL flow, Execution Studio surfaces (workflow templates, model strategies, knowledge collections, capability runtime), Sessions, and the canonical `execution.capabilities.*` namespace. Content preserved at `docs/archive/sdk-reference-2026-04-11.md` with a prominent "do not trust this" banner. The file at `docs/sdk-reference.md` is now a thin pointer that redirects to `sdk/README.md` and `docs/sdk-parity.md` so old links still resolve.
+
+### Verified
+- **`docs/api-inventory.md`** regenerated via `npm run api:inventory:generate` — zero diff against the prior snapshot, so 217 routes / 40 stable / 20 beta / 157 experimental is still accurate. `last-verified` bumped to 2026-04-11.
+- **`docs/sdk-parity.md`** reviewed domain-by-domain against the 80-method v2 surface. No corrections needed — this doc was the most trustworthy SDK reference in the audit. `last-verified` bumped to 2026-04-11.
+- **`public/downloads/dashclaw-platform-intelligence/SKILL.md`** title stamp corrected from `(v2.8)` to `(platform 2.13.1, SDK 2.11.1)`.
+
 ## SDK [2.11.1] - 2026-04-11
 
 ### Fixed

@@ -1,7 +1,7 @@
 ---
 source-of-truth: true
 owner: API Governance Lead
-last-verified: 2026-03-14
+last-verified: 2026-04-11
 doc-type: architecture
 ---
 
@@ -39,18 +39,23 @@ Every PR to `main` must pass CI checks:
 DashClaw is organized into three distinct tiers to prevent platform bloat.
 
 ### Tier 1: Core Runtime (`app/api/` roots)
-These 7 endpoints define the DashClaw category. They are mandatory for governance.
+These 8 endpoints define the DashClaw category. They are mandatory for governance.
 
 | Route | Purpose | SDK Method |
 |:---|:---|:---|
 | `/api/guard` | Policy evaluation | `guard()` |
-| `/api/actions` | Lifecycle recording | `createAction()`, `updateOutcome()` |
-| `/api/approvals` | Human review queue | `waitForApproval()` |
-| `/api/assumptions` | Reasoning integrity | `recordAssumption()` |
-| `/api/signals` | Anomaly detection | `getSignals()` |
+| `/api/actions` | Lifecycle recording (createAction, updateOutcome, waitForApproval polling target) | `createAction()`, `updateOutcome()`, `getAction()` |
+| `/api/approvals` | Human review queue — accessed as `/api/actions/:id/approve` via `next.config.js` rewrite | `approveAction()` |
+| `/api/assumptions` | Reasoning integrity (also reachable as `/api/actions/assumptions` via rewrite) | `recordAssumption()` |
+| `/api/signals` | Anomaly detection (also reachable as `/api/actions/signals` via rewrite) | `getSignals()` |
 | `/api/policies` | Policy management | -- |
 | `/api/policies/generate` | AI policy generator (natural language → guard policies, `dry_run` preview mode) | -- |
 | `/api/health` | System readiness | -- |
+
+> **Route aliasing:** `next.config.js` rewrites `/api/actions/signals`,
+> `/api/actions/assumptions`, and `/api/actions/:id/approve` to their canonical
+> destinations for backward compatibility with legacy SDK paths. Both forms
+> are live; new code should target the canonical routes listed above.
 
 ### Infrastructure Routes
 
@@ -139,16 +144,53 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `policy-generator.js`: LLM-powered natural language to guard policy conversion with prompt construction, response parsing, validation, and dry-run preview.
 - `predictive-risk.js`: Statistical + LLM-enhanced risk scoring for guard evaluations. Queries historical action outcomes and optionally consults LLM for high-stakes actions. Controlled by `PREDICTIVE_RISK_ENABLED` and `PREDICTIVE_RISK_THRESHOLD` settings.
 
-## SDK Surface Area (v2)
+## SDK Surface Area
 
-The canonical entry point for all agents is `sdk/dashclaw.js` (exported as `dashclaw`). It has a 96% smaller surface area than the legacy SDK (`sdk/legacy/dashclaw-v1.js`).
+DashClaw ships two independently versioned SDK artifacts from this repo, both
+published under the `dashclaw` npm package:
 
-**Methods:**
-1. `guard(context)` — Intercept intent.
-2. `createAction(action)` — Record start.
-3. `updateOutcome(id, outcome)` — Record result.
-4. `recordAssumption(assumption)` — Record reasoning basis.
-5. `waitForApproval(id)` — Poll for human review.
+| Import | Source | Version | Role |
+|:---|:---|:---|:---|
+| `import { DashClaw } from 'dashclaw'` | `sdk/dashclaw.js` | **2.11.1** | Canonical v2 surface for all new work |
+| `import { DashClaw } from 'dashclaw/legacy'` | `sdk/legacy/dashclaw-v1.js` | same package | Compatibility layer for older integrations |
+
+The v2 canonical surface exposes **80 methods** across these domains (count
+verified against `sdk/dashclaw.js` on 2026-04-11):
+
+| Domain | Count | Representative methods |
+|:---|:---|:---|
+| Core Governance | 8 | `guard`, `createAction`, `updateOutcome`, `getAction`, `getPendingApprovals`, `approveAction`, `recordAssumption`, `waitForApproval` |
+| Decision Integrity | 3 | `registerOpenLoop`, `resolveOpenLoop`, `getSignals` |
+| Operational | 2 | `heartbeat`, `reportConnections` |
+| Learning & Optimization | 4 | `getLearningVelocity`, `getLearningCurves`, `getLessons`, `renderPrompt` |
+| Scoring Profiles | 18 | `createScorer`, `createScoringProfile`, `scoreWithProfile`, `autoCalibrate`, risk templates CRUD |
+| Messaging | 2 | `sendMessage`, `getInbox` |
+| Handoffs | 2 | `createHandoff`, `getLatestHandoff` |
+| Security Scanning | 1 | `scanPromptInjection` |
+| Feedback | 1 | `submitFeedback` |
+| Context Threads | 3 | `createThread`, `addThreadEntry`, `closeThread` |
+| Bulk Sync | 1 | `syncState` |
+| Sessions | 5 | `createSession`, `getSession`, `updateSession`, `listSessions`, `getSessionEvents` |
+| Execution Studio — Graph | 1 | `getActionGraph` |
+| Execution Studio — Workflow Templates | 6 | `listWorkflowTemplates`, `createWorkflowTemplate`, `updateWorkflowTemplate`, `duplicateWorkflowTemplate`, `launchWorkflowTemplate`, `getWorkflowTemplate` |
+| Execution Studio — Model Strategies | 6 | `listModelStrategies`, `createModelStrategy`, `updateModelStrategy`, `deleteModelStrategy`, `completeWithStrategy`, `getModelStrategy` |
+| Execution Studio — Knowledge Collections | 8 | `listKnowledgeCollections`, `createKnowledgeCollection`, `addKnowledgeCollectionItem`, `syncKnowledgeCollection`, `searchKnowledgeCollection`, etc. |
+| Execution Studio — Capability Runtime | 9 | `listCapabilities`, `invokeCapability`, `testCapability`, `getCapabilityHealth`, `listCapabilityHealth`, `getCapabilityHistory`, plus CRUD and canonical `claw.execution.capabilities.*` namespace |
+
+Plus the synchronous helper `actionContext(actionId)` for auto-tagging
+messages and assumptions to a governed action.
+
+**Minimum viable governance loop** (most agents only need these 5):
+`guard` → `createAction` → (optional) `waitForApproval` → `updateOutcome` +
+`recordAssumption`. The full surface is additive — see
+[`sdk/README.md`](./sdk/README.md) for exhaustive reference and the canonical
+HITL flow.
+
+**Legacy surface** (`dashclaw/legacy`) adds ~2800 lines of compatibility
+methods: pairing/identity, SSE events, `wrapClient`, compliance exports,
+drift detection, activity logs, webhooks CRUD, prompt template CRUD, and the
+full evaluation-run harness. See
+[`docs/sdk-parity.md`](./docs/sdk-parity.md) for the domain-level parity matrix.
 
 ## Framework Integration Examples (`examples/`)
 

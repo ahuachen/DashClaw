@@ -39,12 +39,22 @@ Every tool call your agent makes flows through DashClaw before it executes:
 
 1. Agent decides to call a tool (e.g. `bash`, `write_file`, a custom HTTP tool).
 2. The plugin's `before_tool_call` hook calls DashClaw `/api/guard` with the tool name, risk score, and a 500-character summary of the parameters.
-3. DashClaw evaluates your guard policies (risk thresholds, action-type blocks, allowlists).
-4. If the decision is `require_approval`, the tool pauses while the plugin waits on `/api/actions/:id`. You approve from the DashClaw dashboard, the CLI, or the mobile PWA — the agent is unblocked the moment the operator clicks approve.
-5. The plugin records the action via `/api/actions`. The tool then executes (or is blocked).
-6. The `after_tool_call` hook records the outcome (`completed` or `failed`, with the error message) so DashClaw has a full intent → policy → outcome trail.
+3. DashClaw evaluates your guard policies (risk thresholds, action-type blocks, allowlists). If the verdict is `block`, the tool call is rejected immediately — no action record is opened.
+4. On `allow`, `warn`, or `require_approval`, the plugin opens a governance record via `/api/actions`. The server re-runs policy here and is the authoritative source for HITL gating — it may return `action.status === 'pending_approval'` even when guard said `allow` (for example, if the capability has `requires_approval: true`).
+5. If the action is `pending_approval`, the plugin pauses on `waitForApproval(action.action_id)`. You approve from the DashClaw dashboard, the CLI, or the mobile PWA — the agent is unblocked the moment the operator clicks approve (SSE first, polling fallback).
+6. On approval, the tool executes. The `after_tool_call` hook records the outcome (`completed` or `failed`, with the error message) so DashClaw has a full intent → policy → outcome trail.
 
 The plugin is read-mostly: it never modifies the tool's parameters or the tool's result. It only blocks, allows, or records.
+
+### `action_id` distinction
+
+`guard()` returns an `action_id` that points at the `guard_decisions` table
+(prefix `act_gd_…`). `createAction()` returns an `action_id` that points at
+the `action_records` table. `waitForApproval()` polls
+`GET /api/actions/:id`, which resolves against `action_records` — so the
+plugin always waits using the `createAction()` ID, never the `guard()` ID.
+Plugin builds at `1.0.0` had this wrong and the PWA approval queue stayed
+empty because the wait target didn't exist. Fixed in `1.0.1`.
 
 ## Configuration reference
 

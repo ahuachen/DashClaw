@@ -192,64 +192,81 @@ export default definePluginEntry({
         return;
       }
 
-      switch (decision.decision) {
-        case 'block':
-          return {
-            block: true,
-            blockReason: decision.reason || 'Blocked by DashClaw policy',
-          };
-
-        case 'warn':
-          console.warn(
-            `[dashclaw-governance] WARN ${toolName}: ${decision.reason || 'flagged by policy'}`
-          );
-          break;
-
-        case 'require_approval':
-          try {
-            const { action } = await client.waitForApproval(decision.action_id);
-            if (!isApproved(action)) {
-              return {
-                block: true,
-                blockReason: action?.error_message || 'Action denied by operator',
-              };
-            }
-          } catch (err) {
-            return {
-              block: true,
-              blockReason: `Approval denied or wait failed: ${errorMessage(err) || 'denied'}`,
-            };
-          }
-          break;
-
-        case 'allow':
-        default:
-          break;
+      // Hard stop on block — never open an action record for a forbidden call.
+      if (decision.decision === 'block') {
+        return {
+          block: true,
+          blockReason: decision.reason || 'Blocked by DashClaw policy',
+        };
       }
 
-      // Decision permits the call. Open a governance record so we can attach
-      // the outcome in `after_tool_call`. If createAction fails, fall back to
-      // the guard's action_id — record-keeping must never break a tool call
-      // that policy already approved.
+      if (decision.decision === 'warn') {
+        console.warn(
+          `[dashclaw-governance] WARN ${toolName}: ${decision.reason || 'flagged by policy'}`
+        );
+      }
+
+      // Open a governance record. The server re-evaluates policy at this
+      // point and is the authoritative source for HITL gating — even when
+      // guard returned `allow`, the server may still set `pending_approval`
+      // (for example, if the capability has `requires_approval=true`).
+      //
+      // NOTE: we MUST call `createAction` before `waitForApproval`, because
+      // `waitForApproval` polls `GET /api/actions/:id` — which is backed by
+      // the `action_records` table. `decision.action_id` from `guard()` is a
+      // row in the separate `guard_decisions` table (prefix `act_gd_`) and
+      // cannot be resolved by that endpoint.
+      let createdActionId: string | undefined;
+      let createdStatus: string | undefined;
       try {
         const created = await client.createAction({
           action_type: toolName,
           declared_goal: paramSummary || `Tool call: ${toolName}`,
           risk_score: riskScore,
         });
-        const actionId =
-          created.action_id ??
-          created.action?.action_id ??
-          created.action?.id ??
-          decision.action_id;
-        if (actionId) pendingActions.set(key, actionId);
+        createdActionId =
+          created.action_id ?? created.action?.action_id ?? created.action?.id;
+        createdStatus = created.action?.status;
       } catch (err) {
-        console.warn(
-          `[dashclaw-governance] createAction failed: ${errorMessage(err) || 'unknown'}`
-        );
-        if (decision.action_id) pendingActions.set(key, decision.action_id);
+        const msg = errorMessage(err) || 'unknown';
+        console.warn(`[dashclaw-governance] createAction failed: ${msg}`);
+        if (config.failClosed) {
+          return {
+            block: true,
+            blockReason: `DashClaw action record could not be opened — fail-closed policy (${msg})`,
+          };
+        }
+        // Fail-open: proceed without an action record. We cannot wait for
+        // approval (no ID to wait on) and outcome recording will be skipped.
+        return;
       }
 
+      // If the server flagged this for human review, wait on the action
+      // record we just created. Either guard said `require_approval` OR the
+      // server upgraded the action to `pending_approval` independently — we
+      // trust the server's `action.status` over the guard advice.
+      const needsApproval =
+        decision.decision === 'require_approval' ||
+        createdStatus === 'pending_approval';
+
+      if (needsApproval && createdActionId) {
+        try {
+          const { action } = await client.waitForApproval(createdActionId);
+          if (!isApproved(action)) {
+            return {
+              block: true,
+              blockReason: action?.error_message || 'Action denied by operator',
+            };
+          }
+        } catch (err) {
+          return {
+            block: true,
+            blockReason: `Approval denied or wait failed: ${errorMessage(err) || 'denied'}`,
+          };
+        }
+      }
+
+      if (createdActionId) pendingActions.set(key, createdActionId);
       return;
     });
 
