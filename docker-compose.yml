@@ -3,8 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
     ports:
       - "3000:3000"
+    env_file: .env.local
     environment:
       - DATABASE_URL=postgresql://dashclaw:dashclaw@db:5432/dashclaw
       - NEXTAUTH_URL=http://localhost:3000
@@ -24,7 +27,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
 volumes:
   postgres_data:

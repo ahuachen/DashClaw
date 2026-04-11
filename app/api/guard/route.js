@@ -8,6 +8,8 @@ import { evaluateGuard } from '../../lib/guard';
 import { getSql } from '../../lib/db.js';
 import { apiErrorResponse } from '../../lib/apiErrors.js';
 import { scanForPromptInjection } from '../../lib/promptInjection.js';
+import { listGuardDecisions } from '../../lib/repositories/guard.repository.js';
+import { isSelfHostModeEnabled } from '../../lib/selfHost.js';
 
 /**
  * POST /api/guard — Evaluate guard policies for a proposed action.
@@ -67,59 +69,29 @@ export async function POST(request) {
 export async function GET(request) {
   try {
     const orgId = getOrgId(request);
+
+    // Self-host bypass: if no org is configured yet, return empty results gracefully.
+    if (isSelfHostModeEnabled() && orgId === 'org_default') {
+      const sql = getSql();
+      const { searchParams } = request.nextUrl;
+      const agentId = searchParams.get('agent_id') || undefined;
+      const decision = searchParams.get('decision') || undefined;
+      const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 1000);
+      const offset = parseInt(searchParams.get('offset') || '0', 10);
+
+      const result = await listGuardDecisions(sql, orgId, { agentId, decision, limit, offset });
+      return NextResponse.json({ ...result, limit, offset });
+    }
+
     const sql = getSql();
     const { searchParams } = request.nextUrl;
-
-    const agentId = searchParams.get('agent_id');
-    const decision = searchParams.get('decision');
+    const agentId = searchParams.get('agent_id') || undefined;
+    const decision = searchParams.get('decision') || undefined;
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 1000);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-    const conditions = ['org_id = $1'];
-    const params = [orgId];
-
-    if (agentId) {
-      conditions.push(`agent_id = $${params.push(agentId)}`);
-    }
-    if (decision) {
-      conditions.push(`decision = $${params.push(decision)}`);
-    }
-
-    const where = conditions.join(' AND ');
-    const query = `
-      SELECT id, org_id, agent_id, action_type, risk_score, decision, reason, created_at 
-      FROM guard_decisions 
-      WHERE ${where} 
-      ORDER BY created_at DESC 
-      LIMIT $${params.push(limit)} 
-      OFFSET $${params.push(offset)}
-    `;
-
-    const countQuery = `SELECT COUNT(*) as total FROM guard_decisions WHERE ${where}`;
-    const countParams = params.slice(0, conditions.length);
-
-    const [decisions, countResult, statsRows] = await Promise.all([
-      sql.query(query, params),
-      sql.query(countQuery, countParams),
-      sql`
-        SELECT
-          COUNT(*) as total_24h,
-          COUNT(*) FILTER (WHERE decision = 'block') as blocks_24h,
-          COUNT(*) FILTER (WHERE decision = 'warn') as warns_24h,
-          COUNT(*) FILTER (WHERE decision = 'require_approval') as approvals_24h
-        FROM guard_decisions
-        WHERE org_id = ${orgId}
-          AND created_at::timestamptz > NOW() - INTERVAL '24 hours'
-      `,
-    ]);
-
-    return NextResponse.json({
-      decisions,
-      total: parseInt(countResult[0]?.total || '0', 10),
-      stats: statsRows[0] || {},
-      limit,
-      offset,
-    });
+    const result = await listGuardDecisions(sql, orgId, { agentId, decision, limit, offset });
+    return NextResponse.json({ ...result, limit, offset });
   } catch (err) {
     return apiErrorResponse(err, 'GUARD GET');
   }

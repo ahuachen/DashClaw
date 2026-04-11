@@ -13,6 +13,7 @@ import {
   demoDecisionMetrics
 } from './app/lib/demo/demoMiddleware.js';
 import { getViewerContextFromCookieHeader } from './app/lib/sessionViewer.mjs';
+import { isSelfHostModeEnabled } from './app/lib/selfHost.js';
 
 /**
  * Authentication middleware for DashClaw
@@ -223,6 +224,16 @@ async function verifyOrgExists(orgId) {
   if (cached && now - cached.timestamp < ORG_EXISTS_CACHE_TTL) {
     return cached.exists;
   }
+
+  // Self-host Postgres: migrations already created the org — trust the bootstrap.
+  // Combined Lief (RyanTJoy commit 49c8ae3) + Elpolini (elpolini commit dbf5463) fix.
+  const dbUrl = process.env.DATABASE_URL || '';
+  const isNeon = dbUrl.includes('.neon.tech') || dbUrl.includes('neon.tech');
+  if (!isNeon && isSelfHostModeEnabled()) {
+    orgExistsCache.set(orgId, { timestamp: now, exists: true });
+    return true;
+  }
+
   try {
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`SELECT 1 FROM organizations WHERE id = ${orgId} LIMIT 1`;
@@ -1024,7 +1035,10 @@ export async function middleware(request) {
 
   // SECURITY: Apply rate limiting to all API routes, including PUBLIC_ROUTES.
   // PUBLIC_ROUTES are unauthenticated but still should not be abusable for DoS/brute force.
-  if (!(await checkRateLimit(ip))) {
+  // Rate-limit key includes pathname to prevent single-endpoint DoS while allowing
+  // broader access to other routes. Contributed by Elpolini (elpolini/DashClaw commit dbf5463).
+  const rateLimitKey = `${ip}:${pathname}`;
+  if (!(await checkRateLimit(rateLimitKey))) {
     console.warn(`[SECURITY] Rate limit exceeded for ${ip}: ${pathname}`);
     return NextResponse.json(
       { error: 'Rate limit exceeded. Please slow down.' },

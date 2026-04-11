@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeRequest } from '../helpers.js';
 
-const { mockSql, mockValidateGuardInput, mockEvaluateGuard } = vi.hoisted(() => ({
+const { mockSql, mockValidateGuardInput, mockEvaluateGuard, mockListGuardDecisions } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockValidateGuardInput: vi.fn(),
   mockEvaluateGuard: vi.fn(),
+  mockListGuardDecisions: vi.fn(),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
 vi.mock('@/lib/validate', () => ({ validateGuardInput: mockValidateGuardInput }));
 vi.mock('@/lib/guard', () => ({ evaluateGuard: mockEvaluateGuard }));
+vi.mock('@/lib/repositories/guard.repository.js', () => ({ listGuardDecisions: mockListGuardDecisions }));
 
 import { POST, GET } from '@/api/guard/route.js';
 
@@ -17,8 +19,10 @@ describe('/api/guard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.DATABASE_URL = 'postgres://unit-test';
+    process.env.DASHCLAW_MODE = 'cloud'; // disable self-host bypass in GET tests
     mockSql.mockImplementation(async () => []);
     mockSql.query.mockImplementation(async () => []);
+    mockListGuardDecisions.mockResolvedValue({ decisions: [], total: 0, stats: {} });
   });
 
   describe('POST', () => {
@@ -119,8 +123,7 @@ describe('/api/guard', () => {
   describe('GET', () => {
     it('returns guard decisions with pagination', async () => {
       const decisions = [{ id: 'gd_1', decision: 'block' }];
-      mockSql.query.mockResolvedValueOnce(decisions).mockResolvedValueOnce([{ total: '1' }]);
-      mockSql.mockResolvedValueOnce([{ total_24h: 5, blocks_24h: 2, warns_24h: 1, approvals_24h: 1 }]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions, total: 1, stats: { total_24h: 5, blocks_24h: 2, warns_24h: 1, approvals_24h: 1 } });
 
       const res = await GET(makeRequest('http://localhost/api/guard', { headers: { 'x-org-id': 'org_1' } }));
       expect(res.status).toBe(200);
@@ -130,24 +133,21 @@ describe('/api/guard', () => {
     });
 
     it('filters by agent_id', async () => {
-      mockSql.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ total: '0' }]);
-      mockSql.mockResolvedValueOnce([{}]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0, stats: {} });
 
       await GET(makeRequest('http://localhost/api/guard?agent_id=a1', { headers: { 'x-org-id': 'org_1' } }));
-      expect(mockSql.query.mock.calls[0][0]).toContain('agent_id');
+      expect(mockListGuardDecisions).toHaveBeenCalledWith(mockSql, 'org_1', expect.objectContaining({ agentId: 'a1' }));
     });
 
     it('filters by decision type', async () => {
-      mockSql.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ total: '0' }]);
-      mockSql.mockResolvedValueOnce([{}]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0, stats: {} });
 
       await GET(makeRequest('http://localhost/api/guard?decision=block', { headers: { 'x-org-id': 'org_1' } }));
-      expect(mockSql.query.mock.calls[0][0]).toContain('decision');
+      expect(mockListGuardDecisions).toHaveBeenCalledWith(mockSql, 'org_1', expect.objectContaining({ decision: 'block' }));
     });
 
     it('includes 24h stats', async () => {
-      mockSql.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ total: '0' }]);
-      mockSql.mockResolvedValueOnce([{ total_24h: 10, blocks_24h: 3, warns_24h: 2, approvals_24h: 1 }]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0, stats: { total_24h: 10, blocks_24h: 3, warns_24h: 2, approvals_24h: 1 } });
 
       const res = await GET(makeRequest('http://localhost/api/guard', { headers: { 'x-org-id': 'org_1' } }));
       const data = await res.json();
@@ -155,8 +155,7 @@ describe('/api/guard', () => {
     });
 
     it('respects limit and offset', async () => {
-      mockSql.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ total: '0' }]);
-      mockSql.mockResolvedValueOnce([{}]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0, stats: {} });
 
       const res = await GET(makeRequest('http://localhost/api/guard?limit=5&offset=10', { headers: { 'x-org-id': 'org_1' } }));
       const data = await res.json();
@@ -165,8 +164,7 @@ describe('/api/guard', () => {
     });
 
     it('caps limit at 1000', async () => {
-      mockSql.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ total: '0' }]);
-      mockSql.mockResolvedValueOnce([{}]);
+      mockListGuardDecisions.mockResolvedValueOnce({ decisions: [], total: 0, stats: {} });
 
       const res = await GET(makeRequest('http://localhost/api/guard?limit=5000', { headers: { 'x-org-id': 'org_1' } }));
       const data = await res.json();
@@ -174,7 +172,7 @@ describe('/api/guard', () => {
     });
 
     it('returns 500 on error', async () => {
-      mockSql.query.mockRejectedValueOnce(new Error('db fail'));
+      mockListGuardDecisions.mockRejectedValueOnce(new Error('db fail'));
       const res = await GET(makeRequest('http://localhost/api/guard', { headers: { 'x-org-id': 'org_1' } }));
       expect(res.status).toBe(500);
     });

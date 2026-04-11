@@ -1,4 +1,5 @@
 export const SETUP_MIGRATION_SCRIPTS = [
+  'scripts/migrate-api-keys-compat.mjs',
   'scripts/migrate-multi-tenant.mjs',
   'scripts/migrate-action-records-compat.mjs',
   'scripts/migrate-cost-analytics.mjs',

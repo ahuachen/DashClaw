@@ -7,6 +7,7 @@ import { checkQuotaFast, getOrgPlan, incrementMeter } from '../../lib/usage.js';
 import { logActivity } from '../../lib/audit.js';
 import { getSql } from '../../lib/db.js';
 import crypto from 'crypto';
+import { isSelfHostModeEnabled } from '../../lib/selfHost.js';
 
 function hashKey(key) {
   return crypto.createHash('sha256').update(key).digest('hex');
@@ -26,16 +27,24 @@ const KEY_PREFIX_LENGTH = 16;
 export async function GET(request) {
   try {
     const orgId = getOrgId(request);
-
     const sql = getSql();
-    const keys = await sql`
-      SELECT id, key_prefix, label, role, last_used_at, created_at, revoked_at
-      FROM api_keys
-      WHERE org_id = ${orgId}
-      ORDER BY created_at DESC
-    `;
 
-    return NextResponse.json({ keys });
+    try {
+      const keys = await sql`
+        SELECT id, key_prefix, label, role, last_used_at, created_at, revoked_at
+        FROM api_keys
+        WHERE org_id = ${orgId}
+        ORDER BY created_at DESC
+      `;
+      return NextResponse.json({ keys });
+    } catch (dbErr) {
+      // 42P01 = table not found — fresh self-host install before migration has run.
+      // Self-host bypass: return empty list rather than crashing the dashboard.
+      if (dbErr.code === '42P01' && isSelfHostModeEnabled()) {
+        return NextResponse.json({ keys: [] });
+      }
+      throw dbErr;
+    }
   } catch (error) {
     console.error('Keys API GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch API keys' }, { status: 500 });

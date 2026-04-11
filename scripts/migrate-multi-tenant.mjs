@@ -118,6 +118,15 @@ async function run() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_api_keys_org_id ON api_keys(org_id)`;
+  // ADD COLUMN IF NOT EXISTS guards — safe to run on legacy schemas that already have the table.
+  // Ensures upgraders from older api_keys schemas (without all columns) don't crash here.
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS org_id TEXT", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS key_hash TEXT", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS key_prefix TEXT", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS label TEXT DEFAULT 'default'", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'member'", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMP", []);
+  await sql.query("ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP", []);
   log('✅', 'api_keys table ready');
 
   // Step 3: Create default organization

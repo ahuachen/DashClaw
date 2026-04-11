@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { getOrgId, getUserId } from '../../lib/org.js';
 import { getSql } from '../../lib/db.js';
 import { getTeamOrgAndMembers } from '../../lib/repositories/orgsTeam.repository.js';
+import { isSelfHostModeEnabled } from '../../lib/selfHost.js';
 
 // GET /api/team - List members + org info for caller's org
 export async function GET(request) {
@@ -15,6 +16,10 @@ export async function GET(request) {
 
     const { org, members } = await getTeamOrgAndMembers(sql, orgId);
     if (!org) {
+      // Self-host bypass: org_default may not exist yet if migrations haven't completed.
+      if (isSelfHostModeEnabled()) {
+        return NextResponse.json({ org: { id: orgId, name: 'Default Organization', plan: 'free' }, members: [], member_count: 0 });
+      }
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
