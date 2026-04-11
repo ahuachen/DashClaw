@@ -432,14 +432,30 @@ export async function evaluatePolicy(policy, rules, context, sql, orgId, effecti
       const fallback = rules.fallback || globalFallback;
       const model = rules.model || 'gpt-4o-mini';
 
+      // Detect "no key configured" before calling the LLM so we can apply a safe
+      // middle-path fallback. When an LLM key is absent the semantic check can never
+      // work, so fail-closed (block) is wrong — it silently blocks every action. Use
+      // require_approval instead: the action is held for human review rather than
+      // silently vanishing with no audit trail. (BUG-01 fix, 2026-04-11)
+      const hasLlmKey = !!(process.env.GUARD_LLM_KEY || process.env.OPENAI_API_KEY);
+      if (!hasLlmKey) {
+        console.warn('[Guard] semantic_check policy skipped: No GUARD_LLM_KEY or OPENAI_API_KEY configured. Requiring approval as safe fallback.');
+        return { action: 'require_approval', reason: 'Semantic check unavailable (no LLM key configured) — human review required' };
+      }
+
       const result = await checkSemanticGuardrail(context, instruction, model);
 
       if (!result) {
-        // LLM check failed or was skipped (no key)
+        // LLM key is present but the API call failed (network error, rate limit, etc.)
+        // Honor the policy's explicit fallback setting — operator has made a deliberate
+        // choice about how to handle LLM failures.
         if (fallback === 'block') {
           return { action: 'block', reason: 'Semantic check failed (fallback: block)' };
         }
-        return null; // pass-through
+        if (fallback === 'require_approval') {
+          return { action: 'require_approval', reason: 'Semantic check failed (fallback: require_approval)' };
+        }
+        return null; // fallback === 'allow' — pass-through
       }
 
       if (result.allowed === false) {
