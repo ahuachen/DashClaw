@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: STATE.md written; all planning docs ready for commit
-last_updated: "2026-04-11T15:18:37.551Z"
-last_activity: 2026-04-11 -- Phase 1.5 planning complete
+stopped_at: Completed Phase 1.5 Plan 1 (01.5-01-PLAN.md) — T1-T5 done, T6 deferred to Wes
+last_updated: "2026-04-11T15:31:21.554Z"
+last_activity: 2026-04-11
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 40
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: `.planning/PROJECT.md` (updated 2026-04-11)
 ## Current Position
 
 Phase: 1 (Foundation) — EXECUTING
-Plan: 1 of 3
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-04-11 -- Phase 1.5 planning complete
+Last activity: 2026-04-11
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: — (no data)
 
 *Updated after each plan completion*
+| Phase 1.5 P1 | 45 | 5 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,8 @@ Full decision log lives in `PROJECT.md` (Key Decisions table). Recent decisions 
 - **2026-04-11 (Discovery)**: Public dogfood is the flagship demo — Wes's Claude Code → Discord approval flow is the proof surface, and it was hiding in a GitHub issue comment (#46) until now.
 - **2026-04-11 (Discovery)**: Closed-loop flywheel — DashClaw-governed AI agents doing research and content to grow DashClaw — is the unique moat. No other agent-governance tool can credibly run this.
 - **2026-04-11 (Discovery)**: Activation bugs (`lucide-react` #71, 502 docs #31, Lief's CSP fixes, Elpolini's migration compat) block launch and must land in Phase 1 before the beachhead work begins.
+- [Phase 1.5]: BUG-01 fallback: require_approval when no LLM key — not fail-open, not fail-closed (2026-04-11)
+- [Phase 1.5]: BUG-02 recording is opportunistic: audit write failure does not prevent exit-2 block enforcement (2026-04-11)
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None yet (`.planning/todos/pending/` not initialized).
 
 ## Session Continuity
 
-Last session: 2026-04-11 (discovery + PROJECT/REQUIREMENTS/ROADMAP/STATE drafted)
-Stopped at: STATE.md written; all planning docs ready for commit
-Resume file: None — next step is `/gsd-plan-phase 1`
+Last session: 2026-04-11T15:31:21.550Z
+Stopped at: Completed Phase 1.5 Plan 1 (01.5-01-PLAN.md) — T1-T5 done, T6 deferred to Wes
+Resume file: None

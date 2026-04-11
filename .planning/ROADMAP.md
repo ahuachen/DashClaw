@@ -60,7 +60,7 @@ Plans:
 **Plans**: 2 plans (sequential waves)
 
 Plans:
-- [ ] 01.5-01: **Governance runtime bugfix — BUG-01 + BUG-02** *(Wave 1)* — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
+- [x] 01.5-01: **Governance runtime bugfix — BUG-01 + BUG-02** *(Wave 1)* — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
 - [ ] 01.5-02: **Founder admin role bugfix — BUG-03** *(Wave 2, depends on 01.5-01)* — diagnose why Wes is `role='member'` on his own instance (top suspect: `3dcb43dc` JWT org-resolution regression), fix the root cause, add `scripts/promote-founder-to-admin.mjs` for existing users, add regression test for first-user-is-admin bootstrap, validate by having Wes visually confirm the READ-ONLY banner is gone and completing a real approval flow. Captures `01.5-BUG03-DIAGNOSIS.md` and `01.5-BUG03-VALIDATION.md`.
 
 ---
@@ -139,7 +139,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
-| 1.5. Governance Runtime Bugfix *(INSERTED)* | 0/2 | Not started | - |
+| 1.5. Governance Runtime Bugfix *(INSERTED)* | 1/2 | In Progress|  |
 | 2. Claude Code Beachhead | 0/3 | Not started | - |
 | 3. Public Launch | 0/3 | Not started | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |
