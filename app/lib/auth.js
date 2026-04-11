@@ -101,11 +101,25 @@ export const authOptions = {
             WHERE id = ${existing[0].id}
           `;
         } else {
+          // First-user promotion (fixes BUG-03): the operator of a fresh DashClaw
+          // instance must be admin of their own instance. Without this, every
+          // self-hosted deploy creates a member-only first user who cannot approve
+          // actions in the /approvals UI and has no path to override blocked agent
+          // actions without running manual SQL against their own database.
+          //
+          // Race window: if two users sign up simultaneously for the very first
+          // time, both could pass the count check and be promoted to admin. On a
+          // single-operator self-hosted deploy this is vanishingly rare, and two
+          // admins is a less-broken failure mode than zero admins. Accept it.
+          const countResult = await sql`SELECT COUNT(*)::int AS count FROM users`;
+          const isFirstUser = Number(countResult[0]?.count || 0) === 0;
+          const newUserRole = isFirstUser ? 'admin' : 'member';
+
           // Create new user mapped to org_default
           const userId = `usr_${crypto.randomUUID()}`;
           await sql`
             INSERT INTO users (id, org_id, email, name, image, provider, provider_account_id, role, created_at, last_login_at)
-            VALUES (${userId}, 'org_default', ${user.email || ''}, ${user.name || null}, ${user.image || null}, ${account.provider}, ${account.providerAccountId}, 'member', ${now}, ${now})
+            VALUES (${userId}, 'org_default', ${user.email || ''}, ${user.name || null}, ${user.image || null}, ${account.provider}, ${account.providerAccountId}, ${newUserRole}, ${now}, ${now})
           `;
         }
         return true;
