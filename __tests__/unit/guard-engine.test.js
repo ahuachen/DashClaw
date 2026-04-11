@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const { mockDeliverGuardWebhook, mockCheckSemantic, mockIsEmbeddingsEnabled, mockGenerateEmbedding, mockScanSensitiveData } = vi.hoisted(() => ({
   mockDeliverGuardWebhook: vi.fn(),
@@ -34,9 +34,29 @@ function makePolicy(type, rules, overrides = {}) {
 }
 
 describe('evaluateGuard', () => {
+  // Capture the original GUARD_LLM_KEY at describe-block scope so we can restore it
+  // in afterEach. This prevents the test file from leaking env state into neighboring
+  // test files if Vitest ever shares a process across them.
+  const originalGuardLlmKey = process.env.GUARD_LLM_KEY;
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockScanSensitiveData.mockImplementation((text) => ({ findings: [], redacted: text, clean: true }));
+    // Bypass the no-LLM-key short-circuit added to `app/lib/guard.js` by commit
+    // b8706570 (BUG-01 fix). In a real instance with no OPENAI_API_KEY / GUARD_LLM_KEY,
+    // semantic_check policies now return `require_approval` as a safe middle-path
+    // fallback. In this test file we're simulating a configured instance — the actual
+    // LLM call is mocked via `mockCheckSemantic` — so we set a placeholder key to
+    // satisfy the pre-check and let the mock govern the decision path.
+    process.env.GUARD_LLM_KEY = 'mock-key-for-unit-tests';
+  });
+
+  afterEach(() => {
+    if (originalGuardLlmKey === undefined) {
+      delete process.env.GUARD_LLM_KEY;
+    } else {
+      process.env.GUARD_LLM_KEY = originalGuardLlmKey;
+    }
   });
 
   // --- risk_threshold ---
