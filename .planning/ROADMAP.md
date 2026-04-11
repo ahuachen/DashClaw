@@ -44,7 +44,7 @@ Plans:
 
 **Depends on**: Nothing technical (the bugs are independent of Phase 1's plans), but **blocks Phase 2**. This is a hard prerequisite for the Claude Code beachhead — you cannot demo governance-as-a-product when the governance layer itself fails silently.
 
-**Requirements**: BUG-01, BUG-02
+**Requirements**: BUG-01, BUG-02, BUG-03
 
 **Success Criteria** (what must be TRUE):
 1. `handle_block` in `hooks/dashclaw_pretool.py` records every blocked action via `create_action(context, status="blocked")` before exiting. Blocks are persisted, queryable at `/api/actions?status=blocked`, and visible in the decisions ledger at `/decisions`
@@ -52,12 +52,16 @@ Plans:
 3. The "Secret Exposure Guard" policy's semantic check no longer deterministic-falls-back to block on ordinary commands — the root cause in `/api/guard`'s server-side classifier is diagnosed, fixed, and proven with a reproduced-then-cleared test case
 4. When the originally blocked command (`node gsd-tools.cjs init progress`) is re-fired with policies re-enabled, it either succeeds or legitimately blocks with a visible audit trail entry — never with the fallback string `"Semantic check failed (fallback: block)"`
 5. A regression test covers `handle_block`'s audit-trail behavior so future regressions on the block path get caught automatically
-6. None of the existing guardrails (`route-sql:check`, `openapi:check`, `api-inventory:check`, `npm test`) regress
+6. **Founder's user record has `role='admin'` on his own instance** — the `/approvals` page no longer shows the "READ-ONLY ACCESS" banner, and Wes can click Approve/Deny on a real pending approval
+7. **Bootstrap flow auto-promotes the first user of a fresh DashClaw instance to admin** — any new developer deploying via Vercel 1-click becomes admin of their own instance without running SQL
+8. **A one-off promotion script** (`scripts/promote-founder-to-admin.mjs`) exists so existing users who are incorrectly `role='member'` can be promoted via the script, not a raw SQL query
+9. None of the existing guardrails (`route-sql:check`, `openapi:check`, `api-inventory:check`, `npm test`) regress
 
-**Plans**: 1 plan
+**Plans**: 2 plans (sequential waves)
 
 Plans:
-- [ ] 01.5-01: **Governance runtime bugfix** — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Also captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
+- [ ] 01.5-01: **Governance runtime bugfix — BUG-01 + BUG-02** *(Wave 1)* — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
+- [ ] 01.5-02: **Founder admin role bugfix — BUG-03** *(Wave 2, depends on 01.5-01)* — diagnose why Wes is `role='member'` on his own instance (top suspect: `3dcb43dc` JWT org-resolution regression), fix the root cause, add `scripts/promote-founder-to-admin.mjs` for existing users, add regression test for first-user-is-admin bootstrap, validate by having Wes visually confirm the READ-ONLY banner is gone and completing a real approval flow. Captures `01.5-BUG03-DIAGNOSIS.md` and `01.5-BUG03-VALIDATION.md`.
 
 ---
 
@@ -135,7 +139,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
-| 1.5. Governance Runtime Bugfix *(INSERTED)* | 0/1 | Not started | - |
+| 1.5. Governance Runtime Bugfix *(INSERTED)* | 0/2 | Not started | - |
 | 2. Claude Code Beachhead | 0/3 | Not started | - |
 | 3. Public Launch | 0/3 | Not started | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |

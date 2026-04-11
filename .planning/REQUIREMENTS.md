@@ -65,8 +65,7 @@ Two stacked bugs caught during a `/gsd-progress` session when DashClaw's own pre
 
 - [ ] **BUG-01**: The `"Secret Exposure Guard"` policy (`gp_178772c27d0f40e69240f82f`) in `POST /api/guard` runs a semantic classification step that is **erroring deterministically** on the hosted DashClaw instance. When it errors, the policy falls back to `decision: "block"` with reason string `"Secret Exposure Guard: Semantic check failed (fallback: block)"`. Root cause must be diagnosed (top suspect: `cd9dbaf5 chore: lazy openai, version env wiring` regression on the hosted Vercel instance, or a missing LLM provider API key), fixed, and verified by re-running the originally blocked command and confirming it no longer deterministic-blocks.
 - [ ] **BUG-02**: `hooks/dashclaw_pretool.py:344 handle_block()` **never calls `create_action()`** before exiting with code 2. Every other decision handler (`handle_allow`, `handle_warn`, `handle_require_approval`) records the action. Blocks vanish into stderr with zero audit trail — directly contradicting *"audit-ready decision trails"*. Fix: record the blocked action via `create_action(context, status="blocked")` at the top of `handle_block`, ensure the server accepts `"blocked"` as a valid action status (extend enum if necessary), and verify the block appears in the decisions ledger at `/decisions` after firing. Also add a regression test on the block-audit path.
-
-**Related but scoped out of this category**: `BUG-03` (founder is member-not-admin on own instance, can't approve/deny actions from the UI). Tracked as a separate follow-up — likely a Phase 1.5 Plan 2 or Phase 1.6.
+- [ ] **BUG-03**: The founder is viewing his own DashClaw instance as `role='member'` instead of `role='admin'`. The `/approvals` page shows a *"READ-ONLY ACCESS — You are currently viewing as a member"* banner. Even if approvals existed, the founder could not approve them from his own UI. Top suspected root cause: `3dcb43dc`'s JWT org-resolution change (Lief LAN/CSP port in Plan 01-01). Fix: diagnose the exact root cause (DB default, bootstrap flow, org mismatch, or `3dcb43dc` regression), apply the minimal fix (preserving the LAN-HTTP cookie intent from `3dcb43dc` if it's the cause), add a one-off `scripts/promote-founder-to-admin.mjs` script so existing misassigned users can be promoted without raw SQL, and add a regression test verifying that the first user of a fresh DashClaw instance is auto-created with `role='admin'`. Validation requires Wes to visually confirm the banner is gone and complete a real approval flow.
 
 ---
 
@@ -134,8 +133,9 @@ Mapped against `.planning/ROADMAP.md` phases.
 | USR-02 | Phase 1 — Foundation | Pending |
 | USR-03 | Phase 1 — Foundation | Pending |
 | DOG-01 | Phase 1 — Foundation | Pending |
-| BUG-01 | Phase 1.5 — Governance Runtime Bugfix | Pending |
-| BUG-02 | Phase 1.5 — Governance Runtime Bugfix | Pending |
+| BUG-01 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-01) | Pending |
+| BUG-02 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-01) | Pending |
+| BUG-03 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-02) | Pending |
 | CCI-01 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-02 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-03 | Phase 2 — Claude Code Beachhead | Pending |
@@ -151,10 +151,10 @@ Mapped against `.planning/ROADMAP.md` phases.
 | FLY-03 | Phase 4 — Growth Flywheel | Pending |
 
 **Coverage:**
-- v1 requirements: 23 total (21 original + 2 added in Phase 1.5 insertion)
-- Mapped to phases: 23
+- v1 requirements: 24 total (21 original + 3 added in Phase 1.5 insertion)
+- Mapped to phases: 24
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-11 after live dogfood bug discovery (added BUG-01, BUG-02, Phase 1.5 insertion)*
+*Last updated: 2026-04-11 after live dogfood bug discovery (added BUG-01, BUG-02, BUG-03, Phase 1.5 insertion with 2 plans)*
