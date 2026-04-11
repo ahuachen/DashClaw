@@ -263,11 +263,18 @@ class DashClaw {
       try { this.guardCallback(decision); } catch { /* ignore callback errors */ }
     }
 
-    const isBlocked = decision.decision === 'block' || decision.decision === 'require_approval';
+    // Only `block` is a hard stop. `require_approval` is the normal HITL path:
+    // the server will create the action with status='pending_approval' and the
+    // approval queue / waitForApproval handles the rest. Throwing here would
+    // prevent the POST to /api/actions and break the PWA approval surface.
+    const isBlocked = decision.decision === 'block';
 
     if (this.guardMode === 'warn' && isBlocked) {
+      const reasons = Array.isArray(decision.reasons)
+        ? decision.reasons.join('; ')
+        : (decision.reason || 'no reason');
       console.warn(
-        `[DashClaw] Guard ${decision.decision}: ${decision.reasons.join('; ') || 'no reason'}. Proceeding in warn mode.`
+        `[DashClaw] Guard ${decision.decision}: ${reasons}. Proceeding in warn mode.`
       );
       return;
     }
