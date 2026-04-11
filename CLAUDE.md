@@ -27,7 +27,7 @@ DashClaw is a **minimal governance runtime**, not an agent platform. We do not p
 ## Tech Stack
 
 - Runtime: Node.js 20+
-- Framework: Next.js 15 (App Router)
+- Framework: Next.js 16 (App Router)
 - Database: Postgres (Neon recommended)
 - SDK: v2 (5-method core surface)
 

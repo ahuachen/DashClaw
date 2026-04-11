@@ -1,6 +1,6 @@
 # DashClaw — Complete AI Context Document
 
-> **Updated:** 2026-03-13
+> **Updated:** 2026-04-11
 > **Purpose:** Give any AI model full context about the DashClaw platform in a single file.
 > **Source of truth:** `PROJECT_DETAILS.md`, `README.md`, `sdk/README.md`, `docs/client-setup-guide.md`
 
@@ -41,7 +41,7 @@ DashClaw ships as one codebase serving two roles via `DASHCLAW_MODE`:
 | Layer | Technology |
 |-------|-----------|
 | Runtime | Node.js 20+ |
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | JavaScript |
 | Styling | Tailwind CSS 3 + dark-only design tokens |
 | Database | PostgreSQL via Neon (`@neondatabase/serverless`) or TCP (`postgres`) |

@@ -108,7 +108,7 @@ Each `## heading` section becomes a context point. Categorize:
 
 **Output shape:**
 ```json
-"context_points": [{ "content": "[Architecture] Next.js 15 App Router...", "category": "insight", "importance": 8 }]
+"context_points": [{ "content": "[Architecture] Next.js 16 App Router...", "category": "insight", "importance": 8 }]
 ```
 Max 2000 chars per content. Max 5000 points.
 

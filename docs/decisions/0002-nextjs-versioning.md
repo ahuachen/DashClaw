@@ -8,7 +8,7 @@ doc-type: decision
 # ADR 0002: Stable Version Pinning for Infrastructure Dependencies
 
 ## Status
-Accepted
+Superseded by [ADR 0003](./0003-nextjs-16-security-upgrade.md) on 2026-04-11. The discipline of pinning to stable releases still applies, but `next` has moved to `16.2.3` after a Dependabot-flagged high-severity DoS advisory (GHSA-q4gf-8mx6-v5v3) forced the upgrade. The v16 that broke CI here was an experimental/alpha; v16.2.3 is the stable patched release.
 
 ## Context
 During the v1.3.0 security audit and subsequent CI deployment, we upgraded `next` to the "latest" version (which resolved to v16.x). This caused widespread failures in both GitHub Actions and local development environments.

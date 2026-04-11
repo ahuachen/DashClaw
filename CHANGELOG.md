@@ -209,7 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **SDK Parity Unification**: Synchronized Node.js and Python SDKs to version 2.1.1, ensuring consistent implementation of the 5 core governance methods.
 - **Documentation High-Fidelity Sweep**: Comprehensive overhaul of the SDK documentation with richer, production-realistic code examples and a dedicated legacy reference appendix.
-- **Next.js 15+ Compatibility**: Updated documentation server components to correctly handle asynchronous search parameters.
+- **Next.js 16+ Compatibility**: Updated documentation server components to correctly handle asynchronous search parameters.
 
 ## [2.1.0] - 2026-03-14
 
