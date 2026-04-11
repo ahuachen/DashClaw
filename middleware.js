@@ -1224,6 +1224,8 @@ export const config = {
     '/swarm/:path*',
     '/approvals',
     '/approvals/:path*',
+    '/approve',
+    '/approve/:path*',
     '/actions',
     '/actions/:path*',
     '/decisions',

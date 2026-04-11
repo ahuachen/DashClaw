@@ -1,7 +1,7 @@
 {
   "name": "DashClaw",
   "short_name": "DashClaw",
-  "description": "Agent Decision Infrastructure. Prove what your AI agents decided and why.",
+  "description": "Approve AI agent actions from your phone.",
   "icons": [
     { "src": "/favicons/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/favicons/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
@@ -9,5 +9,20 @@
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",
-  "start_url": "/"
+  "orientation": "portrait",
+  "start_url": "/approve",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Approval Queue",
+      "short_name": "Approvals",
+      "url": "/approve",
+      "icons": [{ "src": "/favicons/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mission Control",
+      "short_name": "Mission Control",
+      "url": "/mission-control"
+    }
+  ]
 }
