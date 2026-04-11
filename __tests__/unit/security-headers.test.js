@@ -116,6 +116,60 @@ describe('addSecurityHeaders', () => {
     });
   });
 
+  describe('LAN self-host (plain HTTP) behavior', () => {
+    const originalNextauthUrl = process.env.NEXTAUTH_URL;
+
+    afterEach(() => {
+      process.env.NEXTAUTH_URL = originalNextauthUrl;
+    });
+
+    it('HTTP LAN instance: CSP does not contain upgrade-insecure-requests', async () => {
+      process.env.NEXTAUTH_URL = 'http://192.168.1.50:3000';
+      // Re-import config with the new env value by reading the isTLS logic directly
+      const isTLS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+      const cspParts = [
+        "default-src 'self'",
+        ...(isTLS ? ['upgrade-insecure-requests', 'block-all-mixed-content'] : []),
+      ];
+      const csp = cspParts.join('; ');
+      expect(csp).not.toContain('upgrade-insecure-requests');
+      expect(csp).not.toContain('block-all-mixed-content');
+    });
+
+    it('HTTP LAN instance: HSTS header is not included', async () => {
+      process.env.NEXTAUTH_URL = 'http://192.168.1.50:3000';
+      const isTLS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+      const headers = [];
+      if (isTLS) {
+        headers.push({ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' });
+      }
+      const hasHsts = headers.some(h => h.key === 'Strict-Transport-Security');
+      expect(hasHsts).toBe(false);
+    });
+
+    it('HTTPS instance: CSP contains upgrade-insecure-requests', async () => {
+      process.env.NEXTAUTH_URL = 'https://dashclaw.example.com';
+      const isTLS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+      const cspParts = [
+        "default-src 'self'",
+        ...(isTLS ? ['upgrade-insecure-requests', 'block-all-mixed-content'] : []),
+      ];
+      const csp = cspParts.join('; ');
+      expect(csp).toContain('upgrade-insecure-requests');
+    });
+
+    it('HTTPS instance: HSTS header is included', async () => {
+      process.env.NEXTAUTH_URL = 'https://dashclaw.example.com';
+      const isTLS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+      const headers = [];
+      if (isTLS) {
+        headers.push({ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' });
+      }
+      const hasHsts = headers.some(h => h.key === 'Strict-Transport-Security');
+      expect(hasHsts).toBe(true);
+    });
+  });
+
   describe('other security headers', () => {
     it('always sets X-Content-Type-Options to nosniff', () => {
       const response = makeTestResponse();

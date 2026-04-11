@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { SignJWT } from 'jose';
 
+// LAN self-host fix: cookie Secure flag follows scheme, not NODE_ENV. Contributed by Lief (RyanTJoy).
+const isHTTPS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+
 export async function POST(request) {
   const password = process.env.DASHCLAW_LOCAL_ADMIN_PASSWORD;
   if (!password) {
@@ -35,7 +38,7 @@ export async function POST(request) {
     const token = await new SignJWT({
       sub: 'local-admin',
       userId: 'usr_local_admin',
-      orgId: 'org_default',
+      orgId: process.env.DASHCLAW_API_KEY_ORG || 'org_default',
       role: 'admin',
       plan: 'free',
       provider: 'local'
@@ -48,7 +51,7 @@ export async function POST(request) {
     const response = NextResponse.json({ ok: true });
     response.cookies.set('dashclaw-local-session', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHTTPS,
       sameSite: 'lax',
       maxAge: 604800,
       path: '/'
@@ -65,7 +68,7 @@ export async function DELETE() {
   const response = NextResponse.json({ ok: true });
   response.cookies.set('dashclaw-local-session', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isHTTPS,
     sameSite: 'lax',
     maxAge: 0,
     path: '/'

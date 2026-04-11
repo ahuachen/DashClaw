@@ -14,6 +14,9 @@ const nextConfig = {
   },
   // Security headers
   async headers() {
+    // LAN self-host fix: TLS-conditional CSP + HSTS. Contributed by Lief (RyanTJoy).
+    const isTLS = (process.env.NEXTAUTH_URL || '').startsWith('https');
+
     const csp = [
       "default-src 'self'",
       // In dev mode, Next.js needs 'unsafe-eval' for hot reloading
@@ -28,11 +31,10 @@ const nextConfig = {
       "object-src 'none'",
       "frame-ancestors 'none'",
       "form-action 'self'",
-      'upgrade-insecure-requests',
-      'block-all-mixed-content',
+      ...(isTLS ? ['upgrade-insecure-requests', 'block-all-mixed-content'] : []),
     ].join('; ');
 
-    return [
+    const result = [
       {
         source: '/:path*',
         headers: [
@@ -60,13 +62,18 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: csp,
           },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
         ],
       },
     ];
+
+    if (isTLS) {
+      result[0].headers.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains; preload',
+      });
+    }
+
+    return result;
   },
   // API Rewrites for backward compatibility with older SDKs
   async rewrites() {
