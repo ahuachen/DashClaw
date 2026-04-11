@@ -32,7 +32,7 @@ Four coarse phases take DashClaw from *"207 stars, ~4 real users, no clear audie
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: **Activation fixes** — close the four known blockers (lucide-react #71, docs 502 #31, Lief's LAN/CSP fixes, Elpolini's migration compat). Each fix gets a failing test first where practical, then the fix, then a clean-machine validation. (FIX-01..04)
+- [x] 01-01: **Activation fixes** — close the four known blockers (lucide-react #71, docs 502 #31, Lief's LAN/CSP fixes, Elpolini's migration compat). Each fix gets a failing test first where practical, then the fix, then a clean-machine validation. (FIX-01..04)
 - [ ] 01-02: **First-ever user research pass** — write outreach messages for Lief, Elpolini, Jory, Jasmeet; send them; complete ≥2 interviews; write up findings in `.planning/research/INTERVIEW-NOTES.md`; surface any REQUIREMENTS edits that emerge. (USR-01, USR-02)
 - [ ] 01-03: **Founder dogfood commitment + weekly ritual** — Wes's personal DashClaw instance pointed at his own Claude Code, Discord approvals flowing daily; weekly research ritual scheduled; both instrumented so we can *prove* the commitment is being kept. (DOG-01, USR-03)
 
@@ -111,7 +111,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Not started | - |
+| 1. Foundation | 1/3 | In Progress|  |
 | 2. Claude Code Beachhead | 0/3 | Not started | - |
 | 3. Public Launch | 0/3 | Not started | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |
