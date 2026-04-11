@@ -47,5 +47,9 @@
   "devDependencies": {
     "typescript": "^5.4.0",
     "@types/node": "^20.11.0"
+  },
+  "overrides": {
+    "axios": "^1.15.0",
+    "tar": "^7.5.11"
   }
 }
