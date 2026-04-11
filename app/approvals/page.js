@@ -47,7 +47,7 @@ export default function ApprovalsPage() {
   const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
 
   const fetchPending = useCallback(async () => {
     try {
@@ -93,6 +93,14 @@ export default function ApprovalsPage() {
   const isDemo = isDemoMode();
   const canDecide = isAdmin && !isDemo;
 
+  // BUG-03 fix: do not render the READ-ONLY banner while the session is still
+  // hydrating. useSession() returns status='loading' on the initial mount until
+  // NextAuth resolves the JWT; during that window session.user.role is undefined,
+  // which naively evaluates as !isAdmin and causes the orange banner to flash
+  // for a real admin user during page refresh. Gate the banner on a settled
+  // session state instead.
+  const sessionSettled = sessionStatus !== 'loading';
+
   return (
     <PageLayout
       title="Approval Queue"
@@ -116,7 +124,7 @@ export default function ApprovalsPage() {
             Approvals are read-only in the demo. Self-host to approve or deny actions for real agents.
           </Banner>
         )}
-        {!isAdmin && (
+        {sessionSettled && !isAdmin && (
           <Banner icon={ShieldAlert} tone="warning" title="Read-only access">
             Only administrators can approve or deny actions. You are currently viewing as a member.
           </Banner>
