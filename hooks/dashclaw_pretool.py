@@ -342,11 +342,15 @@ def handle_warn(guard_resp, context, tool_use_id):
 
 
 def handle_block(guard_resp, context):
-    """Block in enforce mode, warn in observe mode."""
+    """Block in enforce mode, warn in observe mode. Always records the action."""
     reasons = guard_resp.get("reasons") or []
     policies = guard_resp.get("matched_policies") or []
     reason = reasons[0] if reasons else "Guard policy violation"
     policy = policies[0] if policies else "guard policy"
+
+    # RECORD THE BLOCK — this was missing, causing blocks to vanish from the ledger
+    # with zero audit trail (BUG-02, fixed 2026-04-11 in Phase 1.5).
+    create_action(context, status="blocked")
 
     if HOOK_MODE == "observe":
         log("[DashClaw] [observe] Would block: " + reason)
