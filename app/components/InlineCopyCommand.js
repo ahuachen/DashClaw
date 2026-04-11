@@ -12,7 +12,7 @@ export default function InlineCopyCommand({ command, className = "", highlight =
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const baseStyles = "group/term relative flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all active:scale-[0.98] border font-mono text-[13px] whitespace-nowrap";
+  const baseStyles = "group/term relative flex max-w-full items-center gap-2.5 px-3 py-1.5 rounded-full transition-all active:scale-[0.98] border font-mono text-[11px] sm:text-[13px] whitespace-nowrap overflow-hidden text-ellipsis";
   const themeStyles = highlight 
     ? "bg-brand/5 border-brand/30 text-brand shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:bg-brand/10" 
     : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200";

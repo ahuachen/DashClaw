@@ -22,7 +22,7 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
         <DemoBanner />
         {/* Page header */}
         <header className="sticky top-0 z-10 bg-surface-primary/80 backdrop-blur-sm border-b border-border">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4">
             <div className="min-w-0">
               {breadcrumbs && (
                 <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
@@ -56,7 +56,7 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
           </div>
         </header>
         <SystemStatusBar />
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </main>
     </div>
   );

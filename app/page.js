@@ -36,7 +36,7 @@ export default function LandingPage() {
             <ShieldAlert size={14} />
             Open-source AI governance runtime
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight leading-tight">
             Intercept agent actions before they reach production.
           </h1>
           <p className="mt-6 text-brand font-semibold text-xl sm:text-2xl">
@@ -83,7 +83,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 flex flex-col items-center gap-6">
-            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} className="scale-110 shadow-[0_0_30px_rgba(249,115,22,0.15)]" />
+            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} className="sm:scale-110 shadow-[0_0_30px_rgba(249,115,22,0.15)]" />
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/demo" className="px-8 py-3 rounded-lg bg-brand text-white text-sm font-bold hover:bg-brand-hover transition-all hover:scale-105 inline-flex items-center gap-2 shadow-xl shadow-brand/20">
@@ -95,7 +95,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 opacity-40 hover:opacity-100 transition-opacity">
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 opacity-40 hover:opacity-100 transition-opacity">
             <InlineCopyCommand command="npm install dashclaw" />
             <InlineCopyCommand command="pip install dashclaw" />
             <InlineCopyCommand command="docker compose up -d" />
@@ -655,7 +655,7 @@ if (decision === "allow") {
               <p className="text-zinc-400 text-sm leading-relaxed">
                 Every governed action generates structured evidence records ready for compliance and review.
               </p>
-              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[10px] overflow-x-auto text-emerald-400/80 shadow-lg">
+              <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] p-4 font-mono text-[10px] sm:text-xs overflow-x-auto text-emerald-400/80 shadow-lg">
                 <pre>{`{
   "agent": "deployment-bot",
   "action": "deploy",
@@ -773,7 +773,7 @@ if (decision === "allow") {
                   <div key={cat.title} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
                     <h3 className="text-sm font-semibold text-white mb-1.5">{cat.title}</h3>
                     <p className="text-xs text-zinc-400 leading-relaxed mb-3">{cat.desc}</p>
-                    <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2 text-[10px] text-zinc-300 font-mono overflow-x-auto">{cat.example}</pre>
+                    <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2 text-[10px] sm:text-xs text-zinc-300 font-mono overflow-x-auto">{cat.example}</pre>
                   </div>
                 ))}
               </div>

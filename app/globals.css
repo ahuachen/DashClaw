@@ -61,6 +61,11 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Momentum scrolling for horizontally-scrollable code blocks on iOS */
+pre {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

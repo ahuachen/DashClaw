@@ -301,7 +301,7 @@ export default function MissionControlPage() {
       {/* ═══ BAND 1: Command Strip ═══ */}
       {loading ? <CommandStripSkeleton /> : (
         <div className="mb-6 rounded-xl border border-border bg-surface-tertiary px-5 py-3">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
             {/* System Posture */}
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Posture</span>
@@ -345,7 +345,7 @@ export default function MissionControlPage() {
             <div className="hidden h-3.5 w-px bg-border sm:block" />
 
             {/* Last activity */}
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Clock size={13} className="text-zinc-500" />
               <span className="text-sm text-zinc-400 tabular-nums">{formatRelativeTime(lastActivity)}</span>
             </div>
