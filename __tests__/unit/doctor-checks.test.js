@@ -43,6 +43,21 @@ describe('doctor/checks/database', () => {
     expect(conn.fix).toBeNull();
   });
 
+  it('returns fail when database connection fails', async () => {
+    mockGetSetupStatus.mockResolvedValue({
+      configured: false,
+      reason: 'connection_error',
+      message: 'Unable to connect to database',
+    });
+
+    const checks = await databaseChecks({ env: { DATABASE_URL: 'postgres://test' } });
+
+    const conn = checks.find((c) => c.id === 'db_connection');
+    expect(conn.status).toBe('fail');
+    expect(conn.message).toContain('Unable to connect');
+    expect(conn.fix).toBeNull();
+  });
+
   it('returns fail with migrate fix when tables are missing', async () => {
     mockGetSetupStatus.mockResolvedValue({
       configured: false,

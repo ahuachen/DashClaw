@@ -65,6 +65,15 @@ export async function runChecks({ env = process.env } = {}) {
         action: 'migrate',
       },
     });
+  } else {
+    checks.push({
+      id: 'db_connection',
+      category: 'database',
+      status: 'fail',
+      title: 'Database Connection',
+      message: dbStatus.message || 'Database verification failed for an unknown reason',
+      fix: null,
+    });
   }
 
   return checks;
