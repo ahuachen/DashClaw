@@ -7,6 +7,7 @@ import {
   moveCursor, hideCursor, showCursor,
   green, red,
 } from '../lib/render.js';
+import { runDoctor as runDoctorCommand } from '../lib/doctor.js';
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
@@ -56,6 +57,10 @@ ${bold('Usage:')}
   dashclaw approvals                     Interactive approval inbox
   dashclaw approve <actionId> [--reason]  Approve an action
   dashclaw deny <actionId> [--reason]     Deny an action
+  dashclaw doctor                        Diagnose and auto-fix your DashClaw instance
+    --json                               Output as JSON (for CI/scripts)
+    --no-fix                             Diagnose only, skip auto-fixes
+    --category <list>                    Filter checks (e.g., database,config)
   dashclaw help                          Show this help
 
 ${bold('Environment:')}
@@ -63,6 +68,21 @@ ${bold('Environment:')}
   DASHCLAW_API_KEY    (required) API key for authentication
   DASHCLAW_AGENT_ID   (optional) Operator identity (default: cli-operator)
 `);
+}
+
+async function cmdDoctor() {
+  requireEnv();
+  const jsonFlag = args.includes('--json');
+  const noFixFlag = args.includes('--no-fix');
+  const catIdx = args.indexOf('--category');
+  const catValue = catIdx !== -1 ? args[catIdx + 1] : undefined;
+  await runDoctorCommand({
+    baseUrl,
+    apiKey,
+    json: jsonFlag,
+    noFix: noFixFlag,
+    category: catValue,
+  });
 }
 
 async function cmdApprove() {
@@ -321,6 +341,9 @@ switch (command) {
     break;
   case 'deny':
     cmdDeny();
+    break;
+  case 'doctor':
+    cmdDoctor();
     break;
   case 'help':
   case '--help':
