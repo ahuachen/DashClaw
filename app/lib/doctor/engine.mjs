@@ -67,3 +67,5 @@ export function computeSummary(checks) {
   }
   return summary;
 }
+
+export { applyFix } from './fixes/index.mjs';
