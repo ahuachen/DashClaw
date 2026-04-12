@@ -1,6 +1,6 @@
 // app/api/doctor/fix/route.js
 import { NextResponse } from 'next/server';
-import { applyFix, runDoctor } from '@/lib/doctor/engine.mjs';
+import { applyFix, runDoctor } from '../../../lib/doctor/engine.mjs';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;

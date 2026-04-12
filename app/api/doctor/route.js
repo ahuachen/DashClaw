@@ -1,6 +1,6 @@
 // app/api/doctor/route.js
 import { NextResponse } from 'next/server';
-import { runDoctor } from '@/lib/doctor/engine.mjs';
+import { runDoctor } from '../../lib/doctor/engine.mjs';
 
 export const dynamic = 'force-dynamic';
 
