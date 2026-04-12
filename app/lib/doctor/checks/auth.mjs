@@ -1,5 +1,7 @@
 // app/lib/doctor/checks/auth.mjs
 import { getAuthConfig } from '../../authConfig.mjs';
+import { getSql } from '../../db.js';
+import { getSetupStatus } from '../../setupStatus.mjs';
 
 /**
  * @param {{ env?: object }} options
@@ -8,16 +10,37 @@ export async function runChecks({ env = process.env } = {}) {
   const authConfig = getAuthConfig(env);
   const checks = [];
 
-  // API key
+  // API key — accept either env var OR a DB-backed workspace key
+  const hasEnvKey = Boolean(env.DASHCLAW_API_KEY);
+  let hasDbKey = false;
+
+  if (!hasEnvKey) {
+    // Try the DB as a fallback, but only if the DB is reachable
+    try {
+      const dbStatus = await getSetupStatus(env);
+      if (dbStatus.configured) {
+        const sql = getSql();
+        const rows = await sql`SELECT 1 FROM api_keys WHERE revoked_at IS NULL LIMIT 1`;
+        hasDbKey = rows.length > 0;
+      }
+    } catch {
+      // DB unreachable — surface via database check, treat as no DB key
+    }
+  }
+
+  const hasAnyKey = hasEnvKey || hasDbKey;
+
   checks.push({
     id: 'auth_api_key',
     category: 'auth',
-    status: env.DASHCLAW_API_KEY ? 'pass' : 'fail',
+    status: hasAnyKey ? 'pass' : 'fail',
     title: 'API Key',
-    message: env.DASHCLAW_API_KEY
+    message: hasEnvKey
       ? 'DASHCLAW_API_KEY is set'
-      : 'DASHCLAW_API_KEY is missing — agents cannot authenticate',
-    fix: env.DASHCLAW_API_KEY
+      : hasDbKey
+        ? 'No env var, but a workspace API key exists in the database'
+        : 'No API key configured — agents cannot authenticate',
+    fix: hasAnyKey
       ? null
       : { type: 'auto', description: 'Generate a new API key', action: 'generate_api_key' },
   });

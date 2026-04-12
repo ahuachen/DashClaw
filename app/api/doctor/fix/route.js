@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { applyFix, runDoctor } from '@/lib/doctor/engine.mjs';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 export async function POST(request) {
   try {

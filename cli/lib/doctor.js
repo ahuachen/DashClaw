@@ -64,6 +64,7 @@ export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
 
   // Auto-fix (remote-only fixes via API)
   let fixCount = 0;
+  let latestRecheck = null;
   if (!noFix) {
     const fixable = result.checks.filter((c) => c.status === 'fail' && c.fix?.type === 'auto');
     for (const check of fixable) {
@@ -76,14 +77,18 @@ export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
       if (fixResult.applied) {
         console.log(`  ${green('\u2192')} Fixed: ${fixResult.description}`);
         fixCount++;
+        if (fixResult.recheck) latestRecheck = fixResult.recheck;
       } else {
         console.log(`  ${dim('\u2192')} ${fixResult.description}`);
       }
     }
   }
 
+  // If fixes ran, use the updated recheck summary for reporting
+  const reporting = latestRecheck || result;
+
   // Summary
-  const { pass, warn, fail } = result.summary;
+  const { pass, warn, fail } = reporting.summary;
   const parts = [];
   if (pass > 0) parts.push(green(`${pass} passed`));
   if (warn > 0) parts.push(yellow(`${warn} warning${warn !== 1 ? 's' : ''}`));
@@ -95,7 +100,7 @@ export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
   }
 
   // Manual action summary
-  const manual = result.checks.filter(
+  const manual = reporting.checks.filter(
     (c) => (c.status === 'fail' || c.status === 'warn') && (!c.fix || c.fix.type === 'manual'),
   );
   if (manual.length > 0) {
@@ -107,5 +112,5 @@ export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
   }
 
   console.log();
-  process.exit(result.status === 'healthy' ? 0 : 1);
+  process.exit(reporting.status === 'healthy' ? 0 : 1);
 }
