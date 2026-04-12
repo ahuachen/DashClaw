@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 217,
+    "total_routes": 219,
     "stable_routes": 40,
     "beta_routes": 20,
-    "experimental_routes": 157
+    "experimental_routes": 159
   },
   "routes": [
     {
@@ -1049,6 +1049,24 @@
       "maturity": "beta",
       "matched_prefix": "/api/docs",
       "file": "app/api/docs/raw/route.js"
+    },
+    {
+      "path": "/api/doctor",
+      "methods": [
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/doctor/route.js"
+    },
+    {
+      "path": "/api/doctor/fix",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/doctor/fix/route.js"
     },
     {
       "path": "/api/drift/alerts",

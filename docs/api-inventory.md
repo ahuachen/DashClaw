@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `217`
+- Total routes: `219`
 - Stable routes: `40`
 - Beta routes: `20`
-- Experimental routes: `157`
+- Experimental routes: `159`
 
 ## Routes
 
@@ -127,6 +127,8 @@ doc-type: architecture
 | `/api/cron/routing-maintenance` | `POST` | `beta` | `/api/cron` | `app/api/cron/routing-maintenance/route.js` |
 | `/api/cron/signals` | `GET` | `beta` | `/api/cron` | `app/api/cron/signals/route.js` |
 | `/api/docs/raw` | `GET` | `beta` | `/api/docs` | `app/api/docs/raw/route.js` |
+| `/api/doctor` | `GET` | `experimental` | `(default)` | `app/api/doctor/route.js` |
+| `/api/doctor/fix` | `POST` | `experimental` | `(default)` | `app/api/doctor/fix/route.js` |
 | `/api/drift/alerts` | `GET, POST` | `experimental` | `(default)` | `app/api/drift/alerts/route.js` |
 | `/api/drift/alerts/{alertId}` | `DELETE, PATCH` | `experimental` | `(default)` | `app/api/drift/alerts/[alertId]/route.js` |
 | `/api/drift/metrics` | `GET` | `experimental` | `(default)` | `app/api/drift/metrics/route.js` |
