@@ -19,14 +19,30 @@ const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'gove
  * @param {{ baseUrl: string, apiKey: string, json?: boolean, noFix?: boolean, category?: string }} options
  */
 export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
+  const base = baseUrl.replace(/\/+$/, '');
   const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey };
 
-  let url = `${baseUrl}/api/doctor?include_fixes=true`;
+  let url = `${base}/api/doctor?include_fixes=true`;
   if (category) url += `&category=${encodeURIComponent(category)}`;
 
-  const res = await fetch(url, { headers });
+  let res;
+  try {
+    res = await fetch(url, { headers });
+  } catch (err) {
+    console.error(red(`\nError: Could not reach DashClaw at ${base}`));
+    console.error(dim(`  ${err.cause?.code || err.message}`));
+    console.error(dim(`  Check DASHCLAW_BASE_URL and confirm your instance is running.\n`));
+    process.exit(1);
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    console.error(red(`\nError: API key rejected by ${base} (${res.status}).`));
+    console.error(dim(`  Check DASHCLAW_API_KEY matches the key on your instance.\n`));
+    process.exit(1);
+  }
+
   if (!res.ok && res.status !== 503) {
-    const errText = await res.text();
+    const errText = await res.text().catch(() => '');
     console.error(red(`Doctor check failed (${res.status}): ${errText}`));
     process.exit(1);
   }
@@ -68,18 +84,22 @@ export async function runDoctor({ baseUrl, apiKey, json, noFix, category }) {
   if (!noFix) {
     const fixable = result.checks.filter((c) => c.status === 'fail' && c.fix?.type === 'auto');
     for (const check of fixable) {
-      const fixRes = await fetch(`${baseUrl}/api/doctor/fix`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ action: check.fix.action }),
-      });
-      const fixResult = await fixRes.json();
-      if (fixResult.applied) {
-        console.log(`  ${green('\u2192')} Fixed: ${fixResult.description}`);
-        fixCount++;
-        if (fixResult.recheck) latestRecheck = fixResult.recheck;
-      } else {
-        console.log(`  ${dim('\u2192')} ${fixResult.description}`);
+      try {
+        const fixRes = await fetch(`${base}/api/doctor/fix`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ action: check.fix.action }),
+        });
+        const fixResult = await fixRes.json();
+        if (fixResult.applied) {
+          console.log(`  ${green('\u2192')} Fixed: ${fixResult.description}`);
+          fixCount++;
+          if (fixResult.recheck) latestRecheck = fixResult.recheck;
+        } else {
+          console.log(`  ${dim('\u2192')} ${fixResult.description}`);
+        }
+      } catch (err) {
+        console.log(`  ${red('\u2717')} Fix "${check.fix.action}" failed: ${err.cause?.code || err.message}`);
       }
     }
   }

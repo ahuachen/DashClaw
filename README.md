@@ -331,6 +331,24 @@ dashclaw deny <actionId> --reason "Outside change window"
 
 When an agent calls `waitForApproval()`, the SDK prints the action ID, risk score, and replay link to stdout. Approve from any terminal and the agent unblocks instantly via SSE.
 
+### Doctor (diagnose & auto-fix)
+
+Validate your DashClaw setup and apply safe fixes automatically. Runs checks across database, configuration, auth, deployment, SDK reachability, and governance.
+
+```bash
+# Self-hosters: check the local instance (full access — env, DB, filesystem)
+npm run doctor                  # rich terminal output, auto-fixes what it can
+npm run doctor -- --json        # JSON for CI
+npm run doctor -- --no-fix      # diagnose only
+npm run doctor -- --category database,config
+
+# Agent developers: check a remote instance via the CLI
+dashclaw doctor                 # requires DASHCLAW_BASE_URL + DASHCLAW_API_KEY
+dashclaw doctor --no-fix
+```
+
+The doctor auto-fixes missing secrets, runs pending migrations, creates a default governance policy, and writes CORS settings. It prompts for anything it can't fix (DATABASE_URL, OAuth credentials) and never exposes env var values.
+
 ---
 
 ## Beyond the Basics

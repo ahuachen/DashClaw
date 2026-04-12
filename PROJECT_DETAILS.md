@@ -66,6 +66,10 @@ These 8 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/cron/integration-health` | Credential validation for all orgs | Every 6 hours |
 | `/api/pairings` | Agent identity pairing enrollment | On demand |
 | `/api/identities` | Approved agent identity management | On demand |
+| `/api/doctor` | Diagnostic health checks across DB, config, auth, deploy, SDK, governance | On demand |
+| `/api/doctor/fix` | Apply safe auto-fixes (migrations, default policy) — local-scope env fixes blocked via API | On demand |
+
+The doctor also ships as `npm run doctor` (local, full filesystem access) and `dashclaw doctor` (remote via `@dashclaw/cli`). Shared engine lives at `app/lib/doctor/`.
 
 ### Tier 2: Extensions (`app/(extensions)/`)
 Modular intelligence features that consume runtime data.
