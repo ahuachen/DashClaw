@@ -23,15 +23,15 @@ describe('validateActionRecord', () => {
     expect(result.errors).toContain('action_type is required');
   });
 
-  it('should fail if action_type is not in enum', () => {
-    const invalidRecord = {
+  it('should accept arbitrary action_type strings (agent frameworks send raw tool names)', () => {
+    const record = {
       agent_id: 'agent-123',
-      action_type: 'invalid-type',
-      declared_goal: 'Goal',
+      action_type: 'read',
+      declared_goal: 'Read a file',
     };
-    const result = validateActionRecord(invalidRecord);
-    expect(result.valid).toBe(false);
-    expect(result.errors[0]).toContain('must be one of');
+    const result = validateActionRecord(record);
+    expect(result.valid).toBe(true);
+    expect(result.data.action_type).toBe('read');
   });
 
   it('should allow recommendation metadata fields', () => {
