@@ -69,8 +69,8 @@ describe('doctor/checks/config', () => {
       ok: true,
       status: 'pass',
       checks: [
-        { id: 'DATABASE_URL', label: 'DATABASE_URL', status: 'pass', detail: 'Present' },
-        { id: 'NEXTAUTH_SECRET', label: 'NEXTAUTH_SECRET', status: 'pass', detail: 'Present' },
+        { id: 'database_url', label: 'DATABASE_URL', status: 'pass', detail: 'Present' },
+        { id: 'nextauth_secret', label: 'NEXTAUTH_SECRET', status: 'pass', detail: 'Present' },
       ],
       missingRequired: [],
       missingAdvisory: [],
@@ -87,8 +87,8 @@ describe('doctor/checks/config', () => {
       ok: false,
       status: 'fail',
       checks: [
-        { id: 'DATABASE_URL', label: 'DATABASE_URL', status: 'pass', detail: 'Present' },
-        { id: 'NEXTAUTH_SECRET', label: 'NEXTAUTH_SECRET', status: 'fail', detail: 'Missing' },
+        { id: 'database_url', label: 'DATABASE_URL', status: 'pass', detail: 'Present' },
+        { id: 'nextauth_secret', label: 'NEXTAUTH_SECRET', status: 'fail', detail: 'Missing' },
       ],
       missingRequired: [{ key: 'NEXTAUTH_SECRET' }],
       missingAdvisory: [],
@@ -106,7 +106,7 @@ describe('doctor/checks/config', () => {
       ok: true,
       status: 'warn',
       checks: [
-        { id: 'NEXTAUTH_URL', label: 'NEXTAUTH_URL', status: 'warn', detail: 'Not set' },
+        { id: 'nextauth_url', label: 'NEXTAUTH_URL', status: 'warn', detail: 'Not set' },
       ],
       missingRequired: [],
       missingAdvisory: [{ key: 'NEXTAUTH_URL' }],

@@ -15,12 +15,13 @@ export async function runChecks({ env = process.env } = {}) {
   const checks = [];
 
   for (const check of config.checks) {
-    const fixInfo = GENERATE_FIXES[check.id];
+    const envVarName = check.label || check.id;
+    const fixInfo = GENERATE_FIXES[envVarName];
     checks.push({
-      id: `env_${check.id}`,
+      id: `env_${envVarName}`,
       category: 'config',
       status: check.status === 'info' ? 'pass' : check.status,
-      title: check.label || check.id,
+      title: envVarName,
       message: check.detail,
       fix:
         check.status === 'fail' && fixInfo
