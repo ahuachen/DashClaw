@@ -43,7 +43,9 @@ export function readEnvFile() {
  * @param {Record<string, string>} updates
  */
 export function writeEnvUpdates(updates) {
-  const backedUp = existsSync(ENV_PATH);
+  const hasEnv = existsSync(ENV_PATH);
+  const hadBackup = existsSync(BACKUP_PATH);
+  const backedUp = hasEnv && !hadBackup;
   if (backedUp) copyFileSync(ENV_PATH, BACKUP_PATH);
 
   const current = readEnvFile();

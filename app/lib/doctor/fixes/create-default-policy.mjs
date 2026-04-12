@@ -5,17 +5,21 @@ export async function apply() {
   try {
     const sql = getSql();
     const id = `pol_doctor_${Date.now()}`;
+    const now = new Date().toISOString();
+    const rules = JSON.stringify({ threshold: 100, action: 'warn' });
     await sql`
-      INSERT INTO guard_policies (id, org_id, name, policy_type, rules, enabled)
+      INSERT INTO guard_policies (id, org_id, name, policy_type, rules, active, created_at, updated_at)
       VALUES (
         ${id},
         'org_default',
         'Doctor: Log All Actions',
         'risk_threshold',
-        ${JSON.stringify({ threshold: 100, action: 'warn' })}::jsonb,
-        true
+        ${rules},
+        1,
+        ${now},
+        ${now}
       )
-      ON CONFLICT DO NOTHING
+      ON CONFLICT (id) DO NOTHING
     `;
     return {
       applied: true,
