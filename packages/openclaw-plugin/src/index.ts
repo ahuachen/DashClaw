@@ -131,6 +131,146 @@ function errorMessage(err: unknown): string {
   return '';
 }
 
+// ---------------------------------------------------------------------------
+// Tool classification (aligned with DashClaw hooks vocabulary so policies
+// written for the Claude Code hooks also fire for OpenClaw tool calls)
+// ---------------------------------------------------------------------------
+
+interface ActionClassification {
+  actionType: string;
+  riskScore: number;
+  reversible: boolean;
+  systemsTouched: string[];
+  declaredGoal: string;
+}
+
+const READONLY_COMMANDS = new Set([
+  'cat', 'head', 'tail', 'less', 'more', 'wc', 'file', 'stat', 'du', 'df',
+  'ls', 'tree', 'find', 'locate', 'which', 'whereis', 'type',
+  'grep', 'rg', 'awk', 'cut', 'sort', 'uniq', 'diff', 'comm',
+  'echo', 'printf', 'date', 'uname', 'whoami', 'pwd', 'hostname',
+  'ps', 'top', 'htop', 'free', 'uptime', 'env', 'printenv',
+]);
+
+const GIT_READONLY = new Set([
+  'status', 'log', 'diff', 'show', 'branch', 'tag', 'remote',
+  'stash', 'describe', 'rev-parse', 'blame', 'ls-files',
+]);
+
+const DESTRUCTIVE_COMMANDS = new Set([
+  'rm', 'rmdir', 'shred', 'mkfs', 'dd', 'truncate',
+]);
+
+const NETWORK_COMMANDS = new Set([
+  'curl', 'wget', 'ssh', 'scp', 'rsync', 'ping',
+]);
+
+const PACKAGE_COMMANDS = new Set([
+  'npm', 'yarn', 'pnpm', 'pip', 'pip3', 'cargo', 'go', 'gem',
+  'brew', 'apt', 'apt-get', 'dnf',
+]);
+
+const DEPLOY_PATTERN = /(?:git\s+push|deploy|vercel|kubectl|terraform|docker\s+push|helm)/i;
+const DESTRUCTIVE_PATTERN = /(?:rm\s+-rf|DROP\s+TABLE|DELETE\s+FROM|TRUNCATE)/i;
+const SENSITIVE_PATH_PATTERN = /(?:\.env|secret|credential|private_key|\.pem|id_rsa|\.key)/i;
+
+function classifyBash(
+  command: string | undefined,
+  defaultRisk: number,
+): ActionClassification {
+  if (!command) {
+    return { actionType: 'other', riskScore: defaultRisk, reversible: true, systemsTouched: [], declaredGoal: 'Bash: (empty)' };
+  }
+  const goal = `Bash: ${command.slice(0, 120)}`;
+
+  if (DESTRUCTIVE_PATTERN.test(command)) {
+    return { actionType: 'security', riskScore: 90, reversible: false, systemsTouched: ['filesystem'], declaredGoal: goal };
+  }
+  if (DEPLOY_PATTERN.test(command)) {
+    return { actionType: 'deploy', riskScore: 80, reversible: false, systemsTouched: ['production'], declaredGoal: goal };
+  }
+
+  const firstToken = command.trim().split(/[\s|;&]/)[0].replace(/^.*[/\\]/, '');
+
+  if (firstToken === 'git') {
+    const sub = command.match(/git\s+(\S+)/)?.[1] ?? '';
+    if (GIT_READONLY.has(sub)) {
+      return { actionType: 'review', riskScore: 10, reversible: true, systemsTouched: [], declaredGoal: goal };
+    }
+    if (sub === 'push') {
+      return { actionType: 'deploy', riskScore: 75, reversible: false, systemsTouched: [], declaredGoal: goal };
+    }
+    return { actionType: 'apply', riskScore: 30, reversible: true, systemsTouched: [], declaredGoal: goal };
+  }
+  if (READONLY_COMMANDS.has(firstToken)) {
+    return { actionType: 'review', riskScore: 10, reversible: true, systemsTouched: [], declaredGoal: goal };
+  }
+  if (DESTRUCTIVE_COMMANDS.has(firstToken)) {
+    return { actionType: 'security', riskScore: 85, reversible: false, systemsTouched: ['filesystem'], declaredGoal: goal };
+  }
+  if (NETWORK_COMMANDS.has(firstToken)) {
+    return { actionType: 'api', riskScore: 40, reversible: true, systemsTouched: [], declaredGoal: goal };
+  }
+  if (PACKAGE_COMMANDS.has(firstToken)) {
+    return { actionType: 'build', riskScore: 30, reversible: true, systemsTouched: [], declaredGoal: goal };
+  }
+  return { actionType: 'other', riskScore: defaultRisk, reversible: true, systemsTouched: ['shell'], declaredGoal: goal };
+}
+
+function classifyFile(
+  toolName: string,
+  params: Record<string, unknown> | undefined,
+  defaultRisk: number,
+): ActionClassification {
+  const filePath = String(params?.file_path ?? params?.path ?? '');
+  const goal = `${toolName}: ${filePath || '(unknown)'}`;
+  if (SENSITIVE_PATH_PATTERN.test(filePath)) {
+    return { actionType: 'security', riskScore: 85, reversible: true, systemsTouched: ['filesystem'], declaredGoal: goal };
+  }
+  return { actionType: 'apply', riskScore: defaultRisk, reversible: true, systemsTouched: ['filesystem'], declaredGoal: goal };
+}
+
+function classifyToolCall(
+  toolName: string,
+  params: Record<string, unknown> | undefined,
+  config: PluginConfig,
+): ActionClassification {
+  const defaultRisk = config.highRiskTools.has(toolName) ? 85 : config.riskScoreDefault;
+
+  if (toolName === 'bash' || toolName === 'exec') {
+    return classifyBash(params?.command as string | undefined, defaultRisk);
+  }
+  if (toolName === 'write' || toolName === 'edit' || toolName === 'apply_patch') {
+    return classifyFile(toolName, params, defaultRisk);
+  }
+  if (['read', 'web_search', 'web_fetch', 'memory_search', 'memory_get', 'image'].includes(toolName)) {
+    const target = String(params?.file_path ?? params?.path ?? params?.query ?? '');
+    return {
+      actionType: 'review',
+      riskScore: Math.min(defaultRisk, 15),
+      reversible: true,
+      systemsTouched: [],
+      declaredGoal: `${toolName}: ${target.slice(0, 120) || '(unknown)'}`,
+    };
+  }
+  if (toolName === 'sessions_send') {
+    return {
+      actionType: 'message',
+      riskScore: defaultRisk,
+      reversible: false,
+      systemsTouched: [],
+      declaredGoal: `message: ${summarizeParams(params).slice(0, 120)}`,
+    };
+  }
+  return {
+    actionType: 'other',
+    riskScore: defaultRisk,
+    reversible: true,
+    systemsTouched: [],
+    declaredGoal: `${toolName}: ${summarizeParams(params).slice(0, 120)}`,
+  };
+}
+
 function isApproved(action: ActionRecord | undefined): boolean {
   if (!action) return false;
   if (action.approved_by) return true;
@@ -156,10 +296,11 @@ export default definePluginEntry({
     api.on('before_tool_call', async (event, _ctx) => {
       const { toolName, params, toolCallId, runId } = event;
       const key = callKey(toolName, toolCallId, runId);
-      const riskScore = config.highRiskTools.has(toolName)
-        ? 85
-        : config.riskScoreDefault;
-      const paramSummary = summarizeParams(params);
+
+      // Classify the tool call using the same vocabulary as DashClaw hooks
+      // so policies written for Claude Code also fire for OpenClaw calls.
+      const classification = classifyToolCall(toolName, params, config);
+      const { actionType, riskScore, reversible, systemsTouched, declaredGoal } = classification;
 
       let client: DashClaw;
       try {
@@ -176,9 +317,11 @@ export default definePluginEntry({
       let decision: GuardDecision;
       try {
         decision = await client.guard({
-          action_type: toolName,
+          action_type: actionType,
           risk_score: riskScore,
-          context: { tool: toolName, params: paramSummary },
+          declared_goal: declaredGoal,
+          reversible,
+          systems_touched: systemsTouched,
         });
       } catch (err) {
         const msg = errorMessage(err) || 'unknown error';
@@ -220,9 +363,12 @@ export default definePluginEntry({
       let createdStatus: string | undefined;
       try {
         const created = await client.createAction({
-          action_type: toolName,
-          declared_goal: paramSummary || `Tool call: ${toolName}`,
+          action_type: actionType,
+          declared_goal: declaredGoal,
           risk_score: riskScore,
+          reversible,
+          systems_touched: systemsTouched,
+          metadata: { openclaw_tool_name: toolName },
         });
         createdActionId =
           created.action_id ?? created.action?.action_id ?? created.action?.id;

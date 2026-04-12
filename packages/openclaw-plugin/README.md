@@ -37,14 +37,31 @@ Config changes require a gateway restart, the same as any other OpenClaw plugin.
 
 Every tool call your agent makes flows through DashClaw before it executes:
 
-1. Agent decides to call a tool (e.g. `bash`, `write_file`, a custom HTTP tool).
-2. The plugin's `before_tool_call` hook calls DashClaw `/api/guard` with the tool name, risk score, and a 500-character summary of the parameters.
-3. DashClaw evaluates your guard policies (risk thresholds, action-type blocks, allowlists). If the verdict is `block`, the tool call is rejected immediately — no action record is opened.
+1. Agent decides to call a tool (e.g. `bash`, `write`, a custom HTTP tool).
+2. The plugin **classifies the tool call** — parsing bash commands, inspecting file paths, and detecting deploy/destructive/network intents — to determine the DashClaw action type, risk score, reversibility, and systems touched.
+3. The plugin calls DashClaw `/api/guard` with the full classification (`action_type`, `risk_score`, `declared_goal`, `reversible`, `systems_touched`). DashClaw evaluates your guard policies. If the verdict is `block`, the tool call is rejected immediately.
 4. On `allow`, `warn`, or `require_approval`, the plugin opens a governance record via `/api/actions`. The server re-runs policy here and is the authoritative source for HITL gating — it may return `action.status === 'pending_approval'` even when guard said `allow` (for example, if the capability has `requires_approval: true`).
-5. If the action is `pending_approval`, the plugin pauses on `waitForApproval(action.action_id)`. You approve from the DashClaw dashboard, the CLI, or the mobile PWA — the agent is unblocked the moment the operator clicks approve (SSE first, polling fallback).
+5. If the action is `pending_approval`, the plugin pauses on `waitForApproval(action.action_id)`. You approve from the DashClaw dashboard, the CLI (`dashclaw approve <id>`), or the mobile PWA — the agent is unblocked the moment the operator approves (SSE first, polling fallback).
 6. On approval, the tool executes. The `after_tool_call` hook records the outcome (`completed` or `failed`, with the error message) so DashClaw has a full intent → policy → outcome trail.
 
 The plugin is read-mostly: it never modifies the tool's parameters or the tool's result. It only blocks, allows, or records.
+
+### Unified policy surface
+
+The plugin uses the **same action type vocabulary** as the DashClaw Claude Code hooks. Policies you write for Claude Code automatically apply to OpenClaw agents — no duplication needed.
+
+| Tool call | Action type | Risk | Reversible |
+|---|---|---|---|
+| `bash: git push origin main` | `deploy` | 80 | no |
+| `bash: rm -rf /tmp/data` | `security` | 90 | no |
+| `bash: git diff` | `review` | 10 | yes |
+| `bash: curl https://api.example.com` | `api` | 40 | yes |
+| `bash: npm install express` | `build` | 30 | yes |
+| `write: .env.production` | `security` | 85 | yes |
+| `edit: src/app.ts` | `apply` | 50 | yes |
+| `read: config.json` | `review` | 15 | yes |
+
+For bash/exec tools, the plugin parses the command to classify intent. For file tools, it scans the path for sensitive patterns (`.env`, `credential`, `private_key`, etc.). Unrecognized tools fall through to `other` with the default risk score.
 
 ### `action_id` distinction
 
@@ -64,8 +81,8 @@ empty because the wait target didn't exist. Fixed in `1.0.1`.
 | `dashclawApiKey` | string | **required** | DashClaw API key (starts with `oc_live_`). |
 | `agentId` | string | `"openclaw"` | Identifier this OpenClaw instance reports to DashClaw. |
 | `failClosed` | boolean | `true` | If DashClaw is unreachable, block the tool call. Set `false` to fail open. |
-| `riskScoreDefault` | number | `50` | Risk score sent to `/api/guard` for tool calls that don't appear in `highRiskTools`. |
-| `highRiskTools` | string[] | `[]` | Tool names that should always be evaluated at risk score 85. Typical: `bash`, `exec`, `deploy`, `write_file`. |
+| `riskScoreDefault` | number | `50` | Fallback risk score for tool calls the classifier doesn't recognize. Recognized commands (git, curl, rm, npm, etc.) compute their own risk score automatically. |
+| `highRiskTools` | string[] | `[]` | Tool names that should always start at risk score 85 before classification. The classifier may raise the score further (e.g. `rm -rf` → 90) but will never lower it below 85 for tools in this list. |
 
 ## Fail-closed vs fail-open
 
@@ -74,9 +91,17 @@ empty because the wait target didn't exist. Fixed in `1.0.1`.
 
 The fail-closed branch only fires for **infrastructure failures** talking to DashClaw. Explicit `block` or denied `require_approval` decisions always block the tool call regardless of `failClosed`.
 
-## How tool names are resolved
+## How tool calls are classified
 
-OpenClaw events use slightly different field names across versions and providers, so the plugin probes `event.toolName`, `event.tool`, `event.tool_name`, and `event.name` in that order. If none match, it reports the action as `unknown_tool` to DashClaw rather than crashing — you'll still get a record, just less useful, and that signals it's time to file an issue.
+The plugin goes beyond tool names — it inspects the **content** of each call:
+
+- **bash/exec**: Parses the command string against known command sets (readonly, destructive, network, package management, git subcommands) and regex patterns for deploy and destructive operations. A `git push` is classified as `deploy` (risk 80, irreversible), while `git diff` is `review` (risk 10).
+- **write/edit/apply_patch**: Scans the file path for sensitive patterns (`.env`, `credential`, `private_key`, `.pem`). Sensitive paths get `security` (risk 85); normal paths get `apply`.
+- **read/web_search/web_fetch**: Always `review` with low risk (capped at 15).
+- **sessions_send**: `message`, irreversible.
+- **Everything else**: `other` with the configured default risk.
+
+This classification mirrors what the DashClaw Claude Code hooks do via `dashclaw_agent_intel`, so the same guard policies fire consistently across both platforms.
 
 ## Outcome recording
 
