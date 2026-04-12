@@ -70,7 +70,7 @@ export async function runChecks({ env = process.env } = {}) {
       const recent = await sql`
         SELECT COUNT(*)::int AS count FROM action_records
         WHERE org_id = 'org_default'
-          AND created_at > NOW() - INTERVAL '7 days'
+          AND created_at > NOW() - make_interval(days => ${STALENESS_DAYS})
       `;
       const recentCount = recent[0]?.count ?? 0;
 
