@@ -22,7 +22,12 @@ const ACTION_RECORD_SCHEMA = {
   swarm_id:             { type: 'string', maxLength: 128 },
   parent_action_id:     { type: 'string', maxLength: 128 },
   // Intent
-  action_type:          { type: 'string', required: true, enum: ACTION_TYPES },
+  // action_type is a free-form string (max 128 chars). The ACTION_TYPES list
+  // is retained for guard policy matching and UI display hints, but agent
+  // frameworks use arbitrary tool names (read, write, bash, web_search, etc.)
+  // that would be rejected by an enum constraint. Agents that want the
+  // canonical list can check the /api/health response.
+  action_type:          { type: 'string', required: true, maxLength: 128 },
   declared_goal:        { type: 'string', required: true, maxLength: 2000 },
   reasoning:            { type: 'string', maxLength: 4000 },
   authorization_scope:  { type: 'string', maxLength: 1000 },
