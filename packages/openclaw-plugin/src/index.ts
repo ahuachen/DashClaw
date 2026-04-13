@@ -43,8 +43,26 @@ interface PluginConfig {
   highRiskTools: ReadonlySet<string>;
 }
 
+/**
+ * Resolve the DashClaw URL from (in order of precedence):
+ *   1. `config.dashclawUrl`                    (canonical plugin-config key)
+ *   2. `config.baseUrl`                        (SDK-style alias)
+ *   3. `process.env.DASHCLAW_BASE_URL`         (canonical env var — matches CLI, local scripts)
+ *   4. `process.env.DASHCLAW_URL`              (legacy env var — matches MCP server docs)
+ *
+ * The same precedence applies to the API key (with DASHCLAW_API_KEY as the only env var).
+ */
+function firstString(...candidates: unknown[]): string {
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.length > 0) return c;
+  }
+  return '';
+}
+
 function resolveConfig(raw: Record<string, unknown> | undefined): PluginConfig {
   const cfg = raw ?? {};
+  const env = typeof process !== 'undefined' && process?.env ? process.env : {};
+
   const failClosed = cfg.failClosed !== false; // default true
   const riskScoreDefault =
     typeof cfg.riskScoreDefault === 'number' ? cfg.riskScoreDefault : 50;
@@ -53,11 +71,24 @@ function resolveConfig(raw: Record<string, unknown> | undefined): PluginConfig {
       ? cfg.highRiskTools.filter((v): v is string => typeof v === 'string')
       : []
   );
+
+  const dashclawUrl = firstString(
+    cfg.dashclawUrl,
+    cfg.baseUrl,
+    env.DASHCLAW_BASE_URL,
+    env.DASHCLAW_URL
+  );
+  const dashclawApiKey = firstString(
+    cfg.dashclawApiKey,
+    cfg.apiKey,
+    env.DASHCLAW_API_KEY
+  );
+  const agentId = firstString(cfg.agentId, env.DASHCLAW_AGENT_ID) || 'openclaw';
+
   return {
-    dashclawUrl: typeof cfg.dashclawUrl === 'string' ? cfg.dashclawUrl : '',
-    dashclawApiKey:
-      typeof cfg.dashclawApiKey === 'string' ? cfg.dashclawApiKey : '',
-    agentId: typeof cfg.agentId === 'string' && cfg.agentId ? cfg.agentId : 'openclaw',
+    dashclawUrl,
+    dashclawApiKey,
+    agentId,
     failClosed,
     riskScoreDefault,
     highRiskTools,
@@ -79,7 +110,14 @@ function getClient(config: PluginConfig): DashClaw {
   if (cachedClient && cachedClientKey === key) return cachedClient;
 
   if (!config.dashclawUrl || !config.dashclawApiKey) {
-    throw new Error('dashclawUrl and dashclawApiKey are required');
+    const missing: string[] = [];
+    if (!config.dashclawUrl) missing.push('dashclawUrl');
+    if (!config.dashclawApiKey) missing.push('dashclawApiKey');
+    throw new Error(
+      `dashclaw-governance plugin: missing ${missing.join(' and ')}. ` +
+        'Provide via openclaw.plugin.json config (dashclawUrl/dashclawApiKey or baseUrl/apiKey), ' +
+        'or set env vars DASHCLAW_BASE_URL and DASHCLAW_API_KEY before starting the gateway.'
+    );
   }
 
   cachedClient = new DashClaw({

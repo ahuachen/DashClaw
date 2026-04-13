@@ -10,7 +10,9 @@ openclaw plugins install @dashclaw/openclaw-plugin
 
 ## Configure
 
-Add the plugin to your OpenClaw config:
+The plugin accepts **three interchangeable configuration shapes** — pick whichever fits your deployment. Precedence is plugin config > env vars.
+
+### Option A — canonical plugin-config keys
 
 ```json
 {
@@ -30,6 +32,41 @@ Add the plugin to your OpenClaw config:
   }
 }
 ```
+
+### Option B — SDK-style aliases
+
+If you prefer the same naming as the DashClaw Node SDK:
+
+```json
+{
+  "config": {
+    "baseUrl": "https://my-dashclaw.vercel.app",
+    "apiKey": "oc_live_...",
+    "agentId": "my-openclaw-agent"
+  }
+}
+```
+
+### Option C — environment variables (recommended for secrets)
+
+Set these before the gateway starts and omit URL/key from plugin config entirely:
+
+```bash
+export DASHCLAW_BASE_URL="https://my-dashclaw.vercel.app"    # DASHCLAW_URL also accepted
+export DASHCLAW_API_KEY="oc_live_..."
+export DASHCLAW_AGENT_ID="my-openclaw-agent"                 # optional
+```
+
+```json
+{
+  "config": {
+    "failClosed": true,
+    "highRiskTools": ["bash", "exec", "write_file"]
+  }
+}
+```
+
+This is the cleanest setup when you already keep DashClaw credentials in a `.env` / `secrets/` file shared with other tooling (CLI, local SDK scripts, MCP server).
 
 Config changes require a gateway restart, the same as any other OpenClaw plugin.
 

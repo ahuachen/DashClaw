@@ -6,6 +6,7 @@ import { runChecks as deploymentChecks } from './checks/deployment.mjs';
 import { runChecks as sdkChecks } from './checks/sdk.mjs';
 import { runChecks as governanceChecks } from './checks/governance.mjs';
 import { runChecks as driftChecks } from './checks/drift.mjs';
+import { runChecks as openclawPluginChecks } from './checks/openclawPlugin.mjs';
 import { runShapeChecks } from './generated/checks-from-shape.mjs';
 
 const CHECK_RUNNERS = {
@@ -17,9 +18,10 @@ const CHECK_RUNNERS = {
   governance: governanceChecks,
   shape: runShapeChecks,
   drift: driftChecks,
+  'openclaw-plugin': openclawPluginChecks,
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape', 'drift'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape', 'drift', 'openclaw-plugin'];
 
 /**
  * @param {Object} [options]

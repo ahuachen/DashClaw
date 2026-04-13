@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:efecd56da11788b3384dc1b5c22b71e187f93e35",
+  "timestamp": "sha1:a77c0f1749eb7373a84f219868845ba5995cc9a8",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2462,6 +2462,7 @@
         "scripts/bootstrap-agent.mjs",
         "scripts/collect-platform-convergence-evidence.mjs",
         "scripts/demo-agent.mjs",
+        "scripts/fuzz-api.mjs",
         "scripts/migrate-multi-tenant.mjs",
         "scripts/patch-demo-capability-endpoints.mjs",
         "scripts/report-action.mjs",
@@ -2524,10 +2525,12 @@
         "graphify-pilot/app/lib/demo/fixtures/persona-agents.js",
         "graphify-pilot/app/self-host/SetupTabs.js",
         "graphify-pilot/app/settings/components/ConnectNextStepPanel.js",
+        "packages/openclaw-plugin/src/index.ts",
         "public/downloads/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
         "public/downloads/dashclaw-platform-intelligence/scripts/diagnose.mjs",
         "public/downloads/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
         "scripts/demo-agent.mjs",
+        "scripts/fuzz-api.mjs",
         "verify.js"
       ],
       "in_env_example": false
@@ -2627,6 +2630,7 @@
       "files": [
         "app/api/mcp/route.js",
         "mcp-server/bin/dashclaw-mcp.js",
+        "packages/openclaw-plugin/src/index.ts",
         "scripts/patch-demo-capability-endpoints.mjs",
         "scripts/seed-demo-capabilities.mjs",
         "scripts/test-presence.mjs",

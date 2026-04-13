@@ -1,7 +1,7 @@
 ---
 name: dashclaw-governance
 description: Policy enforcement, human-in-the-loop approval, and decision recording for every OpenClaw tool call. Powered by DashClaw.
-version: 1.0.1
+version: 1.2.0
 ---
 
 # DashClaw Governance Hook
@@ -17,7 +17,15 @@ The hook never modifies tool parameters or results. It only blocks, allows, wait
 
 ## Configuration
 
-Configured via `openclaw.plugin.json` — see the `configSchema` section in that file. Required fields are `dashclawUrl` and `dashclawApiKey`. Optional fields control fail-closed behavior, default risk score, high-risk tool mappings, and agent identity.
+The plugin accepts three interchangeable configuration shapes — pick whichever fits your deployment:
+
+1. **Canonical plugin-config keys** (recommended for `openclaw.plugin.json`): `dashclawUrl` + `dashclawApiKey`.
+2. **SDK-style aliases** (matches the DashClaw Node SDK): `baseUrl` + `apiKey`.
+3. **Environment variables** (recommended when secrets live outside the gateway config): `DASHCLAW_BASE_URL` (or legacy `DASHCLAW_URL`) + `DASHCLAW_API_KEY`.
+
+Precedence is `plugin config > env vars`. If env vars are set before the gateway starts, the plugin config can omit URL and API key entirely.
+
+See the `configSchema` section in `openclaw.plugin.json` for the full list of optional fields (`agentId`, `failClosed`, `riskScoreDefault`, `highRiskTools`).
 
 ## Failure modes
 

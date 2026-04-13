@@ -2,21 +2,29 @@
   "id": "dashclaw-governance",
   "name": "DashClaw Governance",
   "description": "Policy enforcement, human-in-the-loop approval, and decision recording for every OpenClaw tool call. Powered by DashClaw.",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "entry": "src/index.ts",
   "main": "./src/index.ts",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
-    "required": ["dashclawUrl", "dashclawApiKey"],
+    "description": "Configure the DashClaw connection via any of three shapes: (a) canonical plugin-config keys `dashclawUrl` + `dashclawApiKey`; (b) SDK-style aliases `baseUrl` + `apiKey`; (c) environment variables `DASHCLAW_BASE_URL` (or legacy `DASHCLAW_URL`) + `DASHCLAW_API_KEY` set before the gateway starts. Precedence is plugin config > env. No field is strictly required in this schema — env vars alone are sufficient.",
     "properties": {
       "dashclawUrl": {
         "type": "string",
-        "description": "URL of your DashClaw instance (e.g. https://my-dashclaw.vercel.app)"
+        "description": "URL of your DashClaw instance (e.g. https://my-dashclaw.vercel.app). Optional if DASHCLAW_BASE_URL / DASHCLAW_URL env var is set, or if baseUrl is provided."
       },
       "dashclawApiKey": {
         "type": "string",
-        "description": "DashClaw API key (starts with oc_live_)"
+        "description": "DashClaw API key (starts with oc_live_). Optional if DASHCLAW_API_KEY env var is set, or if apiKey is provided."
+      },
+      "baseUrl": {
+        "type": "string",
+        "description": "SDK-style alias for dashclawUrl. Use whichever you prefer."
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "SDK-style alias for dashclawApiKey. Use whichever you prefer."
       },
       "agentId": {
         "type": "string",
@@ -44,6 +52,8 @@
   "uiHints": {
     "dashclawApiKey": { "sensitive": true, "label": "DashClaw API Key" },
     "dashclawUrl": { "label": "DashClaw URL", "placeholder": "https://my-dashclaw.vercel.app" },
+    "baseUrl": { "label": "DashClaw URL (alias)", "advanced": true },
+    "apiKey": { "sensitive": true, "label": "DashClaw API Key (alias)", "advanced": true },
     "agentId": { "label": "Agent ID" },
     "failClosed": { "label": "Fail-closed when DashClaw unreachable", "advanced": true },
     "riskScoreDefault": { "label": "Default risk score", "advanced": true },
