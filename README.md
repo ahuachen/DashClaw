@@ -343,11 +343,15 @@ npm run doctor -- --no-fix      # diagnose only
 npm run doctor -- --category database,config
 
 # Agent developers: check a remote instance via the CLI
-dashclaw doctor                 # requires DASHCLAW_BASE_URL + DASHCLAW_API_KEY
-dashclaw doctor --no-fix
+dashclaw doctor                 # auto-fix what it can via /api/doctor/fix
+dashclaw doctor --no-fix        # diagnose only
+dashclaw doctor --json          # JSON for CI
+dashclaw logout                 # remove saved config
 ```
 
-The doctor auto-fixes missing secrets, runs pending migrations, creates a default governance policy, and writes CORS settings. It prompts for anything it can't fix (DATABASE_URL, OAuth credentials) and never exposes env var values.
+**First-run config.** On first use, the CLI prompts for `DASHCLAW_BASE_URL` and `DASHCLAW_API_KEY` (masked) and offers to save them to `~/.dashclaw/config.json` (mode `600`). Env vars always override the saved values. In CI, set them as env vars — the CLI detects non-TTY and errors out cleanly instead of hanging on stdin.
+
+The doctor auto-fixes missing secrets, runs pending migrations, creates a default governance policy, and writes CORS settings. Every non-passing check gets an inline next-step hint telling you exactly what to do. Env var values are never exposed in the output.
 
 ---
 
