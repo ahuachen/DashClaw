@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:07daf52720b306bc01a7b6938f05a1e0ee6439ac",
+  "timestamp": "sha1:59a1f31775e372a84b61f96aaaedc68f178b13a8",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3382,7 +3382,8 @@
       "name": "TELEGRAM_APPROVER_ORG_ID",
       "required": false,
       "files": [
-        "__tests__/unit/telegram-webhook-route.test.js"
+        "__tests__/unit/telegram-webhook-route.test.js",
+        "app/api/telegram/webhook/route.js"
       ],
       "in_env_example": false
     },

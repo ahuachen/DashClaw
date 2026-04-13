@@ -134,3 +134,70 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
     }
   });
 });
+
+describe('POST /api/telegram/webhook — approve', () => {
+  const AUTH = { 'X-Telegram-Bot-Api-Secret-Token': 'S3CRET' };
+  const pending = {
+    action_id: 'act_abc12345',
+    status: 'pending_approval',
+    agent_id: 'openclaw-tg',
+    action_type: 'deploy',
+    declared_goal: 'Push release v0.4.2',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.TELEGRAM_BOT_TOKEN = 'TBOT';
+    process.env.TELEGRAM_WEBHOOK_SECRET = 'S3CRET';
+    process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
+    process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    mockGetActionStatus.mockResolvedValue(pending);
+    mockRecordApproval.mockResolvedValue({ ...pending, status: 'running' });
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    vi.restoreAllMocks();
+  });
+
+  it('calls recordApproval with allow + synthesized user id, edits message, acks callback', async () => {
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    expect(mockGetActionStatus).toHaveBeenCalledWith(
+      expect.anything(), 'org_tele', 'act_abc12345',
+    );
+    expect(mockRecordApproval).toHaveBeenCalledWith(
+      expect.anything(), 'org_tele', 'act_abc12345',
+      expect.objectContaining({
+        decision: 'allow',
+        newStatus: 'running',
+        errorMessage: null,
+        userId: 'telegram:42',
+      }),
+    );
+
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(editCall).toBeDefined();
+    const editBody = JSON.parse(editCall[1].body);
+    expect(editBody.chat_id).toBe(42);
+    expect(editBody.message_id).toBe(1001);
+    expect(editBody.text).toContain('✅ Approved');
+    expect(editBody.reply_markup).toEqual({ inline_keyboard: [] });
+
+    const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
+    expect(ackCall).toBeDefined();
+  });
+});

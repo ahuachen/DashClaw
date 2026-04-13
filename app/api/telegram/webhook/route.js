@@ -33,6 +33,37 @@ async function answerCallback(callback_query_id, text) {
   }
 }
 
+async function editMessage(chat_id, message_id, text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  try {
+    await fetch(`${TELEGRAM_API_BASE}/bot${token}/editMessageText`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id, message_id, text,
+        reply_markup: { inline_keyboard: [] },
+      }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+  } catch (err) {
+    console.warn('[TelegramWebhook] editMessage failed:', err.message);
+  }
+}
+
+function buildResolvedText(action, decisionLabel, action_id) {
+  const ts = new Date().toTimeString().slice(0, 8);
+  const goal = (action.declared_goal || '—').slice(0, 200);
+  return [
+    `${decisionLabel} — ${ts}`,
+    '',
+    `Agent:   ${action.agent_id || 'unknown'}`,
+    `Action:  ${action.action_type || 'unknown'}`,
+    `Goal: ${goal}`,
+    '',
+    action_id,
+  ].join('\n');
+}
+
 export async function POST(request) {
   const presented = request.headers.get('x-telegram-bot-api-secret-token');
   const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -58,6 +89,35 @@ export async function POST(request) {
   }
   const [, verb, action_id] = match;
 
-  // Task 7 through Task 9 add approve/deny/idempotency using verb + action_id.
+  const sql = getSql();
+  const orgId = process.env.TELEGRAM_APPROVER_ORG_ID;
+  const action = await getActionStatus(sql, orgId, action_id);
+
+  if (!action || action.status !== 'pending_approval') {
+    // Idempotency handled in Task 9.
+    return ok();
+  }
+
+  const chat_id = cq.message?.chat?.id;
+  const message_id = cq.message?.message_id;
+  const userId = `telegram:${senderId}`;
+
+  if (verb === 'ap') {
+    await recordApproval(sql, orgId, action_id, {
+      newStatus: 'running',
+      errorMessage: null,
+      decision: 'allow',
+      userId,
+      safeReasoning: null,
+    });
+    await Promise.all([
+      answerCallback(cq.id),
+      editMessage(chat_id, message_id,
+        buildResolvedText(action, '✅ Approved by Telegram admin', action_id)),
+    ]);
+    return ok();
+  }
+
+  // Task 8 handles 'dn'.
   return ok();
 }
