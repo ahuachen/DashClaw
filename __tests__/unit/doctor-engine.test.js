@@ -10,6 +10,7 @@ const {
   mockGovernanceChecks,
   mockShapeChecks,
   mockDriftChecks,
+  mockOpenclawPluginChecks,
 } = vi.hoisted(() => ({
   mockDatabaseChecks: vi.fn(async () => []),
   mockConfigChecks: vi.fn(async () => []),
@@ -19,6 +20,7 @@ const {
   mockGovernanceChecks: vi.fn(async () => []),
   mockShapeChecks: vi.fn(async () => []),
   mockDriftChecks: vi.fn(async () => []),
+  mockOpenclawPluginChecks: vi.fn(async () => []),
 }));
 
 vi.mock('@/lib/doctor/checks/database.mjs', () => ({ runChecks: mockDatabaseChecks }));
@@ -28,6 +30,7 @@ vi.mock('@/lib/doctor/checks/deployment.mjs', () => ({ runChecks: mockDeployment
 vi.mock('@/lib/doctor/checks/sdk.mjs', () => ({ runChecks: mockSdkChecks }));
 vi.mock('@/lib/doctor/checks/governance.mjs', () => ({ runChecks: mockGovernanceChecks }));
 vi.mock('@/lib/doctor/checks/drift.mjs', () => ({ runChecks: mockDriftChecks }));
+vi.mock('@/lib/doctor/checks/openclawPlugin.mjs', () => ({ runChecks: mockOpenclawPluginChecks }));
 vi.mock('@/lib/doctor/generated/checks-from-shape.mjs', () => ({ runShapeChecks: mockShapeChecks }));
 
 import { runDoctor, computeSummary } from '@/lib/doctor/engine.mjs';
@@ -42,6 +45,7 @@ beforeEach(() => {
   mockGovernanceChecks.mockResolvedValue([]);
   mockShapeChecks.mockResolvedValue([]);
   mockDriftChecks.mockResolvedValue([]);
+  mockOpenclawPluginChecks.mockResolvedValue([]);
 });
 
 describe('runDoctor', () => {

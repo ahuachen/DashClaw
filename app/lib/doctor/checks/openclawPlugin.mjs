@@ -125,15 +125,10 @@ export async function runChecks({ env = process.env } = {}) {
   const checks = [];
 
   if (!path) {
-    checks.push({
-      id: 'openclaw_plugin_config_present',
-      category: 'openclaw-plugin',
-      status: 'pass',
-      title: 'OpenClaw plugin config',
-      message:
-        'No openclaw.plugin.json found on this host — skipping OpenClaw-plugin checks. Set DASHCLAW_OPENCLAW_CONFIG to explicitly point at one.',
-      fix: null,
-    });
+    // Silent skip — most DashClaw hosts don't colocate OpenClaw. Emitting a
+    // "nothing found, skipped" pass result clutters output for the 99% case.
+    // Users who specifically want to check an OpenClaw config point at it via
+    // DASHCLAW_OPENCLAW_CONFIG.
     return checks;
   }
 
