@@ -27,6 +27,7 @@
     "api:inventory:check": "node scripts/check-api-inventory-diff.mjs",
     "route-sql:baseline:generate": "node scripts/generate-route-sql-baseline.mjs",
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
+    "telegram:setup": "node scripts/telegram-setup-wizard.mjs",
     "telegram:register": "node scripts/telegram-register-webhook.mjs",
     "telegram:verify": "node scripts/telegram-verify-loop.mjs",
     "contracts:check": "node scripts/check-contracts.mjs",

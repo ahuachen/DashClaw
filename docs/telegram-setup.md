@@ -2,7 +2,19 @@
 
 One-tap approve/reject from your phone for any DashClaw action that lands on `pending_approval`. The dashboard, CLI, and mobile PWA continue to work — Telegram is an additional channel, not a replacement.
 
-**Time to set up:** ~5 minutes. **Cost:** $0 (Telegram Bot API is free).
+**Time to set up:** ~3 minutes with the wizard, ~5 manually. **Cost:** $0 (Telegram Bot API is free).
+
+---
+
+## The fast path — interactive wizard
+
+```bash
+npm run telegram:setup
+```
+
+Walks you through all 7 steps: bot creation, chat ID discovery, secret generation, env block, webhook registration, and round-trip smoke test. Auto-discovers your chat ID from Telegram, auto-generates the webhook secret, and prints the exact env block to paste into Vercel. Most people are done in ~3 minutes.
+
+The rest of this doc is the manual walkthrough for anyone who wants to understand every step or can't run the wizard.
 
 ---
 
