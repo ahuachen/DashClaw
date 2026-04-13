@@ -305,49 +305,90 @@ export async function getAnalyticsSummary(request, { agent_id } = {}) {
   const totalOutcomes = (Number(overall.success_count) || 0) + (Number(overall.failure_count) || 0);
   const successRate = totalOutcomes > 0 ? round((Number(overall.success_count) / totalOutcomes)) : 0;
 
-  // Per-agent summary
-  const agentSummary = await sql`
-    SELECT
-      agent_id,
-      COUNT(*) AS episode_count,
-      ROUND(AVG(score)::numeric, 2) AS avg_score,
-      COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
-      COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count,
-      ROUND(AVG(duration_ms)::numeric, 0) AS avg_duration_ms,
-      ROUND(SUM(cost_estimate)::numeric, 4) AS total_cost
-    FROM learning_episodes WHERE org_id = ${orgId}
-    GROUP BY agent_id ORDER BY episode_count DESC LIMIT 10
-  `;
+  // Per-agent summary — when filtering, collapse to the single selected agent
+  // so the leaderboard view matches the dropdown choice.
+  const agentSummary = agent_id
+    ? await sql`
+        SELECT
+          agent_id,
+          COUNT(*) AS episode_count,
+          ROUND(AVG(score)::numeric, 2) AS avg_score,
+          COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
+          COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count,
+          ROUND(AVG(duration_ms)::numeric, 0) AS avg_duration_ms,
+          ROUND(SUM(cost_estimate)::numeric, 4) AS total_cost
+        FROM learning_episodes WHERE org_id = ${orgId} AND agent_id = ${agent_id}
+        GROUP BY agent_id ORDER BY episode_count DESC LIMIT 10
+      `
+    : await sql`
+        SELECT
+          agent_id,
+          COUNT(*) AS episode_count,
+          ROUND(AVG(score)::numeric, 2) AS avg_score,
+          COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
+          COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count,
+          ROUND(AVG(duration_ms)::numeric, 0) AS avg_duration_ms,
+          ROUND(SUM(cost_estimate)::numeric, 4) AS total_cost
+        FROM learning_episodes WHERE org_id = ${orgId}
+        GROUP BY agent_id ORDER BY episode_count DESC LIMIT 10
+      `;
 
   // Per action_type
-  const actionTypeSummary = await sql`
-    SELECT
-      action_type,
-      COUNT(*) AS episode_count,
-      ROUND(AVG(score)::numeric, 2) AS avg_score,
-      COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
-      COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count
-    FROM learning_episodes WHERE org_id = ${orgId}
-    GROUP BY action_type ORDER BY episode_count DESC LIMIT 15
-  `;
+  const actionTypeSummary = agent_id
+    ? await sql`
+        SELECT
+          action_type,
+          COUNT(*) AS episode_count,
+          ROUND(AVG(score)::numeric, 2) AS avg_score,
+          COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
+          COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count
+        FROM learning_episodes WHERE org_id = ${orgId} AND agent_id = ${agent_id}
+        GROUP BY action_type ORDER BY episode_count DESC LIMIT 15
+      `
+    : await sql`
+        SELECT
+          action_type,
+          COUNT(*) AS episode_count,
+          ROUND(AVG(score)::numeric, 2) AS avg_score,
+          COUNT(*) FILTER (WHERE outcome_label = 'success') AS success_count,
+          COUNT(*) FILTER (WHERE outcome_label = 'failure') AS failure_count
+        FROM learning_episodes WHERE org_id = ${orgId}
+        GROUP BY action_type ORDER BY episode_count DESC LIMIT 15
+      `;
 
   // Latest velocity per agent
-  const latestVelocity = await sql`
-    SELECT DISTINCT ON (agent_id) agent_id, velocity, acceleration, maturity_score, maturity_level, score_delta, created_at
-    FROM learning_velocity WHERE org_id = ${orgId}
-    ORDER BY agent_id, created_at DESC
-  `;
+  const latestVelocity = agent_id
+    ? await sql`
+        SELECT DISTINCT ON (agent_id) agent_id, velocity, acceleration, maturity_score, maturity_level, score_delta, created_at
+        FROM learning_velocity WHERE org_id = ${orgId} AND agent_id = ${agent_id}
+        ORDER BY agent_id, created_at DESC
+      `
+    : await sql`
+        SELECT DISTINCT ON (agent_id) agent_id, velocity, acceleration, maturity_score, maturity_level, score_delta, created_at
+        FROM learning_velocity WHERE org_id = ${orgId}
+        ORDER BY agent_id, created_at DESC
+      `;
 
   // Recommendation effectiveness
-  const recEffectiveness = await sql`
-    SELECT
-      COUNT(*) AS total_recommendations,
-      COUNT(*) FILTER (WHERE active = 1) AS active_recommendations,
-      ROUND(AVG(success_rate)::numeric, 3) AS avg_success_rate,
-      ROUND(AVG(avg_score)::numeric, 2) AS avg_rec_score,
-      ROUND(AVG(confidence)::numeric, 0) AS avg_confidence
-    FROM learning_recommendations WHERE org_id = ${orgId}
-  `;
+  const recEffectiveness = agent_id
+    ? await sql`
+        SELECT
+          COUNT(*) AS total_recommendations,
+          COUNT(*) FILTER (WHERE active = 1) AS active_recommendations,
+          ROUND(AVG(success_rate)::numeric, 3) AS avg_success_rate,
+          ROUND(AVG(avg_score)::numeric, 2) AS avg_rec_score,
+          ROUND(AVG(confidence)::numeric, 0) AS avg_confidence
+        FROM learning_recommendations WHERE org_id = ${orgId} AND agent_id = ${agent_id}
+      `
+    : await sql`
+        SELECT
+          COUNT(*) AS total_recommendations,
+          COUNT(*) FILTER (WHERE active = 1) AS active_recommendations,
+          ROUND(AVG(success_rate)::numeric, 3) AS avg_success_rate,
+          ROUND(AVG(avg_score)::numeric, 2) AS avg_rec_score,
+          ROUND(AVG(confidence)::numeric, 0) AS avg_confidence
+        FROM learning_recommendations WHERE org_id = ${orgId}
+      `;
 
   return {
     overall: {

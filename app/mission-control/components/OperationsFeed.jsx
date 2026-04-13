@@ -30,6 +30,7 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
     try {
       const params = new URLSearchParams();
       if (activeCategory) params.set('category', activeCategory);
+      if (agentId) params.set('agent_id', agentId);
       params.set('limit', '50');
       const res = await fetch(`/api/operations/feed?${params}`);
       if (res.ok) {
@@ -42,7 +43,7 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
     } finally {
       setLoading(false);
     }
-  }, [activeCategory]);
+  }, [activeCategory, agentId]);
 
   useEffect(() => {
     fetchFeed();

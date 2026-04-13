@@ -11,6 +11,7 @@ import {
   ChevronRight, AlertTriangle,
 } from 'lucide-react';
 import { getAgentColor } from '../lib/colors';
+import { useAgentFilter } from '../lib/AgentFilterContext';
 
 const categoryIconMap = {
   decision: Zap,
@@ -20,22 +21,30 @@ const categoryIconMap = {
 };
 
 export default function GlobalActivityFeed() {
+  const { agentId } = useAgentFilter();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState('');
 
   const fetchInitialData = useCallback(async () => {
+    setLoading(true);
     try {
-      // Pull recent data from multiple sources to seed the activity feed
-      const [actionsRes, guardRes, auditRes] = await Promise.all([
-        fetch('/api/actions?limit=15'),
-        fetch('/api/guard?limit=15'),
-        fetch('/api/activity?limit=10')
-      ]);
+      // Pull recent data from multiple sources to seed the activity feed.
+      // When an agent is selected, scope actions + guard evaluations to it.
+      // activity_logs is keyed on the human actor_id, so it's skipped when
+      // filtering by agent — there are no agent-scoped audit events yet.
+      const agentQs = agentId ? `&agent_id=${encodeURIComponent(agentId)}` : '';
+      const fetches = [
+        fetch(`/api/actions?limit=15${agentQs}`),
+        fetch(`/api/guard?limit=15${agentQs}`),
+      ];
+      if (!agentId) fetches.push(fetch('/api/activity?limit=10'));
+
+      const [actionsRes, guardRes, auditRes] = await Promise.all(fetches);
 
       const actions = (await actionsRes.json()).actions || [];
       const guards = (await guardRes.json()).evaluations || [];
-      const audits = (await auditRes.json()).logs || [];
+      const audits = auditRes ? ((await auditRes.json()).logs || []) : [];
 
       // Normalize into unified event format
       const normalized = [
@@ -83,14 +92,16 @@ export default function GlobalActivityFeed() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [agentId]);
 
   useEffect(() => {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  // Handle real-time updates
+  // Handle real-time updates. Drop events from other agents when filtering.
   useRealtime((event, payload) => {
+    if (agentId && payload?.agent_id && payload.agent_id !== agentId) return;
+
     let newEvt = null;
 
     if (event === 'decision.created' || event === 'action.created') {

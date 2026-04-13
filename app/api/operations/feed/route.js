@@ -15,6 +15,7 @@ export async function GET(request) {
     const filters = {
       category: searchParams.get('category') || undefined,
       severity: searchParams.get('severity') || undefined,
+      agent_id: searchParams.get('agent_id') || undefined,
       limit: searchParams.get('limit') || 50,
       offset: searchParams.get('offset') || 0,
     };

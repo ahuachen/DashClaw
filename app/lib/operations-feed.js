@@ -146,28 +146,48 @@ export function mapStaleLoops(loops) {
 // ─── Orchestrator ──────────────────────────────────────────────
 
 export async function buildOperationsFeed(sql, orgId, filters = {}) {
-  const { category, severity, limit = 50, offset = 0 } = filters;
+  const { category, severity, agent_id: agentId, limit = 50, offset = 0 } = filters;
   const parsedLimit = Math.min(parseInt(limit, 10) || 50, 200);
   const parsedOffset = parseInt(offset, 10) || 0;
 
-  // Fetch all data sources in parallel
+  // Fetch all data sources in parallel. When agentId is set, scope agent-
+  // owned sources (approvals, failures, signals, stale loops) to that agent.
+  // Capability + integration health remain system-wide since they aren't
+  // per-agent.
   const [pendingRows, failedRows, signalResult, capHealthRows, integrationHealth, staleLoopRows] = await Promise.all([
-    sql`
-      SELECT action_id, agent_id, declared_goal, risk_score, systems_touched, timestamp_start, created_at
-      FROM action_records
-      WHERE org_id = ${orgId} AND status = 'pending_approval'
-      ORDER BY timestamp_start::timestamptz DESC
-      LIMIT 50
-    `,
-    sql`
-      SELECT action_id, agent_id, declared_goal, error_message, duration_ms, timestamp_start, created_at, trigger
-      FROM action_records
-      WHERE org_id = ${orgId} AND status = 'failed'
-        AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
-      ORDER BY timestamp_start::timestamptz DESC
-      LIMIT 50
-    `,
-    computeSignals(orgId, null, sql).catch(() => []),
+    agentId
+      ? sql`
+          SELECT action_id, agent_id, declared_goal, risk_score, systems_touched, timestamp_start, created_at
+          FROM action_records
+          WHERE org_id = ${orgId} AND status = 'pending_approval' AND agent_id = ${agentId}
+          ORDER BY timestamp_start::timestamptz DESC
+          LIMIT 50
+        `
+      : sql`
+          SELECT action_id, agent_id, declared_goal, risk_score, systems_touched, timestamp_start, created_at
+          FROM action_records
+          WHERE org_id = ${orgId} AND status = 'pending_approval'
+          ORDER BY timestamp_start::timestamptz DESC
+          LIMIT 50
+        `,
+    agentId
+      ? sql`
+          SELECT action_id, agent_id, declared_goal, error_message, duration_ms, timestamp_start, created_at, trigger
+          FROM action_records
+          WHERE org_id = ${orgId} AND status = 'failed' AND agent_id = ${agentId}
+            AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
+          ORDER BY timestamp_start::timestamptz DESC
+          LIMIT 50
+        `
+      : sql`
+          SELECT action_id, agent_id, declared_goal, error_message, duration_ms, timestamp_start, created_at, trigger
+          FROM action_records
+          WHERE org_id = ${orgId} AND status = 'failed'
+            AND timestamp_start::timestamptz > NOW() - INTERVAL '24 hours'
+          ORDER BY timestamp_start::timestamptz DESC
+          LIMIT 50
+        `,
+    computeSignals(orgId, agentId || null, sql).catch(() => []),
     sql`
       SELECT capability_id, name, status, success_rate_1d, recent_errors, last_invocation
       FROM (
@@ -190,15 +210,26 @@ export async function buildOperationsFeed(sql, orgId, filters = {}) {
       WHERE status IN ('failing', 'degraded')
     `.catch(() => []),
     checkAllIntegrations(orgId, sql).catch(() => ({})),
-    sql`
-      SELECT ol.loop_id, ol.description, ol.priority, ol.loop_type, ol.created_at, ol.action_id, ar.agent_id
-      FROM open_loops ol
-      LEFT JOIN action_records ar ON ol.action_id = ar.action_id
-      WHERE ol.status = 'open' AND ol.org_id = ${orgId}
-        AND ol.created_at < NOW() - INTERVAL '48 hours'
-      ORDER BY ol.created_at ASC
-      LIMIT 20
-    `,
+    agentId
+      ? sql`
+          SELECT ol.loop_id, ol.description, ol.priority, ol.loop_type, ol.created_at, ol.action_id, ar.agent_id
+          FROM open_loops ol
+          LEFT JOIN action_records ar ON ol.action_id = ar.action_id
+          WHERE ol.status = 'open' AND ol.org_id = ${orgId}
+            AND ol.created_at < NOW() - INTERVAL '48 hours'
+            AND ar.agent_id = ${agentId}
+          ORDER BY ol.created_at ASC
+          LIMIT 20
+        `
+      : sql`
+          SELECT ol.loop_id, ol.description, ol.priority, ol.loop_type, ol.created_at, ol.action_id, ar.agent_id
+          FROM open_loops ol
+          LEFT JOIN action_records ar ON ol.action_id = ar.action_id
+          WHERE ol.status = 'open' AND ol.org_id = ${orgId}
+            AND ol.created_at < NOW() - INTERVAL '48 hours'
+          ORDER BY ol.created_at ASC
+          LIMIT 20
+        `,
   ]);
 
   // Map all sources to feed items
@@ -212,7 +243,11 @@ export async function buildOperationsFeed(sql, orgId, filters = {}) {
     ...mapStaleLoops(staleLoopRows),
   ];
 
-  // Apply filters
+  // Apply filters. When agentId is set, drop items without an owning agent
+  // (capability/integration health) so the feed matches the dropdown scope.
+  if (agentId) {
+    allItems = allItems.filter((item) => item.agent_id === agentId);
+  }
   if (category) {
     allItems = allItems.filter((item) => item.category === category);
   }
