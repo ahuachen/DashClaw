@@ -79,7 +79,10 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200 });
   });
 
-  afterEach(() => { vi.restoreAllMocks(); });
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    vi.restoreAllMocks();
+  });
 
   it('returns 200 and answers with toast when callback_data is malformed', async () => {
     const res = await POST(req(
@@ -102,5 +105,32 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
     ));
     expect(res.status).toBe(200);
     expect(mockGetActionStatus).not.toHaveBeenCalled();
+
+    const ackCall = mockFetch.mock.calls.find(([u]) =>
+      u.includes('/answerCallbackQuery'));
+    expect(ackCall).toBeDefined();
+    expect(JSON.parse(ackCall[1].body).text).toContain('Unknown');
+  });
+
+  it('accepts realistic action_id shapes (UUID with hyphens, underscores)', async () => {
+    // Regression for the regex that previously rejected every real action_id.
+    const realisticIds = [
+      'act_550e8400-e29b-41d4-a716-446655440000', // act_${crypto.randomUUID()}
+      'act_gd_0123456789abcdef',                   // guard decision id
+      'act_sim_abcd1234',                          // demo sim id
+    ];
+    for (const id of realisticIds) {
+      mockFetch.mockClear();
+      const res = await POST(req(
+        { callback_query: { id: 'cq1', from: { id: 42 }, data: `ap:${id}` } },
+        AUTH,
+      ));
+      expect(res.status).toBe(200);
+      // Regex matches, so the "Unknown button" toast path MUST NOT fire.
+      const unknownAck = mockFetch.mock.calls.find(([u, init]) =>
+        u.includes('/answerCallbackQuery') &&
+        JSON.parse(init.body).text?.includes('Unknown'));
+      expect(unknownAck).toBeUndefined();
+    }
   });
 });

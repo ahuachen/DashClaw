@@ -561,7 +561,7 @@ import {
 
 const TELEGRAM_API_BASE = 'https://api.telegram.org';
 const FETCH_TIMEOUT_MS = 1500;
-const CALLBACK_DATA_RE = /^(ap|dn):(act_[a-z0-9]{8,32})$/;
+const CALLBACK_DATA_RE = /^(ap|dn):(act_[a-z0-9_-]{1,57})$/;
 
 function unauthorized() {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
