@@ -113,13 +113,26 @@ export async function runShapeChecks({ env = process.env } = {}) {
     // db unreachable — fall through, surfaced elsewhere
   }
 
-  if (sql) {
-    for (const table of TABLES) {
-      try {
-        const rows = await sql.unsafe(
-          `SELECT to_regclass('public.${table}') AS oid`,
-        );
-        const exists = rows[0]?.oid != null;
+  if (sql && TABLES.length > 0) {
+    // Single round trip: to_regclass each table name inside unnest() so this
+    // stays O(1) DB calls regardless of schema size. The tagged template form
+    // binds TABLES as a text[] parameter — the Neon serverless driver's
+    // `sql.unsafe(rawString)` does NOT execute, it just builds a query object,
+    // so the tagged form is required for real results.
+    let present = null;
+    try {
+      const rows = await sql`
+        SELECT t AS name, to_regclass('public.' || t) AS oid
+        FROM unnest(${TABLES}::text[]) AS t
+      `;
+      present = new Set(rows.filter((r) => r.oid != null).map((r) => r.name));
+    } catch {
+      // Query-level failure — skip table checks; database check module surfaces it.
+    }
+
+    if (present) {
+      for (const table of TABLES) {
+        const exists = present.has(table);
         checks.push({
           id: `shape_table_${table}`,
           category: 'shape',
@@ -136,9 +149,6 @@ export async function runShapeChecks({ env = process.env } = {}) {
                 action: 'migrate',
               },
         });
-      } catch {
-        // Per-table query failures are non-fatal — the database check module
-        // already surfaces connection-level problems.
       }
     }
   }

@@ -134,6 +134,33 @@ class TestSchemaCollector(unittest.TestCase):
         empty = tempfile.mkdtemp()
         self.assertEqual(collect_schema(empty), [])
 
+    def test_default_domain_is_none(self):
+        from livingcode.collectors.schema import collect_schema
+        tables = {t.name: t for t in collect_schema(self.tmpdir)}
+        self.assertIsNone(tables["users"].domain)
+
+    def test_picks_up_domain_annotation(self):
+        from livingcode.collectors.schema import collect_schema
+        tmp = tempfile.mkdtemp()
+        os.makedirs(os.path.join(tmp, "schema"))
+        with open(os.path.join(tmp, "schema", "schema.js"), "w") as f:
+            f.write(
+                "// @domain governance\n"
+                "export const policies = pgTable('guard_policies', {});\n"
+                "\n"
+                "// unrelated comment\n"
+                "export const users = pgTable('users', {});\n"
+                "\n"
+                "// @domain messaging\n"
+                "// a second comment before pgTable\n"
+                "export const threads = pgTable('messages_threads', {});\n"
+            )
+        tables = {t.name: t for t in collect_schema(tmp)}
+        self.assertEqual(tables["guard_policies"].domain, "governance")
+        self.assertIsNone(tables["users"].domain, "domain must not bleed past one pgTable")
+        self.assertEqual(tables["messages_threads"].domain, "messaging",
+                         "domain should survive intervening non-domain comments")
+
 
 class TestShapeModel(unittest.TestCase):
 

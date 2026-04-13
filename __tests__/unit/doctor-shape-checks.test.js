@@ -53,10 +53,15 @@ describe('doctor/generated/runShapeChecks', () => {
     expect(nextAuth.fix).toBeNull();
   });
 
-  it('adds a shape_table_* check per table when the DB is reachable', async () => {
+  it('adds a shape_table_* check per table in one batched query', async () => {
     mockGetSetupStatus.mockResolvedValue({ configured: true });
-    const sqlImpl = Object.assign(vi.fn(), {
-      unsafe: vi.fn().mockResolvedValue([{ oid: 'public.guard_policies' }]),
+    // Neon's tagged-template `sql` is a function called with
+    // (stringsArray, ...values). The second argument is our TABLES array.
+    // Echo every name back as present.
+    const sqlImpl = vi.fn().mockImplementation((strings, ...values) => {
+      const tables = values[0];
+      if (!Array.isArray(tables)) return [];
+      return tables.map((name) => ({ name, oid: `public.${name}` }));
     });
     mockGetSql.mockReturnValue(sqlImpl);
 
@@ -66,34 +71,36 @@ describe('doctor/generated/runShapeChecks', () => {
     expect(tableChecks.length).toBeGreaterThan(0);
     expect(tableChecks.every((c) => c.category === 'shape')).toBe(true);
     expect(tableChecks.every((c) => c.status === 'pass')).toBe(true);
-    // each table triggers a `to_regclass` probe
-    expect(sqlImpl.unsafe).toHaveBeenCalled();
-    expect(sqlImpl.unsafe.mock.calls[0][0]).toContain("to_regclass('public.");
+    // Exactly one tagged-template invocation for all tables.
+    expect(sqlImpl).toHaveBeenCalledTimes(1);
+    const [strings, tables] = sqlImpl.mock.calls[0];
+    expect(strings.join('')).toContain("to_regclass('public.'");
+    expect(strings.join('')).toContain('unnest(');
+    expect(Array.isArray(tables)).toBe(true);
+    expect(tables.length).toBeGreaterThan(0);
   });
 
-  it('surfaces a migrate fix when a table is absent', async () => {
+  it('surfaces a migrate fix when tables are absent', async () => {
     mockGetSetupStatus.mockResolvedValue({ configured: true });
-    const sqlImpl = Object.assign(vi.fn(), {
-      unsafe: vi.fn().mockResolvedValue([{ oid: null }]),
-    });
+    // Empty result = no tables present
+    const sqlImpl = vi.fn().mockResolvedValue([]);
     mockGetSql.mockReturnValue(sqlImpl);
 
     const checks = await runShapeChecks({ env: {} });
 
     const tableChecks = checks.filter((c) => c.id.startsWith('shape_table_'));
+    expect(tableChecks.length).toBeGreaterThan(0);
     expect(tableChecks.every((c) => c.status === 'fail')).toBe(true);
     expect(tableChecks.every((c) => c.fix?.action === 'migrate')).toBe(true);
   });
 
-  it('survives per-table query errors without aborting', async () => {
+  it('survives batch query errors without aborting env checks', async () => {
     mockGetSetupStatus.mockResolvedValue({ configured: true });
-    const sqlImpl = Object.assign(vi.fn(), {
-      unsafe: vi.fn().mockRejectedValue(new Error('boom')),
-    });
+    const sqlImpl = vi.fn().mockRejectedValue(new Error('boom'));
     mockGetSql.mockReturnValue(sqlImpl);
 
     const checks = await runShapeChecks({ env: {} });
-    // env checks still run even if every table query rejects
+    // env checks still run when the batched table query rejects
     expect(checks.some((c) => c.id.startsWith('shape_env_'))).toBe(true);
     expect(checks.some((c) => c.id.startsWith('shape_table_'))).toBe(false);
   });

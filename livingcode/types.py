@@ -193,6 +193,11 @@ class EnvVarInfo:
 class TableInfo:
     name: str
     file_path: str
+    # Optional functional domain ("governance", "messaging", ...) sourced from
+    # `// @domain <name>` comments directly above `pgTable(...)` calls in
+    # schema.js. None when unannotated. Lets shape.mjs filter by domain
+    # without a hand-maintained lookup.
+    domain: str | None = None
 
 
 @dataclass

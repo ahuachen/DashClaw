@@ -39,6 +39,7 @@ export const users = pgTable('users', {
   providerUnique: uniqueIndex('users_provider_account_unique').on(table.provider, table.providerAccountId),
 }));
 
+// @domain governance
 export const apiKeys = pgTable('api_keys', {
   id: text('id').primaryKey(), // key_ prefix
   orgId: text('org_id').notNull().references(() => organizations.id),
@@ -53,6 +54,7 @@ export const apiKeys = pgTable('api_keys', {
 
 // --- Action & Governance Tables ---
 
+// @domain governance
 export const actionRecords = pgTable('action_records', {
   id: serial('id').primaryKey(),
   actionId: text('action_id').unique(), // ar_ prefix
@@ -453,6 +455,7 @@ export const sharedDocs = pgTable('shared_docs', {
 
 // --- Policy & Guard ---
 
+// @domain governance
 export const guardPolicies = pgTable('guard_policies', {
   id: text('id').primaryKey(),
   orgId: text('org_id').notNull().references(() => organizations.id),

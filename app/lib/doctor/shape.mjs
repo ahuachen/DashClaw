@@ -13,17 +13,6 @@ const SHAPE_PATH = resolve(HERE, 'generated', 'shape.json');
 
 const shape = JSON.parse(readFileSync(SHAPE_PATH, 'utf8'));
 
-/**
- * Curated mapping of table name → functional domain.
- * Tables not listed here are treated as `other`. Keep this list small and
- * intentional — only tables that doctor checks reason about need a domain.
- */
-const TABLE_DOMAINS = {
-  guard_policies: 'governance',
-  action_records: 'governance',
-  api_keys: 'governance',
-};
-
 const GOVERNANCE_DOMAIN = 'governance';
 
 const TABLE_INDEX = new Map(shape.tables.map((t) => [t.name, t]));
@@ -36,14 +25,17 @@ export function getAllTables() {
 }
 
 /**
- * Return governance-domain tables (from the curated domain map).
- * Any governance-related table not present in the shape snapshot is omitted.
+ * Return tables with a matching `domain` field (sourced from
+ * `// @domain <name>` annotations directly above `pgTable(...)` calls in
+ * schema.js). Returns `[]` when nothing is annotated for that domain.
  */
+export function getTablesByDomain(domain) {
+  return shape.tables.filter((t) => t.domain === domain);
+}
+
+/** Convenience wrapper for the governance domain. */
 export function getGovernanceTables() {
-  const names = Object.entries(TABLE_DOMAINS)
-    .filter(([, domain]) => domain === GOVERNANCE_DOMAIN)
-    .map(([name]) => name);
-  return names.filter((n) => TABLE_INDEX.has(n)).map((n) => TABLE_INDEX.get(n));
+  return getTablesByDomain(GOVERNANCE_DOMAIN);
 }
 
 /**

@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:770a0fe564bc28bce2679c1558df96a2960d931f",
+  "timestamp": "sha1:efecd56da11788b3384dc1b5c22b71e187f93e35",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3382,295 +3382,368 @@
   "tables": [
     {
       "name": "action_embeddings",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "action_records",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": "governance"
     },
     {
       "name": "activity_logs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_connections",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_identities",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_messages",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_pairings",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_presence",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_schedules",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "agent_sessions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "api_keys",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": "governance"
     },
     {
       "name": "assumptions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "calendar_events",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "compliance_snapshots",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "contacts",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "content",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "context_entries",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "context_points",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "daily_totals",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "decisions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "drift_alerts",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "drift_baselines",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "drift_snapshots",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "entities",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "eval_runs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "eval_scores",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "executions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "feedback",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "goals",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "guard_decisions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "guard_policies",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": "governance"
     },
     {
       "name": "guardrails_test_runs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "health_snapshots",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "ideas",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "interactions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "learning_curves",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "learning_episodes",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "learning_recommendation_events",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "learning_recommendations",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "learning_velocity",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "message_threads",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "milestones",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "notification_preferences",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "open_loops",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "organizations",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "profile_scores",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "prompt_runs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "prompt_templates",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "prompt_versions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "risk_templates",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "routing_agent_metrics",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "routing_agents",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "routing_decisions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "routing_tasks",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "scheduled_jobs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "scoring_dimensions",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "scoring_profiles",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "session_events",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "shared_docs",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "snippets",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "token_budgets",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "token_snapshots",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "topics",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "usage_meters",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "user_approaches",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "user_moods",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "user_observations",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "user_preferences",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "users",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "waitlist",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "webhook_deliveries",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "webhooks",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     },
     {
       "name": "workflows",
-      "file_path": "schema/schema.js"
+      "file_path": "schema/schema.js",
+      "domain": null
     }
   ]
 }
