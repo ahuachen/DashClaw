@@ -254,3 +254,97 @@ describe('POST /api/telegram/webhook — deny', () => {
     expect(JSON.parse(editCall[1].body).text).toContain('❌ Denied');
   });
 });
+
+describe('POST /api/telegram/webhook — idempotency and errors', () => {
+  const AUTH = { 'X-Telegram-Bot-Api-Secret-Token': 'S3CRET' };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.TELEGRAM_BOT_TOKEN = 'TBOT';
+    process.env.TELEGRAM_WEBHOOK_SECRET = 'S3CRET';
+    process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
+    process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    vi.restoreAllMocks();
+  });
+
+  it('does not call recordApproval when action is already resolved, and edits with "Already resolved"', async () => {
+    mockGetActionStatus.mockResolvedValue({
+      action_id: 'act_abc12345', status: 'completed',
+      agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
+    });
+
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    expect(mockRecordApproval).not.toHaveBeenCalled();
+
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(JSON.parse(editCall[1].body).text).toContain('Already resolved');
+
+    const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
+    expect(ackCall).toBeDefined();
+    expect(JSON.parse(ackCall[1].body).text).toContain('Already resolved');
+  });
+
+  it('short-circuits with "Action not found" when getActionStatus returns null', async () => {
+    mockGetActionStatus.mockResolvedValue(null);
+
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    expect(mockRecordApproval).not.toHaveBeenCalled();
+    const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
+    expect(JSON.parse(ackCall[1].body).text).toContain('Action not found');
+  });
+
+  it('still acks the callback when recordApproval throws', async () => {
+    mockGetActionStatus.mockResolvedValue({
+      action_id: 'act_abc12345', status: 'pending_approval',
+      agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
+    });
+    mockRecordApproval.mockRejectedValue(new Error('DB down'));
+
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
+    expect(ackCall).toBeDefined();
+    expect(JSON.parse(ackCall[1].body).text).toContain('Approval failed');
+  });
+});

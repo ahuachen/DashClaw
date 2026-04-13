@@ -93,23 +93,42 @@ export async function POST(request) {
   const orgId = process.env.TELEGRAM_APPROVER_ORG_ID;
   const action = await getActionStatus(sql, orgId, action_id);
 
-  if (!action || action.status !== 'pending_approval') {
-    // Idempotency handled in Task 9.
+  const chat_id = cq.message?.chat?.id;
+  const message_id = cq.message?.message_id;
+
+  if (!action) {
+    await Promise.all([
+      answerCallback(cq.id, 'Action not found'),
+      editMessage(chat_id, message_id, '⚠️ Action not found'),
+    ]);
     return ok();
   }
 
-  const chat_id = cq.message?.chat?.id;
-  const message_id = cq.message?.message_id;
+  if (action.status !== 'pending_approval') {
+    await Promise.all([
+      answerCallback(cq.id, 'Already resolved'),
+      editMessage(chat_id, message_id,
+        `⚠️ Already resolved — status: ${action.status}`),
+    ]);
+    return ok();
+  }
+
   const userId = `telegram:${senderId}`;
 
   if (verb === 'ap') {
-    await recordApproval(sql, orgId, action_id, {
-      newStatus: 'running',
-      errorMessage: null,
-      decision: 'allow',
-      userId,
-      safeReasoning: null,
-    });
+    try {
+      await recordApproval(sql, orgId, action_id, {
+        newStatus: 'running',
+        errorMessage: null,
+        decision: 'allow',
+        userId,
+        safeReasoning: null,
+      });
+    } catch (err) {
+      console.warn('[TelegramWebhook] recordApproval (approve) failed:', err.message);
+      await answerCallback(cq.id, 'Approval failed');
+      return ok();
+    }
     await Promise.all([
       answerCallback(cq.id),
       editMessage(chat_id, message_id,
@@ -119,13 +138,19 @@ export async function POST(request) {
   }
 
   // verb === 'dn'
-  await recordApproval(sql, orgId, action_id, {
-    newStatus: 'failed',
-    errorMessage: 'Denied via Telegram',
-    decision: 'deny',
-    userId,
-    safeReasoning: 'Denied via Telegram',
-  });
+  try {
+    await recordApproval(sql, orgId, action_id, {
+      newStatus: 'failed',
+      errorMessage: 'Denied via Telegram',
+      decision: 'deny',
+      userId,
+      safeReasoning: 'Denied via Telegram',
+    });
+  } catch (err) {
+    console.warn('[TelegramWebhook] recordApproval (deny) failed:', err.message);
+    await answerCallback(cq.id, 'Approval failed');
+    return ok();
+  }
   await Promise.all([
     answerCallback(cq.id),
     editMessage(chat_id, message_id,
