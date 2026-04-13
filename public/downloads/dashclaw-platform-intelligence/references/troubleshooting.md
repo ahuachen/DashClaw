@@ -2,21 +2,44 @@
 
 ## Table of Contents
 
+- [Triage: Run Doctor First](#triage-run-doctor-first)
 - [Error: 401 Unauthorized](#error-401-unauthorized)
 - [Error: 403 Forbidden](#error-403-forbidden)
 - [Error: 429 Rate Limited](#error-429-rate-limited)
 - [Error: 503 Server Misconfigured](#error-503-server-misconfigured)
 - [Error: redirect_uri Not Associated](#error-redirect_uri-not-associated)
+- [First User Not Admin](#first-user-not-admin)
 - [Actions Not Appearing in Dashboard](#actions-not-appearing-in-dashboard)
+- [Blocked Actions Not Audited](#blocked-actions-not-audited)
 - [Agent Pairing Fails](#agent-pairing-fails)
 - [Guard Blocks Unexpectedly](#guard-blocks-unexpectedly)
 - [Session Stalled](#session-stalled)
 - [Branch Freshness Block](#branch-freshness-block)
 - [MCP Degraded](#mcp-degraded)
+- [Drift Guard Failed](#drift-guard-failed)
 - [Permission Escalation Block](#permission-escalation-block)
 - [Common Gotchas](#common-gotchas)
 - [General Diagnostic Approach](#general-diagnostic-approach)
 - [Companion Diagnostic Scripts](#companion-diagnostic-scripts)
+
+## Triage: Run Doctor First
+
+For almost any self-host issue, run Doctor before anything else. It diagnoses database schema, configuration, auth, deployment, SDK reachability, governance staleness, and livingcode shape drift — and auto-fixes safe issues.
+
+```bash
+# As an operator on the host:
+npm run doctor                  # local mode — can write .env, run migrations
+
+# From anywhere with an API key:
+dashclaw doctor                 # rich terminal output, invokes /api/doctor[/fix]
+dashclaw doctor --no-fix        # diagnose only
+dashclaw doctor --json          # for CI / scripts
+dashclaw doctor --category database,config
+```
+
+**Exit codes:** `0` healthy, `1` warnings/failures/unreachable.
+
+If Doctor reports `drift_detected`, see [Drift Guard Failed](#drift-guard-failed). If it fails with no config, it will prompt you interactively and offer to save to `~/.dashclaw/config.json` (`600` mode). Use `dashclaw logout` to remove saved credentials.
 
 ## Error: 401 Unauthorized
 
@@ -91,6 +114,20 @@ Add these callback URLs:
 
 For production, replace `http://localhost:3000` with your deployed URL.
 
+## First User Not Admin
+
+**Symptom:** You signed in to a fresh self-hosted instance and landed with `role=member` instead of `role=admin`. You can't access admin-only surfaces.
+
+**Expected behavior:** The **first user** to sign in to a fresh instance is auto-promoted to `role=admin` in their org (BUG-03 fix, `707c5636`). Subsequent signups default to `role=member`.
+
+**Diagnosis:**
+
+1. Confirm you were the first sign-in (another user signing in before OAuth redirect churn completes is a common cause — the signIn callback gates promotion on a settled session, not bootstrap).
+2. Check the `users` table for your row and inspect `role` and `organization_id`.
+3. If an admin already exists, first-user promotion is skipped by design. Ask the existing admin to promote you via `PATCH /api/team/[userId]`.
+
+**Fix:** If you were genuinely first and the promotion didn't happen (stale code pre-fix), upgrade past `707c5636` or manually `UPDATE users SET role='admin' WHERE id=...`.
+
 ## Actions Not Appearing in Dashboard
 
 1. **Org mismatch**: The agent's API key must resolve to the same org as the dashboard user. Check which org the key maps to.
@@ -101,6 +138,18 @@ For production, replace `http://localhost:3000` with your deployed URL.
    node .claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs \
      --base-url http://localhost:3000 --api-key $DASHCLAW_API_KEY
    ```
+
+## Blocked Actions Not Audited
+
+**Symptom:** Guard blocked an action but no record appears in the Decisions ledger or `action_records`.
+
+**Cause:** Pre-BUG-02, `dashclaw_pretool`'s `handle_block` returned early without recording. The fix now records blocked actions with `status=blocked`.
+
+**Fix:**
+
+1. Verify you're running a hook version that includes the BUG-02 fix (`e9ce9aaa`, `6f0a57bd`).
+2. Confirm the server accepts `status=blocked` on `POST /api/actions` (it does post-`6f0a57bd`).
+3. Re-run the action to confirm a `blocked` row now lands in the audit trail.
 
 ## Agent Pairing Fails
 
@@ -201,6 +250,22 @@ The agent pairing flow has several gotchas:
    curl -H "x-api-key: $DASHCLAW_API_KEY" \
      $DASHCLAW_BASE_URL/api/sessions/$SESSION_ID/events
    ```
+
+## Drift Guard Failed
+
+**Symptom:** `npm run doctor` (or `dashclaw doctor`) reports `drift_detected`. Pre-commit hook aborts with a livingcode drift warning. Skill/OpenAPI/API inventory artifacts look out of date.
+
+**Cause:** The livingcode shape snapshot at `app/lib/doctor/generated/last-snapshot.json` disagrees with the current repo shape. Some source under `app/api/`, `app/lib/`, `schema/schema.js`, `middleware.js`, or `livingcode/` changed without regenerating derivative artifacts.
+
+**Fix:**
+
+```bash
+npm run livingcode:refresh
+```
+
+That re-emits `shape.json`, `last-snapshot.json`, doctor check modules, the MCP route inventory, `public/downloads/dashclaw-platform-intelligence/SKILL.md`, the zip + manifest, and the global `~/.claude/skills/dashclaw-platform-intelligence/SKILL.md` (if writable). Outputs are idempotent — re-runs produce byte-identical content when source is unchanged.
+
+**Never hand-edit generated artifacts.** Pre-commit will overwrite them and you'll lose your changes. Edit the source (code / `livingcode/emitters/*.py` / `references/*.md`) and regenerate.
 
 ## Permission Escalation Block
 

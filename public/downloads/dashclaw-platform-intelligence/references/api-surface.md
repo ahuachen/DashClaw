@@ -1,14 +1,24 @@
 # DashClaw API Surface
 
-140+ routes across 29 categories. Node SDK uses camelCase, Python SDK uses snake_case.
+**172 active routes across 43 categories** (v2.13.1, April 2026). Node SDK uses camelCase, Python SDK uses snake_case.
+
+> The full authoritative inventory is auto-generated — see `SKILL.md` (regenerated from the livingcode shape) and `docs/api-inventory.md`. This file is a curated narrative for the most commonly consumed surfaces plus anything new that doesn't yet have an SDK mapping.
 
 ## Table of Contents
 
+- [Doctor (self-host diagnostics)](#doctor-self-host-diagnostics)
+- [MCP Server](#mcp-server)
+- [Analytics](#analytics)
 - [Action Recording](#action-recording)
+- [Approvals](#approvals)
+- [Agent Fleet and Profile](#agent-fleet-and-profile)
 - [Loops and Assumptions](#loops-and-assumptions)
 - [Signals](#signals)
 - [Behavior Guard](#behavior-guard)
+- [Guard Decisions Audit Log](#guard-decisions-audit-log)
 - [Policies](#policies)
+- [Capabilities](#capabilities)
+- [Workflows](#workflows)
 - [Context Manager](#context-manager)
 - [Agent Messaging](#agent-messaging)
 - [Automation Snippets](#automation-snippets)
@@ -37,6 +47,95 @@
 - [Guard Policy Types](#guard-policy-types)
 - [Dashboard Data and Other Routes](#dashboard-data-and-other-routes)
 
+## Doctor (self-host diagnostics)
+
+**Maturity:** New (April 2026)
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/doctor` | GET | Run all check modules (database, config, auth, deployment, SDK, governance, drift guard). Returns per-check pass/fail + summary. |
+| `/api/doctor/fix` | POST | Apply safe auto-fixes (migrate DB, generate secrets, CORS config, seed default policy). Backs up `.env` before any write. |
+
+The CLI (`dashclaw doctor`) invokes these endpoints. Local mode (`npm run doctor`) runs the same engine with filesystem access for env writes. Check modules + constants are emitted from the livingcode shape into `app/lib/doctor/generated/checks-from-shape.mjs`.
+
+## MCP Server
+
+**Maturity:** New (April 2026)
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/mcp` | POST | Model Context Protocol Streamable HTTP transport. Same 8 tools / 4 resources exposed by the stdio binary (`@dashclaw/mcp-server`). |
+
+**Tools:** `dashclaw_guard`, `dashclaw_record`, `dashclaw_invoke`, `dashclaw_capabilities_list`, `dashclaw_policies_list`, `dashclaw_wait_for_approval`, `dashclaw_session_start`, `dashclaw_session_end`.
+
+**Resources:** `dashclaw://policies`, `dashclaw://capabilities`, `dashclaw://agent/{agent_id}/history`, `dashclaw://status`.
+
+Tool route mapping lives in `mcp-server/lib/routes-inventory.generated.json` — emitted from shape, not hand-edited.
+
+## Analytics
+
+**Maturity:** New (April 2026)
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/analytics` | GET | Aggregated cost + action analytics for the `/analytics` dashboard. Returns hero stats with trend comparison, cost trend series, action volume series, breakdowns by agent/action type/model, and token usage. |
+
+## Approvals
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/approvals/[actionId]` | POST | Approve or deny a pending action (body: `{ decision, reasoning }`). Shared by browser, CLI, `/approve` mobile PWA, and SDK polling. Publishes `action.updated` to the Redis SSE stream. |
+
+## Agent Fleet and Profile
+
+| Endpoint | Methods | Node SDK |
+|---|---|---|
+| `/api/agents` | GET | `getAgents` |
+| `/api/agents/[agentId]` | GET | `getAgent` |
+| `/api/agents/[agentId]/profile` | GET | Aggregated governance profile: vitals strip, trust posture, assumptions summary, policies, recent decisions, signals. Powers `/agents/[agentId]` page. |
+| `/api/agents/connections` | GET, POST | `getAgentConnections`, `reportConnections` |
+| `/api/agents/heartbeat` | POST | `heartbeat` — auto-updates `agent_presence` on action submission (`418fc872`) |
+
+## Guard Decisions Audit Log
+
+**Maturity:** New (April 2026)
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/guard/decisions` | GET | Queryable guard decision audit log (triggering policy, risk score, matched rules, outcome). Powers `/policies` ActivityTab. SQL consolidated into `guardrails.repository.js`. |
+
+## Capabilities
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/capabilities` | GET, POST | List / register capabilities |
+| `/api/capabilities/[capabilityId]` | GET, PATCH, DELETE | Read / edit / delete (DELETE added April 2026 — `36a307ac`) |
+| `/api/capabilities/[capabilityId]/access` | GET, POST | Access rules |
+| `/api/capabilities/[capabilityId]/access/[ruleId]` | DELETE | Remove access rule |
+| `/api/capabilities/[capabilityId]/access/check` | GET | Resolve access for a given caller |
+| `/api/capabilities/[capabilityId]/health` | GET | Per-capability health |
+| `/api/capabilities/[capabilityId]/history` | GET | Invocation history |
+| `/api/capabilities/[capabilityId]/invoke` | POST | Full guard → execute → record loop |
+| `/api/capabilities/[capabilityId]/test` | POST | Dry-run test invocation |
+| `/api/capabilities/health` | GET | Registry-wide health |
+
+## Workflows
+
+| Endpoint | Methods | Purpose |
+|---|---|---|
+| `/api/workflows/draft` | POST | Draft a workflow from a natural-language goal |
+| `/api/workflows/templates` | GET, POST | List / create templates |
+| `/api/workflows/templates/[templateId]` | GET, PATCH, DELETE | CRUD |
+| `/api/workflows/templates/[templateId]/duplicate` | POST | Clone a template |
+| `/api/workflows/templates/[templateId]/execute` | POST | One-shot execution |
+| `/api/workflows/templates/[templateId]/launch` | POST | Long-running launch (returns runActionId) |
+| `/api/workflows/templates/[templateId]/runs` | GET | List runs |
+| `/api/workflows/templates/[templateId]/runs/[runActionId]` | GET | Run detail |
+| `/api/workflows/templates/[templateId]/runs/[runActionId]/cancel` | POST | Cancel |
+| `/api/workflows/templates/[templateId]/runs/[runActionId]/resume` | POST | Resume after pause/approval |
+
+Template variables serialize objects and preserve arrays (`c4164311`); `prompt_template` replaces the old `prompt` field in analyze steps (`58bc63e1`).
+
 ## Action Recording
 
 **Maturity:** Stable
@@ -44,11 +143,23 @@
 | Endpoint | Methods | Node SDK | Python SDK |
 |---|---|---|---|
 | `/api/actions` | GET, POST, DELETE | `createAction`, `getActions` | `create_action`, `get_actions` |
-| `/api/actions/{actionId}` | GET, PATCH | `getAction`, `updateOutcome` | `get_action`, `update_outcome` |
-| `/api/actions/{actionId}/approve` | POST | `approveAction` | `approve_action` |
-| `/api/actions/{actionId}/trace` | GET | `getActionTrace` | `get_action_trace` |
+| `/api/actions/[actionId]` | GET, PATCH | `getAction`, `updateOutcome` | `get_action`, `update_outcome` |
+| `/api/actions/[actionId]/artifacts` | GET | `getActionArtifacts` | `get_action_artifacts` |
+| `/api/actions/[actionId]/graph` | GET | `getActionGraph` | `get_action_graph` |
+| `/api/actions/[actionId]/messages` | GET | `getActionMessages` | `get_action_messages` |
+| `/api/actions/[actionId]/trace` | GET | `getActionTrace` | `get_action_trace` |
+| `/api/actions/costs` | GET | `getActionCosts` | `get_action_costs` |
+| `/api/actions/loops` | GET, POST | see Loops and Assumptions | — |
+| `/api/actions/stats` | GET | `getActionStats` | `get_action_stats` |
 
-`getPendingApprovals` / `get_pending_approvals` -- queries actions with status=pending_approval.
+`getPendingApprovals` / `get_pending_approvals` — queries actions with `status=pending_approval`.
+
+**Action approvals moved** — use `POST /api/approvals/[actionId]` (see [Approvals](#approvals)), not the legacy `/api/actions/[actionId]/approve` path.
+
+**Validation notes (April 2026):**
+- `action_type` is **no longer restricted to an enum** — arbitrary strings from third-party agent frameworks are accepted (`11e0911a`).
+- `status=blocked` is a valid action status. The `dashclaw_pretool` hook records blocked actions with `status=blocked` when guard returns `decision=block` (`6f0a57bd`, BUG-02).
+- `GET /api/actions/[actionId]` responses include `message_summary` alongside the action record.
 
 ## Loops and Assumptions
 

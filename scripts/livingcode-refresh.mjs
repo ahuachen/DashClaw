@@ -54,12 +54,15 @@ const MCP_INVENTORY_PATH = resolve(REPO_ROOT, 'mcp-server', 'lib', 'routes-inven
 const PY = process.env.PYTHON || 'python';
 const SKILL_TIMESTAMP_LINE = /^(\*\*Shape snapshot:\*\*\s+`)[^`]+(`)/m;
 
-// Source file patterns that imply the generated shape may have changed.
+// Source file patterns that imply the generated shape or skill may have changed.
 // If pre-commit (--if-staged) sees none of these staged, it skips the refresh.
-const SOURCE_PATH_RE = /^(app\/api\/|app\/lib\/|schema\/schema\.js$|middleware\.js$|livingcode\/)/;
+// `public/downloads/dashclaw-platform-intelligence/{references,scripts}/` counts
+// as source: editing those hand-authored files should trigger a mirror to the
+// global skill dir even when no code under app/ changed.
+const SOURCE_PATH_RE = /^(app\/api\/|app\/lib\/|schema\/schema\.js$|middleware\.js$|livingcode\/|public\/downloads\/dashclaw-platform-intelligence\/(references|scripts)\/)/;
 // Paths that are themselves generated output — staging these doesn't count as
 // a source change that should trigger a refresh.
-const GENERATED_PATH_RE = /^(app\/lib\/doctor\/generated\/|public\/downloads\/dashclaw-platform-intelligence)/;
+const GENERATED_PATH_RE = /^(app\/lib\/doctor\/generated\/|public\/downloads\/dashclaw-platform-intelligence\/SKILL\.md$|public\/downloads\/dashclaw-platform-intelligence\.zip(\.manifest)?$)/;
 
 function isSourceChange(path) {
   const normalised = path.replace(/\\/g, '/');
@@ -158,6 +161,69 @@ function writeIfChanged(path, content, label) {
   writeFileSync(path, content, 'utf8');
   log(`${label} -> ${relative(REPO_ROOT, path)}`);
   return true;
+}
+
+/**
+ * Mirror a source subdirectory into the global skill dir, using writeIfChanged
+ * per file so the output is idempotent. Removes stale files in the destination
+ * that no longer exist in the source. Skips quietly if the global dir is not
+ * writable (CI / non-dev machines).
+ */
+function mirrorSubdir(srcRoot, dstRoot, subdir, label) {
+  const src = join(srcRoot, subdir);
+  const dst = join(dstRoot, subdir);
+  if (!existsSync(src)) return;
+
+  try {
+    ensureDir(dst);
+  } catch (err) {
+    warn(`could not create ${label} dir (${err.message}) — fine on CI/non-dev machines`);
+    return;
+  }
+
+  const srcFiles = new Set();
+  const walk = (relative_ = '') => {
+    const current = relative_ ? join(src, relative_) : src;
+    const entries = readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const rel = relative_ ? join(relative_, entry.name) : entry.name;
+      const srcPath = join(src, rel);
+      const dstPath = join(dst, rel);
+      if (entry.isDirectory()) {
+        ensureDir(dstPath);
+        walk(rel);
+      } else if (entry.isFile()) {
+        srcFiles.add(rel);
+        const content = readFileSync(srcPath, 'utf8');
+        writeIfChanged(dstPath, content, `${label}/${rel.replace(/\\/g, '/')}`);
+      }
+    }
+  };
+
+  try {
+    walk();
+  } catch (err) {
+    warn(`could not mirror ${label} (${err.message}) — fine on CI/non-dev machines`);
+    return;
+  }
+
+  // Remove destination files that no longer exist in source.
+  const prune = (relative_ = '') => {
+    const current = relative_ ? join(dst, relative_) : dst;
+    if (!existsSync(current)) return;
+    const entries = readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const rel = relative_ ? join(relative_, entry.name) : entry.name;
+      const dstPath = join(dst, rel);
+      if (entry.isDirectory()) {
+        prune(rel);
+      } else if (entry.isFile() && !srcFiles.has(rel)) {
+        rmSync(dstPath, { force: true });
+        log(`${label}/${rel.replace(/\\/g, '/')} removed (no longer in source)`);
+      }
+    }
+  };
+  prune();
 }
 
 function hashDirectory(dir) {
@@ -284,6 +350,12 @@ async function main() {
   } catch (err) {
     warn(`could not write global skill (${err.message}) — fine on CI/non-dev machines`);
   }
+
+  // Mirror hand-authored companion files (references/, scripts/) from the website
+  // source of truth to the global skill dir. Keeps the global copy in sync
+  // whenever references prose or diagnostic scripts change.
+  mirrorSubdir(WEBSITE_SKILL_DIR, GLOBAL_SKILL_DIR, 'references', 'skill-references (global)');
+  mirrorSubdir(WEBSITE_SKILL_DIR, GLOBAL_SKILL_DIR, 'scripts', 'skill-scripts (global)');
 
   refreshSkillZip(WEBSITE_SKILL_DIR, WEBSITE_SKILL_ZIP, WEBSITE_SKILL_MANIFEST);
 

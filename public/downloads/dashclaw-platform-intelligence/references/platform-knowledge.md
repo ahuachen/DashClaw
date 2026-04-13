@@ -9,6 +9,11 @@
 - [ID Prefixes](#id-prefixes)
 - [Architectural Guardrails](#architectural-guardrails)
 - [Product Surfaces](#product-surfaces)
+- [Dashboard Navigation](#dashboard-navigation)
+- [CLI and Hooks Layer](#cli-and-hooks-layer)
+- [Extension Layer](#extension-layer)
+- [Signal Types](#signal-types)
+- [Livingcode Shape System](#livingcode-shape-system)
 - [Key Reference Files](#key-reference-files)
 
 ## What DashClaw Is
@@ -33,7 +38,11 @@ Both modes serve the same landing page. `/demo` sets a cookie and redirects to `
 - Next.js 16 (App Router), JavaScript, Tailwind CSS 3
 - Postgres (TCP via `postgres`, serverless via `@neondatabase/serverless`)
 - Auth: NextAuth v4 for UI (GitHub, Google, or OIDC), `x-api-key` header for agents/tools
-- SDKs: Node v2 (`sdk/dashclaw.js`, 45 methods — agent runtime), Node v1 (`sdk/legacy/dashclaw-v1.js`, 188 methods — full platform), Python (`sdk-python/dashclaw/client.py`, 185+ methods — full platform)
+- **Platform version:** 2.13.1 (see `CHANGELOG.md`). **`dashclaw` npm SDK:** 2.11.1.
+- SDKs:
+  - **Node v2 — governance runtime** (`sdk/dashclaw.js`, 80 methods across Core Governance, Scoring, Execution Studio, Messaging, Sessions, and Capability Runtime). This is the SDK that ships as the `dashclaw` package.
+  - **Node v1 — full platform legacy** (`sdk/legacy/dashclaw-v1.js`, 187 methods), re-exported as `dashclaw/legacy` for older integrations (see `docs/sdk-parity.md`).
+  - **Python — full platform** (`sdk-python/dashclaw/client.py`, 235 methods).
 - Node SDK naming: camelCase. Python SDK naming: snake_case.
 
 ## Auth Chain
@@ -76,6 +85,12 @@ Client request hits middleware.js
               |
               +--> Cross-origin without key --> 401 Unauthorized
 ```
+
+**First-user-admin rule:** The first user to sign in to a fresh self-hosted instance is auto-promoted to `role=admin` in their org. Subsequent signups land as `role=member` by default. The signIn callback (`app/lib/auth/callbacks.js`) gates this on a settled session — not on bootstrap promotion — so the rule survives OAuth redirect churn. See BUG-03 fix (`707c5636`).
+
+**Action type validation:** `POST /api/actions` now accepts **arbitrary `action_type` strings** from third-party agent frameworks. Validation was intentionally relaxed in `11e0911a` — don't assume an enum.
+
+**Plan quotas:** All plan quotas (API keys, actions/day, agents) were removed (`49d7b69c`, `db6ee6b0`). Open-source instances are unlimited by design.
 
 ## ID Prefixes
 
@@ -132,10 +147,22 @@ Client request hits middleware.js
 |---|---|
 | `/` | Public landing site |
 | `/demo` | Demo sandbox (fake data, read-only, no login) |
+| `/connect` | 8-minute "first governed action" onboarding (MCP + agent bootstrap paths) |
+| `/setup` | Readiness verification and instance health |
 | `/mission-control` | Strategic fleet overview (reactive timeline + live log) |
 | `/dashboard` | Draggable widget dashboard (real-time reactive cards) |
 | `/workspace` | Per-agent workspace (digest, context, handoffs, snippets, preferences, memory) |
+| `/approve` | Mobile PWA approval surface (optimized for on-call operator on phone) |
+| `/approvals` | Desktop approval queue |
+| `/decisions` | Visual causal chain ledger with inline message trails in expanded rows |
+| `/decisions/{actionId}` | Chronological decision timeline (guard decisions, messages, assumptions, actions, outcomes, open loops) |
+| `/agents` | Fleet roster (presence, health, recent actions) |
+| `/agents/{agentId}` | Agent governance profile — vitals strip, trust posture, policies, decisions, assumptions, signals |
+| `/policies` | Shields-first policy builder (ActivityTab + CustomTab, AI generator inline, agent-scope picker, risk explainer) |
+| `/policies/generate` | AI policy generator standalone page |
 | `/security` | Security dashboard (signals, guard decisions, findings) |
+| `/analytics` | Cost + action analytics (hero stats, cost trend, action volume, breakdowns, token usage) |
+| `/activity` | Raw activity log |
 | `/routing` | Task routing (agent registry, task queue, health) |
 | `/compliance` | Compliance mapping (framework controls, gap analysis, evidence, reports) |
 | `/compliance/exports` | Compliance export generation, scheduling, downloads |
@@ -144,24 +171,69 @@ Client request hits middleware.js
 | `/feedback` | User feedback (ratings, sentiment, auto-tagging, resolution) |
 | `/drift` | Drift detection (baselines, alerts, severity, trends) |
 | `/learning` | Learning loop (episodes, recommendations) |
-| `/learning/analytics` |
-| `/scoring` | Learning analytics (velocity, maturity, curves, summary) |
+| `/learning/analytics` | Learning analytics (velocity, maturity, curves, summary) |
+| `/scoring` | Scoring profiles and dimensions |
 | `/sessions` | Session Lifecycle dashboard (active sessions, stall detection, recovery) |
-| `/decisions/{actionId}` | Chronological decision timeline (guard decisions, messages, assumptions, actions, outcomes, open loops merged by timestamp) |
+| `/capabilities` | Capability registry (edit/delete inline, invoke, test, health) |
+| `/integrations` | Integrations health |
+| `/webhooks` | Outbound webhook configuration and delivery history |
+| `/identities` | Agent identity binding with approval confirmation and permission levels |
+| `/api-keys` | API key management |
 
-The decisions ledger now shows inline message trails in expanded rows.
+## Dashboard Navigation
+
+The left sidebar is organized into four groups (`app/components/Sidebar.js`). **Labs** starts collapsed by default to keep the sidebar calm; state persists via `sessionStorage`.
+
+| Group | Items |
+|---|---|
+| **Govern** | Mission Control, Decisions, Approvals, Policies, Fleet |
+| **Observe** | Security, Analytics, Activity, Compliance |
+| **Configure** | API Keys, Integrations, Webhooks, Identities, Settings |
+| **Labs** *(collapsible)* | Assumptions, Sessions, Drift, Learning, Quality, Prompts, Feedback, Workflows, Model Strategies, Knowledge, Capabilities |
 
 ## CLI and Hooks Layer
 
-DashClaw has three integration surfaces beyond the SDK:
+**CLI (`@dashclaw/cli`)**: Terminal client installed via `npm install -g @dashclaw/cli` (see `cli/`). Commands:
+- `dashclaw approvals` — interactive inbox (arrow keys, `A`/`D`/`O`/`Q`)
+- `dashclaw approve <actionId> [--reason ...]`
+- `dashclaw deny <actionId> [--reason ...]`
+- `dashclaw doctor [--json] [--no-fix] [--category ...]` — diagnoses instance and auto-fixes safe issues by invoking `/api/doctor` and `/api/doctor/fix`
+- `dashclaw logout` — removes saved config
 
-**CLI (`@dashclaw/cli`)**: A terminal approval client installed via `npm install -g @dashclaw/cli`. Provides `dashclaw approvals` (interactive inbox), `dashclaw approve <id>`, and `dashclaw deny <id>`. Uses the same `POST /api/actions/:id/approve` endpoint as the browser dashboard. Decisions sync in real time via the Redis SSE stream.
+Config resolution order:
+1. Env vars (`DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, optional `DASHCLAW_AGENT_ID`)
+2. `~/.dashclaw/config.json` (mode `600`, persisted after interactive prompt)
+3. Interactive first-run prompt
 
-**Claude Code Hooks (`hooks/`)**: Two Python scripts for `PreToolUse` and `PostToolUse` lifecycle events. Require only stdlib, no pip installs. Governed tools: Bash, Edit, Write, MultiEdit. Safe to install even without DashClaw configured (silent no-op when env vars are missing).
+Approvals use `POST /api/actions/:id/approve`; real-time sync via Redis SSE.
 
-**SDK terminal output**: The Node SDK's `waitForApproval()` method prints a structured approval block to stdout before blocking. The block includes the action ID, policy name, risk score, declared goal, and the replay URL. This gives terminal-first workflows full governance visibility without a browser.
+**Claude Code Hooks (`hooks/`)**: Two Python scripts for `PreToolUse` and `PostToolUse` lifecycle events. Require only stdlib, no pip installs. Governed tools: Bash, Edit, Write, MultiEdit. Safe to install even without DashClaw configured (silent no-op when env vars are missing). `dashclaw_pretool` records blocked actions on `handle_block` so the audit trail captures policy denials (BUG-02 fix).
 
-**Approval sync architecture**: All three surfaces (browser, CLI, SDK polling) converge at `POST /api/actions/:id/approve`. The API commits to Neon Postgres, publishes `action.updated` to the Redis stream, and every connected SSE listener receives the decision. The browser dashboard, the SDK polling loop, and the CLI inbox all stay in sync within the SSE heartbeat window (~1 second).
+**SDK terminal output**: The Node SDK's `waitForApproval()` method prints a structured approval block to stdout before blocking. The block includes the action ID, policy name, risk score, declared goal, and the replay URL.
+
+**Approval sync architecture**: Browser, CLI, mobile `/approve` PWA, and SDK polling all converge at `POST /api/actions/:id/approve`. The API commits to Neon Postgres, publishes `action.updated` to the Redis stream, and every connected SSE listener receives the decision within the SSE heartbeat window (~1 second).
+
+**DashClaw Doctor (`npm run doctor` + `/api/doctor`)**: Self-host diagnostic and auto-fix engine. Runs check modules for database schema, configuration, auth, deployment, SDK reachability, and governance staleness. Local mode (`npm run doctor`) handles filesystem-level fixes — e.g., writing env vars to `.env` (always backing up), generating secrets, CORS config, seeding a default policy, running DB migrations. API endpoints (`GET /api/doctor`, `POST /api/doctor/fix`) are used by the CLI and by CI pipelines. Check modules and constants are emitted from the livingcode shape (see `app/lib/doctor/generated/checks-from-shape.mjs`).
+
+## Extension Layer
+
+These are optional packages published alongside the core runtime.
+
+**`@dashclaw/mcp-server`** (`mcp-server/`): Model Context Protocol server exposing governance as MCP tools and resources. Two transports:
+- **stdio binary** — `npx @dashclaw/mcp-server --url ... --key ...` (Claude Desktop, Claude Code, MCP Inspector)
+- **Streamable HTTP** — `POST /api/mcp` on the DashClaw instance itself
+
+**8 tools:** `dashclaw_guard`, `dashclaw_record`, `dashclaw_invoke`, `dashclaw_capabilities_list`, `dashclaw_policies_list`, `dashclaw_wait_for_approval`, `dashclaw_session_start`, `dashclaw_session_end`.
+
+**4 resources:** `dashclaw://policies`, `dashclaw://capabilities`, `dashclaw://agent/{agent_id}/history`, `dashclaw://status`.
+
+Route inventory for tools is emitted from the shape to `mcp-server/lib/routes-inventory.generated.json` — keep tools and routes in sync.
+
+**`@dashclaw/openclaw-plugin`** (`packages/openclaw-plugin/`, v1.1.0): Governance plugin for the OpenClaw agent framework. Intercepts lifecycle hooks (`PreToolUse` / `PostToolUse`), calls `guard` / `record` / `wait_for_approval` automatically, and installs the HOOK.md pack via the openclaw CLI. Tool classification vocabulary aligns with DashClaw's guard action types. Ships with regression tests for `handle_block` audit-trail behavior.
+
+**`@dashclaw/governance` skill** (`public/downloads/dashclaw-governance/`): Companion Anthropic Claude skill that teaches governed agents the protocol (guard-before-act, decision handling, recording rules, session lifecycle). Loads org-specific policies and capabilities from MCP resources at session start. Designed to pair with `@dashclaw/mcp-server` in Managed Agents. See `public/downloads/dashclaw-governance/SKILL.md`.
+
+**Managed Agents integration**: The `examples/managed-agent-*` scripts show how to register a governed Managed Agent via the Anthropic API with the governance skill attached. The `scripts/setup-agents.ts` pattern creates an environment via the Managed Agents API and writes `ANTHROPIC_ENVIRONMENT_ID` back to `.env`.
 
 ## Signal Types
 
@@ -183,23 +255,63 @@ DashClaw emits 11 signal types. All are evaluated server-side without an LLM.
 
 Session lifecycle, signal emission, and recovery workflows all operate without an LLM provider configured. They use rule-based evaluation and threshold checks only.
 
+## Livingcode Shape System
+
+`livingcode/` is a Python package that models the DashClaw repo as a **shape** — a structured JSON snapshot of routes, env vars, tables, schema, and other derived facts. It produces drift-free derivative artifacts so docs, skills, MCP inventories, and doctor checks never go stale relative to code.
+
+**Commands:**
+
+```bash
+python -m livingcode query summary       # high-level counts
+python -m livingcode query routes        # current API surface
+python -m livingcode query env           # current env vars
+python -m livingcode query tables        # current schema
+python -m livingcode query all --json    # full machine-readable shape
+python -m livingcode diff                # compare snapshot to current repo
+python -m livingcode emit shape-json --output ...
+python -m livingcode emit skill --output ...
+python -m livingcode emit doctor-checks --output ...
+python -m livingcode emit mcp-tools --output ...
+```
+
+**Refresh orchestrator:** `scripts/livingcode-refresh.mjs` (run via `npm run livingcode:refresh`) re-emits every derivative artifact and is invoked automatically by the pre-commit hook when staged changes touch `app/api/`, `app/lib/`, `schema/schema.js`, `middleware.js`, or `livingcode/`. Outputs:
+
+- `app/lib/doctor/generated/shape.json` (committed; read at runtime by JS)
+- `app/lib/doctor/generated/last-snapshot.json` (drift-check baseline)
+- `app/lib/doctor/generated/checks-from-shape.mjs` (generated doctor checks)
+- `mcp-server/lib/routes-inventory.generated.json`
+- `public/downloads/dashclaw-platform-intelligence/SKILL.md` (website download)
+- `public/downloads/dashclaw-platform-intelligence.zip(.manifest)?`
+- `~/.claude/skills/dashclaw-platform-intelligence/SKILL.md` (global skill)
+
+**Idempotence:** The shape-json emitter substitutes a content-hash signature for the wall-clock timestamp, so re-runs produce byte-identical output. The zip is only rebuilt when the manifest hash disagrees with the skill directory contents.
+
+**Do not hand-edit generated artifacts.** The pre-commit hook will overwrite them. Regenerate instead.
+
+**Drift guard:** The doctor includes a drift check that compares `last-snapshot.json` with the current shape. If they disagree, `npm run doctor` reports `drift_detected` and suggests `npm run livingcode:refresh`.
+
 ## Key Reference Files
 
 When you need current data from the codebase, read these:
 
 | What | File |
 |---|---|
-| Full route inventory | `docs/api-inventory.json` |
+| Full route inventory | `docs/api-inventory.json` / `docs/api-inventory.md` |
 | OpenAPI spec (stable) | `docs/openapi/critical-stable.openapi.json` |
 | SDK parity matrix | `docs/sdk-parity.md` |
-| Node SDK source | `sdk/dashclaw.js` |
+| SDK README (copy-as-markdown source) | `sdk/README.md` |
+| Node v2 SDK source | `sdk/dashclaw.js` |
+| Node v1 legacy SDK source | `sdk/legacy/dashclaw-v1.js` |
 | Python SDK source | `sdk-python/dashclaw/client.py` |
 | Middleware (auth chain) | `middleware.js` |
+| Sidebar navigation | `app/components/Sidebar.js` |
 | Demo fixtures | `app/lib/demo/demoFixtures.js` |
 | Repository modules | `app/lib/repositories/*.repository.js` |
 | Client setup guide | `docs/client-setup-guide.md` |
 | Agent bootstrap guide | `docs/agent-bootstrap.md` |
+| Design context (anti-refs, tiebreakers) | `.impeccable.md` |
 | Project architecture | `PROJECT_DETAILS.md` |
+| Changelog (platform releases) | `CHANGELOG.md` |
 | Cross-SDK test harness | `docs/sdk-critical-contract-harness.json` |
 | Eval engine | `app/lib/eval.js` |
 | Prompt engine | `app/lib/prompt.js` |
@@ -209,3 +321,12 @@ When you need current data from the codebase, read these:
 | Learning analytics | `app/lib/learningAnalytics.js` |
 | Scoring profiles engine | `app/lib/scoringProfiles.js` |
 | LLM abstraction (optional) | `app/lib/llm.js` |
+| Doctor engine | `app/lib/doctor/` (+ generated `app/lib/doctor/generated/`) |
+| CLI entrypoint | `cli/bin/dashclaw.js` |
+| CLI doctor formatter | `cli/lib/doctor.js` |
+| MCP server (stdio + HTTP) | `mcp-server/` (README at `mcp-server/README.md`) |
+| OpenClaw plugin | `packages/openclaw-plugin/` |
+| Governance skill (companion) | `public/downloads/dashclaw-governance/SKILL.md` |
+| Livingcode package | `livingcode/` (README at `livingcode/README.md`) |
+| Refresh orchestrator | `scripts/livingcode-refresh.mjs` |
+| Shape snapshot history | `.organism/shape-snapshots/` |
