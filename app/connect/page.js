@@ -139,6 +139,39 @@ dashclaw doctor`}</pre>
             </p>
           </section>
 
+          {/* Approval channels */}
+          <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Resolve approvals</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">Where humans unblock the agent</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              When your agent calls <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-zinc-200">waitForApproval</code>, any of the four surfaces below can resolve the action. They all hit the same <code className="font-mono text-zinc-300">/api/approvals/:id</code> endpoint and sync over SSE within ~1 second.
+            </p>
+
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Dashboard <span className="font-normal text-zinc-500">— always on</span></h3>
+                <p className="mt-1 text-xs text-zinc-500">Interactive queue with triggering policy, risk score, and replay link.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`https://<your-instance>/approvals`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">CLI <span className="font-normal text-zinc-500">— for terminal-first devs</span></h3>
+                <p className="mt-1 text-xs text-zinc-500">Interactive inbox or targeted approve / deny by action ID.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`npm install -g @dashclaw/cli
+dashclaw approvals`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Mobile PWA <span className="font-normal text-zinc-500">— on-call</span></h3>
+                <p className="mt-1 text-xs text-zinc-500">Add <code className="font-mono text-zinc-300">/approve</code> to your home screen. One-tap Allow / Deny from the phone.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`https://<your-instance>/approve`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Telegram bot <span className="font-normal text-zinc-500">— optional</span></h3>
+                <p className="mt-1 text-xs text-zinc-500">Inline Approve / Reject buttons pushed to an admin chat. Warn-logs and moves on if Telegram is unreachable.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`npm run telegram:setup`}</pre>
+              </div>
+            </div>
+          </section>
+
           {/* Framework Guides */}
           <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Framework guides</p>

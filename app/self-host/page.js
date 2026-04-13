@@ -134,6 +134,40 @@ dashclaw doctor`}</pre>
         </div>
       </section>
 
+      {/* Approve from anywhere */}
+      <section id="approve-from-anywhere" className="pb-20 px-6 border-t border-border scroll-mt-20">
+        <div className="max-w-5xl mx-auto py-12">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Approve from anywhere</p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-text-primary">Resolve pending actions without opening the dashboard</h2>
+          <p className="mt-2 text-text-secondary">
+            Every instance exposes four approval surfaces against the same <code className="font-mono text-text-primary">/api/approvals/:id</code> endpoint. Pick whichever your on-call workflow prefers — <code className="font-mono text-text-primary">waitForApproval</code> unblocks the agent within ~1 second regardless of which surface resolved the action.
+          </p>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-border bg-surface-secondary p-5">
+              <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Mobile PWA</div>
+              <h3 className="text-sm font-semibold text-text-primary mb-2"><code className="font-mono">/approve</code></h3>
+              <p className="text-xs text-text-secondary leading-relaxed mb-3">
+                Phone-first approval surface. Add to your home screen and incoming approvals appear with the triggering policy, risk score, and one-tap Allow / Deny.
+              </p>
+              <pre className="overflow-x-auto rounded-xl border border-border bg-surface-primary p-3 text-xs leading-relaxed text-text-secondary font-mono">{`https://<your-instance>/approve`}</pre>
+            </div>
+            <div className="rounded-2xl border border-border bg-surface-secondary p-5">
+              <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Telegram bot (optional)</div>
+              <h3 className="text-sm font-semibold text-text-primary mb-2">Inline Approve / Reject</h3>
+              <p className="text-xs text-text-secondary leading-relaxed mb-3">
+                Pending actions push to an admin chat with inline buttons. If Telegram is unreachable, DashClaw warn-logs and approvals stay available via the other surfaces — it is purely additive.
+              </p>
+              <pre className="overflow-x-auto rounded-xl border border-border bg-surface-primary p-3 text-xs leading-relaxed text-text-secondary font-mono">{`npm run telegram:setup`}</pre>
+            </div>
+          </div>
+
+          <p className="mt-3 text-[11px] text-text-tertiary">
+            Dashboard (<code className="font-mono text-text-secondary">/approvals</code>) and CLI (<code className="font-mono text-text-secondary">dashclaw approve</code>) are always on. Mobile PWA ships by default; Telegram is opt-in via <code className="font-mono text-text-secondary">TELEGRAM_BOT_TOKEN</code>.
+          </p>
+        </div>
+      </section>
+
       {/* What you just deployed */}
       <section className="pb-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-5xl mx-auto py-12">

@@ -49,7 +49,7 @@
 
 ## Connect Your Agent
 
-**Four ways to get governed — pick what fits your workflow:**
+**Five ways to get governed — pick what fits your workflow:**
 
 ### Option 1: MCP Server (zero code)
 
@@ -130,6 +130,16 @@ pip install dashclaw    # Python
 The 4-step governance loop — Guard, Record, Verify, Outcome — is covered in the [Quickstart](#quickstart) below.
 
 For framework-specific step-by-step guides (Claude Code, OpenAI Agents SDK, LangGraph, CrewAI), visit [`/connect`](https://dashclaw.io/connect) on your DashClaw instance.
+
+### Option 5: OpenClaw plugin (framework-native)
+
+For agents built on the [OpenClaw](https://github.com/openclaw) framework, `@dashclaw/openclaw-plugin` wires governance directly into the lifecycle:
+
+```bash
+npm install @dashclaw/openclaw-plugin
+```
+
+It intercepts `PreToolUse` / `PostToolUse`, calls `guard` / `record` / `waitForApproval` automatically, and ships a `HOOK.md` pack the `openclaw` CLI installs. Tool-classification vocabulary aligns with DashClaw guard action types so policies behave consistently whether the call came from a plugin, a hook, or a direct SDK call. See [`openclaw-plugin/README.md`](./openclaw-plugin/README.md).
 
 ---
 
@@ -330,6 +340,10 @@ dashclaw deny <actionId> --reason "Outside change window"
 ```
 
 When an agent calls `waitForApproval()`, the SDK prints the action ID, risk score, and replay link to stdout. Approve from any terminal and the agent unblocks instantly via SSE.
+
+### Mobile PWA (`/approve`)
+
+Every DashClaw instance ships a phone-first approval surface at `/approve`. Add it to the home screen and incoming approvals appear with the triggering policy, risk score, and one-tap Allow / Deny. Same `/api/approvals/:id` endpoint as the dashboard and CLI — `waitForApproval` unblocks within ~1 second regardless of which surface resolved the action. See [`app/approve/`](./app/approve/).
 
 ### Doctor (diagnose & auto-fix)
 

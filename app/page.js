@@ -832,7 +832,7 @@ if (decision === "allow") {
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">Operate it</h2>
                 <p className="mt-3 text-text-secondary">Day-2 tools for the people running governance in production.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
                 <Link
                   href="/docs#dashclaw-doctor"
                   className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
@@ -850,6 +850,15 @@ if (decision === "allow") {
                   <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">Mobile approvals</h3>
                   <p className="text-xs text-text-secondary leading-relaxed mb-3">A PWA at <code className="font-mono text-text-primary">/approve</code> for approving high-risk actions from your phone. Same governance loop as the dashboard.</p>
                   <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">https://&lt;instance&gt;/approve</pre>
+                </Link>
+                <Link
+                  href="/self-host#approve-from-anywhere"
+                  className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
+                >
+                  <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Messaging</div>
+                  <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">Telegram approvals</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed mb-3">Pending actions fan out to an admin Telegram chat with inline Approve / Reject. One tap on your phone resolves the action — same endpoint as the dashboard.</p>
+                  <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">npm run telegram:setup</pre>
                 </Link>
                 <Link
                   href="/analytics"
