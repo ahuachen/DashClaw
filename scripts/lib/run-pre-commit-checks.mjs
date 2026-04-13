@@ -14,6 +14,15 @@ const STEPS = [
     failHook: true,
   },
   {
+    // Regenerate livingcode-derived artifacts (shape.json, SKILL.md, zip,
+    // doctor checks) when staged files may have changed the shape. Script
+    // exits fast when no relevant files are staged.
+    id: 'livingcode-refresh',
+    label: 'Refresh livingcode-derived artifacts',
+    command: [process.execPath, 'scripts/livingcode-refresh.mjs', '--if-staged'],
+    failHook: true,
+  },
+  {
     id: 'stage-artifacts',
     label: 'Stage generated artifacts',
     command: [
@@ -22,6 +31,10 @@ const STEPS = [
       'docs/api-inventory.json',
       'docs/api-inventory.md',
       'docs/openapi/critical-stable.openapi.json',
+      'app/lib/doctor/generated',
+      'public/downloads/dashclaw-platform-intelligence',
+      'public/downloads/dashclaw-platform-intelligence.zip',
+      'public/downloads/dashclaw-platform-intelligence.zip.manifest',
     ],
     failHook: true,
   },

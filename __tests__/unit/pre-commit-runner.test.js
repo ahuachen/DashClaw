@@ -7,20 +7,26 @@ describe('runPreCommitChecks', () => {
     const result = runPreCommitChecks({ execImpl });
 
     expect(result.success).toBe(true);
-    expect(result.steps).toHaveLength(4);
+    expect(result.steps).toHaveLength(5);
     expect(result.steps.every((s) => s.success)).toBe(true);
 
     // Verify the correct commands were invoked in order
-    expect(execImpl).toHaveBeenCalledTimes(4);
+    expect(execImpl).toHaveBeenCalledTimes(5);
     expect(execImpl.mock.calls[0][1]).toContain('scripts/generate-api-inventory.mjs');
     expect(execImpl.mock.calls[1][1]).toContain('scripts/generate-openapi.mjs');
-    expect(execImpl.mock.calls[2][1]).toEqual([
+    expect(execImpl.mock.calls[2][1]).toContain('scripts/livingcode-refresh.mjs');
+    expect(execImpl.mock.calls[2][1]).toContain('--if-staged');
+    expect(execImpl.mock.calls[3][1]).toEqual([
       'add',
       'docs/api-inventory.json',
       'docs/api-inventory.md',
       'docs/openapi/critical-stable.openapi.json',
+      'app/lib/doctor/generated',
+      'public/downloads/dashclaw-platform-intelligence',
+      'public/downloads/dashclaw-platform-intelligence.zip',
+      'public/downloads/dashclaw-platform-intelligence.zip.manifest',
     ]);
-    expect(execImpl.mock.calls[3][1]).toContain('--mode=warn');
+    expect(execImpl.mock.calls[4][1]).toContain('--mode=warn');
   });
 
   it('succeeds when contracts check warns but does not fail the hook', () => {
@@ -33,7 +39,7 @@ describe('runPreCommitChecks', () => {
     const result = runPreCommitChecks({ execImpl });
 
     expect(result.success).toBe(true);
-    expect(result.steps).toHaveLength(4);
+    expect(result.steps).toHaveLength(5);
 
     const contractsStep = result.steps.find((s) => s.id === 'contracts-check');
     expect(contractsStep.success).toBe(false);

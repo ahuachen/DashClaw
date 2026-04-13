@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "docs:check": "node scripts/validate-docs.mjs",
     "doctor": "node scripts/doctor.mjs",
+    "livingcode:refresh": "node scripts/livingcode-refresh.mjs",
     "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:check": "node scripts/check-openapi-diff.mjs",
     "api:inventory:generate": "node scripts/generate-api-inventory.mjs",

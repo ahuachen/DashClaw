@@ -37,9 +37,21 @@ class TestShapeJsonEmitter(unittest.TestCase):
         for key in ("timestamp", "routes", "env_vars", "tables"):
             self.assertIn(key, parsed)
 
-    def test_preserves_timestamp(self):
-        parsed = json.loads(emit_shape_json(_make_shape()))
-        self.assertEqual(parsed["timestamp"], "2026-04-12T00:00:00Z")
+    def test_timestamp_is_deterministic_content_signature(self):
+        # The emitter replaces the wall-clock timestamp with a content-hash
+        # signature so pre-commit diffs stay empty when nothing changed.
+        a = json.loads(emit_shape_json(_make_shape()))
+        b = json.loads(emit_shape_json(_make_shape()))
+        self.assertEqual(a["timestamp"], b["timestamp"])
+        self.assertTrue(a["timestamp"].startswith("sha1:"))
+
+    def test_timestamp_changes_when_content_changes(self):
+        base = _make_shape()
+        mutated = _make_shape()
+        mutated.tables.append(TableInfo("new_table", "schema/schema.js"))
+        a = json.loads(emit_shape_json(base))
+        b = json.loads(emit_shape_json(mutated))
+        self.assertNotEqual(a["timestamp"], b["timestamp"])
 
     def test_routes_are_serialized_with_all_fields(self):
         parsed = json.loads(emit_shape_json(_make_shape()))
