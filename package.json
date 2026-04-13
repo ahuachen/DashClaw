@@ -42,6 +42,8 @@
     "test": "vitest",
     "test:api": "node scripts/test-full-api.mjs",
     "test:fuzz": "node scripts/fuzz-api.mjs",
+    "test:smoke": "playwright test",
+    "dev:smoke": "next dev -p 3099 --turbopack",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "migrate:behavioral": "node scripts/migrate-behavioral-ai.mjs",
@@ -91,6 +93,7 @@
   },
   "devDependencies": {
     "@cfworker/json-schema": "^4.1.1",
+    "@playwright/test": "^1.59.1",
     "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.2",

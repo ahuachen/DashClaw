@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Test / fuzz reports — bundled third-party minified JS, not our code
+playwright-report/
+test-results/
+.fuzz-report/
+.hypothesis/
+
+# Graphify snapshot — read-only mirror
+graphify-pilot/
+graphify-out/
