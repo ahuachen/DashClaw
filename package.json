@@ -41,6 +41,7 @@
     "init:self-host-env": "node scripts/init-self-host-env.mjs",
     "test": "vitest",
     "test:api": "node scripts/test-full-api.mjs",
+    "test:fuzz": "node scripts/fuzz-api.mjs",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "migrate:behavioral": "node scripts/migrate-behavioral-ai.mjs",
