@@ -14,6 +14,50 @@ function isEnabled() {
   return true;
 }
 
+function buildMessage(action) {
+  const risk = action.risk_score ?? 0;
+  const reversible = action.reversible === false ? 'irreversible' : 'reversible';
+  const goal = (action.declared_goal || '—').slice(0, 200);
+
+  const text = [
+    '⏳ DashClaw approval needed',
+    '',
+    `Agent:   ${action.agent_id || 'unknown'}`,
+    `Action:  ${action.action_type || 'unknown'}`,
+    `Risk:    ${risk} • ${reversible}`,
+    '',
+    `Goal: ${goal}`,
+    '',
+    action.action_id,
+  ].join('\n');
+
+  const reply_markup = {
+    inline_keyboard: [[
+      { text: '✅ Approve', callback_data: `ap:${action.action_id}` },
+      { text: '❌ Reject',  callback_data: `dn:${action.action_id}` },
+    ]],
+  };
+
+  return { text, reply_markup };
+}
+
+async function sendApprovalMessage(action) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chat_id = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  const payload = buildMessage(action);
+
+  const res = await fetch(`${TELEGRAM_API_BASE}/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id, ...payload }),
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+
+  if (!res.ok) {
+    console.warn(`[TelegramApprovals] sendMessage returned ${res.status}`);
+  }
+}
+
 /**
  * Fire a Telegram approval message for a pending_approval action.
  * @param {object} action - the action record
@@ -26,7 +70,7 @@ export function fireTelegramApproval(action, _sql, _orgId) {
 
   void (async () => {
     try {
-      // payload + fetch arrive in Task 2
+      await sendApprovalMessage(action);
     } catch (err) {
       console.warn('[TelegramApprovals] Failed to send approval:', err.message);
     }
