@@ -35,6 +35,7 @@ const STEPS = [
       'public/downloads/dashclaw-platform-intelligence',
       'public/downloads/dashclaw-platform-intelligence.zip',
       'public/downloads/dashclaw-platform-intelligence.zip.manifest',
+      'mcp-server/lib/routes-inventory.generated.json',
     ],
     failHook: true,
   },

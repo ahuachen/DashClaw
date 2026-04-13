@@ -49,6 +49,7 @@ const WEBSITE_SKILL_DIR = resolve(REPO_ROOT, 'public', 'downloads', 'dashclaw-pl
 const WEBSITE_SKILL_ZIP = resolve(REPO_ROOT, 'public', 'downloads', 'dashclaw-platform-intelligence.zip');
 const WEBSITE_SKILL_MANIFEST = `${WEBSITE_SKILL_ZIP}.manifest`;
 const GLOBAL_SKILL_DIR = resolve(homedir(), '.claude', 'skills', 'dashclaw-platform-intelligence');
+const MCP_INVENTORY_PATH = resolve(REPO_ROOT, 'mcp-server', 'lib', 'routes-inventory.generated.json');
 
 const PY = process.env.PYTHON || 'python';
 const SKILL_TIMESTAMP_LINE = /^(\*\*Shape snapshot:\*\*\s+`)[^`]+(`)/m;
@@ -102,6 +103,18 @@ function emitDoctorChecks() {
   runPython(['emit', 'doctor-checks', '--output', out]);
   log(`checks-from-shape.mjs -> ${relative(REPO_ROOT, out)}`);
   return out;
+}
+
+function emitMcpInventory() {
+  // mcp-server/ is optional; only emit if the directory exists.
+  const mcpDir = dirname(MCP_INVENTORY_PATH);
+  if (!existsSync(mcpDir)) {
+    log('mcp-server/ absent — skipping MCP inventory');
+    return null;
+  }
+  runPython(['emit', 'mcp-tools', '--output', MCP_INVENTORY_PATH]);
+  log(`routes-inventory.generated.json -> ${relative(REPO_ROOT, MCP_INVENTORY_PATH)}`);
+  return MCP_INVENTORY_PATH;
 }
 
 function writeLastSnapshot(shapeJsonPath) {
@@ -260,6 +273,7 @@ async function main() {
   const shapeJsonPath = emitShapeJson();
   writeLastSnapshot(shapeJsonPath);
   emitDoctorChecks();
+  emitMcpInventory();
   const signature = loadShapeSignature(shapeJsonPath);
 
   const skillContent = emitSkill(signature);

@@ -4,6 +4,15 @@
  * DashClaw MCP tool definitions and handlers.
  * Tool definitions follow JSON Schema (for both MCP registerTool and JSON-RPC).
  * Handlers are pure functions that call DashClawClient and return text content.
+ *
+ * This file is HAND-CURATED on purpose. Every MCP tool has a semantically
+ * precise description and custom handler logic (e.g., dashclaw_wait_for_approval
+ * polls until status changes) that can't be auto-generated from route metadata.
+ *
+ * For the live API surface, see `routes-inventory.generated.json` (regenerated
+ * by `npm run livingcode:refresh`). When adding a new route that agents should
+ * invoke, diff the inventory against TOOL_DEFINITIONS below to decide whether
+ * a new tool wrapper is warranted.
  */
 
 export const TOOL_DEFINITIONS = [
