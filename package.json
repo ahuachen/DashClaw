@@ -28,6 +28,7 @@
     "route-sql:baseline:generate": "node scripts/generate-route-sql-baseline.mjs",
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
     "telegram:register": "node scripts/telegram-register-webhook.mjs",
+    "telegram:verify": "node scripts/telegram-verify-loop.mjs",
     "contracts:check": "node scripts/check-contracts.mjs",
     "contracts:check:warn": "node scripts/check-contracts.mjs --mode=warn",
     "sdk:integration": "node scripts/check-sdk-cross-integration.mjs",
