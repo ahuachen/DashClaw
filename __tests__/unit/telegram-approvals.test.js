@@ -118,3 +118,53 @@ describe('fireTelegramApproval — payload', () => {
     expect(body.text).not.toContain('irreversible');
   });
 });
+
+describe('fireTelegramApproval — fail-open', () => {
+  const originalEnv = { ...process.env };
+  const action = {
+    action_id: 'act_foo12345',
+    status: 'pending_approval',
+    agent_id: 'a', action_type: 'deploy',
+    risk_score: 80, reversible: false, declared_goal: 'g',
+  };
+  let warnSpy;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.TELEGRAM_BOT_TOKEN = 'TBOT';
+    process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
+    delete process.env.DASHCLAW_ALERTS_TELEGRAM;
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    vi.restoreAllMocks();
+  });
+
+  it('does not throw when Telegram returns 500', async () => {
+    mockFetch.mockResolvedValue({ ok: false, status: 500 });
+    expect(() => fireTelegramApproval(action, null, 'org_1')).not.toThrow();
+    await new Promise((r) => setImmediate(r));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('sendMessage returned 500')
+    );
+  });
+
+  it('does not throw when fetch rejects', async () => {
+    mockFetch.mockRejectedValue(new Error('network down'));
+    expect(() => fireTelegramApproval(action, null, 'org_1')).not.toThrow();
+    await new Promise((r) => setImmediate(r));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to send approval'),
+      expect.any(String),
+    );
+  });
+
+  it('does not throw when fetch aborts (timeout)', async () => {
+    mockFetch.mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+    expect(() => fireTelegramApproval(action, null, 'org_1')).not.toThrow();
+    await new Promise((r) => setImmediate(r));
+    expect(warnSpy).toHaveBeenCalled();
+  });
+});
