@@ -114,6 +114,31 @@ export default async function ConnectPage() {
             </div>
           </section>
 
+          {/* Verify with Doctor */}
+          <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Verify</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white">Confirm your instance is healthy</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Once the agent is connected, run <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-zinc-200">dashclaw doctor</code> from any terminal. It checks database, configuration, auth, deployment, SDK reachability, governance staleness, and shape drift — and auto-fixes safe issues.
+            </p>
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">From any terminal</h3>
+                <p className="mt-1 text-xs text-zinc-500">Diagnoses and applies safe fixes via your instance&rsquo;s API.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`npm install -g @dashclaw/cli
+dashclaw doctor`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-zinc-200">Self-host operator</h3>
+                <p className="mt-1 text-xs text-zinc-500">Adds filesystem-level fixes (env writes, migrations, default-policy seed). Backs up <code className="font-mono text-zinc-300">.env</code> before any write.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-zinc-300">{`npm run doctor`}</pre>
+              </div>
+            </div>
+            <p className="mt-3 text-[11px] text-zinc-500">
+              Exit codes: <code className="font-mono text-zinc-300">0</code> healthy, <code className="font-mono text-zinc-300">1</code> warnings or unreachable. Add <code className="font-mono text-zinc-300">--json</code> for CI.
+            </p>
+          </section>
+
           {/* Framework Guides */}
           <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Framework guides</p>

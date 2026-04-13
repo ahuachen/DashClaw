@@ -99,6 +99,41 @@ export default function SelfHostPage() {
         </div>
       </section>
 
+      {/* Verify your deployment with Doctor */}
+      <section className="pb-20 px-6 border-t border-border">
+        <div className="max-w-5xl mx-auto py-12">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Verify</p>
+          <h2 className="mt-3 text-2xl font-bold tracking-tight text-text-primary">Confirm your deployment is healthy</h2>
+          <p className="mt-2 text-text-secondary">
+            Doctor diagnoses database, configuration, auth, deployment, SDK reachability, governance staleness, and shape drift — and auto-fixes safe issues. Run it as the first thing after your instance comes up.
+          </p>
+
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-border bg-surface-secondary p-5">
+              <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Operator (on the host)</div>
+              <h3 className="text-sm font-semibold text-text-primary mb-2">npm run doctor</h3>
+              <p className="text-xs text-text-secondary leading-relaxed mb-3">
+                Filesystem-level fixes. Can write missing env vars to <code className="font-mono text-text-primary">.env</code> (always backed up first), run pending DB migrations, generate <code className="font-mono text-text-primary">NEXTAUTH_SECRET</code>/<code className="font-mono text-text-primary">ENCRYPTION_KEY</code>, fix CORS, and seed a default policy.
+              </p>
+              <pre className="overflow-x-auto rounded-xl border border-border bg-surface-primary p-3 text-xs leading-relaxed text-text-secondary font-mono">{`npm run doctor`}</pre>
+            </div>
+            <div className="rounded-2xl border border-border bg-surface-secondary p-5">
+              <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Anyone with an API key</div>
+              <h3 className="text-sm font-semibold text-text-primary mb-2">dashclaw doctor</h3>
+              <p className="text-xs text-text-secondary leading-relaxed mb-3">
+                Same engine, invoked via <code className="font-mono text-text-primary">GET /api/doctor</code> + <code className="font-mono text-text-primary">POST /api/doctor/fix</code>. No filesystem access. Add <code className="font-mono text-text-primary">--json</code> for CI, <code className="font-mono text-text-primary">--no-fix</code> to diagnose only.
+              </p>
+              <pre className="overflow-x-auto rounded-xl border border-border bg-surface-primary p-3 text-xs leading-relaxed text-text-secondary font-mono">{`npm install -g @dashclaw/cli
+dashclaw doctor`}</pre>
+            </div>
+          </div>
+
+          <p className="mt-3 text-[11px] text-text-tertiary">
+            Exit codes: <code className="font-mono text-text-secondary">0</code> healthy, <code className="font-mono text-text-secondary">1</code> warnings, failures, or unreachable.
+          </p>
+        </div>
+      </section>
+
       {/* What you just deployed */}
       <section className="pb-20 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-5xl mx-auto py-12">
