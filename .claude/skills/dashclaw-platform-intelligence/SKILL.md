@@ -75,7 +75,7 @@ dc = DashClaw(
 )
 ```
 
-> **v1 Legacy SDK:** For the full 177+ method surface (SSE events, wrapClient, pairing, full policy
+> **v1 Legacy SDK:** For the full 187-method surface (SSE events, wrapClient, pairing, full policy
 > CRUD, full compliance exports, etc.), import from `dashclaw/legacy` instead. See `sdk/legacy/dashclaw-v1.js`.
 
 ### 2. Identify decision points in the agent's code
@@ -527,7 +527,7 @@ npm run lint && npm run build
 Generate a DashClaw client in any language from the API contracts.
 
 1. Read OpenAPI spec: `docs/openapi/critical-stable.openapi.json`
-2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2, 45 methods), `sdk-python/dashclaw/client.py`
+2. Read both SDKs for patterns: `sdk/dashclaw.js` (v2, 80 methods), `sdk-python/dashclaw/client.py`
 3. Constructor (v2): `baseUrl`, `apiKey`, `agentId`
 4. Auth: `x-api-key` header on every request
 5. Error types: `GuardBlockedError`, `ApprovalDeniedError`

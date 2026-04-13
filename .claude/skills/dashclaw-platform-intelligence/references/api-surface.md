@@ -1,6 +1,6 @@
 # DashClaw API Surface
 
-140+ routes across 29 categories. Node SDK uses camelCase, Python SDK uses snake_case.
+172 routes across 43 categories. Node SDK uses camelCase, Python SDK uses snake_case.
 
 ## Table of Contents
 

@@ -139,7 +139,7 @@ dashclaw doctor`}</pre>
         <div className="max-w-5xl mx-auto py-12">
           <h2 className="text-2xl font-bold tracking-tight mb-2">What you just deployed</h2>
           <p className="text-zinc-400 mb-8">
-            Your DashClaw instance ships with 177+ SDK methods across 29 categories. Every feature works out of the box -- no LLM API key required.
+            Your DashClaw instance ships with 172 governance routes across 43 categories. Every feature works out of the box -- no LLM API key required.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -264,7 +264,7 @@ dashclaw doctor`}</pre>
             <div>
               <h2 className="text-lg font-semibold text-zinc-100">DashClaw Platform Skill</h2>
               <p className="text-sm text-zinc-400 leading-relaxed mt-1">
-                Skills are an open standard for giving agents specialized capabilities. Any agent that supports the skill framework can load this skill and become a DashClaw platform expert -- with knowledge of 177+ SDK methods across 29 categories.
+                Skills are an open standard for giving agents specialized capabilities. Any agent that supports the skill framework can load this skill and become a DashClaw platform expert -- with knowledge of 172 governance routes across 43 categories.
               </p>
               <p className="text-sm text-zinc-400 leading-relaxed mt-2">
                 Works with Claude Code, and the growing ecosystem of skill-compatible agents.
@@ -296,7 +296,7 @@ dashclaw doctor`}</pre>
 |   |-- diagnose.mjs                  # 5-phase platform diagnostics
 |   \`-- bootstrap-agent-quick.mjs     # Agent workspace importer
 \`-- references/
-    |-- api-surface.md                # 140+ routes, 29 categories
+    |-- api-surface.md                # 172 routes, 43 categories
     |-- platform-knowledge.md         # Architecture, auth chain, ID prefixes
     \`-- troubleshooting.md            # Error resolution guide`}</pre>
             </div>
