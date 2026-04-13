@@ -355,6 +355,34 @@ The doctor auto-fixes missing secrets, runs pending migrations, creates a defaul
 
 ---
 
+## Telegram approvals (optional)
+
+When an action lands on `pending_approval`, DashClaw can ping a Telegram admin chat with inline Approve / Reject buttons. One tap on your phone resolves the action.
+
+### Setup
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) and grab the bot token.
+2. Message your bot once; open `https://api.telegram.org/bot<TOKEN>/getUpdates` and copy your numeric `chat.id`.
+3. Generate a webhook secret: `openssl rand -hex 32`.
+4. Set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, and `TELEGRAM_APPROVER_ORG_ID` in your deploy's env.
+5. Register the webhook:
+
+   ```bash
+   npm run telegram:register -- --url https://my-dashclaw.vercel.app
+   ```
+
+6. (Optional) Smoke test the round-trip:
+
+   ```bash
+   DASHCLAW_API_KEY=oc_live_… npm run telegram:verify -- --base https://my-dashclaw.vercel.app
+   ```
+
+   Tap Approve on your phone — the script prints the round-trip time.
+
+Telegram is an *additional* approval channel. The dashboard, CLI, and mobile PWA continue to work. If Telegram is unreachable, DashClaw warn-logs and moves on; approvals stay available via the other surfaces.
+
+---
+
 ## Beyond the Basics
 
 | Feature | Description | Docs |
