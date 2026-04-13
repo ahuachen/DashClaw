@@ -17,9 +17,10 @@ const CATEGORY_LABELS = {
   deployment: 'Deployment',
   sdk: 'SDK',
   governance: 'Governance',
+  shape: 'Shape (generated)',
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape'];
 
 /**
  * Format the full doctor result for terminal or JSON output.

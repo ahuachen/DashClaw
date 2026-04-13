@@ -17,9 +17,10 @@ const CATEGORY_LABELS = {
   deployment: 'Deployment',
   sdk: 'SDK Connectivity',
   governance: 'Governance',
+  shape: 'Shape (generated)',
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape'];
 
 // Next-step guidance by check ID, used when the check has no auto-fix.
 // Keep each line short and actionable.

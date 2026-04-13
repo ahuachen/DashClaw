@@ -5,6 +5,7 @@ import { runChecks as authChecks } from './checks/auth.mjs';
 import { runChecks as deploymentChecks } from './checks/deployment.mjs';
 import { runChecks as sdkChecks } from './checks/sdk.mjs';
 import { runChecks as governanceChecks } from './checks/governance.mjs';
+import { runShapeChecks } from './generated/checks-from-shape.mjs';
 
 const CHECK_RUNNERS = {
   database: databaseChecks,
@@ -13,9 +14,10 @@ const CHECK_RUNNERS = {
   deployment: deploymentChecks,
   sdk: sdkChecks,
   governance: governanceChecks,
+  shape: runShapeChecks,
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape'];
 
 /**
  * @param {Object} [options]

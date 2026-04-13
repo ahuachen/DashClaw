@@ -160,7 +160,7 @@ def main():
     sub.add_parser("diff", parents=[shared], help="Diff current shape vs last snapshot")
 
     emit_p = sub.add_parser("emit", parents=[shared], help="Generate derivative artifacts")
-    emit_p.add_argument("target", nargs="?", default=None, help="skill | shape-json")
+    emit_p.add_argument("target", nargs="?", default=None, help="skill | shape-json | doctor-checks")
     emit_p.add_argument("--output", "-o", default=None, help="Write to file instead of stdout")
 
     args = parser.parse_args()

@@ -96,6 +96,14 @@ function emitShapeJson() {
   return out;
 }
 
+function emitDoctorChecks() {
+  ensureDir(GENERATED_DIR);
+  const out = join(GENERATED_DIR, 'checks-from-shape.mjs');
+  runPython(['emit', 'doctor-checks', '--output', out]);
+  log(`checks-from-shape.mjs -> ${relative(REPO_ROOT, out)}`);
+  return out;
+}
+
 function writeLastSnapshot(shapeJsonPath) {
   const out = join(GENERATED_DIR, 'last-snapshot.json');
   copyFileSync(shapeJsonPath, out);
@@ -251,6 +259,7 @@ async function main() {
 
   const shapeJsonPath = emitShapeJson();
   writeLastSnapshot(shapeJsonPath);
+  emitDoctorChecks();
   const signature = loadShapeSignature(shapeJsonPath);
 
   const skillContent = emitSkill(signature);
