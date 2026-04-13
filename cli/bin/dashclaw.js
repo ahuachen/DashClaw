@@ -8,6 +8,7 @@ import {
   green, red,
 } from '../lib/render.js';
 import { runDoctor as runDoctorCommand } from '../lib/doctor.js';
+import { resolveConfig, clearConfigFile, configPath } from '../lib/config.js';
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
@@ -16,23 +17,12 @@ process.on('unhandledRejection', (reason) => {
 
 // -- Config -------------------------------------------------------------------
 
-const baseUrl = process.env.DASHCLAW_BASE_URL;
-const apiKey = process.env.DASHCLAW_API_KEY;
-const agentId = process.env.DASHCLAW_AGENT_ID || 'cli-operator';
-
-function requireEnv() {
-  const missing = [];
-  if (!baseUrl) missing.push('DASHCLAW_BASE_URL');
-  if (!apiKey) missing.push('DASHCLAW_API_KEY');
-  if (missing.length) {
-    console.error(`Error: Missing required environment variable(s): ${missing.join(', ')}`);
-    console.error('Set them in your shell or a .env file.');
-    process.exit(1);
-  }
-}
+// Populated by main() before any command runs.
+let baseUrl;
+let apiKey;
+let agentId;
 
 function createClient() {
-  requireEnv();
   return new DashClaw({ baseUrl, apiKey, agentId });
 }
 
@@ -61,17 +51,26 @@ ${bold('Usage:')}
     --json                               Output as JSON (for CI/scripts)
     --no-fix                             Diagnose only, skip auto-fixes
     --category <list>                    Filter checks (e.g., database,config)
+  dashclaw logout                        Remove saved config (~/.dashclaw/config.json)
   dashclaw help                          Show this help
 
-${bold('Environment:')}
-  DASHCLAW_BASE_URL   (required) DashClaw instance URL
-  DASHCLAW_API_KEY    (required) API key for authentication
-  DASHCLAW_AGENT_ID   (optional) Operator identity (default: cli-operator)
+${bold('Config:')}
+  On first run, prompts for DASHCLAW_BASE_URL and DASHCLAW_API_KEY and offers
+  to save them to ~/.dashclaw/config.json (mode 600). Env vars always override
+  the saved values.
 `);
 }
 
+async function cmdLogout() {
+  const removed = clearConfigFile();
+  if (removed) {
+    console.log(`${green('Removed')} ${configPath()}`);
+  } else {
+    console.log(`${dim('No saved config at')} ${configPath()}`);
+  }
+}
+
 async function cmdDoctor() {
-  requireEnv();
   const jsonFlag = args.includes('--json');
   const noFixFlag = args.includes('--no-fix');
   const catIdx = args.indexOf('--category');
@@ -332,26 +331,47 @@ async function cmdApprovals() {
 
 // -- Router -------------------------------------------------------------------
 
-switch (command) {
-  case 'approvals':
-    cmdApprovals();
-    break;
-  case 'approve':
-    cmdApprove();
-    break;
-  case 'deny':
-    cmdDeny();
-    break;
-  case 'doctor':
-    cmdDoctor();
-    break;
-  case 'help':
-  case '--help':
-  case '-h':
-    cmdHelp();
-    break;
-  default:
-    console.error(`Unknown command: ${command}`);
-    cmdHelp();
-    process.exit(1);
+const COMMANDS_NEEDING_CONFIG = new Set(['approvals', 'approve', 'deny', 'doctor']);
+
+async function main() {
+  if (COMMANDS_NEEDING_CONFIG.has(command)) {
+    const config = await resolveConfig();
+    if (!config) {
+      console.error('Error: Missing required config (DASHCLAW_BASE_URL, DASHCLAW_API_KEY).');
+      console.error('Set them as env vars, save with an interactive first run, or use a .env file.');
+      process.exit(1);
+    }
+    baseUrl = config.baseUrl;
+    apiKey = config.apiKey;
+    agentId = config.agentId;
+  }
+
+  switch (command) {
+    case 'approvals':
+      await cmdApprovals();
+      break;
+    case 'approve':
+      await cmdApprove();
+      break;
+    case 'deny':
+      await cmdDeny();
+      break;
+    case 'doctor':
+      await cmdDoctor();
+      break;
+    case 'logout':
+      await cmdLogout();
+      break;
+    case 'help':
+    case '--help':
+    case '-h':
+      await cmdHelp();
+      break;
+    default:
+      console.error(`Unknown command: ${command}`);
+      await cmdHelp();
+      process.exit(1);
+  }
 }
+
+main();

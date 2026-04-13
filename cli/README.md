@@ -10,9 +10,27 @@ npm install -g @dashclaw/cli
 
 ## Configure
 
+The CLI resolves config in this order:
+
+1. Environment variables (`DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, optional `DASHCLAW_AGENT_ID`)
+2. Saved config at `~/.dashclaw/config.json` (mode `600`)
+3. Interactive prompt (first run)
+
+On first run, if neither env vars nor a saved config are present, the CLI walks you through setup and offers to save the values to `~/.dashclaw/config.json`. Env vars always override saved values.
+
 ```bash
+# Option A: env vars (one-shot or CI)
 export DASHCLAW_BASE_URL="https://your-dashclaw.example.com"
 export DASHCLAW_API_KEY="oc_live_..."
+
+# Option B: interactive first run (persists)
+dashclaw doctor
+# → DashClaw instance URL: ...
+# → API key: ********
+# → Save to ~/.dashclaw/config.json? [Y/n]
+
+# Later: remove the saved config
+dashclaw logout
 ```
 
 Optionally set `DASHCLAW_AGENT_ID` (defaults to `cli-operator`) for audit attribution.
