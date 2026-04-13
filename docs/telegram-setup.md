@@ -11,7 +11,7 @@ One-tap approve/reject from your phone for any DashClaw action that lands on `pe
 You need:
 - A working DashClaw deploy (e.g. `https://my-dashclaw.vercel.app`)
 - A Telegram account
-- Your DashClaw `org_*` ID (find it in the dashboard URL or settings page)
+- Your DashClaw org ID — for a standard self-hosted single-tenant deploy this is **`org_default`** (the hardcoded fallback in `app/lib/org.js`). If you've explicitly configured multi-tenancy, run `curl -H "x-api-key: oc_live_..." https://my-dashclaw.vercel.app/api/orgs` to see yours.
 - A working `DASHCLAW_API_KEY` (starts with `oc_live_`) for the smoke test at the end
 
 **Important constraint:** the bot must be used as a **1:1 DM** with a single human. Group/supergroup chats don't work — `chat.id` is negative in groups and `from.id` is the individual user, so the allowlist check will fail. If you want a team inbox later, that's v1.1 scope.
