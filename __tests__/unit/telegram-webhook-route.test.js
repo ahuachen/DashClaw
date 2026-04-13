@@ -201,3 +201,56 @@ describe('POST /api/telegram/webhook — approve', () => {
     expect(ackCall).toBeDefined();
   });
 });
+
+describe('POST /api/telegram/webhook — deny', () => {
+  const AUTH = { 'X-Telegram-Bot-Api-Secret-Token': 'S3CRET' };
+  const pending = {
+    action_id: 'act_abc12345',
+    status: 'pending_approval',
+    agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.TELEGRAM_BOT_TOKEN = 'TBOT';
+    process.env.TELEGRAM_WEBHOOK_SECRET = 'S3CRET';
+    process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
+    process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    mockGetActionStatus.mockResolvedValue(pending);
+    mockRecordApproval.mockResolvedValue({ ...pending, status: 'failed' });
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+    vi.restoreAllMocks();
+  });
+
+  it('calls recordApproval with deny + "Denied via Telegram" reason', async () => {
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'dn:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    expect(mockRecordApproval).toHaveBeenCalledWith(
+      expect.anything(), 'org_tele', 'act_abc12345',
+      expect.objectContaining({
+        decision: 'deny',
+        newStatus: 'failed',
+        errorMessage: 'Denied via Telegram',
+        userId: 'telegram:42',
+      }),
+    );
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(JSON.parse(editCall[1].body).text).toContain('❌ Denied');
+  });
+});

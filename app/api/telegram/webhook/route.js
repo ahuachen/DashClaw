@@ -118,6 +118,18 @@ export async function POST(request) {
     return ok();
   }
 
-  // Task 8 handles 'dn'.
+  // verb === 'dn'
+  await recordApproval(sql, orgId, action_id, {
+    newStatus: 'failed',
+    errorMessage: 'Denied via Telegram',
+    decision: 'deny',
+    userId,
+    safeReasoning: 'Denied via Telegram',
+  });
+  await Promise.all([
+    answerCallback(cq.id),
+    editMessage(chat_id, message_id,
+      buildResolvedText(action, '❌ Denied by Telegram admin', action_id)),
+  ]);
   return ok();
 }
