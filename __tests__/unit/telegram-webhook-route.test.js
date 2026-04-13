@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { makeRequest } from '../helpers.js';
 
-const { mockFetch, mockGetActionStatus, mockRecordApproval } = vi.hoisted(() => ({
+const { mockFetch, mockGetActionSummary, mockRecordApproval } = vi.hoisted(() => ({
   mockFetch: vi.fn(),
-  mockGetActionStatus: vi.fn(),
+  mockGetActionSummary: vi.fn(),
   mockRecordApproval: vi.fn(),
 }));
 
 vi.stubGlobal('fetch', mockFetch);
 vi.mock('../../app/lib/db.js', () => ({ getSql: () => ({}) }));
 vi.mock('../../app/lib/repositories/actions.repository.js', () => ({
-  getActionStatus: (...a) => mockGetActionStatus(...a),
+  getActionSummary: (...a) => mockGetActionSummary(...a),
   recordApproval: (...a) => mockRecordApproval(...a),
 }));
 
@@ -44,7 +44,7 @@ describe('POST /api/telegram/webhook — auth', () => {
   it('returns 401 when X-Telegram-Bot-Api-Secret-Token is missing', async () => {
     const res = await POST(req({ callback_query: { id: 'cq1' } }));
     expect(res.status).toBe(401);
-    expect(mockGetActionStatus).not.toHaveBeenCalled();
+    expect(mockGetActionSummary).not.toHaveBeenCalled();
   });
 
   it('returns 401 when the secret does not match', async () => {
@@ -53,7 +53,7 @@ describe('POST /api/telegram/webhook — auth', () => {
       { 'X-Telegram-Bot-Api-Secret-Token': 'WRONG' },
     ));
     expect(res.status).toBe(401);
-    expect(mockGetActionStatus).not.toHaveBeenCalled();
+    expect(mockGetActionSummary).not.toHaveBeenCalled();
   });
 
   it('returns 403 when callback sender is not the admin chat', async () => {
@@ -90,7 +90,7 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
       AUTH,
     ));
     expect(res.status).toBe(200);
-    expect(mockGetActionStatus).not.toHaveBeenCalled();
+    expect(mockGetActionSummary).not.toHaveBeenCalled();
 
     const ackCall = mockFetch.mock.calls.find(([u]) =>
       u.includes('/answerCallbackQuery'));
@@ -104,7 +104,7 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
       AUTH,
     ));
     expect(res.status).toBe(200);
-    expect(mockGetActionStatus).not.toHaveBeenCalled();
+    expect(mockGetActionSummary).not.toHaveBeenCalled();
 
     const ackCall = mockFetch.mock.calls.find(([u]) =>
       u.includes('/answerCallbackQuery'));
@@ -153,7 +153,7 @@ describe('POST /api/telegram/webhook — approve', () => {
     process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
     process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
     mockFetch.mockResolvedValue({ ok: true, status: 200 });
-    mockGetActionStatus.mockResolvedValue(pending);
+    mockGetActionSummary.mockResolvedValue(pending);
     mockRecordApproval.mockResolvedValue({ ...pending, status: 'running' });
   });
 
@@ -176,7 +176,7 @@ describe('POST /api/telegram/webhook — approve', () => {
     ));
 
     expect(res.status).toBe(200);
-    expect(mockGetActionStatus).toHaveBeenCalledWith(
+    expect(mockGetActionSummary).toHaveBeenCalledWith(
       expect.anything(), 'org_tele', 'act_abc12345',
     );
     expect(mockRecordApproval).toHaveBeenCalledWith(
@@ -218,7 +218,7 @@ describe('POST /api/telegram/webhook — deny', () => {
     process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
     process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
     mockFetch.mockResolvedValue({ ok: true, status: 200 });
-    mockGetActionStatus.mockResolvedValue(pending);
+    mockGetActionSummary.mockResolvedValue(pending);
     mockRecordApproval.mockResolvedValue({ ...pending, status: 'failed' });
   });
 
@@ -274,7 +274,7 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
   });
 
   it('does not call recordApproval when action is already resolved, and edits with "Already resolved"', async () => {
-    mockGetActionStatus.mockResolvedValue({
+    mockGetActionSummary.mockResolvedValue({
       action_id: 'act_abc12345', status: 'completed',
       agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
     });
@@ -302,8 +302,8 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
     expect(JSON.parse(ackCall[1].body).text).toContain('Already resolved');
   });
 
-  it('short-circuits with "Action not found" when getActionStatus returns null', async () => {
-    mockGetActionStatus.mockResolvedValue(null);
+  it('short-circuits with "Action not found" when getActionSummary returns null', async () => {
+    mockGetActionSummary.mockResolvedValue(null);
 
     const res = await POST(req(
       {
@@ -324,7 +324,7 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
   });
 
   it('still acks the callback when recordApproval throws', async () => {
-    mockGetActionStatus.mockResolvedValue({
+    mockGetActionSummary.mockResolvedValue({
       action_id: 'act_abc12345', status: 'pending_approval',
       agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
     });

@@ -18,7 +18,7 @@ export async function getActionStatus(sql, orgId, actionId) {
 
 export async function getActionSummary(sql, orgId, actionId) {
   const rows = await sql`
-    SELECT action_id, agent_id, action_type, declared_goal, risk_score
+    SELECT action_id, agent_id, action_type, declared_goal, risk_score, status
     FROM action_records
     WHERE action_id = ${actionId} AND org_id = ${orgId}
     LIMIT 1

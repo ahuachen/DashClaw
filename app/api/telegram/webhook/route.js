@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import {
-  getActionStatus,
+  getActionSummary,
   recordApproval,
 } from '../../../lib/repositories/actions.repository.js';
 
@@ -91,7 +91,7 @@ export async function POST(request) {
 
   const sql = getSql();
   const orgId = process.env.TELEGRAM_APPROVER_ORG_ID;
-  const action = await getActionStatus(sql, orgId, action_id);
+  const action = await getActionSummary(sql, orgId, action_id);
 
   const chat_id = cq.message?.chat?.id;
   const message_id = cq.message?.message_id;
