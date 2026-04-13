@@ -7,6 +7,7 @@ import {
 } from './generate-secrets.mjs';
 import { apply as fixCors } from './fix-cors.mjs';
 import { apply as createDefaultPolicy } from './create-default-policy.mjs';
+import { apply as regenerateArtifacts } from './regenerate-artifacts.mjs';
 
 /**
  * Registry of fix action keys → handlers.
@@ -19,6 +20,7 @@ export const FIX_REGISTRY = {
   generate_api_key:         { handler: applyGenerateApiKey, scope: 'local' },
   fix_cors:                 { handler: fixCors, scope: 'local' },
   create_default_policy:    { handler: createDefaultPolicy, scope: 'remote' },
+  regenerate_artifacts:     { handler: regenerateArtifacts, scope: 'local' },
 };
 
 /**

@@ -5,6 +5,7 @@ import { runChecks as authChecks } from './checks/auth.mjs';
 import { runChecks as deploymentChecks } from './checks/deployment.mjs';
 import { runChecks as sdkChecks } from './checks/sdk.mjs';
 import { runChecks as governanceChecks } from './checks/governance.mjs';
+import { runChecks as driftChecks } from './checks/drift.mjs';
 import { runShapeChecks } from './generated/checks-from-shape.mjs';
 
 const CHECK_RUNNERS = {
@@ -15,9 +16,10 @@ const CHECK_RUNNERS = {
   sdk: sdkChecks,
   governance: governanceChecks,
   shape: runShapeChecks,
+  drift: driftChecks,
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape', 'drift'];
 
 /**
  * @param {Object} [options]
