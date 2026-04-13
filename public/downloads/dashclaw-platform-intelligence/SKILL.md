@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:773fba7a55070109ee201e6179fc097271c812b5`
+**Shape snapshot:** `sha1:ec8d84a181acef097352ce68a34b8b433b80de33`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -29,8 +29,8 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 ## At a Glance
 
-- **172** active API routes across **43** categories
-- **4** required + **99** optional environment variables
+- **173** active API routes across **44** categories
+- **4** required + **101** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -311,6 +311,10 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 - `DELETE, PATCH` `/api/team/[userId]`
 - `DELETE, GET, POST` `/api/team/invite`
 
+### `telegram`
+
+- `POST` `/api/telegram/webhook`
+
 ### `usage`
 
 - `GET` `/api/usage`
@@ -441,7 +445,9 @@ These have fallbacks or only activate specific features.
 - `STRIPE_WEBHOOK_SECRET` *(undocumented)*
 - `TARGET_ENV` *(undocumented)*
 - `TELEGRAM_ADMIN_CHAT_ID` *(undocumented)*
+- `TELEGRAM_APPROVER_ORG_ID` *(undocumented)*
 - `TELEGRAM_BOT_TOKEN` *(undocumented)*
+- `TELEGRAM_WEBHOOK_SECRET` *(undocumented)*
 - `TRUST_PROXY` *(undocumented)*
 - `UPSTASH_REDIS_REST_TOKEN` *(undocumented)*
 - `UPSTASH_REDIS_REST_URL` *(undocumented)*

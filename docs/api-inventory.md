@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `219`
+- Total routes: `220`
 - Stable routes: `40`
 - Beta routes: `20`
-- Experimental routes: `159`
+- Experimental routes: `160`
 
 ## Routes
 
@@ -225,6 +225,7 @@ doc-type: architecture
 | `/api/team` | `GET` | `stable` | `/api/team` | `app/api/team/route.js` |
 | `/api/team/invite` | `DELETE, GET, POST` | `stable` | `/api/team` | `app/api/team/invite/route.js` |
 | `/api/team/{userId}` | `DELETE, PATCH` | `stable` | `/api/team` | `app/api/team/[userId]/route.js` |
+| `/api/telegram/webhook` | `POST` | `experimental` | `(default)` | `app/api/telegram/webhook/route.js` |
 | `/api/usage` | `GET` | `stable` | `/api/usage` | `app/api/usage/route.js` |
 | `/api/usage/costs` | `GET` | `stable` | `/api/usage` | `app/api/usage/costs/route.js` |
 | `/api/webhooks` | `DELETE, GET, POST` | `stable` | `/api/webhooks` | `app/api/webhooks/route.js` |

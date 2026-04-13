@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:773fba7a55070109ee201e6179fc097271c812b5",
+  "timestamp": "sha1:ec8d84a181acef097352ce68a34b8b433b80de33",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2066,6 +2066,15 @@
       "file_path": "app/api/team/invite/route.js"
     },
     {
+      "path": "/api/telegram/webhook",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/telegram/webhook/route.js"
+    },
+    {
       "path": "/api/usage",
       "methods": [
         "GET"
@@ -3363,7 +3372,17 @@
       "required": false,
       "files": [
         "__tests__/unit/telegram-approvals.test.js",
+        "__tests__/unit/telegram-webhook-route.test.js",
+        "app/api/telegram/webhook/route.js",
         "app/lib/telegramApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TELEGRAM_APPROVER_ORG_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/telegram-webhook-route.test.js"
       ],
       "in_env_example": false
     },
@@ -3372,7 +3391,17 @@
       "required": false,
       "files": [
         "__tests__/unit/telegram-approvals.test.js",
+        "__tests__/unit/telegram-webhook-route.test.js",
         "app/lib/telegramApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TELEGRAM_WEBHOOK_SECRET",
+      "required": false,
+      "files": [
+        "__tests__/unit/telegram-webhook-route.test.js",
+        "app/api/telegram/webhook/route.js"
       ],
       "in_env_example": false
     },
