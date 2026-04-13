@@ -1,7 +1,16 @@
 // app/lib/doctor/fixes/create-default-policy.mjs
 import { getSql } from '../../db.js';
+import { getTable } from '../shape.mjs';
 
 export async function apply() {
+  const policiesTable = getTable('guard_policies');
+  if (!policiesTable) {
+    return {
+      applied: false,
+      description: 'guard_policies table not in shape snapshot — run npm run livingcode:refresh',
+    };
+  }
+
   try {
     const sql = getSql();
     const id = `pol_doctor_${Date.now()}`;

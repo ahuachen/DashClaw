@@ -2,6 +2,7 @@
 import { getAuthConfig } from '../../authConfig.mjs';
 import { getSql } from '../../db.js';
 import { getSetupStatus } from '../../setupStatus.mjs';
+import { getTable } from '../shape.mjs';
 
 /**
  * @param {{ env?: object }} options
@@ -15,10 +16,12 @@ export async function runChecks({ env = process.env } = {}) {
   let hasDbKey = false;
 
   if (!hasEnvKey) {
-    // Try the DB as a fallback, but only if the DB is reachable
+    // Try the DB as a fallback, but only if the DB is reachable and the
+    // api_keys table is present in the generated shape.
     try {
+      const apiKeysTable = getTable('api_keys');
       const dbStatus = await getSetupStatus(env);
-      if (dbStatus.configured) {
+      if (apiKeysTable && dbStatus.configured) {
         const sql = getSql();
         const rows = await sql`SELECT 1 FROM api_keys WHERE revoked_at IS NULL LIMIT 1`;
         hasDbKey = rows.length > 0;

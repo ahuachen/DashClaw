@@ -1,7 +1,7 @@
 """Emit dispatcher — route an emit target to the right emitter module."""
 from livingcode.shape import build_shape
 
-TARGETS = ("skill",)
+TARGETS = ("skill", "shape-json")
 
 
 def emit(repo_path: str, target: str) -> str:
@@ -11,5 +11,9 @@ def emit(repo_path: str, target: str) -> str:
     if target == "skill":
         from livingcode.emitters.skill import emit_skill
         return emit_skill(shape)
+
+    if target == "shape-json":
+        from livingcode.emitters.shape_json import emit_shape_json
+        return emit_shape_json(shape)
 
     raise ValueError(f"Unknown emit target: {target}. Available: {', '.join(TARGETS)}")

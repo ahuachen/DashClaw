@@ -1,0 +1,3675 @@
+{
+  "timestamp": "2026-04-13T04:44:48.798684+00:00",
+  "routes": [
+    {
+      "path": "/api/_archive/agent-schedules",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/agent-schedules/route.js"
+    },
+    {
+      "path": "/api/_archive/bounties",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/bounties/route.js"
+    },
+    {
+      "path": "/api/_archive/bug-hunter",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/bug-hunter/route.js"
+    },
+    {
+      "path": "/api/_archive/calendar",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/calendar/route.js"
+    },
+    {
+      "path": "/api/_archive/content",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/content/route.js"
+    },
+    {
+      "path": "/api/_archive/context/points",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/context/points/route.js"
+    },
+    {
+      "path": "/api/_archive/context/threads",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/context/threads/route.js"
+    },
+    {
+      "path": "/api/_archive/context/threads/[threadId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "threadId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/context/threads/[threadId]/route.js"
+    },
+    {
+      "path": "/api/_archive/context/threads/[threadId]/entries",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "threadId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/context/threads/[threadId]/entries/route.js"
+    },
+    {
+      "path": "/api/_archive/digest",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/digest/route.js"
+    },
+    {
+      "path": "/api/_archive/docs/raw",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/docs/raw/route.js"
+    },
+    {
+      "path": "/api/_archive/feedback",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/feedback/route.js"
+    },
+    {
+      "path": "/api/_archive/feedback/[feedbackId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "feedbackId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/feedback/[feedbackId]/route.js"
+    },
+    {
+      "path": "/api/_archive/feedback/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/feedback/stats/route.js"
+    },
+    {
+      "path": "/api/_archive/goals",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/goals/route.js"
+    },
+    {
+      "path": "/api/_archive/handoffs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/handoffs/route.js"
+    },
+    {
+      "path": "/api/_archive/identities",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/identities/route.js"
+    },
+    {
+      "path": "/api/_archive/inspiration",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/inspiration/route.js"
+    },
+    {
+      "path": "/api/_archive/invite/[token]",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "token"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/invite/[token]/route.js"
+    },
+    {
+      "path": "/api/_archive/memory",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/memory/route.js"
+    },
+    {
+      "path": "/api/_archive/messages",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/messages/route.js"
+    },
+    {
+      "path": "/api/_archive/messages/attachments",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/messages/attachments/route.js"
+    },
+    {
+      "path": "/api/_archive/messages/docs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/messages/docs/route.js"
+    },
+    {
+      "path": "/api/_archive/messages/threads",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/messages/threads/route.js"
+    },
+    {
+      "path": "/api/_archive/notifications",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/notifications/route.js"
+    },
+    {
+      "path": "/api/_archive/onboarding/api-key",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/onboarding/api-key/route.js"
+    },
+    {
+      "path": "/api/_archive/onboarding/status",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/onboarding/status/route.js"
+    },
+    {
+      "path": "/api/_archive/onboarding/workspace",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/onboarding/workspace/route.js"
+    },
+    {
+      "path": "/api/_archive/pairings",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/pairings/route.js"
+    },
+    {
+      "path": "/api/_archive/pairings/[pairingId]",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "pairingId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/pairings/[pairingId]/route.js"
+    },
+    {
+      "path": "/api/_archive/pairings/[pairingId]/approve",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "pairingId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/pairings/[pairingId]/approve/route.js"
+    },
+    {
+      "path": "/api/_archive/preferences",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/preferences/route.js"
+    },
+    {
+      "path": "/api/_archive/relationships",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/relationships/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/agents",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/agents/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/agents/[agentId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "agentId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/agents/[agentId]/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/health/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/stats/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/tasks",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/tasks/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/tasks/[taskId]",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "dynamic_params": [
+        "taskId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/tasks/[taskId]/route.js"
+    },
+    {
+      "path": "/api/_archive/routing/tasks/[taskId]/complete",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "taskId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/routing/tasks/[taskId]/complete/route.js"
+    },
+    {
+      "path": "/api/_archive/schedules",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/schedules/route.js"
+    },
+    {
+      "path": "/api/_archive/snippets",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/snippets/route.js"
+    },
+    {
+      "path": "/api/_archive/snippets/[snippetId]",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "snippetId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/snippets/[snippetId]/route.js"
+    },
+    {
+      "path": "/api/_archive/snippets/[snippetId]/use",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "snippetId"
+      ],
+      "archived": true,
+      "file_path": "app/api/_archive/snippets/[snippetId]/use/route.js"
+    },
+    {
+      "path": "/api/_archive/sync",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/sync/route.js"
+    },
+    {
+      "path": "/api/_archive/tokens",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/tokens/route.js"
+    },
+    {
+      "path": "/api/_archive/tokens/budget",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/tokens/budget/route.js"
+    },
+    {
+      "path": "/api/_archive/workflows",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": true,
+      "file_path": "app/api/_archive/workflows/route.js"
+    },
+    {
+      "path": "/api/actions",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/actions/route.js"
+    },
+    {
+      "path": "/api/actions/[actionId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/[actionId]/route.js"
+    },
+    {
+      "path": "/api/actions/[actionId]/artifacts",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/[actionId]/artifacts/route.js"
+    },
+    {
+      "path": "/api/actions/[actionId]/graph",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/[actionId]/graph/route.js"
+    },
+    {
+      "path": "/api/actions/[actionId]/messages",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/[actionId]/messages/route.js"
+    },
+    {
+      "path": "/api/actions/[actionId]/trace",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/[actionId]/trace/route.js"
+    },
+    {
+      "path": "/api/actions/costs",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/actions/costs/route.js"
+    },
+    {
+      "path": "/api/actions/loops",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/actions/loops/route.js"
+    },
+    {
+      "path": "/api/actions/loops/[loopId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "loopId"
+      ],
+      "archived": false,
+      "file_path": "app/api/actions/loops/[loopId]/route.js"
+    },
+    {
+      "path": "/api/actions/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/actions/stats/route.js"
+    },
+    {
+      "path": "/api/activity",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/activity/route.js"
+    },
+    {
+      "path": "/api/agents",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/agents/route.js"
+    },
+    {
+      "path": "/api/agents/[agentId]",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "agentId"
+      ],
+      "archived": false,
+      "file_path": "app/api/agents/[agentId]/route.js"
+    },
+    {
+      "path": "/api/agents/[agentId]/profile",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "agentId"
+      ],
+      "archived": false,
+      "file_path": "app/api/agents/[agentId]/profile/route.js"
+    },
+    {
+      "path": "/api/agents/connections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/agents/connections/route.js"
+    },
+    {
+      "path": "/api/agents/heartbeat",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/agents/heartbeat/route.js"
+    },
+    {
+      "path": "/api/analytics",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/analytics/route.js"
+    },
+    {
+      "path": "/api/approvals/[actionId]",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "actionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/approvals/[actionId]/route.js"
+    },
+    {
+      "path": "/api/artifacts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/artifacts/route.js"
+    },
+    {
+      "path": "/api/artifacts/[artifactId]",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "dynamic_params": [
+        "artifactId"
+      ],
+      "archived": false,
+      "file_path": "app/api/artifacts/[artifactId]/route.js"
+    },
+    {
+      "path": "/api/artifacts/evidence-bundle",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/artifacts/evidence-bundle/route.js"
+    },
+    {
+      "path": "/api/assumptions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/assumptions/route.js"
+    },
+    {
+      "path": "/api/assumptions/[assumptionId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "assumptionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/assumptions/[assumptionId]/route.js"
+    },
+    {
+      "path": "/api/auth/[...nextauth]",
+      "methods": [],
+      "dynamic_params": [
+        "nextauth"
+      ],
+      "archived": false,
+      "file_path": "app/api/auth/[...nextauth]/route.js"
+    },
+    {
+      "path": "/api/auth/config",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/auth/config/route.js"
+    },
+    {
+      "path": "/api/auth/local",
+      "methods": [
+        "DELETE",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/auth/local/route.js"
+    },
+    {
+      "path": "/api/billing/checkout",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/billing/checkout/route.js"
+    },
+    {
+      "path": "/api/billing/portal",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/billing/portal/route.js"
+    },
+    {
+      "path": "/api/capabilities",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/capabilities/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/access",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/access/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/access/[ruleId]",
+      "methods": [
+        "DELETE"
+      ],
+      "dynamic_params": [
+        "capabilityId",
+        "ruleId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/access/[ruleId]/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/access/check",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/access/check/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/health/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/history",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/history/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/invoke",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/invoke/route.js"
+    },
+    {
+      "path": "/api/capabilities/[capabilityId]/test",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "capabilityId"
+      ],
+      "archived": false,
+      "file_path": "app/api/capabilities/[capabilityId]/test/route.js"
+    },
+    {
+      "path": "/api/capabilities/health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/capabilities/health/route.js"
+    },
+    {
+      "path": "/api/compliance/evidence",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/evidence/route.js"
+    },
+    {
+      "path": "/api/compliance/exports",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/exports/route.js"
+    },
+    {
+      "path": "/api/compliance/exports/[exportId]",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "dynamic_params": [
+        "exportId"
+      ],
+      "archived": false,
+      "file_path": "app/api/compliance/exports/[exportId]/route.js"
+    },
+    {
+      "path": "/api/compliance/exports/[exportId]/download",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "exportId"
+      ],
+      "archived": false,
+      "file_path": "app/api/compliance/exports/[exportId]/download/route.js"
+    },
+    {
+      "path": "/api/compliance/frameworks",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/frameworks/route.js"
+    },
+    {
+      "path": "/api/compliance/gaps",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/gaps/route.js"
+    },
+    {
+      "path": "/api/compliance/map",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/map/route.js"
+    },
+    {
+      "path": "/api/compliance/report",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/report/route.js"
+    },
+    {
+      "path": "/api/compliance/schedules",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/schedules/route.js"
+    },
+    {
+      "path": "/api/compliance/schedules/[scheduleId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "scheduleId"
+      ],
+      "archived": false,
+      "file_path": "app/api/compliance/schedules/[scheduleId]/route.js"
+    },
+    {
+      "path": "/api/compliance/trends",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/compliance/trends/route.js"
+    },
+    {
+      "path": "/api/cron/integration-health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/integration-health/route.js"
+    },
+    {
+      "path": "/api/cron/learning-episodes-backfill",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/learning-episodes-backfill/route.js"
+    },
+    {
+      "path": "/api/cron/learning-recommendations",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/learning-recommendations/route.js"
+    },
+    {
+      "path": "/api/cron/memory-maintenance",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/memory-maintenance/route.js"
+    },
+    {
+      "path": "/api/cron/policy-suggestions",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/policy-suggestions/route.js"
+    },
+    {
+      "path": "/api/cron/reset-meters",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/reset-meters/route.js"
+    },
+    {
+      "path": "/api/cron/routing-maintenance",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/routing-maintenance/route.js"
+    },
+    {
+      "path": "/api/cron/signals",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/cron/signals/route.js"
+    },
+    {
+      "path": "/api/docs/raw",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/docs/raw/route.js"
+    },
+    {
+      "path": "/api/doctor",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/doctor/route.js"
+    },
+    {
+      "path": "/api/doctor/fix",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/doctor/fix/route.js"
+    },
+    {
+      "path": "/api/drift/alerts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/drift/alerts/route.js"
+    },
+    {
+      "path": "/api/drift/alerts/[alertId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "alertId"
+      ],
+      "archived": false,
+      "file_path": "app/api/drift/alerts/[alertId]/route.js"
+    },
+    {
+      "path": "/api/drift/metrics",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/drift/metrics/route.js"
+    },
+    {
+      "path": "/api/drift/snapshots",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/drift/snapshots/route.js"
+    },
+    {
+      "path": "/api/drift/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/drift/stats/route.js"
+    },
+    {
+      "path": "/api/evaluations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/evaluations/route.js"
+    },
+    {
+      "path": "/api/evaluations/runs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/evaluations/runs/route.js"
+    },
+    {
+      "path": "/api/evaluations/runs/[runId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "runId"
+      ],
+      "archived": false,
+      "file_path": "app/api/evaluations/runs/[runId]/route.js"
+    },
+    {
+      "path": "/api/evaluations/scorers",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/evaluations/scorers/route.js"
+    },
+    {
+      "path": "/api/evaluations/scorers/[scorerId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "scorerId"
+      ],
+      "archived": false,
+      "file_path": "app/api/evaluations/scorers/[scorerId]/route.js"
+    },
+    {
+      "path": "/api/evaluations/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/evaluations/stats/route.js"
+    },
+    {
+      "path": "/api/guard",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/guard/route.js"
+    },
+    {
+      "path": "/api/guard/decisions",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/guard/decisions/route.js"
+    },
+    {
+      "path": "/api/health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/identities",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/identities/route.js"
+    },
+    {
+      "path": "/api/identities/[agentId]",
+      "methods": [
+        "DELETE"
+      ],
+      "dynamic_params": [
+        "agentId"
+      ],
+      "archived": false,
+      "file_path": "app/api/identities/[agentId]/route.js"
+    },
+    {
+      "path": "/api/integrations/health",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/integrations/health/route.js"
+    },
+    {
+      "path": "/api/keys",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/keys/route.js"
+    },
+    {
+      "path": "/api/keys/reveal",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/keys/reveal/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/knowledge/collections/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/[collectionId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "collectionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/knowledge/collections/[collectionId]/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/[collectionId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "collectionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/knowledge/collections/[collectionId]/items/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/[collectionId]/search",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "collectionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/knowledge/collections/[collectionId]/search/route.js"
+    },
+    {
+      "path": "/api/knowledge/collections/[collectionId]/sync",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "collectionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/knowledge/collections/[collectionId]/sync/route.js"
+    },
+    {
+      "path": "/api/learning",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/route.js"
+    },
+    {
+      "path": "/api/learning/analytics/curves",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/analytics/curves/route.js"
+    },
+    {
+      "path": "/api/learning/analytics/maturity",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/analytics/maturity/route.js"
+    },
+    {
+      "path": "/api/learning/analytics/summary",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/analytics/summary/route.js"
+    },
+    {
+      "path": "/api/learning/analytics/velocity",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/analytics/velocity/route.js"
+    },
+    {
+      "path": "/api/learning/lessons",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/lessons/route.js"
+    },
+    {
+      "path": "/api/learning/recommendations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/recommendations/route.js"
+    },
+    {
+      "path": "/api/learning/recommendations/[recommendationId]",
+      "methods": [
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "recommendationId"
+      ],
+      "archived": false,
+      "file_path": "app/api/learning/recommendations/[recommendationId]/route.js"
+    },
+    {
+      "path": "/api/learning/recommendations/events",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/recommendations/events/route.js"
+    },
+    {
+      "path": "/api/learning/recommendations/metrics",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/recommendations/metrics/route.js"
+    },
+    {
+      "path": "/api/learning/suggestions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/learning/suggestions/route.js"
+    },
+    {
+      "path": "/api/mcp",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/mcp/route.js"
+    },
+    {
+      "path": "/api/messages",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/messages/route.js"
+    },
+    {
+      "path": "/api/messages/attachments",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/messages/attachments/route.js"
+    },
+    {
+      "path": "/api/messages/threads",
+      "methods": [
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/messages/threads/route.js"
+    },
+    {
+      "path": "/api/model-strategies",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/model-strategies/route.js"
+    },
+    {
+      "path": "/api/model-strategies/[strategyId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "strategyId"
+      ],
+      "archived": false,
+      "file_path": "app/api/model-strategies/[strategyId]/route.js"
+    },
+    {
+      "path": "/api/model-strategies/[strategyId]/complete",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "strategyId"
+      ],
+      "archived": false,
+      "file_path": "app/api/model-strategies/[strategyId]/complete/route.js"
+    },
+    {
+      "path": "/api/operations/feed",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/operations/feed/route.js"
+    },
+    {
+      "path": "/api/operations/summary",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/operations/summary/route.js"
+    },
+    {
+      "path": "/api/orgs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/orgs/route.js"
+    },
+    {
+      "path": "/api/orgs/[orgId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "orgId"
+      ],
+      "archived": false,
+      "file_path": "app/api/orgs/[orgId]/route.js"
+    },
+    {
+      "path": "/api/orgs/[orgId]/keys",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "orgId"
+      ],
+      "archived": false,
+      "file_path": "app/api/orgs/[orgId]/keys/route.js"
+    },
+    {
+      "path": "/api/pairings",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/pairings/route.js"
+    },
+    {
+      "path": "/api/pairings/[pairingId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "pairingId"
+      ],
+      "archived": false,
+      "file_path": "app/api/pairings/[pairingId]/route.js"
+    },
+    {
+      "path": "/api/pairings/[pairingId]/approve",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "pairingId"
+      ],
+      "archived": false,
+      "file_path": "app/api/pairings/[pairingId]/approve/route.js"
+    },
+    {
+      "path": "/api/policies",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/route.js"
+    },
+    {
+      "path": "/api/policies/generate",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/generate/route.js"
+    },
+    {
+      "path": "/api/policies/import",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/import/route.js"
+    },
+    {
+      "path": "/api/policies/proof",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/proof/route.js"
+    },
+    {
+      "path": "/api/policies/simulate",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/simulate/route.js"
+    },
+    {
+      "path": "/api/policies/templates",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/templates/route.js"
+    },
+    {
+      "path": "/api/policies/test",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/policies/test/route.js"
+    },
+    {
+      "path": "/api/prompts/agent-connect/raw",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/agent-connect/raw/route.js"
+    },
+    {
+      "path": "/api/prompts/render",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/render/route.js"
+    },
+    {
+      "path": "/api/prompts/runs",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/runs/route.js"
+    },
+    {
+      "path": "/api/prompts/sdk-coverage/raw",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/sdk-coverage/raw/route.js"
+    },
+    {
+      "path": "/api/prompts/server-setup/raw",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/server-setup/raw/route.js"
+    },
+    {
+      "path": "/api/prompts/stats",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/stats/route.js"
+    },
+    {
+      "path": "/api/prompts/templates",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/prompts/templates/route.js"
+    },
+    {
+      "path": "/api/prompts/templates/[templateId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/prompts/templates/[templateId]/route.js"
+    },
+    {
+      "path": "/api/prompts/templates/[templateId]/versions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/prompts/templates/[templateId]/versions/route.js"
+    },
+    {
+      "path": "/api/prompts/templates/[templateId]/versions/[versionId]",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId",
+        "versionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/prompts/templates/[templateId]/versions/[versionId]/route.js"
+    },
+    {
+      "path": "/api/scoring/calibrate",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/scoring/calibrate/route.js"
+    },
+    {
+      "path": "/api/scoring/profiles",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/scoring/profiles/route.js"
+    },
+    {
+      "path": "/api/scoring/profiles/[profileId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "profileId"
+      ],
+      "archived": false,
+      "file_path": "app/api/scoring/profiles/[profileId]/route.js"
+    },
+    {
+      "path": "/api/scoring/profiles/[profileId]/dimensions",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "profileId"
+      ],
+      "archived": false,
+      "file_path": "app/api/scoring/profiles/[profileId]/dimensions/route.js"
+    },
+    {
+      "path": "/api/scoring/profiles/[profileId]/dimensions/[dimensionId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "profileId",
+        "dimensionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/scoring/profiles/[profileId]/dimensions/[dimensionId]/route.js"
+    },
+    {
+      "path": "/api/scoring/risk-templates",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/scoring/risk-templates/route.js"
+    },
+    {
+      "path": "/api/scoring/risk-templates/[templateId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/scoring/risk-templates/[templateId]/route.js"
+    },
+    {
+      "path": "/api/scoring/score",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/scoring/score/route.js"
+    },
+    {
+      "path": "/api/security/prompt-injection",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/security/prompt-injection/route.js"
+    },
+    {
+      "path": "/api/security/scan",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/security/scan/route.js"
+    },
+    {
+      "path": "/api/security/status",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/security/status/route.js"
+    },
+    {
+      "path": "/api/sessions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/sessions/route.js"
+    },
+    {
+      "path": "/api/sessions/[sessionId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "sessionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/sessions/[sessionId]/route.js"
+    },
+    {
+      "path": "/api/sessions/[sessionId]/events",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "sessionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/sessions/[sessionId]/events/route.js"
+    },
+    {
+      "path": "/api/settings",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/settings/route.js"
+    },
+    {
+      "path": "/api/settings/llm-status",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/settings/llm-status/route.js"
+    },
+    {
+      "path": "/api/settings/test",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/settings/test/route.js"
+    },
+    {
+      "path": "/api/setup/live-proof",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/setup/live-proof/route.js"
+    },
+    {
+      "path": "/api/setup/migrate",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/setup/migrate/route.js"
+    },
+    {
+      "path": "/api/setup/ping",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/setup/ping/route.js"
+    },
+    {
+      "path": "/api/setup/proof",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/setup/proof/route.js"
+    },
+    {
+      "path": "/api/setup/status",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/setup/status/route.js"
+    },
+    {
+      "path": "/api/signals",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/signals/route.js"
+    },
+    {
+      "path": "/api/stream",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/stream/route.js"
+    },
+    {
+      "path": "/api/swarm/graph",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/swarm/graph/route.js"
+    },
+    {
+      "path": "/api/swarm/link",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/swarm/link/route.js"
+    },
+    {
+      "path": "/api/team",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/team/route.js"
+    },
+    {
+      "path": "/api/team/[userId]",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "userId"
+      ],
+      "archived": false,
+      "file_path": "app/api/team/[userId]/route.js"
+    },
+    {
+      "path": "/api/team/invite",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/team/invite/route.js"
+    },
+    {
+      "path": "/api/usage",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/usage/route.js"
+    },
+    {
+      "path": "/api/usage/costs",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/usage/costs/route.js"
+    },
+    {
+      "path": "/api/webhooks",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/webhooks/route.js"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "webhookId"
+      ],
+      "archived": false,
+      "file_path": "app/api/webhooks/[webhookId]/deliveries/route.js"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/test",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "webhookId"
+      ],
+      "archived": false,
+      "file_path": "app/api/webhooks/[webhookId]/test/route.js"
+    },
+    {
+      "path": "/api/webhooks/stripe",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/webhooks/stripe/route.js"
+    },
+    {
+      "path": "/api/workflows/draft",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/workflows/draft/route.js"
+    },
+    {
+      "path": "/api/workflows/templates",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]",
+      "methods": [
+        "DELETE",
+        "GET",
+        "PATCH"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/duplicate",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/duplicate/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/execute",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/execute/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/launch",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/launch/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/runs",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "templateId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/runs/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/runs/[runActionId]",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "templateId",
+        "runActionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/runs/[runActionId]/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/runs/[runActionId]/cancel",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId",
+        "runActionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/runs/[runActionId]/cancel/route.js"
+    },
+    {
+      "path": "/api/workflows/templates/[templateId]/runs/[runActionId]/resume",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [
+        "templateId",
+        "runActionId"
+      ],
+      "archived": false,
+      "file_path": "app/api/workflows/templates/[templateId]/runs/[runActionId]/resume/route.js"
+    }
+  ],
+  "env_vars": [
+    {
+      "name": "AGENT_ONLINE_WINDOW_MS",
+      "required": false,
+      "files": [
+        "__tests__/unit/agents.repository.test.js",
+        "app/api/agents/route.js",
+        "app/lib/repositories/agents.repository.js",
+        "graphify-pilot/app/api/agents/route.js",
+        "graphify-pilot/app/lib/repositories/agents.repository.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "AGENT_PRIVATE_KEY",
+      "required": false,
+      "files": [
+        "scripts/generate-agent-keys.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "AGENT_PRIVATE_KEY_JWK",
+      "required": false,
+      "files": [
+        "app/lib/connectGuide.js",
+        "graphify-pilot/app/lib/connectGuide.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "ALERT_FROM_EMAIL",
+      "required": false,
+      "files": [
+        "app/lib/notifications.js",
+        "graphify-pilot/app/lib/notifications.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "ALLOWED_ORIGIN",
+      "required": false,
+      "files": [
+        "graphify-pilot/app/lib/validateEnv.js",
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "required": false,
+      "files": [
+        "app/lib/llm.js",
+        "examples/claude-code-review-agent/index.js",
+        "graphify-pilot/app/lib/llm.js",
+        "scripts/upload-skill.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "API_SECRET",
+      "required": false,
+      "files": [
+        "examples/claude-code-review-agent/index.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "BASE_URL",
+      "required": false,
+      "files": [
+        "scripts/test-realtime.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_BENCH_CONCURRENCY",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_BENCH_ITERATIONS",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_REPLAY_CONNECT_TIMEOUT_MS",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_RETRY_429_MAX",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_RETRY_429_WAIT_MS",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_SSE_SEND_COUNT",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CONVERGENCE_VERBOSE",
+      "required": false,
+      "files": [
+        "scripts/collect-platform-convergence-evidence.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "CRON_SECRET",
+      "required": false,
+      "files": [
+        "__tests__/unit/cron-auth.test.js",
+        "__tests__/unit/cron-routing-maintenance.route.test.js",
+        "app/api/cron/integration-health/route.js",
+        "app/api/cron/learning-episodes-backfill/route.js",
+        "app/api/cron/learning-recommendations/route.js",
+        "app/api/cron/memory-maintenance/route.js",
+        "app/api/cron/policy-suggestions/route.js",
+        "app/api/cron/reset-meters/route.js",
+        "app/api/cron/routing-maintenance/route.js",
+        "app/api/cron/signals/route.js",
+        "graphify-pilot/app/api/cron/integration-health/route.js",
+        "graphify-pilot/app/api/cron/learning-episodes-backfill/route.js",
+        "graphify-pilot/app/api/cron/learning-recommendations/route.js",
+        "graphify-pilot/app/api/cron/memory-maintenance/route.js",
+        "graphify-pilot/app/api/cron/policy-suggestions/route.js",
+        "graphify-pilot/app/api/cron/routing-maintenance/route.js",
+        "graphify-pilot/app/api/cron/signals/route.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_AGENT_ID",
+      "required": false,
+      "files": [
+        "app/lib/connectPrompt.js",
+        "examples/first-governed-action.js",
+        "graphify-pilot/app/lib/connectPrompt.js",
+        "mcp-server/bin/dashclaw-mcp.js",
+        "scripts/test-sdk-live.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_API_KEY",
+      "required": true,
+      "files": [
+        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "app/api/keys/reveal/route.js",
+        "app/api/setup/migrate/route.js",
+        "app/api/setup/ping/route.js",
+        "app/components/OnboardingChecklist.js",
+        "app/docs/page.js",
+        "app/guides/openai-agents-sdk/page.js",
+        "app/landingData.js",
+        "app/lib/connectPrompt.js",
+        "app/lib/demo/fixtures/journey-agents.js",
+        "app/lib/demo/fixtures/persona-agents.js",
+        "app/lib/demo/fixtures/tutorial-threads.js",
+        "app/lib/starterSnippet.js",
+        "app/self-host/SetupTabs.js",
+        "examples/agent-chat-complete.js",
+        "examples/anthropic-governed-agent/index.js",
+        "examples/approval-flow.js",
+        "examples/claude-code-review-agent/index.js",
+        "examples/first-governed-action.js",
+        "examples/guard-and-act.js",
+        "examples/kimi_dashclaw_test.js",
+        "examples/loop-monitoring.js",
+        "examples/openai-agents-governed/index.js",
+        "examples/openai-deploy-pipeline/index.js",
+        "examples/openai-governed-agent/index.js",
+        "examples/swarm-research-task.js",
+        "graphify-pilot/app/api/setup/migrate/route.js",
+        "graphify-pilot/app/api/setup/ping/route.js",
+        "graphify-pilot/app/components/OnboardingChecklist.js",
+        "graphify-pilot/app/components/QuickStart.js",
+        "graphify-pilot/app/docs/page.js",
+        "graphify-pilot/app/guides/openai-agents-sdk/page.js",
+        "graphify-pilot/app/landingData.js",
+        "graphify-pilot/app/lib/connectGuide.js",
+        "graphify-pilot/app/lib/connectPrompt.js",
+        "graphify-pilot/app/lib/demo/fixtures/journey-agents.js",
+        "graphify-pilot/app/lib/demo/fixtures/persona-agents.js",
+        "graphify-pilot/app/lib/demo/fixtures/tutorial-threads.js",
+        "graphify-pilot/app/lib/readiness/sdkCheck.mjs",
+        "graphify-pilot/app/lib/validateEnv.js",
+        "graphify-pilot/app/self-host/SetupTabs.js",
+        "mcp-server/bin/dashclaw-mcp.js",
+        "middleware.js",
+        "public/downloads/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        "public/downloads/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        "public/downloads/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "scripts/auto-migrate.mjs",
+        "scripts/bootstrap-agent.mjs",
+        "scripts/collect-platform-convergence-evidence.mjs",
+        "scripts/demo-agent.mjs",
+        "scripts/migrate-multi-tenant.mjs",
+        "scripts/patch-demo-capability-endpoints.mjs",
+        "scripts/report-action.mjs",
+        "scripts/report-tokens.mjs",
+        "scripts/seed-demo-capabilities.mjs",
+        "scripts/test-actions.mjs",
+        "scripts/test-full-api.mjs",
+        "scripts/test-presence.mjs",
+        "scripts/test-realtime.mjs",
+        "scripts/test-sdk-live.mjs",
+        "verify.js"
+      ],
+      "in_env_example": true
+    },
+    {
+      "name": "DASHCLAW_API_KEY_ORG",
+      "required": false,
+      "files": [
+        "app/api/auth/local/route.js",
+        "app/api/setup/migrate/route.js",
+        "graphify-pilot/app/api/setup/migrate/route.js",
+        "middleware.js",
+        "scripts/auto-migrate.mjs",
+        "scripts/migrate-multi-tenant.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_BASE_URL",
+      "required": false,
+      "files": [
+        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "app/docs/page.js",
+        "app/guides/openai-agents-sdk/page.js",
+        "app/landingData.js",
+        "app/lib/demo/fixtures/journey-agents.js",
+        "app/lib/demo/fixtures/persona-agents.js",
+        "app/lib/starterSnippet.js",
+        "app/self-host/SetupTabs.js",
+        "examples/agent-chat-complete.js",
+        "examples/anthropic-governed-agent/index.js",
+        "examples/approval-flow.js",
+        "examples/claude-code-review-agent/index.js",
+        "examples/first-governed-action.js",
+        "examples/guard-and-act.js",
+        "examples/kimi_dashclaw_test.js",
+        "examples/loop-monitoring.js",
+        "examples/openai-agents-governed/index.js",
+        "examples/openai-deploy-pipeline/index.js",
+        "examples/openai-governed-agent/index.js",
+        "examples/swarm-research-task.js",
+        "graphify-pilot/app/components/QuickStart.js",
+        "graphify-pilot/app/docs/page.js",
+        "graphify-pilot/app/guides/openai-agents-sdk/page.js",
+        "graphify-pilot/app/landingData.js",
+        "graphify-pilot/app/lib/connectGuide.js",
+        "graphify-pilot/app/lib/demo/fixtures/journey-agents.js",
+        "graphify-pilot/app/lib/demo/fixtures/persona-agents.js",
+        "graphify-pilot/app/self-host/SetupTabs.js",
+        "graphify-pilot/app/settings/components/ConnectNextStepPanel.js",
+        "public/downloads/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        "public/downloads/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        "public/downloads/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "scripts/demo-agent.mjs",
+        "verify.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_CLOSED_ENROLLMENT",
+      "required": false,
+      "files": [
+        "__tests__/unit/actions.route.test.js",
+        "app/api/actions/route.js",
+        "graphify-pilot/app/api/actions/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_DB_DRIVER",
+      "required": false,
+      "files": [
+        "app/lib/db.js",
+        "graphify-pilot/app/lib/db.js",
+        "middleware.js",
+        "scripts/_db.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_DB_POOL_MAX",
+      "required": false,
+      "files": [
+        "app/lib/db.js",
+        "graphify-pilot/app/lib/db.js",
+        "scripts/_db.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_DISABLE_RATE_LIMIT",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_GUARD_FALLBACK",
+      "required": false,
+      "files": [
+        "app/lib/guard.js",
+        "graphify-pilot/app/lib/guard.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_LOCAL_ADMIN_PASSWORD",
+      "required": false,
+      "files": [
+        "app/api/auth/local/route.js",
+        "app/login/page.js",
+        "graphify-pilot/app/api/auth/local/route.js",
+        "graphify-pilot/app/login/page.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_MODE",
+      "required": false,
+      "files": [
+        "__tests__/unit/guard.route.test.js",
+        "app/api/setup/ping/route.js",
+        "app/lib/selfHost.js",
+        "app/settings/page.js",
+        "graphify-pilot/app/api/setup/ping/route.js",
+        "graphify-pilot/app/settings/page.js",
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_RATE_LIMIT_MAX",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_RATE_LIMIT_WINDOW_MS",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_URL",
+      "required": false,
+      "files": [
+        "app/api/mcp/route.js",
+        "mcp-server/bin/dashclaw-mcp.js",
+        "scripts/patch-demo-capability-endpoints.mjs",
+        "scripts/seed-demo-capabilities.mjs",
+        "scripts/test-presence.mjs",
+        "scripts/test-sdk-live.mjs",
+        "scripts/verify-demo-e2e.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "required": true,
+      "files": [
+        "__tests__/unit/actions.route.test.js",
+        "__tests__/unit/agents-heartbeat.route.test.js",
+        "__tests__/unit/agents.route.test.js",
+        "__tests__/unit/bootstrap-first-user-admin.test.js",
+        "__tests__/unit/compliance-evidence.route.test.js",
+        "__tests__/unit/compliance-exports.route.test.js",
+        "__tests__/unit/compliance-gaps.route.test.js",
+        "__tests__/unit/compliance-map.route.test.js",
+        "__tests__/unit/compliance-report.route.test.js",
+        "__tests__/unit/cron-auth.test.js",
+        "__tests__/unit/cron-routing-maintenance.route.test.js",
+        "__tests__/unit/guard.route.test.js",
+        "__tests__/unit/health-tables.test.js",
+        "__tests__/unit/health.route.test.js",
+        "__tests__/unit/keys.route.test.js",
+        "__tests__/unit/learning-recommendation-detail.route.test.js",
+        "__tests__/unit/learning-recommendation-events.route.test.js",
+        "__tests__/unit/learning-recommendation-metrics.route.test.js",
+        "__tests__/unit/learning-recommendations.route.test.js",
+        "__tests__/unit/policies-import.route.test.js",
+        "__tests__/unit/policies-proof.route.test.js",
+        "__tests__/unit/policies-test.route.test.js",
+        "__tests__/unit/policies.route.test.js",
+        "__tests__/unit/prompt-injection-guard.test.js",
+        "__tests__/unit/routing-agents-detail.route.test.js",
+        "__tests__/unit/routing-agents.route.test.js",
+        "__tests__/unit/routing-stats.route.test.js",
+        "__tests__/unit/routing-tasks-complete.route.test.js",
+        "__tests__/unit/routing-tasks-detail.route.test.js",
+        "__tests__/unit/routing-tasks.route.test.js",
+        "__tests__/unit/security-status.route.test.js",
+        "__tests__/unit/webhooks.route.test.js",
+        "app/api/security/status/route.js",
+        "app/api/setup/migrate/route.js",
+        "app/lib/auth.js",
+        "app/lib/db.js",
+        "app/lib/validateEnv.js",
+        "drizzle.config.js",
+        "graphify-pilot/app/api/security/status/route.js",
+        "graphify-pilot/app/api/setup/migrate/route.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/db.js",
+        "graphify-pilot/app/lib/validateEnv.js",
+        "middleware.js",
+        "scripts/_db.mjs",
+        "scripts/auto-migrate.mjs",
+        "scripts/backfill-embeddings.mjs",
+        "scripts/backfill-learning-episodes.mjs",
+        "scripts/cleanup-actions.mjs",
+        "scripts/cleanup-org-default.mjs",
+        "scripts/create-org.mjs",
+        "scripts/emergency-reset.mjs",
+        "scripts/init-self-host-env.mjs",
+        "scripts/migrate-action-records-compat.mjs",
+        "scripts/migrate-agent-pairings.mjs",
+        "scripts/migrate-api-keys-compat.mjs",
+        "scripts/migrate-behavioral-ai.mjs",
+        "scripts/migrate-compliance-export.mjs",
+        "scripts/migrate-cost-analytics.mjs",
+        "scripts/migrate-drift.mjs",
+        "scripts/migrate-evaluations.mjs",
+        "scripts/migrate-feedback.mjs",
+        "scripts/migrate-hitl-metadata.mjs",
+        "scripts/migrate-identity-binding.mjs",
+        "scripts/migrate-learning-analytics.mjs",
+        "scripts/migrate-learning-loop-mvp.mjs",
+        "scripts/migrate-multi-tenant.mjs",
+        "scripts/migrate-policy-agent-scope.mjs",
+        "scripts/migrate-prompts.mjs",
+        "scripts/migrate-token-budgets.mjs",
+        "scripts/poll-github-traffic.mjs",
+        "scripts/promote-founder-to-admin.mjs",
+        "scripts/rebuild-learning-recommendations.mjs",
+        "scripts/register-identity.mjs",
+        "scripts/repair-stale-running-actions.mjs",
+        "scripts/setup.mjs"
+      ],
+      "in_env_example": true
+    },
+    {
+      "name": "DISABLE_PROMPT_INJECTION_SCAN",
+      "required": false,
+      "files": [
+        "app/lib/guard.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/guard.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "ENCRYPTION_KEY",
+      "required": true,
+      "files": [
+        "__tests__/unit/security-status.route.test.js",
+        "app/api/security/status/route.js",
+        "app/api/settings/route.js",
+        "app/lib/encryption.js",
+        "graphify-pilot/app/api/security/status/route.js",
+        "graphify-pilot/app/api/settings/route.js",
+        "graphify-pilot/app/lib/encryption.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": true
+    },
+    {
+      "name": "ENFORCE_AGENT_SIGNATURES",
+      "required": false,
+      "files": [
+        "__tests__/unit/actions.route.test.js",
+        "app/api/actions/route.js",
+        "graphify-pilot/app/api/actions/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_CLIENT_ID",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_CLIENT_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_ID",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_REPO_NAME",
+      "required": false,
+      "files": [
+        "scripts/poll-github-traffic.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_REPO_OWNER",
+      "required": false,
+      "files": [
+        "scripts/poll-github-traffic.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GITHUB_TOKEN",
+      "required": false,
+      "files": [
+        "scripts/poll-github-traffic.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GOOGLE_AI_API_KEY",
+      "required": false,
+      "files": [
+        "app/lib/llm.js",
+        "graphify-pilot/app/lib/llm.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GOOGLE_CLIENT_ID",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GOOGLE_CLIENT_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GOOGLE_ID",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GOOGLE_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GUARD_LLM_BASE_URL",
+      "required": false,
+      "files": [
+        "app/lib/llm.js",
+        "graphify-pilot/app/lib/llm.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GUARD_LLM_KEY",
+      "required": false,
+      "files": [
+        "__tests__/unit/guard-engine.test.js",
+        "app/lib/embeddings.js",
+        "app/lib/guard.js",
+        "app/lib/knowledge-ingest.js",
+        "app/lib/llm.js",
+        "graphify-pilot/app/lib/embeddings.js",
+        "graphify-pilot/app/lib/knowledge-ingest.js",
+        "graphify-pilot/app/lib/llm.js",
+        "scripts/test-semantic-guard.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GUARD_LLM_MODEL",
+      "required": false,
+      "files": [
+        "app/lib/llm.js",
+        "graphify-pilot/app/lib/llm.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "GUARD_WEBHOOK_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/webhooks.js",
+        "graphify-pilot/app/lib/webhooks.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "MEMORY_DIR",
+      "required": false,
+      "files": [
+        "agent-tools/tools/memory-diff.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "MOONSHOT_API_KEY",
+      "required": false,
+      "files": [
+        "examples/kimi_dashclaw_test.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "NEXTAUTH_SECRET",
+      "required": true,
+      "files": [
+        "__tests__/unit/health-tables.test.js",
+        "__tests__/unit/health.route.test.js",
+        "app/api/auth/local/route.js",
+        "graphify-pilot/app/api/auth/local/route.js",
+        "graphify-pilot/app/lib/validateEnv.js",
+        "middleware.js"
+      ],
+      "in_env_example": true
+    },
+    {
+      "name": "NEXTAUTH_URL",
+      "required": false,
+      "files": [
+        "__tests__/unit/security-headers.test.js",
+        "__tests__/unit/webhooks.approval.test.js",
+        "app/api/auth/local/route.js",
+        "app/api/team/invite/route.js",
+        "app/lib/notifications.js",
+        "app/lib/webhooks.js",
+        "graphify-pilot/app/api/team/invite/route.js",
+        "graphify-pilot/app/lib/notifications.js",
+        "graphify-pilot/app/lib/webhooks.js",
+        "next.config.js",
+        "scripts/patch-demo-capability-endpoints.mjs",
+        "scripts/seed-demo-capabilities.mjs",
+        "scripts/test-presence.mjs"
+      ],
+      "in_env_example": true
+    },
+    {
+      "name": "NEXT_PUBLIC_APP_URL",
+      "required": false,
+      "files": [
+        "app/api/billing/checkout/route.js",
+        "app/api/billing/portal/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "NEXT_PUBLIC_DASHCLAW_MODE",
+      "required": false,
+      "files": [
+        "app/components/UserMenu.js",
+        "app/lib/isDemoMode.js",
+        "graphify-pilot/app/components/UserMenu.js",
+        "graphify-pilot/app/lib/isDemoMode.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "NEXT_PUBLIC_DASHCLAW_VERSION",
+      "required": false,
+      "files": [
+        "app/components/Sidebar.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS",
+      "required": false,
+      "files": [
+        "app/layout.js",
+        "graphify-pilot/app/layout.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "NODE_ENV",
+      "required": false,
+      "files": [
+        "__tests__/unit/actions.route.test.js",
+        "__tests__/unit/security-headers.test.js",
+        "app/api/auth/config/route.js",
+        "app/api/health/route.js",
+        "app/api/settings/route.js",
+        "app/lib/auth.js",
+        "app/lib/db.js",
+        "app/lib/events.js",
+        "app/lib/readiness/workflow.mjs",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/api/auth/config/route.js",
+        "graphify-pilot/app/api/auth/local/route.js",
+        "graphify-pilot/app/api/health/route.js",
+        "graphify-pilot/app/api/settings/route.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/db.js",
+        "graphify-pilot/app/lib/events.js",
+        "graphify-pilot/app/lib/readiness/workflow.mjs",
+        "graphify-pilot/app/lib/validateEnv.js",
+        "middleware.js",
+        "next.config.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_AUTHORIZATION_URL",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_CLIENT_ID",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_CLIENT_SECRET",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_DISPLAY_NAME",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "graphify-pilot/app/lib/auth.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_ISSUER_URL",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_TOKEN_URL",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OIDC_USERINFO_URL",
+      "required": false,
+      "files": [
+        "app/lib/auth.js",
+        "app/lib/validateEnv.js",
+        "graphify-pilot/app/lib/auth.js",
+        "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "required": false,
+      "files": [
+        "app/lib/embeddings.js",
+        "app/lib/guard.js",
+        "app/lib/knowledge-ingest.js",
+        "app/lib/llm.js",
+        "examples/openai-deploy-pipeline/index.js",
+        "examples/openai-governed-agent/index.js",
+        "graphify-pilot/app/lib/embeddings.js",
+        "graphify-pilot/app/lib/knowledge-ingest.js",
+        "graphify-pilot/app/lib/llm.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "ORG_ID",
+      "required": false,
+      "files": [
+        "scripts/seed-fixitforme-workflow.js",
+        "scripts/seed-research-capability.js",
+        "scripts/seed-research-capability.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "PORT",
+      "required": false,
+      "files": [
+        "scripts/run-demo.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "PYTHON",
+      "required": false,
+      "files": [
+        "scripts/run-python-unittest.mjs",
+        "scripts/run-sdk-live-python.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "PYTHONPATH",
+      "required": false,
+      "files": [
+        "scripts/run-python-unittest.mjs",
+        "scripts/run-sdk-live-python.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_BACKEND",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_ENFORCE_REDIS",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_MAX_LISTENERS",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_MEMORY_MAX_LISTENERS",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_REDIS_URL",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_REPLAY_MAX_EVENTS",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REALTIME_REPLAY_WINDOW_SECONDS",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "REDIS_URL",
+      "required": false,
+      "files": [
+        "app/lib/events.js",
+        "graphify-pilot/app/lib/events.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "RESEARCH_API_KEY",
+      "required": false,
+      "files": [
+        "scripts/seed-research-capability.js",
+        "scripts/seed-research-capability.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "RESEARCH_API_URL",
+      "required": false,
+      "files": [
+        "scripts/seed-research-capability.js",
+        "scripts/seed-research-capability.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "required": false,
+      "files": [
+        "app/lib/notifications.js",
+        "graphify-pilot/app/lib/notifications.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "SERVICE_NAME",
+      "required": false,
+      "files": [
+        "examples/openai-deploy-pipeline/index.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STARTUP_SMOKE_BASE_URL",
+      "required": false,
+      "files": [
+        "scripts/startup-smoke.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STARTUP_SMOKE_INTERVAL_MS",
+      "required": false,
+      "files": [
+        "scripts/startup-smoke.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STARTUP_SMOKE_TIMEOUT_MS",
+      "required": false,
+      "files": [
+        "scripts/startup-smoke.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STRIPE_PRICE_BUSINESS",
+      "required": false,
+      "files": [
+        "app/api/billing/checkout/route.js",
+        "app/api/webhooks/stripe/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STRIPE_PRICE_PRO",
+      "required": false,
+      "files": [
+        "app/api/billing/checkout/route.js",
+        "app/api/webhooks/stripe/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "required": false,
+      "files": [
+        "app/api/billing/checkout/route.js",
+        "app/api/billing/portal/route.js",
+        "app/api/usage/route.js",
+        "app/api/webhooks/stripe/route.js",
+        "graphify-pilot/app/api/usage/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "STRIPE_WEBHOOK_SECRET",
+      "required": false,
+      "files": [
+        "app/api/webhooks/stripe/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TARGET_ENV",
+      "required": false,
+      "files": [
+        "examples/openai-deploy-pipeline/index.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TRUST_PROXY",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "UPSTASH_REDIS_REST_TOKEN",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "UPSTASH_REDIS_REST_URL",
+      "required": false,
+      "files": [
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "VERCEL",
+      "required": false,
+      "files": [
+        "app/layout.js",
+        "graphify-pilot/app/layout.js",
+        "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "VERCEL_URL",
+      "required": false,
+      "files": [
+        "__tests__/unit/webhooks.approval.test.js",
+        "app/api/mcp/route.js",
+        "app/lib/webhooks.js",
+        "graphify-pilot/app/lib/webhooks.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "WEBHOOK_ALLOWED_DOMAINS",
+      "required": false,
+      "files": [
+        "__tests__/unit/security-status.route.test.js",
+        "app/api/security/status/route.js",
+        "app/lib/validate.js",
+        "graphify-pilot/app/api/security/status/route.js",
+        "graphify-pilot/app/lib/validate.js"
+      ],
+      "in_env_example": false
+    }
+  ],
+  "tables": [
+    {
+      "name": "action_embeddings",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "action_records",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "activity_logs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_connections",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_identities",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_messages",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_pairings",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_presence",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_schedules",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "agent_sessions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "api_keys",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "assumptions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "calendar_events",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "compliance_snapshots",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "contacts",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "content",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "context_entries",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "context_points",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "daily_totals",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "decisions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "drift_alerts",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "drift_baselines",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "drift_snapshots",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "entities",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "eval_runs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "eval_scores",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "executions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "feedback",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "goals",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "guard_decisions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "guard_policies",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "guardrails_test_runs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "health_snapshots",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "ideas",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "interactions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "learning_curves",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "learning_episodes",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "learning_recommendation_events",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "learning_recommendations",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "learning_velocity",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "message_threads",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "milestones",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "notification_preferences",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "open_loops",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "organizations",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "profile_scores",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "prompt_runs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "prompt_templates",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "prompt_versions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "risk_templates",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "routing_agent_metrics",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "routing_agents",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "routing_decisions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "routing_tasks",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "scheduled_jobs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "scoring_dimensions",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "scoring_profiles",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "session_events",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "shared_docs",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "snippets",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "token_budgets",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "token_snapshots",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "topics",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "usage_meters",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "user_approaches",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "user_moods",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "user_observations",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "user_preferences",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "users",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "waitlist",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "webhook_deliveries",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "webhooks",
+      "file_path": "schema/schema.js"
+    },
+    {
+      "name": "workflows",
+      "file_path": "schema/schema.js"
+    }
+  ]
+}
