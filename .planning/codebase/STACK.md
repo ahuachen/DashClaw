@@ -154,6 +154,12 @@ npm run init:self-host-env     # Generate .env for self-hosted deployment
 npm run demo                   # Launch demo mode with fixtures
 ```
 
+**Telegram approval bridge (optional):**
+```bash
+npm run telegram:register -- --url https://my-dashclaw.vercel.app   # register the webhook with Bot API
+npm run telegram:verify -- --base https://my-dashclaw.vercel.app    # smoke-test the round-trip (requires DASHCLAW_API_KEY)
+```
+
 **Database Migrations & Data:**
 ```bash
 npm run migrate:behavioral     # One-off: enable behavioral AI guardrails

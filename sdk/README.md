@@ -120,8 +120,9 @@ claw.update_outcome(action_id, status="completed")
 When a guard policy, a capability `requires_approval` flag, or any server-side
 rule triggers human review, the server responds to `createAction()` with
 `action.status === 'pending_approval'` and HTTP **202**. Your agent's job is to
-pause on `waitForApproval()` until an operator clicks **Approve** or **Deny**
-from the dashboard, the CLI, or the mobile PWA.
+pause on `waitForApproval()` until an operator clicks **Approve** or **Deny** from the dashboard, the
+CLI, the mobile PWA, or — on instances with Telegram configured — an inline
+Telegram button.
 
 ### The rule every agent author needs to know
 
@@ -537,7 +538,7 @@ dashclaw doctor --category database,config
 
 Config resolution order: env vars (`DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, optional `DASHCLAW_AGENT_ID`) → `~/.dashclaw/config.json` (`600`, persisted after interactive prompt) → first-run prompt. `dashclaw logout` removes saved config.
 
-When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal, the browser dashboard, or the `/approve` mobile PWA — decisions sync over Redis SSE within ~1 second.
+When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal, the browser dashboard, the `/approve` mobile PWA, or — if the instance has Telegram configured — via an inline Telegram Approve/Reject button pushed to the admin chat — decisions sync over Redis SSE within ~1 second.
 
 ## Self-Host Doctor (`npm run doctor`)
 

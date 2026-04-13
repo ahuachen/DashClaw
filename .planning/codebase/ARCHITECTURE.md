@@ -103,7 +103,8 @@
 4. **Stream (Notifications):**
    - All events flow through `app/lib/events.js` pub/sub
    - Subscribers filter by org_id and action properties
-   - Notification adapters in `app/lib/notification-adapters/` dispatch to Slack, Discord, Email, etc.
+   - Notification adapters in `app/lib/notification-adapters/` dispatch to Slack, Discord, Email, GitHub, Linear
+   - `app/lib/telegramApprovals.js` separately pushes inline Approve/Reject buttons to a Telegram admin chat when actions enter `pending_approval` (if `TELEGRAM_BOT_TOKEN` is set)
    - Real-time clients subscribe via WebSocket or Server-Sent Events (SSE) at `/api/stream`
    - Mission Control `/mission-control` page fetches via `useRealtime()` hook
 

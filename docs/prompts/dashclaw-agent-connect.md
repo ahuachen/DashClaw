@@ -112,6 +112,15 @@ Commands:
 
 When an agent calls `waitForApproval()`, the SDK prints the action ID and a replay link to stdout. Approve from any terminal and the agent unblocks instantly via SSE.
 
+## Step 3b (Optional): Telegram Approval Channel
+
+If the DashClaw instance has Telegram configured (`TELEGRAM_BOT_TOKEN` set on
+the server), the operator will also receive inline Approve/Reject buttons in
+their Telegram admin chat when the agent calls `waitForApproval()`. One tap
+resolves the action. No client-side setup is needed — this is a server-side
+feature. See the repo's `docs/telegram-setup.md` (or README "Telegram approvals
+(optional)" section) for server setup.
+
 ## Step 4: One-Click Agent Pairing (Verified Signatures)
 
 If the user wants cryptographic verification, do NOT make them copy/paste PEMs.

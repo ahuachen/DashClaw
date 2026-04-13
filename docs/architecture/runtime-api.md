@@ -105,3 +105,16 @@ await claw.updateOutcome(action_id, { status: 'completed' });
 
 ## Legacy Support
 Legacy v1 endpoints (e.g., `/api/actions/signals`, `/api/actions/assumptions`, `/api/actions/:id/approve`) are automatically routed to the new runtime via server-side rewrites configured in `next.config.js`. Both the legacy and canonical paths are live; new code should target the canonical routes.
+
+## Optional Approval Channels
+
+`waitForApproval()` resolves via any of these surfaces — they all call the same
+`/api/approvals/:actionId` endpoint under the hood:
+
+- **Dashboard** (`/approvals` page, always on)
+- **CLI** (`@dashclaw/cli` — `dashclaw approve <id>`)
+- **Mobile PWA** (`/approve` route, always on)
+- **Telegram** (optional, off unless `TELEGRAM_BOT_TOKEN` is set) — one-tap
+  inline Approve/Reject buttons pushed to a `TELEGRAM_ADMIN_CHAT_ID` chat.
+  Inbound callbacks hit `POST /api/telegram/webhook`. See the README's
+  "Telegram approvals (optional)" section or `docs/telegram-setup.md` for setup.

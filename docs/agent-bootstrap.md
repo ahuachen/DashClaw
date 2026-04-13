@@ -105,7 +105,8 @@ The short version:
 2. **Call `waitForApproval(action_id)` with the ID from `createAction()`**,
    not the one from `guard()`. They point at different database tables.
 3. `waitForApproval()` uses SSE with a polling fallback and resolves the
-   instant an operator approves from the dashboard, CLI, or mobile PWA.
+   instant an operator approves from the dashboard, CLI, mobile PWA, or
+   (if configured) an inline Telegram Approve button.
    It throws `ApprovalDeniedError` on denial.
 
 ---

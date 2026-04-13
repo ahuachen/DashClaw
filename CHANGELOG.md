@@ -25,6 +25,17 @@ releases only ship client changes, platform releases can ship anything.
 Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
 are prefixed with the package name.
 
+## [2.13.2] - 2026-04-13
+
+### Added
+
+- **Telegram approval bridge (optional).** When an action lands on `pending_approval`, DashClaw can push an inline Approve/Reject prompt to a Telegram admin chat; one tap on the phone resolves the action through the same `/api/approvals/:id` path as the dashboard, CLI, and mobile PWA. New inbound webhook at `POST /api/telegram/webhook` (Bot API callback sink, authed via `X-Telegram-Bot-Api-Secret-Token` header plus chat-id allowlist). New outbound emitter `fireTelegramApproval(action, sql, orgId)` in `app/lib/telegramApprovals.js`, fired alongside `fireActionAlert('pending_approval', …)` in `app/api/actions/route.js`. Four new env vars (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_APPROVER_ORG_ID`), one kill switch (`DASHCLAW_ALERTS_TELEGRAM=false` to disable even when the token is present), and two npm scripts (`npm run telegram:register`, `npm run telegram:verify`). Feature is off unless `TELEGRAM_BOT_TOKEN` is set; if Telegram is unreachable, DashClaw warn-logs and moves on — approvals stay available on every other surface. Spec: `docs/superpowers/specs/2026-04-13-telegram-approval-bridge-design.md`. Plan: `docs/superpowers/plans/2026-04-13-telegram-approval-bridge.md`.
+
+### Fixed
+
+- **Race condition in `recordApproval`** (affects both `/api/approvals/:id` and the new `/api/telegram/webhook`): added `AND status = 'pending_approval'` to the atomic UPDATE so concurrent approve/deny taps from multiple surfaces can't both succeed. Callers now handle zero-row return as "already resolved."
+- **Vercel serverless freeze** dropping fire-and-forget notifications (Discord alerts, Telegram approvals, generic webhooks): wrapped in `after()` from `next/server` so the work survives past response return.
+
 ## @dashclaw/openclaw-plugin [1.0.1] - 2026-04-11
 
 ### Fixed

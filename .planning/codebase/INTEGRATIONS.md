@@ -59,6 +59,16 @@
   - Auth: `LINEAR_API_KEY`
   - Adapter: `app/lib/notification-adapters/linear.js`
 
+- Telegram Bot API — Inline Approve/Reject push for `pending_approval` actions
+  - Auth: `TELEGRAM_BOT_TOKEN` (Bot API token from @BotFather)
+  - Allowlist: `TELEGRAM_ADMIN_CHAT_ID` (numeric chat ID permitted to approve)
+  - Webhook auth: `TELEGRAM_WEBHOOK_SECRET` (verified via `X-Telegram-Bot-Api-Secret-Token` header on inbound callbacks)
+  - Org mapping: `TELEGRAM_APPROVER_ORG_ID` (which org's actions this Telegram chat can resolve)
+  - Kill switch: `DASHCLAW_ALERTS_TELEGRAM=false` (disables outbound even when token is set)
+  - Emitter: `app/lib/telegramApprovals.js` (`fireTelegramApproval()`)
+  - Inbound webhook: `app/api/telegram/webhook/route.js` — receives Bot API callback_query, resolves action via `/api/approvals/:id`
+  - Usage: Fire-and-forget push of `pending_approval` notifications with inline keyboard; one-tap approve/reject
+
 ## Data Storage
 
 **Databases:**
@@ -189,6 +199,13 @@
 **Webhook & SSRF Protection:**
 - `WEBHOOK_ALLOWED_DOMAINS` — Comma-separated list of trusted webhook domains (e.g., slack.com,discord.com)
 
+**Telegram approval bridge (optional):**
+- `TELEGRAM_BOT_TOKEN` — Bot API token from @BotFather (feature is off when blank)
+- `TELEGRAM_ADMIN_CHAT_ID` — Numeric chat ID allowed to approve actions
+- `TELEGRAM_WEBHOOK_SECRET` — 32+ random chars, verified on inbound `/api/telegram/webhook` requests
+- `TELEGRAM_APPROVER_ORG_ID` — Org ID to resolve Telegram approvals against
+- `DASHCLAW_ALERTS_TELEGRAM` — Set to `false` to disable outbound Telegram alerts even when token is present
+
 **Mode & Driver Control:**
 - `DASHCLAW_MODE` — self_host (default) or demo (read-only sandbox)
 - `NEXT_PUBLIC_DASHCLAW_MODE` — Public mode indicator
@@ -209,6 +226,7 @@
 **Incoming Webhooks:**
 - `POST /api/webhooks/stripe` — Stripe event subscriptions (checkout.session.completed, customer.subscription.updated)
 - `POST /api/webhooks/[webhookId]` — Custom webhook sink (user-defined URL targets)
+- `POST /api/telegram/webhook` — Telegram Bot API callback sink (authed via `X-Telegram-Bot-Api-Secret-Token`); handles inline Approve/Reject button taps
 
 **Outgoing Webhooks:**
 - Approval events (`approval_pending`, `approval_approved`, `approval_rejected`)

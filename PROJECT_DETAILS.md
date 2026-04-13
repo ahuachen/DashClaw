@@ -68,6 +68,7 @@ These 8 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/identities` | Approved agent identity management | On demand |
 | `/api/doctor` | Diagnostic health checks across DB, config, auth, deploy, SDK, governance | On demand |
 | `/api/doctor/fix` | Apply safe auto-fixes (migrations, default policy) — local-scope env fixes blocked via API | On demand |
+| `/api/telegram/webhook` | Telegram approval bridge — inbound Bot API callbacks (Approve/Reject buttons). Auth: `X-Telegram-Bot-Api-Secret-Token` header + chat-id allowlist (`TELEGRAM_ADMIN_CHAT_ID`). Org resolved via `TELEGRAM_APPROVER_ORG_ID`. Experimental. | On demand (Telegram push) |
 
 The doctor also ships as `npm run doctor` (local, full filesystem access) and `dashclaw doctor` (remote via `@dashclaw/cli`). Shared engine lives at `app/lib/doctor/`.
 
@@ -138,6 +139,7 @@ Legacy features from the "Agent Platform" era (Messaging, CRM, Workspace, Memory
 - `org.js`: Multi-tenant scoping and role helpers.
 - `integration-health.js`: Per-provider credential validation (OpenAI, Anthropic, Slack, etc).
 - `notification-adapters/`: Native governance alert delivery (Slack, Discord, Linear, GitHub, Email).
+- `telegramApprovals.js`: Telegram approval emitter — sends Bot API `sendMessage` with inline Approve/Reject keyboard when an action transitions to `pending_approval`. Gated by `TELEGRAM_BOT_TOKEN` presence and `DASHCLAW_ALERTS_TELEGRAM !== 'false'` kill switch. Fired from `app/api/actions/route.js` next to `fireActionAlert('pending_approval', …)`.
 - `capability-invoke.js`: HTTP capability invocation engine — auth resolution (bearer/api_key), request/response mapping, AbortController timeout.
 - `mapping.js`: Dot-path request/response mapper for capability invocations. URL variable substitution from org settings.
 - `workflow-executor.js`: Sequential workflow executor — iterates steps, manages rolling context, dispatches to step handlers, creates child action records.

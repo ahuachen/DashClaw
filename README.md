@@ -381,6 +381,8 @@ When an action lands on `pending_approval`, DashClaw can ping a Telegram admin c
 
 Telegram is an *additional* approval channel. The dashboard, CLI, and mobile PWA continue to work. If Telegram is unreachable, DashClaw warn-logs and moves on; approvals stay available via the other surfaces.
 
+See also: `.env.example` (Telegram section), `app/lib/telegramApprovals.js`, `app/api/telegram/webhook/route.js`, `scripts/telegram-register-webhook.mjs`, `scripts/telegram-verify-loop.mjs`, `docs/telegram-setup.md` for the detailed walkthrough.
+
 ---
 
 ## Beyond the Basics
