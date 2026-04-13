@@ -139,7 +139,7 @@ For agents built on the [OpenClaw](https://github.com/openclaw) framework, `@das
 npm install @dashclaw/openclaw-plugin
 ```
 
-It intercepts `PreToolUse` / `PostToolUse`, calls `guard` / `record` / `waitForApproval` automatically, and ships a `HOOK.md` pack the `openclaw` CLI installs. Tool-classification vocabulary aligns with DashClaw guard action types so policies behave consistently whether the call came from a plugin, a hook, or a direct SDK call. See [`openclaw-plugin/README.md`](./openclaw-plugin/README.md).
+It intercepts `PreToolUse` / `PostToolUse`, calls `guard` / `record` / `waitForApproval` automatically, and ships a `HOOK.md` pack the `openclaw` CLI installs. Tool-classification vocabulary aligns with DashClaw guard action types so policies behave consistently whether the call came from a plugin, a hook, or a direct SDK call. See [`packages/openclaw-plugin/README.md`](./packages/openclaw-plugin/README.md).
 
 ---
 
