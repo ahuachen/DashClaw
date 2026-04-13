@@ -12,7 +12,7 @@ One-tap approve/reject from your phone for any DashClaw action that lands on `pe
 npm run telegram:setup
 ```
 
-Walks you through all 7 steps: bot creation, chat ID discovery, secret generation, env block, webhook registration, and round-trip smoke test. Auto-discovers your chat ID from Telegram, auto-generates the webhook secret, and prints the exact env block to paste into Vercel. Most people are done in ~3 minutes.
+Walks you through all 8 steps: bot creation, chat ID discovery, secret generation, deploy URL, API key + org discovery, env block, webhook registration, and round-trip smoke test. Auto-discovers your chat ID from Telegram, auto-generates the webhook secret, auto-discovers your org ID from your API key, and prints the exact env block to paste into Vercel. Most people are done in ~3 minutes.
 
 The rest of this doc is the manual walkthrough for anyone who wants to understand every step or can't run the wizard.
 
@@ -23,8 +23,7 @@ The rest of this doc is the manual walkthrough for anyone who wants to understan
 You need:
 - A working DashClaw deploy (e.g. `https://my-dashclaw.vercel.app`)
 - A Telegram account
-- Your DashClaw org ID — for a standard self-hosted single-tenant deploy this is **`org_default`** (the hardcoded fallback in `app/lib/org.js`). If you've explicitly configured multi-tenancy, run `curl -H "x-api-key: oc_live_..." https://my-dashclaw.vercel.app/api/orgs` to see yours.
-- A working `DASHCLAW_API_KEY` (starts with `oc_live_`) for the smoke test at the end
+- A DashClaw admin API key (starts with `oc_live_`). Get one from `/settings` → API Keys if you don't have one yet. The wizard uses this to auto-discover your org ID — you don't need to paste that manually.
 
 **Important constraint:** the bot must be used as a **1:1 DM** with a single human. Group/supergroup chats don't work — `chat.id` is negative in groups and `from.id` is the individual user, so the allowlist check will fail. If you want a team inbox later, that's v1.1 scope.
 
@@ -65,7 +64,7 @@ Go to your Vercel project → Settings → Environment Variables. Add these four
 | `TELEGRAM_BOT_TOKEN` | from Step 1 |
 | `TELEGRAM_ADMIN_CHAT_ID` | from Step 2 |
 | `TELEGRAM_WEBHOOK_SECRET` | from Step 3 |
-| `TELEGRAM_APPROVER_ORG_ID` | your `org_*` ID |
+| `TELEGRAM_APPROVER_ORG_ID` | the `id` field returned from `curl -H "x-api-key: oc_live_..." https://my-dashclaw.vercel.app/api/orgs` |
 
 **Why Production only:** Telegram allows only one webhook per bot. If preview deploys share the same token, they can steal the production webhook. Keeping the token production-scoped prevents this.
 

@@ -7,8 +7,9 @@
  *   1. Prompts for the @BotFather token
  *   2. Auto-discovers the admin chat ID via getUpdates
  *   3. Generates the webhook secret
- *   4. Prints the four env vars to paste into Vercel
- *   5. Optionally writes a local .env
+ *   4a. Prompts for the deploy URL
+ *   4b. Prompts for the DashClaw API key and auto-discovers the org ID
+ *   5. Prints the four env vars to paste into Vercel
  *   6. Registers the webhook with Telegram's Bot API
  *   7. Optionally runs the round-trip smoke test
  *
@@ -40,12 +41,14 @@ async function askYesNo(q, defYes = true) {
   return raw.startsWith('y');
 }
 
-async function askSecret(q) {
+async function askSecret(q, def) {
   // Node's readline doesn't mask input. We do a best-effort by not echoing
   // the bot token back. For a wizard run by the operator on their own
   // machine, visible echo is acceptable; real security comes from the
   // operator's shell history hygiene.
-  return (await rl.question(q + ' ')).trim();
+  const prompt = def ? `${q} [${redact(def, 6)}] ` : `${q} `;
+  const raw = (await rl.question(prompt)).trim();
+  return raw || def || '';
 }
 
 function redact(s, keep = 4) {
@@ -77,7 +80,7 @@ async function validateToken(token) {
 }
 
 async function step1_Token() {
-  log('\n=== Step 1 of 7: Create the bot ===\n');
+  log('\n=== Step 1 of 8: Create the bot ===\n');
   log('  1. Open Telegram (phone or desktop).');
   log('  2. Message @BotFather:  https://t.me/BotFather');
   log('  3. Send  /newbot');
@@ -121,7 +124,7 @@ async function ensureGetUpdatesWorks(token) {
 }
 
 async function step2_ChatId(token, bot) {
-  log('\n=== Step 2 of 7: Discover your admin chat ID ===\n');
+  log('\n=== Step 2 of 8: Discover your admin chat ID ===\n');
   await ensureGetUpdatesWorks(token);
   log('');
   log(`  Open a chat with @${bot.username} (the bot you just created —`);
@@ -174,14 +177,14 @@ async function step2_ChatId(token, bot) {
 }
 
 function step3_Secret() {
-  log('\n=== Step 3 of 7: Generate webhook secret ===\n');
+  log('\n=== Step 3 of 8: Generate webhook secret ===\n');
   const secret = randomBytes(32).toString('hex');
   log(`  ✓ Generated 64-char secret: ${redact(secret, 6)}`);
   return secret;
 }
 
 async function step4_DeployConfig() {
-  log('\n=== Step 4 of 7: DashClaw deploy ===\n');
+  log('\n=== Step 4 of 8: DashClaw deploy URL ===\n');
   let baseUrl;
   for (;;) {
     baseUrl = await ask('  Your DashClaw deploy URL (e.g. https://my-dashclaw.vercel.app):');
@@ -193,8 +196,97 @@ async function step4_DeployConfig() {
     baseUrl = baseUrl.replace(/\/$/, '');
     break;
   }
-  const orgId = await ask('  Your org ID (for self-hosted single-tenant, use org_default):', 'org_default');
-  return { baseUrl, orgId };
+  return { baseUrl };
+}
+
+async function step5_ApiKeyAndOrg({ baseUrl }) {
+  log('\n=== Step 5 of 8: DashClaw API key + org discovery ===\n');
+  log('  I need your DashClaw admin API key to auto-discover the org ID that');
+  log('  your actions will be created under. Get one from');
+  log(`  ${baseUrl}/settings (API Keys section) if you don't have one.`);
+  log('');
+  log('  Why: TELEGRAM_APPROVER_ORG_ID must match the org your API key resolves');
+  log('  to — otherwise webhook callbacks can\'t find your pending actions.');
+  log('');
+
+  const envDefault = process.env.DASHCLAW_API_KEY || undefined;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const apiKey = await askSecret('  Paste your DASHCLAW_API_KEY (oc_live_...):', envDefault);
+    if (!apiKey) {
+      err('  API key is required.');
+      continue;
+    }
+
+    process.stdout.write('  Validating key and discovering org...');
+    let res;
+    try {
+      res = await fetch(`${baseUrl}/api/orgs`, {
+        headers: { 'x-api-key': apiKey },
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (e) {
+      log(' ✗');
+      err(`  Request failed: ${e.message}`);
+      err(`  Check that ${baseUrl} is reachable and is the correct deploy URL.`);
+      continue;
+    }
+
+    if (res.status === 401) {
+      log(' ✗');
+      err('  Your API key was rejected. Check the oc_live_... value is correct');
+      err('  and that the deploy URL is right.');
+      continue;
+    }
+    if (res.status === 403) {
+      log(' ✗');
+      err('  API key lacks admin role — only admin-role keys can discover org');
+      err('  info. Create or use an admin key from /settings → API Keys.');
+      continue;
+    }
+    if (!res.ok) {
+      log(' ✗');
+      err(`  Unexpected ${res.status} from ${baseUrl}/api/orgs: ${await res.text().catch(() => '')}`);
+      continue;
+    }
+
+    let body;
+    try {
+      body = await res.json();
+    } catch {
+      log(' ✗');
+      err('  Response was not JSON. Is this a DashClaw deploy?');
+      continue;
+    }
+
+    const orgs = Array.isArray(body?.organizations) ? body.organizations : [];
+    if (orgs.length === 0) {
+      log(' ✗');
+      throw new Error(
+        'Your API key resolved but no orgs were returned — this is unusual. ' +
+        'Please create an org first via /setup or the dashboard.'
+      );
+    }
+
+    let chosen;
+    if (orgs.length === 1) {
+      chosen = orgs[0];
+      log(' ✓');
+    } else {
+      log(' ✓');
+      log('  Multiple orgs found — pick one:');
+      orgs.forEach((o, i) => {
+        log(`    ${i + 1}. ${o.name || '(unnamed)'} (id=${o.id})`);
+      });
+      const pick = await ask('  Pick one (number):', '1');
+      const idx = Math.max(1, Math.min(orgs.length, parseInt(pick, 10) || 1)) - 1;
+      chosen = orgs[idx];
+    }
+
+    log(`  ✓ Discovered org: ${chosen.name || '(unnamed)'} (id=${chosen.id})`);
+    return { apiKey, orgId: chosen.id };
+  }
+  throw new Error('Failed to validate API key after 3 attempts.');
 }
 
 function printEnvBlock({ token, chatId, secret, orgId }) {
@@ -242,15 +334,15 @@ async function maybeWriteLocalEnv(values) {
   log(`  ✓ Updated ${envPath}`);
 }
 
-async function step5_EnvVars(values) {
-  log('\n=== Step 5 of 7: Environment variables ===\n');
+async function step6_EnvVars(values) {
+  log('\n=== Step 6 of 8: Environment variables ===\n');
   printEnvBlock(values);
   await rl.question('  Press Enter once you\'ve set these on Vercel (or skip for dev-only)... ');
   await maybeWriteLocalEnv(values);
 }
 
-async function step6_RegisterWebhook({ token, secret, baseUrl }) {
-  log('\n=== Step 6 of 7: Register the webhook with Telegram ===\n');
+async function step7_RegisterWebhook({ token, secret, baseUrl }) {
+  log('\n=== Step 7 of 8: Register the webhook with Telegram ===\n');
   const webhookUrl = `${baseUrl}/api/telegram/webhook`;
   log(`  Target: ${webhookUrl}`);
 
@@ -267,20 +359,24 @@ async function step6_RegisterWebhook({ token, secret, baseUrl }) {
   log('  ✓ Webhook registered.');
 }
 
-async function step7_SmokeTest({ baseUrl }) {
-  log('\n=== Step 7 of 7: Round-trip smoke test (optional) ===\n');
+async function step8_SmokeTest({ baseUrl, apiKey }) {
+  log('\n=== Step 8 of 8: Round-trip smoke test (optional) ===\n');
   log('  I can create a test approval right now. It\'ll hit your phone as a');
   log('  Telegram message with ✅ Approve / ❌ Reject buttons.');
   log('');
   if (!(await askYesNo('  Run the smoke test now?', true))) return;
 
-  let apiKey = process.env.DASHCLAW_API_KEY;
+  // apiKey should have been captured in step 5, but keep a fallback just in
+  // case a future refactor bypasses that path.
   if (!apiKey) {
-    log('');
-    log('  I need a DASHCLAW_API_KEY to create the test action. Get one from');
-    log(`  ${baseUrl}/settings (API Keys section) if you don't have one.`);
-    apiKey = await askSecret('  Paste your DASHCLAW_API_KEY (oc_live_...):');
-    if (!apiKey) { err('  Skipped.'); return; }
+    apiKey = process.env.DASHCLAW_API_KEY;
+    if (!apiKey) {
+      log('');
+      log('  I need a DASHCLAW_API_KEY to create the test action. Get one from');
+      log(`  ${baseUrl}/settings (API Keys section) if you don't have one.`);
+      apiKey = await askSecret('  Paste your DASHCLAW_API_KEY (oc_live_...):');
+      if (!apiKey) { err('  Skipped.'); return; }
+    }
   }
 
   const actionId = `act_setup${Date.now().toString(36)}${randomBytes(3).toString('hex')}`;
@@ -336,17 +432,19 @@ async function main() {
   log('\n╔══════════════════════════════════════════════════════════════╗');
   log('║   DashClaw Telegram Approval Setup Wizard                    ║');
   log('╚══════════════════════════════════════════════════════════════╝\n');
-  log('This wizard takes ~3 minutes. You\'ll need Telegram (phone or desktop)');
-  log('and your DashClaw deploy URL. You can Ctrl-C at any time.\n');
+  log('This wizard takes ~3 minutes. You\'ll need Telegram (phone or desktop),');
+  log('your DashClaw deploy URL, and a DashClaw admin API key (oc_live_...).');
+  log('You can Ctrl-C at any time.\n');
   if (!(await askYesNo('Ready to start?', true))) { rl.close(); return; }
 
   const { token, bot } = await step1_Token();
   const chatId = await step2_ChatId(token, bot);
   const secret = step3_Secret();
-  const { baseUrl, orgId } = await step4_DeployConfig();
-  await step5_EnvVars({ token, chatId, secret, orgId });
-  await step6_RegisterWebhook({ token, secret, baseUrl });
-  await step7_SmokeTest({ baseUrl });
+  const { baseUrl } = await step4_DeployConfig();
+  const { apiKey, orgId } = await step5_ApiKeyAndOrg({ baseUrl });
+  await step6_EnvVars({ token, chatId, secret, orgId });
+  await step7_RegisterWebhook({ token, secret, baseUrl });
+  await step8_SmokeTest({ baseUrl, apiKey });
 
   log('\n╔══════════════════════════════════════════════════════════════╗');
   log('║   All set. Every pending_approval will now ping your phone.  ║');
