@@ -9,7 +9,12 @@ export async function GET(request) {
     const url = request.nextUrl || new URL(request.url);
     const categoryParam = url.searchParams.get('category');
     const includeFixes = url.searchParams.get('include_fixes') !== 'false';
-    const host = url.searchParams.get('host') || request.headers.get('host') || '';
+    // Only the Host header is trusted here — never `?host=` query input —
+    // because this value flows to deployment checks that compare it against
+    // NEXTAUTH_URL. Accepting user-controlled query input would let an
+    // attacker trigger misleading diagnostics and, historically, expand the
+    // surface for SSRF flows from doctor checks (CodeQL #53/#54).
+    const host = request.headers.get('host') || '';
 
     const categories = categoryParam
       ? categoryParam.split(',').map((c) => c.trim()).filter(Boolean)
