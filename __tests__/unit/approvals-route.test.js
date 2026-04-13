@@ -206,4 +206,19 @@ describe('POST /api/approvals/[actionId]', () => {
     expect(res.status).toBe(500);
     expect(data.error).toMatch(/internal server error/i);
   });
+
+  it('returns 409 when recordApproval returns null (race with another approver)', async () => {
+    // Simulates atomic status guard in recordApproval detecting that another
+    // caller resolved the action between the getActionStatus read and UPDATE.
+    mockGetActionStatus.mockResolvedValueOnce({ status: 'pending_approval', agent_id: 'agent_1' });
+    mockRecordApproval.mockResolvedValueOnce(null);
+
+    const res = await POST(req({ decision: 'allow' }), { params });
+    const data = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(data.error).toMatch(/already resolved/i);
+    // No event, no webhook, no audit log when we lose the race.
+    expect(mockFireWebhooksForApproval).not.toHaveBeenCalled();
+  });
 });

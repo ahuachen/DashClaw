@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import { getSql } from '../../../lib/db.js';
 import {
   getActionSummary,
@@ -11,9 +12,6 @@ const CALLBACK_DATA_RE = /^(ap|dn):(act_[a-z0-9_-]{1,57})$/;
 
 function unauthorized() {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-}
-function forbidden() {
-  return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 }
 function ok() {
   return NextResponse.json({ ok: true });
@@ -64,10 +62,19 @@ function buildResolvedText(action, decisionLabel, action_id) {
   ].join('\n');
 }
 
+function secretsMatch(presented, expected) {
+  if (!expected) return false;
+  const a = Buffer.from(presented);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 export async function POST(request) {
-  const presented = request.headers.get('x-telegram-bot-api-secret-token');
-  const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (!presented || !expected || presented !== expected) return unauthorized();
+  // Timing-safe secret compare (Fix M1)
+  const presented = request.headers.get('x-telegram-bot-api-secret-token') || '';
+  const expected = process.env.TELEGRAM_WEBHOOK_SECRET || '';
+  if (!secretsMatch(presented, expected)) return unauthorized();
 
   let body;
   try {
@@ -79,8 +86,10 @@ export async function POST(request) {
   const cq = body?.callback_query;
   if (!cq) return ok(); // non-callback update, ignore
 
+  // chat_id allowlist — 401 (not 403) to avoid revealing that the secret was
+  // correct while the sender identity was not (Fix M2).
   const senderId = String(cq.from?.id ?? '');
-  if (senderId !== process.env.TELEGRAM_ADMIN_CHAT_ID) return forbidden();
+  if (senderId !== process.env.TELEGRAM_ADMIN_CHAT_ID) return unauthorized();
 
   const match = (cq.data ?? '').match(CALLBACK_DATA_RE);
   if (!match) {
@@ -89,35 +98,43 @@ export async function POST(request) {
   }
   const [, verb, action_id] = match;
 
-  const sql = getSql();
-  const orgId = process.env.TELEGRAM_APPROVER_ORG_ID;
-  const action = await getActionSummary(sql, orgId, action_id);
+  // Ack the callback immediately so Telegram doesn't retry on slow DB work
+  // (Fix I1). Downstream failures are surfaced via editMessage.
+  await answerCallback(cq.id);
 
-  const chat_id = cq.message?.chat?.id;
+  // Admin chat is the only legitimate edit target — never trust body-provided
+  // chat_id (Fix M3). message_id still comes from the callback body.
+  const chat_id = process.env.TELEGRAM_ADMIN_CHAT_ID;
   const message_id = cq.message?.message_id;
 
+  // Loud misconfig (Fix I4) — fail visibly on the admin's phone.
+  const orgId = process.env.TELEGRAM_APPROVER_ORG_ID;
+  if (!orgId) {
+    await editMessage(chat_id, message_id,
+      '⚠️ Server misconfigured: TELEGRAM_APPROVER_ORG_ID is not set');
+    return ok();
+  }
+
+  const sql = getSql();
+  const action = await getActionSummary(sql, orgId, action_id);
+
   if (!action) {
-    await Promise.all([
-      answerCallback(cq.id, 'Action not found'),
-      editMessage(chat_id, message_id, '⚠️ Action not found'),
-    ]);
+    await editMessage(chat_id, message_id, '⚠️ Action not found');
     return ok();
   }
 
   if (action.status !== 'pending_approval') {
-    await Promise.all([
-      answerCallback(cq.id, 'Already resolved'),
-      editMessage(chat_id, message_id,
-        `⚠️ Already resolved — status: ${action.status}`),
-    ]);
+    await editMessage(chat_id, message_id,
+      `⚠️ Already resolved — status: ${action.status}`);
     return ok();
   }
 
   const userId = `telegram:${senderId}`;
 
   if (verb === 'ap') {
+    let updated;
     try {
-      await recordApproval(sql, orgId, action_id, {
+      updated = await recordApproval(sql, orgId, action_id, {
         newStatus: 'running',
         errorMessage: null,
         decision: 'allow',
@@ -126,20 +143,25 @@ export async function POST(request) {
       });
     } catch (err) {
       console.warn('[TelegramWebhook] recordApproval (approve) failed:', err.message);
-      await answerCallback(cq.id, 'Approval failed');
+      await editMessage(chat_id, message_id, '⚠️ Approval failed');
       return ok();
     }
-    await Promise.all([
-      answerCallback(cq.id),
-      editMessage(chat_id, message_id,
-        buildResolvedText(action, '✅ Approved by Telegram admin', action_id)),
-    ]);
+    if (!updated) {
+      // Zero-row return — another caller resolved the action between the
+      // getActionSummary read and our UPDATE (Fix C1 caller).
+      await editMessage(chat_id, message_id,
+        '⚠️ Already resolved — resolved by another channel');
+      return ok();
+    }
+    await editMessage(chat_id, message_id,
+      buildResolvedText(action, '✅ Approved by Telegram admin', action_id));
     return ok();
   }
 
   // verb === 'dn'
+  let updated;
   try {
-    await recordApproval(sql, orgId, action_id, {
+    updated = await recordApproval(sql, orgId, action_id, {
       newStatus: 'failed',
       errorMessage: 'Denied via Telegram',
       decision: 'deny',
@@ -148,13 +170,15 @@ export async function POST(request) {
     });
   } catch (err) {
     console.warn('[TelegramWebhook] recordApproval (deny) failed:', err.message);
-    await answerCallback(cq.id, 'Approval failed');
+    await editMessage(chat_id, message_id, '⚠️ Approval failed');
     return ok();
   }
-  await Promise.all([
-    answerCallback(cq.id),
-    editMessage(chat_id, message_id,
-      buildResolvedText(action, '❌ Denied by Telegram admin', action_id)),
-  ]);
+  if (!updated) {
+    await editMessage(chat_id, message_id,
+      '⚠️ Already resolved — resolved by another channel');
+    return ok();
+  }
+  await editMessage(chat_id, message_id,
+    buildResolvedText(action, '❌ Denied by Telegram admin', action_id));
   return ok();
 }

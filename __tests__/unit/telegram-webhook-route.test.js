@@ -56,12 +56,23 @@ describe('POST /api/telegram/webhook — auth', () => {
     expect(mockGetActionSummary).not.toHaveBeenCalled();
   });
 
-  it('returns 403 when callback sender is not the admin chat', async () => {
+  it('returns 401 when the secret length differs from expected', async () => {
+    // Regression for timingSafeEqual — different-length buffers must not throw.
+    const res = await POST(req(
+      { callback_query: { id: 'cq1' } },
+      { 'X-Telegram-Bot-Api-Secret-Token': 'SHORT' },
+    ));
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when callback sender is not the admin chat', async () => {
+    // Collapsed 403 → 401 so the endpoint does not leak "secret correct but
+    // chat_id wrong" as a distinguishable response.
     const res = await POST(req(
       { callback_query: { id: 'cq1', from: { id: 9999 }, data: 'ap:act_abc12345' } },
       { 'X-Telegram-Bot-Api-Secret-Token': 'S3CRET' },
     ));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
     expect(mockRecordApproval).not.toHaveBeenCalled();
   });
 });
@@ -121,6 +132,7 @@ describe('POST /api/telegram/webhook — callback_data validation', () => {
     ];
     for (const id of realisticIds) {
       mockFetch.mockClear();
+      mockGetActionSummary.mockResolvedValueOnce(null);
       const res = await POST(req(
         { callback_query: { id: 'cq1', from: { id: 42 }, data: `ap:${id}` } },
         AUTH,
@@ -192,13 +204,40 @@ describe('POST /api/telegram/webhook — approve', () => {
     const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
     expect(editCall).toBeDefined();
     const editBody = JSON.parse(editCall[1].body);
-    expect(editBody.chat_id).toBe(42);
+    // chat_id is always pulled from TELEGRAM_ADMIN_CHAT_ID (env), not the body
+    expect(editBody.chat_id).toBe('42');
     expect(editBody.message_id).toBe(1001);
     expect(editBody.text).toContain('✅ Approved');
     expect(editBody.reply_markup).toEqual({ inline_keyboard: [] });
 
     const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
     expect(ackCall).toBeDefined();
+  });
+
+  it('acks the callback BEFORE the recordApproval DB call (prevents Telegram retries)', async () => {
+    // Capture fetch call order relative to recordApproval call order.
+    const ackIndexes = [];
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/answerCallbackQuery')) {
+        ackIndexes.push(mockRecordApproval.mock.calls.length);
+      }
+      return Promise.resolve({ ok: true, status: 200 });
+    });
+
+    await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    // First ack must happen before recordApproval has been called.
+    expect(ackIndexes[0]).toBe(0);
   });
 });
 
@@ -251,7 +290,9 @@ describe('POST /api/telegram/webhook — deny', () => {
       }),
     );
     const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
-    expect(JSON.parse(editCall[1].body).text).toContain('❌ Denied');
+    const editBody = JSON.parse(editCall[1].body);
+    expect(editBody.chat_id).toBe('42'); // always from env
+    expect(editBody.text).toContain('❌ Denied');
   });
 });
 
@@ -297,9 +338,38 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
     const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
     expect(JSON.parse(editCall[1].body).text).toContain('Already resolved');
 
+    // Ack still fires (before DB work); text lives in editMessage now.
     const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
     expect(ackCall).toBeDefined();
-    expect(JSON.parse(ackCall[1].body).text).toContain('Already resolved');
+  });
+
+  it('returns "Already resolved — resolved by another channel" when recordApproval returns null (race)', async () => {
+    // Simulates atomic status guard in recordApproval detecting that another
+    // caller already resolved the action between the getActionSummary read
+    // and the UPDATE.
+    mockGetActionSummary.mockResolvedValue({
+      action_id: 'act_abc12345', status: 'pending_approval',
+      agent_id: 'a', action_type: 'deploy', declared_goal: 'g',
+    });
+    mockRecordApproval.mockResolvedValue(null);
+
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(editCall).toBeDefined();
+    expect(JSON.parse(editCall[1].body).text).toContain('Already resolved');
   });
 
   it('short-circuits with "Action not found" when getActionSummary returns null', async () => {
@@ -319,8 +389,31 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
 
     expect(res.status).toBe(200);
     expect(mockRecordApproval).not.toHaveBeenCalled();
-    const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
-    expect(JSON.parse(ackCall[1].body).text).toContain('Action not found');
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(editCall).toBeDefined();
+    expect(JSON.parse(editCall[1].body).text).toContain('Action not found');
+  });
+
+  it('surfaces misconfig when TELEGRAM_APPROVER_ORG_ID is missing', async () => {
+    delete process.env.TELEGRAM_APPROVER_ORG_ID;
+
+    const res = await POST(req(
+      {
+        callback_query: {
+          id: 'cq1',
+          from: { id: 42 },
+          message: { chat: { id: 42 }, message_id: 1001 },
+          data: 'ap:act_abc12345',
+        },
+      },
+      AUTH,
+    ));
+
+    expect(res.status).toBe(200);
+    expect(mockGetActionSummary).not.toHaveBeenCalled();
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(editCall).toBeDefined();
+    expect(JSON.parse(editCall[1].body).text).toContain('misconfigured');
   });
 
   it('still acks the callback when recordApproval throws', async () => {
@@ -345,6 +438,10 @@ describe('POST /api/telegram/webhook — idempotency and errors', () => {
     expect(res.status).toBe(200);
     const ackCall = mockFetch.mock.calls.find(([u]) => u.includes('/answerCallbackQuery'));
     expect(ackCall).toBeDefined();
-    expect(JSON.parse(ackCall[1].body).text).toContain('Approval failed');
+
+    // Failure feedback now lives in editMessage (single-ack constraint).
+    const editCall = mockFetch.mock.calls.find(([u]) => u.includes('/editMessageText'));
+    expect(editCall).toBeDefined();
+    expect(JSON.parse(editCall[1].body).text).toContain('Approval failed');
   });
 });

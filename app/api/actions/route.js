@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { getSql } from '../../lib/db.js';
 import { validateActionRecord } from '../../lib/validate.js';
 import { getOrgId, getOrgRole } from '../../lib/org.js';
@@ -307,20 +307,22 @@ export async function POST(request) {
       action: createdAction,
     });
 
-    // Real-time Discord alerts for notable actions
+    // Real-time Discord alerts for notable actions — use after() so work
+    // continues after the response is sent (Vercel freezes the lambda once
+    // the response returns unless after() is used).
     if (isPendingApproval) {
-      fireActionAlert('pending_approval', createdAction, sql, orgId);
+      after(() => fireActionAlert('pending_approval', createdAction, sql, orgId));
     } else {
-      fireActionAlert('high_risk', createdAction, sql, orgId);
+      after(() => fireActionAlert('high_risk', createdAction, sql, orgId));
     }
 
     if (createdAction.status === 'pending_approval') {
-      fireTelegramApproval(createdAction, sql, orgId);
-      fireWebhooksForApproval(orgId, 'approval_pending', {
+      after(() => fireTelegramApproval(createdAction, sql, orgId));
+      after(() => fireWebhooksForApproval(orgId, 'approval_pending', {
         ...createdAction,
         matched_policies: guardDecision?.matched_policies,
         reason: guardDecision?.reason,
-      }, sql).catch(() => {});
+      }, sql).catch(() => {}));
     }
 
     if (actionsQuota.warning) {

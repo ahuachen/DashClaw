@@ -74,6 +74,15 @@ export async function POST(request, { params }) {
       safeReasoning
     });
 
+    // Zero-row return — another caller resolved the action between the
+    // getActionStatus read and our UPDATE (Fix C1 caller).
+    if (!updatedAction) {
+      return NextResponse.json(
+        { error: 'Action was already resolved by another approver' },
+        { status: 409 }
+      );
+    }
+
     logActivity({
       orgId, actorId: userId, action: `action.${decision}ed`,
       resourceType: 'action', resourceId: actionId,

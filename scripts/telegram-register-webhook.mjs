@@ -11,9 +11,10 @@
 const args = process.argv.slice(2);
 const urlIdx = args.indexOf('--url');
 const baseUrl = urlIdx >= 0 ? args[urlIdx + 1] : null;
+const force = args.includes('--force');
 
 if (!baseUrl) {
-  console.error('Usage: npm run telegram:register -- --url https://your-instance.vercel.app');
+  console.error('Usage: npm run telegram:register -- --url https://your-instance.vercel.app [--force]');
   process.exit(1);
 }
 
@@ -30,6 +31,23 @@ if (!secret) {
 }
 
 const webhookUrl = `${baseUrl.replace(/\/$/, '')}/api/telegram/webhook`;
+
+// Check current webhook — prevents preview deploys from silently stealing
+// the production webhook registration.
+const infoRes = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
+const infoData = await infoRes.json();
+const existingUrl = infoData?.result?.url || '';
+
+console.log(`Current webhook URL: ${existingUrl || '(none)'}`);
+console.log(`Target webhook URL:  ${webhookUrl}`);
+
+if (existingUrl && existingUrl !== webhookUrl && !force) {
+  console.error(
+    `\nWebhook is currently registered at ${existingUrl}.\n` +
+    `To replace with ${webhookUrl}, rerun with --force.`
+  );
+  process.exit(1);
+}
 
 const res = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
   method: 'POST',

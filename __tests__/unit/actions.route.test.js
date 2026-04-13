@@ -41,6 +41,13 @@ const {
   mockEstimateCost: vi.fn(),
 }));
 
+// next/server's `after()` throws "outside a request scope" in unit tests.
+// Mock it to a pass-through that invokes the callback immediately.
+vi.mock('next/server', async () => {
+  const actual = await vi.importActual('next/server');
+  return { ...actual, after: (cb) => { try { cb(); } catch {} } };
+});
+
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
 vi.mock('@/lib/validate.js', () => ({ validateActionRecord: mockValidateActionRecord }));
 vi.mock('@/lib/repositories/actions.repository.js', () => ({

@@ -60,19 +60,19 @@ async function sendApprovalMessage(action) {
 
 /**
  * Fire a Telegram approval message for a pending_approval action.
+ * Returns a promise so callers can hand it to after() or await it — never
+ * rejects (errors are logged and swallowed).
  * @param {object} action - the action record
  * @param {object} _sql - db handle (reserved for v1.1 per-agent routing)
  * @param {string} _orgId - org id (reserved for v1.1 per-agent routing)
  */
-export function fireTelegramApproval(action, _sql, _orgId) {
+export async function fireTelegramApproval(action, _sql, _orgId) {
   if (!isEnabled()) return;
   if (action?.status !== 'pending_approval') return;
 
-  void (async () => {
-    try {
-      await sendApprovalMessage(action);
-    } catch (err) {
-      console.warn('[TelegramApprovals] Failed to send approval:', err.message);
-    }
-  })();
+  try {
+    await sendApprovalMessage(action);
+  } catch (err) {
+    console.warn('[TelegramApprovals] Failed to send approval:', err.message);
+  }
 }

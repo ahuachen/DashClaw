@@ -47,10 +47,12 @@ export async function recordApproval(sql, orgId, actionId, data) {
         approved_at = ${decision.toUpperCase() === 'ALLOW' ? sql`CURRENT_TIMESTAMP` : null},
         reasoning = COALESCE(reasoning, '') || '
 
-[HITL Decision: ' || ${decision.toUpperCase()} || ' by ' || ${userId} || ']' || 
+[HITL Decision: ' || ${decision.toUpperCase()} || ' by ' || ${userId} || ']' ||
                     CASE WHEN ${safeReasoning || ''} != '' THEN '
 Reason: ' || ${safeReasoning} ELSE '' END
-    WHERE action_id = ${actionId} AND org_id = ${orgId}
+    WHERE action_id = ${actionId}
+      AND org_id = ${orgId}
+      AND status = 'pending_approval'
     RETURNING *
   `;
   return result[0] || null;

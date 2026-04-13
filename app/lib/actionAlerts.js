@@ -77,23 +77,23 @@ async function postToDiscord(webhookUrl, embed) {
 
 /**
  * Fire a real-time alert for a notable action event.
+ * Returns a promise so callers can hand it to after() or await it — never
+ * rejects (errors are logged and swallowed).
  * @param {'blocked'|'pending_approval'|'high_risk'} alertType
  * @param {object} action - the action record
  * @param {object} sql - db handle
  * @param {string} orgId
  */
-export function fireActionAlert(alertType, action, sql, orgId) {
+export async function fireActionAlert(alertType, action, sql, orgId) {
   // Only alert high_risk if above threshold
   if (alertType === 'high_risk' && (action.risk_score ?? 0) < RISK_ALERT_THRESHOLD) return;
 
-  void (async () => {
-    try {
-      const webhookUrl = await getDiscordWebhookUrl(sql, orgId);
-      if (!webhookUrl) return;
-      const embed = buildEmbed(action, alertType);
-      await postToDiscord(webhookUrl, embed);
-    } catch (err) {
-      console.warn('[ActionAlerts] Failed to send alert:', err.message);
-    }
-  })();
+  try {
+    const webhookUrl = await getDiscordWebhookUrl(sql, orgId);
+    if (!webhookUrl) return;
+    const embed = buildEmbed(action, alertType);
+    await postToDiscord(webhookUrl, embed);
+  } catch (err) {
+    console.warn('[ActionAlerts] Failed to send alert:', err.message);
+  }
 }
