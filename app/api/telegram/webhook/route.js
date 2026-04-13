@@ -19,6 +19,20 @@ function ok() {
   return NextResponse.json({ ok: true });
 }
 
+async function answerCallback(callback_query_id, text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  try {
+    await fetch(`${TELEGRAM_API_BASE}/bot${token}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ callback_query_id, ...(text ? { text } : {}) }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+  } catch (err) {
+    console.warn('[TelegramWebhook] answerCallback failed:', err.message);
+  }
+}
+
 export async function POST(request) {
   const presented = request.headers.get('x-telegram-bot-api-secret-token');
   const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -37,7 +51,13 @@ export async function POST(request) {
   const senderId = String(cq.from?.id ?? '');
   if (senderId !== process.env.TELEGRAM_ADMIN_CHAT_ID) return forbidden();
 
-  // Task 6 adds callback_data parsing + answerCallbackQuery.
-  // Task 7 through Task 9 add approve/deny/idempotency.
+  const match = (cq.data ?? '').match(CALLBACK_DATA_RE);
+  if (!match) {
+    await answerCallback(cq.id, 'Unknown button');
+    return ok();
+  }
+  const [, verb, action_id] = match;
+
+  // Task 7 through Task 9 add approve/deny/idempotency using verb + action_id.
   return ok();
 }

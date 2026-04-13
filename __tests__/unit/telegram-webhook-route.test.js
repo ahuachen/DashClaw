@@ -65,3 +65,42 @@ describe('POST /api/telegram/webhook — auth', () => {
     expect(mockRecordApproval).not.toHaveBeenCalled();
   });
 });
+
+describe('POST /api/telegram/webhook — callback_data validation', () => {
+  const AUTH = { 'X-Telegram-Bot-Api-Secret-Token': 'S3CRET' };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.TELEGRAM_BOT_TOKEN = 'TBOT';
+    process.env.TELEGRAM_WEBHOOK_SECRET = 'S3CRET';
+    process.env.TELEGRAM_ADMIN_CHAT_ID = '42';
+    process.env.TELEGRAM_APPROVER_ORG_ID = 'org_tele';
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+  });
+
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it('returns 200 and answers with toast when callback_data is malformed', async () => {
+    const res = await POST(req(
+      { callback_query: { id: 'cq1', from: { id: 42 }, data: 'WAT:act_abc' } },
+      AUTH,
+    ));
+    expect(res.status).toBe(200);
+    expect(mockGetActionStatus).not.toHaveBeenCalled();
+
+    const ackCall = mockFetch.mock.calls.find(([u]) =>
+      u.includes('/answerCallbackQuery'));
+    expect(ackCall).toBeDefined();
+    expect(JSON.parse(ackCall[1].body).text).toContain('Unknown');
+  });
+
+  it('returns 200 when callback_data is missing entirely', async () => {
+    const res = await POST(req(
+      { callback_query: { id: 'cq1', from: { id: 42 } } },
+      AUTH,
+    ));
+    expect(res.status).toBe(200);
+    expect(mockGetActionStatus).not.toHaveBeenCalled();
+  });
+});
