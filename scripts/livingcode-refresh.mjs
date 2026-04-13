@@ -8,10 +8,17 @@
  * Outputs:
  *   - app/lib/doctor/generated/shape.json            (committed, JS reads at runtime)
  *   - app/lib/doctor/generated/last-snapshot.json    (drift-check baseline)
- *   - public/downloads/dashclaw-platform-intelligence/SKILL.md (website)
- *   - public/downloads/dashclaw-platform-intelligence.zip      (website)
+ *   - app/lib/doctor/generated/checks-from-shape.mjs (generated doctor checks)
+ *   - mcp-server/lib/routes-inventory.generated.json
+ *   - public/downloads/dashclaw-platform-intelligence/SKILL.md (website — source of truth)
+ *   - public/downloads/dashclaw-platform-intelligence.zip      (website download)
  *   - public/downloads/dashclaw-platform-intelligence.zip.manifest (zip-idempotence marker)
- *   - ${USERPROFILE}/.claude/skills/dashclaw-platform-intelligence/SKILL.md (global)
+ *   - ${USERPROFILE}/.claude/skills/dashclaw-platform-intelligence/   (global Claude Code skill)
+ *   - .claude/skills/dashclaw-platform-intelligence/                   (project-local, gitignored)
+ *
+ * The website copy is the source of truth. Global and project-local copies
+ * mirror SKILL.md + references/ + scripts/ via mirrorSubdir (idempotent,
+ * prunes deleted files).
  *
  * Zero new npm deps — relies on Python being on PATH (livingcode) and Node stdlib.
  * Production reads only the committed JSON, so Vercel never needs Python.
@@ -49,6 +56,11 @@ const WEBSITE_SKILL_DIR = resolve(REPO_ROOT, 'public', 'downloads', 'dashclaw-pl
 const WEBSITE_SKILL_ZIP = resolve(REPO_ROOT, 'public', 'downloads', 'dashclaw-platform-intelligence.zip');
 const WEBSITE_SKILL_MANIFEST = `${WEBSITE_SKILL_ZIP}.manifest`;
 const GLOBAL_SKILL_DIR = resolve(homedir(), '.claude', 'skills', 'dashclaw-platform-intelligence');
+// Project-local skill dir. `.claude/` is gitignored at the repo level, so this
+// stays on the developer's machine — it's the in-repo Claude Code skill that
+// auto-loads when working in this project. Kept in sync with the website copy
+// (public/downloads/...) which is the source of truth.
+const PROJECT_SKILL_DIR = resolve(REPO_ROOT, '.claude', 'skills', 'dashclaw-platform-intelligence');
 const MCP_INVENTORY_PATH = resolve(REPO_ROOT, 'mcp-server', 'lib', 'routes-inventory.generated.json');
 
 const PY = process.env.PYTHON || 'python';
@@ -356,6 +368,17 @@ async function main() {
   // whenever references prose or diagnostic scripts change.
   mirrorSubdir(WEBSITE_SKILL_DIR, GLOBAL_SKILL_DIR, 'references', 'skill-references (global)');
   mirrorSubdir(WEBSITE_SKILL_DIR, GLOBAL_SKILL_DIR, 'scripts', 'skill-scripts (global)');
+
+  // Mirror the same content to the project-local .claude/skills/ dir so the
+  // in-repo Claude Code skill stays fresh alongside the global one. This is
+  // gitignored — it's purely for local developer experience.
+  try {
+    writeIfChanged(join(PROJECT_SKILL_DIR, 'SKILL.md'), skillContent, 'skill (project)');
+  } catch (err) {
+    warn(`could not write project skill (${err.message}) — fine on CI`);
+  }
+  mirrorSubdir(WEBSITE_SKILL_DIR, PROJECT_SKILL_DIR, 'references', 'skill-references (project)');
+  mirrorSubdir(WEBSITE_SKILL_DIR, PROJECT_SKILL_DIR, 'scripts', 'skill-scripts (project)');
 
   refreshSkillZip(WEBSITE_SKILL_DIR, WEBSITE_SKILL_ZIP, WEBSITE_SKILL_MANIFEST);
 
