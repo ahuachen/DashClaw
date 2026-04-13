@@ -14,7 +14,6 @@ import {
   corePrimitives,
   operationalFeatures,
   signals,
-  agentToolCategories,
   platformCoverage,
   shippedHighlights,
   frameworkQuickstarts,
@@ -762,20 +761,105 @@ if (decision === "allow") {
               </div>
             </div>
 
-            {/* Agent Tools Merge */}
-            <div className="max-w-5xl mx-auto">
+            {/* Integration Surfaces — MCP-led */}
+            <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Integration Surfaces</h2>
-                <p className="mt-3 text-zinc-400">DashClaw provides multiple integration surfaces: SDK instrumentation, a CLI approval channel, and Claude Code lifecycle hooks.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">Integration surfaces</h2>
+                <p className="mt-3 text-text-secondary">Pick the surface that matches your stack. All five hit the same governance loop on the same instance.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
-                {agentToolCategories.slice(0, 3).map((cat) => (
-                  <div key={cat.title} className="p-5 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.12)] transition-colors">
-                    <h3 className="text-sm font-semibold text-white mb-1.5">{cat.title}</h3>
-                    <p className="text-xs text-zinc-400 leading-relaxed mb-3">{cat.desc}</p>
-                    <pre className="bg-[#0a0a0a] rounded-lg px-3 py-2 text-[10px] sm:text-xs text-zinc-300 font-mono overflow-x-auto">{cat.example}</pre>
-                  </div>
+                {[
+                  {
+                    label: 'Zero code',
+                    title: 'MCP server',
+                    desc: 'Any MCP-compatible client (Claude Code, Claude Desktop, Managed Agents) gets governance via 8 tools and 4 resources. No SDK, no hooks.',
+                    example: 'npx @dashclaw/mcp-server --url ... --key ...',
+                    href: '/docs#mcp-server',
+                  },
+                  {
+                    label: 'SDK',
+                    title: 'Node & Python',
+                    desc: 'Instrument any agent runtime with the canonical governance loop: guard → createAction → waitForApproval → updateOutcome.',
+                    example: 'npm install dashclaw   #   pip install dashclaw',
+                    href: '/docs#constructor',
+                  },
+                  {
+                    label: 'Plugin',
+                    title: 'OpenClaw',
+                    desc: 'Native plugin for the OpenClaw agent framework. Intercepts PreToolUse / PostToolUse, runs guard / record / wait-for-approval automatically.',
+                    example: 'npm install @dashclaw/openclaw-plugin',
+                    href: '/docs#openclaw-plugin',
+                  },
+                  {
+                    label: 'Skill',
+                    title: 'Claude governance skill',
+                    desc: 'Anthropic skill that teaches Managed Agents the MCP usage protocol — risk tiers, decision handling, recording rules, session lifecycle.',
+                    example: 'Pairs with @dashclaw/mcp-server',
+                    href: '/docs#governance-skill',
+                  },
+                  {
+                    label: 'Hooks',
+                    title: 'Claude Code lifecycle',
+                    desc: 'Two stdlib-only Python scripts for PreToolUse / PostToolUse. No pip install. Safe to ship even without DashClaw configured.',
+                    example: 'cp hooks/dashclaw_*.py .claude/hooks/',
+                    href: '/docs#agent-tools',
+                  },
+                  {
+                    label: 'CLI',
+                    title: 'Terminal approvals',
+                    desc: 'Approve or deny agent actions from any terminal. Same endpoint as the dashboard and mobile PWA — decisions sync over Redis SSE in ~1s.',
+                    example: 'npm install -g @dashclaw/cli',
+                    href: '/docs#cli-and-doctor',
+                  },
+                ].map((surface) => (
+                  <Link
+                    key={surface.title}
+                    href={surface.href}
+                    className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
+                  >
+                    <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">{surface.label}</div>
+                    <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">{surface.title}</h3>
+                    <p className="text-xs text-text-secondary leading-relaxed mb-3">{surface.desc}</p>
+                    <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">{surface.example}</pre>
+                  </Link>
                 ))}
+              </div>
+            </div>
+
+            {/* Operate it — Doctor / Mobile PWA / Analytics */}
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">Operate it</h2>
+                <p className="mt-3 text-text-secondary">Day-2 tools for the people running governance in production.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-left">
+                <Link
+                  href="/docs#dashclaw-doctor"
+                  className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
+                >
+                  <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Diagnostics</div>
+                  <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">dashclaw doctor</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed mb-3">Diagnoses database, configuration, auth, deployment, SDK reachability, governance staleness, and shape drift. Auto-fixes safe issues.</p>
+                  <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">dashclaw doctor</pre>
+                </Link>
+                <Link
+                  href="/approve"
+                  className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
+                >
+                  <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">On-call</div>
+                  <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">Mobile approvals</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed mb-3">A PWA at <code className="font-mono text-text-primary">/approve</code> for approving high-risk actions from your phone. Same governance loop as the dashboard.</p>
+                  <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">https://&lt;instance&gt;/approve</pre>
+                </Link>
+                <Link
+                  href="/analytics"
+                  className="group p-5 rounded-xl bg-surface-secondary border border-border hover:border-border-hover transition-colors"
+                >
+                  <div className="text-[10px] uppercase tracking-wider text-text-tertiary mb-2 font-mono">Cost &amp; volume</div>
+                  <h3 className="text-sm font-semibold text-text-primary mb-1.5 group-hover:text-brand transition-colors">Analytics dashboard</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed mb-3">Hero stats with trend comparison, cost-trend and action-volume series, breakdowns by agent, action type, and model. Token usage by tier.</p>
+                  <pre className="bg-surface-primary rounded-lg px-3 py-2 text-[10px] sm:text-xs text-text-secondary font-mono overflow-x-auto">GET /api/analytics?days=7</pre>
+                </Link>
               </div>
             </div>
           </div>
