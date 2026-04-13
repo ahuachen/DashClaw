@@ -89,13 +89,12 @@ Use `agent-browser` for AI-driven flow testing, not for this deterministic smoke
 
 ## Current known failures
 
-As of 2026-04-13 first run, the suite finds these 4 real bugs. Track them here and remove from the list as fixed:
+None — the suite is green as of 2026-04-13 (32/32). Four bugs found on first run have all been fixed:
 
-| Page | Error | Severity |
+| Page | Root cause | Fix |
 |---|---|---|
-| `/prompts` | React DOM: `<button>` nested inside another `<button>`. Emits "validateDOMNesting" warning as console error. | Medium |
-| `/mission-control` | Fetch to a URL returning 404 (likely a stale or renamed API). Page renders, but the console error points at a broken integration. | Low |
-| `/demo` | Same pattern as `/mission-control` — a fetch 404 after the demo cookie is set. | Low |
-| `/identities` | **500 Internal Server Error** on a fetch. Real server-side crash. | **HIGH** |
+| `/identities` | Demo middleware crashed on `fixtures.pairings.filter(...)` because pairings aren't in the fixture export. | `middleware.js` — guard with `Array.isArray(...)` fallback. |
+| `/mission-control` + `/demo` | `GET /api/actions/costs` was swallowed by the `/api/actions/[actionId]` catch-all in demo middleware, treated as an unknown action ID, returned 404. | `middleware.js` — explicit handler for `/api/actions/costs` before the catch-all. |
+| `/prompts` | Template list rendered `<button>` inside `<button>` — HTML spec violation emitted by React as a console error. | `app/prompts/page.js` — outer element converted to `<div role="button" tabIndex={0}>` with `onKeyDown` for Enter/Space so keyboard a11y is preserved. |
 
-Fix each bug, re-run `npm run test:smoke`, and the corresponding entry here should be removable.
+If `npm run test:smoke` fails again, add the new findings here and the same fix-and-remove loop applies.

@@ -281,10 +281,18 @@ export default function PromptsPage() {
                   ) : (
                     <div className="space-y-1">
                       {templates.map(t => (
-                        <button
+                        <div
                           key={t.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => handleSelectTemplate(t)}
-                          className={`w-full flex items-center justify-between py-2 px-3 rounded-lg text-left transition-colors ${selectedTemplate?.id === t.id ? 'bg-brand/10 border border-brand/30' : 'bg-[#111] border border-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.1)]'}`}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleSelectTemplate(t);
+                            }
+                          }}
+                          className={`w-full flex items-center justify-between py-2 px-3 rounded-lg text-left transition-colors cursor-pointer focus:outline-none focus:border-brand ${selectedTemplate?.id === t.id ? 'bg-brand/10 border border-brand/30' : 'bg-[#111] border border-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.1)]'}`}
                         >
                           <div className="min-w-0">
                             <div className="text-sm text-white font-medium truncate">{t.name}</div>
@@ -299,7 +307,7 @@ export default function PromptsPage() {
                               <Trash2 size={12} />
                             </button>
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   )}

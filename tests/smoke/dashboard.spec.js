@@ -44,12 +44,20 @@ for (const page of ALL_PAGES) {
   test(`${page.path} — ${page.label}`, async ({ page: pw }) => {
     const consoleErrors = [];
     const pageErrors = [];
+    const failedRequests = [];
 
     pw.on('console', (msg) => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
     pw.on('pageerror', (err) => {
       pageErrors.push(err.message);
+    });
+    // Capture URL + status for any response that crossed the 4xx/5xx threshold
+    // so failure messages tell us exactly which fetch broke, not just "500".
+    pw.on('response', (res) => {
+      if (res.status() >= 400) {
+        failedRequests.push(`${res.status()} ${res.request().method()} ${res.url()}`);
+      }
     });
 
     const response = await pw.goto(page.path, { waitUntil: 'domcontentloaded' });
@@ -90,11 +98,16 @@ for (const page of ALL_PAGES) {
       `Uncaught page error on ${page.path}:\n${pageErrors.join('\n')}`,
     ).toEqual([]);
 
-    // Console errors filtered through the known-noise list
+    // Console errors filtered through the known-noise list. Append the
+    // captured failed-request URLs so failure messages name the exact broken
+    // fetch instead of the generic "Failed to load resource: 500".
     const fatal = consoleErrors.filter(isFatalConsoleError);
+    const failedUrls = failedRequests.length
+      ? `\n  Failed requests:\n    ${failedRequests.join('\n    ')}`
+      : '';
     expect(
       fatal,
-      `Unexpected console errors on ${page.path}:\n  ${fatal.join('\n  ')}`,
+      `Unexpected console errors on ${page.path}:\n  ${fatal.join('\n  ')}${failedUrls}`,
     ).toEqual([]);
   });
 }

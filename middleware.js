@@ -546,6 +546,21 @@ export async function middleware(request) {
         return demoJson(request, demoDecisionMetrics(fixtures));
       }
 
+      if (pathname === '/api/actions/costs') {
+        // Demo-mode stub so /mission-control and /analytics render without the
+        // catch-all /api/actions/[actionId] handler below swallowing this path
+        // and returning 404.
+        return demoJson(request, {
+          period: url.searchParams.get('period') || '30d',
+          total_cost_usd: 0,
+          total_tokens: 0,
+          total_actions: 0,
+          by_model: [],
+          by_agent: [],
+          by_day: [],
+        });
+      }
+
       if (segments[0] === 'api' && segments[1] === 'actions' && segments.length === 4 && segments[3] === 'trace') {
         const actionId = segments[2];
         const trace = demoActionTrace(fixtures, actionId);
@@ -957,13 +972,17 @@ export async function middleware(request) {
       if (pathname === '/api/pairings') {
         const status = url.searchParams.get('status') || 'pending';
         const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200);
-        const pairings = fixtures.pairings.filter(p => p.status === status).slice(0, limit);
+        // fixtures.pairings may be undefined — pairings aren't seeded in the
+        // demo fixture yet. Fall back to empty list instead of crashing.
+        const all = Array.isArray(fixtures.pairings) ? fixtures.pairings : [];
+        const pairings = all.filter(p => p.status === status).slice(0, limit);
         return demoJson(request, { pairings });
       }
 
       if (segments[0] === 'api' && segments[1] === 'pairings' && segments.length === 3) {
         const pairingId = segments[2];
-        const pairing = fixtures.pairings.find(p => p.id === pairingId) || null;
+        const all = Array.isArray(fixtures.pairings) ? fixtures.pairings : [];
+        const pairing = all.find(p => p.id === pairingId) || null;
         if (!pairing) return demoJson(request, { error: 'Pairing not found' }, 404);
         return demoJson(request, { pairing });
       }

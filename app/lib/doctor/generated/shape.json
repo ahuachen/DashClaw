@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:a77c0f1749eb7373a84f219868845ba5995cc9a8",
+  "timestamp": "sha1:8901da5b98efd12084fd91bc9254b405a088c6e4",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2314,6 +2314,14 @@
       "in_env_example": false
     },
     {
+      "name": "CI",
+      "required": false,
+      "files": [
+        "playwright.config.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "CONVERGENCE_BENCH_CONCURRENCY",
       "required": false,
       "files": [
@@ -3126,6 +3134,22 @@
       "required": false,
       "files": [
         "scripts/run-demo.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "PW_BASE_URL",
+      "required": false,
+      "files": [
+        "playwright.config.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "PW_SMOKE_PORT",
+      "required": false,
+      "files": [
+        "playwright.config.js"
       ],
       "in_env_example": false
     },

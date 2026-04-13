@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:a77c0f1749eb7373a84f219868845ba5995cc9a8`
+**Shape snapshot:** `sha1:8901da5b98efd12084fd91bc9254b405a088c6e4`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **172** active API routes across **43** categories
-- **4** required + **93** optional environment variables
+- **4** required + **96** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -357,6 +357,7 @@ These have fallbacks or only activate specific features.
 - `ANTHROPIC_API_KEY` *(undocumented)*
 - `API_SECRET` *(undocumented)*
 - `BASE_URL` *(undocumented)*
+- `CI` *(undocumented)*
 - `CONVERGENCE_BENCH_CONCURRENCY` *(undocumented)*
 - `CONVERGENCE_BENCH_ITERATIONS` *(undocumented)*
 - `CONVERGENCE_REPLAY_CONNECT_TIMEOUT_MS` *(undocumented)*
@@ -414,6 +415,8 @@ These have fallbacks or only activate specific features.
 - `OPENAI_API_KEY` *(undocumented)*
 - `ORG_ID` *(undocumented)*
 - `PORT` *(undocumented)*
+- `PW_BASE_URL` *(undocumented)*
+- `PW_SMOKE_PORT` *(undocumented)*
 - `PYTHON` *(undocumented)*
 - `PYTHONPATH` *(undocumented)*
 - `REALTIME_BACKEND` *(undocumented)*
