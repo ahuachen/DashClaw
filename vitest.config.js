@@ -8,6 +8,16 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: [],
+    // Exclude Playwright specs (tests/) — they use @playwright/test, not vitest.
+    // Also skip the Playwright defaults and Vitest's own build outputs.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.next/**',
+      '**/tests/**',
+      '**/playwright-report/**',
+      '**/test-results/**',
+    ],
   },
   resolve: {
     alias: {
