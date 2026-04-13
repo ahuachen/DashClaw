@@ -35,7 +35,15 @@ python -m livingcode diff --json         # Same, structured
 
 python -m livingcode emit skill          # Stream generated skill markdown
 python -m livingcode emit skill --output path/to/SKILL.md  # Write to file
+python -m livingcode emit shape-json --output <path>       # Serialized ShapeModel (Node reads this)
+python -m livingcode emit doctor-checks --output <path>    # ESM module of shape-derived doctor checks
+python -m livingcode emit mcp-tools --output <path>        # JSON inventory of the MCP-facing API surface
 ```
+
+In practice, run `npm run livingcode:refresh` from the repo root — it emits
+every target to the right location, splices a content-hash signature into
+SKILL.md for byte-stable output, and rebuilds the skill zip only when files
+changed.
 
 All commands accept `--path <repo>` (defaults to current directory).
 
@@ -52,9 +60,16 @@ query.py        — human + JSON output per topic
 diff.py         — save/load snapshots, compute_diff, format_diff
 emit.py         — dispatcher: emit(repo_path, target)
 emitters/
-  skill.py      — renders ShapeModel as platform-intelligence skill markdown
+  skill.py         — platform-intelligence skill markdown (website + global install)
+  shape_json.py    — serialized ShapeModel with content-hash signature timestamp
+                     (consumed by app/lib/doctor/shape.mjs and the drift check)
+  doctor_checks.py — ESM runShapeChecks: one batched to_regclass query for
+                     every table + one presence check per required env var
+  mcp_tools.py     — JSON inventory splitting active routes into mutation
+                     vs read buckets; companion to mcp-server/lib/tools.js
 
-types.py        — dataclasses: ShapeModel, RouteInfo, EnvVarInfo, TableInfo,
+types.py        — dataclasses: ShapeModel, RouteInfo, EnvVarInfo, TableInfo
+                  (with optional `domain` from `// @domain <name>` comments),
                   ShapeChange, ShapeDiff
 ```
 
@@ -75,13 +90,38 @@ Zero hand-maintained facts. When DashClaw changes, the artifacts follow.
 
 ## Integration with the DashClaw Doctor
 
-The doctor (`app/lib/doctor/`) is the first consumer that needs full shape-driven
-regeneration. See `INTEGRATION_PROMPT.md` for the detailed implementation plan —
-designed to be handed to a fresh Claude Code session running in the DashClaw root.
+The doctor (`app/lib/doctor/`) consumes livingcode output through the
+committed `app/lib/doctor/generated/shape.json`. Two categories live off it:
+
+- `shape` — per-table presence checks (one batched `to_regclass` query) and
+  per-required-env-var presence checks, wired to the existing fix registry.
+- `drift` — compares the current shape against `last-snapshot.json` and warns
+  when they diverge. Ships with a `regenerate_artifacts` fix (local-only).
+
+Plus `app/lib/doctor/shape.mjs` exposes typed helpers (`getGovernanceTables`,
+`getTable`, `getRequiredEnvVars`, `getRoute`, `findRoutesByPrefix`) that the
+hand-written checks reach for instead of hardcoding table or env var names.
 
 The Vercel runtime doesn't ship Python, so generation happens on developer
 machines (pre-commit hook) and ships as committed JSON/markdown that Node
-functions read directly.
+functions read directly. See `scripts/livingcode-refresh.mjs` and the
+`livingcode-refresh --if-staged` step in `scripts/lib/run-pre-commit-checks.mjs`.
+
+## Domain Annotations in schema.js
+
+Tables can be tagged with `// @domain <name>` on the line directly above
+`pgTable(...)`. The comment is picked up by `collectors/schema.py` and stored
+on `TableInfo.domain`, then flows through shape.json so Node code can filter
+by domain without a hand-maintained map. Example:
+
+```js
+// @domain governance
+export const guardPolicies = pgTable('guard_policies', { ... });
+```
+
+`app/lib/doctor/shape.mjs` uses this via `getTablesByDomain('governance')`.
+Adding a new governance table is one comment line; the next
+`npm run livingcode:refresh` propagates it everywhere.
 
 ## Tests
 
@@ -89,8 +129,9 @@ functions read directly.
 python -m pytest tests/ -v
 ```
 
-Shape-layer tests: `test_shape.py`, `test_diff.py`, `test_emit.py` (37 total).
-Health-layer tests: existing `test_*.py` suite.
+Shape-layer tests: `test_shape.py`, `test_diff.py`, `test_emit.py`,
+`test_shape_json_emitter.py`, `test_doctor_checks_emitter.py`,
+`test_mcp_tools_emitter.py`. Health-layer tests: existing `test_*.py` suite.
 
 ## Adding a New Collector
 
@@ -98,11 +139,16 @@ Health-layer tests: existing `test_*.py` suite.
 2. Write `collectors/<name>.py` with a `collect_<name>(repo_path) -> list[...]` function.
 3. Wire it into `shape.py`'s `build_shape()`.
 4. Add a query topic in `query.py`.
-5. Update `emitters/skill.py` to render the new surface.
+5. Decide which emitters surface the new field — typically at least
+   `shape_json.py` (serialized automatically via `asdict`, no change needed)
+   and potentially `skill.py`, `doctor_checks.py`, or `mcp_tools.py`.
 6. Test in `tests/test_shape.py`.
 
 ## Adding a New Emitter
 
 1. Create `emitters/<target>.py` with `emit_<target>(shape: ShapeModel) -> str`.
 2. Register the target in `emit.py`'s `TARGETS` tuple and dispatch.
-3. Test in `tests/test_emit.py`.
+3. Wire it into `scripts/livingcode-refresh.mjs` so the pre-commit hook keeps
+   it current, and add the output path to the `stage-artifacts` step in
+   `scripts/lib/run-pre-commit-checks.mjs`.
+4. Test in a new `tests/test_<target>_emitter.py`.

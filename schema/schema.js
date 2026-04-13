@@ -1,3 +1,9 @@
+// Domain annotation: prefix a `pgTable(...)` line with `// @domain <name>` to
+// tag the table. livingcode's schema collector (livingcode/collectors/schema.py)
+// picks up the tag and stores it on TableInfo.domain in shape.json, so
+// app/lib/doctor/shape.mjs can filter via getTablesByDomain('<name>') without
+// a hand-maintained map. Current domains: governance. Regenerate after edits
+// with `npm run livingcode:refresh`.
 import { pgTable, text, timestamp, integer, boolean, uniqueIndex, numeric, customType, serial, real, jsonb, pgEnum } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
