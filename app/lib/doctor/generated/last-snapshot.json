@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:8901da5b98efd12084fd91bc9254b405a088c6e4",
+  "timestamp": "sha1:773fba7a55070109ee201e6179fc097271c812b5",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2415,6 +2415,15 @@
       "in_env_example": false
     },
     {
+      "name": "DASHCLAW_ALERTS_TELEGRAM",
+      "required": false,
+      "files": [
+        "__tests__/unit/telegram-approvals.test.js",
+        "app/lib/telegramApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "DASHCLAW_API_KEY",
       "required": true,
       "files": [
@@ -3346,6 +3355,24 @@
       "required": false,
       "files": [
         "examples/openai-deploy-pipeline/index.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TELEGRAM_ADMIN_CHAT_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/telegram-approvals.test.js",
+        "app/lib/telegramApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "required": false,
+      "files": [
+        "__tests__/unit/telegram-approvals.test.js",
+        "app/lib/telegramApprovals.js"
       ],
       "in_env_example": false
     },

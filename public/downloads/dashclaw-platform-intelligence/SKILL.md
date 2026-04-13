@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:8901da5b98efd12084fd91bc9254b405a088c6e4`
+**Shape snapshot:** `sha1:773fba7a55070109ee201e6179fc097271c812b5`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **172** active API routes across **43** categories
-- **4** required + **96** optional environment variables
+- **4** required + **99** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -367,6 +367,7 @@ These have fallbacks or only activate specific features.
 - `CONVERGENCE_VERBOSE` *(undocumented)*
 - `CRON_SECRET` *(undocumented)*
 - `DASHCLAW_AGENT_ID` *(undocumented)*
+- `DASHCLAW_ALERTS_TELEGRAM` *(undocumented)*
 - `DASHCLAW_API_KEY_ORG` *(undocumented)*
 - `DASHCLAW_BASE_URL` *(undocumented)*
 - `DASHCLAW_CLOSED_ENROLLMENT` *(undocumented)*
@@ -439,6 +440,8 @@ These have fallbacks or only activate specific features.
 - `STRIPE_SECRET_KEY` *(undocumented)*
 - `STRIPE_WEBHOOK_SECRET` *(undocumented)*
 - `TARGET_ENV` *(undocumented)*
+- `TELEGRAM_ADMIN_CHAT_ID` *(undocumented)*
+- `TELEGRAM_BOT_TOKEN` *(undocumented)*
 - `TRUST_PROXY` *(undocumented)*
 - `UPSTASH_REDIS_REST_TOKEN` *(undocumented)*
 - `UPSTASH_REDIS_REST_URL` *(undocumented)*
