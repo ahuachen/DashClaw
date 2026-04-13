@@ -6,7 +6,7 @@ from typing import Any
 
 
 ORGANISM_DIR = ".organism"
-SUBDIRS = ["state-reports", "heartbeats", "backlog", "cycle-history"]
+SUBDIRS = ["state-reports", "heartbeats", "backlog", "cycle-history", "shape-snapshots"]
 
 
 def ensure_organism_dir(repo_path: str) -> Path:

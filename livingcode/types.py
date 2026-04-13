@@ -167,3 +167,52 @@ class Baselines:
     js_vulnerabilities: int
     sdk_methods: dict[str, int]
     ci_pass_rate_30d: float
+
+
+# --- Shape model types (what the codebase IS, not how healthy it is) ---
+
+
+@dataclass
+class RouteInfo:
+    path: str
+    methods: list[str]
+    dynamic_params: list[str]
+    archived: bool
+    file_path: str
+
+
+@dataclass
+class EnvVarInfo:
+    name: str
+    required: bool
+    files: list[str]
+    in_env_example: bool
+
+
+@dataclass
+class TableInfo:
+    name: str
+    file_path: str
+
+
+@dataclass
+class ShapeModel:
+    timestamp: str
+    routes: list[RouteInfo]
+    env_vars: list[EnvVarInfo]
+    tables: list[TableInfo]
+
+
+@dataclass
+class ShapeChange:
+    category: str  # "routes", "env_vars", "tables"
+    action: str  # "added", "removed", "changed"
+    item: str  # route path, env var name, or table name
+    detail: str  # human-readable description
+
+
+@dataclass
+class ShapeDiff:
+    previous_timestamp: str
+    current_timestamp: str
+    changes: list[ShapeChange]

@@ -65,6 +65,52 @@ def cmd_heartbeat(args):
     print(f"Heartbeat ({result['mode']}) complete in {result['duration_seconds']}s")
 
 
+def cmd_query(args):
+    from livingcode.query import query_shape, TOPICS
+    if not args.topic:
+        print(f"Usage: livingcode query <topic>\nTopics: {', '.join(TOPICS)}")
+        return
+    print(query_shape(args.path, args.topic, output_json=args.json))
+
+
+def cmd_snapshot(args):
+    from livingcode.diff import save_snapshot
+    path = save_snapshot(args.path)
+    print(f"Shape snapshot saved: {path}")
+
+
+def cmd_diff(args):
+    import json as json_mod
+    from dataclasses import asdict
+    from livingcode.diff import diff_against_snapshot, format_diff
+    result = diff_against_snapshot(args.path)
+    if result is None:
+        print("No previous snapshot found. Run 'python -m livingcode snapshot' first.")
+        return
+    if args.json:
+        print(json_mod.dumps(asdict(result), indent=2))
+    else:
+        print(format_diff(result))
+
+
+def cmd_emit(args):
+    from livingcode.emit import emit, TARGETS
+    if not args.target:
+        print(f"Usage: livingcode emit <target> [--output path]\nTargets: {', '.join(TARGETS)}")
+        return
+    try:
+        content = emit(args.path, args.target)
+    except ValueError as e:
+        print(str(e))
+        sys.exit(1)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"Emitted {args.target} -> {args.output}")
+    else:
+        sys.stdout.write(content)
+
+
 def cmd_status(args):
     from livingcode.state import read_latest_state_report
     report = read_latest_state_report(args.path)
@@ -106,6 +152,17 @@ def main():
 
     sub.add_parser("status", parents=[shared], help="Show last report summary")
 
+    query_p = sub.add_parser("query", parents=[shared], help="Query codebase shape")
+    query_p.add_argument("topic", nargs="?", default=None,
+                         help="routes | archived-routes | env | tables | summary | all")
+
+    sub.add_parser("snapshot", parents=[shared], help="Save current shape snapshot")
+    sub.add_parser("diff", parents=[shared], help="Diff current shape vs last snapshot")
+
+    emit_p = sub.add_parser("emit", parents=[shared], help="Generate derivative artifacts")
+    emit_p.add_argument("target", nargs="?", default=None, help="skill")
+    emit_p.add_argument("--output", "-o", default=None, help="Write to file instead of stdout")
+
     args = parser.parse_args()
 
     commands = {
@@ -115,6 +172,10 @@ def main():
         "cycle": cmd_cycle,
         "heartbeat": cmd_heartbeat,
         "status": cmd_status,
+        "query": cmd_query,
+        "snapshot": cmd_snapshot,
+        "diff": cmd_diff,
+        "emit": cmd_emit,
     }
 
     if args.command in commands:
