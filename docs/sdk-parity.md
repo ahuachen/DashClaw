@@ -1,7 +1,7 @@
 ---
 source-of-truth: true
 owner: SDK Lead
-last-verified: 2026-04-11
+last-verified: 2026-04-13
 doc-type: architecture
 ---
 
@@ -98,18 +98,41 @@ That is acceptable temporarily, but it should not define future product directio
 
 | Domain | Canonical Node | Legacy Node | Python | Status |
 |---|---|---|---|---|
-| Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK |
+| Guard / actions / approvals | Yes | Yes | Yes | Stable, canonical in main SDK. Approvals use `POST /api/approvals/[actionId]` (shared by browser, CLI, `/approve` mobile PWA, SDK polling) |
 | Sessions / action graph | Yes | Partial overlap | Yes | Stable, canonical in main SDK |
-| Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, with Python route-contract parity for template CRUD, launch, and execute |
+| Loops and assumptions | Yes | Yes | Yes | Canonical in main SDK |
+| Workflows | Yes | Historical overlap | Yes | Canonical in main SDK, with Python route-contract parity for template CRUD, launch, and execute. `POST /api/workflows/draft` NL-to-workflow endpoint also exposed |
 | Capabilities | Yes | Yes, as flat compatibility wrappers for current overlap | Yes | Canonical in main SDK, with Python route-contract parity for registry plus runtime methods. Legacy should only shim to the same routes |
 | Model strategies | Yes | Limited overlap | Yes | Canonical in main SDK, with Python route-contract parity and contract-enforced runtime surface |
 | Knowledge collections | Yes | Limited overlap | Yes | Canonical in main SDK, with Python route-contract parity and explicit API/SDK contract coverage |
 | Messaging / handoffs / threads | Yes | Yes | Yes | Canonical in main SDK |
+| Scoring profiles / dimensions | Yes | No | Yes | Canonical in main SDK (`createScoringProfile`, `scoreWithProfile`, `batchScoreWithProfile`, calibration) |
+| Risk templates | Yes | No | Yes | Canonical in main SDK |
+| Evaluations (scorers / scores / runs) | Yes | Limited overlap | Yes | Canonical in main SDK |
+| Prompt management (templates / versions / render) | Yes | Limited overlap | Yes | Canonical in main SDK |
+| Learning analytics (velocity / curves / lessons / maturity) | Yes | Limited overlap | Yes | Canonical in main SDK |
+| Security scanning (prompt injection / content) | Yes | Yes | Yes | Canonical in main SDK |
+| Feedback | Partial (via actions outcome) | Yes | Yes | Compatibility-heavy; low-priority canonical promotion |
+| Drift detection | No canonical wrapper yet | Yes | Yes | Admin-heavy; future promotion candidate |
 | Pairing / identities | No canonical wrapper yet for full shape | Yes | Yes | Compatibility-heavy, future promotion candidate |
 | Routing | No canonical wrapper yet for full shape | Yes | Yes | Future promotion candidate |
 | Compliance | No canonical wrapper yet for full shape | Yes | Yes | Remain compatibility and admin-heavy for now |
 | Webhooks / activity logs | No canonical wrapper yet for full shape | Yes | Yes | Remain compatibility and admin-heavy for now |
 | Preferences / digest / ideas | No | Yes | Yes | Low-priority consolidation |
+
+## Non-SDK Surfaces (Operational)
+
+These are reachable via HTTP but are not intended as SDK methods. Documented here so SDK maintainers don't accidentally wrap them:
+
+| Surface | Endpoint(s) | Where it belongs |
+|---|---|---|
+| Doctor (self-host diagnostics) | `GET /api/doctor`, `POST /api/doctor/fix` | CLI (`dashclaw doctor`) + local script (`npm run doctor`) |
+| MCP server | `POST /api/mcp` (Streamable HTTP) | `@dashclaw/mcp-server` npm package (stdio + HTTP) |
+| Analytics dashboard | `GET /api/analytics` | Dashboard frontend only |
+| Guard decisions audit log | `GET /api/guard/decisions` | Policy Builder ActivityTab; no SDK wrapper yet |
+| Agent governance profile | `GET /api/agents/[agentId]/profile` | `/agents/[agentId]` dashboard page aggregator |
+
+If any of these later need first-class SDK exposure, promote them into the matrix above.
 
 ## Cross-SDK Integration Suite
 

@@ -510,13 +510,15 @@ DashClaw uses standard HTTP status codes and custom error classes:
 
 ---
 
-## CLI Approval Channel
+## CLI (`@dashclaw/cli`)
 
-Install the DashClaw CLI to approve agent actions from the terminal:
+Install the DashClaw CLI for terminal approvals and self-host diagnostics:
 
 ```bash
 npm install -g @dashclaw/cli
 ```
+
+**Approvals:**
 
 ```bash
 dashclaw approvals              # interactive approval inbox
@@ -524,11 +526,34 @@ dashclaw approve <actionId>     # approve a specific action
 dashclaw deny <actionId>        # deny a specific action
 ```
 
-When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal or the dashboard, and the agent unblocks instantly.
+**Diagnostics:**
 
-## MCP Server (Zero-Code Integration)
+```bash
+dashclaw doctor                 # diagnose + auto-fix safe issues (database, config, auth, deployment, SDK, governance, drift)
+dashclaw doctor --json          # CI/machine-readable
+dashclaw doctor --no-fix        # diagnose only
+dashclaw doctor --category database,config
+```
 
-If your agent supports MCP (Claude Code, Claude Desktop, Managed Agents), you can skip the SDK entirely:
+Config resolution order: env vars (`DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, optional `DASHCLAW_AGENT_ID`) → `~/.dashclaw/config.json` (`600`, persisted after interactive prompt) → first-run prompt. `dashclaw logout` removes saved config.
+
+When an agent calls `waitForApproval()`, it prints the action ID and replay link to stdout. Approve from any terminal, the browser dashboard, or the `/approve` mobile PWA — decisions sync over Redis SSE within ~1 second.
+
+## Self-Host Doctor (`npm run doctor`)
+
+For operators running a self-hosted DashClaw instance, Doctor is also available as a local script with filesystem-level fix powers:
+
+```bash
+npm run doctor                  # can write .env, run migrations, seed default policy
+```
+
+Doctor check modules are emitted from the livingcode shape (`app/lib/doctor/generated/checks-from-shape.mjs`) and run against `GET /api/doctor` / `POST /api/doctor/fix`. The `.env` is always backed up before any write. Includes a drift guard that flags when shape-derived artifacts are out of sync — fix with `npm run livingcode:refresh`.
+
+## MCP Server (`@dashclaw/mcp-server`)
+
+If your agent supports Model Context Protocol (Claude Code, Claude Desktop, Managed Agents, MCP Inspector), skip the SDK entirely and let the MCP server wire governance into your agent loop.
+
+**stdio transport** (recommended for Claude Desktop / Claude Code):
 
 ```json
 {
@@ -542,7 +567,19 @@ If your agent supports MCP (Claude Code, Claude Desktop, Managed Agents), you ca
 }
 ```
 
-The MCP server exposes the same governance surface as the SDK (guard, record, invoke, wait for approval) plus discovery (capabilities, policies) and session lifecycle.
+**Streamable HTTP transport** (same surface, served by your DashClaw instance at `POST /api/mcp`).
+
+**8 tools:** `dashclaw_guard`, `dashclaw_record`, `dashclaw_invoke`, `dashclaw_capabilities_list`, `dashclaw_policies_list`, `dashclaw_wait_for_approval`, `dashclaw_session_start`, `dashclaw_session_end`.
+
+**4 resources:** `dashclaw://policies`, `dashclaw://capabilities`, `dashclaw://agent/{agent_id}/history`, `dashclaw://status`.
+
+## OpenClaw Plugin (`@dashclaw/openclaw-plugin`)
+
+For teams using the OpenClaw agent framework, the governance plugin intercepts `PreToolUse` / `PostToolUse` lifecycle hooks and runs guard → record → wait-for-approval automatically. Tool classification vocabulary aligns with DashClaw's guard action types. Install via the openclaw CLI which picks up the bundled `HOOK.md` pack.
+
+## Governance Skill for Claude (Anthropic)
+
+For Anthropic Managed Agents or Claude Code sessions, the `@dashclaw/governance` skill teaches the agent how to use the MCP tools correctly — risk thresholds, decision handling, recording rules, session lifecycle. Pairs with `@dashclaw/mcp-server`. Download at `https://<your-instance>/downloads/dashclaw-governance.zip` or see `public/downloads/dashclaw-governance/`.
 
 ---
 

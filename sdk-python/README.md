@@ -10,9 +10,19 @@ DashClaw treats every agent action as a governed decision. The SDK provides deci
 pip install dashclaw
 ```
 
+## Companion Tools
+
+Python agents typically pair the SDK with one or more of these:
+
+- **[`@dashclaw/cli`](https://www.npmjs.com/package/@dashclaw/cli)** — `dashclaw approvals`, `dashclaw approve <id>`, `dashclaw deny <id>` for terminal approvals. Also `dashclaw doctor` (diagnose + auto-fix) and `dashclaw logout`. Config at env vars or `~/.dashclaw/config.json` (`600`).
+- **[`@dashclaw/mcp-server`](https://www.npmjs.com/package/@dashclaw/mcp-server)** — Model Context Protocol server exposing governance as 8 tools (`dashclaw_guard`, `dashclaw_record`, `dashclaw_invoke`, `dashclaw_capabilities_list`, `dashclaw_policies_list`, `dashclaw_wait_for_approval`, `dashclaw_session_start`, `dashclaw_session_end`) and 4 resources (`dashclaw://policies`, `dashclaw://capabilities`, `dashclaw://agent/{agent_id}/history`, `dashclaw://status`). stdio or Streamable HTTP at `POST /api/mcp`.
+- **[`@dashclaw/openclaw-plugin`](https://www.npmjs.com/package/@dashclaw/openclaw-plugin)** — Governance plugin for OpenClaw lifecycle hooks (`PreToolUse` / `PostToolUse`) that calls guard / record / wait-for-approval automatically.
+- **Self-host Doctor** — Operators run `npm run doctor` on the DashClaw host for filesystem-level fixes (env writes, migrations, default policy seed, drift guard).
+- **Claude governance skill** — Anthropic Managed Agents or Claude Code can load the `@dashclaw/governance` skill to teach the agent the MCP usage protocol. Pairs with the MCP server.
+
 ## Quick Start
 
-The Python SDK is the full platform SDK (185+ methods). The constructor accepts both v2-compatible and v1-extended parameters.
+The Python SDK is the full platform SDK (235 methods). The constructor accepts both v2-compatible and v1-extended parameters.
 
 ### v2-compatible constructor (recommended for new agents)
 

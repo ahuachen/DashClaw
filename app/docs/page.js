@@ -95,6 +95,10 @@ const navItems = [
   { href: '#mcp-tools', label: 'Tools (8)', indent: true },
   { href: '#mcp-resources', label: 'Resources (4)', indent: true },
   { href: '#mcp-config', label: 'Configuration', indent: true },
+  { href: '#cli-and-doctor', label: 'CLI & Doctor' },
+  { href: '#dashclaw-doctor', label: 'dashclaw doctor', indent: true },
+  { href: '#openclaw-plugin', label: 'OpenClaw Plugin', indent: true },
+  { href: '#governance-skill', label: 'Governance Skill', indent: true },
   { href: '#constructor', label: 'Constructor' },
   { href: '#behavior-guard', label: 'Behavior Guard' },
   { href: '#guard', label: 'guard', indent: true },
@@ -445,6 +449,52 @@ except Exception as e:
     "name": "dashclaw"
 }]`}</CodeBlock>
               </div>
+            </div>
+          </section>
+
+          {/* ── CLI & Doctor ── */}
+          <section id="cli-and-doctor" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-[rgba(16,185,129,0.1)] flex items-center justify-center">
+                <Terminal size={16} className="text-emerald-400" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">CLI & Doctor</h2>
+            </div>
+            <p className="mt-2 mb-8 text-sm text-zinc-400 leading-relaxed">
+              <code className="font-mono text-zinc-300">@dashclaw/cli</code> handles terminal approvals and self-host diagnostics. <code className="font-mono text-zinc-300">npm run doctor</code> runs the same engine locally with filesystem-level fix powers.
+            </p>
+
+            <div id="dashclaw-doctor" className="scroll-mt-20 mb-10">
+              <h3 className="text-lg font-semibold text-white mb-4">dashclaw doctor</h3>
+              <p className="text-xs text-zinc-500 mb-3">
+                Diagnoses database, configuration, auth, deployment, SDK reachability, governance staleness, and livingcode shape drift — auto-fixing safe issues. Invokes <code className="font-mono text-zinc-400">GET /api/doctor</code> and <code className="font-mono text-zinc-400">POST /api/doctor/fix</code>. For operators, <code className="font-mono text-zinc-400">npm run doctor</code> on the host adds <code className="font-mono text-zinc-400">.env</code> writes, migrations, and default-policy seeding (backs up <code className="font-mono text-zinc-400">.env</code> before any write).
+              </p>
+              <CodeBlock title="dashclaw doctor">{`npm install -g @dashclaw/cli
+
+dashclaw doctor                          # rich terminal output, auto-fix safe issues
+dashclaw doctor --json                   # CI / scripts
+dashclaw doctor --no-fix                 # diagnose only
+dashclaw doctor --category database,config
+
+# Config resolution: env vars → ~/.dashclaw/config.json (600) → interactive prompt
+dashclaw logout                          # remove saved config
+
+# Self-host operator (filesystem-level fixes)
+npm run doctor`}</CodeBlock>
+            </div>
+
+            <div id="openclaw-plugin" className="scroll-mt-20 mb-10">
+              <h3 className="text-lg font-semibold text-white mb-4">OpenClaw Plugin</h3>
+              <p className="text-xs text-zinc-500 mb-3">
+                <code className="font-mono text-zinc-400">@dashclaw/openclaw-plugin</code> wires governance into the OpenClaw agent framework. Intercepts <code className="font-mono text-zinc-400">PreToolUse</code> / <code className="font-mono text-zinc-400">PostToolUse</code> lifecycle hooks, calls guard / record / wait-for-approval automatically, and ships a <code className="font-mono text-zinc-400">HOOK.md</code> pack the openclaw CLI installs. Tool classification vocabulary aligns with DashClaw guard action types.
+              </p>
+            </div>
+
+            <div id="governance-skill" className="scroll-mt-20">
+              <h3 className="text-lg font-semibold text-white mb-4">Governance Skill (Claude)</h3>
+              <p className="text-xs text-zinc-500 mb-3">
+                <code className="font-mono text-zinc-400">@dashclaw/governance</code> is an Anthropic Claude skill that teaches governed agents how to use the MCP tools correctly — risk thresholds, decision handling, recording rules, session lifecycle. Pairs with <code className="font-mono text-zinc-400">@dashclaw/mcp-server</code> for Managed Agents. Download the zip from your instance at <code className="font-mono text-zinc-400">/downloads/dashclaw-governance.zip</code>.
+              </p>
             </div>
           </section>
 
