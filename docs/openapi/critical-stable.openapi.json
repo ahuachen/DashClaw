@@ -1457,6 +1457,57 @@
         "x-api-maturity": "stable"
       }
     },
+    "/api/messages/threads/{threadId}": {
+      "get": {
+        "operationId": "get_api_messages_threads_threadId",
+        "parameters": [
+          {
+            "description": "Path parameter: threadId",
+            "in": "path",
+            "name": "threadId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Validation or request error"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "GET /api/messages/threads/{threadId}",
+        "tags": [
+          "messages"
+        ],
+        "x-api-maturity": "stable"
+      }
+    },
     "/api/orgs": {
       "get": {
         "operationId": "get_api_orgs",

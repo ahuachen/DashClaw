@@ -13,8 +13,8 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `220`
-- Stable routes: `40`
+- Total routes: `221`
+- Stable routes: `41`
 - Beta routes: `20`
 - Experimental routes: `160`
 
@@ -168,6 +168,7 @@ doc-type: architecture
 | `/api/messages` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/route.js` |
 | `/api/messages/attachments` | `GET` | `stable` | `/api/messages` | `app/api/messages/attachments/route.js` |
 | `/api/messages/threads` | `GET, PATCH, POST` | `stable` | `/api/messages` | `app/api/messages/threads/route.js` |
+| `/api/messages/threads/{threadId}` | `GET` | `stable` | `/api/messages` | `app/api/messages/threads/[threadId]/route.js` |
 | `/api/model-strategies` | `GET, POST` | `experimental` | `(default)` | `app/api/model-strategies/route.js` |
 | `/api/model-strategies/{strategyId}` | `DELETE, GET, PATCH` | `experimental` | `(default)` | `app/api/model-strategies/[strategyId]/route.js` |
 | `/api/model-strategies/{strategyId}/complete` | `POST` | `experimental` | `(default)` | `app/api/model-strategies/[strategyId]/complete/route.js` |

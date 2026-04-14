@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:a3697dd44eca5100703634f4dde65933e8a9b243",
+  "timestamp": "sha1:d0b2c62ec8eb11aa6c773c938affba45772c3b93",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1485,6 +1485,17 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/messages/threads/route.js"
+    },
+    {
+      "path": "/api/messages/threads/[threadId]",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [
+        "threadId"
+      ],
+      "archived": false,
+      "file_path": "app/api/messages/threads/[threadId]/route.js"
     },
     {
       "path": "/api/model-strategies",
