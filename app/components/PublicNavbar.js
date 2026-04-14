@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Github, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
+import GithubIcon from './GithubIcon';
 
 export default function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function PublicNavbar() {
             rel="noopener noreferrer"
             className="hover:text-text-primary transition-colors inline-flex items-center gap-1.5"
           >
-            <Github size={14} /> GitHub
+            <GithubIcon size={14} /> GitHub
           </a>
         </div>
         <div className="flex items-center gap-3">
@@ -94,7 +95,7 @@ export default function PublicNavbar() {
                 onClick={closeMobile}
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors hover:bg-white/5 hover:text-text-primary"
               >
-                <Github size={14} aria-hidden="true" /> GitHub
+                <GithubIcon size={14} aria-hidden="true" /> GitHub
               </a>
             </div>
             <div className="border-t border-border px-5 py-4">

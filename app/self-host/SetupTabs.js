@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Database, Cloud, Github, Zap, KeyRound } from 'lucide-react';
+import { Database, Cloud, Zap, KeyRound } from 'lucide-react';
+import GithubIcon from '../components/GithubIcon';
 import SecretGenerator from '../components/SecretGenerator';
 import CopyMarkdownButton from '../components/CopyMarkdownButton';
 import CopyableCodeBlock from '../components/CopyableCodeBlock';
@@ -127,7 +128,7 @@ export default function SetupTabs() {
             n="3"
             title="Set up GitHub OAuth"
             desc="Create a GitHub OAuth app so you can sign in to your dashboard."
-            icon={Github}
+            icon={GithubIcon}
           >
             <ol className="list-decimal list-inside text-sm text-zinc-400 space-y-1.5 mb-4">
               <li>Go to <a href="https://github.com/settings/developers" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">GitHub Developer Settings</a> → OAuth Apps → New OAuth App</li>

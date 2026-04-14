@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, Github, ExternalLink, BookOpen,
+  ArrowRight, ExternalLink, BookOpen,
   Terminal, Zap, CircleDot, Eye, ShieldAlert, BarChart3,
   ChevronRight, Network, FileCheck, Scale, Radio, Users,
   Newspaper, MessageSquare, Download, SlidersHorizontal, Shield, History, Activity

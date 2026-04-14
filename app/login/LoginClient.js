@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Github, Key } from 'lucide-react';
+import { Key } from 'lucide-react';
 import DashClawLogo from '../components/DashClawLogo';
+import GithubIcon from '../components/GithubIcon';
 import LocalPasswordForm from './LocalPasswordForm';
 
 export default function LoginClient({ localAuthEnabled }) {
@@ -73,7 +74,7 @@ export default function LoginClient({ localAuthEnabled }) {
                   : 'border border-border bg-surface-tertiary text-zinc-300 hover:border-border-hover hover:text-white'
               }`}
             >
-              {provider.id === 'github' && <Github size={18} aria-hidden="true" />}
+              {provider.id === 'github' && <GithubIcon size={18} aria-hidden="true" />}
               {provider.id === 'google' && <GoogleIcon />}
               {provider.id === 'oidc' && <Key size={18} aria-hidden="true" />}
               Continue with {provider.name}

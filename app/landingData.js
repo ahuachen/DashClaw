@@ -1,5 +1,5 @@
 import {
-  Zap, ShieldAlert, CircleDot, Eye, ArrowRight, Github,
+  Zap, ShieldAlert, CircleDot, Eye, ArrowRight,
   ExternalLink, BookOpen, FolderKanban, MessageSquare, ArrowLeftRight,
   Brain, ScanSearch, HeartPulse, Newspaper, Package, UsersRound,
   Webhook, Clock, Compass, Building2, Terminal, BarChart3,

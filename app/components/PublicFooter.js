@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Github, BookOpen, Eye, Terminal, ExternalLink } from 'lucide-react';
+import { BookOpen, Eye, Terminal, ExternalLink } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
+import GithubIcon from './GithubIcon';
 
 export default function PublicFooter() {
   return (
@@ -19,7 +20,7 @@ export default function PublicFooter() {
         </div>
         <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-3 text-sm text-text-tertiary">
           <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
-            <Github size={14} />
+            <GithubIcon size={14} />
             GitHub
           </a>
           <Link href="/docs" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">

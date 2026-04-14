@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Github, Terminal, ArrowLeft, Zap, Brain, Shield, Rocket, HeartPulse, Search, MessageSquare, ClipboardCheck, History, RefreshCw } from 'lucide-react';
+import { Terminal, ArrowLeft, Zap, Brain, Shield, Rocket, HeartPulse, Search, MessageSquare, ClipboardCheck, History, RefreshCw } from 'lucide-react';
+import GithubIcon from '../components/GithubIcon';
 import PublicNavbar from '../components/PublicNavbar';
 import PublicFooter from '../components/PublicFooter';
 
@@ -159,7 +160,7 @@ export default function ToolkitPage() {
               View SDK Docs
             </Link>
             <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="px-6 py-2.5 rounded-lg bg-surface-tertiary text-text-primary text-sm font-medium hover:bg-surface-elevated transition-colors inline-flex items-center gap-2">
-              <Github size={16} /> Star on GitHub
+              <GithubIcon size={16} /> Star on GitHub
             </a>
           </div>
         </div>
