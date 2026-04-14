@@ -52,6 +52,9 @@ export default function DecisionReplayPage() {
 
       // Fetch correlated messages + metadata for the timeline header
       try {
+        setMessages([]);
+        setMessageCorrelation('none');
+        setMessageThreadName(null);
         const msgRes = await fetch(`/api/actions/${actionId}/messages`);
         if (msgRes.ok) {
           const msgData = await msgRes.json();
@@ -62,7 +65,7 @@ export default function DecisionReplayPage() {
           const firstThreadId = msgs.find(m => m.thread_id)?.thread_id;
           if (firstThreadId) {
             try {
-              const tRes = await fetch('/api/messages/threads');
+              const tRes = await fetch('/api/messages/threads?limit=100');
               if (tRes.ok) {
                 const tData = await tRes.json();
                 const thread = (tData.threads || []).find(t => t.id === firstThreadId);

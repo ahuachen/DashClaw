@@ -424,6 +424,7 @@ git commit -m "feat(mission-control): mount RecentCommsCard in right-column grid
 - Modify: `app/decisions/[actionId]/page.js`
 
 **Rationale:** The page already fetches messages at line 53 and iterates them into the timeline at line 458. Today it loses two useful signals that only surface in `/replay` via `CommunicationTrail`: (1) the `correlation` field ("explicit" vs "time_window") which tells the operator whether the message linkage is tagged or inferred, and (2) the first thread name when messages share a thread. Promote both to a small header above the Chronological Timeline card.
+The fetch resets prior state up front so re-invocation cannot leak stale correlation or thread names, and queries `/api/messages/threads?limit=100` so the thread lookup covers the endpoint's maximum page size.
 
 - [ ] **Step 1: Track correlation + thread metadata in existing fetch**
 
@@ -439,6 +440,9 @@ Replace the existing `fetch(/api/actions/${actionId}/messages)` block (lines ~51
 ```javascript
       // Fetch correlated messages + metadata for the timeline header
       try {
+        setMessages([]);
+        setMessageCorrelation('none');
+        setMessageThreadName(null);
         const msgRes = await fetch(`/api/actions/${actionId}/messages`);
         if (msgRes.ok) {
           const msgData = await msgRes.json();
@@ -449,7 +453,7 @@ Replace the existing `fetch(/api/actions/${actionId}/messages)` block (lines ~51
           const firstThreadId = msgs.find(m => m.thread_id)?.thread_id;
           if (firstThreadId) {
             try {
-              const tRes = await fetch('/api/messages/threads');
+              const tRes = await fetch('/api/messages/threads?limit=100');
               if (tRes.ok) {
                 const tData = await tRes.json();
                 const thread = (tData.threads || []).find(t => t.id === firstThreadId);
