@@ -146,6 +146,16 @@ The plugin caches the DashClaw `action_id` from `before_tool_call` in a module-l
 
 If the outcome update itself fails, the plugin logs a warning but never throws — DashClaw recording is best-effort and must not break your agent's tool execution.
 
+## Token usage and cost (v1.2.1+)
+
+The plugin hooks OpenClaw's `llm_output` and `agent_end` events to attribute LLM token usage back to the governed tool calls that assistant response induced. Each `llm_output` reports `{input, output, cacheRead, cacheWrite}` plus the resolved `model`; when the next `llm_output` (or `agent_end`) fires, the plugin PATCHes `tokens_in`, `tokens_out`, and `model` onto every action opened since the last usage boundary. DashClaw derives `cost_estimate` server-side from its pricing table.
+
+Accounting notes:
+
+- Tokens are split evenly across the tool calls attributable to the same assistant response. Remainders go to the earliest buckets so the sum is preserved.
+- Cache reads and writes are counted as full-price input tokens — the server pricing table doesn't model the cache discount, so the attributed cost is a conservative overestimate for cache-heavy runs.
+- Failures are silent: a warning is logged but token attribution never blocks or throws. If your provider doesn't populate `usage`, nothing is patched.
+
 ## Links
 
 - DashClaw: <https://github.com/ucsandman/DashClaw>

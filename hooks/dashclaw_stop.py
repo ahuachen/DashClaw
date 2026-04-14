@@ -203,22 +203,61 @@ def _patch_action(action_id, body):
         pass  # Never block on token reporting failure
 
 
+def _get_status(action_id):
+    """GET /api/actions/{action_id} and return current status, or None on failure.
+
+    Used to decide whether this Stop hook should also close the action. We only
+    overwrite status when it's still 'running' — never touch terminal states
+    ('completed', 'failed', 'blocked', 'cancelled') a PostToolUse hook has
+    already written."""
+    url = BASE_URL + "/api/actions/" + action_id
+    req = urllib.request.Request(
+        url,
+        headers={"x-api-key": API_KEY},
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+    action = body.get("action") or body
+    if isinstance(action, dict):
+        return action.get("status")
+    return None
+
+
 def _apply(action_ids, tokens_in, tokens_out, model):
     if not action_ids:
         return
-    if tokens_in == 0 and tokens_out == 0:
-        return
+    has_tokens = tokens_in > 0 or tokens_out > 0
     n = len(action_ids)
-    in_parts = _distribute(tokens_in, n)
-    out_parts = _distribute(tokens_out, n)
+    in_parts = _distribute(tokens_in, n) if has_tokens else [0] * n
+    out_parts = _distribute(tokens_out, n) if has_tokens else [0] * n
     for idx, aid in enumerate(action_ids):
-        body = {
-            "tokens_in": in_parts[idx],
-            "tokens_out": out_parts[idx],
-        }
-        if model:
-            body["model"] = model
-        _patch_action(aid, body)
+        status = _get_status(aid)
+        body = {}
+        if has_tokens:
+            body["tokens_in"] = in_parts[idx]
+            body["tokens_out"] = out_parts[idx]
+            if model:
+                body["model"] = model
+        # Fallback close: if PostToolUse never ran (or its PATCH failed), the
+        # action is still 'running' at Stop time. Auto-close it so it doesn't
+        # pile up in analytics as an "Other" stale row. Never overwrite a
+        # terminal status a PostToolUse hook already wrote.
+        if status == "running":
+            body["status"] = "completed"
+            body["output_summary"] = "Auto-closed by Stop hook"
+            body["timestamp_end"] = datetime_now_iso()
+        if body:
+            _patch_action(aid, body)
+
+
+def datetime_now_iso():
+    """ISO-8601 UTC timestamp with trailing Z — matches posttool convention."""
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).isoformat()
 
 
 # ---------------------------------------------------------------------------

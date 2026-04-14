@@ -105,6 +105,71 @@ let cachedClientKey = '';
 /** Maps synthetic call key → DashClaw action_id so `after_tool_call` can close it. */
 const pendingActions = new Map<string, string>();
 
+/**
+ * Per-run state for LLM token attribution. OpenClaw's `llm_output` event
+ * fires once per assistant response with `usage.{input,output,cacheRead,
+ * cacheWrite}` and `model`. The tool calls induced by that response arrive
+ * via `before_tool_call` after the `llm_output`. We stash the most recent
+ * usage and the action_ids opened since we stashed it; on the NEXT
+ * `llm_output` (or on `agent_end`) we distribute that usage evenly across
+ * those action_ids via `updateOutcome` PATCHes. Cost is derived server-side.
+ */
+interface TokenTurnState {
+  pendingUsage?: { tokens_in: number; tokens_out: number; model: string };
+  turnActionIds: string[];
+}
+const tokenTurnByRun = new Map<string, TokenTurnState>();
+
+function getTokenTurn(runId: string): TokenTurnState {
+  let state = tokenTurnByRun.get(runId);
+  if (!state) {
+    state = { turnActionIds: [] };
+    tokenTurnByRun.set(runId, state);
+  }
+  return state;
+}
+
+/** Split a non-negative integer `total` into `n` buckets, putting remainders
+ *  in the earliest buckets so the sum is preserved exactly. */
+function distributeEvenly(total: number, n: number): number[] {
+  if (n <= 0 || total <= 0) return new Array<number>(Math.max(n, 0)).fill(0);
+  const base = Math.floor(total / n);
+  const remainder = total - base * n;
+  return Array.from({ length: n }, (_, i) => base + (i < remainder ? 1 : 0));
+}
+
+async function distributePendingTokens(
+  client: DashClaw,
+  state: TokenTurnState,
+): Promise<void> {
+  const usage = state.pendingUsage;
+  const ids = state.turnActionIds;
+  state.pendingUsage = undefined;
+  state.turnActionIds = [];
+
+  if (!usage || ids.length === 0) return;
+  if (usage.tokens_in === 0 && usage.tokens_out === 0) return;
+
+  const inParts = distributeEvenly(usage.tokens_in, ids.length);
+  const outParts = distributeEvenly(usage.tokens_out, ids.length);
+
+  await Promise.all(
+    ids.map((actionId, idx) =>
+      client
+        .updateOutcome(actionId, {
+          tokens_in: inParts[idx],
+          tokens_out: outParts[idx],
+          ...(usage.model ? { model: usage.model } : {}),
+        })
+        .catch((err: unknown) => {
+          console.warn(
+            `[dashclaw-governance] token PATCH failed for ${actionId}: ${errorMessage(err) || 'unknown'}`
+          );
+        })
+    )
+  );
+}
+
 function getClient(config: PluginConfig): DashClaw {
   const key = `${config.dashclawUrl}|${config.dashclawApiKey}|${config.agentId}`;
   if (cachedClient && cachedClientKey === key) return cachedClient;
@@ -450,8 +515,71 @@ export default definePluginEntry({
         }
       }
 
-      if (createdActionId) pendingActions.set(key, createdActionId);
+      if (createdActionId) {
+        pendingActions.set(key, createdActionId);
+        // Track this action_id against the current run so the next
+        // `llm_output` can attribute token usage back to it.
+        if (runId) getTokenTurn(runId).turnActionIds.push(createdActionId);
+      }
       return;
+    });
+
+    // -----------------------------------------------------------------------
+    // LLM token attribution — distribute the previous turn's usage across
+    // the tool calls it induced, then stash this turn's usage for the next
+    // boundary. Runs best-effort; failures never surface to the agent.
+    // -----------------------------------------------------------------------
+    api.on('llm_output', async (event, _ctx) => {
+      const { runId, model, usage } = event;
+      if (!runId) return;
+
+      let client: DashClaw;
+      try {
+        client = getClient(config);
+      } catch {
+        return; // No client → skip attribution, don't disrupt the run.
+      }
+
+      const state = getTokenTurn(runId);
+
+      // Distribute the PREVIOUS turn's usage before stashing the new one.
+      if (state.pendingUsage) {
+        await distributePendingTokens(client, state);
+      }
+
+      // Stash this turn's usage for attribution on the next llm_output
+      // (or agent_end). Treat cache reads/writes as full-price input tokens
+      // — the server's pricing table doesn't model the cache discount, so
+      // this is a conservative estimate. Directionally accurate for
+      // governance analytics.
+      if (usage) {
+        const tokens_in =
+          (usage.input ?? 0) + (usage.cacheWrite ?? 0) + (usage.cacheRead ?? 0);
+        const tokens_out = usage.output ?? 0;
+        if (tokens_in > 0 || tokens_out > 0) {
+          state.pendingUsage = { tokens_in, tokens_out, model: model ?? '' };
+        }
+      }
+    });
+
+    // -----------------------------------------------------------------------
+    // Run end — flush any remaining usage, then drop per-run state.
+    // -----------------------------------------------------------------------
+    api.on('agent_end', async (_event, ctx) => {
+      const runId = ctx?.runId;
+      if (!runId) return;
+      const state = tokenTurnByRun.get(runId);
+      if (!state) return;
+
+      if (state.pendingUsage && state.turnActionIds.length > 0) {
+        try {
+          const client = getClient(config);
+          await distributePendingTokens(client, state);
+        } catch {
+          // No client → just drop state.
+        }
+      }
+      tokenTurnByRun.delete(runId);
     });
 
     // -----------------------------------------------------------------------

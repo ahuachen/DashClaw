@@ -48,7 +48,14 @@ class _RequestLog:
             self.requests.clear()
 
 
-def _make_handler(log):
+def _make_handler(log, status_by_id=None):
+    """Build a Handler class that records PATCH bodies and answers GETs with
+    status-per-action_id. `status_by_id` maps action_id → status string; missing
+    keys default to None, which makes `_get_status` treat the action as
+    terminal and skip the auto-close path."""
+    if status_by_id is None:
+        status_by_id = {}
+
     class Handler(BaseHTTPRequestHandler):
         def do_PATCH(self):
             length = int(self.headers.get("Content-Length", 0))
@@ -56,6 +63,19 @@ def _make_handler(log):
             body = json.loads(raw) if raw else None
             log.add("PATCH", self.path, body)
             resp = json.dumps({"ok": True}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+
+        def do_GET(self):
+            log.add("GET", self.path, None)
+            # Extract the action_id suffix from /api/actions/<id>.
+            action_id = self.path.rsplit("/", 1)[-1]
+            status = status_by_id.get(action_id)
+            payload = {"action": {"action_id": action_id, "status": status}}
+            resp = json.dumps(payload).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(resp)))
@@ -137,8 +157,11 @@ class TestStopHook(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.log = _RequestLog()
+        cls.status_by_id: dict = {}
         port = _find_free_port()
-        handler = _make_handler(cls.log)
+        # Share the same dict with the handler so tests can mutate it between
+        # invocations without rebuilding the server.
+        handler = _make_handler(cls.log, cls.status_by_id)
         cls.server = HTTPServer(("127.0.0.1", port), handler)
         cls.server_thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.server_thread.start()
@@ -151,6 +174,7 @@ class TestStopHook(unittest.TestCase):
 
     def setUp(self):
         self.log.clear()
+        self.status_by_id.clear()
 
     def _env(self):
         return {
@@ -318,6 +342,81 @@ class TestStopHook(unittest.TestCase):
         self.assertEqual(second[0]["path"], "/api/actions/act-Y")
         self.assertEqual(second[0]["body"]["tokens_in"], 3)
         self.assertEqual(second[0]["body"]["tokens_out"], 2)
+
+    def test_autocloses_running_but_preserves_terminal_status(self):
+        """Running actions get status='completed'; terminal statuses are left alone."""
+        session_id = "sess-test-autoclose"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "go"}},
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "message": {
+                    "model": "opus",
+                    "usage": {"input_tokens": 20, "output_tokens": 10},
+                },
+            },
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        _write_turn_actions(session_id, ["act-running", "act-failed"])
+        self.addCleanup(_safe_remove, _turn_path(session_id))
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+
+        # GET returns running for the first, failed for the second.
+        self.status_by_id["act-running"] = "running"
+        self.status_by_id["act-failed"] = "failed"
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            self._env(),
+        )
+        self.assertEqual(code, 0, msg=err)
+
+        patches = sorted(
+            [r for r in self.log.get_all() if r["method"] == "PATCH"],
+            key=lambda r: r["path"],
+        )
+        self.assertEqual(len(patches), 2)
+        running_body = next(p["body"] for p in patches if p["path"].endswith("act-running"))
+        failed_body = next(p["body"] for p in patches if p["path"].endswith("act-failed"))
+
+        # Running action: tokens + auto-close fields
+        self.assertEqual(running_body["status"], "completed")
+        self.assertEqual(running_body["output_summary"], "Auto-closed by Stop hook")
+        self.assertIn("timestamp_end", running_body)
+        self.assertGreater(running_body["tokens_in"], 0)
+        self.assertGreater(running_body["tokens_out"], 0)
+
+        # Terminal action: tokens only, no status overwrite
+        self.assertNotIn("status", failed_body)
+        self.assertNotIn("output_summary", failed_body)
+        self.assertNotIn("timestamp_end", failed_body)
+        self.assertGreater(failed_body["tokens_in"], 0)
+
+    def test_autoclose_without_tokens(self):
+        """If the transcript yields no usage (hook still fires), running actions are still closed."""
+        session_id = "sess-test-autoclose-no-tokens"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "noop"}},
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        _write_turn_actions(session_id, ["act-running-2"])
+        self.addCleanup(_safe_remove, _turn_path(session_id))
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+        self.status_by_id["act-running-2"] = "running"
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            self._env(),
+        )
+        self.assertEqual(code, 0, msg=err)
+        patches = [r for r in self.log.get_all() if r["method"] == "PATCH"]
+        self.assertEqual(len(patches), 1)
+        body = patches[0]["body"]
+        self.assertEqual(body["status"], "completed")
+        self.assertNotIn("tokens_in", body)
 
     def test_missing_env_exits_silently(self):
         """No DASHCLAW_BASE_URL/API_KEY → exit 0, no PATCHes."""
