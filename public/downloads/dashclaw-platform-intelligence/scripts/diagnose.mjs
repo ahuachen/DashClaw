@@ -125,7 +125,7 @@ async function run() {
     report.suggestions.push(
       'Set DASHCLAW_API_KEY environment variable',
       'Or pass --api-key flag',
-      'Generate a key at your-dashboard/setup or POST /api/onboarding/api-key'
+      'Generate a key at your-dashboard/api-keys or POST /api/keys'
     );
   } else {
     const authTest = await probe('/api/actions?limit=1');
@@ -180,7 +180,7 @@ async function run() {
   // Phase 4: Latency profile
   log('');
   log('--- Phase 4: Latency Profile ---');
-  const latencyEndpoints = ['/api/health', '/api/actions?limit=1', '/api/guard?limit=1', '/api/memory'];
+  const latencyEndpoints = ['/api/health', '/api/actions?limit=1', '/api/guard?limit=1', '/api/analytics'];
   for (const ep of latencyEndpoints) {
     if (!API_KEY && ep !== '/api/health') continue;
     const res = await probe(ep);

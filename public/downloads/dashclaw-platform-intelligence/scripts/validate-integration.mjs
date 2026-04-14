@@ -131,11 +131,11 @@ async function run() {
     ['/api/actions?limit=1', 'Actions'],
     ['/api/guard?limit=1', 'Guard decisions'],
     ['/api/policies', 'Policies'],
-    ['/api/context/threads?limit=1', 'Context threads'],
+    ['/api/messages/threads?limit=1', 'Message threads'],
     ['/api/messages?limit=1', 'Messages'],
-    ['/api/snippets?limit=1', 'Snippets'],
-    ['/api/handoffs?limit=1', 'Handoffs'],
-    ['/api/memory', 'Memory'],
+    ['/api/assumptions?limit=1', 'Assumptions'],
+    ['/api/signals', 'Signals'],
+    ['/api/analytics', 'Analytics'],
   ];
 
   for (const [path, name] of readEndpoints) {

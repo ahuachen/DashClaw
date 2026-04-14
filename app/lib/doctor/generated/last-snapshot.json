@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:9eec574505d7824f8dfed8d3fad1f00a03386b80",
+  "timestamp": "sha1:090d2e11f6a088493894729c69c128229678dcbc",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3390,7 +3390,7 @@
         "app/api/telegram/webhook/route.js",
         "app/lib/telegramApprovals.js"
       ],
-      "in_env_example": true
+      "in_env_example": false
     },
     {
       "name": "TELEGRAM_APPROVER_ORG_ID",
@@ -3399,7 +3399,7 @@
         "__tests__/unit/telegram-webhook-route.test.js",
         "app/api/telegram/webhook/route.js"
       ],
-      "in_env_example": true
+      "in_env_example": false
     },
     {
       "name": "TELEGRAM_BOT_TOKEN",
@@ -3411,7 +3411,7 @@
         "app/lib/telegramApprovals.js",
         "scripts/telegram-register-webhook.mjs"
       ],
-      "in_env_example": true
+      "in_env_example": false
     },
     {
       "name": "TELEGRAM_WEBHOOK_SECRET",
@@ -3421,7 +3421,7 @@
         "app/api/telegram/webhook/route.js",
         "scripts/telegram-register-webhook.mjs"
       ],
-      "in_env_example": true
+      "in_env_example": false
     },
     {
       "name": "TRUST_PROXY",

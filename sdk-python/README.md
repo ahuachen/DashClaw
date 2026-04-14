@@ -707,29 +707,28 @@ health = claw.get_routing_health()
 | `get_routing_stats()` | Get routing statistics |
 | `get_routing_health()` | Get health status |
 
-## Agent Schedules
+## Compliance Schedules
 
-Define recurring tasks and cron-based schedules for agents:
+Define cron-based schedules that auto-export compliance evidence (e.g. SOC 2, HIPAA, GDPR) to your S3 bucket or webhook target:
 
 ```python
-# Create a schedule
-schedule = claw.create_agent_schedule(
-    agent_id="forge",
-    name="Build projects",
-    cron_expression="0 */6 * * *",
-    description="Check for pending builds every 6 hours"
+# Create a recurring export
+schedule = claw.create_compliance_schedule(
+    frameworks=["soc2"],
+    cron_expression="0 0 * * 1",        # Mondays at 00:00 UTC
+    name="Weekly SOC2 evidence export",
 )
 
-# List schedules for an agent
-schedules = claw.list_agent_schedules(agent_id="forge")
+# List existing schedules
+schedules = claw.list_compliance_schedules()
 ```
 
 **Methods:**
 
 | Method | Description |
 |--------|-------------|
-| `list_agent_schedules(agent_id=None)` | List agent schedules, optionally filtered by agent |
-| `create_agent_schedule(agent_id, name, cron_expression, **kwargs)` | Create a schedule. Optional: description, enabled |
+| `create_compliance_schedule(frameworks, cron_expression, name="Scheduled Export", **kwargs)` | Create a recurring export schedule. Optional: enabled, target_uri, format |
+| `list_compliance_schedules()` | List all configured compliance schedules |
 
 ## Token Usage & Dashboard Data
 
@@ -1102,7 +1101,7 @@ The Node.js v2 SDK exposes a curated subset of **80 methods** focused on agent g
 | Handoffs | `createHandoff` | `create_handoff` | Yes |
 | Handoffs | `getLatestHandoff` | `get_latest_handoff` | Yes |
 | Security | `scanPromptInjection` | `scan_prompt_injection` | Yes |
-| Feedback | `submitFeedback` | _(planned)_ | Yes |
+| Feedback | `submitFeedback` | `submit_feedback` | Yes |
 | Threads | `createThread` | `create_thread` | Yes |
 | Threads | `addThreadEntry` | `add_thread_entry` | Yes |
 | Threads | `closeThread` | `close_thread` | Yes |

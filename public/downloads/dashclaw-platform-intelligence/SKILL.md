@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:9eec574505d7824f8dfed8d3fad1f00a03386b80`
+**Shape snapshot:** `sha1:090d2e11f6a088493894729c69c128229678dcbc`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -445,10 +445,10 @@ These have fallbacks or only activate specific features.
 - `STRIPE_SECRET_KEY` *(undocumented)*
 - `STRIPE_WEBHOOK_SECRET` *(undocumented)*
 - `TARGET_ENV` *(undocumented)*
-- `TELEGRAM_ADMIN_CHAT_ID`
-- `TELEGRAM_APPROVER_ORG_ID`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_WEBHOOK_SECRET`
+- `TELEGRAM_ADMIN_CHAT_ID` *(undocumented)*
+- `TELEGRAM_APPROVER_ORG_ID` *(undocumented)*
+- `TELEGRAM_BOT_TOKEN` *(undocumented)*
+- `TELEGRAM_WEBHOOK_SECRET` *(undocumented)*
 - `TRUST_PROXY` *(undocumented)*
 - `UPSTASH_REDIS_REST_TOKEN` *(undocumented)*
 - `UPSTASH_REDIS_REST_URL` *(undocumented)*

@@ -22,10 +22,10 @@ Step 3: Invoke the capability
                   declared_goal="Send deployment notification to #ops",
                   payload={"channel": "#ops", "message": "Deployed v2.3.1"})
 
-Step 4: Record the outcome
-  (dashclaw_invoke records automatically, but add extra context if needed)
-  dashclaw_record(action_type="notification", declared_goal="Sent deploy notification",
-                  status="completed", output_summary="Slack message sent to #ops")
+Step 4: dashclaw_invoke records automatically. Do NOT call dashclaw_record again
+  for the same operation — that would create a second audit row for one action.
+  Only emit a separate dashclaw_record when summarizing a multi-call workflow as
+  one parent action.
 ```
 
 ## Approval Wait Pattern
@@ -50,11 +50,45 @@ Step 3: Inform the user
 Step 4: Wait for the decision
   dashclaw_wait_for_approval(action_id="act_xxx")
 
-Step 5: Handle the result
-  If approved → proceed with the deploy, record outcome
-  If denied → dashclaw_record(status="failed", output_summary="Denied by operator: [reason]")
-  If timed_out → dashclaw_record(status="failed", output_summary="Approval timed out after 5 minutes")
+Step 5: Handle the result. The response shape is { approved, action, timed_out }.
+  - approved == true → proceed with the deploy, then PATCH the outcome
+                       (status="completed", optional tokens_in/tokens_out/model)
+  - timed_out == true → operator never responded inside the configured timeout
+                        (default 300s; override with timeout_seconds). Either
+                        re-request, fall back, or stop with an explicit log.
+  - approved == false (timed_out == false) → operator denied OR action moved to
+                                              a non-completed terminal state.
+                                              Read action.error_message for the
+                                              operator's reason, then stop.
+
+## Token + Cost Reporting Pattern
+
+For any action driven by an LLM call, attach token usage so the dashboard can
+compute spend. Cost is derived server-side from the configured pricing table —
+omit cost_estimate unless you have an authoritative number from the provider.
+
 ```
+Step 1: Run the LLM call
+  response = anthropic.messages.create(model="claude-opus-4-6", ...)
+
+Step 2: Record (or PATCH) with token usage
+  dashclaw_record(
+    action_type="research",
+    declared_goal="Summarize Q3 incident report",
+    status="completed",
+    output_summary=response.content[0].text[:500],
+    tokens_in=response.usage.input_tokens,
+    tokens_out=response.usage.output_tokens,
+    model="claude-opus-4-6",
+    # cost_estimate intentionally omitted — server derives from billing.js
+  )
+
+  # If you only learn token counts after the action was already recorded
+  # (e.g. a Stop hook, or streaming response), PATCH instead:
+  PATCH /api/actions/<action_id>
+    { "tokens_in": ..., "tokens_out": ..., "model": "..." }
+```
+
 
 ## Session Lifecycle Pattern
 
