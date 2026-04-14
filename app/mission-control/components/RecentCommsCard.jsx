@@ -12,7 +12,7 @@ const TYPE_VARIANTS = {
   action: 'warning',
   info: 'info',
   lesson: 'success',
-  question: 'secondary',
+  question: 'info',
   status: 'default',
 };
 
@@ -76,7 +76,7 @@ export default function RecentCommsCard({ messages, limit = 5 }) {
               <Link
                 key={msg.id}
                 href={`/messages?message_id=${encodeURIComponent(msg.id)}`}
-                className="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-surface-tertiary border border-border transition-colors duration-150 hover:border-zinc-700"
+                className="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-surface-tertiary border border-border transition-colors duration-150 hover:border-zinc-700 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand/40"
               >
                 <div className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 border border-border bg-surface-secondary">
                   <MessageSquare size={12} className="text-zinc-400" />
@@ -87,7 +87,7 @@ export default function RecentCommsCard({ messages, limit = 5 }) {
                     {msg.urgent && (
                       <AlertCircle size={11} className="text-red-400 flex-shrink-0" />
                     )}
-                    <span className="text-sm font-semibold text-foreground truncate">
+                    <span className="text-sm font-semibold text-text-primary truncate">
                       {msg.from_agent_id || 'Unknown'}
                       <span className="text-zinc-600 font-normal"> → </span>
                       <span className="text-zinc-300 font-normal">
