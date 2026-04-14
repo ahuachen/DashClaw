@@ -39,6 +39,12 @@ export default function DecisionReplayPage() {
   const [resolveTexts, setResolveTexts] = useState({});
 
   const fetchData = useCallback(async () => {
+    // Reset message state synchronously so prior-decision header doesn't
+    // leak onto the new URL during the action fetch roundtrip.
+    setMessages([]);
+    setMessageCorrelation('none');
+    setMessageThreadName(null);
+
     try {
       const res = await fetch(`/api/actions/${actionId}`);
       if (!res.ok) {
@@ -52,9 +58,6 @@ export default function DecisionReplayPage() {
 
       // Fetch correlated messages + metadata for the timeline header
       try {
-        setMessages([]);
-        setMessageCorrelation('none');
-        setMessageThreadName(null);
         const msgRes = await fetch(`/api/actions/${actionId}/messages`);
         if (msgRes.ok) {
           const msgData = await msgRes.json();
