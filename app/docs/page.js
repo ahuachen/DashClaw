@@ -585,11 +585,22 @@ if created.get("action", {}).get("status") == "pending_approval":
             <MethodEntry
               id="updateOutcome"
               signature="claw.updateOutcome(id, outcome) / claw.update_outcome(id, **kwargs)"
-              description="Log final results."
+              description="Log final results. Accepts status, output_summary, error_message, duration_ms, tokens_in, tokens_out, model, cost_estimate. When tokens + model are supplied without cost_estimate, the server derives cost from the pricing table."
               example={
-                <DocsCodeTabs 
-                  nodeSnippet="await claw.updateOutcome(action_id, { status: 'completed' });"
-                  pythonSnippet='claw.update_outcome(action_id, status="completed")'
+                <DocsCodeTabs
+                  nodeSnippet={`await claw.updateOutcome(action_id, {
+  status: 'completed',
+  tokens_in: result.usage.input_tokens,
+  tokens_out: result.usage.output_tokens,
+  model: result.model,
+});`}
+                  pythonSnippet={`claw.update_outcome(
+    action_id,
+    status="completed",
+    tokens_in=response.usage.input_tokens,
+    tokens_out=response.usage.output_tokens,
+    model=response.model,
+)`}
                 />
               }
             />

@@ -93,6 +93,7 @@ export const actionRecords = pgTable('action_records', {
   costEstimate: real('cost_estimate').default(0),
   tokensIn: integer('tokens_in').default(0),
   tokensOut: integer('tokens_out').default(0),
+  model: text('model'),
   signature: text('signature'),
   verified: boolean('verified').default(false),
   approvedBy: text('approved_by'),

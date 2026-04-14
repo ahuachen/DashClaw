@@ -183,7 +183,7 @@ class TestStopHook(unittest.TestCase):
         }
 
     def test_sums_cache_tokens_and_distributes_evenly(self):
-        """Two actions + one assistant message: tokens split evenly, cache tokens counted."""
+        """Two actions + one assistant message: tokens split evenly, cache reads discounted."""
         session_id = "sess-test-001"
         entries = [
             {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "hello"}},
@@ -216,13 +216,14 @@ class TestStopHook(unittest.TestCase):
         patches = [r for r in self.log.get_all() if r["method"] == "PATCH"]
         self.assertEqual(len(patches), 2)
         bodies = sorted(patches, key=lambda r: r["path"])
-        # tokens_in total = 100+50+200 = 350 → split 175/175; tokens_out 40 → 20/20
+        # Effective tokens_in = 100 + 50 + round(200 * 0.1) = 170 → 85/85
+        # tokens_out = 40 → 20/20
         self.assertEqual(bodies[0]["path"], "/api/actions/act-A")
-        self.assertEqual(bodies[0]["body"]["tokens_in"], 175)
+        self.assertEqual(bodies[0]["body"]["tokens_in"], 85)
         self.assertEqual(bodies[0]["body"]["tokens_out"], 20)
         self.assertEqual(bodies[0]["body"]["model"], "claude-opus-4-6")
         self.assertEqual(bodies[1]["path"], "/api/actions/act-B")
-        self.assertEqual(bodies[1]["body"]["tokens_in"], 175)
+        self.assertEqual(bodies[1]["body"]["tokens_in"], 85)
         self.assertEqual(bodies[1]["body"]["tokens_out"], 20)
 
     def test_uneven_split_remainders_go_to_first_buckets(self):

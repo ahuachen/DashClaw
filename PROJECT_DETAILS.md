@@ -44,7 +44,7 @@ These 8 endpoints define the DashClaw category. They are mandatory for governanc
 | Route | Purpose | SDK Method |
 |:---|:---|:---|
 | `/api/guard` | Policy evaluation | `guard()` |
-| `/api/actions` | Lifecycle recording (createAction, updateOutcome, waitForApproval polling target) | `createAction()`, `updateOutcome()`, `getAction()` |
+| `/api/actions` | Lifecycle recording (createAction, updateOutcome, waitForApproval polling target). PATCH accepts `tokens_in`, `tokens_out`, and `model` — server derives `cost_estimate` from the pricing table when tokens are reported without an explicit cost. | `createAction()`, `updateOutcome()`, `getAction()` |
 | `/api/approvals` | Human review queue — accessed as `/api/actions/:id/approve` via `next.config.js` rewrite | `approveAction()` |
 | `/api/assumptions` | Reasoning integrity (also reachable as `/api/actions/assumptions` via rewrite) | `recordAssumption()` |
 | `/api/signals` | Anomaly detection (also reachable as `/api/actions/signals` via rewrite) | `getSignals()` |

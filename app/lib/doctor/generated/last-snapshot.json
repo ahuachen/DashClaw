@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:d0b2c62ec8eb11aa6c773c938affba45772c3b93",
+  "timestamp": "sha1:9eec574505d7824f8dfed8d3fad1f00a03386b80",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2735,6 +2735,7 @@
         "scripts/create-org.mjs",
         "scripts/emergency-reset.mjs",
         "scripts/init-self-host-env.mjs",
+        "scripts/migrate-action-model-column.mjs",
         "scripts/migrate-action-records-compat.mjs",
         "scripts/migrate-agent-pairings.mjs",
         "scripts/migrate-api-keys-compat.mjs",

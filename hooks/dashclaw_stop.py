@@ -159,9 +159,15 @@ def _collect_turn_usage(entries, last_uuid):
             continue
         msg = e.get("message") or {}
         usage = msg.get("usage") or {}
+        # tokens_in is the "effective" input-token count used for cost:
+        #   - regular input tokens        full price
+        #   - cache_creation_input_tokens full price (~1.25x is close to 1x for 5m cache)
+        #   - cache_read_input_tokens     10% price — apply the discount here so
+        #                                 downstream cost derivation matches real billing
         tokens_in += int(usage.get("input_tokens") or 0)
         tokens_in += int(usage.get("cache_creation_input_tokens") or 0)
-        tokens_in += int(usage.get("cache_read_input_tokens") or 0)
+        cache_read = int(usage.get("cache_read_input_tokens") or 0)
+        tokens_in += int(round(cache_read * 0.1))
         tokens_out += int(usage.get("output_tokens") or 0)
         if not model and msg.get("model"):
             model = msg["model"]

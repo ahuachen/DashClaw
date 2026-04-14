@@ -548,13 +548,15 @@ export default definePluginEntry({
       }
 
       // Stash this turn's usage for attribution on the next llm_output
-      // (or agent_end). Treat cache reads/writes as full-price input tokens
-      // — the server's pricing table doesn't model the cache discount, so
-      // this is a conservative estimate. Directionally accurate for
-      // governance analytics.
+      // (or agent_end). Cache reads are billed at ~10% of base input price, so
+      // we weight them at 0.1 before summing — the server's pricing table
+      // doesn't model the cache discount, so applying it here keeps the
+      // derived cost aligned with real billing. Cache writes stay at full
+      // price (close enough for 5m caching; slightly under-counts 1h).
       if (usage) {
+        const cacheReadEffective = Math.round((usage.cacheRead ?? 0) * 0.1);
         const tokens_in =
-          (usage.input ?? 0) + (usage.cacheWrite ?? 0) + (usage.cacheRead ?? 0);
+          (usage.input ?? 0) + (usage.cacheWrite ?? 0) + cacheReadEffective;
         const tokens_out = usage.output ?? 0;
         if (tokens_in > 0 || tokens_out > 0) {
           state.pendingUsage = { tokens_in, tokens_out, model: model ?? '' };

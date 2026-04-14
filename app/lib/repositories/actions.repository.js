@@ -211,7 +211,7 @@ export async function createActionRecord(sql, payload) {
       recommendation_id, recommendation_applied, recommendation_override_reason,
       output_summary, side_effects, artifacts_created, error_message,
       timestamp_start, timestamp_end, duration_ms, cost_estimate,
-      tokens_in, tokens_out,
+      tokens_in, tokens_out, model,
       signature, verified
     ) VALUES (
       ${orgId},
@@ -244,6 +244,7 @@ export async function createActionRecord(sql, payload) {
       ${costEstimate},
       ${data.tokens_in || 0},
       ${data.tokens_out || 0},
+      ${data.model || null},
       ${signature},
       ${verified}
     )
@@ -401,6 +402,7 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
       cost_estimate     = COALESCE(${fields.includes('cost_estimate') ? data.cost_estimate : null}, cost_estimate),
       tokens_in         = COALESCE(${fields.includes('tokens_in') ? data.tokens_in : null}, tokens_in),
       tokens_out        = COALESCE(${fields.includes('tokens_out') ? data.tokens_out : null}, tokens_out),
+      model             = COALESCE(${fields.includes('model') ? data.model : null}, model),
       updated_at        = CURRENT_TIMESTAMP
     WHERE action_id = ${actionId} AND org_id = ${orgId}
     RETURNING *

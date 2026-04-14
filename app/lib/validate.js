@@ -61,7 +61,7 @@ const ACTION_RECORD_SCHEMA = {
 const OUTCOME_FIELDS = [
   'status', 'output_summary', 'side_effects', 'artifacts_created',
   'error_message', 'timestamp_end', 'duration_ms', 'cost_estimate',
-  'tokens_in', 'tokens_out'
+  'tokens_in', 'tokens_out', 'model'
 ];
 
 const OPEN_LOOP_SCHEMA = {

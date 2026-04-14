@@ -76,6 +76,16 @@ with claw.track(action_type="research", declared_goal="Explore new API"):
 res = claw.create_action("deploy", "Ship v2.0", risk_score=60, systems_touched=["prod-api"])
 action_id = res["action_id"]
 claw.update_outcome(action_id, status="completed", duration_ms=1200)
+# Optional — populate Analytics cost/token charts. Cost is derived
+# server-side from the pricing table when model + tokens are provided
+# without an explicit cost_estimate.
+claw.update_outcome(
+    action_id,
+    status="completed",
+    tokens_in=response.usage.input_tokens,
+    tokens_out=response.usage.output_tokens,
+    model=response.model,
+)
 
 # Query actions
 actions = claw.get_actions(status="completed", agent_id="my-agent")
@@ -91,7 +101,7 @@ signals = claw.get_signals()
 | Method | Description |
 |--------|-------------|
 | `create_action(action_type, declared_goal, **kwargs)` | Record a new action. Optional: risk_score, systems_touched, reversible |
-| `update_outcome(action_id, status=None, **kwargs)` | Update action outcome. Optional: duration_ms, error_message |
+| `update_outcome(action_id, status=None, **kwargs)` | Update action outcome. Optional: duration_ms, error_message, tokens_in, tokens_out, model, cost_estimate. When tokens + model are provided without cost_estimate, the server derives cost from the pricing table. |
 | `get_actions(**filters)` | Query actions. Filters: status, agent_id, limit, offset |
 | `get_action(action_id)` | Get a single action by ID |
 | `get_action_trace(action_id)` | Get the full trace for an action |

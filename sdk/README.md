@@ -66,8 +66,16 @@ if (action?.status === 'pending_approval') {
 // 4. Execute the real work, then record the outcome
 await claw.recordAssumption({ action_id, assumption: 'Staging tests passed' });
 try {
-  await myDeployFunction();
-  await claw.updateOutcome(action_id, { status: 'completed' });
+  const result = await myLlmCall();
+  await claw.updateOutcome(action_id, {
+    status: 'completed',
+    // Optional — populate Analytics cost/token charts. Cost is derived
+    // server-side from the configured pricing table when model + tokens
+    // are provided without an explicit cost_estimate.
+    tokens_in: result.usage.input_tokens,
+    tokens_out: result.usage.output_tokens,
+    model: result.model,
+  });
 } catch (err) {
   await claw.updateOutcome(action_id, { status: 'failed', error_message: err.message });
 }
@@ -244,7 +252,7 @@ The v2 SDK exposes the stable governance runtime plus promoted execution domains
 ### Core Runtime
 - `guard(context)` -- Policy evaluation ("Can I do X?"). Returns `risk_score` (server-computed) and `agent_risk_score` (raw agent value)
 - `createAction(action)` -- Lifecycle tracking ("I am doing X")
-- `updateOutcome(id, outcome)` -- Result recording ("X finished with Y")
+- `updateOutcome(id, outcome)` -- Result recording ("X finished with Y"). `outcome` accepts `status`, `output_summary`, `side_effects`, `artifacts_created`, `error_message`, `duration_ms`, `tokens_in`, `tokens_out`, `model`, `cost_estimate`. When `tokens_in` / `tokens_out` are reported without an explicit `cost_estimate`, the server derives cost from `model` using the configured pricing table.
 - `recordAssumption(assumption)` -- Integrity tracking ("I believe Z while doing X")
 - `waitForApproval(id)` -- Real-time SSE listener for human-in-the-loop approvals (automatic polling fallback)
 - `approveAction(id, decision, reasoning?)` -- Submit approval decisions from code

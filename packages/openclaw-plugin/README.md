@@ -153,7 +153,7 @@ The plugin hooks OpenClaw's `llm_output` and `agent_end` events to attribute LLM
 Accounting notes:
 
 - Tokens are split evenly across the tool calls attributable to the same assistant response. Remainders go to the earliest buckets so the sum is preserved.
-- Cache reads and writes are counted as full-price input tokens — the server pricing table doesn't model the cache discount, so the attributed cost is a conservative overestimate for cache-heavy runs.
+- Cache reads are weighted at 0.1× (Anthropic bills cache reads at ~10% of base input price) before being added to `tokens_in`. Cache writes are counted at full price. This keeps the derived cost aligned with real billing without requiring the server to model cache pricing.
 - Failures are silent: a warning is logged but token attribution never blocks or throws. If your provider doesn't populate `usage`, nothing is patched.
 
 ## Links
