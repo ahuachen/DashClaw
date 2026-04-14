@@ -173,7 +173,7 @@ dashclaw doctor`}</pre>
         <div className="max-w-5xl mx-auto py-12">
           <h2 className="text-2xl font-bold tracking-tight mb-2">What you just deployed</h2>
           <p className="text-zinc-400 mb-8">
-            Your DashClaw instance ships with 172 governance routes across 43 categories. Every feature works out of the box -- no LLM API key required.
+            Your DashClaw instance ships with 173 governance routes across 44 categories. Every feature works out of the box -- no LLM API key required.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -298,7 +298,7 @@ dashclaw doctor`}</pre>
             <div>
               <h2 className="text-lg font-semibold text-zinc-100">DashClaw Platform Skill</h2>
               <p className="text-sm text-zinc-400 leading-relaxed mt-1">
-                Skills are an open standard for giving agents specialized capabilities. Any agent that supports the skill framework can load this skill and become a DashClaw platform expert -- with knowledge of 172 governance routes across 43 categories.
+                Skills are an open standard for giving agents specialized capabilities. Any agent that supports the skill framework can load this skill and become a DashClaw platform expert -- with knowledge of 173 governance routes across 44 categories.
               </p>
               <p className="text-sm text-zinc-400 leading-relaxed mt-2">
                 Works with Claude Code, and the growing ecosystem of skill-compatible agents.
@@ -330,7 +330,7 @@ dashclaw doctor`}</pre>
 |   |-- diagnose.mjs                  # 5-phase platform diagnostics
 |   \`-- bootstrap-agent-quick.mjs     # Agent workspace importer
 \`-- references/
-    |-- api-surface.md                # 172 routes, 43 categories
+    |-- api-surface.md                # 173 routes, 44 categories
     |-- platform-knowledge.md         # Architecture, auth chain, ID prefixes
     \`-- troubleshooting.md            # Error resolution guide`}</pre>
             </div>
@@ -455,7 +455,7 @@ ENFORCE_AGENT_SIGNATURES=true`}</CopyableCodeBlock>
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold tracking-tight mb-2">Connect your agent framework</h2>
           <p className="text-zinc-400 mb-6">Step-by-step guides for popular agent frameworks. Each takes under 20 minutes.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
             <Link href="/guides/claude-code" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
               <h3 className="text-sm font-semibold text-white">Claude Code</h3>
               <p className="text-xs text-zinc-400 mt-1">Hook-based governance</p>
@@ -471,6 +471,10 @@ ENFORCE_AGENT_SIGNATURES=true`}</CopyableCodeBlock>
             <Link href="/guides/crewai" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
               <h3 className="text-sm font-semibold text-white">CrewAI</h3>
               <p className="text-xs text-zinc-400 mt-1">@tool decorator pattern</p>
+            </Link>
+            <Link href="/docs#openclaw-plugin" className="p-4 rounded-xl bg-[#111] border border-[rgba(255,255,255,0.06)] hover:border-brand/30 transition-colors">
+              <h3 className="text-sm font-semibold text-white">OpenClaw</h3>
+              <p className="text-xs text-zinc-400 mt-1">Framework-native plugin</p>
             </Link>
           </div>
         </div>

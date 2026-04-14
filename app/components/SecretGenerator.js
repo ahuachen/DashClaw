@@ -9,7 +9,6 @@ const ENV_KEYS = {
   ENCRYPTION: ['ENCRYPTION', 'KEY'].join('_'),
   NEXTAUTH: ['NEXTAUTH', 'SECRET'].join('_'),
   NEXTAUTH_URL: 'NEXTAUTH_URL',
-  CRON: ['CRON', 'SECRET'].join('_'),
   ADMIN_PASSWORD: ['DASHCLAW', 'LOCAL', 'ADMIN', 'PASSWORD'].join('_'),
 };
 
@@ -28,11 +27,9 @@ function generateSecrets() {
   const authBytes = new Uint8Array(32);
   const apiBytes = new Uint8Array(24);
   const encBytes = new Uint8Array(32);
-  const cronBytes = new Uint8Array(32);
   crypto.getRandomValues(authBytes);
   crypto.getRandomValues(apiBytes);
   crypto.getRandomValues(encBytes);
-  crypto.getRandomValues(cronBytes);
 
   return {
     [ENV_KEYS.DATABASE_URL]: 'postgresql://user:password@host/dbname',
@@ -40,7 +37,6 @@ function generateSecrets() {
     [ENV_KEYS.ENCRYPTION]: toBase64Url(encBytes).slice(0, 32),
     [ENV_KEYS.NEXTAUTH]: toBase64Url(authBytes),
     [ENV_KEYS.NEXTAUTH_URL]: 'https://your-app.vercel.app',
-    [ENV_KEYS.CRON]: toHex(cronBytes),
     [ENV_KEYS.ADMIN_PASSWORD]: 'change-me-to-a-strong-password',
   };
 }
@@ -51,7 +47,6 @@ const SECRET_LABELS = {
   [ENV_KEYS.ENCRYPTION]: 'Encrypts sensitive settings in the database',
   [ENV_KEYS.NEXTAUTH]: 'Encrypts login sessions',
   [ENV_KEYS.NEXTAUTH_URL]: 'Your Vercel app URL (update after deploy)',
-  [ENV_KEYS.CRON]: 'Authenticates scheduled job requests',
   [ENV_KEYS.ADMIN_PASSWORD]: 'Quick-start admin password — change this before going live',
 };
 
@@ -101,7 +96,6 @@ export default function SecretGenerator() {
       `${ENV_KEYS.ENCRYPTION}=${secrets[ENV_KEYS.ENCRYPTION]}`,
       `${ENV_KEYS.NEXTAUTH}=${secrets[ENV_KEYS.NEXTAUTH]}`,
       `${ENV_KEYS.NEXTAUTH_URL}=${secrets[ENV_KEYS.NEXTAUTH_URL]}`,
-      `${ENV_KEYS.CRON}=${secrets[ENV_KEYS.CRON]}`,
       `${ENV_KEYS.ADMIN_PASSWORD}=${secrets[ENV_KEYS.ADMIN_PASSWORD]}`,
     ].join('\n');
   }
@@ -160,7 +154,7 @@ export default function SecretGenerator() {
       </div>
 
       <p className="text-xs text-zinc-500">
-        Replace <code className="font-mono text-zinc-300">DATABASE_URL</code> with your Neon connection string, <code className="font-mono text-zinc-300">NEXTAUTH_URL</code> with your Vercel app URL, and <code className="font-mono text-zinc-300">DASHCLAW_LOCAL_ADMIN_PASSWORD</code> with a strong password. The four generated secrets (<code className="font-mono text-zinc-300">DASHCLAW_API_KEY</code>, <code className="font-mono text-zinc-300">ENCRYPTION_KEY</code>, <code className="font-mono text-zinc-300">NEXTAUTH_SECRET</code>, <code className="font-mono text-zinc-300">CRON_SECRET</code>) are ready to use as-is.
+        Replace <code className="font-mono text-zinc-300">DATABASE_URL</code> with your Neon connection string, <code className="font-mono text-zinc-300">NEXTAUTH_URL</code> with your Vercel app URL, and <code className="font-mono text-zinc-300">DASHCLAW_LOCAL_ADMIN_PASSWORD</code> with a strong password. The three generated secrets (<code className="font-mono text-zinc-300">DASHCLAW_API_KEY</code>, <code className="font-mono text-zinc-300">ENCRYPTION_KEY</code>, <code className="font-mono text-zinc-300">NEXTAUTH_SECRET</code>) are ready to use as-is.
       </p>
     </div>
   );
