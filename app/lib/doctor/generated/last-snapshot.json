@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:40fb7b99f05950aa7a358b8bfa7e32c1c99119d7",
+  "timestamp": "sha1:a3697dd44eca5100703634f4dde65933e8a9b243",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2494,6 +2494,7 @@
         "scripts/report-action.mjs",
         "scripts/report-tokens.mjs",
         "scripts/seed-demo-capabilities.mjs",
+        "scripts/telegram-setup-wizard.mjs",
         "scripts/telegram-verify-loop.mjs",
         "scripts/test-actions.mjs",
         "scripts/test-full-api.mjs",
