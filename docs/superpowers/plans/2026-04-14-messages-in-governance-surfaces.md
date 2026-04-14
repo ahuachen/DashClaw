@@ -152,7 +152,7 @@ export function selectUrgentUnread(messages, opts = {}) {
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- __tests__/unit/message-selectors.test.js`
-Expected: PASS, 4/4.
+Expected: PASS, 5/5.
 
 - [ ] **Step 5: Commit**
 
@@ -261,7 +261,7 @@ export default function RecentCommsCard({ messages, limit = 5 }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />
-                    {msg.urgent === 1 && (
+                    {msg.urgent && (
                       <AlertCircle size={11} className="text-red-400 flex-shrink-0" />
                     )}
                     <span className="text-sm font-semibold text-foreground truncate">
