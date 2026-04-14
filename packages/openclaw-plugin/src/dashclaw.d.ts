@@ -6,7 +6,7 @@
  * shapes of `guard()`, `createAction()`, `waitForApproval()`, and
  * `updateOutcome()` responses.
  *
- * Shapes mirror `dashclaw@2.11.0/dashclaw.js`:
+ * Shapes mirror `dashclaw@2.11.1/dashclaw.js`:
  *   - `guard()`  → `{ decision, action_id, reason, signals }`
  *   - `createAction()` → API returns `{ action, action_id, decision, ... }`
  *   - `waitForApproval()` → `{ action }`

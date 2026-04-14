@@ -109,14 +109,19 @@ export DASHCLAW_API_KEY=your_api_key
 
 ### Option 3: Drop in Claude Code hooks (zero-code)
 
-Govern 40+ tool types with semantic classification — every Bash, Edit, Write, MultiEdit, and more — no SDK instrumentation needed. The bundled `dashclaw_agent_intel` module handles tool classification, risk scoring, and signal extraction automatically:
+Govern 40+ tool types with semantic classification — every Bash, Edit, Write, MultiEdit, and more — no SDK instrumentation needed. The bundled `dashclaw_agent_intel` module handles tool classification, risk scoring, and signal extraction automatically. The `Stop` hook captures LLM token usage from the session transcript and PATCHes it onto the action records, so cost analytics light up without any per-agent instrumentation.
+
+One-command install (from this repo's root):
 
 ```bash
-cp hooks/dashclaw_pretool.py  .claude/hooks/
-cp hooks/dashclaw_posttool.py .claude/hooks/
+npm run hooks:install
+# or, in any project that has DashClaw cloned alongside it:
+node /path/to/DashClaw/scripts/install-hooks.mjs --target=.
 ```
 
-Set `DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, and `DASHCLAW_HOOK_MODE=enforce`. Every tool call becomes a governed, replayable decision record. See [hooks/README.md](hooks/README.md) for the full guide.
+This copies `dashclaw_pretool.py`, `dashclaw_posttool.py`, `dashclaw_stop.py`, and the `dashclaw_agent_intel/` module into `.claude/hooks/`, then merges the matching `PreToolUse` / `PostToolUse` / `Stop` blocks into `.claude/settings.json`. Idempotent — re-run after `git pull` to upgrade.
+
+Set `DASHCLAW_BASE_URL`, `DASHCLAW_API_KEY`, and (optionally) `DASHCLAW_HOOK_MODE=enforce`. Every tool call becomes a governed, replayable decision record. See [hooks/README.md](hooks/README.md) for the full guide and [docs/ANALYTICS-ROLLOUT.md](docs/ANALYTICS-ROLLOUT.md) for the token-capture data flow.
 
 ### Option 4: Use the SDK (full control)
 

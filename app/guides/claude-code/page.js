@@ -27,7 +27,8 @@ export default async function ClaudeCodeGuidePage() {
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/dashclaw_pretool.py"
+            "command": "python .claude/hooks/dashclaw_pretool.py",
+            "timeout": 3600000
           }
         ]
       }
@@ -39,6 +40,16 @@ export default async function ClaudeCodeGuidePage() {
           {
             "type": "command",
             "command": "python .claude/hooks/dashclaw_posttool.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/dashclaw_stop.py"
           }
         ]
       }
@@ -86,12 +97,21 @@ policies:
     },
     {
       number: 2,
-      title: 'Copy hook scripts into your project',
-      summary: 'DashClaw hooks intercept Bash, Edit, Write, and MultiEdit tool calls.',
+      title: 'Install the hook scripts',
+      summary: 'One command copies all three governance hooks (PreToolUse, PostToolUse, Stop), the vendored intel module that powers semantic tool classification, and merges the matching settings.json blocks. Re-run after each git pull to upgrade.',
       codeTitle: 'Terminal',
-      codeBody: `mkdir -p .claude/hooks
+      codeBody: `# From the DashClaw repo root:
+npm run hooks:install
+
+# Or from any other project, pointing at a checked-out DashClaw clone:
+node /path/to/DashClaw/scripts/install-hooks.mjs --target=.
+
+# Manual fallback (skips settings merge):
+mkdir -p .claude/hooks
 cp hooks/dashclaw_pretool.py  .claude/hooks/
-cp hooks/dashclaw_posttool.py .claude/hooks/`,
+cp hooks/dashclaw_posttool.py .claude/hooks/
+cp hooks/dashclaw_stop.py     .claude/hooks/
+cp -r hooks/dashclaw_agent_intel .claude/hooks/`,
     },
     {
       number: 3,

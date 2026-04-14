@@ -6,7 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Projects/DashClaw/.claude/hooks/dashclaw_pretool.py\""
+            "command": "python .claude/hooks/dashclaw_pretool.py",
+            "timeout": 3600000
           }
         ]
       }
@@ -17,7 +18,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"C:/Projects/DashClaw/.claude/hooks/dashclaw_posttool.py\""
+            "command": "python .claude/hooks/dashclaw_posttool.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/dashclaw_stop.py"
           }
         ]
       }

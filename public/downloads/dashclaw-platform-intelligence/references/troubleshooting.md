@@ -18,9 +18,42 @@
 - [MCP Degraded](#mcp-degraded)
 - [Drift Guard Failed](#drift-guard-failed)
 - [Permission Escalation Block](#permission-escalation-block)
+- [Stale Running Actions / "Other" Bucket Dominates](#stale-running-actions--other-bucket-dominates)
+- [Analytics Total Cost / Tokens Show Zero](#analytics-total-cost--tokens-show-zero)
 - [Common Gotchas](#common-gotchas)
 - [General Diagnostic Approach](#general-diagnostic-approach)
 - [Companion Diagnostic Scripts](#companion-diagnostic-scripts)
+
+## Stale Running Actions / "Other" Bucket Dominates
+
+**Symptom:** Action Volume chart's "Other" bucket greatly exceeds Completed/Failed/Blocked. Most rows in `action_records` have `status='running'` and no `timestamp_end`.
+
+**Cause:** PreToolUse opened the action but PostToolUse never closed it (interrupted tool, agent crash, posttool HTTP failure, or — historically — the pre-2026-04-09 `updated_at` column bug).
+
+**Fix:**
+1. **One-shot bulk repair** — close any running action older than the threshold. Reversible (status update only, no deletion).
+   ```bash
+   # Preview
+   node scripts/_run-with-env.mjs scripts/repair-stale-running-actions.mjs --dry-run --older-than-hours 1
+   # Apply (status='completed' with auto-close summary; preserves rows with error_message → 'failed')
+   node scripts/_run-with-env.mjs scripts/repair-stale-running-actions.mjs --older-than-hours 1
+   ```
+2. **Stop re-accumulation** — install the Stop hook (`hooks/dashclaw_stop.py`). It auto-closes any action still in `status='running'` at turn end while preserving terminal statuses written by PostToolUse. Use `node scripts/install-hooks.mjs --target=.` to install all three hooks correctly.
+
+## Analytics Total Cost / Tokens Show Zero
+
+**Symptom:** `/analytics` shows `$0.00 Total Cost`, `0 Input Tokens`, `0 Output Tokens` even though Actions and Active Agents are populated.
+
+**Cause:** Agents aren't reporting `tokens_in` / `tokens_out` / `model` to `/api/actions` (POST or PATCH). Pre-2026-04-14 the PATCH route silently dropped these fields anyway.
+
+**Fix:**
+1. Confirm the deployed server build accepts token fields: `curl -sf $DASHCLAW_BASE_URL/api/health | jq '.version'` should be ≥ 2.13.1.
+2. Confirm the `model` column exists: `SELECT column_name FROM information_schema.columns WHERE table_name='action_records' AND column_name='model';` returns one row. If not, run `node scripts/_run-with-env.mjs scripts/migrate-action-model-column.mjs`.
+3. Wire token reporting:
+   - **Claude Code** — install the Stop hook (`node scripts/install-hooks.mjs --target=.`).
+   - **OpenClaw** — upgrade to `@dashclaw/openclaw-plugin@1.2.1+`.
+   - **Custom SDK agents** — pass `tokens_in`, `tokens_out`, `model` in your `updateOutcome` calls; cost is derived server-side.
+4. See `docs/ANALYTICS-ROLLOUT.md` for the full data flow and verification queries.
 
 ## Triage: Run Doctor First
 

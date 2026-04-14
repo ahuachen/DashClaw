@@ -83,21 +83,37 @@ Example guard request with intel:
 
 ## Installation
 
-1. Copy the hook scripts into your project:
+### Recommended: one-command install
+
+From the DashClaw repo root:
+
+```bash
+node scripts/install-hooks.mjs
+# or, in any project that has DashClaw cloned alongside it:
+node /path/to/DashClaw/scripts/install-hooks.mjs --target=.
+```
+
+This copies all three hook scripts (`dashclaw_pretool.py`, `dashclaw_posttool.py`, `dashclaw_stop.py`) and the vendored `dashclaw_agent_intel/` Python module into `.claude/hooks/`, then merges the matching `PreToolUse` / `PostToolUse` / `Stop` entries into `.claude/settings.json`. Re-run after `git pull` to refresh.
+
+### Manual install
 
 ```bash
 mkdir -p .claude/hooks
 cp hooks/dashclaw_pretool.py .claude/hooks/
 cp hooks/dashclaw_posttool.py .claude/hooks/
+cp hooks/dashclaw_stop.py    .claude/hooks/
+cp -r hooks/dashclaw_agent_intel .claude/hooks/
 ```
 
-2. Merge the hooks block from `hooks/settings.json` into your `.claude/settings.json`. If you do not have a settings file yet, copy it directly:
+The intel module is required — `dashclaw_pretool.py` imports `dashclaw_agent_intel` for semantic tool classification, so omitting it causes an `ImportError` on the first governed tool call.
+
+Then merge the hooks block from `hooks/settings.json` into your `.claude/settings.json`. If you do not have a settings file yet, copy it directly:
 
 ```bash
 cp hooks/settings.json .claude/settings.json
 ```
 
-3. Set your environment variables:
+### Environment variables
 
 ```bash
 export DASHCLAW_BASE_URL=https://your-dashclaw-instance.vercel.app
@@ -105,14 +121,20 @@ export DASHCLAW_API_KEY=your_api_key_here
 export DASHCLAW_AGENT_ID=claude-code   # optional, defaults to "claude-code"
 ```
 
-4. Test the integration:
+### Smoke test
 
 ```bash
-echo '{"tool_name":"Bash","tool_input":{"command":"echo hello"},"tool_use_id":"test_001"}' \
+echo '{"tool_name":"Bash","tool_input":{"command":"echo hello"},"tool_use_id":"test_001","session_id":"smoke"}' \
   | python .claude/hooks/dashclaw_pretool.py
 ```
 
 If DashClaw is reachable, the hook evaluates the command against your guard policies. If not, it exits silently and Claude Code proceeds normally.
+
+### Token capture (Stop hook)
+
+`dashclaw_stop.py` runs at the end of every assistant turn. It reads the session transcript, sums LLM token usage across that turn's assistant messages (with cache-read tokens weighted at 0.1× to match real Anthropic billing), and PATCHes `tokens_in`, `tokens_out`, and `model` onto each action_id the pretool opened during the turn. Cost is derived server-side from the configured pricing table.
+
+The Stop hook also auto-closes any action still in `status='running'` at turn end (PostToolUse safety net) — terminal statuses written by PostToolUse are preserved, never overwritten. See [`docs/ANALYTICS-ROLLOUT.md`](../docs/ANALYTICS-ROLLOUT.md) for the full data flow.
 
 ## Configuration
 

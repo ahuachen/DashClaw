@@ -1,8 +1,8 @@
 # DashClaw API Surface
 
-**172 active routes across 43 categories** (v2.13.1, April 2026). Node SDK uses camelCase, Python SDK uses snake_case.
+**174 active routes across 44 categories** (v2.13.1, April 2026). Node SDK uses camelCase, Python SDK uses snake_case.
 
-> The full authoritative inventory is auto-generated — see `SKILL.md` (regenerated from the livingcode shape) and `docs/api-inventory.md`. This file is a curated narrative for the most commonly consumed surfaces plus anything new that doesn't yet have an SDK mapping.
+> ⚠️ **Authoritative source:** `SKILL.md` (regenerated from the livingcode shape) and `docs/api-inventory.md`. This file is a curated narrative for the most commonly consumed surfaces plus anything new that doesn't yet have an SDK mapping. Some sections below describe legacy v1 endpoints that may not exist in the current build (e.g. `/api/context/*`, `/api/snippets/*`, `/api/decisions`, `/api/feedback/*`) — cross-check against `docs/api-inventory.md` before integrating.
 
 ## Table of Contents
 
@@ -144,6 +144,11 @@ Template variables serialize objects and preserve arrays (`c4164311`); `prompt_t
 |---|---|---|---|
 | `/api/actions` | GET, POST, DELETE | `createAction`, `getActions` | `create_action`, `get_actions` |
 | `/api/actions/[actionId]` | GET, PATCH | `getAction`, `updateOutcome` | `get_action`, `update_outcome` |
+
+**PATCH outcome fields (v2.13.1+):** `status`, `output_summary`, `side_effects`, `artifacts_created`, `error_message`, `timestamp_end`, `duration_ms`, `cost_estimate`, `tokens_in`, `tokens_out`, `model`. When `tokens_in` / `tokens_out` are reported without an explicit `cost_estimate`, the server derives cost from the configured pricing table (see `app/lib/billing.js`) using `model` to pick the right pricing row. The `model` column was added to `action_records` on 2026-04-14 — run `node scripts/_run-with-env.mjs scripts/migrate-action-model-column.mjs` against existing instances before deploying the matching server build.
+
+**Token capture pipeline (Claude Code):** the `Stop` hook (`hooks/dashclaw_stop.py`) reads the session transcript at turn end, sums LLM token usage across that turn's assistant messages (cache_read tokens weighted at 0.1× to match Anthropic billing), and PATCHes the per-turn share onto every action_id the pretool opened during the turn. Same idea for the OpenClaw plugin (v1.2.1+) via the `llm_output` and `agent_end` hooks.
+
 | `/api/actions/[actionId]/artifacts` | GET | `getActionArtifacts` | `get_action_artifacts` |
 | `/api/actions/[actionId]/graph` | GET | `getActionGraph` | `get_action_graph` |
 | `/api/actions/[actionId]/messages` | GET | `getActionMessages` | `get_action_messages` |

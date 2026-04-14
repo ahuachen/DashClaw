@@ -8,7 +8,7 @@
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
-    "description": "Configure the DashClaw connection via any of three shapes: (a) canonical plugin-config keys `dashclawUrl` + `dashclawApiKey`; (b) SDK-style aliases `baseUrl` + `apiKey`; (c) environment variables `DASHCLAW_BASE_URL` (or legacy `DASHCLAW_URL`) + `DASHCLAW_API_KEY` set before the gateway starts. Precedence is plugin config > env. No field is strictly required in this schema — env vars alone are sufficient.",
+    "description": "Configure the DashClaw connection via any of three shapes: (a) canonical plugin-config keys `dashclawUrl` + `dashclawApiKey` (+ optional `agentId`); (b) SDK-style aliases `baseUrl` + `apiKey`; (c) environment variables `DASHCLAW_BASE_URL` (or legacy `DASHCLAW_URL`) + `DASHCLAW_API_KEY` (+ optional `DASHCLAW_AGENT_ID`) set before the gateway starts. Precedence is plugin config > env. No field is strictly required in this schema — env vars alone are sufficient.",
     "properties": {
       "dashclawUrl": {
         "type": "string",

@@ -1,7 +1,7 @@
 ---
 name: dashclaw-governance
 description: Policy enforcement, human-in-the-loop approval, and decision recording for every OpenClaw tool call. Powered by DashClaw.
-version: 1.2.0
+version: 1.2.1
 ---
 
 # DashClaw Governance Hook
