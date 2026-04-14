@@ -53,11 +53,15 @@ const ACTION_RECORD_SCHEMA = {
   timestamp_end:        { type: 'string', maxLength: 64 },
   duration_ms:          { type: 'integer', min: 0 },
   cost_estimate:        { type: 'number', min: 0 },
+  tokens_in:            { type: 'integer', min: 0 },
+  tokens_out:           { type: 'integer', min: 0 },
+  model:                { type: 'string', maxLength: 128 },
 };
 
 const OUTCOME_FIELDS = [
   'status', 'output_summary', 'side_effects', 'artifacts_created',
-  'error_message', 'timestamp_end', 'duration_ms', 'cost_estimate'
+  'error_message', 'timestamp_end', 'duration_ms', 'cost_estimate',
+  'tokens_in', 'tokens_out'
 ];
 
 const OPEN_LOOP_SCHEMA = {

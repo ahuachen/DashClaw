@@ -310,6 +310,27 @@ def write_action_id(tool_use_id, action_id):
         pass
 
 
+# Module-level session id; set from hook stdin in main() so handlers can
+# route action_ids into the per-session turn log without threading it
+# through every signature. Consumed by dashclaw_stop.py.
+_SESSION_ID = ""
+
+
+def append_turn_action(session_id, action_id):
+    """Append action_id to the per-session turn log consumed by the Stop hook.
+
+    The Stop hook reads this file, distributes the turn's LLM token usage
+    across each recorded action_id, then clears the file."""
+    if not session_id or not action_id:
+        return
+    path = os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + session_id)
+    try:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(action_id + "\n")
+    except Exception:
+        pass
+
+
 # ---------------------------------------------------------------------------
 # Decision handlers
 # ---------------------------------------------------------------------------
@@ -323,6 +344,7 @@ def handle_allow(context, tool_use_id):
                      or "")
         if action_id:
             write_action_id(tool_use_id, action_id)
+            append_turn_action(_SESSION_ID, action_id)
     sys.exit(0)
 
 
@@ -338,6 +360,7 @@ def handle_warn(guard_resp, context, tool_use_id):
                      or "")
         if action_id:
             write_action_id(tool_use_id, action_id)
+            append_turn_action(_SESSION_ID, action_id)
     sys.exit(0)
 
 
@@ -383,6 +406,7 @@ def handle_require_approval(guard_resp, context, tool_use_id):
     if HOOK_MODE == "observe":
         log("[DashClaw] [observe] Would require approval for: " + context["declared_goal"])
         write_action_id(tool_use_id, action_id)
+        append_turn_action(_SESSION_ID, action_id)
         sys.exit(0)
 
     log("[DashClaw] Approval required")
@@ -404,10 +428,12 @@ def handle_require_approval(guard_resp, context, tool_use_id):
         action = action_resp.get("action") or action_resp
         if action.get("approved_by"):
             write_action_id(tool_use_id, action_id)
+            append_turn_action(_SESSION_ID, action_id)
             sys.exit(0)
         status = action.get("status", "")
         if status == "running":
             write_action_id(tool_use_id, action_id)
+            append_turn_action(_SESSION_ID, action_id)
             sys.exit(0)
         if status in ("failed", "cancelled"):
             log("[DashClaw] Action denied by operator.")
@@ -437,6 +463,9 @@ def main():
     tool_name = data.get("tool_name", "")
     tool_input = data.get("tool_input") or {}
     tool_use_id = data.get("tool_use_id") or "unknown"
+
+    global _SESSION_ID
+    _SESSION_ID = data.get("session_id") or ""
 
     # Step 1: Classify the tool using the intel module
     tool_info = classify_tool(tool_name, tool_input)

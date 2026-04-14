@@ -399,6 +399,8 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
       timestamp_end     = COALESCE(${fields.includes('timestamp_end') ? data.timestamp_end : null}, timestamp_end),
       duration_ms       = COALESCE(${fields.includes('duration_ms') ? data.duration_ms : null}, duration_ms),
       cost_estimate     = COALESCE(${fields.includes('cost_estimate') ? data.cost_estimate : null}, cost_estimate),
+      tokens_in         = COALESCE(${fields.includes('tokens_in') ? data.tokens_in : null}, tokens_in),
+      tokens_out        = COALESCE(${fields.includes('tokens_out') ? data.tokens_out : null}, tokens_out),
       updated_at        = CURRENT_TIMESTAMP
     WHERE action_id = ${actionId} AND org_id = ${orgId}
     RETURNING *

@@ -7,6 +7,8 @@ import { validateActionOutcome } from '../../../lib/validate.js';
 import { getOrgId } from '../../../lib/org.js';
 import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { scanSensitiveData } from '../../../lib/security.js';
+import { estimateCost } from '../../../lib/billing.js';
+import { getModelPricing } from '../../../lib/repositories/settings.repository.js';
 import {
   getActionWithRelations,
   updateActionOutcome,
@@ -64,6 +66,19 @@ export async function PATCH(request, { params }) {
     const { valid, data, errors } = validateActionOutcome(body);
     if (!valid) {
       return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+    }
+
+    // SECURITY: clamp token/cost to reasonable bounds and auto-derive cost
+    // when tokens are reported without an explicit cost_estimate. Matches the
+    // POST path so hooks reporting tokens after the fact get priced the same.
+    const MAX_TOKENS = 10_000_000;
+    const MAX_COST_USD = 10_000;
+    if (data.tokens_in !== undefined) data.tokens_in = Math.max(0, Math.min(Number(data.tokens_in) || 0, MAX_TOKENS));
+    if (data.tokens_out !== undefined) data.tokens_out = Math.max(0, Math.min(Number(data.tokens_out) || 0, MAX_TOKENS));
+    if (data.cost_estimate !== undefined) data.cost_estimate = Math.max(0, Math.min(Number(data.cost_estimate) || 0, MAX_COST_USD));
+    if ((data.tokens_in || data.tokens_out) && data.cost_estimate === undefined) {
+      const customPricing = await getModelPricing(sql, orgId);
+      data.cost_estimate = estimateCost(data.tokens_in || 0, data.tokens_out || 0, body.model, customPricing);
     }
 
     // SECURITY: redact likely secrets before storing the outcome fields.

@@ -15,11 +15,24 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function CostTrendChart({ daily }) {
+  const totalCost = (daily || []).reduce((sum, d) => sum + (d.cost || 0), 0);
+  const hasActions = (daily || []).some(d => (d.actions || 0) > 0);
+  const noCostData = daily.length === 0 || totalCost === 0;
+
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
       <div className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-4">Cost Trend</div>
-      {daily.length === 0 ? (
-        <div className="flex items-center justify-center h-48 text-sm text-zinc-500">No cost data in this period.</div>
+      {noCostData ? (
+        <div className="flex flex-col items-center justify-center h-48 text-center px-6">
+          <div className="text-sm text-zinc-300">
+            {hasActions ? 'No cost data reported yet' : 'No cost data in this period'}
+          </div>
+          {hasActions && (
+            <div className="mt-1 text-xs text-zinc-500 max-w-xs">
+              Report <code className="font-mono text-zinc-300">tokens_in</code>, <code className="font-mono text-zinc-300">tokens_out</code>, and <code className="font-mono text-zinc-300">model</code> with each action to populate this chart.
+            </div>
+          )}
+        </div>
       ) : (
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={daily} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>

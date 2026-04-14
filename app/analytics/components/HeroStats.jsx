@@ -29,11 +29,18 @@ function StatCard({ label, value, trend }) {
 }
 
 export default function HeroStats({ hero }) {
+  // When actions exist but cost is zero, agents haven't reported tokens.
+  // Display "—" instead of "$0.00" to avoid implying a real $0 cost.
+  const hasActions = (hero.total_actions || 0) > 0;
+  const costValue = hasActions && (hero.total_cost || 0) === 0
+    ? '—'
+    : formatCost(hero.total_cost);
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard
         label="Total Cost"
-        value={formatCost(hero.total_cost)}
+        value={costValue}
         trend={<TrendBadge current={hero.total_cost} previous={hero.prev_cost} invert />}
       />
       <StatCard
