@@ -27,6 +27,8 @@ export default function DecisionReplayPage() {
   const [loops, setLoops] = useState([]);
   const [assumptions, setAssumptions] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [messageCorrelation, setMessageCorrelation] = useState('none');
+  const [messageThreadName, setMessageThreadName] = useState(null);
   const [trace, setTrace] = useState(null);
   const [graph, setGraph] = useState(null);
   const [guardDecision, setGuardDecision] = useState(null);
@@ -48,12 +50,26 @@ export default function DecisionReplayPage() {
       setLoops(data.open_loops || []);
       setAssumptions(data.assumptions || []);
 
-      // Fetch correlated messages
+      // Fetch correlated messages + metadata for the timeline header
       try {
         const msgRes = await fetch(`/api/actions/${actionId}/messages`);
         if (msgRes.ok) {
           const msgData = await msgRes.json();
-          setMessages(msgData.messages || []);
+          const msgs = msgData.messages || [];
+          setMessages(msgs);
+          setMessageCorrelation(msgData.correlation || 'none');
+
+          const firstThreadId = msgs.find(m => m.thread_id)?.thread_id;
+          if (firstThreadId) {
+            try {
+              const tRes = await fetch('/api/messages/threads');
+              if (tRes.ok) {
+                const tData = await tRes.json();
+                const thread = (tData.threads || []).find(t => t.id === firstThreadId);
+                if (thread?.name) setMessageThreadName(thread.name);
+              }
+            } catch { /* thread fetch is best-effort */ }
+          }
         }
       } catch { /* messages are optional */ }
 
@@ -449,6 +465,34 @@ export default function DecisionReplayPage() {
               <Card hover={false}>
                 <CardHeader title="Chronological Timeline" icon={Clock} count={timelineEvents.length} />
                 <CardContent>
+                  {(messages.length > 0) && (
+                    <div className="flex flex-wrap items-center gap-2 pb-3 mb-3 border-b border-border text-[11px]">
+                      <span className="text-zinc-500 uppercase tracking-wider font-medium">
+                        Messages: {messages.length}
+                      </span>
+                      {messageCorrelation === 'time_window' && (
+                        <span
+                          className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest border border-amber-500/20 bg-amber-500/10 rounded px-1.5 py-0.5"
+                          title="No messages tagged this action explicitly; showing messages sent during the action's time window."
+                        >
+                          inferred from timing
+                        </span>
+                      )}
+                      {messageCorrelation === 'explicit' && (
+                        <span
+                          className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-widest border border-emerald-500/20 bg-emerald-500/10 rounded px-1.5 py-0.5"
+                          title="Messages were tagged with this action_id by the SDK."
+                        >
+                          explicitly linked
+                        </span>
+                      )}
+                      {messageThreadName && (
+                        <span className="text-zinc-500">
+                          Thread: <span className="text-zinc-300">{messageThreadName}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-0">
                     {timelineEvents.length === 0 && (
                       <div className="text-sm text-zinc-500 py-4">No timeline events to display.</div>
