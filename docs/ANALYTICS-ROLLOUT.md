@@ -15,9 +15,10 @@
 
 ### Claude Code hooks (`hooks/`)
 - `dashclaw_pretool.py` appends each new action_id to a per-session turn log.
-- `dashclaw_stop.py` (new) reads the session transcript, sums usage across assistant messages since its cursor, and PATCHes `tokens_in/tokens_out/model` across the turn's action_ids.
+- `dashclaw_stop.py` reads the session transcript, sums usage across assistant messages since its cursor, and PATCHes `tokens_in/tokens_out/model` across the turn's action_ids.
 - Stop hook also auto-closes any action still in `status='running'` at turn end (fallback for when PostToolUse missed). Terminal statuses are preserved.
 - Cache-read tokens are weighted 0.1× before being summed so attributed cost matches real Anthropic billing.
+- **Install:** `npm run hooks:install` (or `node /path/to/DashClaw/scripts/install-hooks.mjs --target=.` from any project). Idempotent — re-run after `git pull` to upgrade. Copies all three hooks plus the `dashclaw_agent_intel/` Python module and merges the matching settings.json blocks.
 
 ### OpenClaw plugin (`packages/openclaw-plugin`, v1.2.1)
 - Hooks `llm_output` and `agent_end` to attribute LLM token usage back to the tool calls each assistant response induced.
