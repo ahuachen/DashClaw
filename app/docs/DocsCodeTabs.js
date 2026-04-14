@@ -11,14 +11,14 @@ export default function DocsCodeTabs({
   const [activeTab, setActiveTab] = useState('node');
 
   return (
-    <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] overflow-hidden">
-      <div className="flex border-b border-[rgba(255,255,255,0.06)] bg-[#090909]">
+    <div className="rounded-xl bg-surface-secondary border border-border overflow-hidden">
+      <div className="flex border-b border-border bg-surface-primary">
         <button
           onClick={() => setActiveTab('node')}
           className={`px-4 py-2 text-xs font-mono transition-colors ${
             activeTab === 'node' 
-              ? 'text-brand border-b border-brand bg-[rgba(249,115,22,0.05)]' 
-              : 'text-zinc-500 hover:text-zinc-300'
+              ? 'text-brand border-b border-brand bg-brand-subtle' 
+              : 'text-text-tertiary hover:text-text-primary'
           }`}
         >
           {nodeTitle}
@@ -27,15 +27,15 @@ export default function DocsCodeTabs({
           onClick={() => setActiveTab('python')}
           className={`px-4 py-2 text-xs font-mono transition-colors ${
             activeTab === 'python' 
-              ? 'text-brand border-b border-brand bg-[rgba(249,115,22,0.05)]' 
-              : 'text-zinc-500 hover:text-zinc-300'
+              ? 'text-brand border-b border-brand bg-brand-subtle' 
+              : 'text-text-tertiary hover:text-text-primary'
           }`}
         >
           {pythonTitle}
         </button>
       </div>
       <div className="p-5 overflow-x-auto">
-        <pre className="font-mono text-sm leading-relaxed text-zinc-300">
+        <pre className="font-mono text-sm leading-relaxed text-text-secondary">
           {activeTab === 'node' ? nodeSnippet : pythonSnippet}
         </pre>
       </div>

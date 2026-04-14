@@ -38,18 +38,18 @@ export default function DocsSidebarClient({ items }) {
   return (
     <nav className="hidden lg:block sticky top-24 w-56 shrink-0 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-hide hover:scrollbar-default transition-all">
       <div className="mb-3">
-        <div className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-2">On this page</div>
+        <div className="text-xs text-text-tertiary font-medium uppercase tracking-wider mb-2">On this page</div>
         <div className="relative mb-3">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search methods…"
-            className="w-full rounded-full border border-[rgba(255,255,255,0.12)] bg-[#090909] px-3 py-1.5 pr-8 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-full border border-border-hover bg-surface-primary px-3 py-1.5 pr-8 text-xs text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <Search
             size={14}
-            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary"
           />
         </div>
 
@@ -61,9 +61,9 @@ export default function DocsSidebarClient({ items }) {
               checked={showLegacy}
               onChange={(e) => toggleLegacy(e.target.checked)}
             />
-            <div className="w-7 h-4 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand/60 peer-checked:after:bg-white"></div>
+            <div className="w-7 h-4 bg-border-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand/60 peer-checked:after:bg-white"></div>
           </div>
-          <span className="text-[11px] font-medium text-zinc-500 group-hover:text-zinc-300 transition-colors flex items-center gap-1.5">
+          <span className="text-[11px] font-medium text-text-tertiary group-hover:text-zinc-300 transition-colors flex items-center gap-1.5">
             <History size={12} />
             Show Legacy (v1)
           </span>
@@ -75,7 +75,7 @@ export default function DocsSidebarClient({ items }) {
           <li key={item.href}>
             <a
               href={item.href}
-              className={`block truncate text-zinc-400 hover:text-white transition-colors ${
+              className={`block truncate text-text-secondary hover:text-text-primary transition-colors ${
                 item.indent ? 'pl-3 text-xs' : ''
               }`}
               title={item.label}
@@ -85,7 +85,7 @@ export default function DocsSidebarClient({ items }) {
           </li>
         ))}
         {filtered.length === 0 && (
-          <li className="pt-2 text-[11px] text-zinc-500">No matches. Try a different name.</li>
+          <li className="pt-2 text-[11px] text-text-tertiary">No matches. Try a different name.</li>
         )}
       </ul>
     </nav>

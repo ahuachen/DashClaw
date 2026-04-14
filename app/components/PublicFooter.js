@@ -6,39 +6,39 @@ import DashClawLogo from './DashClawLogo';
 
 export default function PublicFooter() {
   return (
-    <footer className="border-t border-[rgba(255,255,255,0.06)] py-12 px-6">
+    <footer className="border-t border-border py-12 px-6">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <DashClawLogo size={16} />
-            <span className="text-sm text-zinc-400 font-medium">DashClaw</span>
+            <span className="text-sm text-text-secondary font-medium">DashClaw</span>
           </div>
-          <div className="text-xs text-zinc-600">
+          <div className="text-xs text-text-disabled">
             Built by <Link href="/practical-systems" className="hover:text-brand transition-colors">Practical Systems</Link>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-3 text-sm text-zinc-500">
-          <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-3 text-sm text-text-tertiary">
+          <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
             <Github size={14} />
             GitHub
           </a>
-          <Link href="/docs" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+          <Link href="/docs" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
             <BookOpen size={14} />
             Docs
           </Link>
-          <Link href="/gallery" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+          <Link href="/gallery" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
             <Eye size={14} />
             Gallery
           </Link>
-          <Link href="/toolkit" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+          <Link href="/toolkit" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
             <Terminal size={14} />
             Toolkit
           </Link>
-          <Link href="/mission-control" className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+          <Link href="/mission-control" className="flex items-center gap-1.5 hover:text-text-primary transition-colors">
             <ExternalLink size={14} />
             Mission Control
           </Link>
-          <Link href="/self-host" className="hover:text-zinc-300 transition-colors">
+          <Link href="/self-host" className="hover:text-text-primary transition-colors">
             Get Started
           </Link>
         </div>

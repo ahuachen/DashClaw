@@ -24,11 +24,11 @@ export const metadata = {
 
 function CodeBlock({ children, title }) {
   return (
-    <div className="rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] overflow-x-auto">
+    <div className="rounded-xl bg-surface-secondary border border-border overflow-x-auto">
       {title && (
-        <div className="px-5 py-2.5 border-b border-[rgba(255,255,255,0.06)] text-xs text-zinc-500 font-mono">{title}</div>
+        <div className="px-5 py-2.5 border-b border-border text-xs text-text-tertiary font-mono">{title}</div>
       )}
-      <pre className="p-5 font-mono text-sm leading-relaxed text-zinc-300">{children}</pre>
+      <pre className="p-5 font-mono text-sm leading-relaxed text-text-secondary">{children}</pre>
     </div>
   );
 }
@@ -38,20 +38,20 @@ function ParamTable({ params }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[rgba(255,255,255,0.06)]">
-            <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Parameter</th>
-            <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Type</th>
-            <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Required</th>
-            <th className="text-left py-2 text-zinc-400 font-medium">Description</th>
+          <tr className="border-b border-border">
+            <th className="text-left py-2 pr-4 text-text-secondary font-medium">Parameter</th>
+            <th className="text-left py-2 pr-4 text-text-secondary font-medium">Type</th>
+            <th className="text-left py-2 pr-4 text-text-secondary font-medium">Required</th>
+            <th className="text-left py-2 text-text-secondary font-medium">Description</th>
           </tr>
         </thead>
         <tbody>
           {params.map((p) => (
-            <tr key={p.name} className="border-b border-[rgba(255,255,255,0.03)]">
+            <tr key={p.name} className="border-b border-border">
               <td className="py-2 pr-4 font-mono text-xs text-brand">{p.name}</td>
-              <td className="py-2 pr-4 font-mono text-xs text-zinc-500">{p.type}</td>
-              <td className="py-2 pr-4 text-xs">{p.required ? <span className="text-red-400">Yes</span> : <span className="text-zinc-600">No</span>}</td>
-              <td className="py-2 text-zinc-400 text-xs">{p.desc}</td>
+              <td className="py-2 pr-4 font-mono text-xs text-text-tertiary">{p.type}</td>
+              <td className="py-2 pr-4 text-xs">{p.required ? <span className="text-red-400">Yes</span> : <span className="text-text-disabled">No</span>}</td>
+              <td className="py-2 text-text-secondary text-xs">{p.desc}</td>
             </tr>
           ))}
         </tbody>
@@ -62,16 +62,16 @@ function ParamTable({ params }) {
 
 function MethodEntry({ id, signature, description, params, returns, example, children }) {
   return (
-    <div id={id} className="scroll-mt-20 py-8 border-b border-[rgba(255,255,255,0.04)] last:border-b-0">
-      <h3 className="text-lg font-semibold text-white font-mono">{signature}</h3>
-      <p className="mt-2 text-sm text-zinc-400 leading-relaxed">{description}</p>
+    <div id={id} className="scroll-mt-20 py-8 border-b border-border last:border-b-0">
+      <h3 className="text-lg font-semibold text-text-primary font-mono">{signature}</h3>
+      <p className="mt-2 text-sm text-text-secondary leading-relaxed">{description}</p>
       {params && params.length > 0 && (
         <div className="mt-4">
           <ParamTable params={params} />
         </div>
       )}
       {returns && (
-        <p className="mt-3 text-xs text-zinc-500"><span className="text-zinc-400 font-medium">Returns:</span> <code className="font-mono text-zinc-400">{returns}</code></p>
+        <p className="mt-3 text-xs text-text-tertiary"><span className="text-text-secondary font-medium">Returns:</span> <code className="font-mono text-text-secondary">{returns}</code></p>
       )}
       {example && (
         <div className="mt-4">
@@ -184,25 +184,25 @@ export default async function DocsPage({ searchParams }) {
   const showLegacy = params?.legacy === 'true';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-surface-primary text-text-primary">
       {/* Navbar */}
       <PublicNavbar />
 
       {/* Hero */}
       <section className="pt-32 pb-12 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
-            <Link href="/" className="hover:text-zinc-300 transition-colors">Home</Link>
+          <div className="flex items-center gap-2 text-sm text-text-tertiary mb-4">
+            <Link href="/" className="hover:text-text-secondary transition-colors">Home</Link>
             <ChevronRight size={14} />
-            <span className="text-zinc-300">SDK Documentation</span>
+            <span className="text-text-secondary">SDK Documentation</span>
           </div>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-brand-subtle flex items-center justify-center">
               <BookOpen size={20} className="text-brand" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">SDK Documentation</h1>
           </div>
-          <p className="text-zinc-400 max-w-2xl leading-relaxed">
+          <p className="text-text-secondary max-w-2xl leading-relaxed">
             Canonical reference for the DashClaw SDK (v2.11.1). Node.js and Python parity across all core governance features.
           </p>
           <Suspense fallback={null}>
@@ -218,7 +218,7 @@ export default async function DocsPage({ searchParams }) {
         <div className="min-w-0 flex-1">
 
           {/* ── Quick Start ── */}
-          <section id="quick-start" className="scroll-mt-20 pb-12 border-b border-[rgba(255,255,255,0.06)]">
+          <section id="quick-start" className="scroll-mt-20 pb-12 border-b border-border">
             <h2 className="text-2xl font-bold tracking-tight mb-6">Quick Start</h2>
 
             <div className="space-y-8">
@@ -352,27 +352,27 @@ except Exception as e:
           </section>
 
           {/* ── MCP Server ── */}
-          <section id="mcp-server" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
+          <section id="mcp-server" className="scroll-mt-20 py-12 border-b border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(139,92,246,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-surface-tertiary flex items-center justify-center">
                 <Network size={16} className="text-violet-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">MCP Server</h2>
             </div>
-            <p className="mt-2 mb-8 text-sm text-zinc-400 leading-relaxed">
-              <code className="font-mono text-zinc-300">@dashclaw/mcp-server</code> exposes DashClaw governance over Model Context Protocol. Any MCP-compatible client gets 8 governance tools and 4 read-only resources.
+            <p className="mt-2 mb-8 text-sm text-text-secondary leading-relaxed">
+              <code className="font-mono text-text-secondary">@dashclaw/mcp-server</code> exposes DashClaw governance over Model Context Protocol. Any MCP-compatible client gets 8 governance tools and 4 read-only resources.
             </p>
 
             {/* Tools */}
             <div id="mcp-tools" className="scroll-mt-20 mb-10">
-              <h3 className="text-lg font-semibold text-white mb-4">Tools (8)</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Tools (8)</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[rgba(255,255,255,0.06)]">
-                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Tool</th>
-                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">Description</th>
-                      <th className="text-left py-2 text-zinc-400 font-medium">Key Inputs</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 pr-4 text-text-secondary font-medium">Tool</th>
+                      <th className="text-left py-2 pr-4 text-text-secondary font-medium">Description</th>
+                      <th className="text-left py-2 text-text-secondary font-medium">Key Inputs</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -386,10 +386,10 @@ except Exception as e:
                       { tool: 'dashclaw_session_start', desc: 'Register agent session', inputs: 'agent_id, workspace' },
                       { tool: 'dashclaw_session_end', desc: 'Close session', inputs: 'session_id, status, summary' },
                     ].map((row) => (
-                      <tr key={row.tool} className="border-b border-[rgba(255,255,255,0.03)]">
+                      <tr key={row.tool} className="border-b border-border">
                         <td className="py-2 pr-4 font-mono text-xs text-brand">{row.tool}</td>
-                        <td className="py-2 pr-4 text-xs text-zinc-400">{row.desc}</td>
-                        <td className="py-2 font-mono text-xs text-zinc-500">{row.inputs}</td>
+                        <td className="py-2 pr-4 text-xs text-text-secondary">{row.desc}</td>
+                        <td className="py-2 font-mono text-xs text-text-tertiary">{row.inputs}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -399,13 +399,13 @@ except Exception as e:
 
             {/* Resources */}
             <div id="mcp-resources" className="scroll-mt-20 mb-10">
-              <h3 className="text-lg font-semibold text-white mb-4">Resources (4)</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Resources (4)</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[rgba(255,255,255,0.06)]">
-                      <th className="text-left py-2 pr-4 text-zinc-400 font-medium">URI</th>
-                      <th className="text-left py-2 text-zinc-400 font-medium">Description</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 pr-4 text-text-secondary font-medium">URI</th>
+                      <th className="text-left py-2 text-text-secondary font-medium">Description</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -415,9 +415,9 @@ except Exception as e:
                       { uri: 'dashclaw://agent/{agent_id}/history', desc: 'Recent action history (last 50)' },
                       { uri: 'dashclaw://status', desc: 'Instance health + operational metrics' },
                     ].map((row) => (
-                      <tr key={row.uri} className="border-b border-[rgba(255,255,255,0.03)]">
+                      <tr key={row.uri} className="border-b border-border">
                         <td className="py-2 pr-4 font-mono text-xs text-brand">{row.uri}</td>
-                        <td className="py-2 text-xs text-zinc-400">{row.desc}</td>
+                        <td className="py-2 text-xs text-text-secondary">{row.desc}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -427,8 +427,8 @@ except Exception as e:
 
             {/* Configuration */}
             <div id="mcp-config" className="scroll-mt-20">
-              <h3 className="text-lg font-semibold text-white mb-4">Configuration</h3>
-              <p className="text-xs text-zinc-500 mb-3">Config resolution: CLI args &gt; env vars &gt; defaults. Three config values: <code className="font-mono text-zinc-400">url</code> (<code className="font-mono text-zinc-400">DASHCLAW_URL</code>, default <code className="font-mono text-zinc-400">localhost:3000</code>), <code className="font-mono text-zinc-400">apiKey</code> (<code className="font-mono text-zinc-400">DASHCLAW_API_KEY</code>), <code className="font-mono text-zinc-400">agentId</code> (<code className="font-mono text-zinc-400">DASHCLAW_AGENT_ID</code>).</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Configuration</h3>
+              <p className="text-xs text-text-tertiary mb-3">Config resolution: CLI args &gt; env vars &gt; defaults. Three config values: <code className="font-mono text-text-secondary">url</code> (<code className="font-mono text-text-secondary">DASHCLAW_URL</code>, default <code className="font-mono text-text-secondary">localhost:3000</code>), <code className="font-mono text-text-secondary">apiKey</code> (<code className="font-mono text-text-secondary">DASHCLAW_API_KEY</code>), <code className="font-mono text-text-secondary">agentId</code> (<code className="font-mono text-text-secondary">DASHCLAW_AGENT_ID</code>).</p>
               <div className="space-y-4">
                 <CodeBlock title="stdio — Claude Code / Desktop (claude_desktop_config.json)">{`{
   "mcpServers": {
@@ -453,21 +453,21 @@ except Exception as e:
           </section>
 
           {/* ── CLI & Doctor ── */}
-          <section id="cli-and-doctor" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
+          <section id="cli-and-doctor" className="scroll-mt-20 py-12 border-b border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(16,185,129,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-status-success-subtle flex items-center justify-center">
                 <Terminal size={16} className="text-emerald-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">CLI & Doctor</h2>
             </div>
-            <p className="mt-2 mb-8 text-sm text-zinc-400 leading-relaxed">
-              <code className="font-mono text-zinc-300">@dashclaw/cli</code> handles terminal approvals and self-host diagnostics. <code className="font-mono text-zinc-300">npm run doctor</code> runs the same engine locally with filesystem-level fix powers.
+            <p className="mt-2 mb-8 text-sm text-text-secondary leading-relaxed">
+              <code className="font-mono text-text-secondary">@dashclaw/cli</code> handles terminal approvals and self-host diagnostics. <code className="font-mono text-text-secondary">npm run doctor</code> runs the same engine locally with filesystem-level fix powers.
             </p>
 
             <div id="dashclaw-doctor" className="scroll-mt-20 mb-10">
-              <h3 className="text-lg font-semibold text-white mb-4">dashclaw doctor</h3>
-              <p className="text-xs text-zinc-500 mb-3">
-                Diagnoses database, configuration, auth, deployment, SDK reachability, governance staleness, and livingcode shape drift — auto-fixing safe issues. Invokes <code className="font-mono text-zinc-400">GET /api/doctor</code> and <code className="font-mono text-zinc-400">POST /api/doctor/fix</code>. For operators, <code className="font-mono text-zinc-400">npm run doctor</code> on the host adds <code className="font-mono text-zinc-400">.env</code> writes, migrations, and default-policy seeding (backs up <code className="font-mono text-zinc-400">.env</code> before any write).
+              <h3 className="text-lg font-semibold text-text-primary mb-4">dashclaw doctor</h3>
+              <p className="text-xs text-text-tertiary mb-3">
+                Diagnoses database, configuration, auth, deployment, SDK reachability, governance staleness, and livingcode shape drift — auto-fixing safe issues. Invokes <code className="font-mono text-text-secondary">GET /api/doctor</code> and <code className="font-mono text-text-secondary">POST /api/doctor/fix</code>. For operators, <code className="font-mono text-text-secondary">npm run doctor</code> on the host adds <code className="font-mono text-text-secondary">.env</code> writes, migrations, and default-policy seeding (backs up <code className="font-mono text-text-secondary">.env</code> before any write).
               </p>
               <CodeBlock title="dashclaw doctor">{`npm install -g @dashclaw/cli
 
@@ -484,22 +484,22 @@ npm run doctor`}</CodeBlock>
             </div>
 
             <div id="openclaw-plugin" className="scroll-mt-20 mb-10">
-              <h3 className="text-lg font-semibold text-white mb-4">OpenClaw Plugin</h3>
-              <p className="text-xs text-zinc-500 mb-3">
-                <code className="font-mono text-zinc-400">@dashclaw/openclaw-plugin</code> wires governance into the OpenClaw agent framework. Intercepts <code className="font-mono text-zinc-400">PreToolUse</code> / <code className="font-mono text-zinc-400">PostToolUse</code> lifecycle hooks, calls guard / record / wait-for-approval automatically, and ships a <code className="font-mono text-zinc-400">HOOK.md</code> pack the openclaw CLI installs. Tool classification vocabulary aligns with DashClaw guard action types.
+              <h3 className="text-lg font-semibold text-text-primary mb-4">OpenClaw Plugin</h3>
+              <p className="text-xs text-text-tertiary mb-3">
+                <code className="font-mono text-text-secondary">@dashclaw/openclaw-plugin</code> wires governance into the OpenClaw agent framework. Intercepts <code className="font-mono text-text-secondary">PreToolUse</code> / <code className="font-mono text-text-secondary">PostToolUse</code> lifecycle hooks, calls guard / record / wait-for-approval automatically, and ships a <code className="font-mono text-text-secondary">HOOK.md</code> pack the openclaw CLI installs. Tool classification vocabulary aligns with DashClaw guard action types.
               </p>
             </div>
 
             <div id="governance-skill" className="scroll-mt-20">
-              <h3 className="text-lg font-semibold text-white mb-4">Governance Skill (Claude)</h3>
-              <p className="text-xs text-zinc-500 mb-3">
-                <code className="font-mono text-zinc-400">@dashclaw/governance</code> is an Anthropic Claude skill that teaches governed agents how to use the MCP tools correctly — risk thresholds, decision handling, recording rules, session lifecycle. Pairs with <code className="font-mono text-zinc-400">@dashclaw/mcp-server</code> for Managed Agents. Download the zip from your instance at <code className="font-mono text-zinc-400">/downloads/dashclaw-governance.zip</code>.
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Governance Skill (Claude)</h3>
+              <p className="text-xs text-text-tertiary mb-3">
+                <code className="font-mono text-text-secondary">@dashclaw/governance</code> is an Anthropic Claude skill that teaches governed agents how to use the MCP tools correctly — risk thresholds, decision handling, recording rules, session lifecycle. Pairs with <code className="font-mono text-text-secondary">@dashclaw/mcp-server</code> for Managed Agents. Download the zip from your instance at <code className="font-mono text-text-secondary">/downloads/dashclaw-governance.zip</code>.
               </p>
             </div>
           </section>
 
           {/* ── Constructor ── */}
-          <section id="constructor" className="scroll-mt-20 py-12 border-b border-[rgba(255,255,255,0.06)]">
+          <section id="constructor" className="scroll-mt-20 py-12 border-b border-border">
             <h2 className="text-2xl font-bold tracking-tight mb-2">Constructor</h2>
             <DocsCodeTabs 
               nodeSnippet="const claw = new DashClaw({ baseUrl, apiKey, agentId });"
@@ -515,9 +515,9 @@ npm run doctor`}</CodeBlock>
           </section>
 
           {/* ── Behavior Guard ── */}
-          <section id="behavior-guard" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="behavior-guard" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(59,130,246,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-status-info-subtle flex items-center justify-center">
                 <Shield size={16} className="text-blue-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Behavior Guard</h2>
@@ -543,7 +543,7 @@ npm run doctor`}</CodeBlock>
           {/* ── Action Recording ── */}
           <section id="action-recording" className="scroll-mt-20 pt-12">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Zap size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Action Recording</h2>
@@ -607,9 +607,9 @@ if created.get("action", {}).get("status") == "pending_approval":
           </section>
 
           {/* ── Signals ── */}
-          <section id="signals" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="signals" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(239,68,68,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-status-error-subtle flex items-center justify-center">
                 <ShieldAlert size={16} className="text-red-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Signals</h2>
@@ -629,9 +629,9 @@ if created.get("action", {}).get("status") == "pending_approval":
           </section>
 
           {/* ── Agent Lifecycle ── */}
-          <section id="agent-lifecycle" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="agent-lifecycle" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(34,197,94,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-status-success-subtle flex items-center justify-center">
                 <Activity size={16} className="text-emerald-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Agent Lifecycle</h2>
@@ -676,9 +676,9 @@ if created.get("action", {}).get("status") == "pending_approval":
           </section>
 
           {/* ── Loops & Assumptions ── */}
-          <section id="loops-assumptions" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="loops-assumptions" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <CircleDot size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Loops & Assumptions</h2>
@@ -727,9 +727,9 @@ if created.get("action", {}).get("status") == "pending_approval":
           </section>
 
           {/* ── Learning Analytics ── */}
-          <section id="learning-analytics" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="learning-analytics" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Zap size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Learning Analytics</h2>
@@ -779,9 +779,9 @@ if created.get("action", {}).get("status") == "pending_approval":
           </section>
 
           {/* ── Prompt Management ── */}
-          <section id="prompt-management" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="prompt-management" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Newspaper size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Prompt Management</h2>
@@ -807,9 +807,9 @@ rendered = res["rendered"]`}
           </section>
 
           {/* ── Evaluation Framework ── */}
-          <section id="evaluation-framework" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="evaluation-framework" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <FileCheck size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Evaluation Framework</h2>
@@ -834,9 +834,9 @@ rendered = res["rendered"]`}
           </section>
 
           {/* ── Scoring Profiles ── */}
-          <section id="scoring-profiles" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="scoring-profiles" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <SlidersHorizontal size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Scoring Profiles</h2>
@@ -862,9 +862,9 @@ rendered = res["rendered"]`}
           </section>
 
           {/* ── Agent Messaging ── */}
-          <section id="messaging" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="messaging" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <MessageSquare size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Agent Messaging</h2>
@@ -916,9 +916,9 @@ rendered = res["rendered"]`}
           </section>
 
           {/* ── Session Handoffs ── */}
-          <section id="handoffs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="handoffs" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Network size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Session Handoffs</h2>
@@ -961,9 +961,9 @@ rendered = res["rendered"]`}
           </section>
 
           {/* ── Security Scanning ── */}
-          <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(239,68,68,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-status-error-subtle flex items-center justify-center">
                 <ShieldAlert size={16} className="text-red-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Security Scanning</h2>
@@ -992,9 +992,9 @@ if not result["clean"]:
           </section>
 
           {/* ── User Feedback ── */}
-          <section id="feedback" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="feedback" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <MessageSquare size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">User Feedback</h2>
@@ -1030,9 +1030,9 @@ if not result["clean"]:
           </section>
 
           {/* ── Context Threads ── */}
-          <section id="context-threads" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="context-threads" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <CircleDot size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Context Threads</h2>
@@ -1090,9 +1090,9 @@ if not result["clean"]:
           </section>
 
           {/* ── Bulk Sync ── */}
-          <section id="bulk-sync" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="bulk-sync" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Download size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Bulk Sync</h2>
@@ -1115,14 +1115,14 @@ if not result["clean"]:
           </section>
 
           {/* ── Agent Identity ── */}
-          <section id="agent-identity" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="agent-identity" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <Shield size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Agent Identity</h2>
             </div>
-            <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+            <p className="text-sm text-text-secondary mb-6 leading-relaxed">
               Enroll agents via public-key pairing and manage approved identities. Pairing requests are created by agents; approval is an admin action. Once approved, the agent&apos;s public key is registered as a trusted identity for signature verification.
             </p>
 
@@ -1240,20 +1240,20 @@ const { identities } = await claw.getIdentities();`}
           </section>
 
           {/* ── Execution Studio (HTTP API) ── */}
-          <section id="execution-studio" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="execution-studio" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(168,85,247,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-surface-tertiary flex items-center justify-center">
                 <Network size={16} className="text-purple-400" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Execution Studio (HTTP API)</h2>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed mb-6">
-              Governance packaging: workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph on actions. <strong className="text-zinc-300">Every surface here has a canonical SDK wrapper method in the v2 Node SDK (see <code className="font-mono text-brand">sdk/dashclaw.js</code>, 80 methods total).</strong> The HTTP examples below are shown first because they&apos;re language-agnostic; the equivalent SDK calls (<code className="font-mono text-brand">claw.listWorkflowTemplates</code>, <code className="font-mono text-brand">claw.execution.capabilities.invoke</code>, etc.) are in <a href="https://github.com/ucsandman/DashClaw/blob/main/sdk/README.md#execution-studio" className="text-brand underline">sdk/README.md → Execution Studio</a>. Full OpenAPI definitions are at <code className="font-mono text-zinc-500">docs/openapi/critical-stable.openapi.json</code>.
+            <p className="text-sm text-text-secondary leading-relaxed mb-6">
+              Governance packaging: workflow templates, model strategies, knowledge collections, a capability registry, and a read-only execution graph on actions. <strong className="text-text-secondary">Every surface here has a canonical SDK wrapper method in the v2 Node SDK (see <code className="font-mono text-brand">sdk/dashclaw.js</code>, 80 methods total).</strong> The HTTP examples below are shown first because they&apos;re language-agnostic; the equivalent SDK calls (<code className="font-mono text-brand">claw.listWorkflowTemplates</code>, <code className="font-mono text-brand">claw.execution.capabilities.invoke</code>, etc.) are in <a href="https://github.com/ucsandman/DashClaw/blob/main/sdk/README.md#execution-studio" className="text-brand underline">sdk/README.md → Execution Studio</a>. Full OpenAPI definitions are at <code className="font-mono text-text-tertiary">docs/openapi/critical-stable.openapi.json</code>.
             </p>
 
             {/* Execution Graph */}
             <div id="execution-graph" className="scroll-mt-20 pt-6">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Execution Graph</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Execution Graph</h3>
               <MethodEntry
                 id="getActionGraph"
                 signature="GET /api/actions/:actionId/graph"
@@ -1274,8 +1274,8 @@ const { rootActionId, nodes, edges } = await res.json();
 
             {/* Workflow Templates */}
             <div id="workflow-templates" className="scroll-mt-20 pt-10">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Workflow Templates</h3>
-              <p className="text-xs text-zinc-500 mb-4">Package a repeatable operational pattern as a reusable, versioned asset linking policies, prompts, knowledge, capabilities, and a model strategy.</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Workflow Templates</h3>
+              <p className="text-xs text-text-tertiary mb-4">Package a repeatable operational pattern as a reusable, versioned asset linking policies, prompts, knowledge, capabilities, and a model strategy.</p>
 
               <MethodEntry
                 id="listWorkflowTemplates"
@@ -1407,8 +1407,8 @@ failed.forEach(s =>
 
             {/* Model Strategies */}
             <div id="model-strategies-http" className="scroll-mt-20 pt-10">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Model Strategies</h3>
-              <p className="text-xs text-zinc-500 mb-4">Reusable provider/model strategy records (primary + fallback chain, cost/latency sensitivity, budget cap). Linked from workflow templates and snapshotted at launch.</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Model Strategies</h3>
+              <p className="text-xs text-text-tertiary mb-4">Reusable provider/model strategy records (primary + fallback chain, cost/latency sensitivity, budget cap). Linked from workflow templates and snapshotted at launch.</p>
 
               <MethodEntry
                 id="listModelStrategies"
@@ -1480,8 +1480,8 @@ console.log(result.fallback_used); // true if primary failed`}
 
             {/* Knowledge Collections */}
             <div id="knowledge-collections" className="scroll-mt-20 pt-10">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Knowledge Collections</h3>
-              <p className="text-xs text-zinc-500 mb-4">Lightweight metadata layer for knowledge sources that workflows and agents can bind to. <strong className="text-zinc-400">No embedding or retrieval in Phase 1</strong> — metadata + tags only.</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Knowledge Collections</h3>
+              <p className="text-xs text-text-tertiary mb-4">Lightweight metadata layer for knowledge sources that workflows and agents can bind to. <strong className="text-text-secondary">No embedding or retrieval in Phase 1</strong> — metadata + tags only.</p>
 
               <MethodEntry
                 id="listKnowledgeCollections"
@@ -1577,8 +1577,8 @@ results.forEach(r => console.log(\`\${(r.score * 100).toFixed(1)}%: \${r.content
 
             {/* Capability Registry */}
             <div id="capability-registry" className="scroll-mt-20 pt-10 pb-4">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Capability Registry</h3>
-              <p className="text-xs text-zinc-500 mb-4">Governed registry of callable capabilities with risk, approval, health, and (future) pricing metadata. Workflow templates can reference capabilities by id or by tag.</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Capability Registry</h3>
+              <p className="text-xs text-text-tertiary mb-4">Governed registry of callable capabilities with risk, approval, health, and (future) pricing metadata. Workflow templates can reference capabilities by id or by tag.</p>
 
               <MethodEntry
                 id="listCapabilities"
@@ -1626,8 +1626,8 @@ results.forEach(r => console.log(\`\${(r.score * 100).toFixed(1)}%: \${r.content
           {/* Capability Runtime */}
           <section id="capability-runtime" className="scroll-mt-20 pt-8">
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Capability Runtime</h3>
-              <p className="text-xs text-zinc-500 mb-4">Governed capability invocation with retry policies, circuit breaker, and health tracking. Capabilities with retry_policy retry transient failures automatically. Capabilities with circuit_breaker auto-block after consecutive failures (reset via test route).</p>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Capability Runtime</h3>
+              <p className="text-xs text-text-tertiary mb-4">Governed capability invocation with retry policies, circuit breaker, and health tracking. Capabilities with retry_policy retry transient failures automatically. Capabilities with circuit_breaker auto-block after consecutive failures (reset via test route).</p>
               <MethodEntry
                 id="invokeCapability"
                 signature="POST /api/capabilities/:capabilityId/invoke"
@@ -1695,9 +1695,9 @@ const history = await res.json();
           </section>
 
           {/* ── Analytics ── */}
-          <section id="analytics" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="analytics" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-[rgba(249,115,22,0.1)] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
                 <BarChart3 size={16} className="text-brand" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Analytics</h2>
@@ -1723,7 +1723,7 @@ const data = await res.json();
 
             {/* Guard Decisions */}
             <div id="guard-decisions" className="scroll-mt-20 pt-6">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Guard Decisions</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Guard Decisions</h3>
               <MethodEntry
                 id="listGuardDecisions"
                 signature="GET /api/guard/decisions"
@@ -1749,7 +1749,7 @@ const { decisions, total, stats } = await res.json();
 
             {/* Agent Profile */}
             <div id="agent-profile" className="scroll-mt-20 pt-6">
-              <h3 className="text-lg font-semibold text-white mb-2 font-mono">Agent Profile</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono">Agent Profile</h3>
               <MethodEntry
                 id="getAgentProfile"
                 signature="GET /api/agents/:agentId/profile"
@@ -1772,27 +1772,27 @@ const { agent, trust, signals, assumptions_summary } = await res.json();
           </section>
 
           {/* ── Error Handling ── */}
-          <section id="error-handling" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
+          <section id="error-handling" className="scroll-mt-20 pt-12 border-t border-border">
             <h2 className="text-2xl font-bold tracking-tight mb-2">Error Handling</h2>
             <CodeBlock title="Error shape">{`{ message: "Validation failed", status: 400 }`}</CodeBlock>
           </section>
 
           {/* ── Legacy Section ── */}
           {showLegacy && (
-            <div id="legacy-v1" className="mt-20 pt-12 border-t-2 border-dashed border-zinc-800">
+            <div id="legacy-v1" className="mt-20 pt-12 border-t-2 border-dashed border-border-hover">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+                <div className="w-10 h-10 rounded-lg bg-surface-tertiary border border-border-hover flex items-center justify-center text-text-tertiary">
                   <History size={20} />
                 </div>
                 <div>
                   <h2 className="text-3xl font-bold tracking-tight">Legacy Reference</h2>
-                  <p className="text-zinc-500 text-sm">Background v1 utilities and technical helper methods.</p>
+                  <p className="text-text-tertiary text-sm">Background v1 utilities and technical helper methods.</p>
                 </div>
               </div>
 
               {/* Real-Time Events */}
               <section id="real-time-events" className="scroll-mt-20 pt-12">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Real-Time Events</h3>
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Real-Time Events</h3>
                 <MethodEntry 
                   id="events" 
                   signature="claw.events(options?)" 
@@ -1817,8 +1817,8 @@ stream
               </section>
 
               {/* Dashboard Data */}
-              <section id="dashboard-data" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Dashboard Data</h3>
+              <section id="dashboard-data" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Dashboard Data</h3>
                 <MethodEntry 
                   id="reportTokenUsage" 
                   signature="claw.reportTokenUsage(usage)" 
@@ -1876,8 +1876,8 @@ const msg = await anthropic.messages.create({
               </section>
 
               {/* Behavior Guard (v1) */}
-              <section id="legacy-guard" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Behavior Guard (v1)</h3>
+              <section id="legacy-guard" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Behavior Guard (v1)</h3>
                 <MethodEntry 
                   id="guard" 
                   signature="claw.guard(context)" 
@@ -1904,8 +1904,8 @@ if (decision.decision === 'block') {
               </section>
 
               {/* User Preferences */}
-              <section id="user-preferences" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Preferences</h3>
+              <section id="user-preferences" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">User Preferences</h3>
                 <MethodEntry 
                   id="logObservation" 
                   signature="claw.logObservation(obs)" 
@@ -1936,8 +1936,8 @@ if (decision.decision === 'block') {
               </section>
 
               {/* Security Scanning (legacy) */}
-              <section id="legacy-security-scanning" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Security Scanning (Legacy)</h3>
+              <section id="legacy-security-scanning" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Security Scanning (Legacy)</h3>
                 <MethodEntry
                   id="scanContent"
                   signature="claw.scanContent(text, destination?)"
@@ -1956,8 +1956,8 @@ await sendToSlack(redacted_text);`}
               </section>
 
               {/* Context Manager */}
-              <section id="context-manager" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Context Manager</h3>
+              <section id="context-manager" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Context Manager</h3>
                 <MethodEntry 
                   id="captureKeyPoint" 
                   signature="claw.captureKeyPoint(point)" 
@@ -1981,8 +1981,8 @@ await sendToSlack(redacted_text);`}
               </section>
 
               {/* Automation Snippets */}
-              <section id="automation-snippets" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Automation Snippets</h3>
+              <section id="automation-snippets" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Automation Snippets</h3>
                 <MethodEntry 
                   id="saveSnippet" 
                   signature="claw.saveSnippet(snippet)" 
@@ -2007,8 +2007,8 @@ await sendToSlack(redacted_text);`}
               </section>
 
               {/* Compliance Engine (moved from v2) */}
-              <section id="compliance-engine" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Compliance Engine</h3>
+              <section id="compliance-engine" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Compliance Engine</h3>
                 <MethodEntry
                   id="mapCompliance"
                   signature="claw.mapCompliance(framework) / claw.map_compliance(framework)"
@@ -2032,8 +2032,8 @@ await sendToSlack(redacted_text);`}
               </section>
 
               {/* Activity Logs (moved from v2) */}
-              <section id="activity-logs" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Activity Logs</h3>
+              <section id="activity-logs" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Activity Logs</h3>
                 <MethodEntry
                   id="getActivityLogs"
                   signature="claw.getActivityLogs(filters) / claw.get_activity_logs(**filters)"
@@ -2047,8 +2047,8 @@ await sendToSlack(redacted_text);`}
               </section>
 
               {/* Webhooks (moved from v2) */}
-              <section id="webhooks" className="scroll-mt-20 pt-12 border-t border-[rgba(255,255,255,0.06)]">
-                <h3 className="text-lg font-semibold text-white mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Webhooks</h3>
+              <section id="webhooks" className="scroll-mt-20 pt-12 border-t border-border">
+                <h3 className="text-lg font-semibold text-text-primary mb-2 font-mono underline decoration-zinc-700 underline-offset-8">Webhooks</h3>
                 <MethodEntry
                   id="createWebhook"
                   signature="claw.createWebhook(url, events) / claw.create_webhook(url, events)"
