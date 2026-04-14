@@ -360,11 +360,27 @@ After the `capabilityHealthRes` handling block (around line 173), add:
 
 In the `catch` block (around line 174), add `setMessages([]);` so the card exits its skeleton on failure.
 
-In the `useRealtime` callback (around line 190), add `'message.created'` to the event list so the card refreshes on new inbound messages:
+In the `useRealtime` callback (around line 190), use a branched filter so `message.created` gates on from/to agent fields instead of the generic `agent_id` field that message envelopes don't have:
 
 ```javascript
-    if (['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected', 'message.created'].includes(event)) {
+  useRealtime(useCallback((event, payload) => {
+    if (!['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected', 'message.created'].includes(event)) return;
+
+    if (agentId) {
+      if (event === 'message.created') {
+        const msg = payload?.message || payload;
+        if (msg && msg.from_agent_id !== agentId && msg.to_agent_id !== agentId) return;
+      } else {
+        const source = payload.action || payload.loop || payload.decision || payload;
+        if (source.agent_id && source.agent_id !== agentId) return;
+      }
+    }
+
+    fetchAll();
+  }, [agentId, fetchAll]));
 ```
+
+Rationale: Branches the filter by event type so `message.created` gates on from/to agent fields instead of the generic `agent_id` field that message envelopes don't have.
 
 - [ ] **Step 2: Mount the card**
 

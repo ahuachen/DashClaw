@@ -198,13 +198,19 @@ export default function MissionControlPage() {
   }, [fetchAll]);
 
   useRealtime(useCallback((event, payload) => {
-    if (['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected', 'message.created'].includes(event)) {
-      if (agentId) {
+    if (!['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected', 'message.created'].includes(event)) return;
+
+    if (agentId) {
+      if (event === 'message.created') {
+        const msg = payload?.message || payload;
+        if (msg && msg.from_agent_id !== agentId && msg.to_agent_id !== agentId) return;
+      } else {
         const source = payload.action || payload.loop || payload.decision || payload;
         if (source.agent_id && source.agent_id !== agentId) return;
       }
-      fetchAll();
     }
+
+    fetchAll();
   }, [agentId, fetchAll]));
 
   /* ---------- Derived state ---------- */
