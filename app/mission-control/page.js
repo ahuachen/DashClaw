@@ -17,6 +17,7 @@ import OperationsFeed from './components/OperationsFeed.jsx';
 import RuntimeSummaryCard from './components/RuntimeSummaryCard.jsx';
 import AgentSpendCard from '../components/AgentSpendCard';
 import MissionControlCapabilityHealthCard from '../components/MissionControlCapabilityHealthCard';
+import RecentCommsCard from './components/RecentCommsCard.jsx';
 import { isDemoMode } from '../lib/isDemoMode';
 import { computePosture } from '../components/SystemStatusBar';
 
@@ -127,6 +128,7 @@ export default function MissionControlPage() {
   const [decisionMetrics, setDecisionMetrics] = useState(null);
   const [capabilityHealth, setCapabilityHealth] = useState([]);
   const [capabilityHealthError, setCapabilityHealthError] = useState(null);
+  const [messages, setMessages] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showQuickStart, setShowQuickStart] = useState(true);
 
@@ -141,7 +143,7 @@ export default function MissionControlPage() {
     };
 
     try {
-      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes, metricsRes, capabilityHealthRes] = await Promise.all([
+      const [signalsRes, loopsRes, healthRes, actionsRes, pendingRes, metricsRes, capabilityHealthRes, messagesRes] = await Promise.all([
         fetch(withParams('/api/actions/signals')),
         fetch(withParams('/api/actions/loops', ['status=open', 'limit=20'])),
         fetch('/api/health'),
@@ -149,6 +151,7 @@ export default function MissionControlPage() {
         fetch(withParams('/api/actions', ['status=pending_approval', 'limit=10'])),
         fetch(withParams('/api/actions/stats')),
         fetch('/api/capabilities/health?limit=20'),
+        fetch(withParams('/api/messages', ['direction=inbox', 'limit=50'])),
       ]);
 
       if (signalsRes.ok) setSignals(await signalsRes.json());
@@ -171,10 +174,17 @@ export default function MissionControlPage() {
         setCapabilityHealth([]);
         setCapabilityHealthError('Capability health unavailable');
       }
+      if (messagesRes.ok) {
+        const messagesJson = await messagesRes.json();
+        setMessages(messagesJson.messages || []);
+      } else {
+        setMessages([]);
+      }
     } catch (error) {
       console.error('Mission Control fetch error:', error);
       setCapabilityHealth([]);
       setCapabilityHealthError('Capability health unavailable');
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -188,7 +198,7 @@ export default function MissionControlPage() {
   }, [fetchAll]);
 
   useRealtime(useCallback((event, payload) => {
-    if (['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected'].includes(event)) {
+    if (['action.created', 'action.updated', 'loop.created', 'loop.updated', 'guard.decision.created', 'signal.detected', 'message.created'].includes(event)) {
       if (agentId) {
         const source = payload.action || payload.loop || payload.decision || payload;
         if (source.agent_id && source.agent_id !== agentId) return;
@@ -562,6 +572,9 @@ export default function MissionControlPage() {
         <Card>
           <RuntimeSummaryCard />
         </Card>
+
+        {/* Recent Agent Comms */}
+        <RecentCommsCard messages={messages} />
       </div>
 
       {/* ═══ BAND 3: Operations Feed ═══ */}
