@@ -68,11 +68,10 @@ export default function DecisionReplayPage() {
           const firstThreadId = msgs.find(m => m.thread_id)?.thread_id;
           if (firstThreadId) {
             try {
-              const tRes = await fetch('/api/messages/threads?limit=100');
+              const tRes = await fetch(`/api/messages/threads/${encodeURIComponent(firstThreadId)}`);
               if (tRes.ok) {
                 const tData = await tRes.json();
-                const thread = (tData.threads || []).find(t => t.id === firstThreadId);
-                if (thread?.name) setMessageThreadName(thread.name);
+                if (tData.thread?.name) setMessageThreadName(tData.thread.name);
               }
             } catch { /* thread fetch is best-effort */ }
           }
