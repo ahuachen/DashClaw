@@ -41,7 +41,7 @@
 - Create: `app/lib/messages/selectors.js`
 - Test: `__tests__/unit/message-selectors.test.js`
 
-**Rationale:** A pure selector lets us unit-test the filter/sort/cap logic without React. The Mission Control card stays thin.
+**Rationale:** A pure selector lets us unit-test the filter/sort/cap logic without React. The Mission Control card stays thin. `urgent` is a boolean in the schema; the selector and tests use truthy semantics to tolerate either boolean or numeric shapes.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -58,7 +58,7 @@ describe('selectUrgentUnread', () => {
     to_agent_id: 'agent_b',
     message_type: 'info',
     status: 'sent',
-    urgent: 0,
+    urgent: false,
     is_read: false,
     created_at: '2026-04-14T12:00:00.000Z',
     ...over,
@@ -74,14 +74,26 @@ describe('selectUrgentUnread', () => {
     expect(result.map(m => m.id)).toEqual(['unread']);
   });
 
-  it('sorts urgent=1 ahead of urgent=0, then by created_at desc', () => {
+  it('sorts urgent ahead of non-urgent, then by created_at desc', () => {
     const msgs = [
-      base({ id: 'old_urgent', urgent: 1, created_at: '2026-04-14T10:00:00.000Z' }),
-      base({ id: 'new_normal', urgent: 0, created_at: '2026-04-14T12:00:00.000Z' }),
-      base({ id: 'new_urgent', urgent: 1, created_at: '2026-04-14T11:00:00.000Z' }),
+      base({ id: 'old_urgent', urgent: true, created_at: '2026-04-14T10:00:00.000Z' }),
+      base({ id: 'new_normal', urgent: false, created_at: '2026-04-14T12:00:00.000Z' }),
+      base({ id: 'new_urgent', urgent: true, created_at: '2026-04-14T11:00:00.000Z' }),
     ];
     const result = selectUrgentUnread(msgs);
     expect(result.map(m => m.id)).toEqual(['new_urgent', 'old_urgent', 'new_normal']);
+  });
+
+  it('treats urgent as truthy (tolerates boolean or numeric shape)', () => {
+    const msgs = [
+      base({ id: 'bool_urgent', urgent: true, created_at: '2026-04-14T09:00:00.000Z' }),
+      base({ id: 'num_urgent', urgent: 1, created_at: '2026-04-14T08:00:00.000Z' }),
+      base({ id: 'bool_normal', urgent: false, created_at: '2026-04-14T12:00:00.000Z' }),
+      base({ id: 'num_normal', urgent: 0, created_at: '2026-04-14T11:00:00.000Z' }),
+    ];
+    const result = selectUrgentUnread(msgs);
+    // urgent (true or 1) sorted by time desc, then non-urgent sorted by time desc
+    expect(result.map(m => m.id)).toEqual(['bool_urgent', 'num_urgent', 'bool_normal', 'num_normal']);
   });
 
   it('caps result length with limit option (default 5)', () => {
@@ -125,8 +137,8 @@ export function selectUrgentUnread(messages, opts = {}) {
   const unread = messages.filter(m => m && m.status === 'sent' && !m.is_read);
 
   unread.sort((a, b) => {
-    const ua = a.urgent === 1 ? 1 : 0;
-    const ub = b.urgent === 1 ? 1 : 0;
+    const ua = a.urgent ? 1 : 0;
+    const ub = b.urgent ? 1 : 0;
     if (ua !== ub) return ub - ua;
     const ta = new Date(a.created_at || 0).getTime();
     const tb = new Date(b.created_at || 0).getTime();

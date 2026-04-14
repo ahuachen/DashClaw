@@ -13,8 +13,8 @@ export function selectUrgentUnread(messages, opts = {}) {
   const unread = messages.filter(m => m && m.status === 'sent' && !m.is_read);
 
   unread.sort((a, b) => {
-    const ua = a.urgent === 1 ? 1 : 0;
-    const ub = b.urgent === 1 ? 1 : 0;
+    const ua = a.urgent ? 1 : 0;
+    const ub = b.urgent ? 1 : 0;
     if (ua !== ub) return ub - ua;
     const ta = new Date(a.created_at || 0).getTime();
     const tb = new Date(b.created_at || 0).getTime();
