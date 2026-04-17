@@ -12,6 +12,7 @@ Exit codes:
 
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -329,6 +330,18 @@ def _log_hook_error(message):
         pass
 
 
+_SESSION_ID_RE = re.compile(r"[^A-Za-z0-9._-]")
+
+
+def _safe_session_id(session_id):
+    # Session IDs come from untrusted stdin. Before we use one as a temp-file
+    # suffix, replace anything outside this whitelist so a crafted session_id
+    # like "../etc/passwd" cannot escape the tempdir.
+    if not session_id:
+        return ""
+    return _SESSION_ID_RE.sub("_", session_id)
+
+
 def append_turn_action(session_id, action_id):
     """Append action_id to the per-session turn log consumed by the Stop hook.
 
@@ -337,7 +350,7 @@ def append_turn_action(session_id, action_id):
     tokens won't attribute to this action — log so ops can spot it."""
     if not session_id or not action_id:
         return
-    path = os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + session_id)
+    path = os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + _safe_session_id(session_id))
     try:
         with open(path, "a", encoding="utf-8") as f:
             f.write(action_id + "\n")

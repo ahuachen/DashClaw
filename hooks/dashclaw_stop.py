@@ -20,6 +20,7 @@ Never blocks. Always exits 0.
 
 import json
 import os
+import re
 import sys
 import tempfile
 import urllib.request
@@ -31,6 +32,17 @@ import urllib.error
 
 BASE_URL = (os.environ.get("DASHCLAW_BASE_URL") or "").rstrip("/")
 API_KEY = os.environ.get("DASHCLAW_API_KEY") or ""
+
+# Session IDs come from untrusted stdin. Before we use one as a temp-file
+# suffix, replace anything outside this whitelist so a crafted session_id
+# like "../etc/passwd" cannot escape the tempdir.
+_SESSION_ID_RE = re.compile(r"[^A-Za-z0-9._-]")
+
+
+def _safe_session_id(session_id):
+    if not session_id:
+        return ""
+    return _SESSION_ID_RE.sub("_", session_id)
 
 
 # ---------------------------------------------------------------------------
@@ -54,11 +66,11 @@ def _log_hook_error(message):
 # ---------------------------------------------------------------------------
 
 def _turn_actions_path(session_id):
-    return os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + session_id)
+    return os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + _safe_session_id(session_id))
 
 
 def _cursor_path(session_id):
-    return os.path.join(tempfile.gettempdir(), "dashclaw_stop_cursor_" + session_id)
+    return os.path.join(tempfile.gettempdir(), "dashclaw_stop_cursor_" + _safe_session_id(session_id))
 
 
 def _read_cursor(session_id):
@@ -183,7 +195,10 @@ def _collect_turn_usage(entries, last_uuid):
         tokens_in += int(usage.get("input_tokens") or 0)
         tokens_in += int(usage.get("cache_creation_input_tokens") or 0)
         cache_read = int(usage.get("cache_read_input_tokens") or 0)
-        tokens_in += int(round(cache_read * 0.1))
+        # Half-away-from-zero to match JS Math.round() in packages/openclaw-plugin/src/index.ts
+        # so the same transcript produces the same token totals across both paths.
+        # Python's built-in round() uses banker's rounding, which diverges on .5 boundaries.
+        tokens_in += int(cache_read * 0.1 + 0.5)
         tokens_out += int(usage.get("output_tokens") or 0)
         if not model and msg.get("model"):
             model = msg["model"]
@@ -227,7 +242,7 @@ def _patch_action(action_id, body):
         _log_hook_error("PATCH " + action_id + " -> " + type(e).__name__ + ": " + str(e))
 
 
-def _apply(action_ids, tokens_in, tokens_out, model):
+def _apply(action_ids, tokens_in, tokens_out, model, session_id=""):
     """Distribute token usage across the turn's action_ids and request a
     server-side conditional close on each.
 
@@ -236,9 +251,20 @@ def _apply(action_ids, tokens_in, tokens_out, model):
     `running`, so a concurrent PostToolUse PATCH can never be clobbered. Token
     fields apply unconditionally via COALESCE. Safe to send on every action —
     no per-action GET required."""
-    if not action_ids:
-        return
     has_tokens = tokens_in > 0 or tokens_out > 0
+    if not action_ids:
+        # Text-only assistant turns have no tool calls, so there are no
+        # action_ids to attribute usage against. We can't invent an action
+        # here, but we don't want the tokens to disappear silently. Emit a
+        # drift-log entry so ops can see the unattributed spend.
+        if has_tokens:
+            _log_hook_error(
+                "orphan_tokens session=" + (session_id or "?")
+                + " tokens_in=" + str(tokens_in)
+                + " tokens_out=" + str(tokens_out)
+                + " model=" + (model or "unknown")
+            )
+        return
     n = len(action_ids)
     in_parts = _distribute(tokens_in, n) if has_tokens else [0] * n
     out_parts = _distribute(tokens_out, n) if has_tokens else [0] * n
@@ -290,7 +316,7 @@ def main():
     last_uuid = _read_cursor(session_id)
     tokens_in, tokens_out, model, new_cursor = _collect_turn_usage(entries, last_uuid)
 
-    _apply(action_ids, tokens_in, tokens_out, model)
+    _apply(action_ids, tokens_in, tokens_out, model, session_id)
     _write_cursor(session_id, new_cursor)
     _clear_turn_actions(session_id)
     sys.exit(0)

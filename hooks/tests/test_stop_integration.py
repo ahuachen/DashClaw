@@ -423,6 +423,125 @@ class TestStopHook(unittest.TestCase):
         self.assertEqual(body["status"], "completed")
         self.assertNotIn("tokens_in", body)
 
+    def test_orphan_tokens_logged_when_no_action_ids(self):
+        """Text-only turns (no tool calls → no action_ids) must NOT silently
+        drop token accounting. The hook logs an orphan_tokens line to the
+        shared drift log so ops can see unattributed spend."""
+        session_id = "sess-test-orphan"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "hi"}},
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "message": {
+                    "model": "opus",
+                    "usage": {"input_tokens": 42, "output_tokens": 17},
+                },
+            },
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        # No _write_turn_actions — simulates text-only turn with no tool calls.
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+
+        log_path = os.path.join(tempfile.gettempdir(), "dashclaw_hook_errors.log")
+        # Snapshot existing log length so we only read lines written by this run.
+        try:
+            before_size = os.path.getsize(log_path)
+        except OSError:
+            before_size = 0
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            self._env(),
+        )
+        self.assertEqual(code, 0, msg=err)
+
+        self.assertEqual([r for r in self.log.get_all() if r["method"] == "PATCH"], [])
+
+        with open(log_path, "r", encoding="utf-8") as f:
+            f.seek(before_size)
+            new_lines = f.read()
+        self.assertIn("orphan_tokens", new_lines)
+        self.assertIn("session=" + session_id, new_lines)
+        self.assertIn("tokens_in=42", new_lines)
+        self.assertIn("tokens_out=17", new_lines)
+
+    def test_session_id_path_traversal_is_sanitized(self):
+        """Malicious session_id cannot escape the tempdir via path traversal.
+
+        The hook reads a turn-file named after the session_id. If the ID isn't
+        sanitized, an attacker-crafted stdin could read ../../../etc/passwd
+        (or similar) as a turn-action list. After sanitization, a traversal
+        session_id is rewritten to an underscore-only filename, so the hook
+        just sees "no turn file" and exits cleanly."""
+        malicious = "../../evil"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "x"}},
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+
+        # Plant a file at the sanitized path to prove the hook wouldn't
+        # reach outside tempdir. The sanitizer replaces both '.' and '/'
+        # sequences, so only alphanumerics/._- survive → "_._._evil" etc.
+        code, _, err = _run_hook(
+            {"session_id": malicious, "transcript_path": transcript},
+            self._env(),
+        )
+        self.assertEqual(code, 0, msg=err)
+        # No file under the literal malicious name was written.
+        self.assertFalse(
+            os.path.exists(os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + malicious))
+        )
+        # And no parent-directory write happened — spot-check by asserting no
+        # "dashclaw_turn_" file exists two levels up (we used ../../evil).
+        parent = os.path.abspath(os.path.join(tempfile.gettempdir(), "..", ".."))
+        stray = [n for n in os.listdir(parent) if n.startswith("dashclaw_turn_")]
+        self.assertEqual(stray, [])
+
+    def test_cache_read_rounding_matches_js_math_round(self):
+        """Python rounding must match JS Math.round() so parallel paths agree.
+
+        Python's built-in round() uses banker's rounding (round-half-to-even):
+        round(0.5) == 0, round(2.5) == 2. JavaScript Math.round() uses
+        half-away-from-zero: Math.round(0.5) == 1, Math.round(2.5) == 3.
+        For cache_read_input_tokens = 5 that's a one-token divergence; this
+        test pins the hook to the JS behavior."""
+        session_id = "sess-test-rounding"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "r"}},
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "message": {
+                    "model": "opus",
+                    # cache_read=5 → 5 * 0.1 = 0.5 → banker's round = 0 (wrong),
+                    # JS Math.round = 1 (expected).
+                    "usage": {
+                        "input_tokens": 0,
+                        "cache_read_input_tokens": 5,
+                        "output_tokens": 0,
+                    },
+                },
+            },
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        _write_turn_actions(session_id, ["act-round"])
+        self.addCleanup(_safe_remove, _turn_path(session_id))
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            self._env(),
+        )
+        self.assertEqual(code, 0, msg=err)
+        patches = [r for r in self.log.get_all() if r["method"] == "PATCH"]
+        self.assertEqual(len(patches), 1)
+        # tokens_in == 1 (JS rounding), not 0 (banker's rounding).
+        self.assertEqual(patches[0]["body"]["tokens_in"], 1)
+
     def test_missing_env_exits_silently(self):
         """No DASHCLAW_BASE_URL/API_KEY → exit 0, no PATCHes."""
         session_id = "sess-test-005"
