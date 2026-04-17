@@ -120,9 +120,21 @@ interface TokenTurnState {
 }
 const tokenTurnByRun = new Map<string, TokenTurnState>();
 
+// Cap for in-memory per-run state. `agent_end` deletes entries, but a crash
+// or an agent framework that never fires `agent_end` in a long-lived gateway
+// process would leak. At ~100 bytes/entry this cap bounds worst-case memory
+// to ~100KB while still comfortably above typical concurrency.
+const MAX_TURN_RUNS = 1000;
+
 function getTokenTurn(runId: string): TokenTurnState {
   let state = tokenTurnByRun.get(runId);
   if (!state) {
+    if (tokenTurnByRun.size >= MAX_TURN_RUNS) {
+      // Evict oldest (Map preserves insertion order). One at a time is enough
+      // to stay at the cap under steady state — we only grow by one here.
+      const oldest = tokenTurnByRun.keys().next().value;
+      if (oldest !== undefined) tokenTurnByRun.delete(oldest);
+    }
     state = { turnActionIds: [] };
     tokenTurnByRun.set(runId, state);
   }
@@ -536,8 +548,14 @@ export default definePluginEntry({
       let client: DashClaw;
       try {
         client = getClient(config);
-      } catch {
-        return; // No client → skip attribution, don't disrupt the run.
+      } catch (err) {
+        // No client → skip attribution, don't disrupt the run. Log once per
+        // failure class so ops notice when token tracking is off (key
+        // rotation, base-URL typo) instead of silently losing every turn.
+        console.warn(
+          `[dashclaw-governance] llm_output dropped — client unavailable: ${errorMessage(err) || 'unknown'}`
+        );
+        return;
       }
 
       const state = getTokenTurn(runId);
@@ -577,8 +595,12 @@ export default definePluginEntry({
         try {
           const client = getClient(config);
           await distributePendingTokens(client, state);
-        } catch {
-          // No client → just drop state.
+        } catch (err) {
+          // No client → drop state but log the lost attribution so ops can
+          // see how many actions went unattributed.
+          console.warn(
+            `[dashclaw-governance] agent_end token flush dropped ${state.turnActionIds.length} action(s): ${errorMessage(err) || 'unknown'}`
+          );
         }
       }
       tokenTurnByRun.delete(runId);
