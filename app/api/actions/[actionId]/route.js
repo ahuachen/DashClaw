@@ -63,6 +63,12 @@ export async function PATCH(request, { params }) {
     const { actionId } = await params;
     const body = await request.json();
 
+    // Stop-hook contract — see dashclaw_stop.py. When true, the request's close
+    // fields (status/output_summary/timestamp_end) are applied atomically only
+    // if the row is still `running`; token fields always apply. This prevents
+    // a late Stop hook from clobbering a terminal state PostToolUse just wrote.
+    const closeIfRunning = body.close_if_running === true;
+
     const { valid, data, errors } = validateActionOutcome(body);
     if (!valid) {
       return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
@@ -78,7 +84,7 @@ export async function PATCH(request, { params }) {
     if (data.cost_estimate !== undefined) data.cost_estimate = Math.max(0, Math.min(Number(data.cost_estimate) || 0, MAX_COST_USD));
     if ((data.tokens_in || data.tokens_out) && data.cost_estimate === undefined) {
       const customPricing = await getModelPricing(sql, orgId);
-      data.cost_estimate = estimateCost(data.tokens_in || 0, data.tokens_out || 0, body.model, customPricing);
+      data.cost_estimate = estimateCost(data.tokens_in || 0, data.tokens_out || 0, data.model, customPricing);
     }
 
     // SECURITY: redact likely secrets before storing the outcome fields.
@@ -89,9 +95,42 @@ export async function PATCH(request, { params }) {
     if (data.side_effects != null) data.side_effects = redactAny(data.side_effects, dlpFindings);
     if (data.artifacts_created != null) data.artifacts_created = redactAny(data.artifacts_created, dlpFindings);
 
-    const updatedAction = await updateActionOutcome(sql, orgId, actionId, data);
-    if (!updatedAction) {
-      return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+    let updatedAction;
+    if (closeIfRunning) {
+      // Split into (close fields) and (everything else). Close fields only
+      // apply via a status='running' gate; other fields apply unconditionally
+      // so tokens/cost/model land even when PostToolUse already closed the row.
+      const CLOSE_FIELDS = new Set(['status', 'output_summary', 'timestamp_end']);
+      const closeData = {};
+      const otherData = {};
+      for (const [k, v] of Object.entries(data)) {
+        if (CLOSE_FIELDS.has(k)) closeData[k] = v;
+        else otherData[k] = v;
+      }
+
+      let closeResult = null;
+      if (Object.keys(closeData).length > 0) {
+        closeResult = await updateActionOutcome(sql, orgId, actionId, closeData, { gateStatus: 'running' });
+      }
+      let tokenResult = null;
+      if (Object.keys(otherData).length > 0) {
+        tokenResult = await updateActionOutcome(sql, orgId, actionId, otherData);
+      }
+
+      updatedAction = tokenResult || closeResult;
+      if (!updatedAction) {
+        // Gate failed AND no token data — re-fetch to return the current row.
+        const rel = await getActionWithRelations(sql, orgId, actionId);
+        if (!rel) {
+          return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+        }
+        updatedAction = rel.action;
+      }
+    } else {
+      updatedAction = await updateActionOutcome(sql, orgId, actionId, data);
+      if (!updatedAction) {
+        return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+      }
     }
 
     // Emit real-time event

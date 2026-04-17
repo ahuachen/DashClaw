@@ -344,8 +344,14 @@ class TestStopHook(unittest.TestCase):
         self.assertEqual(second[0]["body"]["tokens_in"], 3)
         self.assertEqual(second[0]["body"]["tokens_out"], 2)
 
-    def test_autocloses_running_but_preserves_terminal_status(self):
-        """Running actions get status='completed'; terminal statuses are left alone."""
+    def test_sends_close_if_running_on_every_patch(self):
+        """Stop hook delegates the terminal-state check to the server.
+
+        The hook no longer GETs each action before PATCHing — instead every
+        PATCH carries `close_if_running: true` plus the close fields, and the
+        server applies close atomically only when status='running'. Tokens
+        always apply. This eliminates the TOCTOU race with PostToolUse.
+        """
         session_id = "sess-test-autoclose"
         entries = [
             {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "go"}},
@@ -364,39 +370,37 @@ class TestStopHook(unittest.TestCase):
         self.addCleanup(_safe_remove, _turn_path(session_id))
         self.addCleanup(_safe_remove, _cursor_path(session_id))
 
-        # GET returns running for the first, failed for the second.
-        self.status_by_id["act-running"] = "running"
-        self.status_by_id["act-failed"] = "failed"
-
         code, _, err = _run_hook(
             {"session_id": session_id, "transcript_path": transcript},
             self._env(),
         )
         self.assertEqual(code, 0, msg=err)
 
+        # Hook must not GET — server-side gating replaced the GET+PATCH pair.
+        gets = [r for r in self.log.get_all() if r["method"] == "GET"]
+        self.assertEqual(gets, [], "Stop hook should no longer GET action status")
+
         patches = sorted(
             [r for r in self.log.get_all() if r["method"] == "PATCH"],
             key=lambda r: r["path"],
         )
         self.assertEqual(len(patches), 2)
-        running_body = next(p["body"] for p in patches if p["path"].endswith("act-running"))
-        failed_body = next(p["body"] for p in patches if p["path"].endswith("act-failed"))
 
-        # Running action: tokens + auto-close fields
-        self.assertEqual(running_body["status"], "completed")
-        self.assertEqual(running_body["output_summary"], "Auto-closed by Stop hook")
-        self.assertIn("timestamp_end", running_body)
-        self.assertGreater(running_body["tokens_in"], 0)
-        self.assertGreater(running_body["tokens_out"], 0)
-
-        # Terminal action: tokens only, no status overwrite
-        self.assertNotIn("status", failed_body)
-        self.assertNotIn("output_summary", failed_body)
-        self.assertNotIn("timestamp_end", failed_body)
-        self.assertGreater(failed_body["tokens_in"], 0)
+        for p in patches:
+            body = p["body"]
+            self.assertIs(body["close_if_running"], True)
+            self.assertEqual(body["status"], "completed")
+            self.assertEqual(body["output_summary"], "Auto-closed by Stop hook")
+            self.assertIn("timestamp_end", body)
+            self.assertGreater(body["tokens_in"], 0)
+            self.assertGreater(body["tokens_out"], 0)
 
     def test_autoclose_without_tokens(self):
-        """If the transcript yields no usage (hook still fires), running actions are still closed."""
+        """If the transcript yields no usage, hook still PATCHes close fields.
+
+        Tokens are omitted (nothing to distribute), but the conditional-close
+        body still goes through so a running action doesn't stay running.
+        """
         session_id = "sess-test-autoclose-no-tokens"
         entries = [
             {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "noop"}},
@@ -406,7 +410,6 @@ class TestStopHook(unittest.TestCase):
         _write_turn_actions(session_id, ["act-running-2"])
         self.addCleanup(_safe_remove, _turn_path(session_id))
         self.addCleanup(_safe_remove, _cursor_path(session_id))
-        self.status_by_id["act-running-2"] = "running"
 
         code, _, err = _run_hook(
             {"session_id": session_id, "transcript_path": transcript},
@@ -416,6 +419,7 @@ class TestStopHook(unittest.TestCase):
         patches = [r for r in self.log.get_all() if r["method"] == "PATCH"]
         self.assertEqual(len(patches), 1)
         body = patches[0]["body"]
+        self.assertIs(body["close_if_running"], True)
         self.assertEqual(body["status"], "completed")
         self.assertNotIn("tokens_in", body)
 

@@ -34,6 +34,22 @@ API_KEY = os.environ.get("DASHCLAW_API_KEY") or ""
 
 
 # ---------------------------------------------------------------------------
+# Error logging — best-effort append to a shared tempdir log so ops can detect
+# token-attribution drift (API-key rotation, base-URL typo, transient 5xx).
+# ---------------------------------------------------------------------------
+
+def _log_hook_error(message):
+    try:
+        path = os.path.join(tempfile.gettempdir(), "dashclaw_hook_errors.log")
+        from datetime import datetime, timezone
+        ts = datetime.now(timezone.utc).isoformat()
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(ts + " stop " + str(message) + "\n")
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
 # State files
 # ---------------------------------------------------------------------------
 
@@ -191,7 +207,7 @@ def _distribute(total, n):
 
 
 def _patch_action(action_id, body):
-    """PATCH /api/actions/{action_id}. Silently ignores failures."""
+    """PATCH /api/actions/{action_id}. Failures log and return; never block."""
     url = BASE_URL + "/api/actions/" + action_id
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
@@ -205,59 +221,41 @@ def _patch_action(action_id, body):
     )
     try:
         urllib.request.urlopen(req, timeout=3)
-    except Exception:
-        pass  # Never block on token reporting failure
-
-
-def _get_status(action_id):
-    """GET /api/actions/{action_id} and return current status, or None on failure.
-
-    Used to decide whether this Stop hook should also close the action. We only
-    overwrite status when it's still 'running' — never touch terminal states
-    ('completed', 'failed', 'blocked', 'cancelled') a PostToolUse hook has
-    already written."""
-    url = BASE_URL + "/api/actions/" + action_id
-    req = urllib.request.Request(
-        url,
-        headers={"x-api-key": API_KEY},
-        method="GET",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            body = json.loads(resp.read().decode("utf-8"))
-    except Exception:
-        return None
-    action = body.get("action") or body
-    if isinstance(action, dict):
-        return action.get("status")
-    return None
+    except urllib.error.HTTPError as e:
+        _log_hook_error("PATCH " + action_id + " -> HTTP " + str(e.code))
+    except Exception as e:
+        _log_hook_error("PATCH " + action_id + " -> " + type(e).__name__ + ": " + str(e))
 
 
 def _apply(action_ids, tokens_in, tokens_out, model):
+    """Distribute token usage across the turn's action_ids and request a
+    server-side conditional close on each.
+
+    The server honors `close_if_running: true` atomically — close fields
+    (status/output_summary/timestamp_end) only apply when the row is still
+    `running`, so a concurrent PostToolUse PATCH can never be clobbered. Token
+    fields apply unconditionally via COALESCE. Safe to send on every action —
+    no per-action GET required."""
     if not action_ids:
         return
     has_tokens = tokens_in > 0 or tokens_out > 0
     n = len(action_ids)
     in_parts = _distribute(tokens_in, n) if has_tokens else [0] * n
     out_parts = _distribute(tokens_out, n) if has_tokens else [0] * n
+    ts_end = datetime_now_iso()
     for idx, aid in enumerate(action_ids):
-        status = _get_status(aid)
-        body = {}
+        body = {
+            "close_if_running": True,
+            "status": "completed",
+            "output_summary": "Auto-closed by Stop hook",
+            "timestamp_end": ts_end,
+        }
         if has_tokens:
             body["tokens_in"] = in_parts[idx]
             body["tokens_out"] = out_parts[idx]
             if model:
                 body["model"] = model
-        # Fallback close: if PostToolUse never ran (or its PATCH failed), the
-        # action is still 'running' at Stop time. Auto-close it so it doesn't
-        # pile up in analytics as an "Other" stale row. Never overwrite a
-        # terminal status a PostToolUse hook already wrote.
-        if status == "running":
-            body["status"] = "completed"
-            body["output_summary"] = "Auto-closed by Stop hook"
-            body["timestamp_end"] = datetime_now_iso()
-        if body:
-            _patch_action(aid, body)
+        _patch_action(aid, body)
 
 
 def datetime_now_iso():

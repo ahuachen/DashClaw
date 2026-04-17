@@ -316,19 +316,33 @@ def write_action_id(tool_use_id, action_id):
 _SESSION_ID = ""
 
 
+def _log_hook_error(message):
+    """Best-effort append to the shared tempdir log so governance-runtime
+    operators can detect token-attribution drift. Never raises."""
+    try:
+        path = os.path.join(tempfile.gettempdir(), "dashclaw_hook_errors.log")
+        from datetime import datetime, timezone
+        ts = datetime.now(timezone.utc).isoformat()
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(ts + " pretool " + str(message) + "\n")
+    except Exception:
+        pass
+
+
 def append_turn_action(session_id, action_id):
     """Append action_id to the per-session turn log consumed by the Stop hook.
 
     The Stop hook reads this file, distributes the turn's LLM token usage
-    across each recorded action_id, then clears the file."""
+    across each recorded action_id, then clears the file. Failures here mean
+    tokens won't attribute to this action — log so ops can spot it."""
     if not session_id or not action_id:
         return
     path = os.path.join(tempfile.gettempdir(), "dashclaw_turn_" + session_id)
     try:
         with open(path, "a", encoding="utf-8") as f:
             f.write(action_id + "\n")
-    except Exception:
-        pass
+    except Exception as e:
+        _log_hook_error("append_turn_action(" + session_id + "): " + type(e).__name__ + ": " + str(e))
 
 
 # ---------------------------------------------------------------------------

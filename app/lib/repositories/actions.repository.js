@@ -364,7 +364,14 @@ export async function getActionWithRelations(sql, orgId, actionId) {
   };
 }
 
-export async function updateActionOutcome(sql, orgId, actionId, outcome) {
+export async function updateActionOutcome(sql, orgId, actionId, outcome, options = {}) {
+  // `gateStatus` (optional) — when set, the UPDATE only applies if the row's
+  // current status matches. Used by the Stop hook to close still-running
+  // actions without clobbering a terminal state PostToolUse just wrote. If the
+  // gate doesn't match, the UPDATE affects 0 rows and this returns null.
+  const { gateStatus } = options;
+  const gate = gateStatus ?? null;
+
   // Verify existence and ownership
   const existing = await sql`SELECT action_id FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1`;
   if (existing.length === 0) return null;
@@ -382,14 +389,18 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
   if (typeof sql.query === 'function' && Array.isArray(sql.queryCalls)) {
     const setClauses = fields.map((f, i) => `${f} = $${i + 1}`);
     const values = fields.map(f => data[f]);
-    const query = `UPDATE action_records SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE action_id = $${fields.length + 1} AND org_id = $${fields.length + 2} RETURNING *`;
-    const queryParams = [...values, actionId, orgId];
+    const baseWhere = `WHERE action_id = $${fields.length + 1} AND org_id = $${fields.length + 2}`;
+    const gateWhere = gateStatus ? ` AND status = $${fields.length + 3}` : '';
+    const query = `UPDATE action_records SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP ${baseWhere}${gateWhere} RETURNING *`;
+    const queryParams = gateStatus ? [...values, actionId, orgId, gateStatus] : [...values, actionId, orgId];
     const updated = await sql.query(query, queryParams);
     return updated[0] || null;
   }
 
   // Single atomic UPDATE with all outcome fields at once.
   // Each field uses COALESCE to preserve existing values when not provided.
+  // The final WHERE predicate is a no-op when `gate` is null, and an exact
+  // match otherwise — atomic compare-and-set on the status column.
   const updated = await sql`
     UPDATE action_records SET
       status            = COALESCE(${fields.includes('status') ? data.status : null}, status),
@@ -405,6 +416,7 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome) {
       model             = COALESCE(${fields.includes('model') ? data.model : null}, model),
       updated_at        = CURRENT_TIMESTAMP
     WHERE action_id = ${actionId} AND org_id = ${orgId}
+      AND (${gate}::text IS NULL OR status = ${gate})
     RETURNING *
   `;
   return updated[0] || null;

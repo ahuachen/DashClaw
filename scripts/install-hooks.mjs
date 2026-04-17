@@ -98,6 +98,19 @@ const HOOK_BLOCKS = {
   ],
 };
 
+// Only these exact filenames are considered managed. We match on
+// path-separator-bounded occurrences so user-authored wrappers with similar
+// names (e.g. `my_dashclaw_pretool.py`, `dashclaw_metrics.py`) are NOT
+// silently removed on re-install.
+const MANAGED_HOOK_FILES = ['dashclaw_pretool.py', 'dashclaw_posttool.py', 'dashclaw_stop.py'];
+const MANAGED_HOOK_RE = new RegExp(
+  '(^|[\\\\/])(' + MANAGED_HOOK_FILES.map((f) => f.replace(/\./g, '\\.')).join('|') + ')(["\'\\s]|$)'
+);
+
+function isManagedHookCommand(cmd) {
+  return MANAGED_HOOK_RE.test(cmd);
+}
+
 function mergeSettings(targetRoot) {
   const settingsPath = join(targetRoot, '.claude', 'settings.json');
   let settings = { hooks: {} };
@@ -115,10 +128,12 @@ function mergeSettings(targetRoot) {
   for (const [event, blocks] of Object.entries(HOOK_BLOCKS)) {
     const existing = Array.isArray(settings.hooks[event]) ? settings.hooks[event] : [];
     // Drop any prior dashclaw entries (matcher-by-matcher) so re-running
-    // upgrades commands cleanly without duplicating.
+    // upgrades commands cleanly without duplicating. Matches only our exact
+    // managed filenames — user-authored hooks referencing `dashclaw_` elsewhere
+    // survive re-install.
     const kept = existing.filter((entry) => {
       const cmds = (entry.hooks || []).map((h) => h.command || '');
-      return !cmds.some((c) => c.includes('dashclaw_'));
+      return !cmds.some(isManagedHookCommand);
     });
     settings.hooks[event] = [...kept, ...blocks];
   }
