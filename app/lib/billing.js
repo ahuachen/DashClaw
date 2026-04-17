@@ -41,12 +41,16 @@ export const DEFAULT_PRICING = [
  *
  * @param {number} tokensIn - Input tokens
  * @param {number} tokensOut - Output tokens
- * @param {string} model - Model identifier
+ * @param {string|null|undefined} model - Model identifier. If falsy (null, undefined, ''),
+ *        returns 0 — we refuse to guess a model because a wrong guess pollutes analytics
+ *        (the migration that backfills `action_records.model` to NULL would otherwise
+ *        retroactively price every historical row as Opus).
  * @param {Array<{pattern: string, input: number, output: number}>|null} customPricing - Optional custom pricing table from org settings
  * @returns {number} Estimated cost in USD
  */
-export function estimateCost(tokensIn, tokensOut, model = 'opus', customPricing = null) {
-  const m = String(model || 'opus').toLowerCase();
+export function estimateCost(tokensIn, tokensOut, model, customPricing = null) {
+  if (!model) return 0;
+  const m = String(model).toLowerCase();
   const pricing = customPricing || DEFAULT_PRICING;
 
   for (const entry of pricing) {
@@ -55,7 +59,9 @@ export function estimateCost(tokensIn, tokensOut, model = 'opus', customPricing 
     }
   }
 
-  // Fallback: use the first entry (most expensive) as a conservative estimate
+  // Model is present but unrecognized — use the first entry (most expensive)
+  // as a conservative over-estimate. A known-but-unmapped model is different
+  // from "no model": we flag it as probably-premium rather than 0.
   const fallback = pricing[0] || DEFAULT_PRICING[0];
   return (tokensIn * fallback.input / 1_000_000) + (tokensOut * fallback.output / 1_000_000);
 }
