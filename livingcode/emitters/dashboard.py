@@ -104,6 +104,10 @@ def _section_health(state_report) -> str:
     cq = state_report.get("code_quality") or {}
     js = th.get("js_tests") or {"total": 0, "passed": 0}
     py = th.get("python_tests") or {"total": 0, "passed": 0}
+    dep = state_report.get("dependency_health") or {}
+    ci = state_report.get("ci_health") or {}
+    contribs = gs.get("top_contributors_30d") or []
+    top_contrib = contribs[0]["name"] if contribs else "?"
 
     def _pct(suite):
         t = suite.get("total", 0)
@@ -112,10 +116,14 @@ def _section_health(state_report) -> str:
     chips = [
         ("Commits 7d", gs.get("commits_7d", "?")),
         ("Bus factor", gs.get("bus_factor", "?")),
+        ("Top contributor", top_contrib),
         ("JS tests", _pct(js)),
         ("Python tests", _pct(py)),
         ("Test file ratio", f"{th.get('test_file_ratio', 0):.2f}" if th.get("test_file_ratio") is not None else "?"),
         ("Untested routes", len(th.get("untested_routes") or [])),
+        ("Vulnerabilities", dep.get("js_vulnerabilities", "?")),
+        ("Lockfile age", f"{dep.get('lockfile_age_days', '?')}d" if dep.get("lockfile_age_days") is not None else "?"),
+        ("CI pass 30d", f"{ci['pass_rate_30d'] * 100:.1f}%" if ci.get("pass_rate_30d") is not None else "?"),
         ("TODOs", cq.get("todo_count", "?")),
         ("Files >300 lines", cq.get("files_over_300_lines", "?")),
     ]

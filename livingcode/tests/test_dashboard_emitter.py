@@ -114,6 +114,24 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertIn("Untested routes", html)
         self.assertIn("2", html)
 
+    def test_health_includes_dependency_and_ci_chips(self):
+        report = {
+            "git_stats": {"commits_7d": 100, "bus_factor": 2,
+                          "top_contributors_30d": [{"name": "Wes", "commits": 200}]},
+            "dependency_health": {"js_vulnerabilities": 3, "lockfile_age_days": 42},
+            "ci_health": {"pass_rate_30d": 0.94, "last_failure_reason": "timeout"},
+            "code_quality": {"todo_count": 8, "files_over_300_lines": 10},
+        }
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertIn("Vulnerabilities", html)
+        self.assertIn(">3<", html)  # vulnerability count
+        self.assertIn("Lockfile age", html)
+        self.assertIn("42d", html)
+        self.assertIn("CI pass 30d", html)
+        self.assertIn("94.0%", html)
+        self.assertIn("Top contributor", html)
+        self.assertIn("Wes", html)
+
     def test_health_strip_absent_without_report(self):
         html = emit_dashboard(_make_shape())
         self.assertNotIn("Commits 7d", html)
