@@ -26,6 +26,7 @@ describe('runPreCommitChecks', () => {
       'public/downloads/dashclaw-platform-intelligence.zip',
       'public/downloads/dashclaw-platform-intelligence.zip.manifest',
       'mcp-server/lib/routes-inventory.generated.json',
+      'public/livingcode/index.html',
     ]);
     expect(execImpl.mock.calls[4][1]).toContain('--mode=warn');
   });

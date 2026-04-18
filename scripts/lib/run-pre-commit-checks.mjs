@@ -36,6 +36,7 @@ const STEPS = [
       'public/downloads/dashclaw-platform-intelligence.zip',
       'public/downloads/dashclaw-platform-intelligence.zip.manifest',
       'mcp-server/lib/routes-inventory.generated.json',
+      'public/livingcode/index.html',
     ],
     failHook: true,
   },

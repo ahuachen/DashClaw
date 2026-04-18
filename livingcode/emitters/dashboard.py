@@ -147,7 +147,7 @@ def emit_dashboard(
         "ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}\n"
         "</style></head><body>\n"
         f"<h1>DashClaw Livingcode Dashboard</h1>\n"
-        f'<div class="sig">Shape signature: {escape(shape.timestamp)}</div>\n'
+        f'<div class="sig" id="sig">Shape signature: {escape(shape.timestamp)} · generated {escape(shape.timestamp)}</div>\n'
         f'<div class="grid">\n{count_cells}\n</div>\n'
         f'{timeline_html}'
         f'{health_html}'

@@ -35,6 +35,7 @@ python -m livingcode diff --json         # Same, structured
 
 python -m livingcode emit skill          # Stream generated skill markdown
 python -m livingcode emit skill --output path/to/SKILL.md  # Write to file
+python -m livingcode emit dashboard --with-context --output public/livingcode/index.html
 python -m livingcode emit shape-json --output <path>       # Serialized ShapeModel (Node reads this)
 python -m livingcode emit doctor-checks --output <path>    # ESM module of shape-derived doctor checks
 python -m livingcode emit mcp-tools --output <path>        # JSON inventory of the MCP-facing API surface
@@ -67,6 +68,8 @@ emitters/
                      every table + one presence check per required env var
   mcp_tools.py     — JSON inventory splitting active routes into mutation
                      vs read buckets; companion to mcp-server/lib/tools.js
+  dashboard.py     — single-file HTML dashboard (counts, timeline, health, diff).
+                     Served at /livingcode/ by Next.js and openable as a static file.
 
 types.py        — dataclasses: ShapeModel, RouteInfo, EnvVarInfo, TableInfo
                   (with optional `domain` from `// @domain <name>` comments),

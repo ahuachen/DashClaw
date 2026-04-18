@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:fad04c0bc98978178193c4079d88db275c544f44`
+**Shape snapshot:** `sha1:e2816b765b39577b5249ed277aae650e696fe914`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **175** active API routes across **44** categories
-- **4** required + **105** optional environment variables
+- **4** required + **106** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -455,6 +455,7 @@ These have fallbacks or only activate specific features.
 - `TELEGRAM_BOT_TOKEN` *(undocumented)*
 - `TELEGRAM_WEBHOOK_SECRET` *(undocumented)*
 - `TRUST_PROXY` *(undocumented)*
+- `TURNSTILE_SECRET_KEY` *(undocumented)*
 - `UPSTASH_REDIS_REST_TOKEN` *(undocumented)*
 - `UPSTASH_REDIS_REST_URL` *(undocumented)*
 - `VERCEL` *(undocumented)*

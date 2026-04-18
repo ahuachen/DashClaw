@@ -66,6 +66,7 @@ const DASHBOARD_PATH = resolve(REPO_ROOT, 'public', 'livingcode', 'index.html');
 
 const PY = process.env.PYTHON || 'python';
 const SKILL_TIMESTAMP_LINE = /^(\*\*Shape snapshot:\*\*\s+`)[^`]+(`)/m;
+const DASHBOARD_SIG_LINE = /^(<div class="sig" id="sig">Shape signature: )([^<]+)(<\/div>)/m;
 
 // Source file patterns that imply the generated shape or skill may have changed.
 // If pre-commit (--if-staged) sees none of these staged, it skips the refresh.
@@ -133,13 +134,17 @@ function emitMcpInventory() {
   return MCP_INVENTORY_PATH;
 }
 
-function emitDashboard() {
+function emitDashboard(signature) {
   ensureDir(dirname(DASHBOARD_PATH));
   const tempOut = join(tmpdir(), `dashclaw-dashboard-${process.pid}.html`);
   runPython(['emit', 'dashboard', '--with-context', '--output', tempOut]);
   const raw = readFileSync(tempOut, 'utf8');
   rmSync(tempOut, { force: true });
-  writeIfChanged(DASHBOARD_PATH, raw, 'dashboard');
+  const normalised = raw.replace(DASHBOARD_SIG_LINE, `$1${signature} · signature-stable$3`);
+  if (normalised === raw) {
+    warn('dashboard emitter output did not match expected signature line — dashboard may be non-idempotent');
+  }
+  writeIfChanged(DASHBOARD_PATH, normalised, 'dashboard');
   return DASHBOARD_PATH;
 }
 
@@ -363,8 +368,9 @@ async function main() {
   writeLastSnapshot(shapeJsonPath);
   emitDoctorChecks();
   emitMcpInventory();
-  emitDashboard();
   const signature = loadShapeSignature(shapeJsonPath);
+
+  emitDashboard(signature);
 
   const skillContent = emitSkill(signature);
   writeIfChanged(join(WEBSITE_SKILL_DIR, 'SKILL.md'), skillContent, 'skill (website)');

@@ -20,12 +20,12 @@ ul.diff{list-style:none;padding:0}
 ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}
 </style></head><body>
 <h1>DashClaw Livingcode Dashboard</h1>
-<div class="sig">Shape signature: 2026-04-18T17:12:14.363759+00:00</div>
+<div class="sig" id="sig">Shape signature: sha1:e2816b765b39577b5249ed277aae650e696fe914 · signature-stable</div>
 <div class="grid">
       <div class="cell"><div class="n">175</div><div class="k">Active routes</div></div>
       <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
       <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
-      <div class="cell"><div class="n">101</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">106</div><div class="k">Optional env vars</div></div>
       <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
       <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
       <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
@@ -48,12 +48,17 @@ ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5
     <li><code>added</code> <b>routes</b>: /api/telegram/webhook <span class="sig">New route: POST</span></li>
     <li><code>added</code> <b>env_vars</b>: CI <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: DASHCLAW_ALERTS_TELEGRAM <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DASHCLAW_HOSTED <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: HOSTED_PROVISION_MAX_PER_IP_PER_DAY <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: HOSTED_TRIAL_ACTION_CAP <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: HOSTED_TRIAL_DAYS <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: PW_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: PW_SMOKE_PORT <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: TELEGRAM_ADMIN_CHAT_ID <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: TELEGRAM_APPROVER_ORG_ID <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: TELEGRAM_BOT_TOKEN <span class="sig">New env var (optional, undocumented)</span></li>
-    <li><code>added</code> <b>env_vars</b>: TELEGRAM_WEBHOOK_SECRET <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
+    <li><code>added</code> <b>env_vars</b>: TELEGRAM_WEBHOOK_SECRET <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: TURNSTILE_SECRET_KEY <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
 <section><h2>Active routes</h2><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr><td><code>/api/actions</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/actions/route.js</td></tr>
     <tr><td><code>/api/actions/[actionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/[actionId]/route.js</td></tr>
     <tr><td><code>/api/actions/[actionId]/artifacts</code></td><td>GET</td><td class="sig">app/api/actions/[actionId]/artifacts/route.js</td></tr>
