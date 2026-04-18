@@ -20,6 +20,18 @@ The framework has two orthogonal purposes:
 Both layers run against the same repo and share the `.organism/` state
 directory, but they answer different questions.
 
+## One-Shot Launcher
+
+```bash
+python -m livingcode start               # Sense + snapshot + refresh + open dashboard
+python -m livingcode start --no-open     # Same, but don't launch a browser (CI-friendly)
+```
+
+`start` is the daily driver — it records a fresh state report, saves a shape
+snapshot (so the Timeline sparklines have another data point), regenerates
+every derivative artifact via `npm run livingcode:refresh`, and opens
+`public/livingcode/index.html` in your default browser.
+
 ## Shape Layer Quick Reference
 
 ```bash

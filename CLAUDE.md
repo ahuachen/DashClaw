@@ -41,6 +41,7 @@ DashClaw is a **minimal governance runtime**, not an agent platform. We do not p
 npm run dev
 npm run lint
 npm run openapi:check              # Detect API contract drift
+python -m livingcode start         # One-shot: sense + snapshot + refresh + open /livingcode/ dashboard
 ```
 
 ## Where To Look First

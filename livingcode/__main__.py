@@ -111,6 +111,48 @@ def cmd_emit(args):
         sys.stdout.write(content)
 
 
+def cmd_start(args):
+    """One-shot: sense + snapshot + refresh + open dashboard in browser."""
+    import shutil
+    import subprocess
+    import webbrowser
+    from pathlib import Path
+    from livingcode.sensing import run_sensing
+    from livingcode.diff import save_snapshot
+
+    repo = Path(args.path).resolve()
+
+    print("[start] sensing codebase…")
+    _, rpt_path = run_sensing(str(repo))
+    print(f"[start] state report -> {rpt_path}")
+
+    print("[start] saving shape snapshot…")
+    snap_path = save_snapshot(str(repo))
+    print(f"[start] snapshot -> {snap_path}")
+
+    npm = shutil.which("npm")
+    if npm is None:
+        print("[start] npm not found on PATH — skipping refresh (dashboard will be stale)")
+    else:
+        print("[start] refreshing derivative artifacts (npm run livingcode:refresh)…")
+        result = subprocess.run([npm, "run", "livingcode:refresh"], cwd=str(repo))
+        if result.returncode != 0:
+            print(f"[start] refresh failed (exit {result.returncode}) — dashboard may be stale")
+            sys.exit(result.returncode)
+
+    dashboard = repo / "public" / "livingcode" / "index.html"
+    if not dashboard.is_file():
+        print(f"[start] dashboard not found at {dashboard}")
+        sys.exit(1)
+
+    print(f"[start] dashboard -> {dashboard}")
+    if args.no_open:
+        print("[start] --no-open set; not launching browser")
+    else:
+        webbrowser.open(dashboard.as_uri())
+        print("[start] opened in browser")
+
+
 def cmd_status(args):
     from livingcode.state import read_latest_state_report
     report = read_latest_state_report(args.path)
@@ -165,6 +207,11 @@ def main():
     emit_p.add_argument("--with-context", action="store_true",
                         help="Load .organism/ snapshots + state report + diff (dashboard only)")
 
+    start_p = sub.add_parser("start", parents=[shared],
+                             help="Sense + snapshot + refresh + open dashboard")
+    start_p.add_argument("--no-open", action="store_true",
+                         help="Don't launch a browser (CI / headless)")
+
     args = parser.parse_args()
 
     commands = {
@@ -178,6 +225,7 @@ def main():
         "snapshot": cmd_snapshot,
         "diff": cmd_diff,
         "emit": cmd_emit,
+        "start": cmd_start,
     }
 
     if args.command in commands:
