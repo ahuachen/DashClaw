@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:a1474e482800bd24d85993b7e4ff9d69865042f4",
+  "timestamp": "sha1:fad04c0bc98978178193c4079d88db275c544f44",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2632,6 +2632,15 @@
       "in_env_example": false
     },
     {
+      "name": "DASHCLAW_HOSTED",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/flag.test.js",
+        "app/lib/hosted/flag.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "DASHCLAW_LOCAL_ADMIN_PASSWORD",
       "required": false,
       "files": [
@@ -2952,6 +2961,33 @@
       "files": [
         "app/lib/webhooks.js",
         "graphify-pilot/app/lib/webhooks.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "HOSTED_PROVISION_MAX_PER_IP_PER_DAY",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/flag.test.js",
+        "app/lib/hosted/flag.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "HOSTED_TRIAL_ACTION_CAP",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/flag.test.js",
+        "app/lib/hosted/flag.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "HOSTED_TRIAL_DAYS",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/flag.test.js",
+        "app/lib/hosted/flag.js"
       ],
       "in_env_example": false
     },

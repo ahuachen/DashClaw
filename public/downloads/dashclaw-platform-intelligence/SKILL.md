@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:a1474e482800bd24d85993b7e4ff9d69865042f4`
+**Shape snapshot:** `sha1:fad04c0bc98978178193c4079d88db275c544f44`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **175** active API routes across **44** categories
-- **4** required + **101** optional environment variables
+- **4** required + **105** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -381,6 +381,7 @@ These have fallbacks or only activate specific features.
 - `DASHCLAW_DB_POOL_MAX` *(undocumented)*
 - `DASHCLAW_DISABLE_RATE_LIMIT` *(undocumented)*
 - `DASHCLAW_GUARD_FALLBACK` *(undocumented)*
+- `DASHCLAW_HOSTED` *(undocumented)*
 - `DASHCLAW_LOCAL_ADMIN_PASSWORD` *(undocumented)*
 - `DASHCLAW_MODE` *(undocumented)*
 - `DASHCLAW_RATE_LIMIT_MAX` *(undocumented)*
@@ -404,6 +405,9 @@ These have fallbacks or only activate specific features.
 - `GUARD_LLM_KEY` *(undocumented)*
 - `GUARD_LLM_MODEL` *(undocumented)*
 - `GUARD_WEBHOOK_SECRET` *(undocumented)*
+- `HOSTED_PROVISION_MAX_PER_IP_PER_DAY` *(undocumented)*
+- `HOSTED_TRIAL_ACTION_CAP` *(undocumented)*
+- `HOSTED_TRIAL_DAYS` *(undocumented)*
 - `MEMORY_DIR` *(undocumented)*
 - `MOONSHOT_API_KEY` *(undocumented)*
 - `NEXTAUTH_URL`
