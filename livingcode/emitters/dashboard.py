@@ -31,6 +31,8 @@ summary{font-weight:600;cursor:pointer;font-size:.9rem}
 details[open] summary{margin-bottom:.5rem}
 details table{margin-top:.5rem;border:1px solid #f1f5f9}
 input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid #e2e8f0;border-radius:6px;font:inherit}
+.cell.danger{border-color:#f97316;box-shadow:inset 3px 0 0 #f97316}
+.cell.danger .n{color:#c2410c}
 """.strip()
 
 
@@ -96,6 +98,23 @@ def _section_timeline(snapshots) -> str:
     return f'<section><h2>Timeline</h2>{sparklines}</section>\n'
 
 
+def _chip_danger(label: str, value) -> bool:
+    """Return True if the chip value crosses a health threshold worth calling out."""
+    try:
+        if label == "Bus factor":
+            return int(value) <= 1
+        if label == "Vulnerabilities":
+            return int(value) > 0
+        if label == "Lockfile age":
+            if isinstance(value, str) and value.endswith("d"):
+                return int(value[:-1]) > 180
+        if label == "Untested routes":
+            return int(value) > 10
+    except (TypeError, ValueError):
+        return False
+    return False
+
+
 def _section_health(state_report) -> str:
     if not state_report:
         return ""
@@ -128,7 +147,8 @@ def _section_health(state_report) -> str:
         ("Files >300 lines", cq.get("files_over_300_lines", "?")),
     ]
     chip_cells = "\n".join(
-        f'      <div class="cell"><div class="n">{escape(str(v))}</div><div class="k">{escape(k)}</div></div>'
+        f'      <div class="cell{" danger" if _chip_danger(k, v) else ""}">'
+        f'<div class="n">{escape(str(v))}</div><div class="k">{escape(k)}</div></div>'
         for k, v in chips
     )
     return f'<section><h2>Health</h2><div class="grid">{chip_cells}</div></section>\n'

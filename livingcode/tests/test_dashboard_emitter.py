@@ -190,6 +190,24 @@ class TestDashboardEmitter(unittest.TestCase):
         html = emit_dashboard(_make_shape())
         self.assertIn('data-path="/api/health"', html)
 
+    def test_chip_danger_class_on_low_bus_factor(self):
+        report = {"git_stats": {"commits_7d": 10, "bus_factor": 1}}
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertIn('class="cell danger"', html)
+
+    def test_chip_danger_class_on_vulnerabilities(self):
+        report = {"dependency_health": {"js_vulnerabilities": 2, "lockfile_age_days": 10}}
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertIn('class="cell danger"', html)
+
+    def test_chip_no_danger_when_healthy(self):
+        report = {
+            "git_stats": {"commits_7d": 10, "bus_factor": 3},
+            "dependency_health": {"js_vulnerabilities": 0, "lockfile_age_days": 10},
+        }
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertNotIn('class="cell danger"', html)
+
 
 if __name__ == "__main__":
     unittest.main()
