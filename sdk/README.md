@@ -888,5 +888,35 @@ Health responses now include certification and recency fields such as:
 
 ---
 
+## Hosted provisioning (operator surface — not an SDK method)
+
+When `DASHCLAW_HOSTED=true` the deployment exposes `/api/hosted/*` routes for one-click trial provisioning. These are operator-facing routes, not SDK methods — they produce the API key the SDK consumes.
+
+```bash
+# Mint a trial workspace (no auth required; Turnstile-gated in production)
+curl -X POST https://hosted.example.com/api/hosted/workspaces \
+  -H "content-type: application/json" \
+  -d '{"turnstile_token": "..."}'
+# → { "workspace_id": "org_...", "api_key": "oc_live_...", "endpoint": "...",
+#     "expires_at": "...", "trial_action_cap": 10000, "key_prefix": "oc_live_",
+#     "next_steps_url": "https://hosted.example.com/connect?hosted=org_..." }
+
+# Admin: inspect a trial workspace (x-api-key with admin role)
+curl https://hosted.example.com/api/hosted/workspaces/org_abc \
+  -H "x-api-key: <admin_key>"
+
+# Admin: delete a trial workspace
+curl -X DELETE https://hosted.example.com/api/hosted/workspaces/org_abc \
+  -H "x-api-key: <admin_key>"
+
+# Cron: sweep expired trials (admin role OR X-Cleanup-Secret)
+curl -X POST https://hosted.example.com/api/hosted/cleanup \
+  -H "X-Cleanup-Secret: $HOSTED_CLEANUP_SECRET"
+```
+
+These routes return 404 when `DASHCLAW_HOSTED` is unset — self-host deploys are unaffected.
+
+---
+
 ## License
 MIT

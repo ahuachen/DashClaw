@@ -1296,6 +1296,32 @@ history = claw.get_capability_history("cap_123", action_type="capability_test", 
 | `list_capability_health(status=None, certification_status=None, stale_only=None, limit=50, offset=0)` | List capability health rows with operator filters |
 | `get_capability_history(capability_id, action_type=None, status=None, limit=20, offset=0)` | Fetch recent invoke/test history for one capability |
 
+## Hosted provisioning (operator surface — not an SDK method)
+
+When `DASHCLAW_HOSTED=true` the deployment exposes `/api/hosted/*` routes for one-click trial provisioning. These routes are operator-facing, not SDK methods.
+
+```python
+import os
+import requests
+
+# Mint a trial workspace
+r = requests.post(
+    "https://hosted.example.com/api/hosted/workspaces",
+    json={"turnstile_token": "..."},
+)
+data = r.json()
+workspace_id = data["workspace_id"]
+api_key = data["api_key"]  # Save this — it is shown once
+
+# Sweep expired trials (cron)
+requests.post(
+    "https://hosted.example.com/api/hosted/cleanup",
+    headers={"X-Cleanup-Secret": os.environ["HOSTED_CLEANUP_SECRET"]},
+)
+```
+
+These routes return 404 when `DASHCLAW_HOSTED` is unset.
+
 ## License
 
 MIT

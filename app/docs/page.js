@@ -151,6 +151,11 @@ const navItems = [
   { href: '#analytics', label: 'Analytics' },
   { href: '#guard-decisions', label: 'Guard Decisions', indent: true },
   { href: '#agent-profile', label: 'Agent Profile', indent: true },
+  { href: '#hosted-provisioning', label: 'Hosted Provisioning (operator)' },
+  { href: '#hosted-workspaces-post', label: 'POST /workspaces', indent: true },
+  { href: '#hosted-workspaces-get', label: 'GET /workspaces/:id', indent: true },
+  { href: '#hosted-workspaces-delete', label: 'DELETE /workspaces/:id', indent: true },
+  { href: '#hosted-cleanup', label: 'POST /cleanup', indent: true },
   { href: '#error-handling', label: 'Error Handling' },
   { href: '#agent-tools', label: 'Agent Tools (Python)' },
   { href: '#legacy-v1', label: 'Legacy API (v1)', legacy: true },
@@ -1780,6 +1785,83 @@ const { agent, trust, signals, assumptions_summary } = await res.json();
                 }
               />
             </div>
+          </section>
+
+          {/* ── Hosted Provisioning (operator) ── */}
+          <section id="hosted-provisioning" className="scroll-mt-20 pt-12 border-t border-border">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-brand-subtle flex items-center justify-center">
+                <Network size={16} className="text-brand" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight">Hosted Provisioning (operator)</h2>
+            </div>
+            <p className="text-sm text-text-secondary mb-6">
+              Operator-facing routes exposed only when <code className="font-mono text-text-secondary">DASHCLAW_HOSTED=true</code>. These are not SDK methods — they produce the API key that downstream SDKs consume. Self-host deploys are unaffected; all routes return 404 when the flag is unset.
+            </p>
+            <MethodEntry
+              id="hosted-workspaces-post"
+              signature="POST /api/hosted/workspaces"
+              description="Mint a new trial workspace. Public, gated by DASHCLAW_HOSTED flag + Turnstile + IP rate limit. Returns the workspace ID, a one-time API key, and onboarding URL."
+              params={[
+                { name: 'turnstile_token', type: 'string', required: false, desc: 'Cloudflare Turnstile challenge token. Required in production; omit in dev bypass mode.' },
+              ]}
+              returns="{ workspace_id, api_key, endpoint, expires_at, trial_action_cap, key_prefix, next_steps_url }"
+              example={
+                <CodeBlock title="Mint a trial workspace">
+{`curl -X POST https://hosted.example.com/api/hosted/workspaces \\
+  -H "content-type: application/json" \\
+  -d '{"turnstile_token": "..."}'
+# → { "workspace_id": "org_...", "api_key": "oc_live_...", "endpoint": "...",
+#     "expires_at": "...", "trial_action_cap": 10000, "key_prefix": "oc_live_",
+#     "next_steps_url": "https://hosted.example.com/connect?hosted=org_..." }`}
+                </CodeBlock>
+              }
+            />
+            <MethodEntry
+              id="hosted-workspaces-get"
+              signature="GET /api/hosted/workspaces/:id"
+              description="Admin: inspect a trial workspace. Requires an admin-role API key."
+              params={[
+                { name: 'id', type: 'string', required: true, desc: 'Workspace (org) ID, e.g. org_abc' },
+              ]}
+              returns="{ workspace_id, status, expires_at, actions_used, trial_action_cap, created_at }"
+              example={
+                <CodeBlock title="Inspect a trial workspace">
+{`curl https://hosted.example.com/api/hosted/workspaces/org_abc \\
+  -H "x-api-key: <admin_key>"`}
+                </CodeBlock>
+              }
+            />
+            <MethodEntry
+              id="hosted-workspaces-delete"
+              signature="DELETE /api/hosted/workspaces/:id"
+              description="Admin: manually delete a trial workspace and revoke its API key."
+              params={[
+                { name: 'id', type: 'string', required: true, desc: 'Workspace (org) ID to delete' },
+              ]}
+              returns="{ deleted: true, workspace_id }"
+              example={
+                <CodeBlock title="Delete a trial workspace">
+{`curl -X DELETE https://hosted.example.com/api/hosted/workspaces/org_abc \\
+  -H "x-api-key: <admin_key>"`}
+                </CodeBlock>
+              }
+            />
+            <MethodEntry
+              id="hosted-cleanup"
+              signature="POST /api/hosted/cleanup"
+              description="Cron-safe sweeper for expired trial workspaces. Accepts admin-role API key OR X-Cleanup-Secret header. Safe to run repeatedly — idempotent."
+              params={[
+                { name: 'X-Cleanup-Secret', type: 'header', required: false, desc: 'Shared secret set via HOSTED_CLEANUP_SECRET env var. Alternative to admin API key.' },
+              ]}
+              returns="{ swept: number, workspace_ids: string[] }"
+              example={
+                <CodeBlock title="Sweep expired trials (cron)">
+{`curl -X POST https://hosted.example.com/api/hosted/cleanup \\
+  -H "X-Cleanup-Secret: $HOSTED_CLEANUP_SECRET"`}
+                </CodeBlock>
+              }
+            />
           </section>
 
           {/* ── Error Handling ── */}

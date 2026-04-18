@@ -29,6 +29,10 @@ This document tracks:
 3. where major domains currently live,
 4. where remaining parity or consolidation work is needed.
 
+### Scope note: operator-surface routes
+
+The `/api/hosted/*` route family (provisioning, admin inspect/delete, cleanup sweeper) is operator-facing and intentionally NOT exposed through either the Node or Python SDKs. These endpoints exist only when `DASHCLAW_HOSTED=true` and produce the API key that downstream SDKs consume. No parity tracking is required.
+
 ## SDK Surfaces
 
 | Surface | Entry point | Role |
