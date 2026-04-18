@@ -6,8 +6,23 @@ import { getSql } from '../../../lib/db.js';
 function requireAdminOrCronSecret(request) {
   const role = request.headers.get('x-org-role');
   if (role === 'owner' || role === 'admin') return true;
-  const secret = request.headers.get('x-cleanup-secret');
-  return !!(secret && process.env.HOSTED_CLEANUP_SECRET && secret === process.env.HOSTED_CLEANUP_SECRET);
+
+  // Path 1: explicit x-cleanup-secret header (used by GH Actions + manual curl)
+  const xSecret = request.headers.get('x-cleanup-secret');
+  if (xSecret && process.env.HOSTED_CLEANUP_SECRET && xSecret === process.env.HOSTED_CLEANUP_SECRET) {
+    return true;
+  }
+
+  // Path 2: Authorization: Bearer <CRON_SECRET> (Vercel cron convention)
+  const auth = request.headers.get('authorization');
+  if (auth && process.env.CRON_SECRET) {
+    const prefix = 'Bearer ';
+    if (auth.startsWith(prefix) && auth.slice(prefix.length) === process.env.CRON_SECRET) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export async function POST(request) {

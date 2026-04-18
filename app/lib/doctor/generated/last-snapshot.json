@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:eb4f33c5f31f072dd29bb1ad6d0627d663774342",
+  "timestamp": "sha1:336090bcc66600212be6ddde75d1f791e84cb1c8",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2443,6 +2443,7 @@
       "files": [
         "__tests__/unit/cron-auth.test.js",
         "__tests__/unit/cron-routing-maintenance.route.test.js",
+        "__tests__/unit/hosted/workspace-admin.test.js",
         "app/api/cron/integration-health/route.js",
         "app/api/cron/learning-episodes-backfill/route.js",
         "app/api/cron/learning-recommendations/route.js",
@@ -2451,6 +2452,7 @@
         "app/api/cron/reset-meters/route.js",
         "app/api/cron/routing-maintenance/route.js",
         "app/api/cron/signals/route.js",
+        "app/api/hosted/cleanup/route.js",
         "graphify-pilot/app/api/cron/integration-health/route.js",
         "graphify-pilot/app/api/cron/learning-episodes-backfill/route.js",
         "graphify-pilot/app/api/cron/learning-recommendations/route.js",

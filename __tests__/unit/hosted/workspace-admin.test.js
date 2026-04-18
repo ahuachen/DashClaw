@@ -118,6 +118,7 @@ describe('POST /api/hosted/cleanup', () => {
   afterEach(() => {
     delete globalThis.__dashclaw_sql;
     delete process.env.HOSTED_CLEANUP_SECRET;
+    delete process.env.CRON_SECRET;
   });
 
   function req({ role = 'admin', cleanupSecret } = {}) {
@@ -188,5 +189,26 @@ describe('POST /api/hosted/cleanup', () => {
     expect(body.deleted).toBe(1);
     expect(body.errors).toHaveLength(1);
     expect(body.errors[0]).toMatchObject({ orgId: 'org_fail' });
+  });
+
+  it('accepts Authorization: Bearer <CRON_SECRET> (Vercel cron convention)', async () => {
+    process.env.CRON_SECRET = 'vercel-cron-secret';
+    sqlMock.mockResolvedValueOnce([]); // findExpired returns empty
+    const r = new Request('http://localhost:3000/api/hosted/cleanup', {
+      method: 'POST',
+      headers: { authorization: 'Bearer vercel-cron-secret' },
+    });
+    const res = await cleanupPOST(r);
+    expect(res.status).toBe(200);
+  });
+
+  it('rejects a wrong Authorization: Bearer value (403)', async () => {
+    process.env.CRON_SECRET = 'vercel-cron-secret';
+    const r = new Request('http://localhost:3000/api/hosted/cleanup', {
+      method: 'POST',
+      headers: { authorization: 'Bearer wrong' },
+    });
+    const res = await cleanupPOST(r);
+    expect(res.status).toBe(403);
   });
 });
