@@ -28,6 +28,7 @@
     "route-sql:baseline:generate": "node scripts/generate-route-sql-baseline.mjs",
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
     "hooks:install": "node scripts/install-hooks.mjs",
+    "hooks:diagnose": "node scripts/diagnose-hooks.mjs",
     "telegram:setup": "node scripts/telegram-setup-wizard.mjs",
     "telegram:register": "node scripts/telegram-register-webhook.mjs",
     "telegram:verify": "node scripts/telegram-verify-loop.mjs",
