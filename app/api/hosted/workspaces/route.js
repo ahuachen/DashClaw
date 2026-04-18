@@ -16,6 +16,10 @@ function getLimiter() {
   return _limiter;
 }
 
+export function _resetLimiterForTests() {
+  _limiter = null;
+}
+
 function clientIp(request) {
   const fwd = request.headers.get('x-forwarded-for');
   if (fwd) return fwd.split(',')[0].trim();
@@ -33,22 +37,25 @@ export async function POST(request) {
   }
 
   const ip = clientIp(request);
-  const rl = getLimiter().take(ip);
-  if (!rl.ok) {
-    return NextResponse.json(
-      { error: 'Rate limit exceeded', retry_after_ms: rl.retryAfterMs },
-      { status: 429 },
-    );
-  }
 
   let body = {};
   try { body = await request.json(); } catch { /* empty body allowed */ }
 
+  // Verify turnstile BEFORE consuming a rate-limit slot so bot requests with bad
+  // tokens don't burn quota for legitimate users sharing a NAT egress IP.
   const turnstile = await verifyTurnstile(body.turnstile_token || '', ip);
   if (!turnstile.ok) {
     return NextResponse.json(
       { error: `turnstile verification failed: ${turnstile.reason}` },
       { status: 400 },
+    );
+  }
+
+  const rl = getLimiter().take(ip);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded', retry_after_ms: rl.retryAfterMs },
+      { status: 429 },
     );
   }
 
@@ -76,5 +83,8 @@ export async function POST(request) {
 }
 
 export async function GET() {
-  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+  return NextResponse.json(
+    { error: 'Method not allowed' },
+    { status: 405, headers: { Allow: 'POST' } },
+  );
 }

@@ -81,7 +81,7 @@ describe('hosted-workspace repository', () => {
 // the mock there rather than mocking the neon module (which would affect the
 // entire file and risk breaking the repo tests above).
 
-const { POST } = await import('../../../app/api/hosted/workspaces/route.js');
+const { POST, _resetLimiterForTests } = await import('../../../app/api/hosted/workspaces/route.js');
 
 function makeRequest({ body = {}, ip = '1.1.1.1' } = {}) {
   return new Request('http://localhost:3000/api/hosted/workspaces', {
@@ -101,6 +101,9 @@ describe('POST /api/hosted/workspaces', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     routeSqlMock.mockReset();
+    // Reset module-level rate-limiter singleton so prior tests' counters
+    // and max-setting don't leak across cases.
+    _resetLimiterForTests();
     // Inject mock into getSql() via the globalThis cache (db.js line 35)
     globalThis.__dashclaw_sql = routeSqlMock;
   });
