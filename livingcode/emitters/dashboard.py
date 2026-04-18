@@ -31,7 +31,11 @@ def _sparkline(label: str, series: list[tuple[str, int]]) -> str:
     )
 
 
-def emit_dashboard(shape: ShapeModel, snapshots: list[dict] | None = None) -> str:
+def emit_dashboard(
+    shape: ShapeModel,
+    snapshots: list[dict] | None = None,
+    state_report: dict | None = None,
+) -> str:
     active_routes = [r for r in shape.routes if not r.archived]
     archived_routes = [r for r in shape.routes if r.archived]
     required_env = [e for e in shape.env_vars if e.required]
@@ -73,6 +77,30 @@ def emit_dashboard(shape: ShapeModel, snapshots: list[dict] | None = None) -> st
         ])
         timeline_html = f'<section><h2>Timeline</h2>{sparklines}</section>\n'
 
+    health_html = ""
+    if state_report:
+        gs = state_report.get("git_stats") or {}
+        th = state_report.get("test_health") or {}
+        cq = state_report.get("code_quality") or {}
+        js = th.get("js_tests") or {"total": 0, "passed": 0}
+        py = th.get("python_tests") or {"total": 0, "passed": 0}
+        def _pct(suite):
+            t = suite.get("total", 0)
+            return f"{(suite.get('passed', 0) / t * 100):.1f}%" if t else "n/a"
+        chips = [
+            ("Commits 7d", gs.get("commits_7d", "?")),
+            ("Bus factor", gs.get("bus_factor", "?")),
+            ("JS tests", _pct(js)),
+            ("Python tests", _pct(py)),
+            ("TODOs", cq.get("todo_count", "?")),
+            ("Files >300 lines", cq.get("files_over_300_lines", "?")),
+        ]
+        chip_cells = "\n".join(
+            f'      <div class="cell"><div class="n">{escape(str(v))}</div><div class="k">{escape(k)}</div></div>'
+            for k, v in chips
+        )
+        health_html = f'<section><h2>Health</h2><div class="grid">{chip_cells}</div></section>\n'
+
     return (
         "<!doctype html>\n"
         '<html lang="en"><head><meta charset="utf-8">\n'
@@ -93,5 +121,6 @@ def emit_dashboard(shape: ShapeModel, snapshots: list[dict] | None = None) -> st
         f'<div class="sig">Shape signature: {escape(shape.timestamp)}</div>\n'
         f'<div class="grid">\n{count_cells}\n</div>\n'
         f'{timeline_html}'
+        f'{health_html}'
         "</body></html>\n"
     )

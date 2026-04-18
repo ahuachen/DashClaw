@@ -73,6 +73,24 @@ class TestDashboardEmitter(unittest.TestCase):
         html = emit_dashboard(_make_shape(), snapshots=[])
         self.assertNotIn("<svg", html)
 
+    def test_renders_health_strip(self):
+        report = {
+            "git_stats": {"commits_7d": 148, "bus_factor": 1},
+            "test_health": {
+                "js_tests": {"total": 500, "passed": 495, "failed": 5},
+                "python_tests": {"total": 80, "passed": 80, "failed": 0},
+            },
+            "code_quality": {"todo_count": 42, "files_over_300_lines": 7},
+        }
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertIn("Commits 7d", html)
+        self.assertIn("148", html)
+        self.assertIn("99.0%", html)  # JS pass rate 495/500
+
+    def test_health_strip_absent_without_report(self):
+        html = emit_dashboard(_make_shape())
+        self.assertNotIn("Commits 7d", html)
+
 
 if __name__ == "__main__":
     unittest.main()
