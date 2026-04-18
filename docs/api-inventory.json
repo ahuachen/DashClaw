@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 224,
+    "total_routes": 225,
     "stable_routes": 41,
     "beta_routes": 20,
-    "experimental_routes": 163
+    "experimental_routes": 164
   },
   "routes": [
     {
@@ -1201,6 +1201,15 @@
       "maturity": "stable",
       "matched_prefix": "/api/health",
       "file": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/hosted/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/hosted/cleanup/route.js"
     },
     {
       "path": "/api/hosted/workspaces",

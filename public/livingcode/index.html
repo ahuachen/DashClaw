@@ -48,12 +48,12 @@ p.kicker{background:var(--accent-bg);border:1px solid var(--accent-border);borde
 p.kicker b{color:var(--accent-deep)}
 </style></head><body>
 <h1>DashClaw Livingcode Dashboard</h1>
-<div class="sig" id="sig">Shape signature: sha1:842cb2d369ab24c29f862f8445a976f8d5918e31 · signature-stable</div>
+<div class="sig" id="sig">Shape signature: sha1:3195619d11518b3e4d75cfc38e4bf6e8dca6b9b8 · signature-stable</div>
 <div class="grid">
-      <div class="cell"><div class="n">177</div><div class="k">Active routes</div></div>
+      <div class="cell"><div class="n">178</div><div class="k">Active routes</div></div>
       <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
       <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
-      <div class="cell"><div class="n">106</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">107</div><div class="k">Optional env vars</div></div>
       <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
       <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
       <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
@@ -260,8 +260,10 @@ p.kicker b{color:var(--accent-deep)}
       <div class="cell"><div class="n">16<span class="trend">→</span></div><div class="k">TODOs</div></div>
       <div class="cell"><div class="n">184<span class="trend">→</span></div><div class="k">Files &gt;300 lines</div></div></div></section>
 
-<section><h2>Changed since last snapshot</h2><p class="kicker"><b>2</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/hosted/workspaces <span class="sig">New route: GET, POST</span></li>
-    <li><code>added</code> <b>routes</b>: /api/hosted/workspaces/[workspaceId] <span class="sig">New route: DELETE, GET</span></li></ul></section>
+<section><h2>Changed since last snapshot</h2><p class="kicker"><b>1</b> env_vars added, <b>3</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
+    <li><code>added</code> <b>routes</b>: /api/hosted/workspaces <span class="sig">New route: GET, POST</span></li>
+    <li><code>added</code> <b>routes</b>: /api/hosted/workspaces/[workspaceId] <span class="sig">New route: DELETE, GET</span></li>
+    <li><code>added</code> <b>env_vars</b>: HOSTED_CLEANUP_SECRET <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
 
 <section class="routes"><h2>Active routes</h2><input id="route-filter" type="search" placeholder="Filter routes…" oninput="var q=this.value.toLowerCase();document.querySelectorAll('section.routes tr[data-path]').forEach(function(r){r.style.display=r.dataset.path.toLowerCase().includes(q)?'':'none';});document.querySelectorAll('section.routes details').forEach(function(d){var visible=d.querySelectorAll("tr[data-path]:not([style*='none'])").length;d.style.display=visible||!q?'':'none';if(q)d.open=true;});"><details><summary>/actions/* (10)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/actions"><td><code>/api/actions</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/actions/route.js</td></tr>
     <tr data-path="/api/actions/[actionId]"><td><code>/api/actions/[actionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/[actionId]/route.js</td></tr>
@@ -337,7 +339,8 @@ p.kicker b{color:var(--accent-deep)}
 <details><summary>/guard/* (2)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/guard"><td><code>/api/guard</code></td><td>GET, POST</td><td class="sig">app/api/guard/route.js</td></tr>
     <tr data-path="/api/guard/decisions"><td><code>/api/guard/decisions</code></td><td>GET</td><td class="sig">app/api/guard/decisions/route.js</td></tr></tbody></table></details>
 <details><summary>/health/* (1)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/health"><td><code>/api/health</code></td><td>GET</td><td class="sig">app/api/health/route.js</td></tr></tbody></table></details>
-<details><summary>/hosted/* (2)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/hosted/workspaces"><td><code>/api/hosted/workspaces</code></td><td>GET, POST</td><td class="sig">app/api/hosted/workspaces/route.js</td></tr>
+<details><summary>/hosted/* (3)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/hosted/cleanup"><td><code>/api/hosted/cleanup</code></td><td>POST</td><td class="sig">app/api/hosted/cleanup/route.js</td></tr>
+    <tr data-path="/api/hosted/workspaces"><td><code>/api/hosted/workspaces</code></td><td>GET, POST</td><td class="sig">app/api/hosted/workspaces/route.js</td></tr>
     <tr data-path="/api/hosted/workspaces/[workspaceId]"><td><code>/api/hosted/workspaces/[workspaceId]</code></td><td>DELETE, GET</td><td class="sig">app/api/hosted/workspaces/[workspaceId]/route.js</td></tr></tbody></table></details>
 <details><summary>/identities/* (2)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/identities"><td><code>/api/identities</code></td><td>GET, POST</td><td class="sig">app/api/identities/route.js</td></tr>
     <tr data-path="/api/identities/[agentId]"><td><code>/api/identities/[agentId]</code></td><td>DELETE</td><td class="sig">app/api/identities/[agentId]/route.js</td></tr></tbody></table></details>

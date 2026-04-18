@@ -103,3 +103,90 @@ describe('DELETE /api/hosted/workspaces/:id', () => {
     expect(body).toEqual({ deleted: true, workspace_id: 'org_x' });
   });
 });
+
+// --- Cleanup sweeper tests ---
+const { POST: cleanupPOST } = await import('../../../app/api/hosted/cleanup/route.js');
+
+describe('POST /api/hosted/cleanup', () => {
+  beforeEach(() => {
+    sqlMock.mockReset();
+    sqlMock.mockResolvedValue([]);
+    process.env.DASHCLAW_HOSTED = 'true';
+    globalThis.__dashclaw_sql = sqlMock;
+  });
+
+  afterEach(() => {
+    delete globalThis.__dashclaw_sql;
+    delete process.env.HOSTED_CLEANUP_SECRET;
+  });
+
+  function req({ role = 'admin', cleanupSecret } = {}) {
+    const headers = {};
+    if (role) headers['x-org-role'] = role;
+    if (cleanupSecret) headers['x-cleanup-secret'] = cleanupSecret;
+    return new Request('http://localhost:3000/api/hosted/cleanup', {
+      method: 'POST',
+      headers,
+    });
+  }
+
+  it('returns 404 when flag off', async () => {
+    delete process.env.DASHCLAW_HOSTED;
+    const res = await cleanupPOST(req());
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 403 when role is not admin/owner and no cleanup secret', async () => {
+    const res = await cleanupPOST(req({ role: 'member' }));
+    expect(res.status).toBe(403);
+  });
+
+  it('accepts valid x-cleanup-secret header', async () => {
+    process.env.HOSTED_CLEANUP_SECRET = 'super-secret';
+    sqlMock.mockResolvedValueOnce([]); // findExpired returns empty
+    const res = await cleanupPOST(req({ role: null, cleanupSecret: 'super-secret' }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toEqual({ found: 0, deleted: 0, errors: [] });
+  });
+
+  it('rejects a wrong x-cleanup-secret (403)', async () => {
+    process.env.HOSTED_CLEANUP_SECRET = 'super-secret';
+    const res = await cleanupPOST(req({ role: null, cleanupSecret: 'wrong' }));
+    expect(res.status).toBe(403);
+  });
+
+  it('deletes each expired workspace and returns counts', async () => {
+    // 1: findExpiredWorkspaces returns two orgs
+    sqlMock.mockResolvedValueOnce([{ id: 'org_a' }, { id: 'org_b' }]);
+    // org_a delete: existence check -> hosted, then revoke keys, then delete org
+    sqlMock.mockResolvedValueOnce([{ hosted_mode: true }]);
+    sqlMock.mockResolvedValueOnce([]);
+    sqlMock.mockResolvedValueOnce([]);
+    // org_b delete: same pattern
+    sqlMock.mockResolvedValueOnce([{ hosted_mode: true }]);
+    sqlMock.mockResolvedValueOnce([]);
+    sqlMock.mockResolvedValueOnce([]);
+    const res = await cleanupPOST(req());
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({ found: 2, deleted: 2 });
+  });
+
+  it('collects per-org errors without aborting the sweep', async () => {
+    sqlMock.mockResolvedValueOnce([{ id: 'org_fail' }, { id: 'org_ok' }]);
+    // org_fail: existence check throws
+    sqlMock.mockRejectedValueOnce(new Error('db flaked'));
+    // org_ok: normal delete
+    sqlMock.mockResolvedValueOnce([{ hosted_mode: true }]);
+    sqlMock.mockResolvedValueOnce([]);
+    sqlMock.mockResolvedValueOnce([]);
+    const res = await cleanupPOST(req());
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.found).toBe(2);
+    expect(body.deleted).toBe(1);
+    expect(body.errors).toHaveLength(1);
+    expect(body.errors[0]).toMatchObject({ orgId: 'org_fail' });
+  });
+});

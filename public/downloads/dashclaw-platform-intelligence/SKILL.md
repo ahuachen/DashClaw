@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:842cb2d369ab24c29f862f8445a976f8d5918e31`
+**Shape snapshot:** `sha1:3195619d11518b3e4d75cfc38e4bf6e8dca6b9b8`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -29,8 +29,8 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 ## At a Glance
 
-- **177** active API routes across **45** categories
-- **4** required + **106** optional environment variables
+- **178** active API routes across **45** categories
+- **4** required + **107** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -165,6 +165,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 ### `hosted`
 
+- `POST` `/api/hosted/cleanup`
 - `GET, POST` `/api/hosted/workspaces`
 - `DELETE, GET` `/api/hosted/workspaces/[workspaceId]`
 
@@ -410,6 +411,7 @@ These have fallbacks or only activate specific features.
 - `GUARD_LLM_KEY` *(undocumented)*
 - `GUARD_LLM_MODEL` *(undocumented)*
 - `GUARD_WEBHOOK_SECRET` *(undocumented)*
+- `HOSTED_CLEANUP_SECRET` *(undocumented)*
 - `HOSTED_PROVISION_MAX_PER_IP_PER_DAY` *(undocumented)*
 - `HOSTED_TRIAL_ACTION_CAP` *(undocumented)*
 - `HOSTED_TRIAL_DAYS` *(undocumented)*

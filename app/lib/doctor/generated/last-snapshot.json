@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:842cb2d369ab24c29f862f8445a976f8d5918e31",
+  "timestamp": "sha1:3195619d11518b3e4d75cfc38e4bf6e8dca6b9b8",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1232,6 +1232,15 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/hosted/cleanup",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/hosted/cleanup/route.js"
     },
     {
       "path": "/api/hosted/workspaces",
@@ -2988,6 +2997,15 @@
       "files": [
         "app/lib/webhooks.js",
         "graphify-pilot/app/lib/webhooks.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "HOSTED_CLEANUP_SECRET",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/workspace-admin.test.js",
+        "app/api/hosted/cleanup/route.js"
       ],
       "in_env_example": false
     },
