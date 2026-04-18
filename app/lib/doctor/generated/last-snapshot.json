@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:090d2e11f6a088493894729c69c128229678dcbc",
+  "timestamp": "sha1:8e96cea19bb97d1ced27e6eac70f45d589e0a5b3",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1262,6 +1262,15 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/integrations/health/route.js"
+    },
+    {
+      "path": "/api/integrations/health/refresh",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/integrations/health/refresh/route.js"
     },
     {
       "path": "/api/keys",

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import {
-  Plug, Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings,
+  Plug, Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings, RefreshCw,
 } from 'lucide-react';
 import { INTEGRATION_CONFIGS, CATEGORY_ICONS, CATEGORIES } from '../lib/integrationConfigs';
 import PageLayout from '../components/PageLayout';
@@ -18,6 +18,8 @@ export default function IntegrationsPage() {
   const [settings, setSettings] = useState({});
   const [agentConnections, setAgentConnections] = useState([]);
   const [healthData, setHealthData] = useState({});
+  const [refreshingHealth, setRefreshingHealth] = useState(false);
+  const [refreshError, setRefreshError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editingIntegration, setEditingIntegration] = useState(null);
   const [formData, setFormData] = useState({});
@@ -80,6 +82,25 @@ export default function IntegrationsPage() {
       }
     } catch {}
   }, []);
+
+  const handleRefreshHealth = useCallback(async () => {
+    if (refreshingHealth) return;
+    setRefreshingHealth(true);
+    setRefreshError(null);
+    try {
+      const res = await fetch('/api/integrations/health/refresh', { method: 'POST' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Refresh failed (${res.status})`);
+      }
+      const data = await res.json();
+      setHealthData(data.health || {});
+    } catch (err) {
+      setRefreshError(err.message || 'Refresh failed');
+    } finally {
+      setRefreshingHealth(false);
+    }
+  }, [refreshingHealth]);
 
   useEffect(() => {
     setLoading(true);
@@ -220,6 +241,21 @@ export default function IntegrationsPage() {
   }
   const agentOverrideCount = overrideProviders.size;
 
+  // Newest checked_at across all integrations, formatted relative.
+  const lastHealthCheck = (() => {
+    let latest = 0;
+    for (const v of Object.values(healthData)) {
+      const t = v?.checked_at ? new Date(v.checked_at).getTime() : 0;
+      if (t > latest) latest = t;
+    }
+    if (!latest) return null;
+    const diffSec = Math.max(0, Math.round((Date.now() - latest) / 1000));
+    if (diffSec < 60) return `${diffSec}s ago`;
+    if (diffSec < 3600) return `${Math.round(diffSec / 60)}m ago`;
+    if (diffSec < 86400) return `${Math.round(diffSec / 3600)}h ago`;
+    return `${Math.round(diffSec / 86400)}d ago`;
+  })();
+
   if (loading) {
     return (
       <PageLayout
@@ -254,7 +290,7 @@ export default function IntegrationsPage() {
       maturity="stable"
     >
       {/* Instrument rail */}
-      <div className="mb-6 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4">
+      <div className="mb-3 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4">
         <div className="p-4">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Available</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{allIntegrations.length}</div>
@@ -272,6 +308,36 @@ export default function IntegrationsPage() {
           <div className="mt-1 text-2xl font-semibold tabular-nums text-zinc-400">{notConfiguredCount}</div>
         </div>
       </div>
+
+      {/* Health refresh — admin only, free-tier compatible alternative to a cron */}
+      {isAdmin && !isDemoMode() && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-400">
+          <span>
+            Health checks run on demand.{' '}
+            {lastHealthCheck ? (
+              <>Last refresh: <span className="tabular-nums text-zinc-300">{lastHealthCheck}</span>.</>
+            ) : (
+              <>No checks recorded yet.</>
+            )}
+            {refreshError && (
+              <span className="ml-2 text-red-400">· {refreshError}</span>
+            )}
+          </span>
+          <button
+            type="button"
+            onClick={handleRefreshHealth}
+            disabled={refreshingHealth}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw
+              size={12}
+              className={refreshingHealth ? 'animate-spin' : ''}
+              aria-hidden="true"
+            />
+            {refreshingHealth ? 'Refreshing…' : 'Refresh health'}
+          </button>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="relative mb-4">

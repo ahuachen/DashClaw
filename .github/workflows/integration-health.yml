@@ -1,0 +1,43 @@
+name: Integration health check
+
+# Optional scheduler for `/api/cron/integration-health`. Enable this workflow
+# if you want automated 6-hour health polling without a Vercel Pro cron.
+#
+# Setup:
+#   1. In repo Settings → Secrets and variables → Actions, add:
+#        - DASHCLAW_BASE_URL  (e.g. https://my-dashclaw.vercel.app)
+#        - CRON_SECRET        (same value as the CRON_SECRET env on Vercel)
+#   2. Enable the workflow (it's disabled for forks by default).
+#
+# Manual trigger: Actions tab → "Integration health check" → "Run workflow".
+
+on:
+  schedule:
+    # Every 6 hours, on the hour.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    # Abort cleanly if secrets aren't wired up — users who fork without
+    # configuring these shouldn't see repeated red builds.
+    if: ${{ vars.DASHCLAW_BASE_URL != '' || secrets.DASHCLAW_BASE_URL != '' }}
+    steps:
+      - name: Hit /api/cron/integration-health
+        env:
+          BASE_URL: ${{ secrets.DASHCLAW_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$BASE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "DASHCLAW_BASE_URL or CRON_SECRET not set — skipping."
+            exit 0
+          fi
+          status=$(curl -sS -o /tmp/resp.json -w '%{http_code}' \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$BASE_URL/api/cron/integration-health")
+          echo "HTTP $status"
+          cat /tmp/resp.json
+          if [ "$status" != "200" ]; then
+            exit 1
+          fi

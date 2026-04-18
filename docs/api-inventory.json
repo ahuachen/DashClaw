@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 221,
+    "total_routes": 222,
     "stable_routes": 41,
     "beta_routes": 20,
-    "experimental_routes": 160
+    "experimental_routes": 161
   },
   "routes": [
     {
@@ -1229,6 +1229,15 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/integrations/health/route.js"
+    },
+    {
+      "path": "/api/integrations/health/refresh",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/integrations/health/refresh/route.js"
     },
     {
       "path": "/api/keys",

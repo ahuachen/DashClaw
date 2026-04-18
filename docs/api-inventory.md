@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `221`
+- Total routes: `222`
 - Stable routes: `41`
 - Beta routes: `20`
-- Experimental routes: `160`
+- Experimental routes: `161`
 
 ## Routes
 
@@ -146,6 +146,7 @@ doc-type: architecture
 | `/api/identities` | `GET, POST` | `experimental` | `/api/identities` | `app/api/identities/route.js` |
 | `/api/identities/{agentId}` | `DELETE` | `experimental` | `/api/identities` | `app/api/identities/[agentId]/route.js` |
 | `/api/integrations/health` | `GET` | `experimental` | `(default)` | `app/api/integrations/health/route.js` |
+| `/api/integrations/health/refresh` | `POST` | `experimental` | `(default)` | `app/api/integrations/health/refresh/route.js` |
 | `/api/keys` | `DELETE, GET, POST` | `stable` | `/api/keys` | `app/api/keys/route.js` |
 | `/api/keys/reveal` | `GET` | `stable` | `/api/keys` | `app/api/keys/reveal/route.js` |
 | `/api/knowledge/collections` | `GET, POST` | `experimental` | `(default)` | `app/api/knowledge/collections/route.js` |
