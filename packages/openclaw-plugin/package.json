@@ -28,8 +28,12 @@
     "LICENSE"
   ],
   "openclaw": {
-    "extensions": ["./src/index.ts"],
-    "hooks": ["./src/index.ts"]
+    "extensions": [
+      "./src/index.ts"
+    ],
+    "hooks": [
+      "./src/index.ts"
+    ]
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -39,14 +43,16 @@
     "dashclaw": "^2.11.1"
   },
   "peerDependencies": {
-    "openclaw": ">=2025.0.0"
+    "openclaw": "^2026.4.15"
   },
   "peerDependenciesMeta": {
-    "openclaw": { "optional": false }
+    "openclaw": {
+      "optional": false
+    }
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "@types/node": "^20.11.0"
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0"
   },
   "overrides": {
     "axios": "^1.15.0",
