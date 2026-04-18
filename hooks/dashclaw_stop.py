@@ -32,6 +32,12 @@ import urllib.error
 
 BASE_URL = (os.environ.get("DASHCLAW_BASE_URL") or "").rstrip("/")
 API_KEY = os.environ.get("DASHCLAW_API_KEY") or ""
+AGENT_ID = os.environ.get("DASHCLAW_AGENT_ID") or "claude-code"
+# Opt-in: on text-only turns (tokens present but no tool calls → no action_ids)
+# create a synthetic `action_type='conversation'` action so the spend lands in
+# analytics instead of just in the orphan-tokens drift log. Default off to
+# avoid ledger inflation for users who only want tool-call governance.
+TRACK_TEXT_TURNS = (os.environ.get("DASHCLAW_TRACK_TEXT_TURNS") or "").strip() in ("1", "true", "yes")
 
 # Session IDs come from untrusted stdin. Before we use one as a temp-file
 # suffix, replace anything outside this whitelist so a crafted session_id
@@ -221,6 +227,62 @@ def _distribute(total, n):
     return [base + (1 if i < remainder else 0) for i in range(n)]
 
 
+def _post_action(body):
+    """POST /api/actions. Returns action_id on success, None on failure."""
+    url = BASE_URL + "/api/actions"
+    data = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY,
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        _log_hook_error("POST /api/actions -> HTTP " + str(e.code))
+        return None
+    except Exception as e:
+        _log_hook_error("POST /api/actions -> " + type(e).__name__ + ": " + str(e))
+        return None
+    action = payload.get("action") or payload
+    if isinstance(action, dict):
+        return action.get("action_id")
+    return None
+
+
+def _create_text_only_action(tokens_in, tokens_out, model, session_id):
+    """Create a synthetic `action_type='conversation'` action so the tokens
+    from a text-only turn land in analytics. Opt-in via DASHCLAW_TRACK_TEXT_TURNS.
+
+    Returns action_id on success, None on failure. Server derives cost from
+    tokens + model at POST time via the same pricing path as tool actions."""
+    body = {
+        "agent_id": AGENT_ID,
+        "action_type": "conversation",
+        "declared_goal": "Text-only assistant response",
+        "risk_score": 0,
+        "reversible": True,
+        "systems_touched": [],
+        "status": "completed",
+        "tokens_in": tokens_in,
+        "tokens_out": tokens_out,
+        "output_summary": "Recorded by Stop hook (text-only turn)",
+        "timestamp_end": datetime_now_iso(),
+    }
+    if model:
+        body["model"] = model
+    if session_id:
+        # Keep the raw session_id for cross-referencing; server doesn't use it
+        # for path routing so no sanitization needed.
+        body["trigger"] = "session:" + session_id
+    return _post_action(body)
+
+
 def _patch_action(action_id, body):
     """PATCH /api/actions/{action_id}. Failures log and return; never block."""
     url = BASE_URL + "/api/actions/" + action_id
@@ -254,16 +316,31 @@ def _apply(action_ids, tokens_in, tokens_out, model, session_id=""):
     has_tokens = tokens_in > 0 or tokens_out > 0
     if not action_ids:
         # Text-only assistant turns have no tool calls, so there are no
-        # action_ids to attribute usage against. We can't invent an action
-        # here, but we don't want the tokens to disappear silently. Emit a
-        # drift-log entry so ops can see the unattributed spend.
-        if has_tokens:
-            _log_hook_error(
-                "orphan_tokens session=" + (session_id or "?")
-                + " tokens_in=" + str(tokens_in)
-                + " tokens_out=" + str(tokens_out)
-                + " model=" + (model or "unknown")
-            )
+        # action_ids to attribute usage against.
+        if not has_tokens:
+            return
+        if TRACK_TEXT_TURNS:
+            # Opt-in path: create a synthetic `conversation` action and let
+            # tokens land there. Cost is derived server-side from tokens + model.
+            created = _create_text_only_action(tokens_in, tokens_out, model, session_id)
+            if not created:
+                # POST failed — log so ops can see we dropped this turn's spend.
+                _log_hook_error(
+                    "orphan_tokens session=" + (session_id or "?")
+                    + " tokens_in=" + str(tokens_in)
+                    + " tokens_out=" + str(tokens_out)
+                    + " model=" + (model or "unknown")
+                    + " (TRACK_TEXT_TURNS=1 but POST /api/actions failed)"
+                )
+            return
+        # Default path: log and drop. Ops can enable tracking via
+        # DASHCLAW_TRACK_TEXT_TURNS=1 if they want these in the ledger.
+        _log_hook_error(
+            "orphan_tokens session=" + (session_id or "?")
+            + " tokens_in=" + str(tokens_in)
+            + " tokens_out=" + str(tokens_out)
+            + " model=" + (model or "unknown")
+        )
         return
     n = len(action_ids)
     in_parts = _distribute(tokens_in, n) if has_tokens else [0] * n

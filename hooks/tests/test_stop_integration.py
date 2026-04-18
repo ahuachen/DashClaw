@@ -69,6 +69,22 @@ def _make_handler(log, status_by_id=None):
             self.end_headers()
             self.wfile.write(resp)
 
+        def do_POST(self):
+            length = int(self.headers.get("Content-Length", 0))
+            raw = self.rfile.read(length) if length else b""
+            body = json.loads(raw) if raw else None
+            log.add("POST", self.path, body)
+            # Synthesize an action_id from the request count so the Stop hook
+            # can extract it from the response and test assertions can match.
+            action_id = "act-synth-" + str(len(log.get_all()))
+            payload = {"action": {"action_id": action_id, "status": body.get("status") if body else "running"}}
+            resp = json.dumps(payload).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+
         def do_GET(self):
             log.add("GET", self.path, None)
             # Extract the action_id suffix from /api/actions/<id>.
@@ -466,6 +482,82 @@ class TestStopHook(unittest.TestCase):
         self.assertIn("session=" + session_id, new_lines)
         self.assertIn("tokens_in=42", new_lines)
         self.assertIn("tokens_out=17", new_lines)
+
+    def test_track_text_turns_creates_synthetic_conversation_action(self):
+        """When DASHCLAW_TRACK_TEXT_TURNS=1 is set, text-only turns (tokens
+        but no action_ids) POST a synthetic action_type='conversation' record
+        so the spend lands in analytics instead of just the drift log."""
+        session_id = "sess-test-track-text"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "hi"}},
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "message": {
+                    "model": "claude-opus-4-6",
+                    "usage": {"input_tokens": 100, "output_tokens": 50},
+                },
+            },
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        # No _write_turn_actions — text-only turn.
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+
+        env = self._env()
+        env["DASHCLAW_TRACK_TEXT_TURNS"] = "1"
+        env["DASHCLAW_AGENT_ID"] = "test-claude-code"
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            env,
+        )
+        self.assertEqual(code, 0, msg=err)
+
+        posts = [r for r in self.log.get_all() if r["method"] == "POST"]
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(posts[0]["path"], "/api/actions")
+        body = posts[0]["body"]
+        self.assertEqual(body["action_type"], "conversation")
+        self.assertEqual(body["agent_id"], "test-claude-code")
+        self.assertEqual(body["status"], "completed")
+        self.assertEqual(body["tokens_in"], 100)
+        self.assertEqual(body["tokens_out"], 50)
+        self.assertEqual(body["model"], "claude-opus-4-6")
+        self.assertEqual(body["risk_score"], 0)
+        self.assertIs(body["reversible"], True)
+        self.assertIn("timestamp_end", body)
+        self.assertIn(session_id, body.get("trigger", ""))
+        # No PATCHes — synthetic action is created already-completed.
+        self.assertEqual([r for r in self.log.get_all() if r["method"] == "PATCH"], [])
+
+    def test_track_text_turns_default_off_still_logs_orphan_tokens(self):
+        """Without DASHCLAW_TRACK_TEXT_TURNS, text-only turns must still log
+        orphan_tokens — the opt-in flag only changes whether we also POST."""
+        session_id = "sess-test-track-off"
+        entries = [
+            {"type": "user", "uuid": "u1", "message": {"role": "user", "content": "hi"}},
+            {
+                "type": "assistant",
+                "uuid": "a1",
+                "message": {
+                    "model": "opus",
+                    "usage": {"input_tokens": 7, "output_tokens": 3},
+                },
+            },
+        ]
+        transcript = _write_transcript(entries)
+        self.addCleanup(_safe_remove, transcript)
+        self.addCleanup(_safe_remove, _cursor_path(session_id))
+
+        code, _, err = _run_hook(
+            {"session_id": session_id, "transcript_path": transcript},
+            self._env(),  # TRACK_TEXT_TURNS not set
+        )
+        self.assertEqual(code, 0, msg=err)
+        # No POST, no PATCH — pure log-and-drop behavior.
+        self.assertEqual([r for r in self.log.get_all() if r["method"] == "POST"], [])
+        self.assertEqual([r for r in self.log.get_all() if r["method"] == "PATCH"], [])
 
     def test_session_id_path_traversal_is_sanitized(self):
         """Malicious session_id cannot escape the tempdir via path traversal.
