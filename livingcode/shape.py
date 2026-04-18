@@ -14,6 +14,7 @@ from livingcode.collectors.events import collect_events
 from livingcode.collectors.routes import collect_routes
 from livingcode.collectors.schema import collect_schema
 from livingcode.collectors.settings import collect_setting_keys
+from livingcode.collectors.signals import collect_signal_types
 from livingcode.types import ShapeModel
 
 
@@ -27,4 +28,5 @@ def build_shape(repo_path: str) -> ShapeModel:
         setting_keys=collect_setting_keys(repo_path),
         events=collect_events(repo_path),
         adapters=collect_adapters(repo_path),
+        signal_types=collect_signal_types(repo_path),
     )

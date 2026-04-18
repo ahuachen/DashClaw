@@ -149,6 +149,120 @@ export const discordAdapter = {
         self.assertEqual(collect_adapters("/does/not/exist"), [])
 
 
+class TestSignalsCollector(unittest.TestCase):
+    """The signals collector scans files that CALL the delivery pipeline
+    (fireWebhooksForOrg / deliverNativeNotifications) and harvests
+    `type: '<name>'` literals. Files that don't import either function must
+    be ignored — otherwise status enums, tool_type strings, etc. would
+    leak in as false positives."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.lib = os.path.join(self.tmpdir, "app", "lib")
+        os.makedirs(self.lib, exist_ok=True)
+
+    def _write(self, rel_path, body):
+        full = os.path.join(self.tmpdir, rel_path)
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, "w", encoding="utf-8") as f:
+            f.write(body)
+
+    def test_collects_types_from_delivery_call_sites(self):
+        self._write("app/lib/cost-alerts.js", """
+import { fireWebhooksForOrg } from './webhooks.js';
+export function buildSignal() {
+  return { type: 'cost_exceeded', severity: 'red' };
+}
+export async function fire(sql, org) {
+  await fireWebhooksForOrg(org, [{ type: 'cost_exceeded' }], sql);
+}
+""")
+        self._write("app/lib/signals.js", """
+import { deliverNativeNotifications } from './notification-adapters/index.js';
+export function agentMismatch() {
+  return { type: 'integration_mismatch', severity: 'amber' };
+}
+export async function flushSignals(sql, org, signals, settings) {
+  await deliverNativeNotifications(org, signals, settings, sql);
+}
+""")
+        from livingcode.collectors.signals import collect_signal_types
+        types = collect_signal_types(self.tmpdir)
+        self.assertEqual(types, ['cost_exceeded', 'integration_mismatch'])
+
+    def test_ignores_files_that_dont_call_delivery(self):
+        # Looks like a signal but nothing in this file calls the pipeline,
+        # so the collector must leave its `type:` alone.
+        self._write("app/lib/unrelated.js", """
+export const TOOL_TYPES = [
+  { type: 'bash' },
+  { type: 'edit' },
+];
+""")
+        from livingcode.collectors.signals import collect_signal_types
+        self.assertEqual(collect_signal_types(self.tmpdir), [])
+
+    def test_catches_signal_builders_that_dont_deliver(self):
+        """signals.js returns signal objects for a caller to deliver later —
+        the collector must catch those via the signal-shape heuristic
+        (type + red/amber severity in close proximity)."""
+        self._write("app/lib/signals.js", """
+export function collectSignals() {
+  return [
+    { type: 'integration_mismatch', severity: 'red', label: 'Bad cred' },
+    { type: 'stale_running_action', severity: 'amber', label: 'Stuck' },
+  ];
+}
+""")
+        from livingcode.collectors.signals import collect_signal_types
+        types = collect_signal_types(self.tmpdir)
+        self.assertEqual(types, ['integration_mismatch', 'stale_running_action'])
+
+    def test_rejects_unrelated_types_in_signal_builder_files(self):
+        """A file like demoFixtures.js can contain REAL signal fixtures
+        (type+severity) alongside unrelated `type:` fields (memory entities,
+        tool types). Only the signal-shaped ones should survive — if we
+        qualify once and then scrape every `type:` in the file, demo entity
+        `type:` values leak into the skill."""
+        self._write("app/lib/demo/demoFixtures.js", """
+// Unrelated memory entity — has `type:` but no severity nearby.
+export const MEMORY = {
+  entities: [
+    { name: 'Concept A', type: 'concept', mentions: 32 },
+    { name: 'Concept B', type: 'concept', mentions: 28 },
+  ],
+};
+// Lots of padding so the proximity window doesn't reach up to the memory block.
+// .........................................................................
+// .........................................................................
+// .........................................................................
+// .........................................................................
+// Actual signal fixture lives way down here.
+export const SIGNAL_FIXTURES = [
+  { severity: 'red', type: 'autonomy_spike', agent_id: 'x' },
+];
+""")
+        from livingcode.collectors.signals import collect_signal_types
+        types = collect_signal_types(self.tmpdir)
+        # The real signal survives; the unrelated `concept` entities don't.
+        self.assertIn('autonomy_spike', types)
+        self.assertNotIn('concept', types)
+
+    def test_dedupes_across_files(self):
+        self._write("app/lib/a.js", """
+import { fireWebhooksForOrg } from './webhooks.js';
+const s = { type: 'shared_type', severity: 'red' };
+fireWebhooksForOrg('org', [s], {});
+""")
+        self._write("app/lib/b.js", """
+import { deliverNativeNotifications } from './notification-adapters/index.js';
+const s = { type: 'shared_type', severity: 'amber' };
+deliverNativeNotifications('org', [s], [], {});
+""")
+        from livingcode.collectors.signals import collect_signal_types
+        self.assertEqual(collect_signal_types(self.tmpdir), ['shared_type'])
+
+
 class TestSkillEmitterNewSections(unittest.TestCase):
     """Verify the emitter renders the new sections when the shape carries them."""
 
@@ -175,8 +289,13 @@ class TestSkillEmitterNewSections(unittest.TestCase):
             adapters=[
                 AdapterInfo(name='slack', required_keys=['SLACK_WEBHOOK_URL']),
             ],
+            signal_types=['cost_exceeded', 'integration_health_changed'],
         )
         out = emit_skill(shape)
+
+        self.assertIn('## Signal Types', out)
+        self.assertIn('`cost_exceeded`', out)
+        self.assertIn('`integration_health_changed`', out)
 
         self.assertIn('## Configuration Knobs', out)
         self.assertIn('### AI Providers', out)

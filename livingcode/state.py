@@ -1,5 +1,6 @@
 """Filesystem operations for .organism/ state directory."""
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,16 @@ from typing import Any
 
 ORGANISM_DIR = ".organism"
 SUBDIRS = ["state-reports", "heartbeats", "backlog", "cycle-history", "shape-snapshots"]
+
+# Monotonic counter baked into every state-report filename. Previously,
+# filenames used microsecond-precision timestamps and resolved collisions
+# with a `-N` suffix — but `read_latest_state_report` sorted by `st_mtime`,
+# which on Windows NTFS has ~15ms resolution. Two back-to-back writes
+# therefore tied on mtime and the "most recent" file was non-deterministic.
+# An always-present zero-padded counter gives a lexical sort order that
+# matches insertion order regardless of filesystem timestamp granularity.
+_counter_lock = threading.Lock()
+_counter = 0
 
 
 def ensure_organism_dir(repo_path: str) -> Path:
@@ -19,32 +30,42 @@ def ensure_organism_dir(repo_path: str) -> Path:
 
 
 def _safe_timestamp() -> str:
-    """Generate a Windows-safe timestamp string (no colons, microsecond precision)."""
+    """Generate a Windows-safe, monotonic filename stem.
+
+    Format: `YYYY-MM-DDTHH-MM-SS-ffffff-NNNNNN` where NNNNNN is a process-local
+    counter. Lexical sort of two stems always matches the order they were
+    generated — no mtime dependency.
+    """
+    global _counter
     now = datetime.now(timezone.utc)
-    return now.strftime("%Y-%m-%dT%H-%M-%S-%f")
+    with _counter_lock:
+        _counter += 1
+        seq = _counter
+    return now.strftime("%Y-%m-%dT%H-%M-%S-%f") + f"-{seq:06d}"
 
 
 def write_state_report(repo_path: str, data: dict[str, Any]) -> str:
     """Write a state report JSON file. Returns the file path."""
     reports_dir = Path(repo_path) / ORGANISM_DIR / "state-reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
-    base = _safe_timestamp()
-    filepath = reports_dir / f"{base}.json"
-    counter = 0
-    while filepath.exists():
-        counter += 1
-        filepath = reports_dir / f"{base}-{counter}.json"
+    filepath = reports_dir / f"{_safe_timestamp()}.json"
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2, default=str)
     return str(filepath)
 
 
 def read_latest_state_report(repo_path: str) -> dict[str, Any] | None:
-    """Read the most recent state report. Returns None if none exist."""
+    """Read the most recent state report. Returns None if none exist.
+
+    Sorts by filename (lexical) — `_safe_timestamp()` guarantees monotonicity,
+    so this ordering is stable on every filesystem. Do NOT switch back to
+    mtime: NTFS coarse-granularity mtimes produced false ties that left the
+    'latest' report ambiguous.
+    """
     reports_dir = Path(repo_path) / ORGANISM_DIR / "state-reports"
     if not reports_dir.exists():
         return None
-    files = sorted(reports_dir.glob("*.json"), key=lambda p: p.stat().st_mtime)
+    files = sorted(reports_dir.glob("*.json"))
     if not files:
         return None
     with open(files[-1]) as f:

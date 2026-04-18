@@ -155,6 +155,20 @@ def emit_skill(shape: ShapeModel) -> str:
             lines.append(f"| `{e.constant}` | `{e.event}` |")
         lines.append("")
 
+    # Signal vocabulary — types emitted by alerters, consumed by webhooks + adapters
+    if getattr(shape, "signal_types", []):
+        lines += ["## Signal Types", ""]
+        lines += [
+            "These are the `type` strings emitted through `fireWebhooksForOrg` "
+            "and `deliverNativeNotifications`. Webhooks can subscribe to any "
+            "subset by putting the type in their `events: [...]` array (or "
+            "use `['all']` for everything).",
+            "",
+        ]
+        for t in shape.signal_types:
+            lines.append(f"- `{t}`")
+        lines.append("")
+
     # Native notification adapters
     if getattr(shape, "adapters", []):
         lines += ["## Native Notification Adapters", ""]

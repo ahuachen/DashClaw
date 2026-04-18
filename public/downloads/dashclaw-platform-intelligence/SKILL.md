@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:0a45543dd6eea2cca1b05176f7075258617c9ed5`
+**Shape snapshot:** `sha1:a1474e482800bd24d85993b7e4ff9d69865042f4`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -669,6 +669,20 @@ Every mutation that Mission Control reflects and every webhook delivery is keyed
 | `TASK_ASSIGNED` | `task.assigned` |
 | `TASK_COMPLETED` | `task.completed` |
 | `TOKEN_USAGE` | `token.usage` |
+
+## Signal Types
+
+These are the `type` strings emitted through `fireWebhooksForOrg` and `deliverNativeNotifications`. Webhooks can subscribe to any subset by putting the type in their `events: [...]` array (or use `['all']` for everything).
+
+- `autonomy_spike`
+- `branch_stale`
+- `cost_exceeded`
+- `green_insufficient`
+- `integration_health_changed`
+- `integration_mismatch`
+- `mcp_degraded`
+- `stale_action`
+- `test`
 
 ## Native Notification Adapters
 

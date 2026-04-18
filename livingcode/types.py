@@ -238,6 +238,7 @@ class ShapeModel:
     setting_keys: list[SettingKeyInfo] = field(default_factory=list)
     events: list[EventInfo] = field(default_factory=list)
     adapters: list[AdapterInfo] = field(default_factory=list)
+    signal_types: list[str] = field(default_factory=list)
 
 
 @dataclass
