@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 222,
+    "total_routes": 223,
     "stable_routes": 41,
     "beta_routes": 20,
-    "experimental_routes": 161
+    "experimental_routes": 162
   },
   "routes": [
     {
@@ -1201,6 +1201,16 @@
       "maturity": "stable",
       "matched_prefix": "/api/health",
       "file": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/hosted/workspaces",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/hosted/workspaces/route.js"
     },
     {
       "path": "/api/identities",

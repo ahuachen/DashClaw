@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:9d7e0690abde312efc2bb69672edd18e4a00254c",
+  "timestamp": "sha1:a914c4bb133da525dc112ef90f1e294feff2aaf0",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1232,6 +1232,16 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/health/route.js"
+    },
+    {
+      "path": "/api/hosted/workspaces",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/hosted/workspaces/route.js"
     },
     {
       "path": "/api/identities",
@@ -2636,6 +2646,7 @@
       "required": false,
       "files": [
         "__tests__/unit/hosted/flag.test.js",
+        "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/flag.js"
       ],
       "in_env_example": false
@@ -2969,6 +2980,7 @@
       "required": false,
       "files": [
         "__tests__/unit/hosted/flag.test.js",
+        "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/flag.js"
       ],
       "in_env_example": false
@@ -3481,6 +3493,7 @@
       "required": false,
       "files": [
         "__tests__/unit/hosted/turnstile.test.js",
+        "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/turnstile.js"
       ],
       "in_env_example": false

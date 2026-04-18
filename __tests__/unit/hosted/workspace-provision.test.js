@@ -75,3 +75,82 @@ describe('hosted-workspace repository', () => {
     expect(res).toEqual(['org_old', 'org_older']);
   });
 });
+
+// Route-level tests — use globalThis.__dashclaw_sql to intercept getSql() calls.
+// getSql() checks globalThis.__dashclaw_sql first (db.js line 35), so we inject
+// the mock there rather than mocking the neon module (which would affect the
+// entire file and risk breaking the repo tests above).
+
+const { POST } = await import('../../../app/api/hosted/workspaces/route.js');
+
+function makeRequest({ body = {}, ip = '1.1.1.1' } = {}) {
+  return new Request('http://localhost:3000/api/hosted/workspaces', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-forwarded-for': ip,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+describe('POST /api/hosted/workspaces', () => {
+  const originalEnv = { ...process.env };
+  const routeSqlMock = vi.fn();
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+    routeSqlMock.mockReset();
+    // Inject mock into getSql() via the globalThis cache (db.js line 35)
+    globalThis.__dashclaw_sql = routeSqlMock;
+  });
+
+  afterEach(() => {
+    delete globalThis.__dashclaw_sql;
+  });
+
+  it('returns 404 when DASHCLAW_HOSTED is unset', async () => {
+    delete process.env.DASHCLAW_HOSTED;
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 400 when turnstile token missing in production', async () => {
+    process.env.DASHCLAW_HOSTED = 'true';
+    process.env.TURNSTILE_SECRET_KEY = 'secret';
+    const res = await POST(makeRequest({ body: {} }));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/turnstile/i);
+  });
+
+  it('returns 200 + api key when happy path (turnstile bypassed in dev)', async () => {
+    process.env.DASHCLAW_HOSTED = 'true';
+    delete process.env.TURNSTILE_SECRET_KEY;
+    // Provision calls: org insert + key insert
+    routeSqlMock.mockResolvedValueOnce([]);
+    routeSqlMock.mockResolvedValueOnce([]);
+    const res = await POST(makeRequest({ body: {} }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({
+      workspace_id: expect.stringMatching(/^org_/),
+      api_key: expect.stringMatching(/^oc_live_/),
+      endpoint: expect.any(String),
+      expires_at: expect.any(String),
+    });
+  });
+
+  it('returns 429 when IP rate-limited', async () => {
+    process.env.DASHCLAW_HOSTED = 'true';
+    process.env.HOSTED_PROVISION_MAX_PER_IP_PER_DAY = '1';
+    delete process.env.TURNSTILE_SECRET_KEY;
+    routeSqlMock.mockResolvedValueOnce([]);
+    routeSqlMock.mockResolvedValueOnce([]);
+    await POST(makeRequest({ ip: '9.9.9.9' })); // first — ok
+    routeSqlMock.mockResolvedValueOnce([]);
+    routeSqlMock.mockResolvedValueOnce([]);
+    const res = await POST(makeRequest({ ip: '9.9.9.9' })); // second — blocked
+    expect(res.status).toBe(429);
+  });
+});
