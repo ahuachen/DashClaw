@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>DashClaw Livingcode Dashboard</title>
+<style>
+body{font:14px/1.45 ui-sans-serif,system-ui,sans-serif;margin:2rem;color:#0f172a;background:#fafafa}
+h1{font-size:1.25rem;margin:0 0 .25rem}
+.sig{color:#64748b;font-family:ui-monospace,monospace;font-size:.8rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1.25rem 0}
+.cell{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.75rem 1rem}
+.n{font-size:1.5rem;font-weight:600}
+.k{color:#475569;font-size:.85rem}
+figure{margin:0 0 1rem;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem}
+figcaption{font-size:.85rem;color:#334155;margin-bottom:.25rem}
+h2{font-size:1rem;margin:1.5rem 0 .5rem}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
+th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid #f1f5f9;font-size:.9rem}
+th{background:#f8fafc;font-weight:600}
+code{font-family:ui-monospace,monospace;font-size:.85rem}
+ul.diff{list-style:none;padding:0}
+ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}
+</style></head><body>
+<h1>DashClaw Livingcode Dashboard</h1>
+<div class="sig">Shape signature: 2026-04-18T16:59:11.993505+00:00</div>
+<div class="grid">
+      <div class="cell"><div class="n">175</div><div class="k">Active routes</div></div>
+      <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
+      <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
+      <div class="cell"><div class="n">101</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
+      <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
+      <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
+      <div class="cell"><div class="n">5</div><div class="k">Adapters</div></div>
+      <div class="cell"><div class="n">76</div><div class="k">Setting keys</div></div>
+</div>
+<section><h2>Active routes</h2><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr><td><code>/api/actions</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/actions/route.js</td></tr>
+    <tr><td><code>/api/actions/[actionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/[actionId]/route.js</td></tr>
+    <tr><td><code>/api/actions/[actionId]/artifacts</code></td><td>GET</td><td class="sig">app/api/actions/[actionId]/artifacts/route.js</td></tr>
+    <tr><td><code>/api/actions/[actionId]/graph</code></td><td>GET</td><td class="sig">app/api/actions/[actionId]/graph/route.js</td></tr>
+    <tr><td><code>/api/actions/[actionId]/messages</code></td><td>GET</td><td class="sig">app/api/actions/[actionId]/messages/route.js</td></tr>
+    <tr><td><code>/api/actions/[actionId]/trace</code></td><td>GET</td><td class="sig">app/api/actions/[actionId]/trace/route.js</td></tr>
+    <tr><td><code>/api/actions/costs</code></td><td>GET</td><td class="sig">app/api/actions/costs/route.js</td></tr>
+    <tr><td><code>/api/actions/loops</code></td><td>GET, POST</td><td class="sig">app/api/actions/loops/route.js</td></tr>
+    <tr><td><code>/api/actions/loops/[loopId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/loops/[loopId]/route.js</td></tr>
+    <tr><td><code>/api/actions/stats</code></td><td>GET</td><td class="sig">app/api/actions/stats/route.js</td></tr>
+    <tr><td><code>/api/activity</code></td><td>GET</td><td class="sig">app/api/activity/route.js</td></tr>
+    <tr><td><code>/api/agents</code></td><td>GET</td><td class="sig">app/api/agents/route.js</td></tr>
+    <tr><td><code>/api/agents/[agentId]</code></td><td>GET</td><td class="sig">app/api/agents/[agentId]/route.js</td></tr>
+    <tr><td><code>/api/agents/[agentId]/profile</code></td><td>GET</td><td class="sig">app/api/agents/[agentId]/profile/route.js</td></tr>
+    <tr><td><code>/api/agents/connections</code></td><td>GET, POST</td><td class="sig">app/api/agents/connections/route.js</td></tr>
+    <tr><td><code>/api/agents/heartbeat</code></td><td>POST</td><td class="sig">app/api/agents/heartbeat/route.js</td></tr>
+    <tr><td><code>/api/analytics</code></td><td>GET</td><td class="sig">app/api/analytics/route.js</td></tr>
+    <tr><td><code>/api/approvals/[actionId]</code></td><td>POST</td><td class="sig">app/api/approvals/[actionId]/route.js</td></tr>
+    <tr><td><code>/api/artifacts</code></td><td>GET, POST</td><td class="sig">app/api/artifacts/route.js</td></tr>
+    <tr><td><code>/api/artifacts/[artifactId]</code></td><td>DELETE, GET</td><td class="sig">app/api/artifacts/[artifactId]/route.js</td></tr>
+    <tr><td><code>/api/artifacts/evidence-bundle</code></td><td>POST</td><td class="sig">app/api/artifacts/evidence-bundle/route.js</td></tr>
+    <tr><td><code>/api/assumptions</code></td><td>GET, POST</td><td class="sig">app/api/assumptions/route.js</td></tr>
+    <tr><td><code>/api/assumptions/[assumptionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/assumptions/[assumptionId]/route.js</td></tr>
+    <tr><td><code>/api/auth/[...nextauth]</code></td><td></td><td class="sig">app/api/auth/[...nextauth]/route.js</td></tr>
+    <tr><td><code>/api/auth/config</code></td><td>GET</td><td class="sig">app/api/auth/config/route.js</td></tr>
+    <tr><td><code>/api/auth/local</code></td><td>DELETE, POST</td><td class="sig">app/api/auth/local/route.js</td></tr>
+    <tr><td><code>/api/billing/checkout</code></td><td>POST</td><td class="sig">app/api/billing/checkout/route.js</td></tr>
+    <tr><td><code>/api/billing/portal</code></td><td>GET</td><td class="sig">app/api/billing/portal/route.js</td></tr>
+    <tr><td><code>/api/capabilities</code></td><td>GET, POST</td><td class="sig">app/api/capabilities/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/capabilities/[capabilityId]/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/access</code></td><td>GET, POST</td><td class="sig">app/api/capabilities/[capabilityId]/access/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/access/[ruleId]</code></td><td>DELETE</td><td class="sig">app/api/capabilities/[capabilityId]/access/[ruleId]/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/access/check</code></td><td>GET</td><td class="sig">app/api/capabilities/[capabilityId]/access/check/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/health</code></td><td>GET</td><td class="sig">app/api/capabilities/[capabilityId]/health/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/history</code></td><td>GET</td><td class="sig">app/api/capabilities/[capabilityId]/history/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/invoke</code></td><td>POST</td><td class="sig">app/api/capabilities/[capabilityId]/invoke/route.js</td></tr>
+    <tr><td><code>/api/capabilities/[capabilityId]/test</code></td><td>POST</td><td class="sig">app/api/capabilities/[capabilityId]/test/route.js</td></tr>
+    <tr><td><code>/api/capabilities/health</code></td><td>GET</td><td class="sig">app/api/capabilities/health/route.js</td></tr>
+    <tr><td><code>/api/compliance/evidence</code></td><td>GET</td><td class="sig">app/api/compliance/evidence/route.js</td></tr>
+    <tr><td><code>/api/compliance/exports</code></td><td>GET, POST</td><td class="sig">app/api/compliance/exports/route.js</td></tr>
+    <tr><td><code>/api/compliance/exports/[exportId]</code></td><td>DELETE, GET</td><td class="sig">app/api/compliance/exports/[exportId]/route.js</td></tr>
+    <tr><td><code>/api/compliance/exports/[exportId]/download</code></td><td>GET</td><td class="sig">app/api/compliance/exports/[exportId]/download/route.js</td></tr>
+    <tr><td><code>/api/compliance/frameworks</code></td><td>GET</td><td class="sig">app/api/compliance/frameworks/route.js</td></tr>
+    <tr><td><code>/api/compliance/gaps</code></td><td>GET</td><td class="sig">app/api/compliance/gaps/route.js</td></tr>
+    <tr><td><code>/api/compliance/map</code></td><td>GET</td><td class="sig">app/api/compliance/map/route.js</td></tr>
+    <tr><td><code>/api/compliance/report</code></td><td>GET</td><td class="sig">app/api/compliance/report/route.js</td></tr>
+    <tr><td><code>/api/compliance/schedules</code></td><td>GET, POST</td><td class="sig">app/api/compliance/schedules/route.js</td></tr>
+    <tr><td><code>/api/compliance/schedules/[scheduleId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/compliance/schedules/[scheduleId]/route.js</td></tr>
+    <tr><td><code>/api/compliance/trends</code></td><td>GET</td><td class="sig">app/api/compliance/trends/route.js</td></tr>
+    <tr><td><code>/api/cron/integration-health</code></td><td>GET</td><td class="sig">app/api/cron/integration-health/route.js</td></tr>
+    <tr><td><code>/api/cron/learning-episodes-backfill</code></td><td>GET</td><td class="sig">app/api/cron/learning-episodes-backfill/route.js</td></tr>
+    <tr><td><code>/api/cron/learning-recommendations</code></td><td>GET</td><td class="sig">app/api/cron/learning-recommendations/route.js</td></tr>
+    <tr><td><code>/api/cron/memory-maintenance</code></td><td>GET</td><td class="sig">app/api/cron/memory-maintenance/route.js</td></tr>
+    <tr><td><code>/api/cron/policy-suggestions</code></td><td>GET</td><td class="sig">app/api/cron/policy-suggestions/route.js</td></tr>
+    <tr><td><code>/api/cron/reset-meters</code></td><td>GET</td><td class="sig">app/api/cron/reset-meters/route.js</td></tr>
+    <tr><td><code>/api/cron/routing-maintenance</code></td><td>POST</td><td class="sig">app/api/cron/routing-maintenance/route.js</td></tr>
+    <tr><td><code>/api/cron/signals</code></td><td>GET</td><td class="sig">app/api/cron/signals/route.js</td></tr>
+    <tr><td><code>/api/docs/raw</code></td><td>GET</td><td class="sig">app/api/docs/raw/route.js</td></tr>
+    <tr><td><code>/api/doctor</code></td><td>GET</td><td class="sig">app/api/doctor/route.js</td></tr>
+    <tr><td><code>/api/doctor/fix</code></td><td>POST</td><td class="sig">app/api/doctor/fix/route.js</td></tr>
+    <tr><td><code>/api/drift/alerts</code></td><td>GET, POST</td><td class="sig">app/api/drift/alerts/route.js</td></tr>
+    <tr><td><code>/api/drift/alerts/[alertId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/drift/alerts/[alertId]/route.js</td></tr>
+    <tr><td><code>/api/drift/metrics</code></td><td>GET</td><td class="sig">app/api/drift/metrics/route.js</td></tr>
+    <tr><td><code>/api/drift/snapshots</code></td><td>GET</td><td class="sig">app/api/drift/snapshots/route.js</td></tr>
+    <tr><td><code>/api/drift/stats</code></td><td>GET</td><td class="sig">app/api/drift/stats/route.js</td></tr>
+    <tr><td><code>/api/evaluations</code></td><td>GET, POST</td><td class="sig">app/api/evaluations/route.js</td></tr>
+    <tr><td><code>/api/evaluations/runs</code></td><td>GET, POST</td><td class="sig">app/api/evaluations/runs/route.js</td></tr>
+    <tr><td><code>/api/evaluations/runs/[runId]</code></td><td>GET, PATCH</td><td class="sig">app/api/evaluations/runs/[runId]/route.js</td></tr>
+    <tr><td><code>/api/evaluations/scorers</code></td><td>GET, POST</td><td class="sig">app/api/evaluations/scorers/route.js</td></tr>
+    <tr><td><code>/api/evaluations/scorers/[scorerId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/evaluations/scorers/[scorerId]/route.js</td></tr>
+    <tr><td><code>/api/evaluations/stats</code></td><td>GET</td><td class="sig">app/api/evaluations/stats/route.js</td></tr>
+    <tr><td><code>/api/guard</code></td><td>GET, POST</td><td class="sig">app/api/guard/route.js</td></tr>
+    <tr><td><code>/api/guard/decisions</code></td><td>GET</td><td class="sig">app/api/guard/decisions/route.js</td></tr>
+    <tr><td><code>/api/health</code></td><td>GET</td><td class="sig">app/api/health/route.js</td></tr>
+    <tr><td><code>/api/identities</code></td><td>GET, POST</td><td class="sig">app/api/identities/route.js</td></tr>
+    <tr><td><code>/api/identities/[agentId]</code></td><td>DELETE</td><td class="sig">app/api/identities/[agentId]/route.js</td></tr>
+    <tr><td><code>/api/integrations/health</code></td><td>GET</td><td class="sig">app/api/integrations/health/route.js</td></tr>
+    <tr><td><code>/api/integrations/health/refresh</code></td><td>POST</td><td class="sig">app/api/integrations/health/refresh/route.js</td></tr>
+    <tr><td><code>/api/keys</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/keys/route.js</td></tr>
+    <tr><td><code>/api/keys/reveal</code></td><td>GET</td><td class="sig">app/api/keys/reveal/route.js</td></tr>
+    <tr><td><code>/api/knowledge/collections</code></td><td>GET, POST</td><td class="sig">app/api/knowledge/collections/route.js</td></tr>
+    <tr><td><code>/api/knowledge/collections/[collectionId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/knowledge/collections/[collectionId]/route.js</td></tr>
+    <tr><td><code>/api/knowledge/collections/[collectionId]/items</code></td><td>GET, POST</td><td class="sig">app/api/knowledge/collections/[collectionId]/items/route.js</td></tr>
+    <tr><td><code>/api/knowledge/collections/[collectionId]/search</code></td><td>POST</td><td class="sig">app/api/knowledge/collections/[collectionId]/search/route.js</td></tr>
+    <tr><td><code>/api/knowledge/collections/[collectionId]/sync</code></td><td>POST</td><td class="sig">app/api/knowledge/collections/[collectionId]/sync/route.js</td></tr>
+    <tr><td><code>/api/learning</code></td><td>GET, POST</td><td class="sig">app/api/learning/route.js</td></tr>
+    <tr><td><code>/api/learning/analytics/curves</code></td><td>GET, POST</td><td class="sig">app/api/learning/analytics/curves/route.js</td></tr>
+    <tr><td><code>/api/learning/analytics/maturity</code></td><td>GET</td><td class="sig">app/api/learning/analytics/maturity/route.js</td></tr>
+    <tr><td><code>/api/learning/analytics/summary</code></td><td>GET</td><td class="sig">app/api/learning/analytics/summary/route.js</td></tr>
+    <tr><td><code>/api/learning/analytics/velocity</code></td><td>GET, POST</td><td class="sig">app/api/learning/analytics/velocity/route.js</td></tr>
+    <tr><td><code>/api/learning/lessons</code></td><td>GET</td><td class="sig">app/api/learning/lessons/route.js</td></tr>
+    <tr><td><code>/api/learning/recommendations</code></td><td>GET, POST</td><td class="sig">app/api/learning/recommendations/route.js</td></tr>
+    <tr><td><code>/api/learning/recommendations/[recommendationId]</code></td><td>PATCH</td><td class="sig">app/api/learning/recommendations/[recommendationId]/route.js</td></tr>
+    <tr><td><code>/api/learning/recommendations/events</code></td><td>POST</td><td class="sig">app/api/learning/recommendations/events/route.js</td></tr>
+    <tr><td><code>/api/learning/recommendations/metrics</code></td><td>GET</td><td class="sig">app/api/learning/recommendations/metrics/route.js</td></tr>
+    <tr><td><code>/api/learning/suggestions</code></td><td>GET, POST</td><td class="sig">app/api/learning/suggestions/route.js</td></tr>
+    <tr><td><code>/api/mcp</code></td><td>POST</td><td class="sig">app/api/mcp/route.js</td></tr>
+    <tr><td><code>/api/messages</code></td><td>GET, PATCH, POST</td><td class="sig">app/api/messages/route.js</td></tr>
+    <tr><td><code>/api/messages/attachments</code></td><td>GET</td><td class="sig">app/api/messages/attachments/route.js</td></tr>
+    <tr><td><code>/api/messages/threads</code></td><td>GET, PATCH, POST</td><td class="sig">app/api/messages/threads/route.js</td></tr>
+    <tr><td><code>/api/messages/threads/[threadId]</code></td><td>GET</td><td class="sig">app/api/messages/threads/[threadId]/route.js</td></tr>
+    <tr><td><code>/api/model-strategies</code></td><td>GET, POST</td><td class="sig">app/api/model-strategies/route.js</td></tr>
+    <tr><td><code>/api/model-strategies/[strategyId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/model-strategies/[strategyId]/route.js</td></tr>
+    <tr><td><code>/api/model-strategies/[strategyId]/complete</code></td><td>POST</td><td class="sig">app/api/model-strategies/[strategyId]/complete/route.js</td></tr>
+    <tr><td><code>/api/operations/feed</code></td><td>GET</td><td class="sig">app/api/operations/feed/route.js</td></tr>
+    <tr><td><code>/api/operations/summary</code></td><td>GET</td><td class="sig">app/api/operations/summary/route.js</td></tr>
+    <tr><td><code>/api/orgs</code></td><td>GET, POST</td><td class="sig">app/api/orgs/route.js</td></tr>
+    <tr><td><code>/api/orgs/[orgId]</code></td><td>GET, PATCH</td><td class="sig">app/api/orgs/[orgId]/route.js</td></tr>
+    <tr><td><code>/api/orgs/[orgId]/keys</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/orgs/[orgId]/keys/route.js</td></tr>
+    <tr><td><code>/api/pairings</code></td><td>GET, POST</td><td class="sig">app/api/pairings/route.js</td></tr>
+    <tr><td><code>/api/pairings/[pairingId]</code></td><td>GET, PATCH</td><td class="sig">app/api/pairings/[pairingId]/route.js</td></tr>
+    <tr><td><code>/api/pairings/[pairingId]/approve</code></td><td>POST</td><td class="sig">app/api/pairings/[pairingId]/approve/route.js</td></tr>
+    <tr><td><code>/api/policies</code></td><td>DELETE, GET, PATCH, POST</td><td class="sig">app/api/policies/route.js</td></tr>
+    <tr><td><code>/api/policies/generate</code></td><td>POST</td><td class="sig">app/api/policies/generate/route.js</td></tr>
+    <tr><td><code>/api/policies/import</code></td><td>POST</td><td class="sig">app/api/policies/import/route.js</td></tr>
+    <tr><td><code>/api/policies/proof</code></td><td>GET</td><td class="sig">app/api/policies/proof/route.js</td></tr>
+    <tr><td><code>/api/policies/simulate</code></td><td>POST</td><td class="sig">app/api/policies/simulate/route.js</td></tr>
+    <tr><td><code>/api/policies/templates</code></td><td>GET</td><td class="sig">app/api/policies/templates/route.js</td></tr>
+    <tr><td><code>/api/policies/test</code></td><td>POST</td><td class="sig">app/api/policies/test/route.js</td></tr>
+    <tr><td><code>/api/prompts/agent-connect/raw</code></td><td>GET</td><td class="sig">app/api/prompts/agent-connect/raw/route.js</td></tr>
+    <tr><td><code>/api/prompts/render</code></td><td>POST</td><td class="sig">app/api/prompts/render/route.js</td></tr>
+    <tr><td><code>/api/prompts/runs</code></td><td>GET</td><td class="sig">app/api/prompts/runs/route.js</td></tr>
+    <tr><td><code>/api/prompts/sdk-coverage/raw</code></td><td>GET</td><td class="sig">app/api/prompts/sdk-coverage/raw/route.js</td></tr>
+    <tr><td><code>/api/prompts/server-setup/raw</code></td><td>GET</td><td class="sig">app/api/prompts/server-setup/raw/route.js</td></tr>
+    <tr><td><code>/api/prompts/stats</code></td><td>GET</td><td class="sig">app/api/prompts/stats/route.js</td></tr>
+    <tr><td><code>/api/prompts/templates</code></td><td>GET, POST</td><td class="sig">app/api/prompts/templates/route.js</td></tr>
+    <tr><td><code>/api/prompts/templates/[templateId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/prompts/templates/[templateId]/route.js</td></tr>
+    <tr><td><code>/api/prompts/templates/[templateId]/versions</code></td><td>GET, POST</td><td class="sig">app/api/prompts/templates/[templateId]/versions/route.js</td></tr>
+    <tr><td><code>/api/prompts/templates/[templateId]/versions/[versionId]</code></td><td>GET, POST</td><td class="sig">app/api/prompts/templates/[templateId]/versions/[versionId]/route.js</td></tr>
+    <tr><td><code>/api/scoring/calibrate</code></td><td>POST</td><td class="sig">app/api/scoring/calibrate/route.js</td></tr>
+    <tr><td><code>/api/scoring/profiles</code></td><td>GET, POST</td><td class="sig">app/api/scoring/profiles/route.js</td></tr>
+    <tr><td><code>/api/scoring/profiles/[profileId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/scoring/profiles/[profileId]/route.js</td></tr>
+    <tr><td><code>/api/scoring/profiles/[profileId]/dimensions</code></td><td>POST</td><td class="sig">app/api/scoring/profiles/[profileId]/dimensions/route.js</td></tr>
+    <tr><td><code>/api/scoring/profiles/[profileId]/dimensions/[dimensionId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/scoring/profiles/[profileId]/dimensions/[dimensionId]/route.js</td></tr>
+    <tr><td><code>/api/scoring/risk-templates</code></td><td>GET, POST</td><td class="sig">app/api/scoring/risk-templates/route.js</td></tr>
+    <tr><td><code>/api/scoring/risk-templates/[templateId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/scoring/risk-templates/[templateId]/route.js</td></tr>
+    <tr><td><code>/api/scoring/score</code></td><td>GET, POST</td><td class="sig">app/api/scoring/score/route.js</td></tr>
+    <tr><td><code>/api/security/prompt-injection</code></td><td>GET, POST</td><td class="sig">app/api/security/prompt-injection/route.js</td></tr>
+    <tr><td><code>/api/security/scan</code></td><td>POST</td><td class="sig">app/api/security/scan/route.js</td></tr>
+    <tr><td><code>/api/security/status</code></td><td>GET</td><td class="sig">app/api/security/status/route.js</td></tr>
+    <tr><td><code>/api/sessions</code></td><td>GET, POST</td><td class="sig">app/api/sessions/route.js</td></tr>
+    <tr><td><code>/api/sessions/[sessionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/sessions/[sessionId]/route.js</td></tr>
+    <tr><td><code>/api/sessions/[sessionId]/events</code></td><td>GET</td><td class="sig">app/api/sessions/[sessionId]/events/route.js</td></tr>
+    <tr><td><code>/api/settings</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/settings/route.js</td></tr>
+    <tr><td><code>/api/settings/llm-status</code></td><td>GET</td><td class="sig">app/api/settings/llm-status/route.js</td></tr>
+    <tr><td><code>/api/settings/test</code></td><td>POST</td><td class="sig">app/api/settings/test/route.js</td></tr>
+    <tr><td><code>/api/setup/live-proof</code></td><td>POST</td><td class="sig">app/api/setup/live-proof/route.js</td></tr>
+    <tr><td><code>/api/setup/migrate</code></td><td>POST</td><td class="sig">app/api/setup/migrate/route.js</td></tr>
+    <tr><td><code>/api/setup/ping</code></td><td>POST</td><td class="sig">app/api/setup/ping/route.js</td></tr>
+    <tr><td><code>/api/setup/proof</code></td><td>GET</td><td class="sig">app/api/setup/proof/route.js</td></tr>
+    <tr><td><code>/api/setup/status</code></td><td>GET</td><td class="sig">app/api/setup/status/route.js</td></tr>
+    <tr><td><code>/api/signals</code></td><td>GET</td><td class="sig">app/api/signals/route.js</td></tr>
+    <tr><td><code>/api/stream</code></td><td>GET</td><td class="sig">app/api/stream/route.js</td></tr>
+    <tr><td><code>/api/swarm/graph</code></td><td>GET</td><td class="sig">app/api/swarm/graph/route.js</td></tr>
+    <tr><td><code>/api/swarm/link</code></td><td>GET</td><td class="sig">app/api/swarm/link/route.js</td></tr>
+    <tr><td><code>/api/team</code></td><td>GET</td><td class="sig">app/api/team/route.js</td></tr>
+    <tr><td><code>/api/team/[userId]</code></td><td>DELETE, PATCH</td><td class="sig">app/api/team/[userId]/route.js</td></tr>
+    <tr><td><code>/api/team/invite</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/team/invite/route.js</td></tr>
+    <tr><td><code>/api/telegram/webhook</code></td><td>POST</td><td class="sig">app/api/telegram/webhook/route.js</td></tr>
+    <tr><td><code>/api/usage</code></td><td>GET</td><td class="sig">app/api/usage/route.js</td></tr>
+    <tr><td><code>/api/usage/costs</code></td><td>GET</td><td class="sig">app/api/usage/costs/route.js</td></tr>
+    <tr><td><code>/api/webhooks</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/webhooks/route.js</td></tr>
+    <tr><td><code>/api/webhooks/[webhookId]/deliveries</code></td><td>GET</td><td class="sig">app/api/webhooks/[webhookId]/deliveries/route.js</td></tr>
+    <tr><td><code>/api/webhooks/[webhookId]/test</code></td><td>POST</td><td class="sig">app/api/webhooks/[webhookId]/test/route.js</td></tr>
+    <tr><td><code>/api/webhooks/stripe</code></td><td>POST</td><td class="sig">app/api/webhooks/stripe/route.js</td></tr>
+    <tr><td><code>/api/workflows/draft</code></td><td>POST</td><td class="sig">app/api/workflows/draft/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates</code></td><td>GET, POST</td><td class="sig">app/api/workflows/templates/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/workflows/templates/[templateId]/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/duplicate</code></td><td>POST</td><td class="sig">app/api/workflows/templates/[templateId]/duplicate/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/execute</code></td><td>POST</td><td class="sig">app/api/workflows/templates/[templateId]/execute/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/launch</code></td><td>POST</td><td class="sig">app/api/workflows/templates/[templateId]/launch/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/runs</code></td><td>GET</td><td class="sig">app/api/workflows/templates/[templateId]/runs/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/runs/[runActionId]</code></td><td>GET</td><td class="sig">app/api/workflows/templates/[templateId]/runs/[runActionId]/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/runs/[runActionId]/cancel</code></td><td>POST</td><td class="sig">app/api/workflows/templates/[templateId]/runs/[runActionId]/cancel/route.js</td></tr>
+    <tr><td><code>/api/workflows/templates/[templateId]/runs/[runActionId]/resume</code></td><td>POST</td><td class="sig">app/api/workflows/templates/[templateId]/runs/[runActionId]/resume/route.js</td></tr></tbody></table></section>
+</body></html>

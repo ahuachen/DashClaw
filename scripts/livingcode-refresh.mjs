@@ -62,6 +62,7 @@ const GLOBAL_SKILL_DIR = resolve(homedir(), '.claude', 'skills', 'dashclaw-platf
 // (public/downloads/...) which is the source of truth.
 const PROJECT_SKILL_DIR = resolve(REPO_ROOT, '.claude', 'skills', 'dashclaw-platform-intelligence');
 const MCP_INVENTORY_PATH = resolve(REPO_ROOT, 'mcp-server', 'lib', 'routes-inventory.generated.json');
+const DASHBOARD_PATH = resolve(REPO_ROOT, 'public', 'livingcode', 'index.html');
 
 const PY = process.env.PYTHON || 'python';
 const SKILL_TIMESTAMP_LINE = /^(\*\*Shape snapshot:\*\*\s+`)[^`]+(`)/m;
@@ -130,6 +131,16 @@ function emitMcpInventory() {
   runPython(['emit', 'mcp-tools', '--output', MCP_INVENTORY_PATH]);
   log(`routes-inventory.generated.json -> ${relative(REPO_ROOT, MCP_INVENTORY_PATH)}`);
   return MCP_INVENTORY_PATH;
+}
+
+function emitDashboard() {
+  ensureDir(dirname(DASHBOARD_PATH));
+  const tempOut = join(tmpdir(), `dashclaw-dashboard-${process.pid}.html`);
+  runPython(['emit', 'dashboard', '--output', tempOut]);
+  const raw = readFileSync(tempOut, 'utf8');
+  rmSync(tempOut, { force: true });
+  writeIfChanged(DASHBOARD_PATH, raw, 'dashboard');
+  return DASHBOARD_PATH;
 }
 
 function writeLastSnapshot(shapeJsonPath) {
@@ -352,6 +363,7 @@ async function main() {
   writeLastSnapshot(shapeJsonPath);
   emitDoctorChecks();
   emitMcpInventory();
+  emitDashboard();
   const signature = loadShapeSignature(shapeJsonPath);
 
   const skillContent = emitSkill(signature);
