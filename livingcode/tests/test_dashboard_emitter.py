@@ -119,6 +119,32 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertIn("/api/new", html)
         self.assertIn("LEGACY_KEY", html)
 
+    def test_tables_details_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>Tables (1)</summary>", html)
+        self.assertIn("guard_policies", html)
+
+    def test_events_details_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>Events (1)</summary>", html)
+        self.assertIn("action.cost_exceeded", html)
+
+    def test_adapters_details_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>Adapters (1)</summary>", html)
+        self.assertIn("SLACK_WEBHOOK_URL", html)
+
+    def test_signals_details_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>Signals (2)</summary>", html)
+        self.assertIn("cost_alert", html)
+
+    def test_setting_keys_details_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>Setting keys (1)</summary>", html)
+        self.assertIn("ai_default_model", html)
+        self.assertIn("AI Providers", html)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -26,6 +26,10 @@ th{background:#f8fafc;font-weight:600}
 code{font-family:ui-monospace,monospace;font-size:.85rem}
 ul.diff{list-style:none;padding:0}
 ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}
+details{margin-bottom:.5rem;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem}
+summary{font-weight:600;cursor:pointer;font-size:.9rem}
+details[open] summary{margin-bottom:.5rem}
+details table{margin-top:.5rem;border:1px solid #f1f5f9}
 """.strip()
 
 
@@ -147,6 +151,73 @@ def _section_routes(active_routes) -> str:
     )
 
 
+def _section_shape_details(shape: ShapeModel) -> str:
+    """Collapsible lists of tables, events, signals, adapters, setting keys."""
+    blocks = []
+
+    if shape.tables:
+        rows = "\n".join(
+            f'    <tr><td><code>{escape(t.name)}</code></td>'
+            f'<td class="sig">{escape(t.domain or "—")}</td></tr>'
+            for t in sorted(shape.tables, key=lambda t: t.name)
+        )
+        blocks.append(
+            f'<details><summary>Tables ({len(shape.tables)})</summary>'
+            f'<table><thead><tr><th>Name</th><th>Domain</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></details>'
+        )
+
+    if shape.events:
+        rows = "\n".join(
+            f'    <tr><td><code>{escape(e.constant)}</code></td>'
+            f'<td><code>{escape(e.event)}</code></td></tr>'
+            for e in sorted(shape.events, key=lambda e: e.event)
+        )
+        blocks.append(
+            f'<details><summary>Events ({len(shape.events)})</summary>'
+            f'<table><thead><tr><th>Constant</th><th>Event</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></details>'
+        )
+
+    if shape.adapters:
+        rows = "\n".join(
+            f'    <tr><td><code>{escape(a.name)}</code></td>'
+            f'<td class="sig">{escape(", ".join(a.required_keys))}</td></tr>'
+            for a in sorted(shape.adapters, key=lambda a: a.name)
+        )
+        blocks.append(
+            f'<details><summary>Adapters ({len(shape.adapters)})</summary>'
+            f'<table><thead><tr><th>Name</th><th>Required keys</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></details>'
+        )
+
+    if shape.signal_types:
+        items = "\n".join(
+            f'    <li><code>{escape(s)}</code></li>'
+            for s in sorted(shape.signal_types)
+        )
+        blocks.append(
+            f'<details><summary>Signals ({len(shape.signal_types)})</summary>'
+            f'<ul class="diff">{items}</ul></details>'
+        )
+
+    if shape.setting_keys:
+        rows = "\n".join(
+            f'    <tr><td><code>{escape(k.name)}</code></td>'
+            f'<td class="sig">{escape(k.section or "—")}</td></tr>'
+            for k in sorted(shape.setting_keys, key=lambda k: k.name)
+        )
+        blocks.append(
+            f'<details><summary>Setting keys ({len(shape.setting_keys)})</summary>'
+            f'<table><thead><tr><th>Key</th><th>Section</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></details>'
+        )
+
+    if not blocks:
+        return ""
+    return '<section><h2>Shape</h2>' + "\n".join(blocks) + '</section>\n'
+
+
 def emit_dashboard(
     shape: ShapeModel,
     snapshots: list[dict] | None = None,
@@ -160,6 +231,7 @@ def emit_dashboard(
 
     sections = [
         _section_counts(shape, active_routes, archived_routes, required_env, optional_env),
+        _section_shape_details(shape),
         _section_timeline(snapshots),
         _section_health(state_report),
         _section_diff(diff),
