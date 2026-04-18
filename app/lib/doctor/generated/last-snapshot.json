@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:e2816b765b39577b5249ed277aae650e696fe914",
+  "timestamp": "sha1:9d7e0690abde312efc2bb69672edd18e4a00254c",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3480,7 +3480,8 @@
       "name": "TURNSTILE_SECRET_KEY",
       "required": false,
       "files": [
-        "__tests__/unit/hosted/turnstile.test.js"
+        "__tests__/unit/hosted/turnstile.test.js",
+        "app/lib/hosted/turnstile.js"
       ],
       "in_env_example": false
     },
