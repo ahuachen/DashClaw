@@ -17,6 +17,7 @@ import { fireTelegramApproval } from '../../lib/telegramApprovals.js';
 import { fireWebhooksForApproval } from '../../lib/webhooks.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import { upsertAgentPresence } from '../../lib/repositories/agents.repository.js';
+import { incrementTrialActionCount } from '../../lib/repositories/hosted-workspace.repository.js';
 import {
   createActionRecord,
   createBlockedActionRecord,
@@ -252,6 +253,12 @@ export async function POST(request) {
     if (isNewAgent) {
       meterUpdates.push(incrementMeter(orgId, 'agents', sql));
     }
+    // Hosted-trial counter: no-ops silently for non-hosted orgs via WHERE hosted_mode = TRUE
+    meterUpdates.push(
+      incrementTrialActionCount(sql, orgId).catch((err) => {
+        console.error('[HOSTED] trial counter increment failed:', err.message);
+      }),
+    );
 
     // Implicit heartbeat: submitting an action means the agent is online
     if (data.agent_id) {
