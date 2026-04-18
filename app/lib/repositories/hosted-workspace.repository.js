@@ -8,7 +8,7 @@ function generateApiKey() {
   const raw = crypto.randomBytes(16).toString('hex');
   const plaintext = `oc_live_${raw}`;
   const keyHash = crypto.createHash('sha256').update(plaintext).digest('hex');
-  const keyPrefix = plaintext.slice(0, 12);
+  const keyPrefix = plaintext.slice(0, 8);
   return { plaintext, keyHash, keyPrefix };
 }
 
@@ -23,10 +23,17 @@ export async function provisionHostedWorkspace(sql, { trialDays, trialActionCap,
     INSERT INTO organizations (id, name, slug, plan, hosted_mode, trial_ends_at, trial_action_cap, trial_actions_used)
     VALUES (${orgId}, ${'Trial workspace'}, ${slug}, ${'free'}, TRUE, ${expiresAt}, ${trialActionCap}, 0)
   `;
-  await sql`
-    INSERT INTO api_keys (id, org_id, key_hash, key_prefix, label, role, scope)
-    VALUES (${keyId}, ${orgId}, ${key.keyHash}, ${key.keyPrefix}, ${label}, ${'owner'}, ${'trial'})
-  `;
+  try {
+    await sql`
+      INSERT INTO api_keys (id, org_id, key_hash, key_prefix, label, role, scope)
+      VALUES (${keyId}, ${orgId}, ${key.keyHash}, ${key.keyPrefix}, ${label}, ${'admin'}, ${'trial'})
+    `;
+  } catch (err) {
+    // Best-effort cleanup — prevents orphaned trial orgs when key insert fails.
+    // If this also fails, the sweep job will collect it once trial_ends_at passes.
+    await sql`DELETE FROM organizations WHERE id = ${orgId} AND hosted_mode = TRUE`.catch(() => {});
+    throw err;
+  }
 
   return {
     orgId,
