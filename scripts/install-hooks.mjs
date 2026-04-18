@@ -19,7 +19,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
@@ -102,12 +102,12 @@ const HOOK_BLOCKS = {
 // path-separator-bounded occurrences so user-authored wrappers with similar
 // names (e.g. `my_dashclaw_pretool.py`, `dashclaw_metrics.py`) are NOT
 // silently removed on re-install.
-const MANAGED_HOOK_FILES = ['dashclaw_pretool.py', 'dashclaw_posttool.py', 'dashclaw_stop.py'];
+export const MANAGED_HOOK_FILES = ['dashclaw_pretool.py', 'dashclaw_posttool.py', 'dashclaw_stop.py'];
 const MANAGED_HOOK_RE = new RegExp(
   '(^|[\\\\/])(' + MANAGED_HOOK_FILES.map((f) => f.replace(/\./g, '\\.')).join('|') + ')(["\'\\s]|$)'
 );
 
-function isManagedHookCommand(cmd) {
+export function isManagedHookCommand(cmd) {
   return MANAGED_HOOK_RE.test(cmd);
 }
 
@@ -191,4 +191,8 @@ function main() {
   console.log('  DASHCLAW_HOOK_MODE (optional: enforce | observe, default: enforce)');
 }
 
-main();
+// Only run main() when executed directly via `node install-hooks.mjs`.
+// Guards against accidental execution when the module is imported for testing.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
