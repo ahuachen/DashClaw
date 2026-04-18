@@ -4,7 +4,7 @@ from livingcode.shape import build_shape
 TARGETS = ("skill", "shape-json", "doctor-checks", "mcp-tools", "dashboard")
 
 
-def emit(repo_path: str, target: str, **kwargs) -> str:
+def emit(repo_path: str, target: str, *, with_context: bool = False) -> str:
     """Build the current shape and render it as the requested artifact."""
     shape = build_shape(repo_path)
 
@@ -26,7 +26,7 @@ def emit(repo_path: str, target: str, **kwargs) -> str:
 
     if target == "dashboard":
         from livingcode.emitters.dashboard import emit_dashboard
-        ctx = _load_dashboard_context(repo_path) if kwargs.get("with_context") else {}
+        ctx = _load_dashboard_context(repo_path) if with_context else {}
         return emit_dashboard(shape, **ctx)
 
     raise ValueError(f"Unknown emit target: {target}. Available: {', '.join(TARGETS)}")
@@ -69,9 +69,9 @@ def _load_dashboard_context(repo_path: str) -> dict:
 
     try:
         d = diff_against_snapshot(repo_path)
-        if d is not None:
-            ctx["diff"] = asdict(d)
-    except Exception:
-        pass
+    except (OSError, json.JSONDecodeError, KeyError):
+        d = None
+    if d is not None:
+        ctx["diff"] = asdict(d)
 
     return ctx

@@ -52,5 +52,17 @@ class TestDashboardWithContext(unittest.TestCase):
             self.assertIn("10", html)
 
 
+class TestEmitKeywordValidation(unittest.TestCase):
+    def test_unknown_kwarg_raises_typeerror(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            (repo / "app" / "api").mkdir(parents=True)
+            (repo / "schema").mkdir()
+            (repo / "schema" / "schema.js").write_text("")
+            (repo / ".env.example").write_text("")
+            with self.assertRaises(TypeError):
+                emit(str(repo), "dashboard", with_contxt=True)  # typo
+
+
 if __name__ == "__main__":
     unittest.main()
