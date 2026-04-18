@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:3195619d11518b3e4d75cfc38e4bf6e8dca6b9b8",
+  "timestamp": "sha1:796a0e19006978ad85e1471ef0f38be508d7c040",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2667,6 +2667,7 @@
       "name": "DASHCLAW_HOSTED",
       "required": false,
       "files": [
+        "__tests__/integration/hosted/end-to-end.test.js",
         "__tests__/unit/hosted/flag.test.js",
         "__tests__/unit/hosted/workspace-admin.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",
@@ -2734,6 +2735,7 @@
       "name": "DATABASE_URL",
       "required": true,
       "files": [
+        "__tests__/integration/hosted/end-to-end.test.js",
         "__tests__/unit/actions.route.test.js",
         "__tests__/unit/agents-heartbeat.route.test.js",
         "__tests__/unit/agents.route.test.js",
@@ -3034,6 +3036,14 @@
       "files": [
         "__tests__/unit/hosted/flag.test.js",
         "app/lib/hosted/flag.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "INTEGRATION_DATABASE_URL",
+      "required": false,
+      "files": [
+        "__tests__/integration/hosted/end-to-end.test.js"
       ],
       "in_env_example": false
     },
@@ -3511,6 +3521,14 @@
         "__tests__/unit/telegram-webhook-route.test.js",
         "app/api/telegram/webhook/route.js",
         "scripts/telegram-register-webhook.mjs"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "TEST_BASE_URL",
+      "required": false,
+      "files": [
+        "__tests__/integration/hosted/end-to-end.test.js"
       ],
       "in_env_example": false
     },

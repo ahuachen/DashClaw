@@ -19,9 +19,11 @@ const CATEGORY_LABELS = {
   governance: 'Governance',
   shape: 'Shape (generated)',
   drift: 'Drift',
+  'openclaw-plugin': 'OpenClaw Plugin',
+  hosted: 'Hosted',
 };
 
-const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape', 'drift'];
+const CATEGORY_ORDER = ['database', 'config', 'auth', 'deployment', 'sdk', 'governance', 'shape', 'drift', 'openclaw-plugin', 'hosted'];
 
 /**
  * Format the full doctor result for terminal or JSON output.

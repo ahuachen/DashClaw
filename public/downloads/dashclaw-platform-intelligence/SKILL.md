@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:3195619d11518b3e4d75cfc38e4bf6e8dca6b9b8`
+**Shape snapshot:** `sha1:796a0e19006978ad85e1471ef0f38be508d7c040`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **178** active API routes across **45** categories
-- **4** required + **107** optional environment variables
+- **4** required + **109** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -353,7 +353,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 These must be set — DashClaw will fail to start without them.
 
 - **`DASHCLAW_API_KEY`** - referenced in 67 file(s)
-- **`DATABASE_URL`** - referenced in 79 file(s)
+- **`DATABASE_URL`** - referenced in 80 file(s)
 - **`ENCRYPTION_KEY`** - referenced in 8 file(s)
 - **`NEXTAUTH_SECRET`** - referenced in 6 file(s)
 
@@ -415,6 +415,7 @@ These have fallbacks or only activate specific features.
 - `HOSTED_PROVISION_MAX_PER_IP_PER_DAY` *(undocumented)*
 - `HOSTED_TRIAL_ACTION_CAP` *(undocumented)*
 - `HOSTED_TRIAL_DAYS` *(undocumented)*
+- `INTEGRATION_DATABASE_URL` *(undocumented)*
 - `MEMORY_DIR` *(undocumented)*
 - `MOONSHOT_API_KEY` *(undocumented)*
 - `NEXTAUTH_URL`
@@ -461,6 +462,7 @@ These have fallbacks or only activate specific features.
 - `TELEGRAM_APPROVER_ORG_ID` *(undocumented)*
 - `TELEGRAM_BOT_TOKEN` *(undocumented)*
 - `TELEGRAM_WEBHOOK_SECRET` *(undocumented)*
+- `TEST_BASE_URL` *(undocumented)*
 - `TRUST_PROXY` *(undocumented)*
 - `TURNSTILE_SECRET_KEY` *(undocumented)*
 - `UPSTASH_REDIS_REST_TOKEN` *(undocumented)*
