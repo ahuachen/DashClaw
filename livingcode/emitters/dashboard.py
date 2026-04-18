@@ -30,6 +30,7 @@ details{margin-bottom:.5rem;background:#fff;border:1px solid #e2e8f0;border-radi
 summary{font-weight:600;cursor:pointer;font-size:.9rem}
 details[open] summary{margin-bottom:.5rem}
 details table{margin-top:.5rem;border:1px solid #f1f5f9}
+input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid #e2e8f0;border-radius:6px;font:inherit}
 """.strip()
 
 
@@ -136,18 +137,45 @@ def _section_diff(diff) -> str:
 
 
 def _section_routes(active_routes) -> str:
+    """Active routes grouped by first path segment, with a native search filter."""
     if not active_routes:
         return ""
-    route_rows = "\n".join(
-        f'    <tr><td><code>{escape(r.path)}</code></td>'
-        f'<td>{escape(", ".join(r.methods))}</td>'
-        f'<td class="sig">{escape(r.file_path)}</td></tr>'
-        for r in active_routes
+
+    # Group by first segment after /api/ (or fallback to the full path)
+    groups: dict[str, list] = {}
+    for r in active_routes:
+        parts = [p for p in r.path.split("/") if p]
+        key = parts[1] if len(parts) > 1 and parts[0] == "api" else (parts[0] if parts else "/")
+        groups.setdefault(key, []).append(r)
+
+    group_html = []
+    for key in sorted(groups):
+        rows = "\n".join(
+            f'    <tr data-path="{escape(r.path)}"><td><code>{escape(r.path)}</code></td>'
+            f'<td>{escape(", ".join(r.methods))}</td>'
+            f'<td class="sig">{escape(r.file_path)}</td></tr>'
+            for r in groups[key]
+        )
+        group_html.append(
+            f'<details><summary>/{escape(key)}/* ({len(groups[key])})</summary>'
+            f'<table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table></details>'
+        )
+
+    filter_js = (
+        "var q=this.value.toLowerCase();"
+        "document.querySelectorAll('section.routes tr[data-path]').forEach(function(r){"
+        "r.style.display=r.dataset.path.toLowerCase().includes(q)?'':'none';});"
+        "document.querySelectorAll('section.routes details').forEach(function(d){"
+        "var visible=d.querySelectorAll(\"tr[data-path]:not([style*='none'])\").length;"
+        "d.style.display=visible||!q?'':'none';if(q)d.open=true;});"
     )
+
     return (
-        '<section><h2>Active routes</h2>'
-        '<table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead>'
-        f'<tbody>{route_rows}</tbody></table></section>\n'
+        '<section class="routes"><h2>Active routes</h2>'
+        f'<input id="route-filter" type="search" placeholder="Filter routes…" oninput="{filter_js}">'
+        + "\n".join(group_html) +
+        '</section>\n'
     )
 
 

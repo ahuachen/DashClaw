@@ -145,6 +145,16 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertIn("ai_default_model", html)
         self.assertIn("AI Providers", html)
 
+    def test_routes_grouped_by_prefix(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("<summary>", html)
+        self.assertIn('id="route-filter"', html)
+        self.assertIn("oninput", html)
+
+    def test_routes_filter_attribute_present_per_row(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn('data-path="/api/health"', html)
+
 
 if __name__ == "__main__":
     unittest.main()
