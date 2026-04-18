@@ -89,6 +89,19 @@ function SignalDetail({ signal, onClose, onDismiss }) {
   );
 }
 
+function parseSideEffects(val) {
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 function ActionDetail({ action }) {
   const riskScore = parseInt(action.risk_score, 10) || 0;
   const riskColor = riskScore >= 90 ? 'error' : riskScore >= 70 ? 'warning' : 'brand';
@@ -143,13 +156,16 @@ function ActionDetail({ action }) {
 
       {/* Reversible / Side effects */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5">
+        <div
+          className="flex items-center gap-1.5"
+          title="The agent declared whether this action can be rolled back. DashClaw records the signal but does not execute reversals — use the system the agent touched to undo it."
+        >
           <Undo2 size={14} className={action.reversible === 1 ? 'text-emerald-400' : 'text-red-400'} />
           <span className="text-xs text-zinc-300">
-            {action.reversible === 1 ? 'Reversible' : 'Irreversible'}
+            {action.reversible === 1 ? 'Self-recoverable (agent asserted)' : 'Not self-recoverable'}
           </span>
         </div>
-        {action.side_effects && (
+        {parseSideEffects(action.side_effects).length > 0 && (
           <div className="flex items-center gap-1.5">
             <AlertTriangle size={14} className="text-amber-400" />
             <span className="text-xs text-zinc-300">Has side effects</span>
@@ -158,10 +174,14 @@ function ActionDetail({ action }) {
       </div>
 
       {/* Side effects detail */}
-      {action.side_effects && (
+      {parseSideEffects(action.side_effects).length > 0 && (
         <div>
           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Side Effects</div>
-          <p className="text-sm text-zinc-300">{action.side_effects}</p>
+          <ul className="text-sm text-zinc-300 list-disc pl-5 space-y-0.5">
+            {parseSideEffects(action.side_effects).map((se, i) => (
+              <li key={i}>{typeof se === 'string' ? se : JSON.stringify(se)}</li>
+            ))}
+          </ul>
         </div>
       )}
 
