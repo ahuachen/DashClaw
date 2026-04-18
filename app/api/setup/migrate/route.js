@@ -195,6 +195,9 @@ CREATE TABLE IF NOT EXISTS "organizations" (
   "subscription_status" text DEFAULT 'active',
   "current_period_end" text,
   "trial_ends_at" text,
+  "hosted_mode" boolean NOT NULL DEFAULT FALSE,
+  "trial_action_cap" integer,
+  "trial_actions_used" integer NOT NULL DEFAULT 0,
   "created_at" timestamp DEFAULT now(),
   "updated_at" timestamp DEFAULT now(),
   CONSTRAINT "organizations_slug_unique" UNIQUE("slug")
@@ -249,6 +252,7 @@ CREATE TABLE IF NOT EXISTS "api_keys" (
   "key_prefix" text,
   "label" text,
   "role" text DEFAULT 'admin',
+  "scope" text,
   "last_used_at" timestamp,
   "created_at" timestamp DEFAULT now()
 )
@@ -274,4 +278,14 @@ CREATE TABLE IF NOT EXISTS "users" (
   "created_at" timestamp DEFAULT now(),
   "updated_at" timestamp DEFAULT now()
 )
+--> statement-breakpoint
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS hosted_mode BOOLEAN NOT NULL DEFAULT FALSE
+--> statement-breakpoint
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS trial_action_cap INTEGER
+--> statement-breakpoint
+ALTER TABLE organizations ADD COLUMN IF NOT EXISTS trial_actions_used INTEGER NOT NULL DEFAULT 0
+--> statement-breakpoint
+ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS scope TEXT
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS organizations_hosted_mode_idx ON organizations(hosted_mode) WHERE hosted_mode = TRUE
 `.trim();

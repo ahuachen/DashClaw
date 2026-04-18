@@ -26,6 +26,9 @@ export const organizations = pgTable('organizations', {
   subscriptionStatus: text('subscription_status').default('active'),
   currentPeriodEnd: text('current_period_end'),
   trialEndsAt: text('trial_ends_at'),
+  hostedMode: boolean('hosted_mode').default(false).notNull(),
+  trialActionCap: integer('trial_action_cap'),
+  trialActionsUsed: integer('trial_actions_used').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -53,6 +56,7 @@ export const apiKeys = pgTable('api_keys', {
   keyPrefix: text('key_prefix').notNull(),
   label: text('label').default('default'),
   role: text('role').default('member'),
+  scope: text('scope'),
   lastUsedAt: timestamp('last_used_at'),
   revokedAt: timestamp('revoked_at'),
   createdAt: timestamp('created_at').defaultNow(),
