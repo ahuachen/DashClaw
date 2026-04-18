@@ -80,25 +80,41 @@ def _section_counts(shape, active_routes, archived_routes, required_env, optiona
     return f'<div class="grid">\n{count_cells}\n</div>\n'
 
 
-def _section_timeline(snapshots) -> str:
-    if not (snapshots and len(snapshots) >= 2):
+def _section_timeline(snapshots, state_history=None) -> str:
+    sparklines = []
+
+    if snapshots and len(snapshots) >= 2:
+        ordered = sorted(snapshots, key=lambda s: s["timestamp"])
+        sparklines.extend([
+            _sparkline("Active routes over time", [
+                (s["timestamp"], sum(1 for r in s["routes"] if not r.get("archived")))
+                for s in ordered
+            ]),
+            _sparkline("Required env vars over time", [
+                (s["timestamp"], sum(1 for e in s["env_vars"] if e.get("required")))
+                for s in ordered
+            ]),
+            _sparkline("Tables over time", [
+                (s["timestamp"], len(s["tables"]))
+                for s in ordered
+            ]),
+        ])
+
+    if state_history and len(state_history) >= 2:
+        ordered = sorted(state_history, key=lambda s: s["timestamp"])
+        todos = [(s["timestamp"], (s.get("code_quality") or {}).get("todo_count", 0)) for s in ordered]
+        files = [(s["timestamp"], (s.get("code_quality") or {}).get("files_over_300_lines", 0)) for s in ordered]
+        lockfile = [(s["timestamp"], (s.get("dependency_health") or {}).get("lockfile_age_days", 0)) for s in ordered]
+        sparklines.extend([
+            _sparkline("TODOs over time", todos),
+            _sparkline("Files >300 lines over time", files),
+            _sparkline("Lockfile age over time", lockfile),
+        ])
+
+    sparklines = [s for s in sparklines if s]
+    if not sparklines:
         return ""
-    ordered = sorted(snapshots, key=lambda s: s["timestamp"])
-    routes_series = [
-        (s["timestamp"], sum(1 for r in s["routes"] if not r.get("archived")))
-        for s in ordered
-    ]
-    env_series = [
-        (s["timestamp"], sum(1 for e in s["env_vars"] if e.get("required")))
-        for s in ordered
-    ]
-    tables_series = [(s["timestamp"], len(s["tables"])) for s in ordered]
-    sparklines = "\n".join([
-        _sparkline("Active routes over time", routes_series),
-        _sparkline("Required env vars over time", env_series),
-        _sparkline("Tables over time", tables_series),
-    ])
-    return f'<section><h2>Timeline</h2>{sparklines}</section>\n'
+    return '<section><h2>Timeline</h2>' + "\n".join(sparklines) + '</section>\n'
 
 
 def _chip_danger(label: str, value) -> bool:
@@ -330,6 +346,7 @@ def emit_dashboard(
     snapshots: list[dict] | None = None,
     state_report: dict | None = None,
     previous_state_report: dict | None = None,
+    state_history: list[dict] | None = None,
     diff: dict | None = None,
 ) -> str:
     active_routes = [r for r in shape.routes if not r.archived]
@@ -340,7 +357,7 @@ def emit_dashboard(
     sections = [
         _section_counts(shape, active_routes, archived_routes, required_env, optional_env),
         _section_shape_details(shape),
-        _section_timeline(snapshots),
+        _section_timeline(snapshots, state_history),
         _section_health(state_report, previous_state_report),
         _section_diff(diff),
         _section_routes(active_routes),

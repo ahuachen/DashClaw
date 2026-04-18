@@ -61,16 +61,17 @@ def _load_dashboard_context(repo_path: str) -> dict:
     rpt_dir = root / ".organism" / "state-reports"
     if rpt_dir.is_dir():
         reports = sorted(rpt_dir.glob("*.json"))
-        if reports:
+        history = []
+        for p in reports:
             try:
-                ctx["state_report"] = json.loads(reports[-1].read_text(encoding="utf-8"))
+                history.append(json.loads(p.read_text(encoding="utf-8")))
             except (OSError, json.JSONDecodeError):
-                pass
-            if len(reports) >= 2:
-                try:
-                    ctx["previous_state_report"] = json.loads(reports[-2].read_text(encoding="utf-8"))
-                except (OSError, json.JSONDecodeError):
-                    pass
+                continue
+        if history:
+            ctx["state_report"] = history[-1]
+            if len(history) >= 2:
+                ctx["previous_state_report"] = history[-2]
+            ctx["state_history"] = history
 
     try:
         d = diff_against_snapshot(repo_path)

@@ -221,6 +221,20 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertNotIn("↑", html)
         self.assertNotIn("↓", html)
 
+    def test_timeline_extended_with_health_trends(self):
+        history = [
+            {"timestamp": "2026-04-10T00:00:00Z",
+             "code_quality": {"todo_count": 5, "files_over_300_lines": 10},
+             "dependency_health": {"lockfile_age_days": 100}},
+            {"timestamp": "2026-04-15T00:00:00Z",
+             "code_quality": {"todo_count": 8, "files_over_300_lines": 12},
+             "dependency_health": {"lockfile_age_days": 105}},
+        ]
+        html = emit_dashboard(_make_shape(), state_history=history)
+        self.assertIn("TODOs over time", html)
+        self.assertIn("Files &gt;300 lines over time", html)
+        self.assertIn("Lockfile age over time", html)
+
 
 if __name__ == "__main__":
     unittest.main()
