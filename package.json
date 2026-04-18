@@ -93,7 +93,8 @@
   "overrides": {
     "@esbuild-kit/core-utils": {
       "esbuild": "^0.25.0"
-    }
+    },
+    "dompurify": "^3.4.0"
   },
   "devDependencies": {
     "@cfworker/json-schema": "^4.1.1",
