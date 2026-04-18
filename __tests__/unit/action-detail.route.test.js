@@ -148,5 +148,173 @@ describe('/api/actions/[actionId]', () => {
       const res = await PATCH(req({ status: 'completed' }), routeCtx);
       expect(res.status).toBe(500);
     });
+
+    describe('close_if_running (Stop hook contract)', () => {
+      beforeEach(() => {
+        // Override the default DLP mock which returns `redacted: ''`. For
+        // these tests we want non-secret output_summary values to survive
+        // the redaction pass untouched so we can assert on them.
+        mockScanSensitiveData.mockImplementation((input) => ({
+          clean: true,
+          redacted: typeof input === 'string' ? input : '',
+          findings: [],
+        }));
+      });
+
+      it('splits close fields and token fields into two gated updates', async () => {
+        // Stop hook sends close fields + tokens in one PATCH. Route must:
+        //   1. send close fields (status, output_summary, timestamp_end)
+        //      with gateStatus='running' — atomic compare-and-set so a
+        //      terminal row written by PostToolUse isn't clobbered.
+        //   2. send token fields (tokens_in, tokens_out, model)
+        //      unconditionally so tokens always land.
+        const fullData = {
+          status: 'completed',
+          output_summary: 'Auto-closed by Stop hook',
+          timestamp_end: '2026-04-17T22:00:00Z',
+          tokens_in: 100,
+          tokens_out: 50,
+          model: 'claude-opus-4-6',
+        };
+        mockValidateActionOutcome.mockReturnValue({ valid: true, data: fullData, errors: [] });
+        const closedRow = { action_id: 'act_1', status: 'completed' };
+        const tokenedRow = { action_id: 'act_1', status: 'completed', tokens_in: 100 };
+        mockUpdateActionOutcome
+          .mockResolvedValueOnce(closedRow)   // close call (gated)
+          .mockResolvedValueOnce(tokenedRow); // token call (unconditional)
+
+        const res = await PATCH(
+          req({ ...fullData, close_if_running: true }),
+          routeCtx,
+        );
+        expect(res.status).toBe(200);
+
+        // Two repository calls — the close one gated, the token one not.
+        expect(mockUpdateActionOutcome).toHaveBeenCalledTimes(2);
+        const [, , , closeFields, closeOpts] = mockUpdateActionOutcome.mock.calls[0];
+        expect(closeFields).toEqual({
+          status: 'completed',
+          output_summary: 'Auto-closed by Stop hook',
+          timestamp_end: '2026-04-17T22:00:00Z',
+        });
+        expect(closeOpts).toEqual({ gateStatus: 'running' });
+
+        const [, , , tokenFields, tokenOpts] = mockUpdateActionOutcome.mock.calls[1];
+        // tokenFields also carries a server-derived cost_estimate; we don't
+        // pin the exact number here (it's covered by billing.test.js) but
+        // we do pin the token + model fields and reject any leakage of the
+        // close-only fields into this call.
+        expect(tokenFields).toMatchObject({
+          tokens_in: 100,
+          tokens_out: 50,
+          model: 'claude-opus-4-6',
+        });
+        expect(tokenFields).not.toHaveProperty('status');
+        expect(tokenFields).not.toHaveProperty('output_summary');
+        expect(tokenFields).not.toHaveProperty('timestamp_end');
+        // No gate on the token call — tokens apply regardless of status.
+        expect(tokenOpts).toBeUndefined();
+
+        // Response returns the token result (most recent), not the close result.
+        const body = await res.json();
+        expect(body.action).toEqual(tokenedRow);
+      });
+
+      it('still records tokens when gate rejects close (already-terminal row)', async () => {
+        // Simulates PostToolUse already having closed the action with a real
+        // outcome. Close gate returns null (row status != 'running'), but
+        // tokens still need to land.
+        mockValidateActionOutcome.mockReturnValue({
+          valid: true,
+          data: {
+            status: 'completed',
+            output_summary: 'Auto-closed by Stop hook',
+            timestamp_end: '2026-04-17T22:00:00Z',
+            tokens_in: 42,
+            tokens_out: 17,
+          },
+          errors: [],
+        });
+        const tokenedRow = { action_id: 'act_1', status: 'failed', tokens_in: 42 };
+        mockUpdateActionOutcome
+          .mockResolvedValueOnce(null)         // close gate mismatched
+          .mockResolvedValueOnce(tokenedRow);  // tokens still apply
+
+        const res = await PATCH(
+          req({
+            close_if_running: true,
+            status: 'completed',
+            output_summary: 'Auto-closed by Stop hook',
+            timestamp_end: '2026-04-17T22:00:00Z',
+            tokens_in: 42,
+            tokens_out: 17,
+          }),
+          routeCtx,
+        );
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        // PostToolUse's real outcome ('failed') is preserved.
+        expect(body.action).toEqual(tokenedRow);
+      });
+
+      it('re-fetches current row when gate rejects and there are no token fields', async () => {
+        // A Stop hook with no usage to report still sends close_if_running.
+        // If the gate mismatches (already terminal) AND there are no token
+        // fields, the route falls back to GET so the response is accurate
+        // rather than returning 404 for an action that plainly exists.
+        mockValidateActionOutcome.mockReturnValue({
+          valid: true,
+          data: {
+            status: 'completed',
+            output_summary: 'Auto-closed by Stop hook',
+            timestamp_end: '2026-04-17T22:00:00Z',
+          },
+          errors: [],
+        });
+        mockUpdateActionOutcome.mockResolvedValueOnce(null); // gate mismatched
+        mockGetActionWithRelations.mockResolvedValue({
+          action: { action_id: 'act_1', status: 'failed', error_message: 'real failure' },
+        });
+
+        const res = await PATCH(
+          req({
+            close_if_running: true,
+            status: 'completed',
+            output_summary: 'Auto-closed by Stop hook',
+            timestamp_end: '2026-04-17T22:00:00Z',
+          }),
+          routeCtx,
+        );
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        // Caller sees the real terminal state, not a fabricated "completed".
+        expect(body.action.status).toBe('failed');
+      });
+
+      it('omits close_if_running from validated data so the flag never hits the DB', async () => {
+        // The flag is a route-level contract, not a column. validateActionOutcome
+        // is called with the full body, but only validated fields go to the
+        // repository. This guards against accidentally persisting the flag.
+        mockValidateActionOutcome.mockReturnValue({
+          valid: true,
+          data: { status: 'completed', timestamp_end: '2026-04-17T22:00:00Z' },
+          errors: [],
+        });
+        mockUpdateActionOutcome.mockResolvedValue({ action_id: 'act_1', status: 'completed' });
+
+        const res = await PATCH(
+          req({ close_if_running: true, status: 'completed', timestamp_end: '2026-04-17T22:00:00Z' }),
+          routeCtx,
+        );
+        expect(res.status).toBe(200);
+
+        // Inspect every call — none should have close_if_running in the
+        // fields object passed to the repository.
+        for (const call of mockUpdateActionOutcome.mock.calls) {
+          const fields = call[3];
+          expect(fields).not.toHaveProperty('close_if_running');
+        }
+      });
+    });
   });
 });
