@@ -3,6 +3,7 @@ import { getSql } from '../../../../lib/db.js';
 import { getOrgId, getOrgRole } from '../../../../lib/org.js';
 import { checkAllIntegrations } from '../../../../lib/integration-health.js';
 import { upsertHealth, getHealthForOrg } from '../../../../lib/repositories/integration-health.repository.js';
+import { fireHealthChangeAlerts } from '../../../../lib/health-change-alerts.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -29,10 +30,22 @@ export async function POST(request) {
 
     const results = await checkAllIntegrations(orgId, sql);
     let checked = 0;
+    const transitions = [];
     for (const [provider, result] of Object.entries(results)) {
       if (result.status === 'not_configured') continue;
-      await upsertHealth(sql, orgId, provider, result.status, result.message);
+      const { changed, prev_status, new_status } = await upsertHealth(
+        sql, orgId, provider, result.status, result.message,
+      );
       checked++;
+      if (changed) {
+        transitions.push({ provider, prev_status, new_status, message: result.message });
+      }
+    }
+
+    let alerts = 0;
+    if (transitions.length > 0) {
+      const res = await fireHealthChangeAlerts(sql, orgId, transitions);
+      alerts = res.fired;
     }
 
     // Return the fresh map the UI can swap in without re-fetching.
@@ -46,7 +59,7 @@ export async function POST(request) {
       };
     }
 
-    return NextResponse.json({ checked, health: healthMap });
+    return NextResponse.json({ checked, alerts, health: healthMap });
   } catch (err) {
     console.error('[integrations/health/refresh] POST error:', err);
     return NextResponse.json({ error: 'Health refresh failed' }, { status: 500 });

@@ -8,13 +8,16 @@ const {
   mockGetSql,
   mockGetOrgId,
   mockGetOrgRole,
+  mockFireHealthChangeAlerts,
 } = vi.hoisted(() => ({
   mockCheckAllIntegrations: vi.fn(),
-  mockUpsertHealth: vi.fn(),
+  // upsertHealth returns {changed, prev_status, new_status}; default: no change.
+  mockUpsertHealth: vi.fn(async () => ({ changed: false, prev_status: null, new_status: 'healthy' })),
   mockGetHealthForOrg: vi.fn(),
   mockGetSql: vi.fn(() => ({})),
   mockGetOrgId: vi.fn(() => 'org_test'),
   mockGetOrgRole: vi.fn(() => 'admin'),
+  mockFireHealthChangeAlerts: vi.fn(async () => ({ fired: 0 })),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: mockGetSql }));
@@ -23,6 +26,9 @@ vi.mock('@/lib/integration-health.js', () => ({ checkAllIntegrations: mockCheckA
 vi.mock('@/lib/repositories/integration-health.repository.js', () => ({
   upsertHealth: mockUpsertHealth,
   getHealthForOrg: mockGetHealthForOrg,
+}));
+vi.mock('@/lib/health-change-alerts.js', () => ({
+  fireHealthChangeAlerts: mockFireHealthChangeAlerts,
 }));
 
 import { POST } from '@/api/integrations/health/refresh/route.js';
@@ -38,6 +44,8 @@ describe('POST /api/integrations/health/refresh', () => {
     vi.clearAllMocks();
     mockGetOrgRole.mockReturnValue('admin');
     mockGetOrgId.mockReturnValue('org_test');
+    mockUpsertHealth.mockResolvedValue({ changed: false, prev_status: null, new_status: 'healthy' });
+    mockFireHealthChangeAlerts.mockResolvedValue({ fired: 0 });
   });
 
   it('returns 403 when the caller is not an admin', async () => {
@@ -84,6 +92,49 @@ describe('POST /api/integrations/health/refresh', () => {
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBeTruthy();
+  });
+
+  it('fires health-change alerts and reports the count when providers transition', async () => {
+    // Slack went healthy→error, discord stayed put, github new observation.
+    mockCheckAllIntegrations.mockResolvedValue({
+      slack: { status: 'error', message: '401' },
+      discord: { status: 'healthy', message: 'ok' },
+      github: { status: 'healthy', message: 'ok' },
+    });
+    mockUpsertHealth.mockImplementation(async (_sql, _org, provider) => {
+      if (provider === 'slack')   return { changed: true,  prev_status: 'healthy', new_status: 'error'   };
+      if (provider === 'discord') return { changed: false, prev_status: 'healthy', new_status: 'healthy' };
+      if (provider === 'github')  return { changed: false, prev_status: null,      new_status: 'healthy' }; // first observation
+      return { changed: false, prev_status: null, new_status: 'healthy' };
+    });
+    mockFireHealthChangeAlerts.mockResolvedValue({ fired: 1 });
+    mockGetHealthForOrg.mockResolvedValue([]);
+
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.checked).toBe(3);
+    expect(body.alerts).toBe(1);
+
+    // Only the slack transition is forwarded to fireHealthChangeAlerts —
+    // discord's steady state and github's first-observation both suppress.
+    expect(mockFireHealthChangeAlerts).toHaveBeenCalledTimes(1);
+    const [, , transitions] = mockFireHealthChangeAlerts.mock.calls[0];
+    expect(transitions).toEqual([
+      { provider: 'slack', prev_status: 'healthy', new_status: 'error', message: '401' },
+    ]);
+  });
+
+  it('skips fireHealthChangeAlerts entirely when nothing changed', async () => {
+    mockCheckAllIntegrations.mockResolvedValue({
+      slack: { status: 'healthy', message: 'ok' },
+    });
+    mockUpsertHealth.mockResolvedValue({ changed: false, prev_status: 'healthy', new_status: 'healthy' });
+    mockGetHealthForOrg.mockResolvedValue([]);
+
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+    expect(mockFireHealthChangeAlerts).not.toHaveBeenCalled();
   });
 
   it('still returns a health map even when no providers are configured', async () => {

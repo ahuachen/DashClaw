@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import { checkAllIntegrations } from '../../../lib/integration-health.js';
 import { upsertHealth, getActiveOrgIds } from '../../../lib/repositories/integration-health.repository.js';
+import { fireHealthChangeAlerts } from '../../../lib/health-change-alerts.js';
 import { timingSafeEqual } from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -28,16 +29,27 @@ export async function GET(request) {
     const orgs = await getActiveOrgIds(sql);
 
     let totalChecked = 0;
+    let totalAlerts = 0;
     for (const org of orgs) {
       const results = await checkAllIntegrations(org.id, sql);
+      const transitions = [];
       for (const [provider, result] of Object.entries(results)) {
         if (result.status === 'not_configured') continue;
-        await upsertHealth(sql, org.id, provider, result.status, result.message);
+        const { changed, prev_status, new_status } = await upsertHealth(
+          sql, org.id, provider, result.status, result.message,
+        );
         totalChecked++;
+        if (changed) {
+          transitions.push({ provider, prev_status, new_status, message: result.message });
+        }
+      }
+      if (transitions.length > 0) {
+        const { fired } = await fireHealthChangeAlerts(sql, org.id, transitions);
+        totalAlerts += fired;
       }
     }
 
-    return NextResponse.json({ ok: true, orgs: orgs.length, checked: totalChecked });
+    return NextResponse.json({ ok: true, orgs: orgs.length, checked: totalChecked, alerts: totalAlerts });
   } catch (err) {
     console.error('[cron/integration-health] Error:', err);
     return NextResponse.json({ error: 'Health check failed' }, { status: 500 });
