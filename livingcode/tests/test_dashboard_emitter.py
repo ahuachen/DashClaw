@@ -72,6 +72,16 @@ class TestDashboardEmitter(unittest.TestCase):
     def test_timeline_absent_without_snapshots(self):
         html = emit_dashboard(_make_shape(), snapshots=[])
         self.assertNotIn("<svg", html)
+        self.assertNotIn("<h2>Timeline</h2>", html)
+
+    def test_timeline_absent_with_single_snapshot(self):
+        snapshots = [
+            {"timestamp": "2026-04-10T00:00:00Z", "routes": [{"archived": False}] * 50,
+             "env_vars": [{"required": True}] * 10, "tables": [{}] * 5,
+             "events": [], "adapters": [], "signal_types": [], "setting_keys": []},
+        ]
+        html = emit_dashboard(_make_shape(), snapshots=snapshots)
+        self.assertNotIn("<h2>Timeline</h2>", html)
 
     def test_renders_health_strip(self):
         report = {

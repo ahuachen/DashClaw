@@ -60,7 +60,7 @@ def emit_dashboard(
     )
 
     timeline_html = ""
-    if snapshots:
+    if snapshots and len(snapshots) >= 2:
         ordered = sorted(snapshots, key=lambda s: s["timestamp"])
         routes_series = [
             (s["timestamp"], sum(1 for r in s["routes"] if not r.get("archived")))
