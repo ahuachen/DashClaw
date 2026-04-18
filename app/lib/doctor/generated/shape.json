@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:4c44ab60864f466f38b3615d07692d0379eaf7fd",
+  "timestamp": "sha1:842cb2d369ab24c29f862f8445a976f8d5918e31",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1242,6 +1242,18 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/hosted/workspaces/route.js"
+    },
+    {
+      "path": "/api/hosted/workspaces/[workspaceId]",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "dynamic_params": [
+        "workspaceId"
+      ],
+      "archived": false,
+      "file_path": "app/api/hosted/workspaces/[workspaceId]/route.js"
     },
     {
       "path": "/api/identities",
@@ -2647,6 +2659,7 @@
       "required": false,
       "files": [
         "__tests__/unit/hosted/flag.test.js",
+        "__tests__/unit/hosted/workspace-admin.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/flag.js"
       ],
@@ -2727,6 +2740,7 @@
         "__tests__/unit/health-tables.test.js",
         "__tests__/unit/health.route.test.js",
         "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
+        "__tests__/unit/hosted/workspace-admin.test.js",
         "__tests__/unit/keys.route.test.js",
         "__tests__/unit/learning-recommendation-detail.route.test.js",
         "__tests__/unit/learning-recommendation-events.route.test.js",

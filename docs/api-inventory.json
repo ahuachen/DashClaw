@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 223,
+    "total_routes": 224,
     "stable_routes": 41,
     "beta_routes": 20,
-    "experimental_routes": 162
+    "experimental_routes": 163
   },
   "routes": [
     {
@@ -1211,6 +1211,16 @@
       "maturity": "experimental",
       "matched_prefix": "(default)",
       "file": "app/api/hosted/workspaces/route.js"
+    },
+    {
+      "path": "/api/hosted/workspaces/{workspaceId}",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/hosted/workspaces/[workspaceId]/route.js"
     },
     {
       "path": "/api/identities",

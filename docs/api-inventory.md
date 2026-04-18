@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `223`
+- Total routes: `224`
 - Stable routes: `41`
 - Beta routes: `20`
-- Experimental routes: `162`
+- Experimental routes: `163`
 
 ## Routes
 
@@ -144,6 +144,7 @@ doc-type: architecture
 | `/api/guard/decisions` | `GET` | `stable` | `/api/guard` | `app/api/guard/decisions/route.js` |
 | `/api/health` | `GET` | `stable` | `/api/health` | `app/api/health/route.js` |
 | `/api/hosted/workspaces` | `GET, POST` | `experimental` | `(default)` | `app/api/hosted/workspaces/route.js` |
+| `/api/hosted/workspaces/{workspaceId}` | `DELETE, GET` | `experimental` | `(default)` | `app/api/hosted/workspaces/[workspaceId]/route.js` |
 | `/api/identities` | `GET, POST` | `experimental` | `/api/identities` | `app/api/identities/route.js` |
 | `/api/identities/{agentId}` | `DELETE` | `experimental` | `/api/identities` | `app/api/identities/[agentId]/route.js` |
 | `/api/integrations/health` | `GET` | `experimental` | `(default)` | `app/api/integrations/health/route.js` |
