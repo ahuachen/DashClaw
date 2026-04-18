@@ -24,7 +24,7 @@
 - HTTP and disk-I/O failures in both hooks append a one-line breadcrumb to `<tempdir>/dashclaw_hook_errors.log` so ops can notice token-attribution drift (key rotation, base-URL typo, disk full) instead of watching analytics silently drop to zero.
 - **Install:** `npm run hooks:install` (or `node /path/to/DashClaw/scripts/install-hooks.mjs --target=.` from any project). Idempotent — re-run after `git pull` to upgrade. The installer removes only the exact managed hook filenames (`dashclaw_pretool.py`, `dashclaw_posttool.py`, `dashclaw_stop.py`); user-authored wrappers with similar names survive re-install.
 
-### OpenClaw plugin (`packages/openclaw-plugin`, v1.2.1)
+### OpenClaw plugin (`packages/openclaw-plugin`, v1.2.2)
 - Hooks `llm_output` and `agent_end` to attribute LLM token usage back to the tool calls each assistant response induced.
 - Cache reads weighted 0.1×, cache writes counted at full price.
 - Model string flows through to DashClaw so server-side cost derivation picks the right pricing row.
@@ -49,7 +49,7 @@ npm login          # once per machine, skip if already logged in
 npm publish --access public
 ```
 
-Expected output ends with `+ @dashclaw/openclaw-plugin@1.2.1`.
+Expected output ends with `+ @dashclaw/openclaw-plugin@1.2.2`.
 
 **Why this isn't automated:** publishing to npm is irreversible and tied to your personal npm account. I won't run it for you.
 
@@ -58,7 +58,7 @@ Expected output ends with `+ @dashclaw/openclaw-plugin@1.2.1`.
 SSH into the host (or whatever environment runs your codex-authenticated OpenClaw gateway) and:
 
 ```bash
-openclaw plugins install @dashclaw/openclaw-plugin@1.2.1
+openclaw plugins install @dashclaw/openclaw-plugin@1.2.2
 # or if you use npm directly
 npm update @dashclaw/openclaw-plugin
 ```
@@ -66,7 +66,7 @@ npm update @dashclaw/openclaw-plugin
 Restart the gateway so the plugin reloads. Confirm the plugin version in logs:
 
 ```
-[openclaw] plugin 'dashclaw-governance' v1.2.1 registered
+[openclaw] plugin 'dashclaw-governance' v1.2.2 registered
 ```
 
 ### 3. Verify tokens are flowing
@@ -124,7 +124,7 @@ cp /tmp/dashclaw-project-backup.json .vercel/project.json
 ```
 
 ### Plugin
-`npm unpublish @dashclaw/openclaw-plugin@1.2.1` is blocked after 72h. Instead, publish `1.2.2` with a revert commit.
+`npm unpublish @dashclaw/openclaw-plugin@1.2.2` is blocked after 72h. Instead, publish `1.2.2` with a revert commit.
 
 ### DB
 The `action_records.model` column is additive — leaving it populated doesn't break the old server code. No DB rollback needed.
@@ -149,5 +149,6 @@ The `action_records.model` column is additive — leaving it populated doesn't b
 | OpenClaw not reporting tokens | Plugin logs: `[dashclaw-governance] token PATCH failed for ...` or `[dashclaw-governance] llm_output dropped — client unavailable: ...` |
 | Claude Code not reporting tokens | `<tempdir>/dashclaw_turn_<sessionId>` should exist during a turn; `<tempdir>/dashclaw_stop_cursor_<sessionId>` after Stop. If session_id contained non-`[A-Za-z0-9._-]` chars they're replaced with `_` in the filename. |
 | Hook silently producing zero cost | Tail `<tempdir>/dashclaw_hook_errors.log` — Stop and pretool append a line here on HTTP/disk failures, and log `orphan_tokens …` when a text-only turn has no action_ids to attribute against. |
+| PostToolUse never closes actions (stuck `running`) | Set `DASHCLAW_HOOK_DEBUG=1` in `.env` and watch `<tempdir>/dashclaw_hook_errors.log` for `posttool invoked …` / `posttool exit_early …` lines. If no `posttool invoked` lines appear at all, Claude Code isn't firing PostToolUse (see [anthropics/claude-code#6305](https://github.com/anthropics/claude-code/issues/6305)); if they appear but `exit_early: no action_id …` dominates, the PreToolUse hook failed to record for that tool call. |
 | New running actions piling up | Stop hook not firing — check `.claude/settings.json` has the `Stop` entry. (If it IS firing, the server-side `close_if_running` gate only closes rows that are still `running`; a row stuck on `pending_approval` or similar needs `repair-stale-running-actions.mjs`.) |
 | Cost seems wrong | `app/lib/billing.js` DEFAULT_PRICING — add your model pattern if unmatched. Rows with `$0` and `model=NULL` are expected: pre-migration or the hook failed to capture a model; `estimateCost` returns 0 for null model by design. |

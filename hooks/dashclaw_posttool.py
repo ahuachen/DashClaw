@@ -51,8 +51,26 @@ _load_dotenv()
 
 BASE_URL = (os.environ.get("DASHCLAW_BASE_URL") or "").rstrip("/")
 API_KEY = os.environ.get("DASHCLAW_API_KEY") or ""
+# Set DASHCLAW_HOOK_DEBUG=1 in .env to capture PostToolUse invocation breadcrumbs
+# in <tempdir>/dashclaw_hook_errors.log. Useful for diagnosing why PostToolUse
+# isn't firing or is exiting early (missing tool_use_id, missing action_id, etc.)
+# — the miss rate for PostToolUse has historically been ~96% in the wild and the
+# root cause is opaque without this.
+DEBUG = (os.environ.get("DASHCLAW_HOOK_DEBUG") or "").strip() in ("1", "true", "yes")
 
 MAX_SUMMARY = 500
+
+
+def _log(tag, msg):
+    if not DEBUG:
+        return
+    try:
+        path = os.path.join(tempfile.gettempdir(), "dashclaw_hook_errors.log")
+        ts = datetime.now(timezone.utc).isoformat()
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(ts + " posttool " + tag + ": " + str(msg) + "\n")
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +132,7 @@ def _extract_outcome(tool_response):
 # ---------------------------------------------------------------------------
 
 def _patch_action(action_id, body):
-    """PATCH /api/actions/{action_id}. Silently ignores failures."""
+    """PATCH /api/actions/{action_id}. Failures log (if DEBUG) and return."""
     url = BASE_URL + "/api/actions/" + action_id
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
@@ -128,8 +146,10 @@ def _patch_action(action_id, body):
     )
     try:
         urllib.request.urlopen(req, timeout=2)
-    except Exception:
-        pass  # Never block on outcome recording failure
+    except urllib.error.HTTPError as e:
+        _log("patch_failed", "action_id=" + action_id + " HTTP " + str(e.code))
+    except Exception as e:
+        _log("patch_failed", "action_id=" + action_id + " " + type(e).__name__ + ": " + str(e))
 
 
 # ---------------------------------------------------------------------------
@@ -163,24 +183,33 @@ def _cleanup_temp(tool_use_id):
 # ---------------------------------------------------------------------------
 
 def main():
+    _log("invoked", "pid=" + str(os.getpid()))
+
     # Exit silently if DashClaw is not configured
     if not BASE_URL or not API_KEY:
+        _log("exit_early", "no BASE_URL/API_KEY")
         sys.exit(0)
 
     # Parse stdin
     try:
         raw = sys.stdin.read()
         data = json.loads(raw) if raw.strip() else {}
-    except Exception:
+    except Exception as e:
+        _log("exit_early", "stdin parse failed: " + type(e).__name__)
         sys.exit(0)
 
+    tool_name = data.get("tool_name") or ""
     tool_use_id = data.get("tool_use_id") or ""
     if not tool_use_id:
+        _log("exit_early", "no tool_use_id (tool_name=" + tool_name + ")")
         sys.exit(0)
 
     # Find the action ID from the temp file written by PreToolUse
     action_id = _read_action_id(tool_use_id)
     if not action_id:
+        _log("exit_early", "no action_id for tool_use_id=" + tool_use_id
+             + " tool_name=" + tool_name
+             + " (pretool didn't record — guard denied, un-governed tool, or pretool crashed)")
         sys.exit(0)
 
     # Extract structured outcome from tool_response
@@ -196,6 +225,7 @@ def main():
         "outcome_metadata": outcome_metadata,
     }
     _patch_action(action_id, body)
+    _log("patched", "action_id=" + action_id + " status=" + status)
 
     # Clean up temp file
     _cleanup_temp(tool_use_id)
