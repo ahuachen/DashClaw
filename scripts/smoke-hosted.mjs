@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+// Post-deploy smoke test for hosted provisioning.
+// Usage: node scripts/smoke-hosted.mjs --base-url https://hosted.example.com
+//
+// What it does:
+//   1. POST /api/hosted/workspaces → expect 200 + api_key
+//   2. GET  /api/health with the api_key → expect 200
+//   3. Clean up by nothing — trial workspaces auto-expire (sweeper handles them)
+//      OR (if admin DASHCLAW_API_KEY provided) DELETE /api/hosted/workspaces/:id
+//
+// Exits 0 on success, 1 on failure.
+
+function parseArgs(argv) {
+  const args = { baseUrl: null, adminKey: null };
+  for (let i = 2; i < argv.length; i += 1) {
+    const a = argv[i];
+    if (a === '--base-url') args.baseUrl = argv[++i];
+    else if (a === '--admin-key') args.adminKey = argv[++i];
+    else if (a.startsWith('--base-url=')) args.baseUrl = a.slice('--base-url='.length);
+    else if (a.startsWith('--admin-key=')) args.adminKey = a.slice('--admin-key='.length);
+  }
+  args.baseUrl = args.baseUrl || process.env.HOSTED_SMOKE_BASE_URL || '';
+  args.adminKey = args.adminKey || process.env.DASHCLAW_API_KEY || '';
+  return args;
+}
+
+async function main() {
+  const { baseUrl, adminKey } = parseArgs(process.argv);
+  if (!baseUrl) {
+    console.error('FAIL: --base-url or HOSTED_SMOKE_BASE_URL required');
+    process.exit(1);
+  }
+  const base = baseUrl.replace(/\/$/, '');
+
+  // Step 1: provision
+  console.log(`[smoke] POST ${base}/api/hosted/workspaces`);
+  const provisionRes = await fetch(`${base}/api/hosted/workspaces`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: '{}',
+  });
+  if (provisionRes.status !== 200) {
+    const body = await provisionRes.text();
+    console.error(`FAIL: provision returned ${provisionRes.status}\n${body}`);
+    process.exit(1);
+  }
+  const provisioned = await provisionRes.json();
+  console.log(`[smoke] provisioned workspace=${provisioned.workspace_id}, api_key prefix=${provisioned.key_prefix}`);
+
+  // Step 2: use the key
+  console.log(`[smoke] GET ${base}/api/health with provisioned key`);
+  const healthRes = await fetch(`${base}/api/health`, {
+    headers: { 'x-api-key': provisioned.api_key },
+  });
+  if (healthRes.status !== 200) {
+    console.error(`FAIL: /api/health returned ${healthRes.status}`);
+    process.exit(1);
+  }
+  console.log('[smoke] /api/health OK');
+
+  // Step 3: cleanup (best-effort, admin only)
+  if (adminKey) {
+    console.log(`[smoke] DELETE ${base}/api/hosted/workspaces/${provisioned.workspace_id}`);
+    const delRes = await fetch(`${base}/api/hosted/workspaces/${provisioned.workspace_id}`, {
+      method: 'DELETE',
+      headers: { 'x-api-key': adminKey },
+    });
+    if (delRes.status !== 200) {
+      console.warn(`WARN: cleanup returned ${delRes.status} — trial will auto-expire`);
+    } else {
+      console.log('[smoke] cleanup OK');
+    }
+  } else {
+    console.log('[smoke] no admin key provided; trial will auto-expire');
+  }
+
+  console.log('[smoke] PASS');
+  process.exit(0);
+}
+
+main().catch((err) => {
+  console.error(`FAIL: ${err.message}`);
+  process.exit(1);
+});
