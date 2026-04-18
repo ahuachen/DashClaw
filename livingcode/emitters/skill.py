@@ -112,6 +112,66 @@ def emit_skill(shape: ShapeModel) -> str:
         lines.append(f"- `{t.name}`")
     lines.append("")
 
+    # Configuration knobs (VALID_SETTING_KEYS, grouped by section)
+    if getattr(shape, "setting_keys", []):
+        lines += ["## Configuration Knobs", ""]
+        lines += [
+            "Per-org settings stored in the `settings` table. Set via "
+            "`PUT /api/settings/:key` or the web Settings/Integrations UI. Keys "
+            "marked sensitive are auto-encrypted at rest.",
+            "",
+        ]
+        by_section: dict[str | None, list] = {}
+        for s in shape.setting_keys:
+            by_section.setdefault(s.section, []).append(s)
+        # Render sections in the order they appear in the source file. We
+        # approximate that by walking shape.setting_keys once and emitting
+        # each section header the first time its key shows up.
+        emitted_sections: set[str | None] = set()
+        for s in shape.setting_keys:
+            if s.section in emitted_sections:
+                continue
+            emitted_sections.add(s.section)
+            header = s.section or "Uncategorized"
+            lines.append(f"### {header}")
+            lines.append("")
+            for item in by_section[s.section]:
+                lines.append(f"- `{item.name}`")
+            lines.append("")
+
+    # Realtime / webhook events
+    if getattr(shape, "events", []):
+        lines += ["## Realtime & Webhook Events", ""]
+        lines += [
+            "Every mutation that Mission Control reflects and every webhook "
+            "delivery is keyed on these event strings. Subscribe via "
+            "`GET /api/events` (SSE) or register a webhook with the matching "
+            "`events: [...]` array.",
+            "",
+            "| Constant | Event |",
+            "| --- | --- |",
+        ]
+        for e in sorted(shape.events, key=lambda x: x.event):
+            lines.append(f"| `{e.constant}` | `{e.event}` |")
+        lines.append("")
+
+    # Native notification adapters
+    if getattr(shape, "adapters", []):
+        lines += ["## Native Notification Adapters", ""]
+        lines += [
+            "Each adapter delivers `integration_mismatch`, "
+            "`integration_health_changed`, and `cost_exceeded` signals when at "
+            "least one of its required credential keys is configured. Per-"
+            "channel opt-out via `DASHCLAW_ALERTS_<NAME>=false`.",
+            "",
+            "| Adapter | Required credential (any one) |",
+            "| --- | --- |",
+        ]
+        for a in shape.adapters:
+            keys = ", ".join(f"`{k}`" for k in a.required_keys) or "—"
+            lines.append(f"| `{a.name}` | {keys} |")
+        lines.append("")
+
     # Stale detection
     lines += [
         "## Detecting Drift",

@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:8e96cea19bb97d1ced27e6eac70f45d589e0a5b3",
+  "timestamp": "sha1:0a45543dd6eea2cca1b05176f7075258617c9ed5",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3855,6 +3855,408 @@
       "name": "workflows",
       "file_path": "schema/schema.js",
       "domain": null
+    }
+  ],
+  "setting_keys": [
+    {
+      "name": "OPENAI_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "OPENAI_ORG_ID",
+      "section": "AI Providers"
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "GROQ_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "TOGETHER_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "REPLICATE_API_TOKEN",
+      "section": "AI Providers"
+    },
+    {
+      "name": "HUGGINGFACE_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "PERPLEXITY_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "ELEVENLABS_API_KEY",
+      "section": "AI Providers"
+    },
+    {
+      "name": "ELEVENLABS_VOICE_ID",
+      "section": "AI Providers"
+    },
+    {
+      "name": "DATABASE_URL",
+      "section": "Databases"
+    },
+    {
+      "name": "SUPABASE_URL",
+      "section": "Databases"
+    },
+    {
+      "name": "SUPABASE_ANON_KEY",
+      "section": "Databases"
+    },
+    {
+      "name": "SUPABASE_SERVICE_KEY",
+      "section": "Databases"
+    },
+    {
+      "name": "PLANETSCALE_URL",
+      "section": "Databases"
+    },
+    {
+      "name": "MONGODB_URI",
+      "section": "Databases"
+    },
+    {
+      "name": "REDIS_URL",
+      "section": "Databases"
+    },
+    {
+      "name": "PINECONE_API_KEY",
+      "section": "Databases"
+    },
+    {
+      "name": "PINECONE_ENVIRONMENT",
+      "section": "Databases"
+    },
+    {
+      "name": "TELEGRAM_BOT_TOKEN",
+      "section": "Communication"
+    },
+    {
+      "name": "TELEGRAM_CHAT_ID",
+      "section": "Communication"
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "section": "Communication"
+    },
+    {
+      "name": "DISCORD_CLIENT_ID",
+      "section": "Communication"
+    },
+    {
+      "name": "DISCORD_GUILD_ID",
+      "section": "Communication"
+    },
+    {
+      "name": "SLACK_BOT_TOKEN",
+      "section": "Communication"
+    },
+    {
+      "name": "SLACK_SIGNING_SECRET",
+      "section": "Communication"
+    },
+    {
+      "name": "SLACK_APP_TOKEN",
+      "section": "Communication"
+    },
+    {
+      "name": "TWILIO_ACCOUNT_SID",
+      "section": "Communication"
+    },
+    {
+      "name": "TWILIO_AUTH_TOKEN",
+      "section": "Communication"
+    },
+    {
+      "name": "TWILIO_PHONE_NUMBER",
+      "section": "Communication"
+    },
+    {
+      "name": "RESEND_API_KEY",
+      "section": "Communication"
+    },
+    {
+      "name": "SENDGRID_API_KEY",
+      "section": "Communication"
+    },
+    {
+      "name": "GOOGLE_ACCOUNT",
+      "section": "Productivity"
+    },
+    {
+      "name": "GOOGLE_CREDENTIALS_PATH",
+      "section": "Productivity"
+    },
+    {
+      "name": "NOTION_API_KEY",
+      "section": "Productivity"
+    },
+    {
+      "name": "NOTION_PARENT_PAGE_ID",
+      "section": "Productivity"
+    },
+    {
+      "name": "LINEAR_API_KEY",
+      "section": "Productivity"
+    },
+    {
+      "name": "AIRTABLE_API_KEY",
+      "section": "Productivity"
+    },
+    {
+      "name": "AIRTABLE_BASE_ID",
+      "section": "Productivity"
+    },
+    {
+      "name": "CALENDLY_API_KEY",
+      "section": "Productivity"
+    },
+    {
+      "name": "GITHUB_TOKEN",
+      "section": "Development"
+    },
+    {
+      "name": "GITHUB_USERNAME",
+      "section": "Development"
+    },
+    {
+      "name": "VERCEL_TOKEN",
+      "section": "Development"
+    },
+    {
+      "name": "VERCEL_PROJECT_ID",
+      "section": "Development"
+    },
+    {
+      "name": "RAILWAY_TOKEN",
+      "section": "Development"
+    },
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "section": "Development"
+    },
+    {
+      "name": "CLOUDFLARE_ACCOUNT_ID",
+      "section": "Development"
+    },
+    {
+      "name": "SENTRY_DSN",
+      "section": "Development"
+    },
+    {
+      "name": "SENTRY_AUTH_TOKEN",
+      "section": "Development"
+    },
+    {
+      "name": "TWITTER_API_KEY",
+      "section": "Social"
+    },
+    {
+      "name": "TWITTER_API_SECRET",
+      "section": "Social"
+    },
+    {
+      "name": "TWITTER_ACCESS_TOKEN",
+      "section": "Social"
+    },
+    {
+      "name": "TWITTER_ACCESS_SECRET",
+      "section": "Social"
+    },
+    {
+      "name": "BRAVE_API_KEY",
+      "section": "Social"
+    },
+    {
+      "name": "MOLTBOOK_API_KEY",
+      "section": "Social"
+    },
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "section": "Payments"
+    },
+    {
+      "name": "STRIPE_PUBLISHABLE_KEY",
+      "section": "Payments"
+    },
+    {
+      "name": "STRIPE_WEBHOOK_SECRET",
+      "section": "Payments"
+    },
+    {
+      "name": "LEMONSQUEEZY_API_KEY",
+      "section": "Payments"
+    },
+    {
+      "name": "DASHCLAW_ALERTS_SLACK",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ALERTS_DISCORD",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ALERTS_LINEAR",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ALERTS_GITHUB",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ALERTS_EMAIL",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ALERT_EMAIL",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "SLACK_CHANNEL_ID",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "SLACK_WEBHOOK_URL",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DISCORD_WEBHOOK_URL",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "GITHUB_REPO",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "SENDGRID_DEFAULT_TO",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "SENDGRID_FROM_EMAIL",
+      "section": "Native governance alert settings"
+    },
+    {
+      "name": "DASHCLAW_ACTION_COST_THRESHOLD",
+      "section": "webhooks + native adapters deliver a signal. Empty/unset = disabled."
+    },
+    {
+      "name": "MODEL_PRICING",
+      "section": "System configuration"
+    },
+    {
+      "name": "ENFORCE_AGENT_SIGNATURES",
+      "section": "System configuration"
+    },
+    {
+      "name": "PREDICTIVE_RISK_ENABLED",
+      "section": "Predictive risk scoring"
+    },
+    {
+      "name": "PREDICTIVE_RISK_THRESHOLD",
+      "section": "Predictive risk scoring"
+    }
+  ],
+  "events": [
+    {
+      "constant": "ACTION_CREATED",
+      "event": "action.created"
+    },
+    {
+      "constant": "ACTION_UPDATED",
+      "event": "action.updated"
+    },
+    {
+      "constant": "ACTION_COST_EXCEEDED",
+      "event": "action.cost_exceeded"
+    },
+    {
+      "constant": "SIGNAL_DETECTED",
+      "event": "signal.detected"
+    },
+    {
+      "constant": "TOKEN_USAGE",
+      "event": "token.usage"
+    },
+    {
+      "constant": "MESSAGE_CREATED",
+      "event": "message.created"
+    },
+    {
+      "constant": "POLICY_UPDATED",
+      "event": "policy.updated"
+    },
+    {
+      "constant": "TASK_ASSIGNED",
+      "event": "task.assigned"
+    },
+    {
+      "constant": "TASK_COMPLETED",
+      "event": "task.completed"
+    },
+    {
+      "constant": "DECISION_CREATED",
+      "event": "decision.created"
+    },
+    {
+      "constant": "GUARD_DECISION_CREATED",
+      "event": "guard.decision.created"
+    },
+    {
+      "constant": "LOOP_CREATED",
+      "event": "loop.created"
+    },
+    {
+      "constant": "LOOP_UPDATED",
+      "event": "loop.updated"
+    },
+    {
+      "constant": "GOAL_CREATED",
+      "event": "goal.created"
+    },
+    {
+      "constant": "GOAL_UPDATED",
+      "event": "goal.updated"
+    }
+  ],
+  "adapters": [
+    {
+      "name": "discord",
+      "required_keys": [
+        "DISCORD_WEBHOOK_URL"
+      ]
+    },
+    {
+      "name": "email",
+      "required_keys": [
+        "RESEND_API_KEY",
+        "SENDGRID_API_KEY"
+      ]
+    },
+    {
+      "name": "github",
+      "required_keys": [
+        "GITHUB_TOKEN"
+      ]
+    },
+    {
+      "name": "linear",
+      "required_keys": [
+        "LINEAR_API_KEY"
+      ]
+    },
+    {
+      "name": "slack",
+      "required_keys": [
+        "SLACK_BOT_TOKEN",
+        "SLACK_WEBHOOK_URL"
+      ]
     }
   ]
 }

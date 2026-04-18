@@ -201,11 +201,43 @@ class TableInfo:
 
 
 @dataclass
+class SettingKeyInfo:
+    """A valid `settings` table key — what admins can configure per org.
+
+    `section` is a human label ("AI Providers", "Integration Alerts", ...)
+    sourced from the `// <section>` comment immediately above the key in
+    the VALID_SETTING_KEYS allowlist. None when no section comment precedes it.
+    """
+    name: str
+    section: str | None = None
+
+
+@dataclass
+class EventInfo:
+    """A realtime / webhook event constant — the strings consumers subscribe to."""
+    constant: str   # e.g. "ACTION_COST_EXCEEDED"
+    event: str      # e.g. "action.cost_exceeded"
+
+
+@dataclass
+class AdapterInfo:
+    """A native notification adapter (Slack, Discord, ...) wired into the
+    signal-delivery pipeline. `required_keys` lists at least one credential
+    key that must be set for the adapter to activate for an org.
+    """
+    name: str
+    required_keys: list[str]
+
+
+@dataclass
 class ShapeModel:
     timestamp: str
     routes: list[RouteInfo]
     env_vars: list[EnvVarInfo]
     tables: list[TableInfo]
+    setting_keys: list[SettingKeyInfo] = field(default_factory=list)
+    events: list[EventInfo] = field(default_factory=list)
+    adapters: list[AdapterInfo] = field(default_factory=list)
 
 
 @dataclass
