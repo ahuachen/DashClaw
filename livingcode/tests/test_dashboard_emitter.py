@@ -249,6 +249,11 @@ class TestDashboardEmitter(unittest.TestCase):
         html = emit_dashboard(_make_shape())
         self.assertNotIn("since last snapshot", html)
 
+    def test_dark_mode_styles_present(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("prefers-color-scheme: dark", html)
+        self.assertIn("--bg-dark", html)
+
 
 if __name__ == "__main__":
     unittest.main()

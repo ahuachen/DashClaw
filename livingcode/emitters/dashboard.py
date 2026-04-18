@@ -10,34 +10,50 @@ from livingcode.types import ShapeModel
 
 
 _STYLES = """
-body{font:14px/1.45 ui-sans-serif,system-ui,sans-serif;margin:2rem;color:#0f172a;background:#fafafa}
+:root{
+  --bg:#fafafa;--bg-card:#fff;--bg-head:#f8fafc;
+  --fg:#0f172a;--fg-dim:#475569;--fg-muted:#64748b;
+  --border:#e2e8f0;--border-soft:#f1f5f9;
+  --accent:#f97316;--accent-deep:#c2410c;--accent-bg:#fff7ed;--accent-border:#fed7aa;
+  --up:#16a34a;--down:#dc2626;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg-dark:#0b1220;
+    --bg:#0b1220;--bg-card:#111827;--bg-head:#1f2937;
+    --fg:#e5e7eb;--fg-dim:#cbd5e1;--fg-muted:#94a3b8;
+    --border:#1f2937;--border-soft:#111827;
+    --accent-bg:#3a1d05;--accent-border:#7c2d12;
+  }
+}
+body{font:14px/1.45 ui-sans-serif,system-ui,sans-serif;margin:2rem;color:var(--fg);background:var(--bg)}
 h1{font-size:1.25rem;margin:0 0 .25rem}
-.sig{color:#64748b;font-family:ui-monospace,monospace;font-size:.8rem}
+.sig{color:var(--fg-muted);font-family:ui-monospace,monospace;font-size:.8rem}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1.25rem 0}
-.cell{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.75rem 1rem}
+.cell{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem}
 .n{font-size:1.5rem;font-weight:600}
-.k{color:#475569;font-size:.85rem}
-figure{margin:0 0 1rem;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem}
-figcaption{font-size:.85rem;color:#334155;margin-bottom:.25rem}
+.k{color:var(--fg-dim);font-size:.85rem}
+figure{margin:0 0 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem}
+figcaption{font-size:.85rem;color:var(--fg-dim);margin-bottom:.25rem}
 h2{font-size:1rem;margin:1.5rem 0 .5rem}
-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}
-th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid #f1f5f9;font-size:.9rem}
-th{background:#f8fafc;font-weight:600}
+table{width:100%;border-collapse:collapse;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border-soft);font-size:.9rem}
+th{background:var(--bg-head);font-weight:600}
 code{font-family:ui-monospace,monospace;font-size:.85rem}
 ul.diff{list-style:none;padding:0}
-ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}
-details{margin-bottom:.5rem;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem}
+ul.diff li{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}
+details{margin-bottom:.5rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem}
 summary{font-weight:600;cursor:pointer;font-size:.9rem}
 details[open] summary{margin-bottom:.5rem}
-details table{margin-top:.5rem;border:1px solid #f1f5f9}
-input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid #e2e8f0;border-radius:6px;font:inherit}
-.cell.danger{border-color:#f97316;box-shadow:inset 3px 0 0 #f97316}
-.cell.danger .n{color:#c2410c}
-.trend{font-size:.85rem;margin-left:.25rem;color:#64748b}
-.trend.up{color:#16a34a}
-.trend.down{color:#dc2626}
-p.kicker{background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:.5rem .75rem;margin:0 0 .5rem;font-size:.9rem}
-p.kicker b{color:#c2410c}
+details table{margin-top:.5rem;border:1px solid var(--border-soft)}
+input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid var(--border);border-radius:6px;font:inherit;background:var(--bg-card);color:var(--fg)}
+.cell.danger{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.cell.danger .n{color:var(--accent-deep)}
+.trend{font-size:.85rem;margin-left:.25rem;color:var(--fg-muted)}
+.trend.up{color:var(--up)}
+.trend.down{color:var(--down)}
+p.kicker{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:6px;padding:.5rem .75rem;margin:0 0 .5rem;font-size:.9rem}
+p.kicker b{color:var(--accent-deep)}
 """.strip()
 
 
@@ -58,7 +74,7 @@ def _sparkline(label: str, series: list[tuple[str, int]]) -> str:
         f'<figure><figcaption>{escape(label)} '
         f'<span class="sig">({vmin} → {vmax})</span></figcaption>'
         f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
-        f'<polyline fill="none" stroke="#f97316" stroke-width="2" points="{pts}"/>'
+        f'<polyline fill="none" stroke="var(--accent)" stroke-width="2" points="{pts}"/>'
         f'</svg></figure>'
     )
 
