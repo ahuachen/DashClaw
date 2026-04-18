@@ -97,6 +97,23 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertIn("148", html)
         self.assertIn("99.0%", html)  # JS pass rate 495/500
 
+    def test_health_uses_test_file_ratio_when_pass_rate_absent(self):
+        report = {
+            "git_stats": {"commits_7d": 10, "bus_factor": 1},
+            "test_health": {
+                "js_tests": {"total": 0, "passed": 0, "failed": 0},
+                "python_tests": {"total": 0, "passed": 0, "failed": 0},
+                "test_file_ratio": 0.82,
+                "untested_routes": ["/api/orphan-1", "/api/orphan-2"],
+            },
+            "code_quality": {"todo_count": 5, "files_over_300_lines": 3},
+        }
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertIn("Test file ratio", html)
+        self.assertIn("0.82", html)
+        self.assertIn("Untested routes", html)
+        self.assertIn("2", html)
+
     def test_health_strip_absent_without_report(self):
         html = emit_dashboard(_make_shape())
         self.assertNotIn("Commits 7d", html)

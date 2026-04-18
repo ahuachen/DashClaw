@@ -114,6 +114,8 @@ def _section_health(state_report) -> str:
         ("Bus factor", gs.get("bus_factor", "?")),
         ("JS tests", _pct(js)),
         ("Python tests", _pct(py)),
+        ("Test file ratio", f"{th.get('test_file_ratio', 0):.2f}" if th.get("test_file_ratio") is not None else "?"),
+        ("Untested routes", len(th.get("untested_routes") or [])),
         ("TODOs", cq.get("todo_count", "?")),
         ("Files >300 lines", cq.get("files_over_300_lines", "?")),
     ]
