@@ -17,11 +17,11 @@ describe('HostedProvisionClient', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the 5 stack options with the first pre-selected', () => {
+  it('renders the 4 stack options with the first pre-selected', () => {
     render(<HostedProvisionClient turnstileSiteKey={null} />);
     const claudeCode = screen.getByRole('radio', { name: /claude code/i });
     expect(claudeCode.checked).toBe(true);
-    for (const label of [/openclaw/i, /codex/i, /langchain/i, /mcp server/i]) {
+    for (const label of [/mcp host/i, /openclaw/i, /langchain/i]) {
       expect(screen.getByRole('radio', { name: label }).checked).toBe(false);
     }
   });
@@ -51,7 +51,8 @@ describe('HostedProvisionClient', () => {
       expect(screen.queryByText(/oc_live_test123/)).toBeTruthy();
     });
     expect(screen.queryByText(/org_abc/)).toBeTruthy();
-    expect(screen.queryByText(/DASHCLAW_URL/)).toBeTruthy();
+    // Claude Code template uses URL-mode MCP — look for mcpServers config marker
+    expect(screen.queryByText(/mcpServers/)).toBeTruthy();
   });
 
   it('displays an error when provisioning fails', async () => {

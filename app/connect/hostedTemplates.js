@@ -1,69 +1,69 @@
 // Pure template functions for rendering per-stack integration snippets.
 // Given a provisioning result (endpoint, apiKey, workspaceId), returns
 // { language, code } the UI renders as a copy-paste block.
+//
+// All templates reference only packages that exist today (published on npm/PyPI)
+// or use DashClaw's own /api/mcp endpoint via URL-mode MCP (no client package needed).
 
 export const STACK_OPTIONS = [
   {
     id: 'claude-code',
     label: 'Claude Code',
-    description: 'PreToolUse / PostToolUse hooks wired into your Claude Code settings.',
+    description: 'URL-mode MCP entry in ~/.claude/settings.json — 8 governance tools, zero install.',
+  },
+  {
+    id: 'mcp',
+    label: 'Claude Desktop / MCP host',
+    description: 'URL-mode MCP config for Claude Desktop, Cursor, Zed, or any MCP-compatible client.',
   },
   {
     id: 'openclaw',
     label: 'OpenClaw',
-    description: 'Framework-native plugin that handles guard + record + waitForApproval automatically.',
-  },
-  {
-    id: 'codex',
-    label: 'Codex',
-    description: 'Drop-in hook config for OpenAI Codex CLI.',
+    description: 'Plugin install + config for the OpenClaw runtime.',
   },
   {
     id: 'langchain',
     label: 'LangChain',
     description: 'Python initializer that wraps your chain with DashClaw governance.',
   },
-  {
-    id: 'mcp',
-    label: 'MCP Server',
-    description: 'Zero-code option for Claude Code, Claude Desktop, or any MCP host.',
-  },
 ];
 
 function claudeCode({ endpoint, apiKey }) {
   return `{
-  "hooks": {
-    "PreToolUse": [{
-      "matcher": "Bash|Edit|Write|MultiEdit",
-      "hooks": [{
-        "type": "command",
-        "command": "npx @dashclaw/claude-code-hook"
-      }]
-    }]
-  },
-  "env": {
-    "DASHCLAW_URL": "${endpoint}",
-    "DASHCLAW_API_KEY": "${apiKey}"
+  "mcpServers": {
+    "dashclaw": {
+      "url": "${endpoint}/api/mcp",
+      "headers": {
+        "x-api-key": "${apiKey}"
+      }
+    }
+  }
+}`;
+}
+
+function mcp({ endpoint, apiKey }) {
+  return `{
+  "mcpServers": {
+    "dashclaw": {
+      "url": "${endpoint}/api/mcp",
+      "headers": {
+        "x-api-key": "${apiKey}"
+      }
+    }
   }
 }`;
 }
 
 function openclaw({ endpoint, apiKey }) {
-  return `# One-shot install for Claude Code + OpenClaw plugin:
-DASHCLAW_URL="${endpoint}" \\
-DASHCLAW_API_KEY="${apiKey}" \\
-npx @dashclaw/openclaw-plugin@latest install`;
-}
+  return `# 1) Install the plugin in your OpenClaw project:
+npm install @dashclaw/openclaw-plugin dashclaw
 
-function codex({ endpoint, apiKey }) {
-  return `{
-  "governance": {
-    "provider": "dashclaw",
-    "endpoint": "${endpoint}",
-    "api_key": "${apiKey}",
-    "hooks": ["pre_tool_use", "post_tool_use"]
-  }
-}`;
+# 2) Add the env vars (e.g. in your shell profile or OpenClaw env file):
+export DASHCLAW_URL="${endpoint}"
+export DASHCLAW_API_KEY="${apiKey}"
+
+# 3) Register the plugin entry in openclaw.plugin.json (see package README for the
+#    'extensions' + 'hooks' block). Restart your OpenClaw runtime to pick it up.`;
 }
 
 function langchain({ endpoint, apiKey }) {
@@ -80,27 +80,11 @@ client = DashclawClient()
 #   if decision.allow: ... ; client.record_outcome(...)`;
 }
 
-function mcp({ endpoint, apiKey }) {
-  return `{
-  "mcpServers": {
-    "dashclaw": {
-      "command": "npx",
-      "args": ["@dashclaw/mcp-server"],
-      "env": {
-        "DASHCLAW_URL": "${endpoint}",
-        "DASHCLAW_API_KEY": "${apiKey}"
-      }
-    }
-  }
-}`;
-}
-
 const RENDERERS = {
   'claude-code': { language: 'json', fn: claudeCode },
-  openclaw: { language: 'bash', fn: openclaw },
-  codex: { language: 'json', fn: codex },
-  langchain: { language: 'python', fn: langchain },
   mcp: { language: 'json', fn: mcp },
+  openclaw: { language: 'bash', fn: openclaw },
+  langchain: { language: 'python', fn: langchain },
 };
 
 export function renderTemplate(stackId, { endpoint, apiKey, workspaceId }) {
