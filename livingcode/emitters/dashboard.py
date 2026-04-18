@@ -35,6 +35,7 @@ def emit_dashboard(
     shape: ShapeModel,
     snapshots: list[dict] | None = None,
     state_report: dict | None = None,
+    diff: dict | None = None,
 ) -> str:
     active_routes = [r for r in shape.routes if not r.archived]
     archived_routes = [r for r in shape.routes if r.archived]
@@ -101,6 +102,28 @@ def emit_dashboard(
         )
         health_html = f'<section><h2>Health</h2><div class="grid">{chip_cells}</div></section>\n'
 
+    diff_html = ""
+    if diff and diff.get("changes"):
+        rows = "\n".join(
+            f'    <li><code>{escape(c["action"])}</code> '
+            f'<b>{escape(c["category"])}</b>: {escape(c["item"])} '
+            f'<span class="sig">{escape(c.get("detail", ""))}</span></li>'
+            for c in diff["changes"]
+        )
+        diff_html = f'<section><h2>Changed since last snapshot</h2><ul class="diff">{rows}</ul></section>\n'
+
+    route_rows = "\n".join(
+        f'    <tr><td><code>{escape(r.path)}</code></td>'
+        f'<td>{escape(", ".join(r.methods))}</td>'
+        f'<td class="sig">{escape(r.file_path)}</td></tr>'
+        for r in active_routes
+    )
+    routes_html = (
+        '<section><h2>Active routes</h2>'
+        '<table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead>'
+        f'<tbody>{route_rows}</tbody></table></section>\n'
+    )
+
     return (
         "<!doctype html>\n"
         '<html lang="en"><head><meta charset="utf-8">\n'
@@ -116,11 +139,19 @@ def emit_dashboard(
         "figure{margin:0 0 1rem;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem}\n"
         "figcaption{font-size:.85rem;color:#334155;margin-bottom:.25rem}\n"
         "h2{font-size:1rem;margin:1.5rem 0 .5rem}\n"
+        "table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}\n"
+        "th,td{padding:.5rem .75rem;text-align:left;border-bottom:1px solid #f1f5f9;font-size:.9rem}\n"
+        "th{background:#f8fafc;font-weight:600}\n"
+        "code{font-family:ui-monospace,monospace;font-size:.85rem}\n"
+        "ul.diff{list-style:none;padding:0}\n"
+        "ul.diff li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:.5rem .75rem;margin-bottom:.25rem}\n"
         "</style></head><body>\n"
         f"<h1>DashClaw Livingcode Dashboard</h1>\n"
         f'<div class="sig">Shape signature: {escape(shape.timestamp)}</div>\n'
         f'<div class="grid">\n{count_cells}\n</div>\n'
         f'{timeline_html}'
         f'{health_html}'
+        f'{diff_html}'
+        f'{routes_html}'
         "</body></html>\n"
     )

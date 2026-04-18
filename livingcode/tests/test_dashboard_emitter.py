@@ -91,6 +91,24 @@ class TestDashboardEmitter(unittest.TestCase):
         html = emit_dashboard(_make_shape())
         self.assertNotIn("Commits 7d", html)
 
+    def test_lists_active_routes_in_table(self):
+        html = emit_dashboard(_make_shape())
+        self.assertIn("/api/health", html)
+        self.assertIn("/api/actions", html)
+        self.assertNotIn("/api/_archive/old", html)
+
+    def test_renders_diff_when_provided(self):
+        diff = {
+            "changes": [
+                {"category": "routes", "action": "added", "item": "/api/new", "detail": "methods: GET"},
+                {"category": "env_vars", "action": "removed", "item": "LEGACY_KEY", "detail": ""},
+            ]
+        }
+        html = emit_dashboard(_make_shape(), diff=diff)
+        self.assertIn("Changed since last snapshot", html)
+        self.assertIn("/api/new", html)
+        self.assertIn("LEGACY_KEY", html)
+
 
 if __name__ == "__main__":
     unittest.main()
