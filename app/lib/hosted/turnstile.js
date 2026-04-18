@@ -18,6 +18,7 @@ export async function verifyTurnstile(token, remoteIp) {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body,
     });
+    if (!res.ok) throw new Error(`siteverify HTTP ${res.status}`);
     const json = await res.json();
     if (json.success) return { ok: true };
     return { ok: false, reason: 'cf_rejected', errors: json['error-codes'] || [] };
