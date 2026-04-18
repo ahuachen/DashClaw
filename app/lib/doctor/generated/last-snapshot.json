@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:796a0e19006978ad85e1471ef0f38be508d7c040",
+  "timestamp": "sha1:eb4f33c5f31f072dd29bb1ad6d0627d663774342",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2669,9 +2669,11 @@
       "files": [
         "__tests__/integration/hosted/end-to-end.test.js",
         "__tests__/unit/hosted/flag.test.js",
+        "__tests__/unit/hosted/publicConfig.test.js",
         "__tests__/unit/hosted/workspace-admin.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",
-        "app/lib/hosted/flag.js"
+        "app/lib/hosted/flag.js",
+        "app/lib/hosted/publicConfig.js"
       ],
       "in_env_example": false
     },
@@ -3134,6 +3136,15 @@
       "in_env_example": false
     },
     {
+      "name": "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
+      "required": false,
+      "files": [
+        "__tests__/unit/hosted/publicConfig.test.js",
+        "app/lib/hosted/publicConfig.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "NODE_ENV",
       "required": false,
       "files": [
@@ -3544,6 +3555,7 @@
       "name": "TURNSTILE_SECRET_KEY",
       "required": false,
       "files": [
+        "__tests__/unit/hosted/publicConfig.test.js",
         "__tests__/unit/hosted/turnstile.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/turnstile.js"
