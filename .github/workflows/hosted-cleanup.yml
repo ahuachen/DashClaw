@@ -1,0 +1,42 @@
+name: Hosted cleanup
+
+# Optional scheduler for `/api/hosted/cleanup`. Enable this workflow
+# if you want automated daily trial cleanup without a Vercel Pro cron.
+#
+# Setup:
+#   1. In repo Settings → Secrets and variables → Actions, add:
+#        - DASHCLAW_BASE_URL  (e.g. https://hosted.example.com)
+#        - HOSTED_CLEANUP_SECRET  (same value as the env on Vercel)
+#   2. Enable the workflow (it's disabled for forks by default).
+#
+# Manual trigger: Actions tab → "Hosted cleanup" → "Run workflow".
+
+on:
+  schedule:
+    # Daily at 03:00 UTC.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    if: ${{ vars.DASHCLAW_BASE_URL != '' || secrets.DASHCLAW_BASE_URL != '' }}
+    steps:
+      - name: POST /api/hosted/cleanup
+        env:
+          BASE_URL: ${{ secrets.DASHCLAW_BASE_URL }}
+          CLEANUP_SECRET: ${{ secrets.HOSTED_CLEANUP_SECRET }}
+        run: |
+          if [ -z "$BASE_URL" ] || [ -z "$CLEANUP_SECRET" ]; then
+            echo "DASHCLAW_BASE_URL or HOSTED_CLEANUP_SECRET not set — skipping."
+            exit 0
+          fi
+          status=$(curl -sS -o /tmp/resp.json -w '%{http_code}' \
+            -X POST \
+            -H "X-Cleanup-Secret: $CLEANUP_SECRET" \
+            "$BASE_URL/api/hosted/cleanup")
+          echo "HTTP $status"
+          cat /tmp/resp.json
+          if [ "$status" != "200" ]; then
+            exit 1
+          fi
