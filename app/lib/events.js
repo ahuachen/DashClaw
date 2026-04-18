@@ -4,6 +4,7 @@ import crypto from 'crypto';
 export const EVENTS = {
   ACTION_CREATED: 'action.created',
   ACTION_UPDATED: 'action.updated',
+  ACTION_COST_EXCEEDED: 'action.cost_exceeded',
   SIGNAL_DETECTED: 'signal.detected',
   TOKEN_USAGE: 'token.usage',
   MESSAGE_CREATED: 'message.created',

@@ -9,6 +9,7 @@ import { EVENTS, publishOrgEvent } from '../../../lib/events.js';
 import { scanSensitiveData } from '../../../lib/security.js';
 import { estimateCost } from '../../../lib/billing.js';
 import { getModelPricing } from '../../../lib/repositories/settings.repository.js';
+import { maybeFireCostAlert } from '../../../lib/cost-alerts.js';
 import {
   getActionWithRelations,
   updateActionOutcome,
@@ -139,6 +140,12 @@ export async function PATCH(request, { params }) {
       action: updatedAction,
     });
 
+    // Cost alert — fires webhooks + native notifications if this action
+    // crossed the configured per-action cost threshold. Awaited briefly so
+    // the HTTP response carries accurate {alert: ...} metadata, but the
+    // delivery itself is fire-and-forget inside maybeFireCostAlert.
+    const costAlert = await maybeFireCostAlert(sql, orgId, updatedAction);
+
     // Best-effort: score this action as a learning episode for recommendation synthesis.
     try {
       const scoredEpisode = await scoreAndStoreActionEpisode(sql, orgId, actionId);
@@ -175,6 +182,7 @@ export async function PATCH(request, { params }) {
         critical_count: dlpFindings.filter(f => f.severity === 'critical').length,
         categories: [...new Set(dlpFindings.map(f => f.category))],
       },
+      ...(costAlert.fired ? { cost_alert: { threshold: costAlert.threshold, severity: costAlert.signal.severity } } : {}),
     });
   } catch (error) {
     console.error('Action detail PATCH error:', error);

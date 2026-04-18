@@ -36,6 +36,10 @@ export const VALID_SETTING_KEYS = [
   'DASHCLAW_ALERT_EMAIL', 'SLACK_CHANNEL_ID', 'SLACK_WEBHOOK_URL',
   'DISCORD_WEBHOOK_URL', 'GITHUB_REPO',
   'SENDGRID_DEFAULT_TO', 'SENDGRID_FROM_EMAIL',
+  // Cost alerts — per-action cost cap in USD. When a PATCH resolves with
+  // cost_estimate > threshold, the action.cost_exceeded event fires and
+  // webhooks + native adapters deliver a signal. Empty/unset = disabled.
+  'DASHCLAW_ACTION_COST_THRESHOLD',
   // System configuration
   'MODEL_PRICING',
   'ENFORCE_AGENT_SIGNATURES',

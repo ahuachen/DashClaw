@@ -10,6 +10,7 @@ const {
   mockScanSensitiveData,
   mockScoreAndStoreActionEpisode,
   mockRecordLearningRecommendationEvents,
+  mockMaybeFireCostAlert,
 } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockValidateActionOutcome: vi.fn(),
@@ -19,6 +20,7 @@ const {
   mockScanSensitiveData: vi.fn(),
   mockScoreAndStoreActionEpisode: vi.fn(),
   mockRecordLearningRecommendationEvents: vi.fn(),
+  mockMaybeFireCostAlert: vi.fn(async () => ({ fired: false })),
 }));
 
 vi.mock('@/lib/db.js', () => ({ getSql: () => mockSql }));
@@ -37,6 +39,7 @@ vi.mock('@/lib/learningLoop.service.js', () => ({
   scoreAndStoreActionEpisode: mockScoreAndStoreActionEpisode,
   recordLearningRecommendationEvents: mockRecordLearningRecommendationEvents,
 }));
+vi.mock('@/lib/cost-alerts.js', () => ({ maybeFireCostAlert: mockMaybeFireCostAlert }));
 
 import { GET, PATCH } from '@/api/actions/[actionId]/route.js';
 
@@ -147,6 +150,32 @@ describe('/api/actions/[actionId]', () => {
       mockUpdateActionOutcome.mockRejectedValue(new Error('db down'));
       const res = await PATCH(req({ status: 'completed' }), routeCtx);
       expect(res.status).toBe(500);
+    });
+
+    it('surfaces cost_alert metadata in the response when a breach fires', async () => {
+      mockValidateActionOutcome.mockReturnValue({ valid: true, data: { status: 'completed' }, errors: [] });
+      mockUpdateActionOutcome.mockResolvedValue({ action_id: 'act_1', status: 'completed' });
+      mockMaybeFireCostAlert.mockResolvedValueOnce({
+        fired: true,
+        threshold: 1,
+        signal: { severity: 'red' },
+      });
+
+      const res = await PATCH(req({ status: 'completed' }), routeCtx);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.cost_alert).toEqual({ threshold: 1, severity: 'red' });
+    });
+
+    it('omits cost_alert when no breach fires', async () => {
+      mockValidateActionOutcome.mockReturnValue({ valid: true, data: { status: 'completed' }, errors: [] });
+      mockUpdateActionOutcome.mockResolvedValue({ action_id: 'act_1', status: 'completed' });
+      mockMaybeFireCostAlert.mockResolvedValueOnce({ fired: false });
+
+      const res = await PATCH(req({ status: 'completed' }), routeCtx);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data).not.toHaveProperty('cost_alert');
     });
 
     describe('close_if_running (Stop hook contract)', () => {
