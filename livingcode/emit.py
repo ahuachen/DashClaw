@@ -4,7 +4,7 @@ from livingcode.shape import build_shape
 TARGETS = ("skill", "shape-json", "doctor-checks", "mcp-tools", "dashboard")
 
 
-def emit(repo_path: str, target: str) -> str:
+def emit(repo_path: str, target: str, **kwargs) -> str:
     """Build the current shape and render it as the requested artifact."""
     shape = build_shape(repo_path)
 
@@ -26,6 +26,52 @@ def emit(repo_path: str, target: str) -> str:
 
     if target == "dashboard":
         from livingcode.emitters.dashboard import emit_dashboard
-        return emit_dashboard(shape)
+        ctx = _load_dashboard_context(repo_path) if kwargs.get("with_context") else {}
+        return emit_dashboard(shape, **ctx)
 
     raise ValueError(f"Unknown emit target: {target}. Available: {', '.join(TARGETS)}")
+
+
+def _load_dashboard_context(repo_path: str) -> dict:
+    """Load snapshots, latest state report, and latest diff from .organism/.
+
+    Returned dict contains up to three keys: `snapshots`, `state_report`, `diff`.
+    Missing directories / malformed JSON / absent prior snapshot are all tolerated
+    (the corresponding key is simply omitted).
+    """
+    import json
+    from pathlib import Path
+    from dataclasses import asdict
+    from livingcode.diff import diff_against_snapshot
+
+    root = Path(repo_path)
+    ctx: dict = {}
+
+    snap_dir = root / ".organism" / "shape-snapshots"
+    if snap_dir.is_dir():
+        snapshots = []
+        for p in sorted(snap_dir.glob("*.json")):
+            try:
+                snapshots.append(json.loads(p.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError):
+                continue
+        if snapshots:
+            ctx["snapshots"] = snapshots
+
+    rpt_dir = root / ".organism" / "state-reports"
+    if rpt_dir.is_dir():
+        reports = sorted(rpt_dir.glob("*.json"))
+        if reports:
+            try:
+                ctx["state_report"] = json.loads(reports[-1].read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                pass
+
+    try:
+        d = diff_against_snapshot(repo_path)
+        if d is not None:
+            ctx["diff"] = asdict(d)
+    except Exception:
+        pass
+
+    return ctx

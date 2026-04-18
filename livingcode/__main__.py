@@ -96,10 +96,10 @@ def cmd_diff(args):
 def cmd_emit(args):
     from livingcode.emit import emit, TARGETS
     if not args.target:
-        print(f"Usage: livingcode emit <target> [--output path]\nTargets: {', '.join(TARGETS)}")
+        print(f"Usage: livingcode emit <target> [--output path] [--with-context]\nTargets: {', '.join(TARGETS)}")
         return
     try:
-        content = emit(args.path, args.target)
+        content = emit(args.path, args.target, with_context=args.with_context)
     except ValueError as e:
         print(str(e))
         sys.exit(1)
@@ -162,6 +162,8 @@ def main():
     emit_p = sub.add_parser("emit", parents=[shared], help="Generate derivative artifacts")
     emit_p.add_argument("target", nargs="?", default=None, help="skill | shape-json | doctor-checks | mcp-tools | dashboard")
     emit_p.add_argument("--output", "-o", default=None, help="Write to file instead of stdout")
+    emit_p.add_argument("--with-context", action="store_true",
+                        help="Load .organism/ snapshots + state report + diff (dashboard only)")
 
     args = parser.parse_args()
 

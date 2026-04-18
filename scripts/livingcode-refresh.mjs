@@ -136,7 +136,7 @@ function emitMcpInventory() {
 function emitDashboard() {
   ensureDir(dirname(DASHBOARD_PATH));
   const tempOut = join(tmpdir(), `dashclaw-dashboard-${process.pid}.html`);
-  runPython(['emit', 'dashboard', '--output', tempOut]);
+  runPython(['emit', 'dashboard', '--with-context', '--output', tempOut]);
   const raw = readFileSync(tempOut, 'utf8');
   rmSync(tempOut, { force: true });
   writeIfChanged(DASHBOARD_PATH, raw, 'dashboard');
