@@ -16,7 +16,7 @@ DashClaw is a focused policy firewall and governance runtime for AI agent fleets
 | Mission Control | `/mission-control` | Strategic posture, interventions, and live decision stream. |
 | Decisions | `/decisions` | Visual causal chain ledger of all governed actions. |
 | Setup | `/setup` | Readiness verification and instance health. |
-| Connect | `/connect` | The 8-minute path to first governed action. |
+| Connect | `/connect` | The 8-minute path to first governed action. When `DASHCLAW_HOSTED=true`, prepends a stack-picker + trial-provisioning flow. |
 | Agent Profiles | `/agents/[agentId]` | Governance-focused agent profile with trust posture, decision history, assumptions, signals, and policies. |
 | Policy Builder | `/policies` | Shields-first policy experience with pre-built safety switches, custom policy management, and guard activity feed. |
 | Analytics | `/analytics` | Cost trends, action volume, agent/type breakdowns, policy enforcement stats, and token efficiency. |
