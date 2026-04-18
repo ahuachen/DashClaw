@@ -235,6 +235,20 @@ class TestDashboardEmitter(unittest.TestCase):
         self.assertIn("Files &gt;300 lines over time", html)
         self.assertIn("Lockfile age over time", html)
 
+    def test_diff_kicker_summarizes_changes(self):
+        diff = {"changes": [
+            {"category": "routes", "action": "added", "item": "/api/new", "detail": ""},
+            {"category": "routes", "action": "added", "item": "/api/new2", "detail": ""},
+            {"category": "env_vars", "action": "removed", "item": "LEGACY", "detail": ""},
+        ]}
+        html = emit_dashboard(_make_shape(), diff=diff)
+        self.assertIn("2</b> routes added", html)
+        self.assertIn("1</b> env_vars removed", html)
+
+    def test_diff_kicker_absent_without_diff(self):
+        html = emit_dashboard(_make_shape())
+        self.assertNotIn("since last snapshot", html)
+
 
 if __name__ == "__main__":
     unittest.main()

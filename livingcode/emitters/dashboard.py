@@ -36,6 +36,8 @@ input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom
 .trend{font-size:.85rem;margin-left:.25rem;color:#64748b}
 .trend.up{color:#16a34a}
 .trend.down{color:#dc2626}
+p.kicker{background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:.5rem .75rem;margin:0 0 .5rem;font-size:.9rem}
+p.kicker b{color:#c2410c}
 """.strip()
 
 
@@ -222,13 +224,27 @@ def _section_health(state_report, previous=None) -> str:
 def _section_diff(diff) -> str:
     if not diff or not diff.get("changes"):
         return ""
+    changes = diff["changes"]
+
+    from collections import Counter
+    summary_counts = Counter((c["category"], c["action"]) for c in changes)
+    kicker_parts = [
+        f'<b>{count}</b> {escape(category)} {escape(action)}'
+        for (category, action), count in sorted(summary_counts.items())
+    ]
+    kicker = '<p class="kicker">' + ", ".join(kicker_parts) + ' since last snapshot.</p>'
+
     rows = "\n".join(
         f'    <li><code>{escape(c["action"])}</code> '
         f'<b>{escape(c["category"])}</b>: {escape(c["item"])} '
         f'<span class="sig">{escape(c.get("detail", ""))}</span></li>'
-        for c in diff["changes"]
+        for c in changes
     )
-    return f'<section><h2>Changed since last snapshot</h2><ul class="diff">{rows}</ul></section>\n'
+    return (
+        f'<section><h2>Changed since last snapshot</h2>'
+        f'{kicker}'
+        f'<ul class="diff">{rows}</ul></section>\n'
+    )
 
 
 def _section_routes(active_routes) -> str:
