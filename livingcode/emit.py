@@ -66,6 +66,11 @@ def _load_dashboard_context(repo_path: str) -> dict:
                 ctx["state_report"] = json.loads(reports[-1].read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
                 pass
+            if len(reports) >= 2:
+                try:
+                    ctx["previous_state_report"] = json.loads(reports[-2].read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    pass
 
     try:
         d = diff_against_snapshot(repo_path)

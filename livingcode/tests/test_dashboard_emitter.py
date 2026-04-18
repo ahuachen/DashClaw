@@ -208,6 +208,19 @@ class TestDashboardEmitter(unittest.TestCase):
         html = emit_dashboard(_make_shape(), state_report=report)
         self.assertNotIn('class="cell danger"', html)
 
+    def test_chip_shows_trend_arrow_vs_previous(self):
+        report = {"git_stats": {"commits_7d": 120, "bus_factor": 2}}
+        prior = {"git_stats": {"commits_7d": 100, "bus_factor": 2}}
+        html = emit_dashboard(_make_shape(), state_report=report, previous_state_report=prior)
+        self.assertIn("↑", html)
+        self.assertIn(">→<", html)
+
+    def test_chip_trend_absent_without_previous(self):
+        report = {"git_stats": {"commits_7d": 120, "bus_factor": 2}}
+        html = emit_dashboard(_make_shape(), state_report=report)
+        self.assertNotIn("↑", html)
+        self.assertNotIn("↓", html)
+
 
 if __name__ == "__main__":
     unittest.main()

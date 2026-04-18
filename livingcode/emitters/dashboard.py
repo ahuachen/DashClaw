@@ -33,6 +33,9 @@ details table{margin-top:.5rem;border:1px solid #f1f5f9}
 input#route-filter{width:100%;max-width:24rem;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid #e2e8f0;border-radius:6px;font:inherit}
 .cell.danger{border-color:#f97316;box-shadow:inset 3px 0 0 #f97316}
 .cell.danger .n{color:#c2410c}
+.trend{font-size:.85rem;margin-left:.25rem;color:#64748b}
+.trend.up{color:#16a34a}
+.trend.down{color:#dc2626}
 """.strip()
 
 
@@ -115,7 +118,37 @@ def _chip_danger(label: str, value) -> bool:
     return False
 
 
-def _section_health(state_report) -> str:
+def _health_chip_value(label: str, report: dict):
+    """Extract numeric chip value from a state_report for trend comparison."""
+    gs = report.get("git_stats") or {}
+    th = report.get("test_health") or {}
+    cq = report.get("code_quality") or {}
+    dep = report.get("dependency_health") or {}
+    ci = report.get("ci_health") or {}
+    js = th.get("js_tests") or {}
+    py = th.get("python_tests") or {}
+
+    def pct(suite):
+        t = suite.get("total", 0)
+        return (suite.get("passed", 0) / t * 100) if t else None
+
+    mapping = {
+        "Commits 7d": gs.get("commits_7d"),
+        "Bus factor": gs.get("bus_factor"),
+        "JS tests": pct(js),
+        "Python tests": pct(py),
+        "Test file ratio": th.get("test_file_ratio"),
+        "Untested routes": len(th.get("untested_routes") or []) or None,
+        "Vulnerabilities": dep.get("js_vulnerabilities"),
+        "Lockfile age": dep.get("lockfile_age_days"),
+        "CI pass 30d": (ci.get("pass_rate_30d") * 100) if ci.get("pass_rate_30d") is not None else None,
+        "TODOs": cq.get("todo_count"),
+        "Files >300 lines": cq.get("files_over_300_lines"),
+    }
+    return mapping.get(label)
+
+
+def _section_health(state_report, previous=None) -> str:
     if not state_report:
         return ""
     gs = state_report.get("git_stats") or {}
@@ -146,9 +179,25 @@ def _section_health(state_report) -> str:
         ("TODOs", cq.get("todo_count", "?")),
         ("Files >300 lines", cq.get("files_over_300_lines", "?")),
     ]
+    def _arrow(label, value):
+        if not previous:
+            return ""
+        prior_val = _health_chip_value(label, previous)
+        if prior_val is None:
+            return ""
+        try:
+            if float(value) > float(prior_val):
+                return '<span class="trend up">↑</span>'
+            if float(value) < float(prior_val):
+                return '<span class="trend down">↓</span>'
+            return '<span class="trend">→</span>'
+        except (TypeError, ValueError):
+            return ""
+
     chip_cells = "\n".join(
         f'      <div class="cell{" danger" if _chip_danger(k, v) else ""}">'
-        f'<div class="n">{escape(str(v))}</div><div class="k">{escape(k)}</div></div>'
+        f'<div class="n">{escape(str(v))}{_arrow(k, v)}</div>'
+        f'<div class="k">{escape(k)}</div></div>'
         for k, v in chips
     )
     return f'<section><h2>Health</h2><div class="grid">{chip_cells}</div></section>\n'
@@ -280,6 +329,7 @@ def emit_dashboard(
     shape: ShapeModel,
     snapshots: list[dict] | None = None,
     state_report: dict | None = None,
+    previous_state_report: dict | None = None,
     diff: dict | None = None,
 ) -> str:
     active_routes = [r for r in shape.routes if not r.archived]
@@ -291,7 +341,7 @@ def emit_dashboard(
         _section_counts(shape, active_routes, archived_routes, required_env, optional_env),
         _section_shape_details(shape),
         _section_timeline(snapshots),
-        _section_health(state_report),
+        _section_health(state_report, previous_state_report),
         _section_diff(diff),
         _section_routes(active_routes),
     ]
