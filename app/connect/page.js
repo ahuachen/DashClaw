@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
 import PublicFooter from '../components/PublicFooter';
 import ConnectGuideClient from './ConnectGuideClient';
+import HostedProvisionSection from './HostedProvisionSection';
 import { getConnectGuideContent } from '../lib/connectGuide.js';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +34,8 @@ export default async function ConnectPage() {
             <ChevronRight size={14} />
             <span className="text-text-secondary">Connect your first agent</span>
           </div>
+
+          <HostedProvisionSection />
 
           <ConnectGuideClient content={content} />
 
