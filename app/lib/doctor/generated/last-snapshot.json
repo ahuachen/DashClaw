@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:a914c4bb133da525dc112ef90f1e294feff2aaf0",
+  "timestamp": "sha1:4c44ab60864f466f38b3615d07692d0379eaf7fd",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2469,6 +2469,7 @@
         ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
         ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
         ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "app/api/keys/reveal/route.js",
         "app/api/setup/migrate/route.js",
         "app/api/setup/ping/route.js",
@@ -2725,6 +2726,7 @@
         "__tests__/unit/guard.route.test.js",
         "__tests__/unit/health-tables.test.js",
         "__tests__/unit/health.route.test.js",
+        "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "__tests__/unit/keys.route.test.js",
         "__tests__/unit/learning-recommendation-detail.route.test.js",
         "__tests__/unit/learning-recommendation-events.route.test.js",

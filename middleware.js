@@ -297,8 +297,10 @@ async function resolveApiKey(keyHash) {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
-      SELECT ak.org_id, ak.role, ak.revoked_at
+      SELECT ak.org_id, ak.role, ak.revoked_at,
+             o.hosted_mode, o.trial_ends_at, o.trial_action_cap, o.trial_actions_used
       FROM api_keys ak
+      LEFT JOIN organizations o ON o.id = ak.org_id
       WHERE ak.key_hash = ${keyHash}
       LIMIT 1
     `;
@@ -314,7 +316,14 @@ async function resolveApiKey(keyHash) {
       return null;
     }
 
-    const result = { orgId: row.org_id, role: row.role };
+    const result = {
+      orgId: row.org_id,
+      role: row.role,
+      hostedMode: row.hosted_mode === true,
+      trialEndsAt: row.trial_ends_at,
+      trialActionCap: row.trial_action_cap,
+      trialActionsUsed: row.trial_actions_used,
+    };
     apiKeyCache.set(keyHash, { timestamp: now, result });
 
     // Update last_used_at (fire and forget)
@@ -328,6 +337,28 @@ async function resolveApiKey(keyHash) {
     // For secondary keys, fail open is not safe — return null.
     return null;
   }
+}
+
+function enforceHostedTrial(auth) {
+  if (!auth || !auth.hostedMode) return null;
+  if (auth.trialEndsAt && new Date(auth.trialEndsAt).getTime() < Date.now()) {
+    return {
+      status: 403,
+      body: { error: 'trial expired', trial_ends_at: auth.trialEndsAt },
+    };
+  }
+  // Note: actionsUsed may be up to 5min stale due to apiKeyCache; acceptable for Plan 1
+  if (auth.trialActionCap != null && auth.trialActionsUsed >= auth.trialActionCap) {
+    return {
+      status: 403,
+      body: {
+        error: 'trial action cap reached',
+        trial_action_cap: auth.trialActionCap,
+        trial_actions_used: auth.trialActionsUsed,
+      },
+    };
+  }
+  return null;
 }
 
 // SECURITY: CORS - restrict to deployment origin
@@ -1221,6 +1252,11 @@ export async function middleware(request) {
 
     requestHeaders.set('x-org-id', resolved.orgId);
     requestHeaders.set('x-org-role', resolved.role);
+
+    const trialBlock = enforceHostedTrial(resolved);
+    if (trialBlock) {
+      return NextResponse.json(trialBlock.body, { status: trialBlock.status });
+    }
 
     // SECURITY: Enforce readonly semantics for API keys.
     if (request.method !== 'GET' && request.method !== 'HEAD' && resolved.role === 'readonly') {
