@@ -35,6 +35,10 @@ Every PR to `main` must pass CI checks:
 1. `npm run openapi:check` — Detects stable API contract drift.
 2. `npm run test -- --run` — Core runtime unit tests.
 
+### Deployment runbooks
+
+- `docs/ops/hosted-deployment.md` — Step-by-step for deploying `DASHCLAW_HOSTED=true` instances (Neon + Vercel + Cloudflare Turnstile + DNS + cron + rollback).
+
 ## Architecture (Minimal Surface)
 
 DashClaw is organized into three distinct tiers to prevent platform bloat.
