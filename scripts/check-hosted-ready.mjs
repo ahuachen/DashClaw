@@ -2,7 +2,7 @@
 // Pre-deploy readiness checker for DASHCLAW_HOSTED=true deployments.
 // Exits 0 on ok or skipped, 1 on fail. Prints a readable report either way.
 
-const API_KEY_PATTERN = /^oc_live_[a-z0-9_]{8,}$/;
+const API_KEY_PATTERN = /^oc_live_[0-9a-f]{32}$/;
 
 export function assessHostedReadiness(env = process.env) {
   if (env.DASHCLAW_HOSTED !== 'true') {

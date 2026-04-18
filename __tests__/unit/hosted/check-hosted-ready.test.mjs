@@ -17,7 +17,7 @@ describe('assessHostedReadiness', () => {
     process.env.DASHCLAW_HOSTED = 'true';
     process.env.DATABASE_URL = 'postgres://user:pw@host/db';
     process.env.TURNSTILE_SECRET_KEY = 'turnstile-secret';
-    process.env.DASHCLAW_API_KEY = 'oc_live_admin_key_1234567890abcdef1234567890abcdef';
+    process.env.DASHCLAW_API_KEY = 'oc_live_0123456789abcdef0123456789abcdef';
     const r = assessHostedReadiness();
     expect(r.status).toBe('ok');
     expect(r.failures).toEqual([]);
@@ -27,7 +27,7 @@ describe('assessHostedReadiness', () => {
     process.env.DASHCLAW_HOSTED = 'true';
     process.env.DATABASE_URL = 'postgres://fake';
     delete process.env.TURNSTILE_SECRET_KEY;
-    process.env.DASHCLAW_API_KEY = 'oc_live_admin_key_1234567890abcdef1234567890abcdef';
+    process.env.DASHCLAW_API_KEY = 'oc_live_0123456789abcdef0123456789abcdef';
     const r = assessHostedReadiness();
     expect(r.status).toBe('fail');
     expect(r.failures).toContain('TURNSTILE_SECRET_KEY missing');
@@ -37,7 +37,7 @@ describe('assessHostedReadiness', () => {
     process.env.DASHCLAW_HOSTED = 'true';
     process.env.DATABASE_URL = 'postgres://fake';
     process.env.TURNSTILE_SECRET_KEY = 'x';
-    process.env.DASHCLAW_API_KEY = 'oc_live_admin_key_1234567890abcdef1234567890abcdef';
+    process.env.DASHCLAW_API_KEY = 'oc_live_0123456789abcdef0123456789abcdef';
     delete process.env.HOSTED_CLEANUP_SECRET;
     delete process.env.CRON_SECRET;
     const r = assessHostedReadiness();
