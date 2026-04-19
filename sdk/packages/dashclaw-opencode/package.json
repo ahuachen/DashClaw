@@ -1,0 +1,39 @@
+{
+  "name": "@dashclaw/opencode",
+  "version": "1.0.0",
+  "description": "DashClaw governance integration for OpenCode — MCP server and skill for governed AI coding agents.",
+  "type": "module",
+  "bin": {
+    "dashclaw-opencode-mcp": "./bin/dashclaw-opencode-mcp.js"
+  },
+  "main": "./bin/dashclaw-opencode-mcp.js",
+  "files": [
+    "bin/",
+    ".opencode/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "dashclaw",
+    "opencode",
+    "ai-governance",
+    "agent-governance",
+    "coding-agent"
+  ],
+  "author": "DashClaw",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/DashClaw.git",
+    "directory": "sdk/packages/dashclaw-opencode"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0-alpha.2",
+    "@cfworker/json-schema": "^4.1.1"
+  }
+}
