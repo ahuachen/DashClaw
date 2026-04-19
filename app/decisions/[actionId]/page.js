@@ -17,6 +17,7 @@ import AssumptionGraph from '../../components/AssumptionGraph';
 import ExecutionGraph from '../../components/ExecutionGraph';
 import { TimelineMessage } from '../../components/MessageTrail';
 import ArtifactsTab from '../../components/ArtifactsTab';
+import { parseJsonArray } from '../../lib/parseJson';
 
 export default function DecisionReplayPage() {
   const params = useParams();
@@ -126,14 +127,6 @@ export default function DecisionReplayPage() {
   }, [actionId, fetchData]);
 
   // --- Helpers ---
-  const parseJsonArray = (val) => {
-    if (Array.isArray(val)) return val;
-    if (typeof val === 'string') {
-      try { return JSON.parse(val); } catch { return []; }
-    }
-    return [];
-  };
-
   const formatTime = (ts) => {
     if (!ts) return '--';
     try {

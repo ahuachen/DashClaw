@@ -8,6 +8,7 @@ import {
 import { Badge } from './ui/Badge';
 import { ProgressBar } from './ui/ProgressBar';
 import { getAgentColor } from '../lib/colors';
+import { parseJsonArray as parseSideEffects } from '../lib/parseJson';
 
 function AgentDot({ agentId }) {
   if (!agentId) return null;
@@ -87,19 +88,6 @@ function SignalDetail({ signal, onClose, onDismiss }) {
       )}
     </div>
   );
-}
-
-function parseSideEffects(val) {
-  if (Array.isArray(val)) return val;
-  if (typeof val === 'string') {
-    try {
-      const parsed = JSON.parse(val);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
 }
 
 function ActionDetail({ action }) {

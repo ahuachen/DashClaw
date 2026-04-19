@@ -11,17 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useSession } from 'next-auth/react';
 import { isDemoMode } from '../lib/isDemoMode';
-
-function safeJsonArray(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value !== 'string' || !value) return [];
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+import { parseJsonArray as safeJsonArray } from '../lib/parseJson';
 
 function Banner({ icon: Icon, tone, title, children }) {
   const tones = {

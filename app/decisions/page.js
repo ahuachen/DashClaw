@@ -12,6 +12,7 @@ import { formatCost, formatTokens } from '../lib/formatCost';
 import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useSession } from 'next-auth/react';
 import MessageTrail from '../components/MessageTrail';
+import { parseJsonArray } from '../lib/parseJson';
 import {
   Zap, Hammer, Rocket, FileText, Briefcase, Shield, MessageSquare,
   Link as LinkIcon, Calendar, Search, Eye, Wrench, RefreshCw, FlaskConical,
@@ -252,14 +253,6 @@ export default function DecisionsLedger() {
         month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
       });
     } catch { return ts; }
-  };
-
-  const parseJsonArray = (val) => {
-    if (Array.isArray(val)) return val;
-    if (typeof val === 'string') {
-      try { return JSON.parse(val); } catch { return []; }
-    }
-    return [];
   };
 
   const successRate = parseInt(stats.total, 10) > 0

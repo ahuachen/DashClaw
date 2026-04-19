@@ -13,6 +13,7 @@ import PageLayout from '../../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import AssumptionGraph from '../../components/AssumptionGraph';
+import { parseJsonArray } from '../../lib/parseJson';
 
 export default function DecisionReplayPage() {
   const params = useParams();
@@ -81,14 +82,6 @@ export default function DecisionReplayPage() {
   }, [actionId, fetchData]);
 
   // --- Helpers ---
-  const parseJsonArray = (val) => {
-    if (Array.isArray(val)) return val;
-    if (typeof val === 'string') {
-      try { return JSON.parse(val); } catch { return []; }
-    }
-    return [];
-  };
-
   const formatTime = (ts) => {
     if (!ts) return '--';
     try {
