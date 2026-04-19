@@ -641,16 +641,22 @@ export default function SwarmIntelligencePage() {
             </div>
           </div>
 
-          {action.metadata && (
-            <div className="space-y-3">
-              <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold flex items-center gap-2">
-                <Terminal size={14} className="text-disabled" /> Contextual Metadata
+          {(() => {
+            const meta = typeof action.metadata === 'string'
+              ? (() => { try { return JSON.parse(action.metadata); } catch { return null; } })()
+              : action.metadata;
+            if (!meta || (typeof meta === 'object' && Object.keys(meta).length === 0)) return null;
+            return (
+              <div className="space-y-3">
+                <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold flex items-center gap-2">
+                  <Terminal size={14} className="text-disabled" /> Contextual Metadata
+                </div>
+                <pre className="p-5 rounded-2xl bg-black/60 border border-white/5 text-[11px] font-mono text-brand/80 overflow-x-auto leading-relaxed">
+                  {JSON.stringify(meta, null, 2)}
+                </pre>
               </div>
-              <pre className="p-5 rounded-2xl bg-black/60 border border-white/5 text-[11px] font-mono text-brand/80 overflow-x-auto leading-relaxed">
-                {JSON.stringify(action.metadata, null, 2)}
-              </pre>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         <div className="mt-8 pt-6 border-t border-white/10">

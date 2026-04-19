@@ -280,9 +280,14 @@ export default function FeedbackPage() {
                         </div>
                         {fb.comment && <p className="text-xs text-secondary mt-1">{fb.comment}</p>}
                         <div className="flex items-center gap-2 mt-1.5">
-                          {fb.tags && JSON.parse(typeof fb.tags === 'string' ? fb.tags : JSON.stringify(fb.tags)).map(tag => (
-                            <Badge key={tag} size="xs" variant="info">{tag}</Badge>
-                          ))}
+                          {(() => {
+                            const tags = typeof fb.tags === 'string'
+                              ? (() => { try { return JSON.parse(fb.tags); } catch { return []; } })()
+                              : (Array.isArray(fb.tags) ? fb.tags : []);
+                            return tags.map(tag => (
+                              <Badge key={tag} size="xs" variant="info">{tag}</Badge>
+                            ));
+                          })()}
                           {fb.action_id && <span className="text-[10px] text-disabled">action: {fb.action_id}</span>}
                           <span className="text-[10px] text-zinc-700 ml-auto">{new Date(fb.created_at).toLocaleDateString()}</span>
                         </div>

@@ -353,7 +353,7 @@ export default function DecisionReplayPage() {
                               </Badge>
                               {guardDecision.reason && <span className="text-xs text-secondary">{guardDecision.reason}</span>}
                             </div>
-                            {guardDecision.matched_policies && (
+                            {parseJsonArray(guardDecision.matched_policies).length > 0 && (
                               <div className="flex flex-wrap gap-1">
                                 {parseJsonArray(guardDecision.matched_policies).map((p, i) => (
                                   <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-secondary border border-white/10">
@@ -479,7 +479,7 @@ export default function DecisionReplayPage() {
                         </div>
                       )}
 
-                      {guardDecision.matched_policies && (
+                      {parseJsonArray(guardDecision.matched_policies).length > 0 && (
                         <div>
                           <div className="text-xs text-tertiary uppercase tracking-wider mb-3">Enforced Policies</div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
