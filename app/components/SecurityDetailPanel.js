@@ -199,37 +199,82 @@ function ActionDetail({ action }) {
 
 export default function SecurityDetailPanel({ item, type, onClose, onDismiss }) {
   const panelRef = useRef(null);
+  const closeBtnRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+  const titleId = `security-panel-title-${type}`;
 
   useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
+    if (!item) return;
+
+    previouslyFocusedRef.current = document.activeElement;
+    closeBtnRef.current?.focus();
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const focusables = panelRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      previouslyFocusedRef.current?.focus?.();
+    };
+  }, [item, onClose]);
 
   if (!item) return null;
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      {/* Backdrop — decorative, click-to-close. Escape and the close button
+          provide the keyboard equivalents, so this element is intentionally
+          aria-hidden to avoid double-announcement to screen readers. */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* Panel */}
       <div
         ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-surface-secondary border-l border-border overflow-y-auto"
       >
         {/* Close button */}
         <div className="sticky top-0 bg-surface-secondary z-10 flex items-center justify-between px-5 py-4 border-b border-border">
-          <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+          <span
+            id={titleId}
+            className="text-xs font-medium text-zinc-500 uppercase tracking-wider"
+          >
             {type === 'signal' ? 'Signal Detail' : 'Action Detail'}
           </span>
           <button
+            ref={closeBtnRef}
+            type="button"
             onClick={onClose}
+            aria-label="Close detail panel"
             className="p-1.5 text-zinc-500 hover:text-white transition-colors"
           >
-            <X size={16} />
+            <X size={16} aria-hidden="true" />
           </button>
         </div>
 

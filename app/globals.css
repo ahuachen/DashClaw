@@ -45,6 +45,31 @@ body {
   color: var(--color-text-primary);
 }
 
+/* Accessibility floor (per .impeccable.md principle #6) */
+
+/* Brand-orange focus ring on every interactive element. The default browser
+   outline is invisible on our pitch-black canvas, so we require :focus-visible
+   to surface a 2px brand ring with a 2px offset so it never touches the glyph. */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Respect prefers-reduced-motion at the platform layer. Individual components
+   no longer need their own `motion-reduce:` modifiers — this neutralizes
+   transitions, animations, and smooth scrolling globally for users who ask. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Card */
 .card {
   background: var(--color-bg-secondary);
