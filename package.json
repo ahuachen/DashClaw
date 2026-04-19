@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "docs:check": "node scripts/validate-docs.mjs",
     "doctor": "node scripts/doctor.mjs",
+    "db:migrate": "node scripts/auto-migrate.mjs",
     "hosted:check-ready": "node scripts/check-hosted-ready.mjs",
     "hosted:smoke": "node scripts/smoke-hosted.mjs",
     "livingcode:refresh": "node scripts/livingcode-refresh.mjs",
