@@ -1,12 +1,14 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export default function ImageLightbox({ items, index, onChangeIndex, onClose }) {
   const safeIndex = Math.max(0, Math.min(index ?? 0, (items?.length || 1) - 1));
   const item = items?.[safeIndex];
+  const dialogRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
 
   const prev = useCallback(() => {
     if (!items?.length) return;
@@ -25,19 +27,37 @@ export default function ImageLightbox({ items, index, onChangeIndex, onClose }) 
   useEffect(() => {
     if (!item) return;
 
+    previouslyFocusedRef.current = document.activeElement;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
+    // Focus the close button (first focusable) so keyboard users land inside the dialog.
+    const focusables = dialogRef.current?.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    focusables?.[0]?.focus();
+
     const onKeyDown = (e) => {
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowLeft') { prev(); return; }
+      if (e.key === 'ArrowRight') { next(); return; }
+      if (e.key !== 'Tab' || !focusables || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener('keydown', onKeyDown);
+      previouslyFocusedRef.current?.focus?.();
     };
   }, [item, close, prev, next]);
 
@@ -45,10 +65,12 @@ export default function ImageLightbox({ items, index, onChangeIndex, onClose }) 
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl cursor-zoom-out"
       onClick={close}
       role="dialog"
       aria-modal="true"
+      aria-label="Image viewer"
     >
       <button
         onClick={(e) => { e.stopPropagation(); close(); }}

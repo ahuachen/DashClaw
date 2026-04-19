@@ -3,28 +3,28 @@ import { projectReadinessReport, getReadinessReport } from '../lib/readiness.mjs
 function statusTone(status) {
   switch (status) {
     case 'verified':
-      return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200';
+      return 'border-success/40 bg-success-subtle text-emerald-200';
     case 'ready_unverified':
       return 'border-sky-500/40 bg-sky-500/10 text-sky-200';
     case 'needs_attention':
-      return 'border-amber-500/40 bg-amber-500/10 text-amber-200';
+      return 'border-warning/40 bg-warning-subtle text-amber-200';
     default:
-      return 'border-red-500/40 bg-red-500/10 text-red-200';
+      return 'border-error/40 bg-error-subtle text-red-200';
   }
 }
 
 function checkTone(status) {
   switch (status) {
     case 'pass':
-      return 'text-emerald-300';
+      return 'text-success';
     case 'warn':
     case 'pending':
-      return 'text-amber-300';
+      return 'text-warning';
     case 'info':
     case 'skipped':
-      return 'text-zinc-300';
+      return 'text-secondary';
     default:
-      return 'text-red-300';
+      return 'text-error';
   }
 }
 
@@ -38,12 +38,12 @@ function CheckList({ checks = [] }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-sm font-medium text-white">{check.label}</div>
-              <div className="mt-1 text-sm text-zinc-300">{check.detail}</div>
+              <div className="mt-1 text-sm text-secondary">{check.detail}</div>
               {check.subDetail ? (
-                <div className="mt-2 text-xs text-zinc-400">{check.subDetail}</div>
+                <div className="mt-2 text-xs text-secondary">{check.subDetail}</div>
               ) : null}
               {check.nextAction ? (
-                <div className="mt-2 text-xs text-zinc-400">Next: {check.nextAction}</div>
+                <div className="mt-2 text-xs text-secondary">Next: {check.nextAction}</div>
               ) : null}
             </div>
             <div className={`shrink-0 text-xs font-semibold uppercase tracking-wide ${checkTone(check.status)}`}>
@@ -69,20 +69,20 @@ function RecommendationList({ recommendations = [] }) {
               {step.variant}
             </span>
           </div>
-          <p className="mt-2 text-sm text-zinc-300">{step.summary}</p>
+          <p className="mt-2 text-sm text-secondary">{step.summary}</p>
           {Array.isArray(step.details) && step.details.length > 0 ? (
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-zinc-400">
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-secondary">
               {step.details.map((detail) => (
                 <li key={detail}>{detail}</li>
               ))}
             </ul>
           ) : null}
           {step.code ? (
-            <pre className="mt-3 overflow-x-auto rounded-xl border border-white/10 bg-zinc-950/80 p-3 text-xs text-zinc-200">
+            <pre className="mt-3 overflow-x-auto rounded-xl border border-white/10 bg-primary/80 p-3 text-xs text-secondary">
               <code>{step.code}</code>
             </pre>
           ) : null}
-          {step.note ? <p className="mt-2 text-xs text-zinc-500">{step.note}</p> : null}
+          {step.note ? <p className="mt-2 text-xs text-tertiary">{step.note}</p> : null}
         </div>
       ))}
     </div>
@@ -97,11 +97,11 @@ export default async function SetupPage() {
   const overall = view.verification;
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-6 py-10 text-zinc-100">
+    <main className="min-h-screen bg-primary px-6 py-10 text-primary">
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
               Setup
             </span>
             <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${statusTone(overall.overall)}`}>
@@ -110,26 +110,26 @@ export default async function SetupPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-4xl font-semibold text-white">Deployment truth surface</h1>
-            <p className="max-w-3xl text-base text-zinc-300">{overall.summary}</p>
-            <p className="text-sm text-zinc-500">Checked at {new Date(view.checkedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+            <p className="max-w-3xl text-base text-secondary">{overall.summary}</p>
+            <p className="text-sm text-tertiary">Checked at {new Date(view.checkedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
           </div>
         </section>
 
         <section className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-zinc-400">Readiness</div>
+            <div className="text-sm text-secondary">Readiness</div>
             <div className="mt-2 text-2xl font-semibold text-white">{overall.readiness}</div>
-            <p className="mt-2 text-sm text-zinc-400">Overall state projected from database, config, auth, deploy, and SDK checks.</p>
+            <p className="mt-2 text-sm text-secondary">Overall state projected from database, config, auth, deploy, and SDK checks.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-zinc-400">Live verification</div>
+            <div className="text-sm text-secondary">Live verification</div>
             <div className="mt-2 text-2xl font-semibold text-white">{overall.fullyVerified ? 'Attached' : 'Pending'}</div>
-            <p className="mt-2 text-sm text-zinc-400">A setup page can be healthy without live proof. Proof becomes attached after a successful validation flow.</p>
+            <p className="mt-2 text-sm text-secondary">A setup page can be healthy without live proof. Proof becomes attached after a successful validation flow.</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-zinc-400">Proof artifact</div>
+            <div className="text-sm text-secondary">Proof artifact</div>
             <div className="mt-2 text-2xl font-semibold text-white">Ready</div>
-            <p className="mt-2 text-sm text-zinc-400">Use <code>/api/setup/status</code> for machine checks and this page for operator truth.</p>
+            <p className="mt-2 text-sm text-secondary">Use <code>/api/setup/status</code> for machine checks and this page for operator truth.</p>
           </div>
         </section>
 
@@ -140,14 +140,14 @@ export default async function SetupPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="text-xl font-semibold text-white">{section.title}</h2>
-                    <p className="mt-1 text-sm text-zinc-300">{section.summary}</p>
+                    <p className="mt-1 text-sm text-secondary">{section.summary}</p>
                   </div>
                   <span className={`text-xs font-semibold uppercase tracking-wide ${checkTone(section.status)}`}>
                     {section.status}
                   </span>
                 </div>
                 {section.whatWasChecked ? (
-                  <p className="mt-3 text-xs text-zinc-500">Checked: {section.whatWasChecked}</p>
+                  <p className="mt-3 text-xs text-tertiary">Checked: {section.whatWasChecked}</p>
                 ) : null}
                 <div className="mt-4">
                   <CheckList checks={section.checks} />
@@ -161,13 +161,13 @@ export default async function SetupPage() {
               <h2 className="text-lg font-semibold text-white">Workflow</h2>
               <div className="mt-4 space-y-3">
                 {view.workflow.map((step) => (
-                  <div key={step.id} className="rounded-xl border border-white/10 bg-zinc-950/40 p-3">
+                  <div key={step.id} className="rounded-xl border border-white/10 bg-primary/40 p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-sm font-medium text-white">{step.title}</div>
                       <div className={`text-xs font-semibold uppercase tracking-wide ${checkTone(step.status)}`}>{step.status}</div>
                     </div>
-                    <p className="mt-2 text-sm text-zinc-300">{step.summary}</p>
-                    {step.nextAction ? <p className="mt-2 text-xs text-zinc-500">Next: {step.nextAction}</p> : null}
+                    <p className="mt-2 text-sm text-secondary">{step.summary}</p>
+                    {step.nextAction ? <p className="mt-2 text-xs text-tertiary">Next: {step.nextAction}</p> : null}
                   </div>
                 ))}
               </div>

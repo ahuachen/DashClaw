@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Bell, AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
 import { useRealtime } from '../hooks/useRealtime';
 
@@ -8,12 +8,30 @@ export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
   const [permission, setPermission] = useState('default');
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       setPermission(Notification.permission);
     }
   }, []);
+
+  // Close on Escape or outside click while the popover is open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') setIsOpen(false); };
+    const onClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClick);
+    };
+  }, [isOpen]);
 
   const requestPermission = async () => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -89,7 +107,7 @@ export default function NotificationCenter() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={unreadCount > 0 ? `Notifications · ${unreadCount} unread` : 'Notifications'}
