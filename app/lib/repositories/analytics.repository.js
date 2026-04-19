@@ -42,27 +42,28 @@ export async function getAnalytics(sql, orgId, days = 30) {
       [orgId, prevStart, periodStart]
     )),
 
-    // Daily cost trend
+    // Daily cost trend — emit ISO date strings (YYYY-MM-DD) so the driver
+    // doesn't hand back JS Date objects that stringify to the long toString form
     safe(sql.query(
-      `SELECT DATE(timestamp_start) AS date,
+      `SELECT TO_CHAR((timestamp_start::timestamptz) AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS date,
         COALESCE(SUM(cost_estimate), 0)::real AS cost,
         COUNT(*)::int AS actions
       FROM action_records
       WHERE org_id = $1 AND timestamp_start::timestamptz >= $2::timestamptz
-      GROUP BY DATE(timestamp_start) ORDER BY date`,
+      GROUP BY 1 ORDER BY 1`,
       [orgId, periodStart]
     )),
 
     // Daily status breakdown
     safe(sql.query(
-      `SELECT DATE(timestamp_start) AS date,
+      `SELECT TO_CHAR((timestamp_start::timestamptz) AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS date,
         COUNT(*) FILTER (WHERE status = 'completed')::int AS completed,
         COUNT(*) FILTER (WHERE status = 'failed')::int AS failed,
         COUNT(*) FILTER (WHERE status = 'blocked')::int AS blocked,
         COUNT(*) FILTER (WHERE status NOT IN ('completed','failed','blocked'))::int AS other
       FROM action_records
       WHERE org_id = $1 AND timestamp_start::timestamptz >= $2::timestamptz
-      GROUP BY DATE(timestamp_start) ORDER BY date`,
+      GROUP BY 1 ORDER BY 1`,
       [orgId, periodStart]
     )),
 
@@ -133,23 +134,36 @@ export async function getAnalytics(sql, orgId, days = 30) {
   const tokenTotal = parseInt(tokenRows[0]?.total || '0', 10);
   const tokenTotalCost = parseFloat(tokenRows[0]?.total_cost || 0);
 
-  // Merge daily cost + daily status into unified daily array
-  const statusMap = new Map();
-  for (const row of dailyStatusRows) {
-    statusMap.set(String(row.date), row);
+  // Merge daily cost + daily status and gap-fill so the X-axis is continuous
+  // (days with no records become zero-valued points rather than missing ticks)
+  const costMap = new Map();
+  for (const row of (dailyRows || [])) {
+    if (row && row.date) costMap.set(String(row.date), row);
   }
-  const daily = (dailyRows || []).map(row => {
-    const s = statusMap.get(String(row.date)) || {};
-    return {
-      date: String(row.date),
-      cost: Math.round(parseFloat(row.cost || 0) * 1000) / 1000,
-      actions: parseInt(row.actions || '0', 10),
+  const statusMap = new Map();
+  for (const row of (dailyStatusRows || [])) {
+    if (row && row.date) statusMap.set(String(row.date), row);
+  }
+
+  const daily = [];
+  const startUtc = new Date(periodStart);
+  startUtc.setUTCHours(0, 0, 0, 0);
+  const endUtc = new Date(now);
+  endUtc.setUTCHours(0, 0, 0, 0);
+  for (let d = new Date(startUtc); d <= endUtc; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    const c = costMap.get(iso) || {};
+    const s = statusMap.get(iso) || {};
+    daily.push({
+      date: iso,
+      cost: Math.round(parseFloat(c.cost || 0) * 1000) / 1000,
+      actions: parseInt(c.actions || '0', 10),
       completed: parseInt(s.completed || '0', 10),
       failed: parseInt(s.failed || '0', 10),
       blocked: parseInt(s.blocked || '0', 10),
       other: parseInt(s.other || '0', 10),
-    };
-  });
+    });
+  }
 
   // Calculate percentages for breakdowns
   const agentBreakdown = (agentRows || []).map(r => ({
