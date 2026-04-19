@@ -25,22 +25,28 @@ import urllib.error
 # ---------------------------------------------------------------------------
 
 def _load_dotenv():
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
-    try:
-        with open(env_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, _, val = line.partition("=")
-                key = key.strip()
-                val = val.strip().strip('"').strip("'")
-                if " #" in val:
-                    val = val[:val.index(" #")].strip()
-                if key and key not in os.environ:
-                    os.environ[key] = val
-    except FileNotFoundError:
-        pass
+    # Load .env.local first (real values), then .env (template/fallback). The
+    # first file to set each key wins because of the `key not in os.environ`
+    # check below, so .env.local's values are authoritative. Matches the
+    # precedence used by scripts/_load-env.mjs.
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for fname in (".env.local", ".env"):
+        env_path = os.path.join(base, fname)
+        try:
+            with open(env_path, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, val = line.partition("=")
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    if " #" in val:
+                        val = val[:val.index(" #")].strip()
+                    if key and key not in os.environ:
+                        os.environ[key] = val
+        except FileNotFoundError:
+            continue
 
 _load_dotenv()
 

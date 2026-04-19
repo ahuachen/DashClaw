@@ -27,6 +27,36 @@ import urllib.request
 import urllib.error
 
 # ---------------------------------------------------------------------------
+# Env loading — pretool/posttool load from .env.local + .env before reading
+# DASHCLAW_* config; stop needs the same so tokens actually PATCH back
+# instead of hitting an empty URL with an empty API key. Without this,
+# the Stop hook silently fails for every session that doesn't inherit
+# the vars from the shell — which is most real Claude Code sessions.
+# ---------------------------------------------------------------------------
+
+def _load_dotenv():
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for fname in (".env.local", ".env"):
+        env_path = os.path.join(base, fname)
+        try:
+            with open(env_path, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, val = line.partition("=")
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    if " #" in val:
+                        val = val[:val.index(" #")].strip()
+                    if key and key not in os.environ:
+                        os.environ[key] = val
+        except FileNotFoundError:
+            continue
+
+_load_dotenv()
+
+# ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 
@@ -229,6 +259,15 @@ def _distribute(total, n):
 
 def _post_action(body):
     """POST /api/actions. Returns action_id on success, None on failure."""
+    if not BASE_URL or not API_KEY:
+        _log_hook_error(
+            "POST /api/actions -> skipped: missing " +
+            ("DASHCLAW_BASE_URL" if not BASE_URL else "") +
+            (" and " if not BASE_URL and not API_KEY else "") +
+            ("DASHCLAW_API_KEY" if not API_KEY else "") +
+            " (check .env.local)"
+        )
+        return None
     url = BASE_URL + "/api/actions"
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
@@ -285,6 +324,15 @@ def _create_text_only_action(tokens_in, tokens_out, model, session_id):
 
 def _patch_action(action_id, body):
     """PATCH /api/actions/{action_id}. Failures log and return; never block."""
+    if not BASE_URL or not API_KEY:
+        _log_hook_error(
+            "PATCH " + action_id + " -> skipped: missing " +
+            ("DASHCLAW_BASE_URL" if not BASE_URL else "") +
+            (" and " if not BASE_URL and not API_KEY else "") +
+            ("DASHCLAW_API_KEY" if not API_KEY else "") +
+            " (check .env.local)"
+        )
+        return
     url = BASE_URL + "/api/actions/" + action_id
     data = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
