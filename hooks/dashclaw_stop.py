@@ -35,24 +35,37 @@ import urllib.error
 # ---------------------------------------------------------------------------
 
 def _load_dotenv():
-    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for fname in (".env.local", ".env"):
-        env_path = os.path.join(base, fname)
-        try:
-            with open(env_path, encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#") or "=" not in line:
-                        continue
-                    key, _, val = line.partition("=")
-                    key = key.strip()
-                    val = val.strip().strip('"').strip("'")
-                    if " #" in val:
-                        val = val[:val.index(" #")].strip()
-                    if key and key not in os.environ:
-                        os.environ[key] = val
-        except FileNotFoundError:
-            continue
+    # Walk up from the hook file's directory looking for env files. Works
+    # whether this runs from hooks/X.py (project root is one parent up) or
+    # from .claude/hooks/X.py after install-hooks runs (project root is two
+    # parents up). Earlier files win because of `key not in os.environ`.
+    tried = set()
+    current = os.path.abspath(os.path.dirname(__file__))
+    for _ in range(5):
+        for fname in (".env.local", ".env"):
+            env_path = os.path.join(current, fname)
+            if env_path in tried:
+                continue
+            tried.add(env_path)
+            try:
+                with open(env_path, encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith("#") or "=" not in line:
+                            continue
+                        key, _, val = line.partition("=")
+                        key = key.strip()
+                        val = val.strip().strip('"').strip("'")
+                        if " #" in val:
+                            val = val[:val.index(" #")].strip()
+                        if key and key not in os.environ:
+                            os.environ[key] = val
+            except FileNotFoundError:
+                continue
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
 
 _load_dotenv()
 
