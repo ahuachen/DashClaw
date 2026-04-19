@@ -39,7 +39,7 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold text-white">{t.name}</div>
-            <div className="truncate font-mono text-xs text-zinc-500">{t.slug}</div>
+            <div className="truncate font-mono text-xs text-tertiary">{t.slug}</div>
           </div>
           <div className="flex items-center gap-2">
             {selectionMode && (
@@ -56,21 +56,21 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
           </div>
         </div>
         {t.description && (
-          <div className="mb-3 line-clamp-2 text-xs text-zinc-400">{t.description}</div>
+          <div className="mb-3 line-clamp-2 text-xs text-secondary">{t.description}</div>
         )}
-        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
           <span className="flex items-center gap-1"><FileText size={11} aria-hidden="true" />v{t.version}</span>
           <span aria-hidden="true" className="text-zinc-700">&middot;</span>
           <span className="tabular-nums">{(t.linked_policy_ids?.length || 0)} policies</span>
           <span aria-hidden="true" className="text-zinc-700">&middot;</span>
           <span className="tabular-nums">{(t.linked_capability_ids?.length || 0)} capabilities</span>
         </div>
-        <div className="mt-2 text-[11px] tabular-nums text-zinc-500">Updated {timeAgo(t.updated_at)}</div>
+        <div className="mt-2 text-[11px] tabular-nums text-tertiary">Updated {timeAgo(t.updated_at)}</div>
         {!selectionMode && (
           <div className="mt-3 flex items-center gap-3">
             <Link
               href={`/workflows/${t.template_id}`}
-              className="inline-flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 text-xs text-secondary transition-colors hover:text-white"
               aria-label={`Edit ${t.name}`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -78,7 +78,7 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
             </Link>
             {confirmDelete ? (
               <span className="inline-flex items-center gap-2 text-xs">
-                <span className="text-red-400">Delete?</span>
+                <span className="text-error">Delete?</span>
                 <button
                   onClick={async (e) => {
                     e.preventDefault();
@@ -89,13 +89,13 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
                     setConfirmDelete(false);
                   }}
                   disabled={deleting}
-                  className="text-red-400 transition-colors hover:text-red-300 disabled:opacity-50"
+                  className="text-error transition-colors hover:text-error disabled:opacity-50"
                 >
                   {deleting ? 'Deleting…' : 'Yes'}
                 </button>
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(false); }}
-                  className="text-zinc-400 transition-colors hover:text-white"
+                  className="text-secondary transition-colors hover:text-white"
                 >
                   No
                 </button>
@@ -103,7 +103,7 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
             ) : (
               <button
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(true); }}
-                className="inline-flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-red-400"
+                className="inline-flex items-center gap-1 text-xs text-secondary transition-colors hover:text-error"
                 aria-label={`Delete ${t.name}`}
               >
                 <Trash2 size={11} aria-hidden="true" /> Delete
@@ -209,7 +209,7 @@ export default function WorkflowsPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setLoading(true); fetchTemplates(); }}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
             aria-label="Refresh templates"
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
@@ -221,7 +221,7 @@ export default function WorkflowsPage() {
               setSelectionMode((value) => !value);
               setSelectedIds([]);
             }}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <CheckSquare size={14} aria-hidden="true" />
             {selectionMode ? 'Cancel selection' : 'Select multiple'}
@@ -241,7 +241,7 @@ export default function WorkflowsPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-sm font-semibold text-white">Workflow operations</div>
-              <p className="mt-1 text-sm text-zinc-400">
+              <p className="mt-1 text-sm text-secondary">
                 {selectionMode
                   ? 'Select the workflow templates you want to delete. This is the fastest way to clean up old test workflows.'
                   : 'Need a new workflow quickly? You can also describe it in plain English from the workflow builder with Generate with AI.'}
@@ -252,7 +252,7 @@ export default function WorkflowsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedIds(allSelected ? [] : templates.map((template) => template.template_id))}
-                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
                   {allSelected ? 'Clear all' : 'Select all'}
                 </button>
@@ -260,7 +260,7 @@ export default function WorkflowsPage() {
                   type="button"
                   onClick={handleDeleteSelected}
                   disabled={selectedIds.length === 0 || deleting}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-400 transition-colors hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-error/30 bg-error-subtle px-3 py-1.5 text-xs text-error transition-colors hover:border-error/50 hover:bg-error-subtle disabled:opacity-50"
                 >
                   <Trash2 size={14} aria-hidden="true" />
                   {deleting ? 'Deleting…' : `Delete selected${selectedIds.length ? ` (${selectedIds.length})` : ''}`}
@@ -304,7 +304,7 @@ export default function WorkflowsPage() {
               </Link>
               <Link
                 href="/workflows/new"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
               >
                 <Sparkles size={14} aria-hidden="true" />
                 Generate with AI

@@ -68,14 +68,14 @@ export function ApiKeyReveal({ maskedApiKey }) {
   return (
     <div>
       <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium text-zinc-500">API key</span>
+        <span className="text-[11px] font-medium text-tertiary">API key</span>
         {canInteract && (
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={handleReveal}
               disabled={loading}
-              className="rounded p-1 text-zinc-500 transition-colors hover:text-zinc-200 disabled:opacity-50"
+              className="rounded p-1 text-tertiary transition-colors hover:text-secondary disabled:opacity-50"
               aria-label={revealed ? 'Hide API key' : 'Reveal API key'}
               title={revealed ? 'Hide' : 'Reveal'}
             >
@@ -84,12 +84,12 @@ export function ApiKeyReveal({ maskedApiKey }) {
             <button
               type="button"
               onClick={handleCopy}
-              className="rounded p-1 text-zinc-500 transition-colors hover:text-zinc-200"
+              className="rounded p-1 text-tertiary transition-colors hover:text-secondary"
               aria-label="Copy API key"
               title={copied ? 'Copied' : 'Copy'}
             >
               {copied ? (
-                <CheckCircle2 size={12} className="text-emerald-400" />
+                <CheckCircle2 size={12} className="text-success" />
               ) : (
                 <Copy size={12} />
               )}
@@ -97,11 +97,11 @@ export function ApiKeyReveal({ maskedApiKey }) {
           </div>
         )}
       </div>
-      <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
+      <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
         {displayValue}
       </div>
       {error && (
-        <p className="mt-1 text-[10px] text-amber-400">{error}</p>
+        <p className="mt-1 text-[10px] text-warning">{error}</p>
       )}
     </div>
   );

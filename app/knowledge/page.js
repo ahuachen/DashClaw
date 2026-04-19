@@ -42,13 +42,13 @@ function CollectionCard({ c, onDelete }) {
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-start gap-2 min-w-0">
-            <Icon size={16} className="text-zinc-400 mt-0.5 flex-shrink-0" />
+            <Icon size={16} className="text-secondary mt-0.5 flex-shrink-0" />
             <div className="min-w-0">
               <Link href={`/knowledge/${c.collection_id}`} className="text-sm font-semibold text-white truncate hover:text-brand block">
                 {c.name}
               </Link>
               {c.description && (
-                <div className="text-xs text-zinc-500 truncate">{c.description}</div>
+                <div className="text-xs text-tertiary truncate">{c.description}</div>
               )}
             </div>
           </div>
@@ -56,7 +56,7 @@ function CollectionCard({ c, onDelete }) {
             {c.ingestion_status}
           </Badge>
         </div>
-        <div className="flex items-center gap-3 mt-3 text-[10px] text-zinc-500 uppercase tracking-wider">
+        <div className="flex items-center gap-3 mt-3 text-[10px] text-tertiary uppercase tracking-wider">
           <span>{c.doc_count} items</span>
           <span>Synced {timeAgo(c.last_synced_at)}</span>
         </div>
@@ -65,7 +65,7 @@ function CollectionCard({ c, onDelete }) {
             {c.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 font-mono"
+                className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-secondary font-mono"
               >
                 {tag}
               </span>
@@ -75,14 +75,14 @@ function CollectionCard({ c, onDelete }) {
         <div className="flex items-center gap-2 mt-3">
           <Link
             href={`/knowledge/${c.collection_id}`}
-            className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-secondary hover:text-white"
             aria-label={`Edit ${c.name}`}
           >
             <Pencil size={11} /> Edit
           </Link>
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1.5 text-xs">
-              <span className="text-red-400">Delete?</span>
+              <span className="text-error">Delete?</span>
               <button
                 onClick={async () => {
                   setDeleting(true);
@@ -91,13 +91,13 @@ function CollectionCard({ c, onDelete }) {
                   setConfirmDelete(false);
                 }}
                 disabled={deleting}
-                className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                className="text-error hover:text-error disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Yes'}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-zinc-400 hover:text-white"
+                className="text-secondary hover:text-white"
               >
                 No
               </button>
@@ -105,7 +105,7 @@ function CollectionCard({ c, onDelete }) {
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+              className="inline-flex items-center gap-1 text-xs text-secondary hover:text-error"
               aria-label={`Delete ${c.name}`}
             >
               <Trash2 size={11} /> Delete
@@ -189,7 +189,7 @@ export default function KnowledgePage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setLoading(true); fetchCollections(); }}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -203,13 +203,13 @@ export default function KnowledgePage() {
       }
     >
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+        <div className="mb-4 px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
+        <div className="text-sm text-tertiary py-12 text-center">Loading...</div>
       ) : collections.length === 0 ? (
         <EmptyState
           icon={BookOpen}

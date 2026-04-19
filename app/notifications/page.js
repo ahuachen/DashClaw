@@ -125,7 +125,7 @@ export default function NotificationsPage() {
       {showSuccess && (
         <div
           role="status"
-          className="mb-6 flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400"
+          className="mb-6 flex items-center gap-3 rounded-lg border border-success/30 bg-success-subtle p-4 text-success"
         >
           <Check size={20} className="shrink-0" aria-hidden="true" />
           <span className="text-sm font-medium">Preferences saved</span>
@@ -147,8 +147,8 @@ export default function NotificationsPage() {
                 {/* Enable/Disable Toggle */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium text-zinc-200">Email notifications</div>
-                    <div className="mt-1 text-xs text-zinc-500">
+                    <div className="text-sm font-medium text-secondary">Email notifications</div>
+                    <div className="mt-1 text-xs text-tertiary">
                       Receive alerts when security signals are detected
                     </div>
                   </div>
@@ -174,10 +174,10 @@ export default function NotificationsPage() {
                 {!resendConfigured && (
                   <div
                     role="note"
-                    className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                    className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning-subtle p-3"
                   >
-                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
-                    <p className="text-xs text-amber-300">
+                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+                    <p className="text-xs text-warning">
                       Email alerts require the <code className="font-mono text-amber-200">RESEND_API_KEY</code> environment variable to be configured.
                     </p>
                   </div>
@@ -186,7 +186,7 @@ export default function NotificationsPage() {
                 {/* Signal Types (shown when enabled) */}
                 {emailEnabled && (
                   <div className="space-y-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                       Signal types
                     </div>
                     <div className="space-y-2">
@@ -201,7 +201,7 @@ export default function NotificationsPage() {
                             onChange={() => toggleSignalType(signal.value)}
                             className="h-4 w-4 cursor-pointer accent-brand"
                           />
-                          <span className="text-sm text-zinc-300 transition-colors group-hover:text-white">
+                          <span className="text-sm text-secondary transition-colors group-hover:text-white">
                             {signal.label}
                           </span>
                         </label>
@@ -211,10 +211,10 @@ export default function NotificationsPage() {
                     {signalTypes.length === 0 && (
                       <div
                         role="alert"
-                        className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                        className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning-subtle p-3"
                       >
-                        <ShieldAlert size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
-                        <p className="text-xs text-amber-300">
+                        <ShieldAlert size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+                        <p className="text-xs text-warning">
                           Select at least one signal type to receive email alerts.
                         </p>
                       </div>

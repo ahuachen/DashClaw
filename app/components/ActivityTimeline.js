@@ -29,25 +29,25 @@ import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
 function getEventIcon(event) {
   switch (event.category) {
     case 'decision':
-      if (event.status === 'completed') return <CheckCircle2 size={14} className="text-emerald-400" />;
-      if (event.status === 'failed') return <XCircle size={14} className="text-red-400" />;
-      if (event.status === 'running') return <Loader2 size={14} className="text-blue-400 animate-spin" />;
-      if (event.status === 'pending_approval') return <AlertTriangle size={14} className="text-amber-400" />;
+      if (event.status === 'completed') return <CheckCircle2 size={14} className="text-success" />;
+      if (event.status === 'failed') return <XCircle size={14} className="text-error" />;
+      if (event.status === 'running') return <Loader2 size={14} className="text-info animate-spin" />;
+      if (event.status === 'pending_approval') return <AlertTriangle size={14} className="text-warning" />;
       return <Play size={14} className="text-sky-400" />;
     case 'intervention':
       return event.status === 'resolved'
-        ? <CheckCircle2 size={14} className="text-emerald-400" />
-        : <Siren size={14} className="text-amber-400" />;
+        ? <CheckCircle2 size={14} className="text-success" />
+        : <Siren size={14} className="text-warning" />;
     case 'governance':
-      if (event.status === 'block') return <Shield size={14} className="text-red-400" />;
-      if (event.status === 'require_approval') return <AlertTriangle size={14} className="text-amber-400" />;
-      return <ShieldCheck size={14} className="text-emerald-400" />;
+      if (event.status === 'block') return <Shield size={14} className="text-error" />;
+      if (event.status === 'require_approval') return <AlertTriangle size={14} className="text-warning" />;
+      return <ShieldCheck size={14} className="text-success" />;
     case 'outcome':
       return <Brain size={14} className="text-cyan-400" />;
     case 'telemetry':
-      return <CircleDot size={14} className="text-zinc-500" />;
+      return <CircleDot size={14} className="text-tertiary" />;
     default:
-      return <Clock size={14} className="text-zinc-400" />;
+      return <Clock size={14} className="text-secondary" />;
   }
 }
 
@@ -65,11 +65,11 @@ function getCategoryLabel(category) {
 function getCategoryColor(category) {
   switch (category) {
     case 'decision': return 'text-sky-300';
-    case 'intervention': return 'text-amber-300';
-    case 'governance': return 'text-red-300';
+    case 'intervention': return 'text-warning';
+    case 'governance': return 'text-error';
     case 'outcome': return 'text-cyan-300';
-    case 'telemetry': return 'text-zinc-500';
-    default: return 'text-zinc-400';
+    case 'telemetry': return 'text-tertiary';
+    default: return 'text-secondary';
   }
 }
 
@@ -292,7 +292,7 @@ export default function ActivityTimeline({
             <button
               type="button"
               onClick={toggleTelemetry}
-              className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-secondary transition-colors hover:text-white"
             >
               {showTelemetry ? <EyeOff size={11} /> : <Eye size={11} />}
               {showTelemetry ? 'Hide routine telemetry' : `Show ${telemetryCount} routine updates`}
@@ -303,7 +303,7 @@ export default function ActivityTimeline({
 
       <CardContent>
         <div className="flex h-full min-h-0 flex-col">
-          <div className="mb-3 flex flex-wrap gap-2 text-[11px] text-zinc-500">
+          <div className="mb-3 flex flex-wrap gap-2 text-[11px] text-tertiary">
             <span>Priority events stay visible by default.</span>
             {telemetryCount > 0 && <span>Routine monitor churn is collapsed until you ask for it.</span>}
           </div>
@@ -316,7 +316,7 @@ export default function ActivityTimeline({
                 className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                   activeCategory === option.id
                     ? 'border-brand/40 bg-brand/10 text-brand'
-                    : 'border-white/10 text-zinc-500 hover:text-white'
+                    : 'border-white/10 text-tertiary hover:text-white'
                 }`}
               >
                 {option.label}
@@ -347,7 +347,7 @@ export default function ActivityTimeline({
               <div className="flex-1 min-h-0 overflow-y-auto pr-1">
                 {grouped.map(([dayLabel, dayEvents]) => (
                   <div key={dayLabel} className="mb-4 last:mb-0">
-                    <div className="mb-2 bg-surface-secondary py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
+                    <div className="mb-2 bg-surface-secondary py-1 text-[10px] font-semibold uppercase tracking-wider text-disabled">
                       {dayLabel}
                     </div>
                     <div className="relative">
@@ -382,15 +382,15 @@ export default function ActivityTimeline({
                                     {event.priority === 'high' && <Badge variant="warning" size="xs">High priority</Badge>}
                                   </div>
 
-                                  <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-zinc-500">
-                                    {event.goal && <span><span className="text-zinc-600">Goal:</span> {event.goal}</span>}
-                                    {event.actionType && <span><span className="text-zinc-600">Action:</span> {event.actionType}</span>}
+                                  <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-tertiary">
+                                    {event.goal && <span><span className="text-disabled">Goal:</span> {event.goal}</span>}
+                                    {event.actionType && <span><span className="text-disabled">Action:</span> {event.actionType}</span>}
                                     {event.agentName && <span className="font-mono">{event.agentName}</span>}
-                                    {event.parentActionId && <span><span className="text-zinc-600">Parent:</span> {event.parentActionId}</span>}
+                                    {event.parentActionId && <span><span className="text-disabled">Parent:</span> {event.parentActionId}</span>}
                                   </div>
 
                                   {event.outputSummary && (
-                                    <p className={`mb-2 text-xs leading-5 ${event.lowSignal ? 'text-zinc-500' : 'text-zinc-300'}`}>
+                                    <p className={`mb-2 text-xs leading-5 ${event.lowSignal ? 'text-tertiary' : 'text-secondary'}`}>
                                       {event.outputSummary}
                                     </p>
                                   )}
@@ -404,7 +404,7 @@ export default function ActivityTimeline({
                                           clickEvent.stopPropagation();
                                           setExpandedChains((prev) => ({ ...prev, [event.id]: !prev[event.id] }));
                                         }}
-                                        className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+                                        className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-secondary transition-colors hover:border-white/20 hover:text-white"
                                       >
                                         {isExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
                                         {event.spawnedChildren.length} spawned {event.spawnedChildren.length === 1 ? 'action' : 'actions'}
@@ -422,12 +422,12 @@ export default function ActivityTimeline({
                                                 <span className="text-xs font-medium text-white">{child.title}</span>
                                                 <Badge variant={getStatusVariant(child.status)} size="xs">{child.statusLabel}</Badge>
                                               </div>
-                                              <div className="text-[11px] text-zinc-500">
+                                              <div className="text-[11px] text-tertiary">
                                                 {child.actionType && <span>Action: {child.actionType}</span>}
                                                 {child.goal && <span className="ml-3">Goal: {child.goal}</span>}
                                               </div>
                                               {child.outputSummary && (
-                                                <div className="mt-1 text-xs text-zinc-400">{child.outputSummary}</div>
+                                                <div className="mt-1 text-xs text-secondary">{child.outputSummary}</div>
                                               )}
                                             </Link>
                                           ))}
@@ -436,10 +436,10 @@ export default function ActivityTimeline({
                                     </div>
                                   )}
 
-                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-tertiary">
                                     <span>{formatLifecycle(event)}</span>
                                     {event.riskScore != null && (
-                                      <span className={`inline-flex items-center gap-1 ${event.riskScore >= 70 ? 'text-red-400' : 'text-zinc-500'}`}>
+                                      <span className={`inline-flex items-center gap-1 ${event.riskScore >= 70 ? 'text-error' : 'text-tertiary'}`}>
                                         <AlertTriangle size={10} />
                                         Risk {event.riskScore}
                                       </span>
@@ -454,7 +454,7 @@ export default function ActivityTimeline({
                                 </div>
 
                                 {href && (
-                                  <ArrowRight size={14} className="mt-1 flex-shrink-0 text-zinc-600 transition-colors group-hover:text-white" />
+                                  <ArrowRight size={14} className="mt-1 flex-shrink-0 text-disabled transition-colors group-hover:text-white" />
                                 )}
                               </div>
                             </div>

@@ -173,7 +173,7 @@ export default function ApiKeysPage() {
     >
       {/* Error banner */}
       {error && (
-        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-error/30 bg-error-subtle p-3 text-sm text-error">
           <div className="flex items-center gap-2">
             <span>{error}</span>
             {error.includes('Demo mode') && (
@@ -187,7 +187,7 @@ export default function ApiKeysPage() {
           </div>
           <button
             onClick={() => setError(null)}
-            className="ml-4 rounded px-2 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            className="ml-4 rounded px-2 py-0.5 text-error transition-colors hover:bg-error-subtle hover:text-error"
             aria-label="Dismiss error"
           >
             &times;
@@ -197,23 +197,23 @@ export default function ApiKeysPage() {
 
       {/* Newly created key banner */}
       {newKey && (
-        <div role="status" className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+        <div role="status" className="mb-6 rounded-xl border border-success/30 bg-success-subtle p-5">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10">
-              <KeyRound size={16} className="text-emerald-400" aria-hidden="true" />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-success/30 bg-success-subtle">
+              <KeyRound size={16} className="text-success" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="mb-1 text-sm font-semibold text-emerald-400">Key created: {newKey.label}</div>
-              <p className="mb-3 text-xs text-zinc-400">Copy your API key now. It will not be shown again.</p>
+              <div className="mb-1 text-sm font-semibold text-success">Key created: {newKey.label}</div>
+              <p className="mb-3 text-xs text-secondary">Copy your API key now. It will not be shown again.</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 overflow-x-auto rounded-lg border border-border bg-surface-tertiary px-3 py-2 font-mono text-sm text-emerald-400">
+                <code className="flex-1 overflow-x-auto rounded-lg border border-border bg-surface-tertiary px-3 py-2 font-mono text-sm text-success">
                   {newKey.raw_key}
                 </code>
                 <button
                   onClick={() => handleCopy(newKey.raw_key)}
-                  className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
-                  {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
                 <ConnectAgentButton className="shrink-0" />
@@ -222,7 +222,7 @@ export default function ApiKeysPage() {
             <button
               onClick={() => setNewKey(null)}
               aria-label="Dismiss"
-              className="shrink-0 text-lg leading-none text-zinc-500 transition-colors hover:text-zinc-300"
+              className="shrink-0 text-lg leading-none text-tertiary transition-colors hover:text-secondary"
             >
               &times;
             </button>
@@ -233,22 +233,22 @@ export default function ApiKeysPage() {
       {/* Instrument rail */}
       <div className="mb-6 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total keys</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total keys</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{keys.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{activeKeys.length}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Active</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{activeKeys.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Revoked</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{revokedKeys.length}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Revoked</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-error">{revokedKeys.length}</div>
         </div>
       </div>
 
       {/* Setup callout */}
       <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-4 py-2.5">
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-tertiary">
           Need to verify your instance is configured correctly before connecting agents?
         </p>
         <a
@@ -263,7 +263,7 @@ export default function ApiKeysPage() {
       {showCreateForm && isAdmin && (
         <Card hover={false} className="mb-6">
           <CardContent className="pt-5">
-            <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
               Generate new API key
             </div>
             <div className="flex items-center gap-3">
@@ -277,7 +277,7 @@ export default function ApiKeysPage() {
                 maxLength={256}
                 autoFocus
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+                className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
               />
               <button
                 onClick={handleCreate}
@@ -288,7 +288,7 @@ export default function ApiKeysPage() {
               </button>
               <button
                 onClick={() => { setShowCreateForm(false); setNewLabel(''); }}
-                className="rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                className="rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary transition-colors hover:border-border-hover hover:text-white"
               >
                 Cancel
               </button>
@@ -331,11 +331,11 @@ export default function ApiKeysPage() {
                   {/* Key icon + prefix */}
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${isRevoked ? 'border-border bg-surface-tertiary' : 'border-brand/20 bg-brand/10'}`}>
-                      <KeyRound size={14} className={isRevoked ? 'text-zinc-500' : 'text-brand'} aria-hidden="true" />
+                      <KeyRound size={14} className={isRevoked ? 'text-tertiary' : 'text-brand'} aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm font-medium ${isRevoked ? 'text-zinc-500' : 'text-zinc-200'}`}>
+                        <span className={`text-sm font-medium ${isRevoked ? 'text-tertiary' : 'text-secondary'}`}>
                           {key.label || 'API key'}
                         </span>
                         <Badge variant={isRevoked ? 'error' : 'success'} size="xs">
@@ -343,13 +343,13 @@ export default function ApiKeysPage() {
                         </Badge>
                       </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs">
-                        <code className={`font-mono ${isRevoked ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        <code className={`font-mono ${isRevoked ? 'text-tertiary' : 'text-secondary'}`}>
                           {key.key_prefix}…
                         </code>
-                        <span className="tabular-nums text-zinc-500">
+                        <span className="tabular-nums text-tertiary">
                           Created {formatDate(key.created_at)}
                         </span>
-                        <span className="tabular-nums text-zinc-500">
+                        <span className="tabular-nums text-tertiary">
                           Last used: {formatDate(key.last_used_at)}
                         </span>
                       </div>
@@ -361,17 +361,17 @@ export default function ApiKeysPage() {
                     <div className="shrink-0">
                       {isConfirmingRevoke ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-400">Revoke?</span>
+                          <span className="text-xs text-secondary">Revoke?</span>
                           <button
                             onClick={() => handleRevoke(key.id)}
                             disabled={revokeLoading}
-                            className="rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-400 transition-colors hover:border-red-500/50 hover:bg-red-500/15 disabled:opacity-50"
+                            className="rounded-md border border-error/30 bg-error-subtle px-2.5 py-1 text-xs font-medium text-error transition-colors hover:border-error/50 hover:bg-error-subtle disabled:opacity-50"
                           >
                             {revokeLoading ? 'Revoking…' : 'Confirm'}
                           </button>
                           <button
                             onClick={() => setRevokingId(null)}
-                            className="rounded-md px-2.5 py-1 text-xs text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                            className="rounded-md px-2.5 py-1 text-xs text-secondary transition-colors hover:bg-white/5 hover:text-white"
                           >
                             Cancel
                           </button>
@@ -379,7 +379,7 @@ export default function ApiKeysPage() {
                       ) : (
                         <button
                           onClick={() => setRevokingId(key.id)}
-                          className="flex items-center gap-1 rounded px-2.5 py-1 text-xs text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                          className="flex items-center gap-1 rounded px-2.5 py-1 text-xs text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                         >
                           <Ban size={12} aria-hidden="true" />
                           Revoke

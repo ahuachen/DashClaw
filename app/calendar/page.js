@@ -168,7 +168,7 @@ export default function CalendarPage() {
           </button>
           <button
             onClick={fetchData}
-            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
           >
             <RotateCw size={14} />
             Refresh
@@ -180,98 +180,98 @@ export default function CalendarPage() {
         <Card className="mb-6">
           <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(255,255,255,0.06)]">
             <h2 className="text-sm font-medium text-white">Create Event</h2>
-            <button onClick={() => setShowCreateModal(false)} className="text-zinc-400 hover:text-white"><X size={16} /></button>
+            <button onClick={() => setShowCreateModal(false)} className="text-secondary hover:text-white"><X size={16} /></button>
           </div>
           <CardContent className="py-5">
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Event Title *</label>
+                <label className="block text-xs text-secondary mb-1">Event Title *</label>
                 <input
                   type="text"
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                   placeholder="Team standup, deployment review, etc."
-                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm placeholder:text-disabled focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Start Time *</label>
+                  <label className="block text-xs text-secondary mb-1">Start Time *</label>
                   <input
                     type="datetime-local"
                     value={formData.start_time}
                     onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1">End Time</label>
+                  <label className="block text-xs text-secondary mb-1">End Time</label>
                   <input
                     type="datetime-local"
                     value={formData.end_time}
                     onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Location</label>
+                <label className="block text-xs text-secondary mb-1">Location</label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   placeholder="Zoom, office, etc."
-                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm placeholder:text-disabled focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Description</label>
+                <label className="block text-xs text-secondary mb-1">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Event details..."
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand/50"
+                  className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm placeholder:text-disabled focus:outline-none focus:ring-2 focus:ring-brand/50"
                 />
               </div>
 
               {/* Assignment dropdowns */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1 flex items-center gap-1"><Users size={12} /> Assign Agents</label>
+                  <label className="block text-xs text-secondary mb-1 flex items-center gap-1"><Users size={12} /> Assign Agents</label>
                   <select
                     multiple
                     value={formData.assigned_agents}
                     onChange={(e) => setFormData({ ...formData, assigned_agents: Array.from(e.target.selectedOptions, o => o.value) })}
-                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
+                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
                   >
                     {agents.map(a => <option key={a.id || a.agent_id} value={a.id || a.agent_id}>{a.name || a.agent_id || a.id}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1 flex items-center gap-1"><Target size={12} /> Assign Tasks</label>
+                  <label className="block text-xs text-secondary mb-1 flex items-center gap-1"><Target size={12} /> Assign Tasks</label>
                   <select
                     multiple
                     value={formData.assigned_tasks}
                     onChange={(e) => setFormData({ ...formData, assigned_tasks: Array.from(e.target.selectedOptions, o => o.value) })}
-                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
+                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
                   >
                     {tasks.map(t => <option key={t.id} value={t.id}>{t.title || t.id}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1 flex items-center gap-1"><Shield size={12} /> Assign Policies</label>
+                  <label className="block text-xs text-secondary mb-1 flex items-center gap-1"><Shield size={12} /> Assign Policies</label>
                   <select
                     multiple
                     value={formData.assigned_policies}
                     onChange={(e) => setFormData({ ...formData, assigned_policies: Array.from(e.target.selectedOptions, o => o.value) })}
-                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
+                    className="w-full px-3 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 h-24"
                   >
                     {policies.map(p => <option key={p.id} value={p.id}>{p.name || p.id}</option>)}
                   </select>
                 </div>
               </div>
-              <div className="text-[10px] text-zinc-600">Hold Ctrl/Cmd to select multiple items in each list</div>
+              <div className="text-[10px] text-disabled">Hold Ctrl/Cmd to select multiple items in each list</div>
 
               <div className="flex items-center gap-2 pt-2">
                 <button
@@ -283,7 +283,7 @@ export default function CalendarPage() {
                 </button>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-zinc-300 text-sm hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] text-secondary text-sm hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
@@ -320,21 +320,21 @@ export default function CalendarPage() {
                       <div className="text-sm font-medium text-white">
                         {event.summary}
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-zinc-400 mt-1">
+                      <div className="flex items-center gap-1 text-xs text-secondary mt-1">
                         <Clock size={12} className="shrink-0" />
                         <span>{formatTime(event.start_time)}</span>
                         {event.end_time && (
-                          <span className="text-zinc-500"> - {formatEndTime(event.end_time)}</span>
+                          <span className="text-tertiary"> - {formatEndTime(event.end_time)}</span>
                         )}
                       </div>
                       {event.location && (
-                        <div className="flex items-center gap-1 text-xs text-zinc-500 mt-1 truncate">
+                        <div className="flex items-center gap-1 text-xs text-tertiary mt-1 truncate">
                           <MapPin size={12} className="shrink-0" />
                           <span className="truncate">{event.location}</span>
                         </div>
                       )}
                       {event.description && (
-                        <div className="text-xs text-zinc-500 mt-2 line-clamp-2">
+                        <div className="text-xs text-tertiary mt-2 line-clamp-2">
                           {event.description}
                         </div>
                       )}

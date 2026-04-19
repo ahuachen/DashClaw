@@ -157,8 +157,8 @@ export default function OpenLoopsCard() {
         <div className="bg-surface-tertiary rounded-lg px-3 py-2.5 mb-4 flex-shrink-0">
           <div className="grid grid-cols-3 gap-2">
             <StatCompact label="Open" value={openCount} color="text-white" />
-            <StatCompact label="High" value={highCount} color="text-amber-400" />
-            <StatCompact label="Resolved" value={resolvedCount} color="text-emerald-400" />
+            <StatCompact label="High" value={highCount} color="text-warning" />
+            <StatCompact label="Resolved" value={resolvedCount} color="text-success" />
           </div>
         </div>
 
@@ -180,14 +180,14 @@ export default function OpenLoopsCard() {
                   className="px-3 py-2.5 rounded-lg bg-surface-tertiary border border-[rgba(255,255,255,0.06)] transition-colors duration-150 hover:border-[rgba(255,255,255,0.12)]"
                 >
                   <div className="flex items-start gap-3">
-                    <TypeIcon size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
+                    <TypeIcon size={14} className="text-secondary mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-zinc-300 truncate">{loop.description}</div>
+                      <div className="text-sm text-secondary truncate">{loop.description}</div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] text-zinc-500">
+                        <span className="text-[10px] text-tertiary">
                           {loop.agent_name || loop.agent_id || 'Unknown agent'}
                         </span>
-                        <span className="text-[10px] text-zinc-600">{loop.loop_type}</span>
+                        <span className="text-[10px] text-disabled">{loop.loop_type}</span>
                       </div>
                     </div>
                     <Badge variant={getPriorityVariant(loop.priority)} size="xs">
@@ -203,24 +203,24 @@ export default function OpenLoopsCard() {
                         placeholder="Resolution note (optional)"
                         value={resolutionText}
                         onChange={(e) => setResolutionText(e.target.value)}
-                        className="w-full bg-surface-primary border border-[rgba(255,255,255,0.1)] rounded px-2 py-1 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-brand/50"
+                        className="w-full bg-surface-primary border border-[rgba(255,255,255,0.1)] rounded px-2 py-1 text-xs text-secondary placeholder-zinc-600 focus:outline-none focus:border-brand/50"
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleResolve(loop.loop_id, 'resolved')}
-                          className="px-2 py-1 text-xs bg-green-500/10 text-emerald-400 border border-green-500/20 rounded hover:bg-green-500/20 transition-colors"
+                          className="px-2 py-1 text-xs bg-green-500/10 text-success border border-green-500/20 rounded hover:bg-green-500/20 transition-colors"
                         >
                           Resolve
                         </button>
                         <button
                           onClick={() => handleResolve(loop.loop_id, 'cancelled')}
-                          className="px-2 py-1 text-xs bg-red-500/10 text-red-400 border border-red-500/20 rounded hover:bg-red-500/20 transition-colors"
+                          className="px-2 py-1 text-xs bg-error-subtle text-error border border-error/20 rounded hover:bg-error-subtle transition-colors"
                         >
                           Cancel Loop
                         </button>
                         <button
                           onClick={() => { setResolving(null); setResolutionText(''); }}
-                          className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                          className="px-2 py-1 text-xs text-tertiary hover:text-secondary transition-colors"
                         >
                           Dismiss
                         </button>
@@ -230,14 +230,14 @@ export default function OpenLoopsCard() {
                     <div className="mt-1.5 pl-7 flex gap-1">
                       <button
                         onClick={() => setResolving(loop.loop_id)}
-                        className="text-[10px] text-zinc-500 hover:text-emerald-400 transition-colors"
+                        className="text-[10px] text-tertiary hover:text-success transition-colors"
                       >
                         resolve
                       </button>
                       <span className="text-[10px] text-zinc-700">|</span>
                       <button
                         onClick={() => handleResolve(loop.loop_id, 'cancelled')}
-                        className="text-[10px] text-zinc-500 hover:text-red-400 transition-colors"
+                        className="text-[10px] text-tertiary hover:text-error transition-colors"
                       >
                         cancel
                       </button>

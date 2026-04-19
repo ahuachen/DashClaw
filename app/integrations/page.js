@@ -292,42 +292,42 @@ export default function IntegrationsPage() {
       {/* Instrument rail */}
       <div className="mb-3 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Available</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Available</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{allIntegrations.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Connected</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{connectedCount}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Connected</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{connectedCount}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Agent overrides</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{agentOverrideCount}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Agent overrides</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-info">{agentOverrideCount}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Not configured</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-zinc-400">{notConfiguredCount}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Not configured</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-secondary">{notConfiguredCount}</div>
         </div>
       </div>
 
       {/* Health refresh — admin only, free-tier compatible alternative to a cron */}
       {isAdmin && !isDemoMode() && (
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-400">
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-secondary">
           <span>
             Health checks run on demand.{' '}
             {lastHealthCheck ? (
-              <>Last refresh: <span className="tabular-nums text-zinc-300">{lastHealthCheck}</span>.</>
+              <>Last refresh: <span className="tabular-nums text-secondary">{lastHealthCheck}</span>.</>
             ) : (
               <>No checks recorded yet.</>
             )}
             {refreshError && (
-              <span className="ml-2 text-red-400">· {refreshError}</span>
+              <span className="ml-2 text-error">· {refreshError}</span>
             )}
           </span>
           <button
             type="button"
             onClick={handleRefreshHealth}
             disabled={refreshingHealth}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-secondary px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-border-hover hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw
               size={12}
@@ -342,14 +342,14 @@ export default function IntegrationsPage() {
       {/* Search Bar */}
       <div className="relative mb-4">
         <label htmlFor="integration-search" className="sr-only">Search integrations</label>
-        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-tertiary" aria-hidden="true" />
         <input
           id="integration-search"
           type="text"
           placeholder="Search integrations…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-10 pr-4 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-10 pr-4 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         />
       </div>
 
@@ -366,7 +366,7 @@ export default function IntegrationsPage() {
               className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors duration-150 ${
                 isActive
                   ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/50 hover:bg-brand/15'
-                  : 'border-border bg-surface-tertiary text-zinc-400 hover:border-border-hover hover:text-white'
+                  : 'border-border bg-surface-tertiary text-secondary hover:border-border-hover hover:text-white'
               }`}
             >
               <CatIcon size={14} aria-hidden="true" />
@@ -378,7 +378,7 @@ export default function IntegrationsPage() {
 
       {/* Results count */}
       {(activeCategory !== 'all' || searchQuery) && (
-        <p className="mb-4 tabular-nums text-xs text-zinc-500">
+        <p className="mb-4 tabular-nums text-xs text-tertiary">
           Showing {integrationsList.length} of {allIntegrations.length} integrations
         </p>
       )}
@@ -397,26 +397,26 @@ export default function IntegrationsPage() {
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
-                      <Plug size={16} className="text-zinc-400" aria-hidden="true" />
+                      <Plug size={16} className="text-secondary" aria-hidden="true" />
                     </div>
                     <div>
                       <div className="text-sm font-medium text-white">{config.name}</div>
-                      <div className="text-xs text-zinc-500">{config.description}</div>
+                      <div className="text-xs text-tertiary">{config.description}</div>
                     </div>
                   </div>
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     {getStatusDot(status)}
-                    <span className="text-xs text-zinc-400">{getStatusLabel(status)}</span>
+                    <span className="text-xs text-secondary">{getStatusLabel(status)}</span>
                     {agentCountByProvider[key] > 0 && (
-                      <span className="ml-1 tabular-nums text-[11px] text-zinc-500">
+                      <span className="ml-1 tabular-nums text-[11px] text-tertiary">
                         {agentCountByProvider[key]} agent{agentCountByProvider[key] !== 1 ? 's' : ''}
                       </span>
                     )}
                     {healthData[key]?.status === 'healthy' && (
                       <span
-                        className="inline-flex items-center gap-1 text-[11px] text-emerald-400"
+                        className="inline-flex items-center gap-1 text-[11px] text-success"
                         title={`Verified: ${healthData[key]?.message}`}
                       >
                         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -425,7 +425,7 @@ export default function IntegrationsPage() {
                     )}
                     {healthData[key]?.status === 'error' && (
                       <span
-                        className="inline-flex items-center gap-1 text-[11px] text-red-400"
+                        className="inline-flex items-center gap-1 text-[11px] text-error"
                         title={healthData[key]?.message}
                       >
                         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -434,7 +434,7 @@ export default function IntegrationsPage() {
                     )}
                     {healthData[key]?.status === 'degraded' && (
                       <span
-                        className="inline-flex items-center gap-1 text-[11px] text-amber-400"
+                        className="inline-flex items-center gap-1 text-[11px] text-warning"
                         title={healthData[key]?.message}
                       >
                         <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
@@ -443,7 +443,7 @@ export default function IntegrationsPage() {
                     )}
                   </div>
                   {isAdmin && (
-                    <span className="text-xs text-zinc-500 transition-colors group-hover:text-brand">
+                    <span className="text-xs text-tertiary transition-colors group-hover:text-brand">
                       Configure
                     </span>
                   )}
@@ -468,16 +468,16 @@ export default function IntegrationsPage() {
               <div className="mb-6 flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
-                    <Plug size={16} className="text-zinc-400" aria-hidden="true" />
+                    <Plug size={16} className="text-secondary" aria-hidden="true" />
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-white">
                       {INTEGRATION_CONFIGS[editingIntegration].name}
                     </h2>
-                    <p className="text-sm text-zinc-400">
+                    <p className="text-sm text-secondary">
                       {INTEGRATION_CONFIGS[editingIntegration].description}
                     </p>
-                    <p className="mt-1 text-[11px] text-zinc-500">
+                    <p className="mt-1 text-[11px] text-tertiary">
                       Org-wide default. Agents can override from their profile.
                     </p>
                   </div>
@@ -485,7 +485,7 @@ export default function IntegrationsPage() {
                 <button
                   onClick={closeEditor}
                   aria-label="Close"
-                  className="rounded p-1 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                  className="rounded p-1 text-secondary transition-colors hover:bg-white/5 hover:text-white"
                 >
                   <X size={20} />
                 </button>
@@ -496,7 +496,7 @@ export default function IntegrationsPage() {
                   <div key={field.key}>
                     {field.type === 'toggle' ? (
                       <div className="flex items-center justify-between py-1">
-                        <label className="text-sm font-medium text-zinc-300">{field.label}</label>
+                        <label className="text-sm font-medium text-secondary">{field.label}</label>
                         <button
                           type="button"
                           role="switch"
@@ -516,9 +516,9 @@ export default function IntegrationsPage() {
                       </div>
                     ) : (
                       <>
-                        <label htmlFor={`field-${field.key}`} className="mb-1 block text-sm font-medium text-zinc-300">
+                        <label htmlFor={`field-${field.key}`} className="mb-1 block text-sm font-medium text-secondary">
                           {field.label}
-                          {field.required && <span aria-label="required" className="ml-1 text-red-400">*</span>}
+                          {field.required && <span aria-label="required" className="ml-1 text-error">*</span>}
                         </label>
                         <div className="relative">
                           <input
@@ -527,20 +527,20 @@ export default function IntegrationsPage() {
                             value={formData[field.key] || ''}
                             onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
                             placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
-                            className="w-full rounded-lg border border-border bg-surface-tertiary px-4 py-2.5 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+                            className="w-full rounded-lg border border-border bg-surface-tertiary px-4 py-2.5 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
                           />
                           {field.type === 'password' && (
                             <button
                               type="button"
                               onClick={() => toggleShowValue(field.key)}
                               aria-label={showValues[field.key] ? 'Hide value' : 'Show value'}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors hover:text-white"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary transition-colors hover:text-white"
                             >
                               {showValues[field.key] ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
                           )}
                         </div>
-                        <p className="mt-1 font-mono text-[11px] text-zinc-500">
+                        <p className="mt-1 font-mono text-[11px] text-tertiary">
                           {field.key}
                         </p>
                       </>
@@ -555,10 +555,10 @@ export default function IntegrationsPage() {
                   role="status"
                   className={`mt-4 rounded-lg border p-3 text-sm ${
                     testResult.status === 'success'
-                      ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                      ? 'border-success/30 bg-success-subtle text-success'
                       : testResult.status === 'error'
-                      ? 'border-red-500/30 bg-red-500/10 text-red-400'
-                      : 'border-border bg-surface-tertiary text-zinc-300'
+                      ? 'border-error/30 bg-error-subtle text-error'
+                      : 'border-border bg-surface-tertiary text-secondary'
                   }`}
                 >
                   {testResult.message}
@@ -569,7 +569,7 @@ export default function IntegrationsPage() {
               <div className="mt-6 flex gap-3">
                 <button
                   onClick={testConnection}
-                  className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                  className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
                   Test connection
                 </button>
@@ -590,17 +590,17 @@ export default function IntegrationsPage() {
       <Card hover={false} className="mt-8">
         <CardHeader title="About settings" icon={Info} />
         <CardContent>
-          <div className="space-y-2 text-sm text-zinc-300">
+          <div className="space-y-2 text-sm text-secondary">
             <p className="flex items-center gap-2">
-              <Shield size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
+              <Shield size={14} className="shrink-0 text-secondary" aria-hidden="true" />
               <span><strong className="text-white">Security:</strong> Sensitive values are encrypted and masked in the UI</span>
             </p>
             <p className="flex items-center gap-2">
-              <Cloud size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
+              <Cloud size={14} className="shrink-0 text-secondary" aria-hidden="true" />
               <span><strong className="text-white">Cloud sync:</strong> Settings are stored in your Neon database</span>
             </p>
             <p className="flex items-center gap-2">
-              <Settings size={14} className="shrink-0 text-zinc-400" aria-hidden="true" />
+              <Settings size={14} className="shrink-0 text-secondary" aria-hidden="true" />
               <span><strong className="text-white">Environment:</strong> For agent gateway settings, update your config file</span>
             </p>
           </div>

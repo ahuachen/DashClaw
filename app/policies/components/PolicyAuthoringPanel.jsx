@@ -14,7 +14,7 @@ function PolicyAgentScope({ agentIds, setAgentIds, agents }) {
 
   return (
     <div>
-      <label className="block text-xs text-zinc-400 mb-2 flex items-center gap-1.5">
+      <label className="block text-xs text-secondary mb-2 flex items-center gap-1.5">
         <Users size={12} />
         Agent Scope
       </label>
@@ -25,12 +25,12 @@ function PolicyAgentScope({ agentIds, setAgentIds, agents }) {
           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             isAllAgents
               ? 'bg-brand text-white'
-              : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+              : 'bg-[#1a1a1a] text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white'
           }`}
         >
           All Agents
         </button>
-        <span className="text-[10px] text-zinc-600">or pick specific agents:</span>
+        <span className="text-[10px] text-disabled">or pick specific agents:</span>
       </div>
       {agents.length > 0 ? (
         <div className="flex flex-wrap gap-2">
@@ -42,7 +42,7 @@ function PolicyAgentScope({ agentIds, setAgentIds, agents }) {
               className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
                 agentIds.includes(agent.agent_id)
                   ? 'bg-brand text-white'
-                  : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+                  : 'bg-[#1a1a1a] text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white'
               }`}
             >
               {agent.agent_name || agent.agent_id}
@@ -50,7 +50,7 @@ function PolicyAgentScope({ agentIds, setAgentIds, agents }) {
           ))}
         </div>
       ) : (
-        <p className="text-[10px] text-zinc-600">No agents discovered yet. Policies will apply to all agents by default.</p>
+        <p className="text-[10px] text-disabled">No agents discovered yet. Policies will apply to all agents by default.</p>
       )}
     </div>
   );

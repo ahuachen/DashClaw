@@ -6,17 +6,17 @@ import { Activity, Clock, AlertTriangle, Workflow, Zap } from 'lucide-react';
 function MetricRow({ icon: Icon, label, value, sub, color = 'text-white' }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon size={13} className="flex-shrink-0 text-zinc-500" />
-      <span className="flex-1 text-[11px] text-zinc-500">{label}</span>
+      <Icon size={13} className="flex-shrink-0 text-tertiary" />
+      <span className="flex-1 text-[11px] text-tertiary">{label}</span>
       <span className={`text-xs font-semibold tabular-nums ${color}`}>{value}</span>
-      {sub && <span className="text-[11px] tabular-nums text-zinc-500">{sub}</span>}
+      {sub && <span className="text-[11px] tabular-nums text-tertiary">{sub}</span>}
     </div>
   );
 }
 
 function Header() {
   return (
-    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Runtime</div>
+    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Runtime</div>
   );
 }
 
@@ -49,7 +49,7 @@ export default function RuntimeSummaryCard() {
     return (
       <div className="space-y-4 p-5">
         <Header />
-        <div className="text-xs text-zinc-500">Unable to load runtime metrics.</div>
+        <div className="text-xs text-tertiary">Unable to load runtime metrics.</div>
       </div>
     );
   }
@@ -58,16 +58,16 @@ export default function RuntimeSummaryCard() {
     return (
       <div className="space-y-4 p-5">
         <Header />
-        <div className="text-sm text-zinc-500">Loading…</div>
+        <div className="text-sm text-tertiary">Loading…</div>
       </div>
     );
   }
 
   const approvalColor = data.approval_backlog.pending_count > 0
-    ? (data.approval_backlog.oldest_minutes > 240 ? 'text-red-400' : 'text-amber-400')
-    : 'text-emerald-400';
+    ? (data.approval_backlog.oldest_minutes > 240 ? 'text-error' : 'text-warning')
+    : 'text-success';
 
-  const workflowFailColor = data.workflows.failed_24h > 0 ? 'text-red-400' : 'text-emerald-400';
+  const workflowFailColor = data.workflows.failed_24h > 0 ? 'text-error' : 'text-success';
 
   return (
     <div className="space-y-4 p-5">
@@ -94,7 +94,7 @@ export default function RuntimeSummaryCard() {
           label="Capabilities"
           value={`${data.capabilities.healthy}/${data.capabilities.healthy + data.capabilities.degraded + data.capabilities.failing}`}
           sub={data.capabilities.failing > 0 ? `${data.capabilities.failing} failing` : ''}
-          color={data.capabilities.failing > 0 ? 'text-red-400' : 'text-emerald-400'}
+          color={data.capabilities.failing > 0 ? 'text-error' : 'text-success'}
         />
       </div>
     </div>

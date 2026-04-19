@@ -7,7 +7,7 @@ import WorkflowVariableInsertButton from './WorkflowVariableInsertButton.jsx';
 import { buildWorkflowStepSummary, insertVariableToken, WORKFLOW_STEP_TYPES } from '../lib/workflowStepFormModel.js';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
-const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
+const labelClass = 'block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5';
 
 function bodyObjectToRows(body) {
   return Object.entries(body || {}).map(([key, value]) => ({
@@ -102,22 +102,22 @@ export default function WorkflowStepCard({
             <Badge variant="success" size="xs">{titleForType(step.type)}</Badge>
           </div>
           <div className="mt-2 text-sm font-medium text-white">{step.name}</div>
-          <p className="mt-1 text-xs text-zinc-400">{summary}</p>
+          <p className="mt-1 text-xs text-secondary">{summary}</p>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
-          <button type="button" onClick={() => setCollapsed((value) => !value)} className="p-2 text-zinc-500 hover:text-white transition-colors" aria-label={collapsed ? 'Expand step' : 'Collapse step'}>
+          <button type="button" onClick={() => setCollapsed((value) => !value)} className="p-2 text-tertiary hover:text-white transition-colors" aria-label={collapsed ? 'Expand step' : 'Collapse step'}>
             {collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
-          <button type="button" onClick={onMoveUp} disabled={index === 0} className="p-2 text-zinc-500 hover:text-white transition-colors disabled:opacity-30" aria-label="Move step up">
+          <button type="button" onClick={onMoveUp} disabled={index === 0} className="p-2 text-tertiary hover:text-white transition-colors disabled:opacity-30" aria-label="Move step up">
             <MoveUp size={14} />
           </button>
-          <button type="button" onClick={onMoveDown} disabled={index === total - 1} className="p-2 text-zinc-500 hover:text-white transition-colors disabled:opacity-30" aria-label="Move step down">
+          <button type="button" onClick={onMoveDown} disabled={index === total - 1} className="p-2 text-tertiary hover:text-white transition-colors disabled:opacity-30" aria-label="Move step down">
             <MoveDown size={14} />
           </button>
-          <button type="button" onClick={onDuplicate} className="p-2 text-zinc-500 hover:text-white transition-colors" aria-label="Duplicate step">
+          <button type="button" onClick={onDuplicate} className="p-2 text-tertiary hover:text-white transition-colors" aria-label="Duplicate step">
             <Copy size={14} />
           </button>
-          <button type="button" onClick={onDelete} className="p-2 text-zinc-500 hover:text-red-400 transition-colors" aria-label="Delete step">
+          <button type="button" onClick={onDelete} className="p-2 text-tertiary hover:text-error transition-colors" aria-label="Delete step">
             <Trash2 size={14} />
           </button>
         </div>
@@ -154,7 +154,7 @@ export default function WorkflowStepCard({
                   ))}
                 </select>
                 {step.config.collection_id && resourceLookups?.knowledgeCollections?.[step.config.collection_id] && (
-                  <p className="mt-2 text-xs text-zinc-500">{resourceLookups.knowledgeCollections[step.config.collection_id]}</p>
+                  <p className="mt-2 text-xs text-tertiary">{resourceLookups.knowledgeCollections[step.config.collection_id]}</p>
                 )}
               </div>
               <div>
@@ -203,7 +203,7 @@ export default function WorkflowStepCard({
                   ))}
                 </select>
                 {step.config.capability_id && resourceLookups?.capabilities?.[step.config.capability_id] && (
-                  <p className="mt-2 text-xs text-zinc-500">{resourceLookups.capabilities[step.config.capability_id]}</p>
+                  <p className="mt-2 text-xs text-tertiary">{resourceLookups.capabilities[step.config.capability_id]}</p>
                 )}
               </div>
               <div>
@@ -212,14 +212,14 @@ export default function WorkflowStepCard({
                   <button
                     type="button"
                     onClick={() => updateBodyRow([...bodyRows, { key: '', value: '' }])}
-                    className="px-2.5 py-1 rounded-lg bg-white/5 text-xs text-zinc-300 hover:bg-white/10 transition-colors"
+                    className="px-2.5 py-1 rounded-lg bg-white/5 text-xs text-secondary hover:bg-white/10 transition-colors"
                   >
                     Add payload field
                   </button>
                 </div>
                 <div className="space-y-2">
                   {bodyRows.length === 0 ? (
-                    <p className="text-xs text-zinc-500">No payload fields yet. Add key/value fields for the capability request body.</p>
+                    <p className="text-xs text-tertiary">No payload fields yet. Add key/value fields for the capability request body.</p>
                   ) : bodyRows.map((row, rowIndex) => (
                     <div key={`${step.id}-payload-${rowIndex}`} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                       <input
@@ -257,7 +257,7 @@ export default function WorkflowStepCard({
                       <button
                         type="button"
                         onClick={() => updateBodyRow(bodyRows.filter((_, candidateIndex) => candidateIndex !== rowIndex))}
-                        className="px-3 py-2 rounded-lg bg-red-500/10 text-red-400 text-xs hover:bg-red-500/20 transition-colors"
+                        className="px-3 py-2 rounded-lg bg-error-subtle text-error text-xs hover:bg-error-subtle transition-colors"
                       >
                         Remove
                       </button>
@@ -364,7 +364,7 @@ export default function WorkflowStepCard({
                   <button
                     type="button"
                     onClick={() => { setShowCondition(false); updateStep({ condition: '' }); }}
-                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                    className="text-[10px] text-tertiary hover:text-secondary transition-colors"
                   >
                     Remove
                   </button>
@@ -383,7 +383,7 @@ export default function WorkflowStepCard({
                     onInsert={(token) => updateStep({ condition: insertVariableToken(step.condition || '', token) })}
                   />
                 </div>
-                <p className="text-[10px] text-zinc-600 mt-1">Step is skipped if this resolves to empty, 0, false, or null.</p>
+                <p className="text-[10px] text-disabled mt-1">Step is skipped if this resolves to empty, 0, false, or null.</p>
               </div>
             )}
 
@@ -394,7 +394,7 @@ export default function WorkflowStepCard({
                 onChange={(e) => updateStep({ continue_on_failure: e.target.checked })}
                 className="rounded border-white/20 bg-surface-tertiary text-brand focus:ring-brand/30"
               />
-              <span className="text-xs text-zinc-400">Continue on failure</span>
+              <span className="text-xs text-secondary">Continue on failure</span>
             </label>
           </div>
 

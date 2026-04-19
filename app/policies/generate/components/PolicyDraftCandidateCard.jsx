@@ -1,7 +1,7 @@
 function confidenceTone(confidence) {
-  if (confidence >= 0.9) return 'text-emerald-400';
-  if (confidence >= 0.7) return 'text-amber-400';
-  return 'text-red-400';
+  if (confidence >= 0.9) return 'text-success';
+  if (confidence >= 0.7) return 'text-warning';
+  return 'text-error';
 }
 
 export default function PolicyDraftCandidateCard({
@@ -22,7 +22,7 @@ export default function PolicyDraftCandidateCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-sm font-medium text-white">{draft.name || 'Untitled draft'}</div>
-          <div className="mt-1 text-[11px] uppercase tracking-wider text-zinc-500">
+          <div className="mt-1 text-[11px] uppercase tracking-wider text-tertiary">
             {(draft.formState?.type || 'policy').replace(/_/g, ' ')}
           </div>
         </div>
@@ -32,9 +32,9 @@ export default function PolicyDraftCandidateCard({
           </div>
         )}
       </div>
-      <p className="mt-3 text-sm text-zinc-300">{draft.summary}</p>
+      <p className="mt-3 text-sm text-secondary">{draft.summary}</p>
       {draft.hasAdvancedDetails && (
-        <div className="mt-3 text-xs text-amber-400">
+        <div className="mt-3 text-xs text-warning">
           Advanced review needed
         </div>
       )}

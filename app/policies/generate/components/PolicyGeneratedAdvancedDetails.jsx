@@ -8,7 +8,7 @@ export default function PolicyGeneratedAdvancedDetails({ advancedDetails, rawPol
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="text-sm font-medium text-amber-400"
+        className="text-sm font-medium text-warning"
       >
         Advanced details
       </button>
@@ -16,16 +16,16 @@ export default function PolicyGeneratedAdvancedDetails({ advancedDetails, rawPol
         <div className="mt-4 space-y-4">
           {advancedDetails && (
             <div>
-              <div className="mb-2 text-xs uppercase tracking-wider text-zinc-500">Normalized advanced details</div>
-              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-zinc-300">
+              <div className="mb-2 text-xs uppercase tracking-wider text-tertiary">Normalized advanced details</div>
+              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-secondary">
                 {JSON.stringify(advancedDetails, null, 2)}
               </pre>
             </div>
           )}
           {rawPolicy && (
             <div>
-              <div className="mb-2 text-xs uppercase tracking-wider text-zinc-500">Raw generated policy</div>
-              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-zinc-300">
+              <div className="mb-2 text-xs uppercase tracking-wider text-tertiary">Raw generated policy</div>
+              <pre className="overflow-x-auto rounded-lg bg-[#111] p-3 text-xs text-secondary">
                 {JSON.stringify(rawPolicy, null, 2)}
               </pre>
             </div>

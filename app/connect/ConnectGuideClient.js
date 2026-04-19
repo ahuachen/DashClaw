@@ -22,7 +22,7 @@ function CopyButton({ value }) {
       onClick={handleCopy}
       className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
     >
-      {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+      {copied ? <Check size={12} className="text-success" /> : <Copy size={12} />}
       {copied ? 'Copied' : 'Copy'}
     </button>
   );
@@ -153,7 +153,7 @@ export default function ConnectGuideClient({ content }) {
         summary="Set the minimum connection values in the agent runtime. The agent only talks to the DashClaw HTTP API."
       >
         <CodeCard title={`${language.label} environment`} body={language.envBlock} tone="accent" />
-        <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+        <div className="mt-4 rounded-2xl border border-warning/20 bg-amber-500/5 p-4">
           <p className="text-sm text-amber-100">{content.envNote}</p>
         </div>
       </StepSection>

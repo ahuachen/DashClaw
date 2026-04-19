@@ -73,7 +73,7 @@ export default function NewModelStrategyPage() {
       actions={
         <Link
           href="/model-strategies"
-          className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+          className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:text-white"
         >
           <ArrowLeft size={14} /> Back
         </Link>
@@ -134,13 +134,13 @@ export default function NewModelStrategyPage() {
             }))
           }
         >
-          <div className="text-sm text-zinc-400">
+          <div className="text-sm text-secondary">
             Use task-mode overrides when only specific classes of work need a different model.
           </div>
         </ModelStrategyAdvancedSection>
 
         {error ? (
-          <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          <div className="rounded-lg border border-error/20 bg-error-subtle px-4 py-3 text-sm text-error">
             {error}
           </div>
         ) : null}
@@ -153,7 +153,7 @@ export default function NewModelStrategyPage() {
           >
             <Save size={14} /> {saving ? 'Creating...' : 'Create Strategy'}
           </button>
-          <Link href="/model-strategies" className="px-4 py-2 text-sm text-zinc-400 transition-colors hover:text-white">
+          <Link href="/model-strategies" className="px-4 py-2 text-sm text-secondary transition-colors hover:text-white">
             Cancel
           </Link>
         </div>

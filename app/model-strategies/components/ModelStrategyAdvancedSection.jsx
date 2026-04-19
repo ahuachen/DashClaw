@@ -12,7 +12,7 @@ function TaskModeOverrideRow({ override, index, onChange, onProviderChange, onRe
   return (
     <div className="grid grid-cols-1 gap-3 rounded-lg border border-white/10 bg-black/20 p-3 md:grid-cols-[1fr_1fr_1fr_auto]">
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-tertiary">
           Task mode
         </label>
         <input
@@ -25,7 +25,7 @@ function TaskModeOverrideRow({ override, index, onChange, onProviderChange, onRe
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-tertiary">
           Provider
         </label>
         <select
@@ -42,7 +42,7 @@ function TaskModeOverrideRow({ override, index, onChange, onProviderChange, onRe
         </select>
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-tertiary">
           Model
         </label>
         <select
@@ -62,7 +62,7 @@ function TaskModeOverrideRow({ override, index, onChange, onProviderChange, onRe
         <button
           type="button"
           onClick={() => onRemove(index)}
-          className="rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/5"
+          className="rounded-lg border border-white/10 px-3 py-2 text-xs text-secondary hover:bg-white/5"
         >
           Remove
         </button>
@@ -128,10 +128,10 @@ export default function ModelStrategyAdvancedSection({
     <div className="rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <div className="text-xs font-medium uppercase tracking-wider text-secondary">
             Advanced task-mode overrides
           </div>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-tertiary">
             Optional per-task overrides and raw fallback live here. Most strategies do not need this.
           </p>
         </div>
@@ -144,7 +144,7 @@ export default function ModelStrategyAdvancedSection({
         </button>
       </div>
       {warning ? (
-        <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+        <div className="mt-4 rounded-lg border border-warning/20 bg-warning-subtle px-3 py-2 text-sm text-warning">
           {warning}
         </div>
       ) : null}
@@ -153,7 +153,7 @@ export default function ModelStrategyAdvancedSection({
           {onTaskModesChange ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+                <div className="text-xs font-medium uppercase tracking-wider text-secondary">
                   Task-mode overrides
                 </div>
                 <button
@@ -176,7 +176,7 @@ export default function ModelStrategyAdvancedSection({
                   />
                 ))
               ) : (
-                <div className="text-sm text-zinc-500">
+                <div className="text-sm text-tertiary">
                   No task-mode overrides configured.
                 </div>
               )}
@@ -199,7 +199,7 @@ export default function ModelStrategyAdvancedSection({
                   onChange={(event) => onRawConfigTextChange?.(event.target.value)}
                   rows={12}
                   spellCheck={false}
-                  className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-xs text-zinc-200 focus:border-brand focus:outline-none"
+                  className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-xs text-secondary focus:border-brand focus:outline-none"
                 />
               ) : null}
             </div>

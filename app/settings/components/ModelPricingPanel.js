@@ -146,7 +146,7 @@ export default function ModelPricingPanel() {
   if (loading) {
     return (
       <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-8">
-        <p className="text-sm text-zinc-500">Loading pricing configuration...</p>
+        <p className="text-sm text-tertiary">Loading pricing configuration...</p>
       </div>
     );
   }
@@ -158,7 +158,7 @@ export default function ModelPricingPanel() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h3 className="text-sm font-semibold text-white">Model Pricing</h3>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-tertiary">
               Configure per-model token pricing used for cost estimation when agents report actions.
               Prices are in USD per million tokens. The pattern field is matched against the model name reported by agents.
             </p>
@@ -166,7 +166,7 @@ export default function ModelPricingPanel() {
           <div className="flex gap-2">
             <button
               onClick={resetToDefaults}
-              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 transition-colors"
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-white/10 text-secondary hover:text-white hover:border-white/20 transition-colors"
             >
               Reset to Defaults
             </button>
@@ -183,8 +183,8 @@ export default function ModelPricingPanel() {
         {status && (
           <div className={`mt-4 px-4 py-2 rounded-lg text-xs ${
             status.type === 'success'
-              ? 'bg-emerald-950/30 border border-emerald-900/40 text-emerald-300'
-              : 'bg-red-950/30 border border-red-900/40 text-red-300'
+              ? 'bg-emerald-950/30 border border-emerald-900/40 text-success'
+              : 'bg-red-950/30 border border-red-900/40 text-error'
           }`}>
             {status.message}
           </div>
@@ -196,11 +196,11 @@ export default function ModelPricingPanel() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/5">
-              <th className="px-5 py-3 text-left text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Pattern</th>
-              <th className="px-5 py-3 text-left text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Label</th>
-              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Input $/M</th>
-              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-zinc-600 font-medium">Output $/M</th>
-              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-zinc-600 font-medium w-24">Actions</th>
+              <th className="px-5 py-3 text-left text-[10px] uppercase tracking-widest text-disabled font-medium">Pattern</th>
+              <th className="px-5 py-3 text-left text-[10px] uppercase tracking-widest text-disabled font-medium">Label</th>
+              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-disabled font-medium">Input $/M</th>
+              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-disabled font-medium">Output $/M</th>
+              <th className="px-5 py-3 text-right text-[10px] uppercase tracking-widest text-disabled font-medium w-24">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04]">
@@ -213,7 +213,7 @@ export default function ModelPricingPanel() {
                         type="text"
                         value={editRow.pattern}
                         onChange={(e) => setEditRow({ ...editRow, pattern: e.target.value })}
-                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono text-zinc-200 focus:border-brand/50 focus:outline-none"
+                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono text-secondary focus:border-brand/50 focus:outline-none"
                       />
                     </td>
                     <td className="px-5 py-2">
@@ -221,7 +221,7 @@ export default function ModelPricingPanel() {
                         type="text"
                         value={editRow.label}
                         onChange={(e) => setEditRow({ ...editRow, label: e.target.value })}
-                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-zinc-200 focus:border-brand/50 focus:outline-none"
+                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-secondary focus:border-brand/50 focus:outline-none"
                       />
                     </td>
                     <td className="px-5 py-2">
@@ -231,7 +231,7 @@ export default function ModelPricingPanel() {
                         min="0"
                         value={editRow.input}
                         onChange={(e) => setEditRow({ ...editRow, input: e.target.value })}
-                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-zinc-200 focus:border-brand/50 focus:outline-none"
+                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-secondary focus:border-brand/50 focus:outline-none"
                       />
                     </td>
                     <td className="px-5 py-2">
@@ -241,23 +241,23 @@ export default function ModelPricingPanel() {
                         min="0"
                         value={editRow.output}
                         onChange={(e) => setEditRow({ ...editRow, output: e.target.value })}
-                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-zinc-200 focus:border-brand/50 focus:outline-none"
+                        className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-secondary focus:border-brand/50 focus:outline-none"
                       />
                     </td>
                     <td className="px-5 py-2 text-right">
-                      <button onClick={confirmEdit} className="text-xs text-emerald-400 hover:text-emerald-300 mr-2">Save</button>
-                      <button onClick={cancelEdit} className="text-xs text-zinc-500 hover:text-zinc-300">Cancel</button>
+                      <button onClick={confirmEdit} className="text-xs text-success hover:text-success mr-2">Save</button>
+                      <button onClick={cancelEdit} className="text-xs text-tertiary hover:text-secondary">Cancel</button>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-5 py-3 text-xs font-mono text-zinc-300">{row.pattern}</td>
-                    <td className="px-5 py-3 text-xs text-zinc-400">{row.label}</td>
-                    <td className="px-5 py-3 text-xs text-right font-mono text-zinc-300">${row.input.toFixed(2)}</td>
-                    <td className="px-5 py-3 text-xs text-right font-mono text-zinc-300">${row.output.toFixed(2)}</td>
+                    <td className="px-5 py-3 text-xs font-mono text-secondary">{row.pattern}</td>
+                    <td className="px-5 py-3 text-xs text-secondary">{row.label}</td>
+                    <td className="px-5 py-3 text-xs text-right font-mono text-secondary">${row.input.toFixed(2)}</td>
+                    <td className="px-5 py-3 text-xs text-right font-mono text-secondary">${row.output.toFixed(2)}</td>
                     <td className="px-5 py-3 text-right">
-                      <button onClick={() => startEdit(idx)} className="text-xs text-zinc-600 hover:text-zinc-300 mr-2 opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
-                      <button onClick={() => deleteRow(idx)} className="text-xs text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>
+                      <button onClick={() => startEdit(idx)} className="text-xs text-disabled hover:text-secondary mr-2 opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+                      <button onClick={() => deleteRow(idx)} className="text-xs text-disabled hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">Delete</button>
                     </td>
                   </>
                 )}
@@ -272,7 +272,7 @@ export default function ModelPricingPanel() {
                   placeholder="e.g. deepseek"
                   value={newRow.pattern}
                   onChange={(e) => setNewRow({ ...newRow, pattern: e.target.value })}
-                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono text-zinc-200 placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
+                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs font-mono text-secondary placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
                 />
               </td>
               <td className="px-5 py-2">
@@ -281,7 +281,7 @@ export default function ModelPricingPanel() {
                   placeholder="Display name"
                   value={newRow.label}
                   onChange={(e) => setNewRow({ ...newRow, label: e.target.value })}
-                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-zinc-200 placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
+                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-secondary placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
                 />
               </td>
               <td className="px-5 py-2">
@@ -292,7 +292,7 @@ export default function ModelPricingPanel() {
                   placeholder="0.00"
                   value={newRow.input}
                   onChange={(e) => setNewRow({ ...newRow, input: e.target.value })}
-                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-zinc-200 placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
+                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-secondary placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
                 />
               </td>
               <td className="px-5 py-2">
@@ -303,7 +303,7 @@ export default function ModelPricingPanel() {
                   placeholder="0.00"
                   value={newRow.output}
                   onChange={(e) => setNewRow({ ...newRow, output: e.target.value })}
-                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-zinc-200 placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
+                  className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-right font-mono text-secondary placeholder:text-zinc-700 focus:border-brand/50 focus:outline-none"
                 />
               </td>
               <td className="px-5 py-2 text-right">
@@ -322,13 +322,13 @@ export default function ModelPricingPanel() {
 
       {/* Info panel */}
       <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3">How pricing works</div>
-        <div className="space-y-2 text-xs text-zinc-500">
+        <div className="text-[10px] font-bold text-disabled uppercase tracking-widest mb-3">How pricing works</div>
+        <div className="space-y-2 text-xs text-tertiary">
           <p>
-            When an agent reports an action with <code className="text-zinc-400 bg-black/40 px-1 rounded">tokens_in</code> and <code className="text-zinc-400 bg-black/40 px-1 rounded">tokens_out</code> but no explicit cost, DashClaw estimates the cost using these prices.
+            When an agent reports an action with <code className="text-secondary bg-black/40 px-1 rounded">tokens_in</code> and <code className="text-secondary bg-black/40 px-1 rounded">tokens_out</code> but no explicit cost, DashClaw estimates the cost using these prices.
           </p>
           <p>
-            The <strong className="text-zinc-400">pattern</strong> is matched against the model name (case-insensitive substring match). Patterns are evaluated top-to-bottom; the first match wins.
+            The <strong className="text-secondary">pattern</strong> is matched against the model name (case-insensitive substring match). Patterns are evaluated top-to-bottom; the first match wins.
           </p>
           <p>
             If no pattern matches, the first entry is used as fallback pricing.

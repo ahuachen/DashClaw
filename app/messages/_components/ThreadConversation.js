@@ -154,33 +154,33 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
       {/* Thread header */}
       <div className="border-b border-[rgba(255,255,255,0.06)] pb-3 mb-3">
         <div className="flex items-center gap-2 mb-1">
-          <Hash size={14} className="text-zinc-400" />
+          <Hash size={14} className="text-secondary" />
           <span className="text-sm font-semibold text-white">{thread.name}</span>
           <Badge variant={thread.status === 'open' ? 'success' : 'default'} size="xs">
             {thread.status}
           </Badge>
-          <span className="text-xs text-zinc-500">{thread.message_count || messages.length} messages</span>
+          <span className="text-xs text-tertiary">{thread.message_count || messages.length} messages</span>
         </div>
         {participants.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {participants.map(p => (
-              <span key={p} className="text-xs px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.06)] text-zinc-400">
+              <span key={p} className="text-xs px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.06)] text-secondary">
                 {p}
               </span>
             ))}
           </div>
         )}
         {thread.summary && (
-          <div className="text-xs text-zinc-500 mt-1">{thread.summary}</div>
+          <div className="text-xs text-tertiary mt-1">{thread.summary}</div>
         )}
       </div>
 
       {/* Messages timeline */}
       <div ref={containerRef} className={`flex-1 overflow-y-auto space-y-3 min-h-0 pr-1 ${fullWidth ? 'max-h-[calc(100vh-340px)]' : 'max-h-[500px]'}`}>
         {loading ? (
-          <div className="text-center text-zinc-500 py-8 text-sm">Loading conversation...</div>
+          <div className="text-center text-tertiary py-8 text-sm">Loading conversation...</div>
         ) : messages.length === 0 ? (
-          <div className="text-center text-zinc-500 py-8 text-sm">No messages in this thread yet.</div>
+          <div className="text-center text-tertiary py-8 text-sm">No messages in this thread yet.</div>
         ) : (
           messages.map((msg, idx) => {
             const fromAgentId = msg.from_agent_id || msg.sender_id || 'unknown';
@@ -196,7 +196,7 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                 {showDateSep && (
                   <div className="flex items-center gap-3 py-2">
                     <div className="flex-1 h-px bg-[rgba(255,255,255,0.06)]" />
-                    <span className="text-xs text-zinc-500 font-medium">{curDate}</span>
+                    <span className="text-xs text-tertiary font-medium">{curDate}</span>
                     <div className="flex-1 h-px bg-[rgba(255,255,255,0.06)]" />
                   </div>
                 )}
@@ -208,12 +208,12 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                   </div>
                   <div className={`flex-1 min-w-0 ${fullWidth ? 'max-w-[75%]' : 'max-w-[85%]'} ${isDashboard ? 'text-right' : ''}`}>
                     <div className={`flex items-center gap-1.5 mb-0.5 ${isDashboard ? 'justify-end' : ''}`}>
-                      <span className="text-xs font-medium text-zinc-300">{fromAgentId}</span>
+                      <span className="text-xs font-medium text-secondary">{fromAgentId}</span>
                       <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
                         {messageType}
                       </Badge>
-                      {msg.urgent && <AlertCircle size={10} className="text-red-400" />}
-                      <span className="text-xs text-zinc-600">{timeAgo(msg.created_at)}</span>
+                      {msg.urgent && <AlertCircle size={10} className="text-error" />}
+                      <span className="text-xs text-disabled">{timeAgo(msg.created_at)}</span>
                     </div>
                     <div className={`relative rounded-lg p-2.5 ${
                       isDashboard
@@ -228,14 +228,14 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                             const ok = await copyToClipboard(body);
                             if (ok) { setCopiedId(msg.id); setTimeout(() => setCopiedId(null), 2000); }
                           }}
-                          className={`absolute top-1.5 ${isDashboard ? 'left-1.5' : 'right-1.5'} opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-[rgba(0,0,0,0.3)] text-zinc-400 hover:text-zinc-200`}
+                          className={`absolute top-1.5 ${isDashboard ? 'left-1.5' : 'right-1.5'} opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-[rgba(0,0,0,0.3)] text-secondary hover:text-secondary`}
                           title="Copy message"
                         >
                           <Copy size={10} />
                         </button>
                       )}
                       {copiedId === msg.id && (
-                        <span className={`absolute top-1.5 ${isDashboard ? 'left-8' : 'right-8'} text-xs text-emerald-400`}>
+                        <span className={`absolute top-1.5 ${isDashboard ? 'left-8' : 'right-8'} text-xs text-success`}>
                           Copied!
                         </span>
                       )}
@@ -247,7 +247,7 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
           })
         )}
         {thread.status === 'resolved' && (
-          <div className="flex items-center gap-2 py-2 px-3 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+          <div className="flex items-center gap-2 py-2 px-3 rounded-md bg-success-subtle border border-success/20 text-success text-xs">
             Thread resolved
           </div>
         )}
@@ -257,7 +257,7 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
       {/* Reply bar */}
       <div className="border-t border-[rgba(255,255,255,0.06)] pt-3 mt-3">
         {isDemo ? (
-          <div className="text-xs text-zinc-500 text-center py-2">Reply is disabled in demo mode</div>
+          <div className="text-xs text-tertiary text-center py-2">Reply is disabled in demo mode</div>
         ) : (
           <div>
             <div className="flex gap-2">
@@ -273,13 +273,13 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
                 placeholder="Reply to thread..."
                 maxLength={2000}
                 rows={2}
-                className="flex-1 px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-zinc-200 placeholder:text-zinc-600 resize-none"
+                className="flex-1 px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-secondary placeholder:text-disabled resize-none"
               />
               <div className="flex flex-col gap-1 self-end">
                 <button
                   onClick={() => replyFileRef.current?.click()}
                   disabled={replyAttachments.length >= 3}
-                  className="px-2 py-2 rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-400 hover:text-zinc-200 disabled:opacity-40 transition-colors"
+                  className="px-2 py-2 rounded-md bg-[rgba(255,255,255,0.06)] text-secondary hover:text-secondary disabled:opacity-40 transition-colors"
                   title="Attach file"
                 >
                   <Paperclip size={14} />
@@ -303,10 +303,10 @@ export default function ThreadConversation({ thread, filterAgentId, onNewMessage
             {replyAttachments.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {replyAttachments.map((att, idx) => (
-                  <span key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">
-                    <Paperclip size={9} className="text-zinc-400" />
+                  <span key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] text-xs text-secondary">
+                    <Paperclip size={9} className="text-secondary" />
                     <span className="truncate max-w-[80px]">{att.filename}</span>
-                    <button onClick={() => setReplyAttachments(prev => prev.filter((_, i) => i !== idx))} className="text-zinc-500 hover:text-red-400">
+                    <button onClick={() => setReplyAttachments(prev => prev.filter((_, i) => i !== idx))} className="text-tertiary hover:text-error">
                       <X size={9} />
                     </button>
                   </span>

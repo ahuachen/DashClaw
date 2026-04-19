@@ -221,7 +221,7 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
         </div>
         <button
           onClick={() => setIsCustomizeOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 bg-surface-tertiary border border-border rounded-lg transition-colors ml-4 shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-secondary hover:text-secondary bg-surface-tertiary border border-border rounded-lg transition-colors ml-4 shrink-0"
         >
           <LayoutGrid size={14} />
           Customize
@@ -274,11 +274,11 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-white">Customize Dashboard</h2>
-                <p className="text-sm text-zinc-400 mt-1">Choose which tiles appear on your dashboard</p>
+                <p className="text-sm text-secondary mt-1">Choose which tiles appear on your dashboard</p>
               </div>
               <button 
                 onClick={() => setIsCustomizeOpen(false)}
-                className="p-2 text-zinc-500 hover:text-white transition-colors"
+                className="p-2 text-tertiary hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -301,7 +301,7 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`text-sm font-medium ${isVisible ? 'text-white' : 'text-zinc-400'}`}>
+                        <span className={`text-sm font-medium ${isVisible ? 'text-white' : 'text-secondary'}`}>
                           {label}
                         </span>
                         <div className="flex items-center gap-2">
@@ -309,10 +309,10 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
                             {isVisible ? (
                               <span className="text-brand">Visible</span>
                             ) : (
-                              <span className="text-zinc-600">Hidden</span>
+                              <span className="text-disabled">Hidden</span>
                             )}
                           </span>
-                          <div className={`w-2 h-2 rounded-full ${isVisible ? 'bg-brand shadow-[0_0_8px_rgba(0,255,153,0.5)]' : 'bg-zinc-700'}`} />
+                          <div className={`w-2 h-2 rounded-full ${isVisible ? 'bg-brand shadow-[0_0_8px_rgba(0,255,153,0.5)]' : 'bg-elevated'}`} />
                         </div>
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function DraggableDashboard({ activePreset, onPresetApplied }) {
             <div className="p-6 border-t border-white/5 flex justify-between items-center bg-white/[0.02]">
               <button
                 onClick={resetToDefault}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1.5"
+                className="text-xs text-tertiary hover:text-secondary transition-colors flex items-center gap-1.5"
               >
                 <RotateCcw size={12} />
                 Reset to Default

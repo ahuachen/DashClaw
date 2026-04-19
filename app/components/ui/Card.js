@@ -13,8 +13,8 @@ export function CardHeader({ title, icon: Icon, action, count, children }) {
   return (
     <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
       <div className="flex min-w-0 items-center gap-2">
-        {Icon && <Icon size={14} className="shrink-0 text-zinc-500" />}
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">{title}</span>
+        {Icon && <Icon size={14} className="shrink-0 text-tertiary" />}
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{title}</span>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {count !== undefined && (

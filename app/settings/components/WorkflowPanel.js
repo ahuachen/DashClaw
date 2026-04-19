@@ -9,13 +9,13 @@ export function WorkflowPanel({ workflow }) {
     >
       <summary className="flex cursor-pointer items-center gap-3 px-5 py-4 select-none list-none [&::-webkit-details-marker]:hidden">
         {allPass ? (
-          <span className="shrink-0 text-xs font-bold text-emerald-400">OK</span>
+          <span className="shrink-0 text-xs font-bold text-success">OK</span>
         ) : (
-          <span className="shrink-0 text-xs font-bold text-zinc-400">&#8943;</span>
+          <span className="shrink-0 text-xs font-bold text-secondary">&#8943;</span>
         )}
-        <p className="min-w-0 flex-1 text-sm font-semibold text-zinc-200">Verification workflow</p>
+        <p className="min-w-0 flex-1 text-sm font-semibold text-secondary">Verification workflow</p>
         {allPass && (
-          <span className="rounded-full border border-emerald-900/40 bg-emerald-900/10 px-2.5 py-0.5 text-[10px] text-emerald-300">
+          <span className="rounded-full border border-emerald-900/40 bg-emerald-900/10 px-2.5 py-0.5 text-[10px] text-success">
             All steps complete
           </span>
         )}
@@ -28,7 +28,7 @@ export function WorkflowPanel({ workflow }) {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="shrink-0 text-zinc-500 transition-transform group-open:rotate-180"
+          className="shrink-0 text-tertiary transition-transform group-open:rotate-180"
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -45,12 +45,12 @@ export function WorkflowPanel({ workflow }) {
 
 function WorkflowStep({ step, index }) {
   const styles = {
-    pass: 'border-emerald-900/40 text-emerald-300',
-    warn: 'border-amber-900/40 text-amber-300',
-    fail: 'border-red-900/40 text-red-300',
-    blocked: 'border-red-900/40 text-red-300',
+    pass: 'border-emerald-900/40 text-success',
+    warn: 'border-amber-900/40 text-warning',
+    fail: 'border-red-900/40 text-error',
+    blocked: 'border-red-900/40 text-error',
     pending: 'border-cyan-900/40 text-cyan-300',
-  }[step.status] || 'border-[rgba(255,255,255,0.08)] text-zinc-300';
+  }[step.status] || 'border-[rgba(255,255,255,0.08)] text-secondary';
 
   return (
     <div className={`rounded-xl border bg-[#0d0d0d] p-4 ${styles}`}>
@@ -60,9 +60,9 @@ function WorkflowStep({ step, index }) {
         </div>
         <div className="min-w-0">
           <p className="text-sm font-semibold">{step.title}</p>
-          <p className="mt-1 text-xs text-zinc-300">{step.summary}</p>
-          <p className="mt-2 text-xs text-zinc-500">Proof: {step.proof}</p>
-          {step.nextAction ? <p className="mt-1 text-xs text-zinc-400">Next action: {step.nextAction}</p> : null}
+          <p className="mt-1 text-xs text-secondary">{step.summary}</p>
+          <p className="mt-2 text-xs text-tertiary">Proof: {step.proof}</p>
+          {step.nextAction ? <p className="mt-1 text-xs text-secondary">Next action: {step.nextAction}</p> : null}
         </div>
       </div>
     </div>

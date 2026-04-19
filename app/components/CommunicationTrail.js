@@ -62,15 +62,15 @@ export default function CommunicationTrail({ actionId, actingAgentId }) {
         className="w-full flex items-center gap-2 text-left group"
         aria-expanded={expanded}
       >
-        <span className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
+        <span className="text-tertiary group-hover:text-secondary transition-colors">
           {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </span>
-        <MessageSquare size={14} className="text-zinc-500 group-hover:text-zinc-300 transition-colors" />
-        <span className="text-[11px] font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-[0.18em] transition-colors">
+        <MessageSquare size={14} className="text-tertiary group-hover:text-secondary transition-colors" />
+        <span className="text-[11px] font-bold text-tertiary group-hover:text-secondary uppercase tracking-[0.18em] transition-colors">
           Communication Trail ({messages.length})
         </span>
         {correlation === 'time_window' && (
-          <span className="ml-1 text-[9px] font-bold text-amber-500/80 uppercase tracking-widest border border-amber-500/20 bg-amber-500/10 rounded px-1.5 py-0.5">
+          <span className="ml-1 text-[9px] font-bold text-warning/80 uppercase tracking-widest border border-warning/20 bg-warning-subtle rounded px-1.5 py-0.5">
             inferred from timing
           </span>
         )}
@@ -79,8 +79,8 @@ export default function CommunicationTrail({ actionId, actingAgentId }) {
       {expanded && (
         <div className="mt-3 space-y-1">
           {threadName && (
-            <div className="text-[10px] text-zinc-500 font-medium px-1 mb-2">
-              Thread: <span className="text-zinc-300">{threadName}</span>
+            <div className="text-[10px] text-tertiary font-medium px-1 mb-2">
+              Thread: <span className="text-secondary">{threadName}</span>
             </div>
           )}
 
@@ -94,7 +94,7 @@ export default function CommunicationTrail({ actionId, actingAgentId }) {
                   className={`flex flex-col ${isActing ? 'items-end' : 'items-start'}`}
                 >
                   {/* Sender label */}
-                  <span className="text-[9px] font-mono text-zinc-600 mb-0.5 px-1">
+                  <span className="text-[9px] font-mono text-disabled mb-0.5 px-1">
                     {msg.from_agent_id || 'unknown'}
                   </span>
 

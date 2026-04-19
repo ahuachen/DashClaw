@@ -23,7 +23,7 @@ export default function SetupBanner() {
       <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 text-sm">
           <Rocket size={16} className="text-brand shrink-0" />
-          <span className="text-zinc-200">
+          <span className="text-secondary">
             <strong className="text-white">Welcome to your DashClaw instance!</strong>{' '}
             Complete setup to start governing agents.
           </span>
@@ -37,7 +37,7 @@ export default function SetupBanner() {
           </Link>
           <button
             onClick={() => setShow(false)}
-            className="p-1 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1 text-secondary hover:text-secondary transition-colors"
             aria-label="Dismiss banner"
           >
             <X size={14} />

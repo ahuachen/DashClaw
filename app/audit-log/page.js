@@ -208,7 +208,7 @@ export default function AuditLogPage() {
       actions={
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
           aria-expanded={showFilters}
         >
           <Filter size={14} aria-hidden="true" />
@@ -219,11 +219,11 @@ export default function AuditLogPage() {
     >
       {/* Error banner */}
       {error && (
-        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-error/30 bg-error-subtle p-3 text-sm text-error">
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
-            className="ml-4 rounded px-2 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            className="ml-4 rounded px-2 py-0.5 text-error transition-colors hover:bg-error-subtle hover:text-error"
             aria-label="Dismiss error"
           >
             &times;
@@ -234,16 +234,16 @@ export default function AuditLogPage() {
       {/* Instrument rail */}
       <div className="mb-6 grid grid-cols-1 gap-0 overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-3 sm:divide-x sm:divide-border">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total events</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total events</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats?.total || 0}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Today</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Today</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-brand">{stats?.today || 0}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unique actors</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{stats?.unique_actors || 0}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Unique actors</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-info">{stats?.unique_actors || 0}</div>
         </div>
       </div>
 
@@ -251,14 +251,14 @@ export default function AuditLogPage() {
       {showFilters && (
         <div className="mb-6 rounded-xl border border-border bg-surface-secondary p-4">
           <div className="flex flex-wrap items-center gap-3">
-            <label htmlFor="action-filter" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <label htmlFor="action-filter" className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
               Action type
             </label>
             <select
               id="action-filter"
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="min-w-[220px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+              className="min-w-[220px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
             >
               {actionTypes.map((type) => (
                 <option key={type.value} value={type.value}>{type.label}</option>
@@ -289,13 +289,13 @@ export default function AuditLogPage() {
                   <div key={log.id} className="flex items-start gap-4 py-4">
                     {/* Icon */}
                     <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-tertiary">
-                      <ActionIcon size={14} className="text-zinc-400" aria-hidden="true" />
+                      <ActionIcon size={14} className="text-secondary" aria-hidden="true" />
                     </div>
 
                     {/* Content */}
                     <div className="min-w-0 flex-1">
                       {/* Action label */}
-                      <div className="mb-1 text-sm font-medium text-zinc-200">
+                      <div className="mb-1 text-sm font-medium text-secondary">
                         {formatActionLabel(log.action)}
                       </div>
 
@@ -310,9 +310,9 @@ export default function AuditLogPage() {
                             className="h-4 w-4 rounded-full"
                           />
                         ) : (
-                          <User size={12} className="text-zinc-500" aria-hidden="true" />
+                          <User size={12} className="text-tertiary" aria-hidden="true" />
                         )}
-                        <span className="text-xs text-zinc-400">
+                        <span className="text-xs text-secondary">
                           {getActorLabel(log)}
                         </span>
                         {(log.actor_type === 'system' || log.actor_type === 'cron') && (
@@ -323,10 +323,10 @@ export default function AuditLogPage() {
                       {/* Resource ID */}
                       {log.resource_id && (
                         <div className="mb-1 flex items-center gap-2">
-                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                             {log.resource_type}
                           </span>
-                          <code className="font-mono text-xs text-zinc-400">
+                          <code className="font-mono text-xs text-secondary">
                             {log.resource_id.length > 24
                               ? `${log.resource_id.substring(0, 24)}…`
                               : log.resource_id}
@@ -340,10 +340,10 @@ export default function AuditLogPage() {
                           <div className="space-y-1">
                             {Object.entries(details).map(([key, value]) => (
                               <div key={key} className="flex items-start gap-3">
-                                <span className="min-w-[80px] text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                <span className="min-w-[80px] text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                                   {key}
                                 </span>
-                                <span className="flex-1 break-words text-xs text-zinc-400">
+                                <span className="flex-1 break-words text-xs text-secondary">
                                   {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                                 </span>
                               </div>
@@ -355,11 +355,11 @@ export default function AuditLogPage() {
 
                     {/* Timestamp */}
                     <div className="shrink-0 text-right">
-                      <div className="flex items-center justify-end gap-1 text-xs tabular-nums text-zinc-400">
+                      <div className="flex items-center justify-end gap-1 text-xs tabular-nums text-secondary">
                         <Clock size={10} aria-hidden="true" />
                         {formatRelativeTime(log.created_at)}
                       </div>
-                      <div className="mt-0.5 font-mono text-[11px] tabular-nums text-zinc-500">
+                      <div className="mt-0.5 font-mono text-[11px] tabular-nums text-tertiary">
                         {new Date(log.created_at).toLocaleTimeString()}
                       </div>
                     </div>
@@ -375,7 +375,7 @@ export default function AuditLogPage() {
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
+                className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
               >
                 {loadingMore ? 'Loading…' : 'Load more'}
               </button>

@@ -32,12 +32,12 @@ export default function CopyMarkdownButton({
     <div className={`flex items-center gap-3 ${className}`}>
       <button
         onClick={handleCopy}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)] text-sm text-zinc-300 hover:text-white hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.08)] text-sm text-secondary hover:text-white hover:bg-[rgba(255,255,255,0.1)] transition-colors"
       >
         {copied ? (
           <>
-            <Check size={16} className="text-emerald-400" />
-            <span className="text-emerald-400">Copied!</span>
+            <Check size={16} className="text-success" />
+            <span className="text-success">Copied!</span>
           </>
         ) : (
           <>
@@ -50,7 +50,7 @@ export default function CopyMarkdownButton({
         href={activeHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-tertiary hover:text-secondary transition-colors"
       >
         <FileText size={14} />
         {rawLabel}

@@ -8,7 +8,7 @@ import {
 } from '../lib/workflowAiModelCatalog.js';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
-const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
+const labelClass = 'block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5';
 
 export default function WorkflowAiDraftPanel({
   loading = false,
@@ -26,13 +26,13 @@ export default function WorkflowAiDraftPanel({
     <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5 space-y-4">
       <div>
         <div className="text-sm font-medium text-white uppercase tracking-wider">Generate with AI</div>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-secondary">
           Describe the workflow in plain English and DashClaw will draft the basics, linked resources, and executable steps into this editor. Your API key is used only for this request and is not saved.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+        <div className="rounded-lg border border-error/20 bg-error-subtle px-3 py-2 text-sm text-error">
           {error}
         </div>
       )}
@@ -97,7 +97,7 @@ export default function WorkflowAiDraftPanel({
         </div>
       </div>
 
-      <label className="flex items-center gap-3 text-sm text-zinc-300">
+      <label className="flex items-center gap-3 text-sm text-secondary">
         <input
           type="checkbox"
           checked={preferExistingResources}

@@ -32,7 +32,7 @@ export default function RiskExplainer() {
     <div className="mt-3">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+        className="flex items-center gap-1.5 text-xs text-secondary hover:text-secondary transition-colors"
       >
         <Info size={12} />
         How are risk scores calculated?
@@ -41,32 +41,32 @@ export default function RiskExplainer() {
       {open && (
         <div className="mt-3 rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#0d0d0d] p-4 space-y-4 text-xs">
           <div>
-            <div className="text-zinc-500 uppercase tracking-widest text-[10px] mb-2">Base score by action type</div>
+            <div className="text-tertiary uppercase tracking-widest text-[10px] mb-2">Base score by action type</div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1">
               {BASE_SCORES.map(({ type, score }) => (
                 <div key={type} className="flex justify-between">
-                  <span className="text-zinc-400">{type}</span>
-                  <span className="font-mono text-zinc-300">{score}</span>
+                  <span className="text-secondary">{type}</span>
+                  <span className="font-mono text-secondary">{score}</span>
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <div className="text-zinc-500 uppercase tracking-widest text-[10px] mb-2">Modifiers</div>
+            <div className="text-tertiary uppercase tracking-widest text-[10px] mb-2">Modifiers</div>
             <div className="space-y-1">
               {MODIFIERS.map(({ label, value }) => (
                 <div key={label} className="flex justify-between">
-                  <span className="text-zinc-400">{label}</span>
-                  <span className="font-mono text-amber-400">{value}</span>
+                  <span className="text-secondary">{label}</span>
+                  <span className="font-mono text-warning">{value}</span>
                 </div>
               ))}
             </div>
           </div>
           <div className="border-t border-white/[0.04] pt-3">
-            <div className="text-zinc-500 mb-1">Formula</div>
-            <div className="font-mono text-zinc-300">score = min(base + modifiers, 100)</div>
-            <div className="mt-2 text-zinc-500">
-              Example: <span className="text-zinc-300">deploy (75) + irreversible (+15) = <span className="text-red-400 font-medium">90</span></span>
+            <div className="text-tertiary mb-1">Formula</div>
+            <div className="font-mono text-secondary">score = min(base + modifiers, 100)</div>
+            <div className="mt-2 text-tertiary">
+              Example: <span className="text-secondary">deploy (75) + irreversible (+15) = <span className="text-error font-medium">90</span></span>
             </div>
           </div>
         </div>

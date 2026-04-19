@@ -54,20 +54,20 @@ export default function DriftCard() {
         title={<span className="flex items-center">Drift<HelpIcon sectionKey="drift" tip={HELP_TIPS['drift']} /></span>}
         icon={Activity}
         count={overall.total_alerts || 0}
-        action={<Link href="/drift" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}
+        action={<Link href="/drift" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}
       />
       <CardContent>
         <div className="flex items-center justify-around mb-3">
-          <StatCompact label="Critical" value={overall.critical_count || 0} color="text-red-400" />
-          <StatCompact label="Warning" value={overall.warning_count || 0} color="text-amber-400" />
-          <StatCompact label="Unack" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
+          <StatCompact label="Critical" value={overall.critical_count || 0} color="text-error" />
+          <StatCompact label="Warning" value={overall.warning_count || 0} color="text-warning" />
+          <StatCompact label="Unack" value={overall.unacknowledged || 0} color={parseInt(overall.unacknowledged) > 0 ? 'text-warning' : 'text-secondary'} />
         </div>
 
         {stats?.by_agent && stats.by_agent.length > 0 && (
           <div className="space-y-1">
             {stats.by_agent.slice(0, fitItems(tileHeight, 22, 2)).map(a => (
               <div key={a.agent_id} className="flex items-center justify-between text-xs">
-                <span className="text-zinc-400 truncate">{a.agent_id}</span>
+                <span className="text-secondary truncate">{a.agent_id}</span>
                 <div className="flex items-center gap-1.5">
                   {a.critical > 0 && <Badge variant="error" size="xs">{a.critical}</Badge>}
                   {a.warning > 0 && <Badge variant="warning" size="xs">{a.warning}</Badge>}

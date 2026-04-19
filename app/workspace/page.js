@@ -115,18 +115,18 @@ function OverviewTab({ agentId, dense }) {
   useEffect(() => { fetchDigest(); }, [fetchDigest]);
 
   if (loading) return <ListSkeleton rows={5} />;
-  if (error) return <div className="text-red-400 text-sm py-4">{error}</div>;
+  if (error) return <div className="text-error text-sm py-4">{error}</div>;
   if (!digest) return <EmptyState icon={BarChart3} title="No digest data" description="No activity recorded" />;
 
   const d = digest.digest || {};
   const stats = [
     { label: 'Actions', value: d.actions?.total || 0, color: 'text-brand' },
-    { label: 'Decisions', value: d.decisions?.total || 0, color: 'text-blue-400' },
-    { label: 'Lessons', value: d.lessons?.total || 0, color: 'text-emerald-400' },
+    { label: 'Decisions', value: d.decisions?.total || 0, color: 'text-info' },
+    { label: 'Lessons', value: d.lessons?.total || 0, color: 'text-success' },
     { label: 'Content', value: d.content?.total || 0, color: 'text-purple-400' },
-    { label: 'Ideas', value: d.ideas?.total || 0, color: 'text-amber-400' },
+    { label: 'Ideas', value: d.ideas?.total || 0, color: 'text-warning' },
     { label: 'Interactions', value: d.interactions?.total || 0, color: 'text-cyan-400' },
-    { label: 'Goals', value: d.goals?.total || 0, color: 'text-rose-400' },
+    { label: 'Goals', value: d.goals?.total || 0, color: 'text-error' },
   ];
 
   const sections = [
@@ -158,7 +158,7 @@ function OverviewTab({ agentId, dense }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <span className="flex items-center text-sm font-medium text-zinc-200">
+        <span className="flex items-center text-sm font-medium text-secondary">
           Digest
           <HelpIcon sectionKey="workspace-digest" tip={HELP_TIPS['workspace-digest']} />
         </span>
@@ -168,30 +168,30 @@ function OverviewTab({ agentId, dense }) {
             className={`px-3 py-1.5 text-sm font-medium rounded-md border transition-colors ${
               !isFiltered
                 ? 'bg-brand/10 border-brand text-brand'
-                : 'bg-surface-secondary border-border text-zinc-400 hover:text-zinc-200'
+                : 'bg-surface-secondary border-border text-secondary hover:text-secondary'
             }`}
           >
             Recent
           </button>
           <div className="flex items-center gap-1.5">
-            <Clock size={14} className="text-zinc-500" />
+            <Clock size={14} className="text-tertiary" />
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="px-3 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 [color-scheme:dark]"
+              className="px-3 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-secondary [color-scheme:dark]"
             />
           </div>
         </div>
         {isFiltered && (
           <button
             onClick={() => setDate('')}
-            className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="flex items-center gap-1 text-xs text-tertiary hover:text-secondary transition-colors"
           >
             <X size={12} /> Clear filter
           </button>
         )}
-        <span className="text-xs text-zinc-500 ml-auto">
+        <span className="text-xs text-tertiary ml-auto">
           {isFiltered ? `Showing ${formatDate(date)}` : 'Showing recent activity'}
         </span>
       </div>
@@ -213,16 +213,16 @@ function OverviewTab({ agentId, dense }) {
             <CardContent className={dense ? "pt-2 pb-2" : ""}>
               <div className={dense ? "space-y-1" : "space-y-2"}>
                 {section.items.slice(0, 10).map((item, idx) => (
-                  <div key={item.id || idx} className="flex items-start gap-2 text-sm text-zinc-300">
+                  <div key={item.id || idx} className="flex items-start gap-2 text-sm text-secondary">
                     <Badge variant={section.variant} size="xs">{section.key}</Badge>
                     <span className="flex-1 min-w-0 truncate">{section.render(item)}</span>
                     {!isFiltered && section.time(item) && (
-                      <span className="text-[10px] text-zinc-500 whitespace-nowrap shrink-0">{timeAgo(section.time(item))}</span>
+                      <span className="text-[10px] text-tertiary whitespace-nowrap shrink-0">{timeAgo(section.time(item))}</span>
                     )}
                   </div>
                 ))}
                 {section.total > 10 && (
-                  <div className="text-xs text-zinc-500">+{section.total - Math.min(section.items.length, 10)} more</div>
+                  <div className="text-xs text-tertiary">+{section.total - Math.min(section.items.length, 10)} more</div>
                 )}
               </div>
             </CardContent>
@@ -245,10 +245,10 @@ function OverviewTab({ agentId, dense }) {
                   <Badge variant={s.enabled ? 'success' : 'default'} size="xs">
                     {s.agent_id}
                   </Badge>
-                  <span className="text-zinc-300 flex-1 min-w-0 truncate">{s.name}</span>
-                  <span className="text-xs text-zinc-500 shrink-0">{cronToHuman(s.cron_expression)}</span>
+                  <span className="text-secondary flex-1 min-w-0 truncate">{s.name}</span>
+                  <span className="text-xs text-tertiary shrink-0">{cronToHuman(s.cron_expression)}</span>
                   {s.last_run && (
-                    <span className="text-[10px] text-zinc-600 shrink-0">Last: {timeAgo(s.last_run)}</span>
+                    <span className="text-[10px] text-disabled shrink-0">Last: {timeAgo(s.last_run)}</span>
                   )}
                 </div>
               ))}
@@ -258,10 +258,10 @@ function OverviewTab({ agentId, dense }) {
       )}
 
       <div className="flex gap-3 mt-6">
-        <Link href="/messages" className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-brand transition-colors">
+        <Link href="/messages" className="flex items-center gap-1.5 text-sm text-secondary hover:text-brand transition-colors">
           <MessageSquare size={14} /> Messages
         </Link>
-        <Link href="/security" className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-brand transition-colors">
+        <Link href="/security" className="flex items-center gap-1.5 text-sm text-secondary hover:text-brand transition-colors">
           <ShieldAlert size={14} /> Security
         </Link>
       </div>
@@ -383,7 +383,7 @@ function ContextTab({ agentId, dense }) {
   }
 
   if (loading) return <ListSkeleton rows={5} />;
-  if (error) return <div className="text-red-400 text-sm py-4">{error}</div>;
+  if (error) return <div className="text-error text-sm py-4">{error}</div>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -392,7 +392,7 @@ function ContextTab({ agentId, dense }) {
         <CardHeader title="Key Points" icon={Layers} count={points.length}>
           <button
             onClick={() => setShowAddPoint(p => !p)}
-            className="text-xs text-zinc-400 hover:text-brand transition-colors flex items-center gap-1"
+            className="text-xs text-secondary hover:text-brand transition-colors flex items-center gap-1"
           >
             <Plus size={12} /> Add
           </button>
@@ -405,13 +405,13 @@ function ContextTab({ agentId, dense }) {
                 onChange={(e) => setPointContent(e.target.value)}
                 placeholder="Key point content..."
                 rows={2}
-                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 placeholder-zinc-500 resize-none"
+                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-secondary placeholder-zinc-500 resize-none"
               />
               <div className="flex gap-2">
                 <select
                   value={pointCategory}
                   onChange={(e) => setPointCategory(e.target.value)}
-                  className="px-2 py-1 text-xs rounded-md bg-surface-secondary border border-border text-zinc-200 [color-scheme:dark]"
+                  className="px-2 py-1 text-xs rounded-md bg-surface-secondary border border-border text-secondary [color-scheme:dark]"
                 >
                   <option value="general">General</option>
                   <option value="decision">Decision</option>
@@ -425,7 +425,7 @@ function ContextTab({ agentId, dense }) {
                   max={10}
                   value={pointImportance}
                   onChange={(e) => setPointImportance(e.target.value)}
-                  className="w-16 px-2 py-1 text-xs rounded-md bg-surface-secondary border border-border text-zinc-200"
+                  className="w-16 px-2 py-1 text-xs rounded-md bg-surface-secondary border border-border text-secondary"
                   title="Importance (1-10)"
                 />
                 <button
@@ -447,12 +447,12 @@ function ContextTab({ agentId, dense }) {
                   <Badge variant={CATEGORY_VARIANTS[p.category] || 'default'} size="xs">
                     {p.category}
                   </Badge>
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/10 text-[10px] font-mono text-zinc-400 shrink-0">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/10 text-[10px] font-mono text-secondary shrink-0">
                     {p.importance}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-zinc-300 break-words">{p.content}</div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">{timeAgo(p.created_at)}</div>
+                    <div className="text-secondary break-words">{p.content}</div>
+                    <div className="text-[10px] text-tertiary mt-0.5">{timeAgo(p.created_at)}</div>
                   </div>
                 </div>
               ))}
@@ -466,7 +466,7 @@ function ContextTab({ agentId, dense }) {
         <CardHeader title={<span className="flex items-center">Threads<HelpIcon sectionKey="context-threads" tip={HELP_TIPS['context-threads']} /></span>} icon={Layers} count={threads.length}>
           <button
             onClick={() => setShowCreateThread(p => !p)}
-            className="text-xs text-zinc-400 hover:text-brand transition-colors flex items-center gap-1"
+            className="text-xs text-secondary hover:text-brand transition-colors flex items-center gap-1"
           >
             <Plus size={12} /> New
           </button>
@@ -478,13 +478,13 @@ function ContextTab({ agentId, dense }) {
                 value={threadName}
                 onChange={(e) => setThreadName(e.target.value)}
                 placeholder="Thread name..."
-                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 placeholder-zinc-500"
+                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-secondary placeholder-zinc-500"
               />
               <input
                 value={threadSummary}
                 onChange={(e) => setThreadSummary(e.target.value)}
                 placeholder="Summary (optional)..."
-                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 placeholder-zinc-500"
+                className="w-full px-3 py-2 text-sm rounded-md bg-surface-secondary border border-border text-secondary placeholder-zinc-500"
               />
               <div className="flex justify-end">
                 <button
@@ -507,27 +507,27 @@ function ContextTab({ agentId, dense }) {
                     onClick={() => toggleThread(t.id)}
                     className={`w-full flex items-center gap-2 ${dense ? 'p-1.5' : 'p-2.5'} text-sm hover:bg-white/5 text-left transition-colors`}
                   >
-                    {expandedThread === t.id ? <ChevronUp size={14} className="text-zinc-500 shrink-0" /> : <ChevronDown size={14} className="text-zinc-500 shrink-0" />}
-                    <span className="flex-1 text-zinc-200 truncate">{t.name}</span>
+                    {expandedThread === t.id ? <ChevronUp size={14} className="text-tertiary shrink-0" /> : <ChevronDown size={14} className="text-tertiary shrink-0" />}
+                    <span className="flex-1 text-secondary truncate">{t.name}</span>
                     <Badge variant={t.status === 'active' ? 'success' : 'default'} size="xs">{t.status}</Badge>
                   </button>
                   {expandedThread === t.id && (
                     <div className={`border-t border-border ${dense ? 'p-1.5' : 'p-2.5'} bg-white/[0.02]`}>
-                      {t.summary && <div className="text-xs text-zinc-400 mb-2">{t.summary}</div>}
+                      {t.summary && <div className="text-xs text-secondary mb-2">{t.summary}</div>}
                       {threadEntries[t.id] ? (
                         threadEntries[t.id].length === 0 ? (
-                          <div className="text-xs text-zinc-500">No entries yet</div>
+                          <div className="text-xs text-tertiary">No entries yet</div>
                         ) : (
                           <div className="space-y-1.5">
                             {threadEntries[t.id].map(e => (
-                              <div key={e.id} className="text-xs text-zinc-300 pl-2 border-l-2 border-zinc-700">
-                                <span className="text-zinc-500">{timeAgo(e.created_at)}</span> — {e.content}
+                              <div key={e.id} className="text-xs text-secondary pl-2 border-l-2 border-zinc-700">
+                                <span className="text-tertiary">{timeAgo(e.created_at)}</span> — {e.content}
                               </div>
                             ))}
                           </div>
                         )
                       ) : (
-                        <div className="text-xs text-zinc-500">Loading entries...</div>
+                        <div className="text-xs text-tertiary">Loading entries...</div>
                       )}
                     </div>
                   )}
@@ -578,12 +578,12 @@ function HandoffsTab({ agentId, dense }) {
   }
 
   if (loading) return <ListSkeleton rows={5} />;
-  if (error) return <div className="text-red-400 text-sm py-4">{error}</div>;
+  if (error) return <div className="text-error text-sm py-4">{error}</div>;
   if (handoffs.length === 0) return <EmptyState icon={ArrowRightLeft} title="No handoffs" description="Session handoffs will appear here when agents create them" />;
 
   return (
     <div className={`space-y-${dense ? '2' : '4'}`}>
-      <span className="flex items-center text-sm font-medium text-zinc-200 mb-2">
+      <span className="flex items-center text-sm font-medium text-secondary mb-2">
         Session Handoffs
         <HelpIcon sectionKey="handoffs" tip={HELP_TIPS['handoffs']} />
       </span>
@@ -604,12 +604,12 @@ function HandoffsTab({ agentId, dense }) {
           <Card key={h.id} hover={false}>
             <CardContent className={dense ? "pt-3 pb-3" : "pt-4"}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-mono text-xs text-zinc-500">{formatDate(h.session_date)}</span>
+                <span className="font-mono text-xs text-tertiary">{formatDate(h.session_date)}</span>
                 {h.agent_id && (
                   <Badge variant="default" size="xs" className={agentColor}>{h.agent_id}</Badge>
                 )}
               </div>
-              <div className="text-sm text-zinc-200 mb-3">{h.summary}</div>
+              <div className="text-sm text-secondary mb-3">{h.summary}</div>
               <div className="space-y-1">
                 {sections.filter(s => s.items.length > 0).map(section => {
                   const isOpen = expanded[`${h.id}-${section.key}`];
@@ -617,7 +617,7 @@ function HandoffsTab({ agentId, dense }) {
                     <div key={section.key}>
                       <button
                         onClick={() => toggleSection(h.id, section.key)}
-                        className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 py-1 transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-secondary hover:text-secondary py-1 transition-colors"
                       >
                         {isOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                         {section.label} ({section.items.length})
@@ -625,8 +625,8 @@ function HandoffsTab({ agentId, dense }) {
                       {isOpen && (
                         <ul className="ml-5 mt-1 mb-2 space-y-1">
                           {section.items.map((item, idx) => (
-                            <li key={idx} className="text-xs text-zinc-300 flex items-start gap-1.5">
-                              <span className="text-zinc-600 mt-1 shrink-0">&#x2022;</span>
+                            <li key={idx} className="text-xs text-secondary flex items-start gap-1.5">
+                              <span className="text-disabled mt-1 shrink-0">&#x2022;</span>
                               <span>{typeof item === 'string' ? item : item.text || item.title || JSON.stringify(item)}</span>
                             </li>
                           ))}
@@ -704,7 +704,7 @@ function SnippetsTab({ agentId, dense }) {
 
   return (
     <div>
-      <span className="flex items-center text-sm font-medium text-zinc-200 mb-3">
+      <span className="flex items-center text-sm font-medium text-secondary mb-3">
         Snippets
         <HelpIcon sectionKey="snippets" tip={HELP_TIPS['snippets']} />
       </span>
@@ -714,12 +714,12 @@ function SnippetsTab({ agentId, dense }) {
           defaultValue=""
           onChange={(e) => handleSearchInput(e.target.value)}
           placeholder="Search snippets..."
-          className="flex-1 px-3 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 placeholder-zinc-500"
+          className="flex-1 px-3 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-secondary placeholder-zinc-500"
         />
         <select
           value={langFilter}
           onChange={(e) => setLangFilter(e.target.value)}
-          className="px-2 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-zinc-200 [color-scheme:dark]"
+          className="px-2 py-1.5 text-sm rounded-md bg-surface-secondary border border-border text-secondary [color-scheme:dark]"
         >
           <option value="">All Languages</option>
           {languages.map(l => <option key={l} value={l}>{l}</option>)}
@@ -727,7 +727,7 @@ function SnippetsTab({ agentId, dense }) {
       </div>
 
       {loading ? <ListSkeleton rows={3} /> : error ? (
-        <div className="text-red-400 text-sm py-4">{error}</div>
+        <div className="text-error text-sm py-4">{error}</div>
       ) : snippets.length === 0 ? (
         <EmptyState icon={Code2} title="No snippets" description="Save reusable code snippets via the SDK" />
       ) : (
@@ -738,31 +738,31 @@ function SnippetsTab({ agentId, dense }) {
               <Card key={s.id} hover={false}>
                 <CardContent className={dense ? "pt-3" : "pt-4"}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-medium text-zinc-200">{s.name}</span>
+                    <span className="text-sm font-medium text-secondary">{s.name}</span>
                     {s.language && <Badge variant="info" size="xs">{s.language}</Badge>}
-                    <span className="ml-auto text-[10px] text-zinc-500">Used {s.use_count || 0}x</span>
+                    <span className="ml-auto text-[10px] text-tertiary">Used {s.use_count || 0}x</span>
                   </div>
-                  {s.description && <div className="text-xs text-zinc-400 mb-2">{s.description}</div>}
+                  {s.description && <div className="text-xs text-secondary mb-2">{s.description}</div>}
                   {tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-2">
                       {tags.map((tag, i) => <Badge key={i} variant="default" size="xs">{tag}</Badge>)}
                     </div>
                   )}
                   <div className="relative">
-                    <pre className={`font-mono text-xs text-zinc-300 bg-black/30 rounded-md overflow-x-auto max-h-[300px] overflow-y-auto border border-border ${dense ? 'p-2' : 'p-3'}`}>
+                    <pre className={`font-mono text-xs text-secondary bg-black/30 rounded-md overflow-x-auto max-h-[300px] overflow-y-auto border border-border ${dense ? 'p-2' : 'p-3'}`}>
                       {s.code}
                     </pre>
                     <div className="absolute top-2 right-2 flex gap-1">
                       <button
                         onClick={() => handleCopy(s.code, s.id)}
-                        className="p-1 rounded bg-white/10 hover:bg-white/20 text-zinc-400 hover:text-zinc-200 transition-colors"
+                        className="p-1 rounded bg-white/10 hover:bg-white/20 text-secondary hover:text-secondary transition-colors"
                         title="Copy code"
                       >
                         {copiedId === s.id ? <Check size={12} /> : <Copy size={12} />}
                       </button>
                       <button
                         onClick={() => handleUse(s.id)}
-                        className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10px] text-zinc-400 hover:text-zinc-200 transition-colors"
+                        className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-[10px] text-secondary hover:text-secondary transition-colors"
                         title="Mark as used"
                       >
                         Use
@@ -828,18 +828,18 @@ function PreferencesTab({ agentId, dense }) {
   }
 
   if (loading) return <ListSkeleton rows={4} />;
-  if (error) return <div className="text-red-400 text-sm py-4">{error}</div>;
+  if (error) return <div className="text-error text-sm py-4">{error}</div>;
 
   if (drilldown) {
     return (
       <div>
         <button
           onClick={() => { setDrilldown(null); setDrilldownData([]); }}
-          className="flex items-center gap-1 text-sm text-zinc-400 hover:text-brand mb-4 transition-colors"
+          className="flex items-center gap-1 text-sm text-secondary hover:text-brand mb-4 transition-colors"
         >
           <ArrowLeft size={14} /> Back to summary
         </button>
-        <h3 className="text-sm font-medium text-zinc-200 capitalize mb-3">{drilldown}</h3>
+        <h3 className="text-sm font-medium text-secondary capitalize mb-3">{drilldown}</h3>
         {drilldownLoading ? <ListSkeleton rows={4} /> : drilldownData.length === 0 ? (
           <EmptyState icon={UserCog} title={`No ${drilldown}`} description={`No ${drilldown} recorded yet`} />
         ) : (
@@ -849,12 +849,12 @@ function PreferencesTab({ agentId, dense }) {
                 <CardContent className={dense ? "pt-2 pb-2" : "pt-3 pb-3"}>
                   <div className="flex items-start gap-2 text-sm">
                     {item.category && <Badge variant={CATEGORY_VARIANTS[item.category] || 'default'} size="xs">{item.category}</Badge>}
-                    <span className="flex-1 text-zinc-300">{item.observation}</span>
+                    <span className="flex-1 text-secondary">{item.observation}</span>
                     {item.importance && (
-                      <span className="text-[10px] text-zinc-500">imp: {item.importance}</span>
+                      <span className="text-[10px] text-tertiary">imp: {item.importance}</span>
                     )}
                   </div>
-                  <div className="text-[10px] text-zinc-500 mt-1">{timeAgo(item.created_at)}</div>
+                  <div className="text-[10px] text-tertiary mt-1">{timeAgo(item.created_at)}</div>
                 </CardContent>
               </Card>
             ))}
@@ -863,12 +863,12 @@ function PreferencesTab({ agentId, dense }) {
                 <CardContent className={dense ? "pt-2 pb-2" : "pt-3 pb-3"}>
                   <div className="flex items-center gap-2 mb-1">
                     {item.category && <Badge variant="info" size="xs">{item.category}</Badge>}
-                    <span className="text-sm text-zinc-300">{item.preference}</span>
+                    <span className="text-sm text-secondary">{item.preference}</span>
                   </div>
                   <ProgressBar value={item.confidence || 0} color="brand" className="mt-1" />
                   <div className="flex justify-between mt-1">
-                    <span className="text-[10px] text-zinc-500">{timeAgo(item.created_at)}</span>
-                    <span className="text-[10px] text-zinc-500">{item.confidence}% confidence</span>
+                    <span className="text-[10px] text-tertiary">{timeAgo(item.created_at)}</span>
+                    <span className="text-[10px] text-tertiary">{item.confidence}% confidence</span>
                   </div>
                 </CardContent>
               </Card>
@@ -876,14 +876,14 @@ function PreferencesTab({ agentId, dense }) {
             {drilldown === 'moods' && drilldownData.map((item, i) => (
               <Card key={item.id || i} hover={false}>
                 <CardContent className={dense ? "pt-2 pb-2" : "pt-3 pb-3"}>
-                  <div className="text-sm text-zinc-200 font-medium">{item.mood}</div>
+                  <div className="text-sm text-secondary font-medium">{item.mood}</div>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-zinc-500">Energy:</span>
+                    <span className="text-[10px] text-tertiary">Energy:</span>
                     <ProgressBar value={(item.energy || 0) * 10} color={item.energy >= 7 ? 'success' : item.energy >= 4 ? 'warning' : 'error'} className="flex-1" />
-                    <span className="text-xs text-zinc-400">{item.energy}/10</span>
+                    <span className="text-xs text-secondary">{item.energy}/10</span>
                   </div>
-                  {item.notes && <div className="text-xs text-zinc-400 mt-1">{item.notes}</div>}
-                  <div className="text-[10px] text-zinc-500 mt-1">{timeAgo(item.created_at)}</div>
+                  {item.notes && <div className="text-xs text-secondary mt-1">{item.notes}</div>}
+                  <div className="text-[10px] text-tertiary mt-1">{timeAgo(item.created_at)}</div>
                 </CardContent>
               </Card>
             ))}
@@ -893,13 +893,13 @@ function PreferencesTab({ agentId, dense }) {
               return (
                 <Card key={item.id || i} hover={false}>
                   <CardContent className={dense ? "pt-2 pb-2" : "pt-3 pb-3"}>
-                    <div className="text-sm text-zinc-200">{item.approach}</div>
+                    <div className="text-sm text-secondary">{item.approach}</div>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-emerald-400">{item.success_count || 0} success</span>
-                      <span className="text-xs text-red-400">{item.fail_count || 0} fail</span>
-                      <span className="text-xs text-zinc-400">{ratio}% rate</span>
+                      <span className="text-xs text-success">{item.success_count || 0} success</span>
+                      <span className="text-xs text-error">{item.fail_count || 0} fail</span>
+                      <span className="text-xs text-secondary">{ratio}% rate</span>
                     </div>
-                    {item.context && <div className="text-xs text-zinc-400 mt-1">{item.context}</div>}
+                    {item.context && <div className="text-xs text-secondary mt-1">{item.context}</div>}
                   </CardContent>
                 </Card>
               );
@@ -921,7 +921,7 @@ function PreferencesTab({ agentId, dense }) {
         <CardHeader title={<span className="flex items-center">Observations<HelpIcon sectionKey="learning" tip={HELP_TIPS['learning']} /></span>} icon={UserCog} />
         <CardContent>
           <div className="text-2xl font-semibold tabular-nums text-white">{obsCount}</div>
-          <div className="text-xs text-zinc-500 mt-1">observations logged</div>
+          <div className="text-xs text-tertiary mt-1">observations logged</div>
         </CardContent>
       </Card>
 
@@ -929,12 +929,12 @@ function PreferencesTab({ agentId, dense }) {
         <CardHeader title="Preferences" icon={UserCog} />
         <CardContent>
           {topPrefs.length === 0 ? (
-            <div className="text-xs text-zinc-500">No preferences recorded</div>
+            <div className="text-xs text-tertiary">No preferences recorded</div>
           ) : (
             <div className="space-y-2">
               {topPrefs.map((p, i) => (
                 <div key={i}>
-                  <div className="text-xs text-zinc-300 truncate">{p.preference}</div>
+                  <div className="text-xs text-secondary truncate">{p.preference}</div>
                   <ProgressBar value={p.confidence || 0} color="brand" className="mt-0.5" />
                 </div>
               ))}
@@ -947,14 +947,14 @@ function PreferencesTab({ agentId, dense }) {
         <CardHeader title="Recent Moods" icon={UserCog} />
         <CardContent>
           {recentMoods.length === 0 ? (
-            <div className="text-xs text-zinc-500">No moods recorded</div>
+            <div className="text-xs text-tertiary">No moods recorded</div>
           ) : (
             <div className="space-y-2">
               {recentMoods.map((m, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-300">{m.mood}</span>
+                  <span className="text-xs text-secondary">{m.mood}</span>
                   <ProgressBar value={(m.energy || 0) * 10} color={m.energy >= 7 ? 'success' : 'warning'} className="flex-1" />
-                  <span className="text-[10px] text-zinc-500">{timeAgo(m.created_at)}</span>
+                  <span className="text-[10px] text-tertiary">{timeAgo(m.created_at)}</span>
                 </div>
               ))}
             </div>
@@ -966,7 +966,7 @@ function PreferencesTab({ agentId, dense }) {
         <CardHeader title="Top Approaches" icon={UserCog} />
         <CardContent>
           {topApproaches.length === 0 ? (
-            <div className="text-xs text-zinc-500">No approaches tracked</div>
+            <div className="text-xs text-tertiary">No approaches tracked</div>
           ) : (
             <div className="space-y-2">
               {topApproaches.map((a, i) => {
@@ -974,11 +974,11 @@ function PreferencesTab({ agentId, dense }) {
                 const ratio = total > 0 ? Math.round((a.success_count / total) * 100) : 0;
                 return (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-300 truncate flex-1">{a.approach}</span>
-                    <span className="text-[10px] text-emerald-400">{a.success_count || 0}</span>
-                    <span className="text-[10px] text-zinc-600">/</span>
-                    <span className="text-[10px] text-red-400">{a.fail_count || 0}</span>
-                    <span className="text-[10px] text-zinc-500">{ratio}%</span>
+                    <span className="text-xs text-secondary truncate flex-1">{a.approach}</span>
+                    <span className="text-[10px] text-success">{a.success_count || 0}</span>
+                    <span className="text-[10px] text-disabled">/</span>
+                    <span className="text-[10px] text-error">{a.fail_count || 0}</span>
+                    <span className="text-[10px] text-tertiary">{ratio}%</span>
                   </div>
                 );
               })}
@@ -1017,7 +1017,7 @@ function MemoryTab({ agentId, dense }) {
   useEffect(() => { fetchMemory(); }, [fetchMemory]);
 
   if (loading) return <ListSkeleton rows={5} />;
-  if (error) return <div className="text-red-400 text-sm py-4">{error}</div>;
+  if (error) return <div className="text-error text-sm py-4">{error}</div>;
   if (!memory) return <EmptyState icon={Brain} title="No memory data" description="Report memory health via the SDK" />;
 
   const health = memory.health || memory.latest_snapshot || {};
@@ -1025,7 +1025,7 @@ function MemoryTab({ agentId, dense }) {
   const entities = memory.entities || [];
   const topics = memory.topics || [];
 
-  const scoreColor = score >= 80 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400';
+  const scoreColor = score >= 80 ? 'text-success' : score >= 50 ? 'text-warning' : 'text-error';
 
   const metrics = [
     { label: 'Total Files', value: health.totalFiles ?? health.total_files ?? '-' },
@@ -1042,11 +1042,11 @@ function MemoryTab({ agentId, dense }) {
     <div>
       {/* Health Score Hero */}
       <div className="flex items-center justify-center gap-3 mb-6">
-        <div className={`text-5xl font-bold tabular-nums ${score !== null ? scoreColor : 'text-zinc-500'}`}>
+        <div className={`text-5xl font-bold tabular-nums ${score !== null ? scoreColor : 'text-tertiary'}`}>
           {score !== null ? score : '—'}
         </div>
         <div>
-          <span className="flex items-center text-sm text-zinc-200">
+          <span className="flex items-center text-sm text-secondary">
             Health Score
             <HelpIcon sectionKey="memory-health" tip={HELP_TIPS['memory-health']} />
           </span>
@@ -1064,7 +1064,7 @@ function MemoryTab({ agentId, dense }) {
               <StatCompact
                 label={m.label}
                 value={m.value}
-                color={m.warn ? 'text-amber-400' : 'text-white'}
+                color={m.warn ? 'text-warning' : 'text-white'}
               />
             </CardContent>
           </Card>
@@ -1077,14 +1077,14 @@ function MemoryTab({ agentId, dense }) {
           <CardHeader title="Entities" icon={Brain} count={entities.length} />
           <CardContent>
             {entities.length === 0 ? (
-              <div className="text-xs text-zinc-500">No entities extracted</div>
+              <div className="text-xs text-tertiary">No entities extracted</div>
             ) : (
               <div className={`space-y-1.5 max-h-[400px] overflow-y-auto ${dense ? 'text-xs' : 'text-sm'}`}>
                 {[...entities].sort((a, b) => (b.mention_count || 0) - (a.mention_count || 0)).map((e, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     {e.type && <Badge variant="info" size="xs">{e.type}</Badge>}
-                    <span className="text-zinc-300 flex-1 truncate">{e.name}</span>
-                    <span className="text-[10px] text-zinc-500 tabular-nums">{e.mention_count || 0}</span>
+                    <span className="text-secondary flex-1 truncate">{e.name}</span>
+                    <span className="text-[10px] text-tertiary tabular-nums">{e.mention_count || 0}</span>
                   </div>
                 ))}
               </div>
@@ -1096,13 +1096,13 @@ function MemoryTab({ agentId, dense }) {
           <CardHeader title="Topics" icon={Brain} count={topics.length} />
           <CardContent>
             {topics.length === 0 ? (
-              <div className="text-xs text-zinc-500">No topics extracted</div>
+              <div className="text-xs text-tertiary">No topics extracted</div>
             ) : (
               <div className="flex flex-wrap gap-2 max-h-[400px] overflow-y-auto">
                 {[...topics].sort((a, b) => (b.mention_count || 0) - (a.mention_count || 0)).map((t, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 border border-border text-xs text-zinc-300">
+                  <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 border border-border text-xs text-secondary">
                     {t.name}
-                    <span className="text-[10px] text-zinc-500">{t.mention_count || 0}</span>
+                    <span className="text-[10px] text-tertiary">{t.mention_count || 0}</span>
                   </span>
                 ))}
               </div>
@@ -1134,7 +1134,7 @@ export default function WorkspacePage() {
           <button
             onClick={() => setDense(d => !d)}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors ${
-              dense ? 'bg-brand/10 border-brand text-brand' : 'bg-surface-secondary border-border text-zinc-300 hover:text-white'
+              dense ? 'bg-brand/10 border-brand text-brand' : 'bg-surface-secondary border-border text-secondary hover:text-white'
             }`}
             title="Toggle Dense View"
           >
@@ -1142,7 +1142,7 @@ export default function WorkspacePage() {
           </button>
           <button
             onClick={() => setRefreshKey(k => k + 1)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-surface-secondary border border-border text-zinc-300 hover:text-white hover:border-border-hover transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md bg-surface-secondary border border-border text-secondary hover:text-white hover:border-border-hover transition-colors"
           >
             <RefreshCw size={14} /> Refresh
           </button>
@@ -1161,7 +1161,7 @@ export default function WorkspacePage() {
               className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap ${
                 active
                   ? 'text-brand border-b-2 border-brand'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  : 'text-secondary hover:text-secondary'
               }`}
             >
               <Icon size={14} />

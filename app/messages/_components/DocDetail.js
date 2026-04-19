@@ -58,7 +58,7 @@ export default function DocDetail({ doc }) {
       <h4 className="text-sm font-semibold text-white mb-1">{docName}</h4>
       <div className="flex items-center gap-2 mb-2">
         <Badge variant="info" size="xs">v{doc.version}</Badge>
-        <span className="text-xs text-zinc-500">by {doc.last_edited_by || doc.created_by}</span>
+        <span className="text-xs text-tertiary">by {doc.last_edited_by || doc.created_by}</span>
       </div>
       <div className="bg-[rgba(255,255,255,0.02)] rounded-md p-3 mb-2 max-h-[400px] overflow-y-auto">
         <MarkdownBody content={docContent} />
@@ -68,7 +68,7 @@ export default function DocDetail({ doc }) {
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
             disabled={exporting}
-            className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-zinc-400 hover:text-zinc-200 hover:bg-[rgba(255,255,255,0.08)] transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-secondary hover:text-secondary hover:bg-[rgba(255,255,255,0.08)] transition-colors disabled:opacity-50"
           >
             <Download size={10} />
             {exporting ? 'Exporting...' : 'Download'}
@@ -80,9 +80,9 @@ export default function DocDetail({ doc }) {
                 <button
                   key={fmt.id}
                   onClick={() => handleExport(fmt.id)}
-                  className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 text-xs text-secondary hover:bg-white/5 transition-colors flex items-center gap-2"
                 >
-                  <fmt.icon size={12} className="text-zinc-500" />
+                  <fmt.icon size={12} className="text-tertiary" />
                   {fmt.label}
                 </button>
               ))}
@@ -91,12 +91,12 @@ export default function DocDetail({ doc }) {
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-zinc-400 hover:text-zinc-200 hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-secondary hover:text-secondary hover:bg-[rgba(255,255,255,0.08)] transition-colors"
         >
           <Copy size={10} /> {copied ? 'Copied!' : 'Copy Content'}
         </button>
       </div>
-      <div className="text-xs text-zinc-600">
+      <div className="text-xs text-disabled">
         Created {doc.created_at ? new Date(doc.created_at).toLocaleString() : 'unknown'}
         {doc.updated_at && doc.updated_at !== doc.created_at && ` | Updated ${timeAgo(doc.updated_at)}`}
       </div>

@@ -31,21 +31,21 @@ export default function ThreadList({ threads, onSelect, selectedId }) {
             }`}
           >
             <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 bg-[rgba(255,255,255,0.06)]">
-              <Hash size={14} className="text-zinc-400" />
+              <Hash size={14} className="text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-zinc-200 truncate">{thread.name || thread.subject || 'Untitled thread'}</span>
+                <span className="text-sm font-medium text-secondary truncate">{thread.name || thread.subject || 'Untitled thread'}</span>
                 <Badge variant={thread.status === 'open' ? 'success' : 'default'} size="xs">
                   {thread.status}
                 </Badge>
               </div>
-              <div className="text-xs text-zinc-500 mt-0.5">
+              <div className="text-xs text-tertiary mt-0.5">
                 {thread.message_count || 0} messages · by {thread.created_by}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <span className="text-xs text-zinc-600">{timeAgo(thread.last_message_at || thread.created_at)}</span>
+              <span className="text-xs text-disabled">{timeAgo(thread.last_message_at || thread.created_at)}</span>
               <ChevronRight size={12} className="text-zinc-700" />
             </div>
           </div>

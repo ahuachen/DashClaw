@@ -37,7 +37,7 @@ export default function ScoringProfileCard() {
         title={<span className="flex items-center">Scoring Profiles<HelpIcon sectionKey="scoring" tip={HELP_TIPS['scoring']} /></span>}
         icon={Target}
         action={
-          <Link href="/scoring" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
+          <Link href="/scoring" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">
             Manage <ArrowRight size={12} />
           </Link>
         }

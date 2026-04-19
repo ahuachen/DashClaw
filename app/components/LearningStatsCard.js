@@ -91,7 +91,7 @@ export default function LearningStatsCard() {
   return (
     <Card className="h-full">
       <CardHeader title={<span className="flex items-center">Learning<HelpIcon sectionKey="learning" tip={HELP_TIPS['learning']} /></span>} icon={BookOpen} action={viewAllLink}>
-        <span className="text-xs text-zinc-500">{stats.successRate}% success</span>
+        <span className="text-xs text-tertiary">{stats.successRate}% success</span>
       </CardHeader>
 
       <CardContent>
@@ -106,7 +106,7 @@ export default function LearningStatsCard() {
         {/* Success rate bar */}
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-zinc-300">Decision Success</span>
+            <span className="text-secondary">Decision Success</span>
             <span className="text-white font-medium tabular-nums">{stats.successRate}%</span>
           </div>
           <ProgressBar value={stats.successRate} color="success" />
@@ -115,10 +115,10 @@ export default function LearningStatsCard() {
         {/* Recent lessons */}
         {stats.recentLessons.length > 0 && (
           <div>
-            <div className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Recent Lessons</div>
+            <div className="text-xs font-medium text-secondary uppercase tracking-wider mb-2">Recent Lessons</div>
             <div className="space-y-2">
               {stats.recentLessons.map((lesson, index) => (
-                <div key={index} className="text-xs text-zinc-400 flex items-start gap-2">
+                <div key={index} className="text-xs text-secondary flex items-start gap-2">
                   <span className="text-brand mt-1 flex-shrink-0">&#8226;</span>
                   <span className="transition-colors duration-150">{lesson}</span>
                 </div>

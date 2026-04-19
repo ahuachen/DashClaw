@@ -56,27 +56,27 @@ export function ConnectNextStepPanel({ maskedApiKey, host, isAuthenticated, over
             : 'border-[rgba(255,255,255,0.08)] bg-[#111]'
         }`}
       >
-        <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Test your connection</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-tertiary">Test your connection</p>
 
         {status === 'success' ? (
           <div className="mt-4">
-            <p className="text-sm font-medium text-emerald-300">
+            <p className="text-sm font-medium text-success">
               Connected. Your instance is accepting authenticated requests.
             </p>
             {result?.latencyMs != null && (
-              <p className="mt-1 text-xs text-zinc-500">Latency: {result.latencyMs}ms</p>
+              <p className="mt-1 text-xs text-tertiary">Latency: {result.latencyMs}ms</p>
             )}
             <button
               type="button"
               onClick={() => { setStatus('idle'); setResult(null); }}
-              className="mt-3 text-xs text-zinc-500 underline hover:text-zinc-300"
+              className="mt-3 text-xs text-tertiary underline hover:text-secondary"
             >
               Run again
             </button>
           </div>
         ) : (
           <div className="mt-4">
-            <label htmlFor="setup-api-key" className="block text-xs font-medium text-zinc-400">
+            <label htmlFor="setup-api-key" className="block text-xs font-medium text-secondary">
               API Key
             </label>
             <input
@@ -85,10 +85,10 @@ export function ConnectNextStepPanel({ maskedApiKey, host, isAuthenticated, over
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Paste your API key"
-              className="mt-1 w-full rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#0a0a0a] px-3 py-2 text-sm font-mono text-zinc-200 placeholder:text-zinc-600 focus:border-brand/50 focus:outline-none focus:ring-1 focus:ring-brand/30"
+              className="mt-1 w-full rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#0a0a0a] px-3 py-2 text-sm font-mono text-secondary placeholder:text-disabled focus:border-brand/50 focus:outline-none focus:ring-1 focus:ring-brand/30"
             />
             {status === 'error' && result?.message && (
-              <p className="mt-2 text-xs text-amber-400">{result.message}</p>
+              <p className="mt-2 text-xs text-warning">{result.message}</p>
             )}
             <button
               type="button"
@@ -128,11 +128,11 @@ function SnippetCard({ label, code }) {
   return (
     <div className="rounded-xl border border-[rgba(255,255,255,0.08)] bg-[#0d0d0d] p-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">{label}</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-tertiary">{label}</p>
         <button
           type="button"
           onClick={copy}
-          className="text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="text-tertiary hover:text-secondary transition-colors"
           aria-label={`Copy ${label} snippet`}
         >
           {copied ? (
@@ -142,7 +142,7 @@ function SnippetCard({ label, code }) {
           )}
         </button>
       </div>
-      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#050505] px-4 py-3 text-xs font-mono text-zinc-300">
+      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-xl border border-[rgba(255,255,255,0.06)] bg-[#050505] px-4 py-3 text-xs font-mono text-secondary">
         {code}
       </pre>
     </div>

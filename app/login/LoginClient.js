@@ -56,7 +56,7 @@ export default function LoginClient({ localAuthEnabled }) {
             <DashClawLogo size={32} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">Sign in to DashClaw</h1>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-secondary">
             {localPasswordEnabled
               ? 'Use the admin password you set during setup, or choose an identity provider.'
               : 'Agent governance starts here.'}
@@ -71,7 +71,7 @@ export default function LoginClient({ localAuthEnabled }) {
               className={`flex w-full items-center justify-center gap-2.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
                 provider.id === 'github'
                   ? 'bg-white text-black hover:bg-zinc-200'
-                  : 'border border-border bg-surface-tertiary text-zinc-300 hover:border-border-hover hover:text-white'
+                  : 'border border-border bg-surface-tertiary text-secondary hover:border-border-hover hover:text-white'
               }`}
             >
               {provider.id === 'github' && <GithubIcon size={18} aria-hidden="true" />}
@@ -82,7 +82,7 @@ export default function LoginClient({ localAuthEnabled }) {
           ))}
 
           {providers.length === 0 && !localPasswordEnabled && (
-            <p className="py-4 text-center text-xs text-amber-400">
+            <p className="py-4 text-center text-xs text-warning">
               {authMessage || 'No dashboard sign-in method is configured yet.'}
             </p>
           )}
@@ -91,19 +91,19 @@ export default function LoginClient({ localAuthEnabled }) {
         </div>
 
         {!isProd && !providers.some(p => p.id === 'oidc') && (
-          <div className="mt-6 rounded-lg border border-border bg-surface-secondary p-3 text-center text-xs text-zinc-400">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <div className="mt-6 rounded-lg border border-border bg-surface-secondary p-3 text-center text-xs text-secondary">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
               Want to use Authentik / OIDC?
             </p>
             Add{' '}
-            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_CLIENT_ID</code>,{' '}
-            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_CLIENT_SECRET</code>, and{' '}
-            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-300">OIDC_ISSUER_URL</code>{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-secondary">OIDC_CLIENT_ID</code>,{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-secondary">OIDC_CLIENT_SECRET</code>, and{' '}
+            <code className="rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-secondary">OIDC_ISSUER_URL</code>{' '}
             to your .env file.
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs text-zinc-500">
+        <p className="mt-6 text-center text-xs text-tertiary">
           By signing in, you agree to our terms of service.
         </p>
       </div>

@@ -148,8 +148,8 @@ export default function TokenBudgetCard() {
             <div className="bg-surface-tertiary rounded-lg px-3 py-2.5">
               <div className="grid grid-cols-3 gap-2">
                 <StatCompact label="Today" value={formatTokens(data.todayTokens)} color="text-white" />
-                <StatCompact label="Cost" value={formatCost(data.todayCost)} color="text-emerald-400" />
-                <StatCompact label="Compacts" value={data.compactions} color="text-zinc-300" />
+                <StatCompact label="Cost" value={formatCost(data.todayCost)} color="text-success" />
+                <StatCompact label="Compacts" value={data.compactions} color="text-secondary" />
               </div>
             </div>
 
@@ -157,19 +157,19 @@ export default function TokenBudgetCard() {
             <div className="flex gap-3">
               <div className="flex-1 bg-surface-tertiary rounded-lg px-3 py-2.5">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <ArrowDown size={11} className="text-green-500" />
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Input</span>
+                  <ArrowDown size={11} className="text-success" />
+                  <span className="text-[10px] text-tertiary uppercase tracking-wider">Input</span>
                 </div>
-                <div className="text-sm font-semibold tabular-nums text-emerald-400">
+                <div className="text-sm font-semibold tabular-nums text-success">
                   {formatTokens(data.todayTokensIn)}
                 </div>
               </div>
               <div className="flex-1 bg-surface-tertiary rounded-lg px-3 py-2.5">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <ArrowUp size={11} className="text-blue-500" />
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Output</span>
+                  <ArrowUp size={11} className="text-info" />
+                  <span className="text-[10px] text-tertiary uppercase tracking-wider">Output</span>
                 </div>
-                <div className="text-sm font-semibold tabular-nums text-blue-400">
+                <div className="text-sm font-semibold tabular-nums text-info">
                   {formatTokens(data.todayTokensOut)}
                 </div>
               </div>
@@ -180,10 +180,10 @@ export default function TokenBudgetCard() {
               <div className="bg-surface-tertiary rounded-lg px-3 py-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <TrendingUp size={11} className="text-zinc-500" />
-                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider">24h Projected</span>
+                    <TrendingUp size={11} className="text-tertiary" />
+                    <span className="text-[10px] text-tertiary uppercase tracking-wider">24h Projected</span>
                   </div>
-                  <span className={`text-sm font-semibold tabular-nums ${projectedCost > data.todayCost * 2 ? 'text-amber-400' : 'text-zinc-300'}`}>
+                  <span className={`text-sm font-semibold tabular-nums ${projectedCost > data.todayCost * 2 ? 'text-warning' : 'text-secondary'}`}>
                     {formatCost(projectedCost)}
                   </span>
                 </div>
@@ -193,11 +193,11 @@ export default function TokenBudgetCard() {
             {/* Model + Last Updated */}
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-1.5">
-                <Cpu size={11} className="text-zinc-600" />
-                <span className="font-mono text-xs text-zinc-500">{data.model}</span>
+                <Cpu size={11} className="text-disabled" />
+                <span className="font-mono text-xs text-tertiary">{data.model}</span>
               </div>
               {lastUpdated && (
-                <span className="text-xs text-zinc-600">{lastUpdated}</span>
+                <span className="text-xs text-disabled">{lastUpdated}</span>
               )}
             </div>
           </>

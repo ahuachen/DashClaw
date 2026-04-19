@@ -29,7 +29,7 @@ function StrategyCard({ s, onDelete }) {
               {s.name}
             </Link>
             {s.description && (
-              <div className="text-xs text-zinc-500 truncate">{s.description}</div>
+              <div className="text-xs text-tertiary truncate">{s.description}</div>
             )}
           </div>
           {s.config?.costSensitivity && (
@@ -39,20 +39,20 @@ function StrategyCard({ s, onDelete }) {
           )}
         </div>
         <div className="mt-3 space-y-1.5">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Primary</div>
-          <div className="text-xs text-zinc-200 font-mono">
+          <div className="text-[10px] text-tertiary uppercase tracking-wider">Primary</div>
+          <div className="text-xs text-secondary font-mono">
             {primary.provider || '—'} · {primary.model || '—'}
           </div>
           {fallbacks.length > 0 && (
             <>
-              <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-2">Fallback</div>
-              <div className="text-xs text-zinc-400 font-mono">
+              <div className="text-[10px] text-tertiary uppercase tracking-wider mt-2">Fallback</div>
+              <div className="text-xs text-secondary font-mono">
                 {fallbacks.map((f) => `${f.provider}·${f.model}`).join(' → ')}
               </div>
             </>
           )}
         </div>
-        <div className="flex items-center gap-3 mt-3 text-[10px] text-zinc-500 uppercase tracking-wider">
+        <div className="flex items-center gap-3 mt-3 text-[10px] text-tertiary uppercase tracking-wider">
           {s.config?.maxBudgetUsd != null && (
             <span className="flex items-center gap-1"><DollarSign size={11} />${s.config.maxBudgetUsd}</span>
           )}
@@ -63,14 +63,14 @@ function StrategyCard({ s, onDelete }) {
         <div className="flex items-center gap-2 mt-3">
           <Link
             href={`/model-strategies/${s.strategy_id}`}
-            className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+            className="inline-flex items-center gap-1 text-xs text-secondary hover:text-white"
             aria-label={`Edit ${s.name}`}
           >
             <Pencil size={11} /> Edit
           </Link>
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1.5 text-xs">
-              <span className="text-red-400">Delete?</span>
+              <span className="text-error">Delete?</span>
               <button
                 onClick={async () => {
                   setDeleting(true);
@@ -79,13 +79,13 @@ function StrategyCard({ s, onDelete }) {
                   setConfirmDelete(false);
                 }}
                 disabled={deleting}
-                className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                className="text-error hover:text-error disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Yes'}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-zinc-400 hover:text-white"
+                className="text-secondary hover:text-white"
               >
                 No
               </button>
@@ -93,7 +93,7 @@ function StrategyCard({ s, onDelete }) {
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+              className="inline-flex items-center gap-1 text-xs text-secondary hover:text-error"
               aria-label={`Delete ${s.name}`}
             >
               <Trash2 size={11} /> Delete
@@ -183,7 +183,7 @@ export default function ModelStrategiesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setLoading(true); fetchStrategies(); }}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -197,13 +197,13 @@ export default function ModelStrategiesPage() {
       }
     >
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+        <div className="mb-4 px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
+        <div className="text-sm text-tertiary py-12 text-center">Loading...</div>
       ) : strategies.length === 0 ? (
         <EmptyState
           icon={Cpu}

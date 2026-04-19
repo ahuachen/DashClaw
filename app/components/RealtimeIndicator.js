@@ -14,10 +14,10 @@ export default function RealtimeIndicator() {
     <div
       role="status"
       aria-label="Realtime connection live"
-      className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5"
+      className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success-subtle px-2 py-0.5"
     >
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-400">Live</span>
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">Live</span>
     </div>
   );
 }

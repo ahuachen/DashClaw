@@ -54,7 +54,7 @@ export default function NewKnowledgeCollectionPage() {
       breadcrumbs={['Studio', 'Knowledge', 'New']}
       maturity="beta"
       actions={
-        <Link href="/knowledge" className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors">
+        <Link href="/knowledge" className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors">
           <ArrowLeft size={14} /> Back
         </Link>
       }
@@ -64,26 +64,26 @@ export default function NewKnowledgeCollectionPage() {
           <CardHeader title="Collection Details" icon={BookOpen} />
           <CardContent className="p-5 pt-0 space-y-4">
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Name <span className="text-red-400">*</span></label>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Name <span className="text-error">*</span></label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
                 placeholder="Runbook library" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Description</label>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Description</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
                 placeholder="Incident response runbooks and playbooks" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Source type</label>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Source type</label>
               <select value={sourceType} onChange={(e) => setSourceType(e.target.value)}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand">
                 {SOURCE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Tags <span className="text-zinc-600">(comma-separated)</span></label>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Tags <span className="text-disabled">(comma-separated)</span></label>
               <input type="text" value={tagsText} onChange={(e) => setTagsText(e.target.value)}
                 className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand"
                 placeholder="ops, oncall, runbooks" />
@@ -92,7 +92,7 @@ export default function NewKnowledgeCollectionPage() {
         </Card>
 
         {error && (
-          <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">{error}</div>
+          <div className="px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">{error}</div>
         )}
 
         <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ export default function NewKnowledgeCollectionPage() {
             className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand hover:bg-brand/90 rounded-lg transition-colors disabled:opacity-50">
             <Save size={14} /> {saving ? 'Creating...' : 'Create Collection'}
           </button>
-          <Link href="/knowledge" className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Cancel</Link>
+          <Link href="/knowledge" className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors">Cancel</Link>
         </div>
       </form>
     </PageLayout>

@@ -22,9 +22,9 @@ const TABS = [
 ];
 
 const SEVERITY_CONFIG = {
-  critical: { icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/30', variant: 'error' },
-  warning: { icon: AlertCircle, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', variant: 'warning' },
-  info: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30', variant: 'info' },
+  critical: { icon: AlertTriangle, color: 'text-error', bg: 'bg-error-subtle border-error/30', variant: 'error' },
+  warning: { icon: AlertCircle, color: 'text-warning', bg: 'bg-warning-subtle border-warning/30', variant: 'warning' },
+  info: { icon: Info, color: 'text-info', bg: 'bg-info-subtle border-blue-500/30', variant: 'info' },
 };
 
 const DIRECTION_ICON = {
@@ -43,7 +43,7 @@ function ZScoreBar({ zScore }) {
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="w-8 tabular-nums text-[11px] text-zinc-500">
+      <span className="w-8 tabular-nums text-[11px] text-tertiary">
         {zScore > 0 ? '+' : ''}{zScore}
       </span>
     </div>
@@ -164,7 +164,7 @@ export default function DriftPage() {
           <button
             onClick={fetchData}
             aria-label="Refresh"
-            className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+            className="rounded-lg p-2 text-secondary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
           >
             <RefreshCw size={16} aria-hidden="true" />
           </button>
@@ -175,24 +175,24 @@ export default function DriftPage() {
         {/* Instrument rail */}
         <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-5">
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total alerts</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total alerts</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.total_alerts || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Critical</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{overall.critical_count || 0}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Critical</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-error">{overall.critical_count || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Warning</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{overall.warning_count || 0}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Warning</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-warning">{overall.warning_count || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Info</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{overall.info_count || 0}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Info</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-info">{overall.info_count || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unacknowledged</div>
-            <div className={`mt-1 text-2xl font-semibold tabular-nums ${parseInt(overall.unacknowledged) > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Unacknowledged</div>
+            <div className={`mt-1 text-2xl font-semibold tabular-nums ${parseInt(overall.unacknowledged) > 0 ? 'text-warning' : 'text-secondary'}`}>
               {overall.unacknowledged || 0}
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function DriftPage() {
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
                 }`}
               >
                 {tab.label}
@@ -247,22 +247,22 @@ export default function DriftPage() {
                             <SevIcon size={14} className={sevConf.color} aria-hidden="true" />
                             <Badge variant={sevConf.variant} size="xs">{alert.severity}</Badge>
                             <Badge size="xs">{alert.metric}</Badge>
-                            <span className="text-xs text-zinc-400">{alert.agent_id}</span>
+                            <span className="text-xs text-secondary">{alert.agent_id}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <ZScoreBar zScore={Number(alert.z_score)} />
                             <DirIcon
                               size={14}
-                              className={alert.direction === 'increasing' ? 'text-red-400' : 'text-blue-400'}
+                              className={alert.direction === 'increasing' ? 'text-error' : 'text-info'}
                               aria-hidden="true"
                             />
-                            <span className="tabular-nums text-xs text-zinc-500">
+                            <span className="tabular-nums text-xs text-tertiary">
                               {alert.pct_change > 0 ? '+' : ''}{alert.pct_change}%
                             </span>
                             {!alert.acknowledged && (
                               <button
                                 onClick={() => handleAcknowledge(alert.id)}
-                                className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-emerald-400"
+                                className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-success"
                                 aria-label={`Acknowledge ${alert.metric} alert`}
                               >
                                 <CheckCircle size={14} />
@@ -271,15 +271,15 @@ export default function DriftPage() {
                             {alert.acknowledged && <Badge variant="success" size="xs">ack</Badge>}
                             <button
                               onClick={() => handleDelete(alert.id)}
-                              className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                              className="rounded p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                               aria-label={`Delete ${alert.metric} alert`}
                             >
                               <XCircle size={12} />
                             </button>
                           </div>
                         </div>
-                        <p className="mt-1 text-xs text-zinc-400">{alert.description}</p>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-4 text-[11px] tabular-nums text-zinc-500">
+                        <p className="mt-1 text-xs text-secondary">{alert.description}</p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-4 text-[11px] tabular-nums text-tertiary">
                           <span>Baseline: {alert.baseline_mean} ± {alert.baseline_stddev}</span>
                           <span>Current: {alert.current_mean} ± {alert.current_stddev}</span>
                           <span>Samples: {alert.sample_count}</span>
@@ -308,13 +308,13 @@ export default function DriftPage() {
                           className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-zinc-300">{b.agent_id}</span>
+                            <span className="text-xs text-secondary">{b.agent_id}</span>
                             <Badge size="xs">{b.metric}</Badge>
                           </div>
                           <div className="flex items-center gap-3 text-xs tabular-nums">
-                            <span className="text-zinc-300">mean: {Number(b.mean).toFixed(2)}</span>
-                            <span className="text-zinc-500">std: {Number(b.stddev).toFixed(2)}</span>
-                            <span className="text-zinc-500">{b.sample_count} samples</span>
+                            <span className="text-secondary">mean: {Number(b.mean).toFixed(2)}</span>
+                            <span className="text-tertiary">std: {Number(b.stddev).toFixed(2)}</span>
+                            <span className="text-tertiary">{b.sample_count} samples</span>
                           </div>
                         </div>
                       ))}
@@ -329,10 +329,10 @@ export default function DriftPage() {
                       <div className="space-y-2">
                         {stats.by_metric.map(m => (
                           <div key={m.metric} className="flex items-center justify-between py-1.5">
-                            <span className="text-sm text-zinc-300">{m.metric}</span>
+                            <span className="text-sm text-secondary">{m.metric}</span>
                             <div className="flex items-center gap-3 text-xs tabular-nums">
-                              <span className="text-zinc-500">{m.count} alerts</span>
-                              <span className="text-zinc-400">avg |z|: {m.avg_z_score}</span>
+                              <span className="text-tertiary">{m.count} alerts</span>
+                              <span className="text-secondary">avg |z|: {m.avg_z_score}</span>
                             </div>
                           </div>
                         ))}
@@ -356,9 +356,9 @@ export default function DriftPage() {
                   <div className="space-y-2">
                     {stats.by_agent.map(a => (
                       <div key={a.agent_id} className="flex items-center justify-between py-1.5">
-                        <span className="text-sm text-zinc-300">{a.agent_id}</span>
+                        <span className="text-sm text-secondary">{a.agent_id}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs tabular-nums text-zinc-500">{a.count} alerts</span>
+                          <span className="text-xs tabular-nums text-tertiary">{a.count} alerts</span>
                           {a.critical > 0 && <Badge variant="error" size="xs">{a.critical} crit</Badge>}
                           {a.warning > 0 && <Badge variant="warning" size="xs">{a.warning} warn</Badge>}
                         </div>
@@ -386,13 +386,13 @@ export default function DriftPage() {
                     >
                       <div className="flex items-center gap-2">
                         <Badge size="xs">{s.metric}</Badge>
-                        {s.agent_id && <span className="text-xs text-zinc-400">{s.agent_id}</span>}
+                        {s.agent_id && <span className="text-xs text-secondary">{s.agent_id}</span>}
                       </div>
                       <div className="flex items-center gap-3 text-xs tabular-nums">
-                        <span className="text-zinc-300">mean: {Number(s.mean).toFixed(2)}</span>
-                        <span className="text-zinc-500">std: {Number(s.stddev).toFixed(2)}</span>
-                        <span className="text-zinc-500">{s.sample_count} samples</span>
-                        <span className="text-zinc-500">{new Date(s.period_start).toLocaleDateString()}</span>
+                        <span className="text-secondary">mean: {Number(s.mean).toFixed(2)}</span>
+                        <span className="text-tertiary">std: {Number(s.stddev).toFixed(2)}</span>
+                        <span className="text-tertiary">{s.sample_count} samples</span>
+                        <span className="text-tertiary">{new Date(s.period_start).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}

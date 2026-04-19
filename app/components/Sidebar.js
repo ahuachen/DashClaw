@@ -120,7 +120,7 @@ export default function Sidebar() {
         className={`relative mb-0.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 ${
           active
             ? 'bg-white/5 text-white'
-            : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+            : 'text-secondary hover:bg-white/5 hover:text-white'
         }`}
       >
         {active && (
@@ -176,8 +176,8 @@ export default function Sidebar() {
                   title={collapsed ? group.label : undefined}
                   className={
                     collapsed
-                      ? 'relative mb-1 flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors duration-150 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
-                      : 'mb-1.5 flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 transition-colors hover:text-zinc-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
+                      ? 'relative mb-1 flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm text-secondary transition-colors duration-150 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
+                      : 'mb-1.5 flex w-full items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40'
                   }
                 >
                   {collapsed ? (
@@ -200,7 +200,7 @@ export default function Sidebar() {
                 </button>
               ) : (
                 !collapsed && (
-                  <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                     {group.label}
                   </div>
                 )
@@ -217,10 +217,10 @@ export default function Sidebar() {
       <div className="border-t border-border px-4 py-3">
         {!collapsed && (
           <div className="space-y-1">
-            <div className="text-[11px] tabular-nums text-zinc-500">DashClaw v{process.env.NEXT_PUBLIC_DASHCLAW_VERSION || '2.13.0'}</div>
-            <div className="text-[11px] text-zinc-500">
+            <div className="text-[11px] tabular-nums text-tertiary">DashClaw v{process.env.NEXT_PUBLIC_DASHCLAW_VERSION || '2.13.0'}</div>
+            <div className="text-[11px] text-tertiary">
               Powered by{' '}
-              <Link href="/practical-systems" className="text-zinc-400 transition-colors hover:text-brand">
+              <Link href="/practical-systems" className="text-secondary transition-colors hover:text-brand">
                 Practical Systems
               </Link>
             </div>
@@ -230,7 +230,7 @@ export default function Sidebar() {
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-pressed={collapsed}
-          className="mt-2 hidden items-center gap-2 rounded text-xs text-zinc-500 transition-colors hover:text-zinc-300 md:flex"
+          className="mt-2 hidden items-center gap-2 rounded text-xs text-tertiary transition-colors hover:text-secondary md:flex"
         >
           {collapsed ? <PanelLeft size={14} aria-hidden="true" /> : <PanelLeftClose size={14} aria-hidden="true" />}
           {!collapsed && <span>Collapse</span>}
@@ -248,7 +248,7 @@ export default function Sidebar() {
         aria-expanded={mobileOpen}
         className="fixed left-3 top-3 z-50 rounded-lg border border-border bg-surface-secondary p-2 transition-colors hover:border-border-hover md:hidden"
       >
-        <Menu size={18} className="text-zinc-400" aria-hidden="true" />
+        <Menu size={18} className="text-secondary" aria-hidden="true" />
       </button>
 
       {/* Mobile overlay */}
@@ -263,7 +263,7 @@ export default function Sidebar() {
             <button
               onClick={() => setMobileOpen(false)}
               aria-label="Close navigation"
-              className="absolute right-3 top-3 rounded p-1.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+              className="absolute right-3 top-3 rounded p-1.5 text-tertiary transition-colors hover:bg-white/5 hover:text-white"
             >
               <X size={16} aria-hidden="true" />
             </button>

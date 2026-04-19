@@ -43,9 +43,9 @@ export default function InspirationCard() {
   }, []);
 
   const getScoreColor = (score) => {
-    if (score >= 8) return 'text-emerald-400';
-    if (score >= 6) return 'text-amber-400';
-    return 'text-red-400';
+    if (score >= 8) return 'text-success';
+    if (score >= 6) return 'text-warning';
+    return 'text-error';
   };
 
   const getTotalScoreVariant = (total) => {
@@ -82,7 +82,7 @@ export default function InspirationCard() {
                   <div className="flex-1 min-w-0 mr-2">
                     <div className="text-sm font-medium text-white truncate">{idea.title}</div>
                     {idea.description && (
-                      <div className="text-xs text-zinc-400 mt-0.5 line-clamp-2">
+                      <div className="text-xs text-secondary mt-0.5 line-clamp-2">
                         {idea.description.substring(0, 80)}
                       </div>
                     )}
@@ -95,15 +95,15 @@ export default function InspirationCard() {
                 <div className="grid grid-cols-3 gap-2 text-xs mt-2">
                   <div className="text-center">
                     <div className={`font-semibold tabular-nums ${getScoreColor(idea.funScore)}`}>{idea.funScore}</div>
-                    <div className="text-zinc-500">Fun</div>
+                    <div className="text-tertiary">Fun</div>
                   </div>
                   <div className="text-center">
                     <div className={`font-semibold tabular-nums ${getScoreColor(idea.learningScore)}`}>{idea.learningScore}</div>
-                    <div className="text-zinc-500">Learn</div>
+                    <div className="text-tertiary">Learn</div>
                   </div>
                   <div className="text-center">
                     <div className={`font-semibold tabular-nums ${getScoreColor(idea.incomeScore)}`}>{idea.incomeScore}</div>
-                    <div className="text-zinc-500">Income</div>
+                    <div className="text-tertiary">Income</div>
                   </div>
                 </div>
               </div>

@@ -31,14 +31,14 @@ export default function AgentScopePicker({ agentIds = [], onChange }) {
 
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Applies to</div>
+      <div className="text-[10px] uppercase tracking-widest text-tertiary mb-2">Applies to</div>
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => onChange([])}
           className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors ${
             isAllAgents
               ? 'bg-brand/10 border border-brand/40 text-brand'
-              : 'bg-white/5 border border-white/5 text-zinc-400 hover:text-white'
+              : 'bg-white/5 border border-white/5 text-secondary hover:text-white'
           }`}
         >
           <Users size={12} /> All agents
@@ -52,7 +52,7 @@ export default function AgentScopePicker({ agentIds = [], onChange }) {
               className={`rounded-full px-3 py-1.5 text-xs transition-colors ${
                 active
                   ? 'bg-brand/10 border border-brand/40 text-brand'
-                  : 'bg-white/5 border border-white/5 text-zinc-400 hover:text-white'
+                  : 'bg-white/5 border border-white/5 text-secondary hover:text-white'
               }`}
             >
               {agent.agent_name || agent.agent_id}
@@ -61,7 +61,7 @@ export default function AgentScopePicker({ agentIds = [], onChange }) {
         })}
       </div>
       {agents.length === 0 && (
-        <div className="mt-2 text-xs text-zinc-500">No agents discovered yet. Policies will apply to all agents.</div>
+        <div className="mt-2 text-xs text-tertiary">No agents discovered yet. Policies will apply to all agents.</div>
       )}
     </div>
   );

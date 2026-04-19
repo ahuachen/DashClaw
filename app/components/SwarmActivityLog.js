@@ -208,7 +208,7 @@ export default function SwarmActivityLog({
             <button
               type="button"
               onClick={toggleTelemetry}
-              className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wider text-secondary transition-colors hover:text-white"
             >
               {showTelemetry ? <EyeOff size={11} /> : <Eye size={11} />}
               {showTelemetry ? 'Hide telemetry' : `Show ${telemetryCount} telemetry`}
@@ -228,7 +228,7 @@ export default function SwarmActivityLog({
                 className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
                   activeCategory === option.id
                     ? 'border-brand/40 bg-brand/10 text-brand'
-                    : 'border-white/10 text-zinc-500 hover:text-white'
+                    : 'border-white/10 text-tertiary hover:text-white'
                 }`}
               >
                 {option.label}
@@ -237,7 +237,7 @@ export default function SwarmActivityLog({
           </div>
 
           {loading ? (
-            <div className="flex h-full items-center justify-center text-zinc-600 animate-pulse">
+            <div className="flex h-full items-center justify-center text-disabled animate-pulse">
               Initialising stream...
             </div>
           ) : visibleLogs.length === 0 ? (
@@ -263,28 +263,28 @@ export default function SwarmActivityLog({
               const typeColor =
                 log.kind === 'action' ? 'text-sky-400' :
                 log.kind === 'message' ? 'text-purple-400' :
-                log.kind === 'goal' ? 'text-emerald-400' :
-                log.kind === 'guard' ? (log.status === 'block' ? 'text-red-400' : 'text-amber-400') :
-                log.kind === 'loop' ? 'text-amber-400' :
-                'text-zinc-500';
+                log.kind === 'goal' ? 'text-success' :
+                log.kind === 'guard' ? (log.status === 'block' ? 'text-error' : 'text-warning') :
+                log.kind === 'loop' ? 'text-warning' :
+                'text-tertiary';
 
               return (
                 <div key={log.id} className={`group flex items-center gap-2 border-b py-1.5 last:border-0 ${log.lowSignal ? 'border-white/[0.015]' : 'border-white/[0.03]'}`}>
-                  <span className="w-[72px] shrink-0 tabular-nums text-zinc-600">[{formatTime(log.timestamp)}]</span>
+                  <span className="w-[72px] shrink-0 tabular-nums text-disabled">[{formatTime(log.timestamp)}]</span>
                   <div className={`shrink-0 ${typeColor}`}>
                     <Icon size={10} />
                   </div>
                   <span className={`max-w-[80px] shrink-0 truncate rounded border border-white/6 bg-[rgba(255,255,255,0.03)] px-1 text-[10px] ${agentColor}`}>
                     {log.agentId?.substring(0, 8) || 'system'}
                   </span>
-                  <span className={`min-w-0 flex-1 truncate transition-colors ${log.lowSignal ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-300 group-hover:text-white'}`}>
+                  <span className={`min-w-0 flex-1 truncate transition-colors ${log.lowSignal ? 'text-tertiary group-hover:text-secondary' : 'text-secondary group-hover:text-white'}`}>
                     {humanizeLogText(log.text)}
                   </span>
                   {log.count > 1 && (
                     <Badge variant="default" size="xs">{log.count}x</Badge>
                   )}
                   {log.kind === 'guard' && log.status === 'block' && (
-                    <XCircle size={10} className="shrink-0 text-red-400" />
+                    <XCircle size={10} className="shrink-0 text-error" />
                   )}
                 </div>
               );

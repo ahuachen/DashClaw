@@ -30,16 +30,16 @@ export default function DocList({ docs, onSelect, selectedId }) {
             }`}
           >
             <div className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 bg-[rgba(255,255,255,0.06)]">
-              <FileText size={14} className="text-zinc-400" />
+              <FileText size={14} className="text-secondary" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-zinc-200 truncate block">{doc.name || doc.title || 'Untitled document'}</span>
-              <div className="text-xs text-zinc-500 mt-0.5">
+              <span className="text-sm font-medium text-secondary truncate block">{doc.name || doc.title || 'Untitled document'}</span>
+              <div className="text-xs text-tertiary mt-0.5">
                 v{doc.version} · by {doc.last_edited_by || doc.created_by}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <span className="text-xs text-zinc-600">{timeAgo(doc.updated_at)}</span>
+              <span className="text-xs text-disabled">{timeAgo(doc.updated_at)}</span>
               <ChevronRight size={12} className="text-zinc-700" />
             </div>
           </div>

@@ -46,8 +46,8 @@ export default function MessageList({ messages, onSelect, selectedId, isSent, on
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   {isUnread && <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />}
-                  {msg.urgent && <AlertCircle size={12} className="text-red-400 flex-shrink-0" />}
-                  <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-zinc-300'}`}>
+                  {msg.urgent && <AlertCircle size={12} className="text-error flex-shrink-0" />}
+                  <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-secondary'}`}>
                     {isSent ? (toAgentId || 'All Agents') : fromAgentId}
                   </span>
                   <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
@@ -60,16 +60,16 @@ export default function MessageList({ messages, onSelect, selectedId, isSent, on
                   )}
                 </div>
                 {msg.subject && (
-                  <div className="text-sm text-zinc-200 truncate mt-0.5">{msg.subject}</div>
+                  <div className="text-sm text-secondary truncate mt-0.5">{msg.subject}</div>
                 )}
-                <div className="text-xs text-zinc-500 truncate mt-0.5">{body}</div>
+                <div className="text-xs text-tertiary truncate mt-0.5">{body}</div>
               </div>
               <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                <span className="text-xs text-zinc-600">{timeAgo(msg.created_at)}</span>
+                <span className="text-xs text-disabled">{timeAgo(msg.created_at)}</span>
                 {onReply && (
                   <button
                     onClick={(e) => { e.stopPropagation(); onReply(msg); }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-brand"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-tertiary hover:text-brand"
                     title="Reply"
                   >
                     <Reply size={12} />

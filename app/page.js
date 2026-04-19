@@ -162,7 +162,7 @@ export default function LandingPage() {
               <div className="flex flex-col gap-2 items-start">
                 <div className="flex items-center gap-2">
                   <div className="text-text-disabled font-mono">→</div>
-                  <div className="px-4 py-2 rounded-lg bg-emerald-950 border border-emerald-800 text-emerald-400 text-xs font-mono font-bold tracking-wider">
+                  <div className="px-4 py-2 rounded-lg bg-emerald-950 border border-emerald-800 text-success text-xs font-mono font-bold tracking-wider">
                     ALLOW
                   </div>
                   <div className="text-text-disabled font-mono">→</div>
@@ -172,7 +172,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-text-disabled font-mono">→</div>
-                  <div className="px-4 py-2 rounded-lg bg-red-950 border border-red-900 text-red-400 text-xs font-mono font-bold tracking-wider">
+                  <div className="px-4 py-2 rounded-lg bg-red-950 border border-red-900 text-error text-xs font-mono font-bold tracking-wider">
                     BLOCK
                   </div>
                 </div>
@@ -387,7 +387,7 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase">Guard Policy</span>
-                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-emerald-400 font-bold uppercase tracking-tighter">active</span>
+                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-success font-bold uppercase tracking-tighter">active</span>
                           </div>
                           <div className="text-[11px] font-bold text-text-primary mb-1 leading-tight">Block if risk &gt; 80</div>
                           <div className="text-[10px] font-mono text-brand mb-2">Risk &gt;= 80 → block</div>
@@ -399,15 +399,15 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase tracking-tighter">Human Approval</span>
-                            <span className="px-1.5 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-[8px] text-orange-400 font-bold uppercase tracking-tighter">pending</span>
+                            <span className="px-1.5 py-0.5 rounded bg-orange-500/10 border border-active/20 text-[8px] text-brand font-bold uppercase tracking-tighter">pending</span>
                           </div>
                           <div className="text-[11px] font-bold text-text-primary mb-1 leading-tight">REVIEW: data alerting</div>
                           <div className="text-[9px] text-text-tertiary mb-2">Agent: api-monitor</div>
                           <div className="flex justify-between items-center pt-2 border-t border-border-hover/50">
-                            <span className="text-[10px] font-bold text-red-400 font-mono">96% RISK</span>
+                            <span className="text-[10px] font-bold text-error font-mono">96% RISK</span>
                             <div className="flex gap-1">
                               <div className="w-3 h-3 rounded bg-green-500/20 border border-green-500/40"></div>
-                              <div className="w-3 h-3 rounded bg-red-500/20 border border-red-500/40"></div>
+                              <div className="w-3 h-3 rounded bg-error-subtle border border-error/40"></div>
                             </div>
                           </div>
                         </>
@@ -417,9 +417,9 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase">Execution</span>
-                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[8px] text-blue-400 font-bold uppercase tracking-tighter">success</span>
+                            <span className="px-1.5 py-0.5 rounded bg-info-subtle border border-blue-500/20 text-[8px] text-info font-bold uppercase tracking-tighter">success</span>
                           </div>
-                          <div className="text-[11px] font-bold text-emerald-400 mb-1 tracking-tight">ACTION SUCCESSFUL</div>
+                          <div className="text-[11px] font-bold text-success mb-1 tracking-tight">ACTION SUCCESSFUL</div>
                           <div className="text-[9px] text-text-secondary mb-2 leading-tight italic">Synced 80 rows + 6 calendar events</div>
                           <div className="pt-2 border-t border-border-hover/50 text-[9px] text-text-tertiary">
                             Duration: 6.25s
@@ -523,7 +523,7 @@ if (decision === "allow") {
                   <span className="text-purple-400">const</span>
                   <span className="text-text-secondary"> claw = </span>
                   <span className="text-purple-400">new</span>
-                  <span className="text-yellow-300"> DashClaw</span>
+                  <span className="text-warning"> DashClaw</span>
                   <span className="text-text-secondary">()</span>
                 </div>
 
@@ -533,11 +533,11 @@ if (decision === "allow") {
                   <span className="text-text-secondary">{' { decision } = '}</span>
                   <span className="text-purple-400">await</span>
                   <span className="text-text-secondary"> claw.</span>
-                  <span className="text-yellow-300">guard</span>
+                  <span className="text-warning">guard</span>
                   <span className="text-text-secondary">({'{'}</span>
                 </div>
                 <div className="text-text-secondary pl-4">
-                  actionType: <span className="text-emerald-400">&apos;deploy&apos;</span>,
+                  actionType: <span className="text-success">&apos;deploy&apos;</span>,
                 </div>
                 <div className="text-text-secondary pl-4">
                   riskScore: <span className="text-cyan-300">85</span>
@@ -546,7 +546,7 @@ if (decision === "allow") {
                 
                 <div className="mt-6 text-text-tertiary">{'// 3. Follow the decision'}</div>
                 <div className="text-text-secondary">
-                  <span className="text-purple-400">if</span> (decision === <span className="text-emerald-400">&apos;allowed&apos;</span>) {'{'}
+                  <span className="text-purple-400">if</span> (decision === <span className="text-success">&apos;allowed&apos;</span>) {'{'}
                 </div>
                 <div className="text-text-secondary pl-4 text-text-tertiary">
                   {'// execute real-world action'}
@@ -569,7 +569,7 @@ if (decision === "allow") {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                <div className="p-2 rounded-lg bg-error-subtle border border-error/20 text-error">
                   <ShieldAlert size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Prevent risky deployments</h3>
@@ -579,8 +579,8 @@ if (decision === "allow") {
               </p>
               <div className="rounded-xl bg-surface-secondary border border-border p-4 font-mono text-[11px] overflow-x-auto text-text-secondary shadow-lg">
                 <span className="text-purple-400">const</span> decision = <span className="text-purple-400">await</span> claw.guard({'{'}
-                <div className="pl-4">actionType: <span className="text-emerald-400">&quot;deploy&quot;</span>,</div>
-                <div className="pl-4">environment: <span className="text-emerald-400">&quot;production&quot;</span>,</div>
+                <div className="pl-4">actionType: <span className="text-success">&quot;deploy&quot;</span>,</div>
+                <div className="pl-4">environment: <span className="text-success">&quot;production&quot;</span>,</div>
                 <div className="pl-4">riskScore: <span className="text-cyan-300">92</span></div>
                 {'}'})
               </div>
@@ -593,7 +593,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                <div className="p-2 rounded-lg bg-info-subtle border border-blue-500/20 text-info">
                   <Lock size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Control autonomous API usage</h3>
@@ -603,8 +603,8 @@ if (decision === "allow") {
               </p>
               <div className="rounded-xl bg-surface-secondary border border-border p-4 font-mono text-[11px] overflow-x-auto text-text-secondary shadow-lg">
                 <span className="text-purple-400">await</span> claw.guard({'{'}
-                <div className="pl-4">actionType: <span className="text-emerald-400">&quot;external_api_call&quot;</span>,</div>
-                <div className="pl-4">provider: <span className="text-emerald-400">&quot;stripe&quot;</span>,</div>
+                <div className="pl-4">actionType: <span className="text-success">&quot;external_api_call&quot;</span>,</div>
+                <div className="pl-4">provider: <span className="text-success">&quot;stripe&quot;</span>,</div>
                 <div className="pl-4">amount: <span className="text-cyan-300">2000</span></div>
                 {'}'})
               </div>
@@ -617,7 +617,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                <div className="p-2 rounded-lg bg-orange-500/10 border border-active/20 text-brand">
                   <Activity size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Detect agent reasoning drift</h3>
@@ -628,7 +628,7 @@ if (decision === "allow") {
               <div className="p-4 rounded-xl bg-surface-secondary border border-border text-xs text-text-secondary space-y-2">
                 <div className="flex items-center justify-between border-b border-border-hover/50 pb-2">
                   <span>Assumptions Divergence</span>
-                  <span className="text-orange-400 font-mono">DRIFT DETECTED</span>
+                  <span className="text-brand font-mono">DRIFT DETECTED</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Logic Baseline</span>
@@ -646,7 +646,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-emerald-400">
+                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-success">
                   <FileJson size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Produce audit trails</h3>
@@ -654,7 +654,7 @@ if (decision === "allow") {
               <p className="text-text-secondary text-sm leading-relaxed">
                 Every governed action generates structured evidence records ready for compliance and review.
               </p>
-              <div className="rounded-xl bg-surface-secondary border border-border p-4 font-mono text-[10px] sm:text-xs overflow-x-auto text-emerald-400/80 shadow-lg">
+              <div className="rounded-xl bg-surface-secondary border border-border p-4 font-mono text-[10px] sm:text-xs overflow-x-auto text-success/80 shadow-lg">
                 <pre>{`{
   "agent": "deployment-bot",
   "action": "deploy",
@@ -750,7 +750,7 @@ if (decision === "allow") {
                 {signals.map((signal, i) => (
                   <div key={signal.name} className="flex items-start gap-4 p-4 rounded-xl bg-surface-secondary border border-border">
                     <div className="w-7 h-7 rounded-lg bg-status-error-subtle flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <ShieldAlert size={14} className="text-red-400" />
+                      <ShieldAlert size={14} className="text-error" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-text-primary">{signal.name}</h3>

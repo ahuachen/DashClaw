@@ -35,7 +35,7 @@ const SCORE_VARIANT = (score) => {
 };
 
 function ScoreBar({ score }) {
-  if (score === null || score === undefined) return <span className="text-xs text-zinc-500">—</span>;
+  if (score === null || score === undefined) return <span className="text-xs text-tertiary">—</span>;
   const pct = Math.round(score * 100);
   const color = score >= 0.8 ? 'bg-emerald-500' : score >= 0.5 ? 'bg-amber-500' : 'bg-red-500';
   return (
@@ -43,7 +43,7 @@ function ScoreBar({ score }) {
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="w-8 tabular-nums text-xs text-zinc-300">{pct}%</span>
+      <span className="w-8 tabular-nums text-xs text-secondary">{pct}%</span>
     </div>
   );
 }
@@ -185,14 +185,14 @@ export default function EvaluationsPage() {
   const overall = stats?.overall || {};
 
   const avgScoreColor =
-    overall.avg_score >= 0.8 ? 'text-emerald-400'
-    : overall.avg_score >= 0.5 ? 'text-amber-400'
-    : overall.avg_score ? 'text-red-400' : 'text-white';
+    overall.avg_score >= 0.8 ? 'text-success'
+    : overall.avg_score >= 0.5 ? 'text-warning'
+    : overall.avg_score ? 'text-error' : 'text-white';
 
-  const inputClass = 'rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const inputClass = 'rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
 
   const primaryBtn = 'flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50';
-  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white';
+  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white';
 
   return (
     <PageLayout
@@ -204,7 +204,7 @@ export default function EvaluationsPage() {
         <button
           onClick={fetchData}
           aria-label="Refresh"
-          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+          className="rounded-lg p-2 text-secondary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
         >
           <RefreshCw size={16} aria-hidden="true" />
         </button>
@@ -214,21 +214,21 @@ export default function EvaluationsPage() {
         {/* Instrument rail */}
         <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4">
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total scores</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total scores</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.total_scores || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Avg score</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Avg score</div>
             <div className={`mt-1 text-2xl font-semibold tabular-nums ${avgScoreColor}`}>
               {overall.avg_score ? `${Math.round(overall.avg_score * 100)}%` : '—'}
             </div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active scorers</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Active scorers</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.unique_scorers || scorers.length || 0}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Scored today</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Scored today</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{overall.today_count || 0}</div>
           </div>
         </div>
@@ -244,7 +244,7 @@ export default function EvaluationsPage() {
                 aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                  isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
                 }`}
               >
                 {tab.label}
@@ -272,12 +272,12 @@ export default function EvaluationsPage() {
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <Badge variant={SCORE_VARIANT(score.score)} size="xs">{score.label || (score.score >= 0.5 ? 'pass' : 'fail')}</Badge>
-                        <span className="truncate text-xs text-zinc-300">{score.scorer_name}</span>
-                        <span className="truncate font-mono text-[11px] text-zinc-500">{score.action_id}</span>
+                        <span className="truncate text-xs text-secondary">{score.scorer_name}</span>
+                        <span className="truncate font-mono text-[11px] text-tertiary">{score.action_id}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <ScoreBar score={score.score} />
-                        <span className="text-[11px] text-zinc-500">{score.evaluated_by}</span>
+                        <span className="text-[11px] text-tertiary">{score.evaluated_by}</span>
                       </div>
                     </div>
                   ))}
@@ -339,7 +339,7 @@ export default function EvaluationsPage() {
                     className={`w-full font-mono ${inputClass}`}
                   />
                   {newScorer.scorer_type === 'llm_judge' && !llmAvailable && (
-                    <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-300">
+                    <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning-subtle p-2 text-xs text-warning">
                       <AlertCircle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
                       <span>AI provider not configured. Set <code className="font-mono">OPENAI_API_KEY</code>, <code className="font-mono">ANTHROPIC_API_KEY</code>, or <code className="font-mono">GOOGLE_AI_API_KEY</code> to enable LLM-as-judge.</span>
                     </div>
@@ -367,14 +367,14 @@ export default function EvaluationsPage() {
                         <div className="flex min-w-0 items-center gap-3">
                           <span className="text-sm font-medium text-white">{scorer.name}</span>
                           <Badge size="xs">{scorer.scorer_type}</Badge>
-                          {scorer.description && <span className="truncate text-xs text-zinc-500">{scorer.description}</span>}
+                          {scorer.description && <span className="truncate text-xs text-tertiary">{scorer.description}</span>}
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
-                          <span className="tabular-nums text-xs text-zinc-500">{scorer.total_scores || 0} scores</span>
+                          <span className="tabular-nums text-xs text-tertiary">{scorer.total_scores || 0} scores</span>
                           {scorer.avg_score !== null && scorer.avg_score !== undefined && <ScoreBar score={parseFloat(scorer.avg_score)} />}
                           <button
                             onClick={() => handleDeleteScorer(scorer.id)}
-                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                            className="rounded p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                             aria-label={`Delete ${scorer.name}`}
                           >
                             <Trash2 size={14} />
@@ -445,15 +445,15 @@ export default function EvaluationsPage() {
                         className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-3 py-2"
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          {run.status === 'completed' && <CheckCircle size={14} className="shrink-0 text-emerald-400" aria-hidden="true" />}
-                          {run.status === 'running' && <RefreshCw size={14} className="shrink-0 animate-spin text-blue-400" aria-hidden="true" />}
-                          {run.status === 'failed' && <XCircle size={14} className="shrink-0 text-red-400" aria-hidden="true" />}
-                          {run.status === 'pending' && <Clock size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />}
+                          {run.status === 'completed' && <CheckCircle size={14} className="shrink-0 text-success" aria-hidden="true" />}
+                          {run.status === 'running' && <RefreshCw size={14} className="shrink-0 animate-spin text-info" aria-hidden="true" />}
+                          {run.status === 'failed' && <XCircle size={14} className="shrink-0 text-error" aria-hidden="true" />}
+                          {run.status === 'pending' && <Clock size={14} className="shrink-0 text-tertiary" aria-hidden="true" />}
                           <span className="text-sm font-medium text-white">{run.name}</span>
                           <Badge size="xs">{run.scorer_name || run.scorer_type || '—'}</Badge>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
-                          <span className="tabular-nums text-xs text-zinc-500">{run.scored_count || 0}/{run.total_actions || '?'} scored</span>
+                          <span className="tabular-nums text-xs text-tertiary">{run.scored_count || 0}/{run.total_actions || '?'} scored</span>
                           {run.avg_score !== null && run.avg_score !== undefined && <ScoreBar score={parseFloat(run.avg_score)} />}
                           <Badge variant={run.status === 'completed' ? 'success' : run.status === 'failed' ? 'error' : run.status === 'running' ? 'info' : 'default'} size="xs">{run.status}</Badge>
                         </div>
@@ -481,11 +481,11 @@ export default function EvaluationsPage() {
                     : 'bg-red-500';
                   return (
                     <div key={bucket.bucket} className="flex flex-1 flex-col items-center gap-1">
-                      <span className="text-[11px] tabular-nums text-zinc-500">{bucket.count}</span>
+                      <span className="text-[11px] tabular-nums text-tertiary">{bucket.count}</span>
                       <div className="w-full rounded-t" style={{ height: `${Math.max(height, 4)}%` }}>
                         <div className={`h-full w-full rounded-t ${color}`} />
                       </div>
-                      <span className="text-[11px] capitalize text-zinc-500">{bucket.bucket}</span>
+                      <span className="text-[11px] capitalize text-tertiary">{bucket.bucket}</span>
                     </div>
                   );
                 })}

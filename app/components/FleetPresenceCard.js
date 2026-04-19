@@ -66,13 +66,13 @@ export default function FleetPresenceCard() {
       <CardContent>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-              <div className="text-xl font-bold text-emerald-400 tabular-nums">{onlineAgents.length}</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-semibold">Online</div>
+            <div className="p-3 rounded-lg bg-emerald-500/5 border border-success/10">
+              <div className="text-xl font-bold text-success tabular-nums">{onlineAgents.length}</div>
+              <div className="text-[10px] text-tertiary uppercase font-semibold">Online</div>
             </div>
             <div className="p-3 rounded-lg bg-zinc-500/5 border border-zinc-500/10">
-              <div className="text-xl font-bold text-zinc-400 tabular-nums">{inactiveCount}</div>
-              <div className="text-[10px] text-zinc-500 uppercase font-semibold">Inactive</div>
+              <div className="text-xl font-bold text-secondary tabular-nums">{inactiveCount}</div>
+              <div className="text-[10px] text-tertiary uppercase font-semibold">Inactive</div>
             </div>
           </div>
 
@@ -81,36 +81,36 @@ export default function FleetPresenceCard() {
               const isOnline = agent.presence_state === 'online';
               const isStale = agent.presence_state === 'stale';
               
-              let statusColor = 'text-zinc-600';
+              let statusColor = 'text-disabled';
               let ringColor = 'ring-zinc-600';
               let dotColor = 'bg-zinc-500';
-              let statusTextClass = 'text-zinc-500';
+              let statusTextClass = 'text-tertiary';
 
               if (isOnline) {
-                statusColor = 'text-emerald-500';
+                statusColor = 'text-success';
                 ringColor = 'ring-emerald-500';
                 dotColor = 'bg-emerald-500';
-                statusTextClass = 'text-emerald-400';
+                statusTextClass = 'text-success';
               } else if (isStale) {
-                statusColor = 'text-amber-500';
+                statusColor = 'text-warning';
                 ringColor = 'ring-amber-500';
                 dotColor = 'bg-amber-500';
-                statusTextClass = 'text-amber-500';
+                statusTextClass = 'text-warning';
               }
 
               return (
                 <div key={agent.agent_id} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/[0.04]">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative">
-                      <Cpu size={16} className={isOnline ? 'text-brand' : 'text-zinc-600'} />
+                      <Cpu size={16} className={isOnline ? 'text-brand' : 'text-disabled'} />
                       {(isOnline || isStale) && (
                         <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${dotColor} ring-2 ring-[#0a0a0a]`} />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-medium text-zinc-200 truncate">{agent.agent_name || agent.agent_id}</div>
+                      <div className="text-xs font-medium text-secondary truncate">{agent.agent_name || agent.agent_id}</div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-zinc-500 font-mono" title={agent.agent_id}>
+                        <span className="text-[10px] text-tertiary font-mono" title={agent.agent_id}>
                           {agent.agent_id.slice(0, 8)}...
                         </span>
                         {agent.current_task_id && (
@@ -126,7 +126,7 @@ export default function FleetPresenceCard() {
                       {isOnline ? <Wifi size={10} /> : <WifiOff size={10} />}
                       {agent.presence_state ? (agent.presence_state.charAt(0).toUpperCase() + agent.presence_state.slice(1)) : 'Unknown'}
                     </div>
-                    <div className="text-[9px] text-zinc-600 mt-0.5" title={agent.last_seen_at}>
+                    <div className="text-[9px] text-disabled mt-0.5" title={agent.last_seen_at}>
                       {formatTime(agent.seconds_since_seen)}
                     </div>
                   </div>
@@ -135,7 +135,7 @@ export default function FleetPresenceCard() {
             })}
             
             {agents.length === 0 && (
-              <div className="py-8 text-center text-xs text-zinc-500 italic">No agents registered in fleet</div>
+              <div className="py-8 text-center text-xs text-tertiary italic">No agents registered in fleet</div>
             )}
           </div>
         </div>

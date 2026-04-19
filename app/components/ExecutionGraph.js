@@ -123,7 +123,7 @@ export default function ExecutionGraph({ graph }) {
 
   if (!graph || laidOut.length === 0) {
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-secondary">
         No graph data available for this action yet.
       </div>
     );
@@ -132,8 +132,8 @@ export default function ExecutionGraph({ graph }) {
   return (
     <div className="rounded-lg border border-white/10 bg-black/20">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
-        <div className="text-xs uppercase tracking-wider text-zinc-500">Execution Graph</div>
-        <div className="flex items-center gap-3 text-[10px] text-zinc-500">
+        <div className="text-xs uppercase tracking-wider text-tertiary">Execution Graph</div>
+        <div className="flex items-center gap-3 text-[10px] text-tertiary">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(16,185,129,0.55)' }} /> completed
           </span>

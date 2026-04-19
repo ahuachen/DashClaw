@@ -50,23 +50,23 @@ export default function PolicyAdvancedImportPanel({
       <Card className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[rgba(255,255,255,0.08)]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(255,255,255,0.06)]">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Upload size={16} className="text-amber-300" />
+            <div className="h-9 w-9 rounded-full bg-warning-subtle border border-warning/20 flex items-center justify-center">
+              <Upload size={16} className="text-warning" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-white">Advanced import</h2>
-              <p className="text-xs text-zinc-500">Expert tools for importing validated policy packs or raw YAML definitions.</p>
+              <p className="text-xs text-tertiary">Expert tools for importing validated policy packs or raw YAML definitions.</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors" aria-label="Close advanced import">
+          <button onClick={onClose} className="text-tertiary hover:text-white transition-colors" aria-label="Close advanced import">
             <X size={16} />
           </button>
         </div>
 
         <CardContent>
           <div className="space-y-5">
-            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-start gap-3">
-              <AlertTriangle size={16} className="text-amber-300 mt-0.5 flex-shrink-0" />
+            <div className="rounded-xl bg-warning-subtle border border-warning/20 p-4 flex items-start gap-3">
+              <AlertTriangle size={16} className="text-warning mt-0.5 flex-shrink-0" />
               <div className="space-y-1">
                 <p className="text-sm font-medium text-amber-100">Advanced import is intended for expert users.</p>
                 <p className="text-xs text-amber-200/80">
@@ -89,7 +89,7 @@ export default function PolicyAdvancedImportPanel({
                   <span className="text-sm font-medium text-white">Policy pack</span>
                   <Badge variant="success" size="xs">Recommended</Badge>
                 </div>
-                <p className="mt-2 text-xs text-zinc-400">
+                <p className="mt-2 text-xs text-secondary">
                   Start from a tested preset like Enterprise Strict or SMB Safe. Best when you want quick coverage without hand-authoring YAML.
                 </p>
               </button>
@@ -106,7 +106,7 @@ export default function PolicyAdvancedImportPanel({
                   <span className="text-sm font-medium text-white">Raw YAML</span>
                   <Badge variant="warning" size="xs">Expert</Badge>
                 </div>
-                <p className="mt-2 text-xs text-zinc-400">
+                <p className="mt-2 text-xs text-secondary">
                   Import a prewritten definition directly. Use this only when the YAML is already validated and ready to load.
                 </p>
               </button>
@@ -119,7 +119,7 @@ export default function PolicyAdvancedImportPanel({
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   importMode === 'pack'
                     ? 'bg-brand text-white'
-                    : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                    : 'bg-elevated text-secondary hover:bg-zinc-600'
                 }`}
               >
                 Policy pack
@@ -130,7 +130,7 @@ export default function PolicyAdvancedImportPanel({
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   importMode === 'yaml'
                     ? 'bg-brand text-white'
-                    : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                    : 'bg-elevated text-secondary hover:bg-zinc-600'
                 }`}
               >
                 Raw YAML
@@ -140,7 +140,7 @@ export default function PolicyAdvancedImportPanel({
             {importMode === 'pack' ? (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Policy pack</label>
+                  <label className="block text-xs text-secondary mb-1">Policy pack</label>
                   <select
                     value={importPack}
                     onChange={(e) => setImportPack(e.target.value)}
@@ -156,16 +156,16 @@ export default function PolicyAdvancedImportPanel({
                 {preview && (
                   <div className="rounded-lg bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)] p-3">
                     <span className="text-xs font-medium text-white">{preview.name}</span>
-                    <p className="text-[10px] text-zinc-500 mt-1">{preview.description}</p>
+                    <p className="text-[10px] text-tertiary mt-1">{preview.description}</p>
                     {preview.recommended_for && (
-                      <p className="text-[10px] text-zinc-600 mt-1">Recommended for: {preview.recommended_for}</p>
+                      <p className="text-[10px] text-disabled mt-1">Recommended for: {preview.recommended_for}</p>
                     )}
                   </div>
                 )}
               </div>
             ) : (
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">YAML policy definition</label>
+                <label className="block text-xs text-secondary mb-1">YAML policy definition</label>
                 <textarea
                   value={importYaml}
                   onChange={(e) => setImportYaml(e.target.value)}
@@ -173,7 +173,7 @@ export default function PolicyAdvancedImportPanel({
                   rows={8}
                   className={`${inputClass} font-mono`}
                 />
-                <p className="mt-2 text-[11px] text-zinc-500">
+                <p className="mt-2 text-[11px] text-tertiary">
                   DashClaw will send this directly to the import route. Use policy packs instead unless you already trust the YAML.
                 </p>
               </div>
@@ -190,7 +190,7 @@ export default function PolicyAdvancedImportPanel({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg bg-zinc-700 text-zinc-300 text-sm font-medium hover:bg-zinc-600 transition-colors"
+                className="px-4 py-2 rounded-lg bg-elevated text-secondary text-sm font-medium hover:bg-zinc-600 transition-colors"
               >
                 Back to policies
               </button>
@@ -214,7 +214,7 @@ export default function PolicyAdvancedImportPanel({
                   )}
                 </div>
                 {importResult.details && (
-                  <p className="text-xs text-zinc-400 mt-1">{importResult.details}</p>
+                  <p className="text-xs text-secondary mt-1">{importResult.details}</p>
                 )}
               </div>
             )}

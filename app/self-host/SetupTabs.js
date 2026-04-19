@@ -18,9 +18,9 @@ function StepCard({ n, title, desc, icon: Icon, children }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-6 h-6 rounded-full bg-brand/20 text-brand text-xs font-bold flex items-center justify-center">{n}</span>
-            <h2 className="text-base font-semibold text-zinc-100">{title}</h2>
+            <h2 className="text-base font-semibold text-primary">{title}</h2>
           </div>
-          <p className="text-sm text-zinc-400 leading-relaxed">{desc}</p>
+          <p className="text-sm text-secondary leading-relaxed">{desc}</p>
         </div>
       </div>
       {children && <div className="mt-4">{children}</div>}
@@ -35,7 +35,7 @@ export default function SetupTabs() {
     <div className="space-y-6">
       {/* Callout Banner */}
       <div className="bg-[rgba(249,115,22,0.08)] border border-[rgba(249,115,22,0.2)] rounded-lg px-4 py-3">
-        <p className="text-sm text-zinc-300">
+        <p className="text-sm text-secondary">
           No OAuth required to get started. Use Quick Start to deploy solo in under 10 minutes.
           Switch to Team Setup when you&apos;re ready to invite teammates.
         </p>
@@ -48,7 +48,7 @@ export default function SetupTabs() {
           className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'quick'
               ? 'bg-[#1a1a1a] text-brand border border-[rgba(255,255,255,0.08)] shadow-sm'
-              : 'text-zinc-400 hover:text-zinc-200'
+              : 'text-secondary hover:text-secondary'
           }`}
         >
           Quick Start
@@ -58,7 +58,7 @@ export default function SetupTabs() {
           className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
             activeTab === 'team'
               ? 'bg-[#1a1a1a] text-brand border border-[rgba(255,255,255,0.08)] shadow-sm'
-              : 'text-zinc-400 hover:text-zinc-200'
+              : 'text-secondary hover:text-secondary'
           }`}
         >
           Team Setup
@@ -73,13 +73,13 @@ export default function SetupTabs() {
           desc="Neon gives you a serverless Postgres database on their free tier — no credit card required."
           icon={Database}
         >
-          <ol className="list-decimal list-inside text-sm text-zinc-400 space-y-1.5 mb-4">
+          <ol className="list-decimal list-inside text-sm text-secondary space-y-1.5 mb-4">
             <li>Sign up at <a href="https://neon.tech" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">neon.tech</a></li>
             <li>Create a new project (any name, e.g. &quot;dashclaw&quot;)</li>
-            <li>Copy the connection string — it looks like <code className="text-zinc-300 font-mono text-xs">postgresql://user:pass@ep-xyz.neon.tech/neondb</code></li>
+            <li>Copy the connection string — it looks like <code className="text-secondary font-mono text-xs">postgresql://user:pass@ep-xyz.neon.tech/neondb</code></li>
           </ol>
-          <p className="text-xs text-zinc-500">
-            You&apos;ll paste this as <code className="font-mono text-zinc-300">DATABASE_URL</code> in the next step.
+          <p className="text-xs text-tertiary">
+            You&apos;ll paste this as <code className="font-mono text-secondary">DATABASE_URL</code> in the next step.
           </p>
         </StepCard>
 
@@ -90,16 +90,16 @@ export default function SetupTabs() {
           desc="Fork the repo and import it into Vercel. Add the environment variables and deploy."
           icon={Cloud}
         >
-          <ol className="list-decimal list-inside text-sm text-zinc-400 space-y-1.5 mb-4">
+          <ol className="list-decimal list-inside text-sm text-secondary space-y-1.5 mb-4">
             <li>Fork <a href="https://github.com/ucsandman/DashClaw" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">ucsandman/DashClaw</a> to your GitHub account</li>
             <li>Go to <a href="https://vercel.com/new" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">vercel.com/new</a> and import your fork</li>
             <li>Generate your secrets, then paste them into Vercel&apos;s environment variables:</li>
           </ol>
           <SecretGenerator />
-          <div className="mt-3 rounded-lg bg-[rgba(249,115,22,0.05)] border border-brand/10 px-4 py-3 text-xs text-zinc-400">
-            <strong className="text-zinc-300">About the API key:</strong> <code className="font-mono text-zinc-300">DASHCLAW_API_KEY</code> is your bootstrap admin key — it authenticates agents and seeds your first organization. After you sign in, you can create and manage additional API keys from the dashboard at <code className="font-mono text-zinc-300">/api-keys</code>.
+          <div className="mt-3 rounded-lg bg-[rgba(249,115,22,0.05)] border border-brand/10 px-4 py-3 text-xs text-secondary">
+            <strong className="text-secondary">About the API key:</strong> <code className="font-mono text-secondary">DASHCLAW_API_KEY</code> is your bootstrap admin key — it authenticates agents and seeds your first organization. After you sign in, you can create and manage additional API keys from the dashboard at <code className="font-mono text-secondary">/api-keys</code>.
           </div>
-          <p className="mt-2 text-xs text-zinc-500">Tables are created automatically on first request.</p>
+          <p className="mt-2 text-xs text-tertiary">Tables are created automatically on first request.</p>
         </StepCard>
 
         {/* Step 3: Conditional */}
@@ -110,16 +110,16 @@ export default function SetupTabs() {
             desc="No OAuth app required. Add one environment variable in Vercel and you can sign in immediately."
             icon={KeyRound}
           >
-            <p className="text-sm text-zinc-400 mb-3">
+            <p className="text-sm text-secondary mb-3">
               In your Vercel project → Settings → Environment Variables, add:
             </p>
             <div className="bg-[#0a0a0a] rounded-lg px-4 py-3 border border-[rgba(255,255,255,0.06)] font-mono text-sm mb-3">
               <span className="text-brand">DASHCLAW_LOCAL_ADMIN_PASSWORD</span> = your-strong-password-here
             </div>
-            <p className="text-sm text-zinc-400 mb-4">
+            <p className="text-sm text-secondary mb-4">
               Then redeploy. Visit your app and sign in with your password on the login page.
             </p>
-            <p className="text-zinc-500 text-xs">
+            <p className="text-tertiary text-xs">
               Use a strong password. This grants full admin access. You can add OAuth later when you want to invite teammates.
             </p>
           </StepCard>
@@ -130,15 +130,15 @@ export default function SetupTabs() {
             desc="Create a GitHub OAuth app so you can sign in to your dashboard."
             icon={GithubIcon}
           >
-            <ol className="list-decimal list-inside text-sm text-zinc-400 space-y-1.5 mb-4">
+            <ol className="list-decimal list-inside text-sm text-secondary space-y-1.5 mb-4">
               <li>Go to <a href="https://github.com/settings/developers" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">GitHub Developer Settings</a> → OAuth Apps → New OAuth App</li>
-              <li>Set <strong className="text-zinc-200">Homepage URL</strong> to <code className="font-mono text-zinc-300 text-xs">https://your-app.vercel.app</code></li>
-              <li>Set <strong className="text-zinc-200">Authorization callback URL</strong> to <code className="font-mono text-zinc-300 text-xs">https://your-app.vercel.app/api/auth/callback/github</code></li>
-              <li>Copy the Client ID and Client Secret into your Vercel env vars as <code className="font-mono text-zinc-300">GITHUB_ID</code> and <code className="font-mono text-zinc-300">GITHUB_SECRET</code></li>
+              <li>Set <strong className="text-secondary">Homepage URL</strong> to <code className="font-mono text-secondary text-xs">https://your-app.vercel.app</code></li>
+              <li>Set <strong className="text-secondary">Authorization callback URL</strong> to <code className="font-mono text-secondary text-xs">https://your-app.vercel.app/api/auth/callback/github</code></li>
+              <li>Copy the Client ID and Client Secret into your Vercel env vars as <code className="font-mono text-secondary">GITHUB_ID</code> and <code className="font-mono text-secondary">GITHUB_SECRET</code></li>
               <li>Redeploy from the Vercel dashboard</li>
             </ol>
-            <p className="text-xs text-zinc-500">
-              Replace <code className="font-mono text-zinc-300">your-app.vercel.app</code> with your actual Vercel domain.
+            <p className="text-xs text-tertiary">
+              Replace <code className="font-mono text-secondary">your-app.vercel.app</code> with your actual Vercel domain.
             </p>
           </StepCard>
         )}
@@ -150,12 +150,12 @@ export default function SetupTabs() {
           desc="Use Upstash Redis to bridge Vercel's serverless functions for real-time dashboard events."
           icon={Zap}
         >
-          <ol className="list-decimal list-inside text-sm text-zinc-400 space-y-1.5 mb-4">
+          <ol className="list-decimal list-inside text-sm text-secondary space-y-1.5 mb-4">
             <li>Sign up for a free account at <a href="https://upstash.com" target="_blank" rel="noopener noreferrer" className="text-brand hover:text-brand-hover transition-colors">upstash.com</a></li>
             <li>Create a new Redis database (Global or in the same region as your Vercel app)</li>
-            <li>Copy the <strong className="text-zinc-200">REST URL</strong> and <strong className="text-zinc-200">REST Token</strong>, or the raw <strong className="text-zinc-200">Redis URL</strong></li>
+            <li>Copy the <strong className="text-secondary">REST URL</strong> and <strong className="text-secondary">REST Token</strong>, or the raw <strong className="text-secondary">Redis URL</strong></li>
             <li>Add these environment variables to Vercel:
-              <ul className="list-disc list-inside ml-4 mt-1 text-zinc-500 text-xs font-mono">
+              <ul className="list-disc list-inside ml-4 mt-1 text-tertiary text-xs font-mono">
                 <li>REALTIME_BACKEND=redis</li>
                 <li>REDIS_URL=&lt;redis-connection-string&gt;</li>
                 <li>REALTIME_ENFORCE_REDIS=true</li>
@@ -163,7 +163,7 @@ export default function SetupTabs() {
             </li>
             <li>Redeploy your Vercel app to apply the changes</li>
           </ol>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-tertiary">
             The 30MB free tier at Upstash is more than enough for DashClaw&apos;s live event buffer.
           </p>
         </StepCard>
@@ -189,7 +189,7 @@ DASHCLAW_API_KEY=<your-secret-api-key>
 DASHCLAW_AGENT_ID=my-agent`}>{`DASHCLAW_BASE_URL=https://your-app.vercel.app
 DASHCLAW_API_KEY=<your-secret-api-key>
 DASHCLAW_AGENT_ID=my-agent`}</CopyableCodeBlock>
-          <p className="text-xs text-zinc-500 mt-2">
+          <p className="text-xs text-tertiary mt-2">
             Your Vercel app uses Vercel env vars. Your agent uses its own environment variables.
           </p>
 

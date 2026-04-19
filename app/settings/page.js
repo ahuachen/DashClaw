@@ -119,7 +119,7 @@ export default async function SettingsPage({ searchParams }) {
               role="tab"
               aria-selected={isActive}
               className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
               }`}
             >
               {t.label}
@@ -138,8 +138,8 @@ export default async function SettingsPage({ searchParams }) {
           <div className="space-y-6 lg:col-span-2">
             {/* Host */}
             <div className="flex items-center justify-between">
-              <div className="font-mono text-[11px] tabular-nums text-zinc-500">
-                Host: <span className="text-zinc-300">{host}</span>
+              <div className="font-mono text-[11px] tabular-nums text-tertiary">
+                Host: <span className="text-secondary">{host}</span>
               </div>
             </div>
 
@@ -154,12 +154,12 @@ export default async function SettingsPage({ searchParams }) {
 
             {view.notice ? (
               <div className="rounded-xl border border-border bg-surface-secondary px-5 py-4">
-                <p className="text-sm text-zinc-300">{view.notice}</p>
+                <p className="text-sm text-secondary">{view.notice}</p>
               </div>
             ) : null}
             {liveProofToken && !liveProof ? (
-              <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-4">
-                <p className="text-sm text-red-300">
+              <div role="alert" className="rounded-xl border border-error/30 bg-error-subtle px-5 py-4">
+                <p className="text-sm text-error">
                   The supplied live validation proof token could not be verified. Run the validator again and use the latest setup URL it returns.
                 </p>
               </div>
@@ -180,7 +180,7 @@ export default async function SettingsPage({ searchParams }) {
           <div className="space-y-6">
             {/* Quick Links */}
             <div className="rounded-xl border border-border bg-surface-secondary p-5">
-              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 Quick links
               </div>
               <div className="space-y-2">
@@ -190,8 +190,8 @@ export default async function SettingsPage({ searchParams }) {
                     href={link.href}
                     className="group flex items-center justify-between rounded-lg border border-border bg-surface-tertiary p-3 transition-colors hover:border-border-hover"
                   >
-                    <span className="text-sm text-zinc-300 group-hover:text-white">{link.label}</span>
-                    <span className="text-xs text-zinc-500">{link.hint}</span>
+                    <span className="text-sm text-secondary group-hover:text-white">{link.label}</span>
+                    <span className="text-xs text-tertiary">{link.hint}</span>
                   </Link>
                 ))}
               </div>
@@ -199,29 +199,29 @@ export default async function SettingsPage({ searchParams }) {
 
             {/* Instance Info */}
             <div className="rounded-xl border border-border bg-surface-secondary p-5">
-              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 Instance
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Version</span>
+                  <span className="text-xs text-tertiary">Version</span>
                   <span className="font-mono text-xs tabular-nums text-white">v2.5</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Mode</span>
-                  <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  <span className="text-xs text-tertiary">Mode</span>
+                  <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-success' : 'text-warning'}`}>
                     {process.env.DASHCLAW_MODE === 'demo' ? 'Demo' : 'Self-hosted'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Database</span>
-                  <span className={`text-xs font-medium ${view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className="text-xs text-tertiary">Database</span>
+                  <span className={`text-xs font-medium ${view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'text-success' : 'text-error'}`}>
                     {view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'Connected' : 'Not connected'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">Auth</span>
-                  <span className={`text-xs font-medium ${viewer.isAuthenticated ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                  <span className="text-xs text-tertiary">Auth</span>
+                  <span className={`text-xs font-medium ${viewer.isAuthenticated ? 'text-success' : 'text-secondary'}`}>
                     {viewer.isAuthenticated ? 'Configured' : 'Not configured'}
                   </span>
                 </div>
@@ -230,20 +230,20 @@ export default async function SettingsPage({ searchParams }) {
 
             {/* Environment */}
             <div className="rounded-xl border border-border bg-surface-secondary p-5">
-              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 Environment
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="mb-1 text-[11px] font-medium text-zinc-500">Host</div>
-                  <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
+                  <div className="mb-1 text-[11px] font-medium text-tertiary">Host</div>
+                  <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
                     {host}
                   </div>
                 </div>
                 <ApiKeyReveal maskedApiKey={maskedApiKey} />
                 <div>
-                  <div className="mb-1 text-[11px] font-medium text-zinc-500">Runtime</div>
-                  <div className="rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-300">
+                  <div className="mb-1 text-[11px] font-medium text-tertiary">Runtime</div>
+                  <div className="rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
                     Node {typeof process !== 'undefined' ? process.version : '—'}
                   </div>
                 </div>
@@ -255,14 +255,14 @@ export default async function SettingsPage({ searchParams }) {
 
             {/* Auth Status */}
             <div className="rounded-xl border border-border bg-surface-secondary p-5">
-              <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 Session
               </div>
               {viewer.isAuthenticated ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
-                    <span className="text-sm text-emerald-400">Authenticated</span>
+                    <span className="text-sm text-success">Authenticated</span>
                   </div>
                   <Link
                     href="/mission-control"
@@ -275,11 +275,11 @@ export default async function SettingsPage({ searchParams }) {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <span aria-hidden="true" className="h-2 w-2 rounded-full bg-zinc-500" />
-                    <span className="text-sm text-zinc-400">Not signed in</span>
+                    <span className="text-sm text-secondary">Not signed in</span>
                   </div>
                   <Link
                     href="/login"
-                    className="block rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-center text-sm font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
+                    className="block rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-center text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
                   >
                     Sign in
                   </Link>

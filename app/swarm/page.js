@@ -461,20 +461,20 @@ export default function SwarmIntelligencePage() {
         <div className="flex justify-between items-start px-1">
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white">
+              <div className="w-8 h-8 rounded-full bg-tertiary border border-white/10 flex items-center justify-center text-[10px] font-bold text-white">
                 {sourceNode.name[0]}
               </div>
-              <span className="text-[9px] text-zinc-500 mt-1 truncate max-w-[60px]">{sourceNode.name}</span>
+              <span className="text-[9px] text-tertiary mt-1 truncate max-w-[60px]">{sourceNode.name}</span>
             </div>
             <ArrowRight size={14} className="text-brand" />
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white">
+              <div className="w-8 h-8 rounded-full bg-tertiary border border-white/10 flex items-center justify-center text-[10px] font-bold text-white">
                 {targetNode.name[0]}
               </div>
-              <span className="text-[9px] text-zinc-500 mt-1 truncate max-w-[60px]">{targetNode.name}</span>
+              <span className="text-[9px] text-tertiary mt-1 truncate max-w-[60px]">{targetNode.name}</span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-zinc-500 hover:text-white">
+          <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-tertiary hover:text-white">
             <X size={16} />
           </button>
         </div>
@@ -482,13 +482,13 @@ export default function SwarmIntelligencePage() {
         <div className="flex border-b border-white/5 px-1">
           <button 
             onClick={() => setActiveTab('activity')}
-            className={`pb-2 px-4 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'activity' ? 'border-brand text-brand' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-2 px-4 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'activity' ? 'border-brand text-brand' : 'border-transparent text-tertiary hover:text-secondary'}`}
           >
             Shared Activity
           </button>
           <button 
             onClick={() => setActiveTab('messages')}
-            className={`pb-2 px-4 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'messages' ? 'border-brand text-brand' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-2 px-4 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'messages' ? 'border-brand text-brand' : 'border-transparent text-tertiary hover:text-secondary'}`}
           >
             Messages
           </button>
@@ -496,10 +496,10 @@ export default function SwarmIntelligencePage() {
 
         <div className="flex-1 overflow-hidden flex flex-col min-h-0 px-1">
           {context.loading ? (
-            <div className="py-12 text-center text-[11px] text-zinc-600 animate-pulse">Analyzing neural bridge...</div>
+            <div className="py-12 text-center text-[11px] text-disabled animate-pulse">Analyzing neural bridge...</div>
           ) : activeTab === 'activity' ? (
             <div className="flex flex-col flex-1 min-h-0 gap-2">
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest shrink-0">
+              <div className="text-[10px] text-tertiary font-bold uppercase tracking-widest shrink-0">
                 Shared Actions ({context.shared_actions.length})
               </div>
               <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
@@ -507,7 +507,7 @@ export default function SwarmIntelligencePage() {
                   <>
                     {context.shared_actions.slice(0, 3).map((act, i) => {
                       const statusColor = act.status === 'completed' ? 'bg-green-400' : act.status === 'failed' ? 'bg-red-400' : 'bg-yellow-400';
-                      const riskColor = act.risk_score >= 70 ? 'text-red-400' : 'text-amber-400';
+                      const riskColor = act.risk_score >= 70 ? 'text-error' : 'text-warning';
                       return (
                         <a
                           key={i}
@@ -516,7 +516,7 @@ export default function SwarmIntelligencePage() {
                         >
                           <div className="flex items-center gap-2">
                             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusColor}`} />
-                            <span className="text-zinc-300 truncate">{act.declared_goal || act.action_type}</span>
+                            <span className="text-secondary truncate">{act.declared_goal || act.action_type}</span>
                             {act.risk_score >= 40 && (
                               <span className={`${riskColor} ml-auto text-[10px] font-mono shrink-0`}>risk {act.risk_score}</span>
                             )}
@@ -534,13 +534,13 @@ export default function SwarmIntelligencePage() {
                     )}
                   </>
                 ) : (
-                  <div className="py-12 text-center text-[11px] text-zinc-600 italic">No shared neural activity within sync windows.</div>
+                  <div className="py-12 text-center text-[11px] text-disabled italic">No shared neural activity within sync windows.</div>
                 )}
               </div>
             </div>
           ) : (
             <div className="flex flex-col flex-1 min-h-0 gap-2">
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest shrink-0">
+              <div className="text-[10px] text-tertiary font-bold uppercase tracking-widest shrink-0">
                 Messages ({context.messages.length})
               </div>
               <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
@@ -550,13 +550,13 @@ export default function SwarmIntelligencePage() {
                       const time = formatTimestamp(msg.created_at);
                       return (
                         <div key={i} className="p-2 bg-surface-tertiary rounded text-xs">
-                          <div className="flex items-center gap-1 text-zinc-500 mb-0.5">
-                            <span className="text-zinc-300">{msg.sender_agent_id}</span>
+                          <div className="flex items-center gap-1 text-tertiary mb-0.5">
+                            <span className="text-secondary">{msg.sender_agent_id}</span>
                             <span>→</span>
                             <span>{msg.recipient_agent_id || 'broadcast'}</span>
                             <span className="ml-auto">{time}</span>
                           </div>
-                          <div className="text-zinc-400 line-clamp-2">{msg.content}</div>
+                          <div className="text-secondary line-clamp-2">{msg.content}</div>
                         </div>
                       );
                     })}
@@ -570,7 +570,7 @@ export default function SwarmIntelligencePage() {
                     )}
                   </>
                 ) : (
-                  <div className="py-12 text-center text-[11px] text-zinc-600 italic">No direct messages recorded between these agents.</div>
+                  <div className="py-12 text-center text-[11px] text-disabled italic">No direct messages recorded between these agents.</div>
                 )}
               </div>
             </div>
@@ -593,8 +593,8 @@ export default function SwarmIntelligencePage() {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-xl ${
-              action.status === 'completed' ? 'bg-green-500/10 text-green-500' :
-              action.status === 'failed' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'
+              action.status === 'completed' ? 'bg-green-500/10 text-success' :
+              action.status === 'failed' ? 'bg-error-subtle text-error' : 'bg-yellow-500/10 text-warning'
             }`}>
               {action.status === 'completed' ? <CheckCircle2 size={28} /> : action.status === 'failed' ? <AlertCircle size={28} /> : <Clock size={28} />}
             </div>
@@ -602,49 +602,49 @@ export default function SwarmIntelligencePage() {
               <h2 className="text-2xl font-bold text-white leading-none mb-2">{action.action_type}</h2>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0.5 px-2 border-none ${
-                  action.status === 'completed' ? 'bg-green-500/10 text-emerald-400' :
-                  action.status === 'failed' ? 'bg-red-500/10 text-red-400' : 'bg-zinc-800 text-zinc-400'
+                  action.status === 'completed' ? 'bg-green-500/10 text-success' :
+                  action.status === 'failed' ? 'bg-error-subtle text-error' : 'bg-tertiary text-secondary'
                 }`}>{action.status}</Badge>
-                <span className="text-[10px] text-zinc-500 font-mono tracking-tight">{action.action_id}</span>
+                <span className="text-[10px] text-tertiary font-mono tracking-tight">{action.action_id}</span>
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={20} className="text-zinc-500 hover:text-white" /></button>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X size={20} className="text-tertiary hover:text-white" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-6 custom-scrollbar pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="p-5 rounded-2xl bg-[#0a0a0a] border border-white/5">
-              <div className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold mb-3 flex items-center gap-2">
-                <Target size={14} className="text-zinc-600" /> Risk Score
+              <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold mb-3 flex items-center gap-2">
+                <Target size={14} className="text-disabled" /> Risk Score
               </div>
-              <div className={`text-3xl font-mono tracking-tight ${action.risk_score > 70 ? 'text-red-400' : action.risk_score > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>
+              <div className={`text-3xl font-mono tracking-tight ${action.risk_score > 70 ? 'text-error' : action.risk_score > 40 ? 'text-warning' : 'text-success'}`}>
                 {action.risk_score || 0}%
               </div>
             </div>
             <div className="p-5 rounded-2xl bg-[#0a0a0a] border border-white/5">
-              <div className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold mb-3 flex items-center gap-2">
-                <Clock size={14} className="text-zinc-600" /> Execution Time
+              <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold mb-3 flex items-center gap-2">
+                <Clock size={14} className="text-disabled" /> Execution Time
               </div>
-              <div className="text-xl font-mono text-zinc-200 tracking-tight">
+              <div className="text-xl font-mono text-secondary tracking-tight">
                 {formatTimestamp(action.timestamp_start)}
               </div>
             </div>
           </div>
 
           <div className="space-y-3">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold flex items-center gap-2">
-              <Info size={14} className="text-zinc-600" /> Decision Rationale
+            <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold flex items-center gap-2">
+              <Info size={14} className="text-disabled" /> Decision Rationale
             </div>
-            <div className="p-6 rounded-2xl bg-[#0a0a0a] border border-white/5 text-[15px] text-zinc-300 leading-relaxed italic font-medium">
+            <div className="p-6 rounded-2xl bg-[#0a0a0a] border border-white/5 text-[15px] text-secondary leading-relaxed italic font-medium">
               &quot;{action.reasoning || "Autonomous decision based on current swarm goals and policy constraints."}&quot;
             </div>
           </div>
 
           {action.metadata && (
             <div className="space-y-3">
-              <div className="text-[10px] text-zinc-500 uppercase tracking-[0.15em] font-bold flex items-center gap-2">
-                <Terminal size={14} className="text-zinc-600" /> Contextual Metadata
+              <div className="text-[10px] text-tertiary uppercase tracking-[0.15em] font-bold flex items-center gap-2">
+                <Terminal size={14} className="text-disabled" /> Contextual Metadata
               </div>
               <pre className="p-5 rounded-2xl bg-black/60 border border-white/5 text-[11px] font-mono text-brand/80 overflow-x-auto leading-relaxed">
                 {JSON.stringify(action.metadata, null, 2)}
@@ -670,7 +670,7 @@ export default function SwarmIntelligencePage() {
       title="Swarm Intelligence"
       subtitle="Neural fleet topology: Real-time agent synchronization & organic drift"
       breadcrumbs={['Operations', 'Swarm']}
-      actions={<button onClick={fetchGraph} className="p-2 text-zinc-400 hover:text-white transition-colors"><RefreshCw size={18} className={loading ? 'animate-spin' : ''} /></button>}
+      actions={<button onClick={fetchGraph} className="p-2 text-secondary hover:text-white transition-colors"><RefreshCw size={18} className={loading ? 'animate-spin' : ''} /></button>}
     >
       <div className="space-y-6">
         {/* ROW 1: SWARM BOX + TELEMETRY SIDEBAR (FULL VIEWPORT HEIGHT) */}
@@ -721,7 +721,7 @@ export default function SwarmIntelligencePage() {
           <div className="w-full lg:w-[400px] h-full shrink-0 relative overflow-hidden">
             <Card className="h-full border-brand/5 bg-surface-secondary/20 shadow-xl backdrop-blur-lg flex flex-col overflow-hidden">
               <CardHeader className="border-b border-white/5 py-4">
-                <div className="flex items-center gap-2"><Activity size={16} className="text-brand" /><span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Agent Telemetry</span></div>
+                <div className="flex items-center gap-2"><Activity size={16} className="text-brand" /><span className="text-xs font-bold uppercase tracking-widest text-secondary">Agent Telemetry</span></div>
               </CardHeader>
               <CardContent className="pt-6 flex-1 overflow-hidden relative flex flex-col min-h-0">
                 {inspectedAction && <ActionDetailOverlay action={inspectedAction} onClose={() => setInspectedAction(null)} />}
@@ -738,27 +738,27 @@ export default function SwarmIntelligencePage() {
                       <div className="absolute -inset-2 bg-brand/5 rounded-xl blur-xl group-hover:bg-brand/10 transition-all" />
                       <div className="relative">
                         <h3 className="text-lg font-bold text-white mb-0.5">{selectedAgent.name}</h3>
-                        <code className="text-[10px] text-zinc-500 font-mono">{selectedAgent.id.substring(0, 12)}...</code>
+                        <code className="text-[10px] text-tertiary font-mono">{selectedAgent.id.substring(0, 12)}...</code>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Badge variant="outline" className="text-[9px] bg-white/5 border-white/10 uppercase tracking-tighter">AGENT_CLASS_V2</Badge>
-                          <Badge variant="outline" className={`text-[9px] border-none ${(selectedAgent.risk || 0) > 40 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>RISK: {(selectedAgent.risk || 0).toFixed(0)}%</Badge>
+                          <Badge variant="outline" className={`text-[9px] border-none ${(selectedAgent.risk || 0) > 40 ? 'bg-yellow-500/10 text-warning' : 'bg-green-500/10 text-success'}`}>RISK: {(selectedAgent.risk || 0).toFixed(0)}%</Badge>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-3 shrink-0 px-1">
-                      <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2"><Zap size={10} className="text-brand" /> Live Performance</h4>
+                      <h4 className="text-[10px] font-bold text-tertiary uppercase tracking-widest flex items-center gap-2"><Zap size={10} className="text-brand" /> Live Performance</h4>
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-zinc-500 mb-1">Actions</div><div className="text-lg font-mono text-white">{selectedAgent.actions || 0}</div></div>
-                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-zinc-500 mb-1">Stability</div><div className="text-lg font-mono text-emerald-400">99.8%</div></div>
+                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-tertiary mb-1">Actions</div><div className="text-lg font-mono text-white">{selectedAgent.actions || 0}</div></div>
+                        <div className="p-3 rounded-lg bg-black/40 border border-white/5"><div className="text-[9px] text-tertiary mb-1">Stability</div><div className="text-lg font-mono text-success">99.8%</div></div>
                       </div>
                     </div>
 
                     <div className="space-y-3 flex-1 overflow-hidden flex flex-col min-h-0 px-1">
-                      <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2"><History size={10} className="text-zinc-400" /> Latest Decisions</h4>
+                      <h4 className="text-[10px] font-bold text-tertiary uppercase tracking-widest flex items-center gap-2"><History size={10} className="text-secondary" /> Latest Decisions</h4>
                       <div className="space-y-2 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
                         {agentContext.loading ? (
-                          <div className="py-8 text-center text-[11px] text-zinc-600 animate-pulse">Syncing neural state...</div>
+                          <div className="py-8 text-center text-[11px] text-disabled animate-pulse">Syncing neural state...</div>
                         ) : agentContext.actions.length > 0 ? (
                           agentContext.actions.map((action, i) => (
                             <div 
@@ -769,20 +769,20 @@ export default function SwarmIntelligencePage() {
                               <div className="flex justify-between items-start">
                                 <span className="text-[12px] font-bold text-white group-hover:text-brand transition-colors truncate max-w-[140px]">{action.action_type}</span>
                                 <Badge variant="outline" className={`text-[9px] py-0 px-1.5 border-none font-bold ${
-                                  action.status === 'completed' ? 'text-emerald-400 bg-green-400/10' : 
-                                  action.status === 'failed' ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-yellow-400/10'
+                                  action.status === 'completed' ? 'text-success bg-green-400/10' : 
+                                  action.status === 'failed' ? 'text-error bg-red-400/10' : 'text-warning bg-yellow-400/10'
                                 }`}>
                                   {action.status?.toUpperCase()}
                                 </Badge>
                               </div>
-                              <div className="flex justify-between items-center text-[10px] text-zinc-500 font-mono">
+                              <div className="flex justify-between items-center text-[10px] text-tertiary font-mono">
                                 <div className="flex items-center gap-1.5"><Target size={10} /> {action.risk_score || 0}% RISK</div>
                                 <div className="flex items-center gap-1.5">{formatTimestamp(action.timestamp_start)} <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" /></div>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="py-8 text-center text-[11px] text-zinc-600 italic">No recent neural activity detected.</div>
+                          <div className="py-8 text-center text-[11px] text-disabled italic">No recent neural activity detected.</div>
                         )}
                       </div>
                     </div>
@@ -793,8 +793,8 @@ export default function SwarmIntelligencePage() {
                   </div>
                 ) : (
                   <div className="text-center py-24 flex flex-col items-center gap-6">
-                    <div className="relative"><div className="absolute inset-0 bg-brand/5 blur-2xl rounded-full" /><div className="relative w-16 h-16 rounded-full bg-zinc-900/50 flex items-center justify-center border border-white/5 group-hover:border-brand/20 transition-all"><Search className="text-zinc-700" size={24} /></div></div>
-                    <div className="space-y-2"><p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">No Agent Selected</p><p className="text-[10px] text-zinc-600 leading-relaxed max-w-[200px] mx-auto">Click any node in the neural web to capture its real-time telemetry and decision stream.</p></div>
+                    <div className="relative"><div className="absolute inset-0 bg-brand/5 blur-2xl rounded-full" /><div className="relative w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center border border-white/5 group-hover:border-brand/20 transition-all"><Search className="text-zinc-700" size={24} /></div></div>
+                    <div className="space-y-2"><p className="text-[11px] font-bold text-secondary uppercase tracking-widest">No Agent Selected</p><p className="text-[10px] text-disabled leading-relaxed max-w-[200px] mx-auto">Click any node in the neural web to capture its real-time telemetry and decision stream.</p></div>
                   </div>
                 )}
               </CardContent>
@@ -806,7 +806,7 @@ export default function SwarmIntelligencePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-12">
           <div className="p-4 rounded-xl bg-surface-secondary/30 border border-white/5 backdrop-blur-sm flex items-center justify-center"><StatCompact label="Neural Links" value={graphData.links.length} color="text-white" /></div>
           <div className="p-4 rounded-xl bg-surface-secondary/30 border border-white/5 backdrop-blur-sm flex items-center justify-center"><StatCompact label="Sync Latency" value="12ms" color="text-brand" /></div>
-          <div className="p-4 rounded-xl bg-surface-secondary/30 border border-white/5 backdrop-blur-sm flex items-center justify-center"><StatCompact label="Drift State" value="Nominal" color="text-blue-400" /></div>
+          <div className="p-4 rounded-xl bg-surface-secondary/30 border border-white/5 backdrop-blur-sm flex items-center justify-center"><StatCompact label="Drift State" value="Nominal" color="text-info" /></div>
         </div>
       </div>
     </PageLayout>

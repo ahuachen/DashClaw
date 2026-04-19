@@ -20,12 +20,12 @@ function timeAgo(dateString) {
 }
 
 const statusBadge = {
-  spawning: 'bg-zinc-500/20 text-zinc-400',
-  ready: 'bg-blue-500/20 text-blue-400',
-  running: 'bg-emerald-500/20 text-emerald-400',
-  blocked: 'bg-amber-500/20 text-amber-400',
-  finished: 'bg-zinc-500/20 text-zinc-400',
-  failed: 'bg-red-500/20 text-red-400',
+  spawning: 'bg-zinc-500/20 text-secondary',
+  ready: 'bg-info-subtle text-info',
+  running: 'bg-success-subtle text-success',
+  blocked: 'bg-warning-subtle text-warning',
+  finished: 'bg-zinc-500/20 text-secondary',
+  failed: 'bg-error-subtle text-error',
 };
 
 const eventIcons = {
@@ -93,7 +93,7 @@ export default function SessionDetailPage() {
         breadcrumbs={['Observe', 'Sessions', sessionId]}
       >
         <div className="text-center py-12">
-          <div className="text-sm text-zinc-400">This session does not exist or you don&apos;t have access.</div>
+          <div className="text-sm text-secondary">This session does not exist or you don&apos;t have access.</div>
           <Link href="/sessions" className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand/80 transition-colors mt-4">
             <ArrowLeft size={14} /> Back to Sessions
           </Link>
@@ -111,7 +111,7 @@ export default function SessionDetailPage() {
       actions={
         <button
           onClick={() => { setLoading(true); fetchData(); }}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
         >
           <RotateCw size={14} />
           Refresh
@@ -120,35 +120,35 @@ export default function SessionDetailPage() {
     >
       {/* Back link */}
       <div className="mb-6">
-        <Link href="/sessions" className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors">
+        <Link href="/sessions" className="inline-flex items-center gap-1.5 text-xs text-secondary hover:text-white transition-colors">
           <ArrowLeft size={14} /> Back to Sessions
         </Link>
       </div>
 
       {/* Status + Meta */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
-        <span className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium capitalize ${statusBadge[session.status] || 'bg-zinc-500/20 text-zinc-400'}`}>
+        <span className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-medium capitalize ${statusBadge[session.status] || 'bg-zinc-500/20 text-secondary'}`}>
           {session.status}
         </span>
         {session.workspace && (
-          <span className="text-xs text-zinc-400">
-            <span className="text-zinc-600">Workspace:</span> {session.workspace}
+          <span className="text-xs text-secondary">
+            <span className="text-disabled">Workspace:</span> {session.workspace}
           </span>
         )}
         {session.branch && (
-          <span className="text-xs text-zinc-400">
-            <span className="text-zinc-600">Branch:</span> {session.branch}
+          <span className="text-xs text-secondary">
+            <span className="text-disabled">Branch:</span> {session.branch}
           </span>
         )}
       </div>
 
       {/* Blocked Alert */}
       {session.status === 'blocked' && session.blocked_reason && (
-        <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <AlertTriangle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
+        <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg bg-warning-subtle border border-warning/20">
+          <AlertTriangle size={16} className="text-warning mt-0.5 flex-shrink-0" />
           <div>
-            <div className="text-sm font-medium text-amber-400">Session Blocked</div>
-            <div className="text-xs text-amber-400/80 mt-0.5">{session.blocked_reason}</div>
+            <div className="text-sm font-medium text-warning">Session Blocked</div>
+            <div className="text-xs text-warning/80 mt-0.5">{session.blocked_reason}</div>
           </div>
         </div>
       )}
@@ -157,25 +157,25 @@ export default function SessionDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <Card hover={false}>
           <div className="p-4">
-            <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Green Level</div>
+            <div className="text-[10px] uppercase tracking-widest text-tertiary mb-1">Green Level</div>
             <div className="text-sm font-medium text-white">{session.green_level || '-'}</div>
           </div>
         </Card>
         <Card hover={false}>
           <div className="p-4">
-            <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Branch Freshness</div>
+            <div className="text-[10px] uppercase tracking-widest text-tertiary mb-1">Branch Freshness</div>
             <div className="text-sm font-medium text-white">{session.branch_freshness || '-'}</div>
           </div>
         </Card>
         <Card hover={false}>
           <div className="p-4">
-            <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Commits Behind</div>
+            <div className="text-[10px] uppercase tracking-widest text-tertiary mb-1">Commits Behind</div>
             <div className="text-sm font-medium text-white">{session.commits_behind != null ? session.commits_behind : '-'}</div>
           </div>
         </Card>
         <Card hover={false}>
           <div className="p-4">
-            <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">Blocked Reason</div>
+            <div className="text-[10px] uppercase tracking-widest text-tertiary mb-1">Blocked Reason</div>
             <div className="text-sm font-medium text-white">{session.blocked_reason || '-'}</div>
           </div>
         </Card>
@@ -184,11 +184,11 @@ export default function SessionDetailPage() {
       {/* Event Timeline */}
       <Card hover={false}>
         <div className="px-5 pt-5 pb-3">
-          <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Event Timeline</span>
+          <span className="text-sm font-medium text-secondary uppercase tracking-wider">Event Timeline</span>
         </div>
         <CardContent className="p-0">
           {events.length === 0 ? (
-            <div className="px-6 pb-6 text-xs text-zinc-500">No events recorded yet.</div>
+            <div className="px-6 pb-6 text-xs text-tertiary">No events recorded yet.</div>
           ) : (
             <div className="px-6 pb-6">
               <div className="relative">
@@ -201,15 +201,15 @@ export default function SessionDetailPage() {
                     return (
                       <div key={event.id || event.seq} className="flex items-start gap-3 relative">
                         <div className="relative z-10 flex-shrink-0 mt-0.5">
-                          <Icon size={14} className={`${statusBadge[event.kind] ? statusBadge[event.kind].split(' ')[1] : 'text-zinc-400'}`} />
+                          <Icon size={14} className={`${statusBadge[event.kind] ? statusBadge[event.kind].split(' ')[1] : 'text-secondary'}`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-zinc-300 capitalize">{event.kind}</span>
-                            <span className="text-[10px] text-zinc-600">{event.created_at ? timeAgo(event.created_at) : ''}</span>
+                            <span className="text-xs font-medium text-secondary capitalize">{event.kind}</span>
+                            <span className="text-[10px] text-disabled">{event.created_at ? timeAgo(event.created_at) : ''}</span>
                           </div>
                           {event.detail && (
-                            <div className="text-xs text-zinc-500 mt-0.5">{event.detail}</div>
+                            <div className="text-xs text-tertiary mt-0.5">{event.detail}</div>
                           )}
                         </div>
                       </div>

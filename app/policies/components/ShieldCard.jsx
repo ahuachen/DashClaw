@@ -53,16 +53,16 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
               className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
                 isActive
                   ? 'border-brand/20 bg-brand/10 text-brand'
-                  : 'border-border bg-surface-tertiary text-zinc-500'
+                  : 'border-border bg-surface-tertiary text-tertiary'
               }`}
             >
               <Icon size={18} aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-zinc-300'}`}>
+              <div className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-secondary'}`}>
                 {shield.name}
               </div>
-              <div className="mt-0.5 text-xs text-zinc-500">{shield.description}</div>
+              <div className="mt-0.5 text-xs text-tertiary">{shield.description}</div>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
 
         {/* Stats strip */}
         {isActive && statsText && (
-          <div className="mt-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs tabular-nums text-zinc-400">
+          <div className="mt-3 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs tabular-nums text-secondary">
             {statsText}
           </div>
         )}
@@ -95,7 +95,7 @@ export default function ShieldCard({ shield, policy, onToggle, onSaved }) {
         {/* Agent scope + configure */}
         {isActive && (
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-tertiary">
               {agentIds.length === 0 ? 'All agents' : `${agentIds.length} agent${agentIds.length === 1 ? '' : 's'}`}
             </span>
             <button

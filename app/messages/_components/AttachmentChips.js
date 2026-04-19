@@ -23,16 +23,16 @@ export default function AttachmentChips({ attachments, compact }) {
           href={attachmentUrl(att)}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center gap-1.5 px-2 py-1 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.08)] transition-colors text-xs text-zinc-300"
+          className="group flex items-center gap-1.5 px-2 py-1 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] hover:bg-[rgba(255,255,255,0.08)] transition-colors text-xs text-secondary"
         >
           {isImageType(att.mime_type) ? (
-            <ImageIcon size={compact ? 10 : 12} className="text-blue-400 flex-shrink-0" />
+            <ImageIcon size={compact ? 10 : 12} className="text-info flex-shrink-0" />
           ) : (
-            <FileText size={compact ? 10 : 12} className="text-zinc-400 flex-shrink-0" />
+            <FileText size={compact ? 10 : 12} className="text-secondary flex-shrink-0" />
           )}
           <span className="truncate max-w-[120px]">{att.filename}</span>
-          <span className="text-zinc-500">{formatSize(att.size_bytes)}</span>
-          <Download size={10} className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400" />
+          <span className="text-tertiary">{formatSize(att.size_bytes)}</span>
+          <Download size={10} className="opacity-0 group-hover:opacity-100 transition-opacity text-secondary" />
         </a>
       ))}
     </div>

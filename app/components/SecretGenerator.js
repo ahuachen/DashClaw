@@ -63,17 +63,17 @@ function SecretRow({ name, value, label }) {
     <div className="flex items-start gap-3 py-2.5 border-b border-[rgba(255,255,255,0.04)] last:border-b-0">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-0.5">
-          <code className="text-xs font-mono text-zinc-200 font-semibold">{name}</code>
-          <span className="text-[11px] text-zinc-500">{label}</span>
+          <code className="text-xs font-mono text-secondary font-semibold">{name}</code>
+          <span className="text-[11px] text-tertiary">{label}</span>
         </div>
-        <code className="text-xs font-mono text-zinc-400 break-all">{value}</code>
+        <code className="text-xs font-mono text-secondary break-all">{value}</code>
       </div>
       <button
         onClick={handleCopy}
         className="shrink-0 p-1.5 rounded bg-[#181818] hover:bg-[#222] transition-colors"
         title={`Copy ${name}`}
       >
-        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-zinc-400" />}
+        {copied ? <Check size={14} className="text-success" /> : <Copy size={14} className="text-secondary" />}
       </button>
     </div>
   );
@@ -123,10 +123,10 @@ export default function SecretGenerator() {
       {/* Generated secrets */}
       <div className="rounded-xl bg-[#0d0d0d] border border-brand/20 overflow-hidden">
         <div className="px-5 py-2.5 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-          <span className="text-xs text-zinc-500 font-mono">Generated secrets</span>
+          <span className="text-xs text-tertiary font-mono">Generated secrets</span>
           <button
             onClick={handleGenerate}
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-tertiary hover:text-secondary transition-colors"
             title="Regenerate all secrets"
           >
             <RefreshCw size={12} /> Regenerate
@@ -142,19 +142,19 @@ export default function SecretGenerator() {
       {/* Copy-pasteable env block */}
       <div className="relative group rounded-xl bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] overflow-hidden">
         <div className="px-5 py-2.5 border-b border-[rgba(255,255,255,0.06)] flex items-center justify-between">
-          <span className="text-xs text-zinc-500 font-mono">Ready-to-paste environment variables</span>
+          <span className="text-xs text-tertiary font-mono">Ready-to-paste environment variables</span>
           <button
             onClick={handleCopyAll}
             className="inline-flex items-center gap-1.5 text-xs text-brand hover:text-brand-hover transition-colors font-medium"
           >
-            {allCopied ? <><Check size={12} className="text-emerald-400" /> Copied!</> : <><Copy size={12} /> Copy All</>}
+            {allCopied ? <><Check size={12} className="text-success" /> Copied!</> : <><Copy size={12} /> Copy All</>}
           </button>
         </div>
-        <pre className="p-5 font-mono text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">{buildEnvBlock()}</pre>
+        <pre className="p-5 font-mono text-sm leading-relaxed text-secondary whitespace-pre-wrap">{buildEnvBlock()}</pre>
       </div>
 
-      <p className="text-xs text-zinc-500">
-        Replace <code className="font-mono text-zinc-300">DATABASE_URL</code> with your Neon connection string, <code className="font-mono text-zinc-300">NEXTAUTH_URL</code> with your Vercel app URL, and <code className="font-mono text-zinc-300">DASHCLAW_LOCAL_ADMIN_PASSWORD</code> with a strong password. The three generated secrets (<code className="font-mono text-zinc-300">DASHCLAW_API_KEY</code>, <code className="font-mono text-zinc-300">ENCRYPTION_KEY</code>, <code className="font-mono text-zinc-300">NEXTAUTH_SECRET</code>) are ready to use as-is.
+      <p className="text-xs text-tertiary">
+        Replace <code className="font-mono text-secondary">DATABASE_URL</code> with your Neon connection string, <code className="font-mono text-secondary">NEXTAUTH_URL</code> with your Vercel app URL, and <code className="font-mono text-secondary">DASHCLAW_LOCAL_ADMIN_PASSWORD</code> with a strong password. The three generated secrets (<code className="font-mono text-secondary">DASHCLAW_API_KEY</code>, <code className="font-mono text-secondary">ENCRYPTION_KEY</code>, <code className="font-mono text-secondary">NEXTAUTH_SECRET</code>) are ready to use as-is.
       </p>
     </div>
   );

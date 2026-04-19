@@ -27,7 +27,7 @@ export default function PolicyRuleBuilderSection({
       {form.type === 'risk_threshold' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Risk Threshold (0-100)</label>
+            <label className="block text-xs text-secondary mb-1">Risk Threshold (0-100)</label>
             <input
               aria-label="Risk Threshold"
               type="number"
@@ -44,7 +44,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Action</label>
+            <label className="block text-xs text-secondary mb-1">Action</label>
             <select
               aria-label="Action"
               value={form.action}
@@ -61,7 +61,7 @@ export default function PolicyRuleBuilderSection({
 
       {(form.type === 'require_approval' || form.type === 'block_action_type') && (
         <div>
-          <label className="block text-xs text-zinc-400 mb-2">Action Types</label>
+          <label className="block text-xs text-secondary mb-2">Action Types</label>
           <div className="flex flex-wrap gap-2">
             {actionOptions.map((type) => (
               <button
@@ -72,7 +72,7 @@ export default function PolicyRuleBuilderSection({
                 className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
                   form.actionTypes.includes(type)
                     ? 'bg-brand text-white'
-                    : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+                    : 'bg-[#1a1a1a] text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white'
                 }`}
               >
                 {type}
@@ -85,7 +85,7 @@ export default function PolicyRuleBuilderSection({
       {form.type === 'rate_limit' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Max Actions</label>
+            <label className="block text-xs text-secondary mb-1">Max Actions</label>
             <input
               aria-label="Max Actions"
               type="number"
@@ -96,7 +96,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Window (minutes)</label>
+            <label className="block text-xs text-secondary mb-1">Window (minutes)</label>
             <input
               aria-label="Window Minutes"
               type="number"
@@ -107,7 +107,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Action</label>
+            <label className="block text-xs text-secondary mb-1">Action</label>
             <select
               aria-label="Rate Limit Action"
               value={form.action}
@@ -125,7 +125,7 @@ export default function PolicyRuleBuilderSection({
       {form.type === 'webhook_check' && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="sm:col-span-3">
-            <label className="block text-xs text-zinc-400 mb-1">Webhook URL (HTTPS required)</label>
+            <label className="block text-xs text-secondary mb-1">Webhook URL (HTTPS required)</label>
             <input
               aria-label="Webhook URL"
               type="url"
@@ -137,7 +137,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Timeout (ms)</label>
+            <label className="block text-xs text-secondary mb-1">Timeout (ms)</label>
             <input
               aria-label="Webhook Timeout"
               type="number"
@@ -150,7 +150,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">On Timeout</label>
+            <label className="block text-xs text-secondary mb-1">On Timeout</label>
             <select
               aria-label="Webhook On Timeout"
               value={form.webhookOnTimeout}
@@ -167,7 +167,7 @@ export default function PolicyRuleBuilderSection({
       {form.type === 'semantic_check' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Instruction (Natural Language)</label>
+            <label className="block text-xs text-secondary mb-1">Instruction (Natural Language)</label>
             <textarea
               aria-label="Instruction"
               value={form.instruction}
@@ -179,7 +179,7 @@ export default function PolicyRuleBuilderSection({
             />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Fallback Action (if LLM is unavailable)</label>
+            <label className="block text-xs text-secondary mb-1">Fallback Action (if LLM is unavailable)</label>
             <select
               aria-label="Fallback Action"
               value={form.fallback}
@@ -189,8 +189,8 @@ export default function PolicyRuleBuilderSection({
               <option value="allow">Allow (Fail Open - Recommended)</option>
               <option value="block">Block (Fail Closed)</option>
             </select>
-            <p className="text-[10px] text-zinc-500 mt-1">
-              To enable this, set <code className="text-zinc-400">GUARD_LLM_KEY</code> (or OPENAI_API_KEY) in your environment variables.
+            <p className="text-[10px] text-tertiary mt-1">
+              To enable this, set <code className="text-secondary">GUARD_LLM_KEY</code> (or OPENAI_API_KEY) in your environment variables.
             </p>
           </div>
         </div>

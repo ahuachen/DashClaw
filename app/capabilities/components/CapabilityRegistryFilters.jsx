@@ -24,7 +24,7 @@ export default function CapabilityRegistryFilters({
             className={`rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors ${
               healthFilter === filter.value
                 ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
-                : 'border-transparent text-zinc-500 hover:border-border hover:text-zinc-300'
+                : 'border-transparent text-tertiary hover:border-border hover:text-secondary'
             }`}
           >
             {filter.label}
@@ -33,7 +33,7 @@ export default function CapabilityRegistryFilters({
       </div>
 
       <div className="flex items-center gap-4">
-        <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-zinc-400 hover:text-zinc-300">
+        <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-secondary hover:text-secondary">
           <input
             type="checkbox"
             checked={staleOnly}
@@ -44,7 +44,7 @@ export default function CapabilityRegistryFilters({
           <span>Stale only</span>
         </label>
 
-        <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-zinc-400 hover:text-zinc-300">
+        <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-secondary hover:text-secondary">
           <input
             type="checkbox"
             checked={uncertifiedOnly}

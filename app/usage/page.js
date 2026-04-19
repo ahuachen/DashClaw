@@ -18,14 +18,14 @@ function UsageMeter({ label, icon: Icon, usage, limit, className = '' }) {
     <Card hover={false} className={className}>
       <CardContent className="pt-4 pb-4">
         <div className="flex items-center gap-2 mb-2">
-          <Icon size={14} className="text-zinc-400" />
-          <span className="text-xs text-zinc-400">{label}</span>
+          <Icon size={14} className="text-secondary" />
+          <span className="text-xs text-secondary">{label}</span>
         </div>
         <div className="flex items-baseline gap-1.5 mb-1">
           <span className="text-lg font-semibold tabular-nums text-white">{usage.toLocaleString()}</span>
-          <span className="text-xs text-zinc-500">/ {displayLimit}</span>
+          <span className="text-xs text-tertiary">/ {displayLimit}</span>
         </div>
-        <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">
+        <div className="text-[10px] text-tertiary uppercase tracking-wider font-medium">
           Current Usage
         </div>
       </CardContent>
@@ -38,7 +38,7 @@ export default function UsagePage() {
     <Suspense fallback={
       <PageLayout title="Usage" subtitle="Monitor your workspace activity" breadcrumbs={['Dashboard', 'Usage']}>
         <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading usage info...</div>
+          <div className="text-sm text-tertiary">Loading usage info...</div>
         </div>
       </PageLayout>
     }>
@@ -86,7 +86,7 @@ function UsageContent() {
         breadcrumbs={['Dashboard', 'Usage']}
       >
         <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading usage info...</div>
+          <div className="text-sm text-tertiary">Loading usage info...</div>
         </div>
       </PageLayout>
     );
@@ -103,9 +103,9 @@ function UsageContent() {
     >
       {/* Error banner */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center justify-between">
+        <div className="mb-4 p-3 bg-error-subtle border border-error/20 rounded-lg text-sm text-error flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300 ml-4">&times;</button>
+          <button onClick={() => setError(null)} className="text-error hover:text-error ml-4">&times;</button>
         </div>
       )}
 
@@ -144,8 +144,8 @@ function UsageContent() {
               <BarChart3 size={18} className="text-brand" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-zinc-200">Open Source Edition</h3>
-              <p className="text-xs text-zinc-500 mt-0.5">
+              <h3 className="text-sm font-medium text-secondary">Open Source Edition</h3>
+              <p className="text-xs text-tertiary mt-0.5">
                 This instance of DashClaw is running the open-source version with unlimited resource quotas enabled.
               </p>
             </div>

@@ -83,7 +83,7 @@ export default function KnowledgeCollectionDetailPage() {
   if (loading) {
     return (
       <PageLayout title="Loading..." breadcrumbs={['Studio', 'Knowledge']}>
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
+        <div className="text-sm text-tertiary py-12 text-center">Loading...</div>
       </PageLayout>
     );
   }
@@ -94,7 +94,7 @@ export default function KnowledgeCollectionDetailPage() {
         <Card className="max-w-md mx-auto mt-12">
           <CardContent className="p-6 text-center">
             <div className="text-lg font-medium text-white mb-2">{error}</div>
-            <div className="text-sm text-zinc-500">{collectionId}</div>
+            <div className="text-sm text-tertiary">{collectionId}</div>
           </CardContent>
         </Card>
       </PageLayout>
@@ -111,7 +111,7 @@ export default function KnowledgeCollectionDetailPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/knowledge"
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
           >
             <ArrowLeft size={14} /> Back
           </Link>
@@ -145,13 +145,13 @@ export default function KnowledgeCollectionDetailPage() {
         <Card hover={false}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-semibold text-white">{collection.doc_count}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Items</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Items</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
-            <div className="text-xs font-mono text-zinc-300">{collection.source_type}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Source type</div>
+            <div className="text-xs font-mono text-secondary">{collection.source_type}</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Source type</div>
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -159,13 +159,13 @@ export default function KnowledgeCollectionDetailPage() {
             <Badge variant={collection.ingestion_status === 'synced' ? 'success' : 'default'}>
               {collection.ingestion_status}
             </Badge>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-2">Ingestion</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-2">Ingestion</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
-            <div className="text-xs text-zinc-300">{collection.tags?.join(', ') || '—'}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Tags</div>
+            <div className="text-xs text-secondary">{collection.tags?.join(', ') || '—'}</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Tags</div>
           </CardContent>
         </Card>
       </div>
@@ -205,7 +205,7 @@ export default function KnowledgeCollectionDetailPage() {
         <CardHeader title="Items" icon={BookOpen} count={items.length} />
         <CardContent className="p-5 pt-0">
           {items.length === 0 ? (
-            <div className="text-sm text-zinc-500 py-6 text-center">No items yet.</div>
+            <div className="text-sm text-tertiary py-6 text-center">No items yet.</div>
           ) : (
             <div className="space-y-2">
               {items.map((item) => (
@@ -214,10 +214,10 @@ export default function KnowledgeCollectionDetailPage() {
                   className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/5"
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <FileText size={14} className="text-zinc-500 flex-shrink-0" />
+                    <FileText size={14} className="text-tertiary flex-shrink-0" />
                     <div className="min-w-0">
                       <div className="text-sm text-white truncate">{item.title || item.source_uri}</div>
-                      <div className="text-xs text-zinc-500 font-mono truncate">{item.source_uri}</div>
+                      <div className="text-xs text-tertiary font-mono truncate">{item.source_uri}</div>
                     </div>
                   </div>
                   <Badge variant={statusVariant[item.status] || 'default'}>{item.status}</Badge>
@@ -230,13 +230,13 @@ export default function KnowledgeCollectionDetailPage() {
 
       {/* Sync result banner */}
       {syncResult && !syncResult.error && (
-        <div className="mt-4 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300">
+        <div className="mt-4 px-4 py-3 rounded-lg bg-success-subtle border border-success/20 text-sm text-success">
           Sync complete: {syncResult.ingested} ingested, {syncResult.chunks_created} chunks created
-          {syncResult.failed > 0 && <span className="text-amber-400"> ({syncResult.failed} failed)</span>}
+          {syncResult.failed > 0 && <span className="text-warning"> ({syncResult.failed} failed)</span>}
         </div>
       )}
       {syncResult?.error && (
-        <div className="mt-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+        <div className="mt-4 px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
           Sync failed: {syncResult.error}
         </div>
       )}
@@ -291,7 +291,7 @@ export default function KnowledgeCollectionDetailPage() {
           </div>
 
           {searchResults?.error && (
-            <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 mb-3">
+            <div className="px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error mb-3">
               {searchResults.error}
             </div>
           )}
@@ -299,22 +299,22 @@ export default function KnowledgeCollectionDetailPage() {
           {searchResults?.results && (
             <div className="space-y-3">
               {searchResults.results.length === 0 ? (
-                <div className="text-sm text-zinc-500 py-4 text-center">No results found. Have you synced the collection first?</div>
+                <div className="text-sm text-tertiary py-4 text-center">No results found. Have you synced the collection first?</div>
               ) : (
                 searchResults.results.map((r, i) => (
                   <div key={r.chunk_id} className="px-3 py-3 rounded-lg bg-white/[0.02] border border-white/5">
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-zinc-500 font-mono">#{i + 1}</span>
-                        {r.title && <span className="text-xs text-zinc-300">{r.title}</span>}
+                        <span className="text-[10px] text-tertiary font-mono">#{i + 1}</span>
+                        {r.title && <span className="text-xs text-secondary">{r.title}</span>}
                       </div>
-                      <span className="text-[10px] text-zinc-500 font-mono">
+                      <span className="text-[10px] text-tertiary font-mono">
                         score {(r.score * 100).toFixed(1)}% · {r.token_count} tokens
                       </span>
                     </div>
-                    <div className="text-sm text-zinc-300 whitespace-pre-wrap line-clamp-4">{r.content}</div>
+                    <div className="text-sm text-secondary whitespace-pre-wrap line-clamp-4">{r.content}</div>
                     {r.source_uri && (
-                      <div className="text-[10px] text-zinc-600 font-mono mt-1.5 truncate">{r.source_uri}</div>
+                      <div className="text-[10px] text-disabled font-mono mt-1.5 truncate">{r.source_uri}</div>
                     )}
                   </div>
                 ))

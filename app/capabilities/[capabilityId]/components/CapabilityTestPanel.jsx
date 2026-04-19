@@ -65,7 +65,7 @@ export default function CapabilityTestPanel({
       <CardHeader title="Test Panel" />
       <CardContent className="space-y-4">
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <label className="flex flex-col gap-1 text-sm text-zinc-400">
+          <label className="flex flex-col gap-1 text-sm text-secondary">
             <span>Declared goal</span>
             <input
               name="declared_goal"
@@ -84,7 +84,7 @@ export default function CapabilityTestPanel({
               onChange={(key, value) => setGeneratedValues((current) => ({ ...current, [key]: value }))}
             />
           ) : (
-            <label className="flex flex-col gap-1 text-sm text-zinc-400">
+            <label className="flex flex-col gap-1 text-sm text-secondary">
               <span>Test payload</span>
               <textarea
                 aria-label="Test payload"
@@ -101,7 +101,7 @@ export default function CapabilityTestPanel({
             <button
               type="button"
               onClick={() => setUseAdvancedMode((current) => !current)}
-              className="text-sm text-zinc-400 hover:text-white"
+              className="text-sm text-secondary hover:text-white"
             >
               {useAdvancedMode ? 'Use guided fields' : 'Use advanced JSON'}
             </button>
@@ -123,13 +123,13 @@ export default function CapabilityTestPanel({
         ) : null}
 
         {result?.error ? (
-          <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <div className="rounded-lg border border-error/20 bg-error-subtle px-3 py-2 text-sm text-error">
             {result.error}
           </div>
         ) : null}
 
         {result?.message ? (
-          <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-200">
+          <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-secondary">
             {result.message}
           </div>
         ) : null}

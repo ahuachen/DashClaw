@@ -93,8 +93,8 @@ export default function ImageLightbox({ items, index, onChangeIndex, onClose }) 
               onClick={(e) => e.stopPropagation()}
             >
               {item.title && <h2 className="text-xl font-semibold text-white">{item.title}</h2>}
-              {item.description && <p className="mt-2 text-sm text-zinc-400">{item.description}</p>}
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-zinc-500">
+              {item.description && <p className="mt-2 text-sm text-secondary">{item.description}</p>}
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-tertiary">
                 {safeIndex + 1} of {items.length} · Use ← → keys
               </div>
             </div>

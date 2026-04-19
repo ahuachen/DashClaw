@@ -23,9 +23,9 @@ const TABS = [
 const CATEGORIES = ['general', 'quality', 'performance', 'accuracy', 'safety', 'ux'];
 
 const SENTIMENT_CONFIG = {
-  positive: { icon: ThumbsUp, variant: 'success', color: 'text-emerald-400' },
-  negative: { icon: ThumbsDown, variant: 'error', color: 'text-red-400' },
-  neutral: { icon: Minus, variant: 'default', color: 'text-zinc-400' },
+  positive: { icon: ThumbsUp, variant: 'success', color: 'text-success' },
+  negative: { icon: ThumbsDown, variant: 'error', color: 'text-error' },
+  neutral: { icon: Minus, variant: 'default', color: 'text-secondary' },
 };
 
 function StarRating({ rating, size = 14 }) {
@@ -35,7 +35,7 @@ function StarRating({ rating, size = 14 }) {
         <Star
           key={i}
           size={size}
-          className={i <= rating ? 'text-amber-400 fill-yellow-400' : 'text-zinc-700'}
+          className={i <= rating ? 'text-warning fill-yellow-400' : 'text-zinc-700'}
         />
       ))}
     </div>
@@ -46,12 +46,12 @@ function RatingBar({ rating, count, maxCount }) {
   const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-zinc-400 w-4 text-right">{rating}</span>
-      <Star size={10} className="text-amber-400 fill-yellow-400 shrink-0" />
-      <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+      <span className="text-xs text-secondary w-4 text-right">{rating}</span>
+      <Star size={10} className="text-warning fill-yellow-400 shrink-0" />
+      <div className="flex-1 h-1.5 bg-tertiary rounded-full overflow-hidden">
         <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-zinc-600 w-6 text-right tabular-nums">{count}</span>
+      <span className="text-[10px] text-disabled w-6 text-right tabular-nums">{count}</span>
     </div>
   );
 }
@@ -156,7 +156,7 @@ export default function FeedbackPage() {
       subtitle="User feedback tied to agent decisions"
       breadcrumbs={['Operations', 'Feedback']}
       actions={
-        <button onClick={fetchData} className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+        <button onClick={fetchData} className="p-2 rounded-lg text-secondary hover:text-white hover:bg-white/5 transition-colors">
           <RefreshCw size={16} />
         </button>
       }
@@ -171,22 +171,22 @@ export default function FeedbackPage() {
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-emerald-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-amber-400' : 'text-red-400'} />
+              <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-success' : parseFloat(overall.avg_rating) >= 3 ? 'text-warning' : 'text-error'} />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Positive" value={overall.positive_count || 0} color="text-emerald-400" />
+              <StatCompact label="Positive" value={overall.positive_count || 0} color="text-success" />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Negative" value={overall.negative_count || 0} color="text-red-400" />
+              <StatCompact label="Negative" value={overall.negative_count || 0} color="text-error" />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
+              <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-warning' : 'text-secondary'} />
             </CardContent>
           </Card>
         </div>
@@ -198,7 +198,7 @@ export default function FeedbackPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id ? 'text-white border-brand' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id ? 'text-white border-brand' : 'text-tertiary border-transparent hover:text-secondary'}`}
               >
                 {tab.label}
               </button>
@@ -221,24 +221,24 @@ export default function FeedbackPage() {
           <Card>
             <CardContent className="space-y-3 pt-5">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-zinc-500">Rating:</span>
+                <span className="text-xs text-tertiary">Rating:</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map(i => (
                     <button key={i} onClick={() => setNewFeedback(s => ({ ...s, rating: s.rating === i ? 0 : i }))} className="p-0.5">
-                      <Star size={20} className={i <= newFeedback.rating ? 'text-amber-400 fill-yellow-400' : 'text-zinc-700 hover:text-zinc-500'} />
+                      <Star size={20} className={i <= newFeedback.rating ? 'text-warning fill-yellow-400' : 'text-zinc-700 hover:text-tertiary'} />
                     </button>
                   ))}
                 </div>
               </div>
-              <textarea value={newFeedback.comment} onChange={e => setNewFeedback(s => ({ ...s, comment: e.target.value }))} placeholder="What happened? How did the agent perform?" rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
+              <textarea value={newFeedback.comment} onChange={e => setNewFeedback(s => ({ ...s, comment: e.target.value }))} placeholder="What happened? How did the agent perform?" rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-disabled focus:outline-none focus:border-brand" />
               <div className="grid grid-cols-2 gap-3">
                 <select value={newFeedback.category} onChange={e => setNewFeedback(s => ({ ...s, category: e.target.value }))} className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-brand">
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <input value={newFeedback.action_id} onChange={e => setNewFeedback(s => ({ ...s, action_id: e.target.value }))} placeholder="Action ID (optional)" className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-brand" />
+                <input value={newFeedback.action_id} onChange={e => setNewFeedback(s => ({ ...s, action_id: e.target.value }))} placeholder="Action ID (optional)" className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-disabled focus:outline-none focus:border-brand" />
               </div>
               <div className="flex justify-end gap-2">
-                <button onClick={() => setShowCreate(false)} className="px-3 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-white transition-colors">Cancel</button>
+                <button onClick={() => setShowCreate(false)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:text-white transition-colors">Cancel</button>
                 <button onClick={handleCreate} disabled={!newFeedback.rating && !newFeedback.comment} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">Submit</button>
               </div>
             </CardContent>
@@ -263,27 +263,27 @@ export default function FeedbackPage() {
                             <SentIcon size={14} className={sentConf.color} />
                             {fb.rating && <StarRating rating={fb.rating} size={12} />}
                             <Badge size="xs">{fb.category}</Badge>
-                            {fb.agent_id && <span className="text-[10px] text-zinc-600">{fb.agent_id}</span>}
+                            {fb.agent_id && <span className="text-[10px] text-disabled">{fb.agent_id}</span>}
                           </div>
                           <div className="flex items-center gap-2">
                             {fb.resolved ? (
                               <Badge variant="success" size="xs">resolved</Badge>
                             ) : (
-                              <button onClick={() => handleResolve(fb.id)} className="p-1 rounded text-zinc-600 hover:text-emerald-400 transition-colors" title="Mark resolved">
+                              <button onClick={() => handleResolve(fb.id)} className="p-1 rounded text-disabled hover:text-success transition-colors" title="Mark resolved">
                                 <CheckCircle size={14} />
                               </button>
                             )}
-                            <button onClick={() => handleDelete(fb.id)} className="p-1 rounded text-zinc-600 hover:text-red-400 transition-colors" title="Delete">
+                            <button onClick={() => handleDelete(fb.id)} className="p-1 rounded text-disabled hover:text-error transition-colors" title="Delete">
                               <XCircle size={14} />
                             </button>
                           </div>
                         </div>
-                        {fb.comment && <p className="text-xs text-zinc-300 mt-1">{fb.comment}</p>}
+                        {fb.comment && <p className="text-xs text-secondary mt-1">{fb.comment}</p>}
                         <div className="flex items-center gap-2 mt-1.5">
                           {fb.tags && JSON.parse(typeof fb.tags === 'string' ? fb.tags : JSON.stringify(fb.tags)).map(tag => (
                             <Badge key={tag} size="xs" variant="info">{tag}</Badge>
                           ))}
-                          {fb.action_id && <span className="text-[10px] text-zinc-600">action: {fb.action_id}</span>}
+                          {fb.action_id && <span className="text-[10px] text-disabled">action: {fb.action_id}</span>}
                           <span className="text-[10px] text-zinc-700 ml-auto">{new Date(fb.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
@@ -338,10 +338,10 @@ export default function FeedbackPage() {
                   <div className="space-y-2">
                     {stats.by_category.map(c => (
                       <div key={c.category} className="flex items-center justify-between py-1.5">
-                        <span className="text-sm text-zinc-300 capitalize">{c.category}</span>
+                        <span className="text-sm text-secondary capitalize">{c.category}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-zinc-500 tabular-nums">{c.count} entries</span>
-                          <span className="text-xs text-zinc-400 tabular-nums">{c.avg_rating}/5 avg</span>
+                          <span className="text-xs text-tertiary tabular-nums">{c.count} entries</span>
+                          <span className="text-xs text-secondary tabular-nums">{c.avg_rating}/5 avg</span>
                         </div>
                       </div>
                     ))}
@@ -358,12 +358,12 @@ export default function FeedbackPage() {
                   <div className="space-y-2">
                     {stats.by_agent.map(a => (
                       <div key={a.agent_id} className="flex items-center justify-between py-1.5">
-                        <span className="text-sm text-zinc-300">{a.agent_id}</span>
+                        <span className="text-sm text-secondary">{a.agent_id}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-zinc-500 tabular-nums">{a.count} entries</span>
-                          <span className="text-xs text-emerald-400 tabular-nums">{a.positive}+</span>
-                          <span className="text-xs text-red-400 tabular-nums">{a.negative}-</span>
-                          <span className="text-xs text-zinc-400 tabular-nums">{a.avg_rating}/5</span>
+                          <span className="text-xs text-tertiary tabular-nums">{a.count} entries</span>
+                          <span className="text-xs text-success tabular-nums">{a.positive}+</span>
+                          <span className="text-xs text-error tabular-nums">{a.negative}-</span>
+                          <span className="text-xs text-secondary tabular-nums">{a.avg_rating}/5</span>
                         </div>
                       </div>
                     ))}

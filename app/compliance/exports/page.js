@@ -22,10 +22,10 @@ const FRAMEWORKS = [
 ];
 
 const STATUS_CONFIG = {
-  completed: { icon: CheckCircle, variant: 'success', color: 'text-emerald-400' },
-  running: { icon: Loader2, variant: 'info', color: 'text-blue-400', animate: true },
-  failed: { icon: XCircle, variant: 'error', color: 'text-red-400' },
-  pending: { icon: Clock, variant: 'default', color: 'text-zinc-500' },
+  completed: { icon: CheckCircle, variant: 'success', color: 'text-success' },
+  running: { icon: Loader2, variant: 'info', color: 'text-info', animate: true },
+  failed: { icon: XCircle, variant: 'error', color: 'text-error' },
+  pending: { icon: Clock, variant: 'default', color: 'text-tertiary' },
 };
 
 const CRON_PRESETS = [
@@ -173,10 +173,10 @@ export default function ComplianceExportsPage() {
     `rounded-md border px-2 py-1 text-xs transition-colors ${
       active
         ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/50 hover:bg-brand/15'
-        : 'border-border bg-surface-tertiary text-zinc-400 hover:border-border-hover hover:text-white'
+        : 'border-border bg-surface-tertiary text-secondary hover:border-border-hover hover:text-white'
     }`;
 
-  const inputClass = 'w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const inputClass = 'w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
 
   return (
     <PageLayout
@@ -187,14 +187,14 @@ export default function ComplianceExportsPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/compliance"
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <Shield size={14} aria-hidden="true" /> Compliance map
           </Link>
           <button
             onClick={fetchData}
             aria-label="Refresh"
-            className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+            className="rounded-lg p-2 text-secondary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
           >
             <RefreshCw size={16} aria-hidden="true" />
           </button>
@@ -205,19 +205,19 @@ export default function ComplianceExportsPage() {
         {/* Stats instrument rail */}
         <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4">
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total exports</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total exports</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{exports.length}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Completed</div>
-            <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{completedExports}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Completed</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{completedExports}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Schedules</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Schedules</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{schedules.length}</div>
           </div>
           <div className="p-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Snapshots</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Snapshots</div>
             <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{trends.length}</div>
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function ComplianceExportsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowCreateSchedule(!showCreateSchedule)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
             >
               <Calendar size={14} aria-hidden="true" /> Schedule
             </button>
@@ -253,7 +253,7 @@ export default function ComplianceExportsPage() {
                 className={inputClass}
               />
               <div>
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Frameworks</span>
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Frameworks</span>
                 <div className="flex flex-wrap gap-2">
                   {FRAMEWORKS.map(fw => (
                     <button
@@ -292,7 +292,7 @@ export default function ComplianceExportsPage() {
                   <option value={90}>90 days</option>
                 </select>
                 <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <label className="flex items-center gap-1.5 text-xs text-secondary">
                     <input
                       type="checkbox"
                       checked={newExport.include_evidence}
@@ -301,7 +301,7 @@ export default function ComplianceExportsPage() {
                     />
                     Evidence
                   </label>
-                  <label className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <label className="flex items-center gap-1.5 text-xs text-secondary">
                     <input
                       type="checkbox"
                       checked={newExport.include_trends}
@@ -315,7 +315,7 @@ export default function ComplianceExportsPage() {
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowCreate(false)}
-                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
                   Cancel
                 </button>
@@ -343,7 +343,7 @@ export default function ComplianceExportsPage() {
                 className={inputClass}
               />
               <div>
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Frameworks</span>
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Frameworks</span>
                 <div className="flex flex-wrap gap-2">
                   {FRAMEWORKS.map(fw => (
                     <button
@@ -358,7 +358,7 @@ export default function ComplianceExportsPage() {
                 </div>
               </div>
               <div>
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Schedule</span>
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Schedule</span>
                 <div className="flex flex-wrap gap-2">
                   {CRON_PRESETS.map(p => (
                     <button
@@ -375,7 +375,7 @@ export default function ComplianceExportsPage() {
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowCreateSchedule(false)}
-                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
                   Cancel
                 </button>
@@ -418,15 +418,15 @@ export default function ComplianceExportsPage() {
                           <Badge size="xs" variant={exp.format === 'json' ? 'info' : 'default'}>{exp.format}</Badge>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                          <span className="tabular-nums text-xs text-zinc-500">{formatBytes(exp.file_size_bytes)}</span>
-                          <span className="tabular-nums text-[11px] text-zinc-500">
+                          <span className="tabular-nums text-xs text-tertiary">{formatBytes(exp.file_size_bytes)}</span>
+                          <span className="tabular-nums text-[11px] text-tertiary">
                             {new Date(exp.created_at).toLocaleDateString()}
                           </span>
                           {exp.status === 'completed' && (
                             <>
                               <button
                                 onClick={() => handleViewExport(exp)}
-                                className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+                                className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white"
                                 aria-label={isOpen ? `Collapse ${exp.name}` : `View ${exp.name}`}
                                 aria-expanded={isOpen}
                               >
@@ -434,7 +434,7 @@ export default function ComplianceExportsPage() {
                               </button>
                               <button
                                 onClick={() => handleDownload(exp)}
-                                className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-blue-400"
+                                className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-info"
                                 aria-label={`Download ${exp.name}`}
                               >
                                 <Download size={14} />
@@ -443,7 +443,7 @@ export default function ComplianceExportsPage() {
                           )}
                           <button
                             onClick={() => handleDeleteExport(exp.id)}
-                            className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                            className="rounded p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                             aria-label={`Delete ${exp.name}`}
                           >
                             <Trash2 size={14} />
@@ -451,7 +451,7 @@ export default function ComplianceExportsPage() {
                         </div>
                       </div>
                       {isOpen && (
-                        <pre className="mx-3 mt-1 max-h-[500px] overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-primary p-4 font-mono text-xs text-zinc-300">
+                        <pre className="mx-3 mt-1 max-h-[500px] overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-primary p-4 font-mono text-xs text-secondary">
                           {expandedContent}
                         </pre>
                       )}
@@ -488,13 +488,13 @@ export default function ComplianceExportsPage() {
                       <div className="flex shrink-0 items-center gap-2">
                         <button
                           onClick={() => handleToggleSchedule(sch.id, sch.enabled)}
-                          className="rounded border border-border bg-surface-secondary px-2 py-0.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                          className="rounded border border-border bg-surface-secondary px-2 py-0.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
                         >
                           {sch.enabled ? 'Disable' : 'Enable'}
                         </button>
                         <button
                           onClick={() => handleDeleteSchedule(sch.id)}
-                          className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                          className="rounded p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                           aria-label={`Delete ${sch.name}`}
                         >
                           <Trash2 size={14} />
@@ -523,7 +523,7 @@ export default function ComplianceExportsPage() {
                     <div key={i} className="flex items-center justify-between gap-3 py-1.5">
                       <div className="flex items-center gap-2">
                         <Badge size="xs">{t.framework}</Badge>
-                        <span className="tabular-nums text-xs text-zinc-400">
+                        <span className="tabular-nums text-xs text-secondary">
                           {new Date(t.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -531,7 +531,7 @@ export default function ComplianceExportsPage() {
                         <div className="h-1.5 w-20 overflow-hidden rounded-full bg-white/5">
                           <div className={`h-full rounded-full ${barColor}`} style={{ width: `${t.coverage_percentage}%` }} />
                         </div>
-                        <span className="w-8 tabular-nums text-xs text-zinc-300">{t.coverage_percentage}%</span>
+                        <span className="w-8 tabular-nums text-xs text-secondary">{t.coverage_percentage}%</span>
                         <Badge variant={t.risk_level === 'LOW' ? 'success' : t.risk_level === 'MEDIUM' ? 'warning' : 'error'} size="xs">
                           {t.risk_level}
                         </Badge>

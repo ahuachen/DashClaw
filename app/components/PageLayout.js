@@ -9,9 +9,9 @@ import DemoBanner from './DemoBanner';
 import SystemStatusBar from './SystemStatusBar';
 
 const MATURITY_BADGE = {
-  stable: { label: 'Stable', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  beta: { label: 'Beta', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  experimental: { label: 'Experimental', color: 'bg-surface-tertiary text-zinc-400 border-border-hover' },
+  stable: { label: 'Stable', color: 'bg-success-subtle text-success border-success/20' },
+  beta: { label: 'Beta', color: 'bg-warning-subtle text-warning border-warning/20' },
+  experimental: { label: 'Experimental', color: 'bg-surface-tertiary text-secondary border-border-hover' },
 };
 
 export default function PageLayout({ title, subtitle, breadcrumbs, actions, maturity, children }) {
@@ -25,11 +25,11 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4">
             <div className="min-w-0">
               {breadcrumbs && (
-                <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                   {breadcrumbs.map((crumb, i) => (
                     <span key={i} className="flex items-center gap-1.5">
                       {i > 0 && <span aria-hidden="true" className="text-zinc-700">/</span>}
-                      <span className={i === breadcrumbs.length - 1 ? 'text-zinc-300' : ''}>
+                      <span className={i === breadcrumbs.length - 1 ? 'text-secondary' : ''}>
                         {crumb}
                       </span>
                     </span>
@@ -44,7 +44,7 @@ export default function PageLayout({ title, subtitle, breadcrumbs, actions, matu
                   </span>
                 )}
               </div>
-              {subtitle && <p className="mt-1 hidden text-sm text-zinc-400 sm:block">{subtitle}</p>}
+              {subtitle && <p className="mt-1 hidden text-sm text-secondary sm:block">{subtitle}</p>}
             </div>
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <span className="hidden md:flex"><RealtimeIndicator /></span>

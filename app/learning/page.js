@@ -132,9 +132,9 @@ export default function LearningDashboard() {
 
   const getConfidenceColor = (conf) => {
     const c = conf || 0;
-    if (c >= 90) return 'text-emerald-400';
-    if (c >= 70) return 'text-amber-400';
-    return 'text-red-400';
+    if (c >= 90) return 'text-success';
+    if (c >= 70) return 'text-warning';
+    return 'text-error';
   };
 
   const parseTags = (tags) => {
@@ -251,7 +251,7 @@ export default function LearningDashboard() {
           </Link>
           <button
             onClick={fetchData}
-            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
           >
             <RotateCw size={14} />
             Refresh
@@ -264,25 +264,25 @@ export default function LearningDashboard() {
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.totalDecisions}</div>
-            <div className="text-xs text-zinc-500 mt-1">Decisions Tracked</div>
+            <div className="text-xs text-tertiary mt-1">Decisions Tracked</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.totalLessons}</div>
-            <div className="text-xs text-zinc-500 mt-1">Lessons Learned</div>
+            <div className="text-xs text-tertiary mt-1">Lessons Learned</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.successRate}%</div>
-            <div className="text-xs text-zinc-500 mt-1">Success Rate</div>
+            <div className="text-xs text-tertiary mt-1">Success Rate</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.patterns}</div>
-            <div className="text-xs text-zinc-500 mt-1">Patterns Found</div>
+            <div className="text-xs text-tertiary mt-1">Patterns Found</div>
           </CardContent>
         </Card>
       </div>
@@ -306,10 +306,10 @@ export default function LearningDashboard() {
                     <div key={decision.id} className="bg-surface-tertiary rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-start gap-2">
-                          <OutcomeIcon size={16} className="text-zinc-400 mt-0.5 shrink-0" />
+                          <OutcomeIcon size={16} className="text-secondary mt-0.5 shrink-0" />
                           <div>
                             <div className="text-sm font-medium text-white">{decision.decision}</div>
-                            <div className="text-xs text-zinc-500">{decision.timestamp || decision.date}</div>
+                            <div className="text-xs text-tertiary">{decision.timestamp || decision.date}</div>
                           </div>
                         </div>
                         <Badge variant={getOutcomeVariant(decision.outcome)} size="xs">
@@ -318,13 +318,13 @@ export default function LearningDashboard() {
                       </div>
 
                       {decision.context && (
-                        <div className="text-sm text-zinc-400 mb-3 pl-6">{decision.context}</div>
+                        <div className="text-sm text-secondary mb-3 pl-6">{decision.context}</div>
                       )}
 
                       {parseTags(decision.tags).length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-3 pl-6">
                           {parseTags(decision.tags).map((tag, index) => (
-                            <span key={index} className="px-2 py-0.5 bg-white/5 rounded text-xs text-zinc-400">
+                            <span key={index} className="px-2 py-0.5 bg-white/5 rounded text-xs text-secondary">
                               {tag}
                             </span>
                           ))}
@@ -355,19 +355,19 @@ export default function LearningDashboard() {
                     <div className="text-sm font-medium text-white mb-2">{lesson.lesson}</div>
 
                     {lesson.source_decisions && (
-                      <div className="text-sm text-zinc-400 mb-3">{lesson.source_decisions}</div>
+                      <div className="text-sm text-secondary mb-3">{lesson.source_decisions}</div>
                     )}
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div>
-                          <div className="text-xs text-zinc-500">Confidence</div>
+                          <div className="text-xs text-tertiary">Confidence</div>
                           <div className={`text-sm font-semibold tabular-nums ${getConfidenceColor(lesson.confidence)}`}>
                             {lesson.confidence || 0}%
                           </div>
                         </div>
                         <div>
-                          <div className="text-xs text-zinc-500">Validated</div>
+                          <div className="text-xs text-tertiary">Validated</div>
                           <div className="text-sm font-semibold text-white tabular-nums">{lesson.times_validated || 0}x</div>
                         </div>
                       </div>
@@ -397,17 +397,17 @@ export default function LearningDashboard() {
               <button
                 onClick={handleRebuildRecommendations}
                 disabled={rebuilding}
-                className="px-3 py-1.5 text-xs font-medium text-zinc-300 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-brand/40 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-brand/40 transition-colors disabled:opacity-50 flex items-center gap-1.5"
               >
                 <Sparkles size={12} />
                 {rebuilding ? 'Rebuilding...' : 'Rebuild Now'}
               </button>
               {rebuildResult && (
-                <span className="text-xs text-emerald-400">{rebuildResult}</span>
+                <span className="text-xs text-success">{rebuildResult}</span>
               )}
             </div>
             {recommendationError ? (
-              <div className="mb-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+              <div className="mb-3 text-xs text-error bg-error-subtle border border-error/20 rounded-md px-3 py-2">
                 {recommendationError}
               </div>
             ) : null}
@@ -426,7 +426,7 @@ export default function LearningDashboard() {
                         <div className="text-sm font-medium text-white">
                           {rec.agent_id} - {rec.action_type}
                         </div>
-                        <div className="text-xs text-zinc-500 mt-1">
+                        <div className="text-xs text-tertiary mt-1">
                           Confidence {rec.confidence || 0}% | Samples {rec.sample_size || 0}
                         </div>
                       </div>
@@ -437,7 +437,7 @@ export default function LearningDashboard() {
                         <button
                           onClick={() => handleRecommendationToggle(rec)}
                           disabled={updatingRecommendationId === rec.id}
-                          className="px-2.5 py-1 text-xs rounded border border-[rgba(255,255,255,0.12)] text-zinc-200 hover:text-white disabled:opacity-50"
+                          className="px-2.5 py-1 text-xs rounded border border-[rgba(255,255,255,0.12)] text-secondary hover:text-white disabled:opacity-50"
                         >
                           {updatingRecommendationId === rec.id
                             ? 'Saving...'
@@ -459,19 +459,19 @@ export default function LearningDashboard() {
           <CardContent>
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div className="bg-surface-tertiary rounded-lg p-3">
-                <div className="text-xs text-zinc-500">Active</div>
+                <div className="text-xs text-tertiary">Active</div>
                 <div className="text-sm text-white font-semibold">
                   {recommendationMetrics.summary?.active_recommendations || 0}
                 </div>
               </div>
               <div className="bg-surface-tertiary rounded-lg p-3">
-                <div className="text-xs text-zinc-500">Avg Adoption</div>
+                <div className="text-xs text-tertiary">Avg Adoption</div>
                 <div className="text-sm text-white font-semibold">
                   {formatPercent(recommendationMetrics.summary?.avg_adoption_rate)}
                 </div>
               </div>
               <div className="bg-surface-tertiary rounded-lg p-3">
-                <div className="text-xs text-zinc-500">Avg Success Lift</div>
+                <div className="text-xs text-tertiary">Avg Success Lift</div>
                 <div className="text-sm text-white font-semibold">
                   {formatPercent(recommendationMetrics.summary?.avg_success_lift)}
                 </div>
@@ -482,14 +482,14 @@ export default function LearningDashboard() {
               {(recommendationMetrics.metrics || []).slice(0, 20).map((metric) => (
                 <div key={metric.recommendation_id} className="bg-surface-tertiary rounded-md p-3">
                   <div className="flex items-center justify-between mb-1">
-                    <div className="text-xs text-zinc-300">
+                    <div className="text-xs text-secondary">
                       {metric.agent_id} - {metric.action_type}
                     </div>
                     <Badge variant={metric.active ? 'success' : 'default'} size="xs">
                       {metric.active ? 'active' : 'inactive'}
                     </Badge>
                   </div>
-                  <div className="text-xs text-zinc-500 flex items-center gap-1.5">
+                  <div className="text-xs text-tertiary flex items-center gap-1.5">
                     <TrendingUp size={12} />
                     Adoption {formatPercent(metric.telemetry?.adoption_rate)} | Success lift {formatPercent(metric.deltas?.success_lift)}
                   </div>
@@ -520,27 +520,27 @@ export default function LearningDashboard() {
                 <Sparkles size={14} />
                 View Patterns
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Analyze decision patterns</div>
+              <div className="text-xs text-tertiary mt-1">Analyze decision patterns</div>
             </button>
             <button
               onClick={() => setShowDecisionModal(true)}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-blue-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-info flex items-center gap-1.5">
                 <FileText size={14} />
                 Log Decision
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Record a new decision</div>
+              <div className="text-xs text-tertiary mt-1">Record a new decision</div>
             </button>
             <button
               onClick={() => setShowLessonModal(true)}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-warning flex items-center gap-1.5">
                 <Lightbulb size={14} />
                 Add Lesson
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Capture a new lesson</div>
+              <div className="text-xs text-tertiary mt-1">Capture a new lesson</div>
             </button>
           </div>
 
@@ -553,25 +553,25 @@ export default function LearningDashboard() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                 <div className="bg-[#111] rounded-lg p-3">
-                  <div className="text-xs text-zinc-500">Patterns Found</div>
+                  <div className="text-xs text-tertiary">Patterns Found</div>
                   <div className="text-lg font-semibold text-white tabular-nums">{stats.patterns}</div>
                 </div>
                 <div className="bg-[#111] rounded-lg p-3">
-                  <div className="text-xs text-zinc-500">Decisions Tracked</div>
+                  <div className="text-xs text-tertiary">Decisions Tracked</div>
                   <div className="text-lg font-semibold text-white tabular-nums">{stats.totalDecisions}</div>
                 </div>
                 <div className="bg-[#111] rounded-lg p-3">
-                  <div className="text-xs text-zinc-500">Success Rate</div>
+                  <div className="text-xs text-tertiary">Success Rate</div>
                   <div className="text-lg font-semibold text-white tabular-nums">{stats.successRate}%</div>
                 </div>
                 <div className="bg-[#111] rounded-lg p-3">
-                  <div className="text-xs text-zinc-500">Lessons Learned</div>
+                  <div className="text-xs text-tertiary">Lessons Learned</div>
                   <div className="text-lg font-semibold text-white tabular-nums">{stats.totalLessons}</div>
                 </div>
               </div>
               {decisions.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wide">Decision Categories</div>
+                  <div className="text-xs text-tertiary uppercase tracking-wide">Decision Categories</div>
                   {(() => {
                     const categories = {};
                     decisions.forEach((d) => {
@@ -582,8 +582,8 @@ export default function LearningDashboard() {
                     });
                     return Object.entries(categories).map(([cat, data]) => (
                       <div key={cat} className="flex items-center justify-between bg-[#111] rounded-md px-3 py-2">
-                        <span className="text-sm text-zinc-300 capitalize">{cat}</span>
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-sm text-secondary capitalize">{cat}</span>
+                        <span className="text-xs text-tertiary">
                           {data.total} decision{data.total !== 1 ? 's' : ''} | {data.total > 0 ? Math.round((data.success / data.total) * 100) : 0}% success
                         </span>
                       </div>
@@ -591,7 +591,7 @@ export default function LearningDashboard() {
                   })()}
                 </div>
               ) : (
-                <div className="text-sm text-zinc-500">No decisions logged yet. Patterns will appear as decisions are tracked.</div>
+                <div className="text-sm text-tertiary">No decisions logged yet. Patterns will appear as decisions are tracked.</div>
               )}
             </div>
           )}
@@ -603,13 +603,13 @@ export default function LearningDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowDecisionModal(false)}>
           <div className="bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-xl p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <FileText size={18} className="text-blue-400" />
+              <FileText size={18} className="text-info" />
               Log Decision
             </h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Decision</label>
+                <label className="block text-xs text-secondary mb-1">Decision</label>
                 <input
                   type="text"
                   value={decisionForm.decision}
@@ -620,7 +620,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Category</label>
+                <label className="block text-xs text-secondary mb-1">Category</label>
                 <select
                   value={decisionForm.category}
                   onChange={(e) => setDecisionForm((prev) => ({ ...prev, category: e.target.value }))}
@@ -635,7 +635,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Context</label>
+                <label className="block text-xs text-secondary mb-1">Context</label>
                 <textarea
                   value={decisionForm.context}
                   onChange={(e) => setDecisionForm((prev) => ({ ...prev, context: e.target.value }))}
@@ -646,7 +646,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Outcome</label>
+                <label className="block text-xs text-secondary mb-1">Outcome</label>
                 <select
                   value={decisionForm.outcome}
                   onChange={(e) => setDecisionForm((prev) => ({ ...prev, outcome: e.target.value }))}
@@ -663,7 +663,7 @@ export default function LearningDashboard() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowDecisionModal(false)}
-                className="px-4 py-2 rounded-lg text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-4 py-2 rounded-lg text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -684,13 +684,13 @@ export default function LearningDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowLessonModal(false)}>
           <div className="bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-xl p-6 w-full max-w-md shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Lightbulb size={18} className="text-amber-400" />
+              <Lightbulb size={18} className="text-warning" />
               Add Lesson
             </h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Lesson</label>
+                <label className="block text-xs text-secondary mb-1">Lesson</label>
                 <textarea
                   value={lessonForm.lesson}
                   onChange={(e) => setLessonForm((prev) => ({ ...prev, lesson: e.target.value }))}
@@ -701,7 +701,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Category</label>
+                <label className="block text-xs text-secondary mb-1">Category</label>
                 <select
                   value={lessonForm.category}
                   onChange={(e) => setLessonForm((prev) => ({ ...prev, category: e.target.value }))}
@@ -716,7 +716,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Confidence: {lessonForm.confidence}%</label>
+                <label className="block text-xs text-secondary mb-1">Confidence: {lessonForm.confidence}%</label>
                 <input
                   type="range"
                   min="0"
@@ -725,7 +725,7 @@ export default function LearningDashboard() {
                   onChange={(e) => setLessonForm((prev) => ({ ...prev, confidence: Number(e.target.value) }))}
                   className="w-full accent-brand"
                 />
-                <div className="flex justify-between text-xs text-zinc-600 mt-1">
+                <div className="flex justify-between text-xs text-disabled mt-1">
                   <span>0%</span>
                   <span>50%</span>
                   <span>100%</span>
@@ -733,7 +733,7 @@ export default function LearningDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Tags (comma separated)</label>
+                <label className="block text-xs text-secondary mb-1">Tags (comma separated)</label>
                 <input
                   type="text"
                   value={lessonForm.tags}
@@ -747,7 +747,7 @@ export default function LearningDashboard() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowLessonModal(false)}
-                className="px-4 py-2 rounded-lg text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-4 py-2 rounded-lg text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>

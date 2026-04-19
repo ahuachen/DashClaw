@@ -10,7 +10,7 @@ export default function PolicyBasicsSection({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Policy Name</label>
+        <label className="block text-xs text-secondary mb-1">Policy Name</label>
         <input
           aria-label="Policy Name"
           type="text"
@@ -22,13 +22,13 @@ export default function PolicyBasicsSection({
         />
       </div>
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">Policy Type</label>
+        <label className="block text-xs text-secondary mb-1">Policy Type</label>
         {typeLocked ? (
-          <div className="text-sm text-zinc-300 py-2">
-            <span className="inline-flex rounded-md bg-[rgba(255,255,255,0.05)] px-2.5 py-1 text-xs text-zinc-300">
+          <div className="text-sm text-secondary py-2">
+            <span className="inline-flex rounded-md bg-[rgba(255,255,255,0.05)] px-2.5 py-1 text-xs text-secondary">
               {(form.type || '').replace(/_/g, ' ')}
             </span>
-            <span className="ml-2 text-xs text-zinc-500">(type cannot be changed after creation)</span>
+            <span className="ml-2 text-xs text-tertiary">(type cannot be changed after creation)</span>
           </div>
         ) : (
           <>
@@ -44,7 +44,7 @@ export default function PolicyBasicsSection({
                 </option>
               ))}
             </select>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-tertiary mt-1">
               {policyTypes.find((policyType) => policyType.value === form.type)?.desc}
             </p>
           </>

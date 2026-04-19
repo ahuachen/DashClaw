@@ -64,9 +64,9 @@ export default function FollowUpsCard() {
   };
 
   const getDaysColor = (days) => {
-    if (days <= 1) return 'text-red-400';
-    if (days <= 3) return 'text-amber-400';
-    return 'text-emerald-400';
+    if (days <= 1) return 'text-error';
+    if (days <= 3) return 'text-warning';
+    return 'text-success';
   };
 
   const ITEM_H = 80;
@@ -106,9 +106,9 @@ export default function FollowUpsCard() {
                       {followUp.temperature}
                     </Badge>
                   </div>
-                  <div className="text-xs text-zinc-400 mb-1.5">{followUp.type}</div>
+                  <div className="text-xs text-secondary mb-1.5">{followUp.type}</div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-zinc-500">Due: {followUp.dueDate}</span>
+                    <span className="text-tertiary">Due: {followUp.dueDate}</span>
                     <span className={`font-medium ${getDaysColor(followUp.daysLeft)}`}>
                       {followUp.daysLeft}d left
                     </span>

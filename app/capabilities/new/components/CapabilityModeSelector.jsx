@@ -1,7 +1,7 @@
 export default function CapabilityModeSelector({ mode, onChange }) {
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+      <p className="text-xs font-medium uppercase tracking-wider text-secondary">
         Capability Mode
       </p>
       <div className="grid gap-3 md:grid-cols-2">
@@ -17,7 +17,7 @@ export default function CapabilityModeSelector({ mode, onChange }) {
             />
             <div className="space-y-1">
               <div className="text-sm font-medium text-white">Registry entry only</div>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-secondary">
                 Track a tool in the registry without making it runnable in DashClaw runtime yet.
               </p>
             </div>
@@ -36,14 +36,14 @@ export default function CapabilityModeSelector({ mode, onChange }) {
             />
             <div className="space-y-1">
               <div className="text-sm font-medium text-white">Runnable HTTP capability</div>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-secondary">
                 Configure an external HTTP tool DashClaw can test and invoke through governance.
               </p>
             </div>
           </div>
         </label>
       </div>
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-tertiary">
         Only HTTP capabilities are runnable in this version.
       </p>
     </div>

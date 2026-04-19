@@ -18,9 +18,9 @@ const statusVariant = {
 };
 
 function riskColor(score) {
-  if (score >= 70) return 'text-red-400';
-  if (score >= 30) return 'text-amber-400';
-  return 'text-zinc-400';
+  if (score >= 70) return 'text-error';
+  if (score >= 30) return 'text-warning';
+  return 'text-secondary';
 }
 
 function formatRelativeTime(isoString) {
@@ -82,10 +82,10 @@ export default function AgentDecisionTable({ agentId }) {
       <div className="flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] px-5 py-3 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-white">Decision History</span>
-          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-zinc-400">{total}</span>
+          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-secondary">{total}</span>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-secondary focus:outline-none focus:border-brand/50">
             <option value="">All statuses</option>
             <option value="completed">Completed</option>
             <option value="failed">Failed</option>
@@ -93,13 +93,13 @@ export default function AgentDecisionTable({ agentId }) {
             <option value="pending_approval">Pending approval</option>
             <option value="running">Running</option>
           </select>
-          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+          <select value={filterType} onChange={e => setFilterType(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-secondary focus:outline-none focus:border-brand/50">
             <option value="">All types</option>
             {['build','deploy','post','apply','security','message','api','research','review','fix','refactor','test','config','monitor'].map(t => (
               <option key={t} value={t}>{t}</option>
             ))}
           </select>
-          <select value={filterRiskMin} onChange={e => setFilterRiskMin(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+          <select value={filterRiskMin} onChange={e => setFilterRiskMin(e.target.value)} className="rounded-lg border border-white/5 bg-surface-tertiary px-2 py-1 text-xs text-secondary focus:outline-none focus:border-brand/50">
             <option value="">Any risk</option>
             <option value="1">Risk 1+</option>
             <option value="30">Risk 30+</option>
@@ -115,7 +115,7 @@ export default function AgentDecisionTable({ agentId }) {
           ))}
         </div>
       ) : actions.length === 0 ? (
-        <div className="px-5 py-12 text-center text-sm text-zinc-500">No decisions match the current filters.</div>
+        <div className="px-5 py-12 text-center text-sm text-tertiary">No decisions match the current filters.</div>
       ) : (
         <div className="divide-y divide-white/[0.04]">
           {actions.map(action => {
@@ -128,22 +128,22 @@ export default function AgentDecisionTable({ agentId }) {
                     <StatusIcon size={10} className="mr-1" />
                     {action.status}
                   </Badge>
-                  <span className="text-xs text-zinc-500 w-20 shrink-0">{action.action_type}</span>
-                  <span className="text-sm text-zinc-300 truncate flex-1">{action.declared_goal || '\u2014'}</span>
+                  <span className="text-xs text-tertiary w-20 shrink-0">{action.action_type}</span>
+                  <span className="text-sm text-secondary truncate flex-1">{action.declared_goal || '\u2014'}</span>
                   <span className={`text-xs font-mono w-8 text-right ${riskColor(action.risk_score)}`}>{action.risk_score ?? '\u2014'}</span>
-                  <span className="text-xs text-zinc-500 w-20 text-right shrink-0">{formatRelativeTime(action.timestamp_start)}</span>
-                  {expanded ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
+                  <span className="text-xs text-tertiary w-20 text-right shrink-0">{formatRelativeTime(action.timestamp_start)}</span>
+                  {expanded ? <ChevronUp size={14} className="text-tertiary" /> : <ChevronDown size={14} className="text-tertiary" />}
                 </button>
                 {expanded && (
                   <div className="bg-white/[0.02] border-t border-white/[0.04] px-5 py-4 space-y-2 text-xs">
-                    {action.reasoning && <div><span className="text-zinc-500">Reasoning:</span> <span className="text-zinc-300">{action.reasoning}</span></div>}
-                    {action.input_summary && <div><span className="text-zinc-500">Input:</span> <span className="text-zinc-300">{action.input_summary}</span></div>}
-                    {action.output_summary && <div><span className="text-zinc-500">Output:</span> <span className="text-zinc-300">{action.output_summary}</span></div>}
-                    {action.error_message && <div><span className="text-zinc-500">Error:</span> <span className="text-red-400">{action.error_message}</span></div>}
-                    {action.duration_ms != null && <div><span className="text-zinc-500">Duration:</span> <span className="text-zinc-300">{(action.duration_ms / 1000).toFixed(1)}s</span></div>}
-                    {action.cost_estimate != null && action.cost_estimate > 0 && <div><span className="text-zinc-500">Cost:</span> <span className="text-zinc-300">${action.cost_estimate.toFixed(4)}</span></div>}
-                    {action.approved_by && <div><span className="text-zinc-500">Approved by:</span> <span className="text-emerald-400">{action.approved_by}</span></div>}
-                    <div className="font-mono text-zinc-600 pt-1">{action.action_id}</div>
+                    {action.reasoning && <div><span className="text-tertiary">Reasoning:</span> <span className="text-secondary">{action.reasoning}</span></div>}
+                    {action.input_summary && <div><span className="text-tertiary">Input:</span> <span className="text-secondary">{action.input_summary}</span></div>}
+                    {action.output_summary && <div><span className="text-tertiary">Output:</span> <span className="text-secondary">{action.output_summary}</span></div>}
+                    {action.error_message && <div><span className="text-tertiary">Error:</span> <span className="text-error">{action.error_message}</span></div>}
+                    {action.duration_ms != null && <div><span className="text-tertiary">Duration:</span> <span className="text-secondary">{(action.duration_ms / 1000).toFixed(1)}s</span></div>}
+                    {action.cost_estimate != null && action.cost_estimate > 0 && <div><span className="text-tertiary">Cost:</span> <span className="text-secondary">${action.cost_estimate.toFixed(4)}</span></div>}
+                    {action.approved_by && <div><span className="text-tertiary">Approved by:</span> <span className="text-success">{action.approved_by}</span></div>}
+                    <div className="font-mono text-disabled pt-1">{action.action_id}</div>
                   </div>
                 )}
               </div>

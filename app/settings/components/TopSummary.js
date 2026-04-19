@@ -5,8 +5,8 @@ export function TopSummary({ view, proofDownloadHref }) {
     verified: {
       dot: 'bg-emerald-400',
       border: 'border-emerald-900/40',
-      text: 'text-emerald-300',
-      accent: 'text-emerald-400',
+      text: 'text-success',
+      accent: 'text-success',
     },
     ready_unverified: {
       dot: 'bg-cyan-400',
@@ -18,13 +18,13 @@ export function TopSummary({ view, proofDownloadHref }) {
       dot: 'bg-amber-400',
       border: 'border-amber-900/40',
       text: 'text-amber-200',
-      accent: 'text-amber-400',
+      accent: 'text-warning',
     },
     blocked: {
       dot: 'bg-red-400',
       border: 'border-red-900/50',
       text: 'text-red-200',
-      accent: 'text-red-400',
+      accent: 'text-error',
     },
   }[view.verification.overall];
 
@@ -52,7 +52,7 @@ export function TopSummary({ view, proofDownloadHref }) {
               ? 'Core instance checks passed and operator access looks ready.'
               : 'This page separates what has already been verified from live validation that is still pending.'}
           </p>
-          <p className="mt-3 text-xs text-zinc-500">
+          <p className="mt-3 text-xs text-tertiary">
             Last checked {checkedAt} (server time)
           </p>
         </div>

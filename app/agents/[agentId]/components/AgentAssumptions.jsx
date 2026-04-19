@@ -46,7 +46,7 @@ export default function AgentAssumptions({ agentId, summary }) {
       <div className="mb-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-white">Assumptions</span>
-          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-zinc-400">{summary.total}</span>
+          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-secondary">{summary.total}</span>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="success" size="xs"><CheckCircle2 size={10} className="mr-1" />{summary.validated} validated</Badge>
@@ -55,7 +55,7 @@ export default function AgentAssumptions({ agentId, summary }) {
         </div>
       </div>
       {visible.length === 0 ? (
-        <div className="py-6 text-center text-sm text-zinc-500">No assumptions recorded for this agent.</div>
+        <div className="py-6 text-center text-sm text-tertiary">No assumptions recorded for this agent.</div>
       ) : (
         <div className="space-y-3">
           {visible.map(asm => {
@@ -63,16 +63,16 @@ export default function AgentAssumptions({ agentId, summary }) {
             const isValidated = asm.validated === 1 || asm.validated === true;
             return (
               <div key={asm.assumption_id} className="flex items-start gap-3">
-                {isInvalidated ? <XCircle size={14} className="mt-0.5 shrink-0 text-red-400" /> : isValidated ? <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-emerald-400" /> : <HelpCircle size={14} className="mt-0.5 shrink-0 text-zinc-500" />}
+                {isInvalidated ? <XCircle size={14} className="mt-0.5 shrink-0 text-error" /> : isValidated ? <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-success" /> : <HelpCircle size={14} className="mt-0.5 shrink-0 text-tertiary" />}
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm text-zinc-200">{asm.assumption}</div>
-                  {asm.basis && <div className="mt-0.5 text-xs text-zinc-500">Basis: {asm.basis}</div>}
-                  {isInvalidated && asm.invalidated_reason && <div className="mt-0.5 text-xs text-red-400">Reason: {asm.invalidated_reason}</div>}
+                  <div className="text-sm text-secondary">{asm.assumption}</div>
+                  {asm.basis && <div className="mt-0.5 text-xs text-tertiary">Basis: {asm.basis}</div>}
+                  {isInvalidated && asm.invalidated_reason && <div className="mt-0.5 text-xs text-error">Reason: {asm.invalidated_reason}</div>}
                   {!isValidated && !isInvalidated && asm.drift_score >= 50 && (
-                    <div className="mt-0.5 flex items-center gap-1 text-xs text-amber-400"><AlertTriangle size={10} /> Drift score: {asm.drift_score}</div>
+                    <div className="mt-0.5 flex items-center gap-1 text-xs text-warning"><AlertTriangle size={10} /> Drift score: {asm.drift_score}</div>
                   )}
                 </div>
-                <span className="shrink-0 text-xs text-zinc-500">
+                <span className="shrink-0 text-xs text-tertiary">
                   {isInvalidated ? 'invalidated' : isValidated ? 'validated' : 'unverified'} &middot; {formatAge(asm.created_at)}
                 </span>
               </div>

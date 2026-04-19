@@ -91,7 +91,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSaveInput(!showSaveInput)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 bg-surface-tertiary border border-border rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-secondary hover:text-secondary bg-surface-tertiary border border-border rounded-lg transition-colors"
             title="Save current layout"
           >
             <Save size={14} />
@@ -100,7 +100,7 @@ export default function Dashboard() {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowLayoutMenu(!showLayoutMenu)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 bg-surface-tertiary border border-border rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-secondary hover:text-secondary bg-surface-tertiary border border-border rounded-lg transition-colors"
               title="Layout presets"
             >
               <Layout size={14} />
@@ -109,12 +109,12 @@ export default function Dashboard() {
             </button>
             {showLayoutMenu && (
               <div className="absolute right-0 top-full mt-1 w-56 bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-lg shadow-xl z-50 py-1">
-                <div className="px-3 py-1.5 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Presets</div>
+                <div className="px-3 py-1.5 text-[10px] font-medium text-tertiary uppercase tracking-wider">Presets</div>
                 {PRESET_NAMES.map(name => (
                   <button
                     key={name}
                     onClick={() => handleSelectPreset(name)}
-                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${activePreset === name ? 'text-brand bg-brand/10' : 'text-zinc-300 hover:bg-white/5'}`}
+                    className={`w-full text-left px-3 py-2 text-xs transition-colors ${activePreset === name ? 'text-brand bg-brand/10' : 'text-secondary hover:bg-white/5'}`}
                   >
                     {name}
                   </button>
@@ -122,18 +122,18 @@ export default function Dashboard() {
                 {Object.keys(namedLayouts).length > 0 && (
                   <>
                     <div className="border-t border-[rgba(255,255,255,0.06)] my-1" />
-                    <div className="px-3 py-1.5 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Saved Layouts</div>
+                    <div className="px-3 py-1.5 text-[10px] font-medium text-tertiary uppercase tracking-wider">Saved Layouts</div>
                     {Object.keys(namedLayouts).map(name => (
                       <div key={name} className="flex items-center group">
                         <button
                           onClick={() => handleLoadNamedLayout(name)}
-                          className="flex-1 text-left px-3 py-2 text-xs text-zinc-300 hover:bg-white/5 transition-colors truncate"
+                          className="flex-1 text-left px-3 py-2 text-xs text-secondary hover:bg-white/5 transition-colors truncate"
                         >
                           {name}
                         </button>
                         <button
                           onClick={(e) => handleDeleteNamedLayout(name, e)}
-                          className="px-2 py-1 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          className="px-2 py-1 text-disabled hover:text-error opacity-0 group-hover:opacity-100 transition-all"
                         >
                           <Trash2 size={12} />
                         </button>
@@ -144,7 +144,7 @@ export default function Dashboard() {
                 <div className="border-t border-[rgba(255,255,255,0.06)] my-1" />
                 <button
                   onClick={handleResetLayout}
-                  className="w-full text-left px-3 py-2 text-xs text-zinc-400 hover:bg-white/5 transition-colors flex items-center gap-1.5"
+                  className="w-full text-left px-3 py-2 text-xs text-secondary hover:bg-white/5 transition-colors flex items-center gap-1.5"
                 >
                   <RotateCcw size={12} />
                   Reset to Default
@@ -175,7 +175,7 @@ export default function Dashboard() {
           </button>
           <button
             onClick={() => { setShowSaveInput(false); setSaveName(''); }}
-            className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white text-xs transition-colors"
+            className="px-3 py-1.5 rounded-lg text-secondary hover:text-white text-xs transition-colors"
           >
             Cancel
           </button>

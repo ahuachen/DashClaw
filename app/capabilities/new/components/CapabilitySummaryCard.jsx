@@ -6,11 +6,11 @@ export default function CapabilitySummaryCard({ mode, form, runtime, fieldCount 
   return (
     <div className="rounded-xl border border-white/10 bg-surface-tertiary/40 p-4 space-y-3">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Summary</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-secondary">Summary</p>
         <p className="mt-1 text-sm text-white">{form.name || 'Untitled capability'}</p>
       </div>
-      <p className="text-sm text-zinc-400">{runtimeSummary}</p>
-      <ul className="space-y-1 text-sm text-zinc-500">
+      <p className="text-sm text-secondary">{runtimeSummary}</p>
+      <ul className="space-y-1 text-sm text-tertiary">
         <li>Risk: {form.risk_level}</li>
         <li>Approval: {form.requires_approval ? 'Required' : 'Not required'}</li>
         <li>Input fields: {fieldCount}</li>

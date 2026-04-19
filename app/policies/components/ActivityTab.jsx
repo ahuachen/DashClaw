@@ -69,12 +69,12 @@ export default function ActivityTab() {
   return (
     <div className="space-y-4">
       {/* Stats strip — prose rail */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
-        <span><span className="font-semibold tabular-nums text-red-400">{stats.blocks}</span> blocks (7d)</span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary">
+        <span><span className="font-semibold tabular-nums text-error">{stats.blocks}</span> blocks (7d)</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-amber-400">{stats.approvals}</span> approvals (7d)</span>
+        <span><span className="font-semibold tabular-nums text-warning">{stats.approvals}</span> approvals (7d)</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-blue-400">{stats.warns}</span> warns (7d)</span>
+        <span><span className="font-semibold tabular-nums text-info">{stats.warns}</span> warns (7d)</span>
       </div>
 
       {/* Filter */}
@@ -86,7 +86,7 @@ export default function ActivityTab() {
           id="decision-filter"
           value={filterDecision}
           onChange={e => setFilterDecision(e.target.value)}
-          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All decisions</option>
           <option value="block">Blocked</option>
@@ -105,7 +105,7 @@ export default function ActivityTab() {
             ))}
           </div>
         ) : decisions.length === 0 ? (
-          <div className="px-5 py-12 text-center text-sm text-zinc-500">No guard decisions yet.</div>
+          <div className="px-5 py-12 text-center text-sm text-tertiary">No guard decisions yet.</div>
         ) : (
           <div className="divide-y divide-border">
             {decisions.map(d => (
@@ -115,27 +115,27 @@ export default function ActivityTab() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant={decisionVariant[d.decision] || 'default'} size="xs">{d.decision}</Badge>
-                      <span className="text-xs text-zinc-400">{d.action_type}</span>
+                      <span className="text-xs text-secondary">{d.action_type}</span>
                       <span aria-hidden="true" className="text-xs text-zinc-700">&middot;</span>
-                      <span className="text-xs text-zinc-300">{d.agent_name || d.agent_id || 'unknown'}</span>
+                      <span className="text-xs text-secondary">{d.agent_name || d.agent_id || 'unknown'}</span>
                       <span aria-hidden="true" className="text-xs text-zinc-700">&middot;</span>
-                      <span className="text-xs tabular-nums text-zinc-500">{formatRelativeTime(d.created_at)}</span>
+                      <span className="text-xs tabular-nums text-tertiary">{formatRelativeTime(d.created_at)}</span>
                     </div>
                     {d.matched_policies?.length > 0 && (
-                      <div className="mt-1 text-xs text-zinc-500">
-                        Policy: <span className="text-zinc-300">{d.matched_policies.join(', ')}</span>
+                      <div className="mt-1 text-xs text-tertiary">
+                        Policy: <span className="text-secondary">{d.matched_policies.join(', ')}</span>
                       </div>
                     )}
                     {d.risk_score != null && (
-                      <div className="mt-0.5 text-xs text-zinc-500">
-                        Risk: <span className={`tabular-nums font-semibold ${d.risk_score >= 70 ? 'text-red-400' : d.risk_score >= 30 ? 'text-amber-400' : 'text-zinc-300'}`}>{d.risk_score}</span>
+                      <div className="mt-0.5 text-xs text-tertiary">
+                        Risk: <span className={`tabular-nums font-semibold ${d.risk_score >= 70 ? 'text-error' : d.risk_score >= 30 ? 'text-warning' : 'text-secondary'}`}>{d.risk_score}</span>
                       </div>
                     )}
                     {d.declared_goal && (
-                      <div className="mt-1 truncate text-xs text-zinc-400">{d.declared_goal}</div>
+                      <div className="mt-1 truncate text-xs text-secondary">{d.declared_goal}</div>
                     )}
                     {d.reason && (
-                      <div className="mt-0.5 text-xs text-zinc-500">{d.reason}</div>
+                      <div className="mt-0.5 text-xs text-tertiary">{d.reason}</div>
                     )}
                   </div>
                 </div>

@@ -184,10 +184,10 @@ export default function SecurityDashboard() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'ok': return 'text-emerald-400';
-      case 'warning': return 'text-amber-400';
-      case 'critical': return 'text-red-400';
-      default: return 'text-zinc-400';
+      case 'ok': return 'text-success';
+      case 'warning': return 'text-warning';
+      case 'critical': return 'text-error';
+      default: return 'text-secondary';
     }
   };
 
@@ -209,7 +209,7 @@ export default function SecurityDashboard() {
           </button>
           <button
             onClick={fetchData}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} />
             Refresh
@@ -221,10 +221,10 @@ export default function SecurityDashboard() {
       {scanResults && (
         <Card className="mb-6" hover={false}>
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Scan results</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Scan results</span>
             <button
               onClick={() => setScanResults(null)}
-              className="rounded-md p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+              className="rounded-md p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white"
               aria-label="Close scan results"
             >
               <XIcon size={14} />
@@ -232,16 +232,16 @@ export default function SecurityDashboard() {
           </div>
           <CardContent>
             {scanResults.error ? (
-              <p className="flex items-center gap-1.5 text-xs text-red-400">
+              <p className="flex items-center gap-1.5 text-xs text-error">
                 <ShieldX size={14} /> {scanResults.error}
               </p>
             ) : scanResults.score === 100 ? (
-              <p className="flex items-center gap-1.5 text-xs text-emerald-400">
+              <p className="flex items-center gap-1.5 text-xs text-success">
                 <ShieldCheck size={14} /> All security checks passed — score 100/100
               </p>
             ) : (
               <div className="space-y-2">
-                <p className="mb-2 text-xs tabular-nums text-zinc-400">Score: {scanResults.score}/100</p>
+                <p className="mb-2 text-xs tabular-nums text-secondary">Score: {scanResults.score}/100</p>
                 {(scanResults.checks || []).map((check) => {
                   const Icon = getStatusIcon(check.status);
                   return (
@@ -250,7 +250,7 @@ export default function SecurityDashboard() {
                       <Badge variant={check.status === 'critical' ? 'error' : check.status === 'warning' ? 'warning' : 'success'} size="xs">
                         {check.status}
                       </Badge>
-                      <span className="text-zinc-300">{check.label}{check.detail ? ` — ${check.detail}` : ''}</span>
+                      <span className="text-secondary">{check.label}{check.detail ? ` — ${check.detail}` : ''}</span>
                     </div>
                   );
                 })}
@@ -267,34 +267,34 @@ export default function SecurityDashboard() {
             {
               label: 'Score',
               value: securityScore,
-              color: securityScore >= 90 ? 'text-emerald-400' : securityScore >= 70 ? 'text-amber-400' : 'text-red-400',
+              color: securityScore >= 90 ? 'text-success' : securityScore >= 70 ? 'text-warning' : 'text-error',
             },
             {
               label: 'Active Signals',
               value: totalSignals,
-              color: totalSignals > 0 ? 'text-red-400' : 'text-white',
+              color: totalSignals > 0 ? 'text-error' : 'text-white',
             },
             {
               label: 'High Risk · 24h',
               value: highRisk24h,
-              color: highRisk24h > 0 ? 'text-amber-400' : 'text-white',
+              color: highRisk24h > 0 ? 'text-warning' : 'text-white',
             },
             {
               label: 'Unscoped',
               value: unscopedCount,
-              color: unscopedCount > 0 ? 'text-amber-400' : 'text-white',
+              color: unscopedCount > 0 ? 'text-warning' : 'text-white',
             },
             {
               label: 'Invalidated · 7d',
               value: invalidatedCount,
-              color: invalidatedCount > 0 ? 'text-red-400' : 'text-white',
+              color: invalidatedCount > 0 ? 'text-error' : 'text-white',
             },
           ].map((stat, i) => (
             <div
               key={stat.label}
               className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 {stat.label}
               </div>
               <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
@@ -311,7 +311,7 @@ export default function SecurityDashboard() {
             return (
               <div key={check.id} className="flex items-center gap-2 rounded-md border border-border bg-white/[0.02] px-3 py-1.5">
                 <Icon size={14} className={`shrink-0 ${getStatusColor(check.status)}`} />
-                <span className="text-xs text-zinc-300">{check.label}</span>
+                <span className="text-xs text-secondary">{check.label}</span>
               </div>
             );
           })}
@@ -328,7 +328,7 @@ export default function SecurityDashboard() {
                 {activeSignals.length > 0 && (
                   <button
                     onClick={dismissAllVisible}
-                    className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
+                    className="text-[11px] text-tertiary transition-colors hover:text-secondary"
                   >
                     Clear all
                   </button>
@@ -336,7 +336,7 @@ export default function SecurityDashboard() {
                 {dismissedList.length > 0 && (
                   <button
                     onClick={() => setShowDismissed(!showDismissed)}
-                    className={`flex items-center gap-1 text-[11px] tabular-nums transition-colors ${showDismissed ? 'text-zinc-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+                    className={`flex items-center gap-1 text-[11px] tabular-nums transition-colors ${showDismissed ? 'text-secondary' : 'text-tertiary hover:text-secondary'}`}
                   >
                     <EyeOff size={10} />
                     {dismissedList.length} dismissed
@@ -368,7 +368,7 @@ export default function SecurityDashboard() {
                         >
                           <SeverityIcon
                             size={16}
-                            className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'}`}
+                            className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-error' : 'text-warning'}`}
                           />
                           <div className="min-w-0">
                             <div className="text-sm text-white truncate">{signal.label}</div>
@@ -387,12 +387,12 @@ export default function SecurityDashboard() {
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={(e) => { e.stopPropagation(); dismissSignal(signal); }}
-                            className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                            className="p-1 text-tertiary hover:text-secondary transition-colors"
                             title="Dismiss signal"
                           >
                             <XIcon size={14} />
                           </button>
-                          <ChevronRight size={14} className="text-zinc-500 group-hover:text-zinc-300" />
+                          <ChevronRight size={14} className="text-tertiary group-hover:text-secondary" />
                         </div>
                       </div>
                     );
@@ -401,7 +401,7 @@ export default function SecurityDashboard() {
                   {/* Dismissed signals section */}
                   {showDismissed && dismissedList.length > 0 && (
                     <>
-                      <div className="px-1 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Dismissed</div>
+                      <div className="px-1 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Dismissed</div>
                       {dismissedList.map((signal, idx) => {
                         const SeverityIcon = getSeverityIcon(signal.severity);
                         return (
@@ -415,10 +415,10 @@ export default function SecurityDashboard() {
                             >
                               <SeverityIcon
                                 size={16}
-                                className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'}`}
+                                className={`mt-0.5 shrink-0 ${signal.severity === 'red' ? 'text-error' : 'text-warning'}`}
                               />
                               <div className="min-w-0">
-                                <div className="text-sm text-zinc-400 truncate">{signal.label}</div>
+                                <div className="text-sm text-secondary truncate">{signal.label}</div>
                                 <div className="flex items-center gap-2 mt-1">
                                   <Badge variant="default" size="xs">dismissed</Badge>
                                 </div>
@@ -426,7 +426,7 @@ export default function SecurityDashboard() {
                             </button>
                             <button
                               onClick={(e) => { e.stopPropagation(); restoreSignal(signal); }}
-                              className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
+                              className="p-1 text-tertiary hover:text-secondary transition-colors shrink-0"
                               title="Restore signal"
                             >
                               <Undo2 size={14} />
@@ -484,7 +484,7 @@ export default function SecurityDashboard() {
                               )}
                             </div>
                           </div>
-                          <ChevronRight size={14} className="text-zinc-500 group-hover:text-zinc-300 mt-0.5 shrink-0" />
+                          <ChevronRight size={14} className="text-tertiary group-hover:text-secondary mt-0.5 shrink-0" />
                         </div>
                       </button>
                     );

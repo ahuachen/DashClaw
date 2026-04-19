@@ -70,9 +70,9 @@ export default function RelationshipsDashboard() {
 
   const getDaysColor = (days) => {
     if (days === null) return '';
-    if (days <= 0) return 'text-red-400';
-    if (days <= 2) return 'text-amber-400';
-    return 'text-emerald-400';
+    if (days <= 0) return 'text-error';
+    if (days <= 2) return 'text-warning';
+    return 'text-success';
   };
 
   const handleAddContact = async () => {
@@ -125,7 +125,7 @@ export default function RelationshipsDashboard() {
           </button>
           <button
             onClick={fetchData}
-            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
           >
             <RotateCw size={14} />
             Refresh
@@ -138,31 +138,31 @@ export default function RelationshipsDashboard() {
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.total}</div>
-            <div className="text-xs text-zinc-500 mt-1">Total Contacts</div>
+            <div className="text-xs text-tertiary mt-1">Total Contacts</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.hot}</div>
-            <div className="text-xs text-zinc-500 mt-1">Hot Leads</div>
+            <div className="text-xs text-tertiary mt-1">Hot Leads</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.warm}</div>
-            <div className="text-xs text-zinc-500 mt-1">Warm</div>
+            <div className="text-xs text-tertiary mt-1">Warm</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.cold}</div>
-            <div className="text-xs text-zinc-500 mt-1">Cold</div>
+            <div className="text-xs text-tertiary mt-1">Cold</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.followUpsDue}</div>
-            <div className="text-xs text-zinc-500 mt-1">Follow-ups Due</div>
+            <div className="text-xs text-tertiary mt-1">Follow-ups Due</div>
           </CardContent>
         </Card>
       </div>
@@ -176,7 +176,7 @@ export default function RelationshipsDashboard() {
               {/* Search & Filters */}
               <div className="mb-4 space-y-3">
                 <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-tertiary" />
                   <input
                     type="text"
                     placeholder="Search by name, context, or platform..."
@@ -192,11 +192,11 @@ export default function RelationshipsDashboard() {
                       onClick={() => setTempFilter(temp)}
                       className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
                         tempFilter === temp
-                          ? temp === 'HOT' ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                            : temp === 'WARM' ? 'bg-yellow-500/20 text-amber-400 border border-yellow-500/40'
-                            : temp === 'COLD' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
+                          ? temp === 'HOT' ? 'bg-error-subtle text-error border border-error/40'
+                            : temp === 'WARM' ? 'bg-yellow-500/20 text-warning border border-yellow-500/40'
+                            : temp === 'COLD' ? 'bg-info-subtle text-info border border-blue-500/40'
                             : 'bg-white/10 text-white border border-[rgba(255,255,255,0.2)]'
-                          : 'bg-surface-tertiary text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
+                          : 'bg-surface-tertiary text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
                       }`}
                     >
                       {temp === 'All' ? 'All' : temp}
@@ -207,8 +207,8 @@ export default function RelationshipsDashboard() {
                     onClick={() => setShowDueOnly(!showDueOnly)}
                     className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 flex items-center gap-1.5 ${
                       showDueOnly
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/40'
-                        : 'bg-surface-tertiary text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
+                        ? 'bg-error-subtle text-error border border-error/40'
+                        : 'bg-surface-tertiary text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'
                     }`}
                   >
                     <Calendar size={12} />
@@ -219,7 +219,7 @@ export default function RelationshipsDashboard() {
 
               <div className="space-y-3 max-h-[500px] overflow-y-auto">
                 {filteredContacts.length === 0 && (
-                  <div className="text-center text-sm text-zinc-500 py-8">
+                  <div className="text-center text-sm text-tertiary py-8">
                     No contacts match the current filters.
                   </div>
                 )}
@@ -229,12 +229,12 @@ export default function RelationshipsDashboard() {
                     <div key={contact.id} className={`bg-surface-tertiary rounded-lg p-4 border-l-4 ${getTempBorderColor(contact.temperature)}`}>
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center text-sm font-medium text-zinc-300">
+                          <div className="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center text-sm font-medium text-secondary">
                             {contact.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white">@{contact.name}</div>
-                            <div className="text-xs text-zinc-500">{contact.platform}</div>
+                            <div className="text-xs text-tertiary">{contact.platform}</div>
                           </div>
                         </div>
                         <Badge variant={getTempVariant(contact.temperature)} size="xs">
@@ -242,10 +242,10 @@ export default function RelationshipsDashboard() {
                         </Badge>
                       </div>
 
-                      <div className="text-sm text-zinc-300 mb-3">{contact.context}</div>
+                      <div className="text-sm text-secondary mb-3">{contact.context}</div>
 
                       <div className="flex items-center justify-between text-xs">
-                        <div className="text-zinc-500">
+                        <div className="text-tertiary">
                           Last contact: {contact.lastContact} -- {contact.interactions} interactions
                         </div>
                         {contact.followUpDate && (
@@ -273,15 +273,15 @@ export default function RelationshipsDashboard() {
                   <div key={interaction.id} className="bg-surface-tertiary rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <DirectionIcon size={14} className="text-zinc-400" />
+                        <DirectionIcon size={14} className="text-secondary" />
                         <span className="text-sm font-medium text-white">@{interaction.contactName}</span>
                       </div>
-                      <span className="text-xs text-zinc-500">{interaction.date}</span>
+                      <span className="text-xs text-tertiary">{interaction.date}</span>
                     </div>
-                    <div className="text-sm text-zinc-300">{interaction.summary}</div>
+                    <div className="text-sm text-secondary">{interaction.summary}</div>
                     <div className="flex items-center justify-between mt-2 text-xs">
-                      <span className="text-zinc-500">{interaction.type}</span>
-                      <span className="text-zinc-500">{interaction.platform}</span>
+                      <span className="text-tertiary">{interaction.type}</span>
+                      <span className="text-tertiary">{interaction.platform}</span>
                     </div>
                   </div>
                 );
@@ -297,13 +297,13 @@ export default function RelationshipsDashboard() {
           <div className="bg-surface-secondary border border-[rgba(255,255,255,0.1)] rounded-xl p-6 w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Add Contact</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-zinc-400 hover:text-white transition-colors">
+              <button onClick={() => setShowAddModal(false)} className="text-secondary hover:text-white transition-colors">
                 <X size={18} />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Name</label>
+                <label className="block text-xs text-secondary mb-1">Name</label>
                 <input
                   type="text"
                   value={addForm.name}
@@ -313,7 +313,7 @@ export default function RelationshipsDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Platform</label>
+                <label className="block text-xs text-secondary mb-1">Platform</label>
                 <select
                   value={addForm.platform}
                   onChange={(e) => setAddForm(prev => ({ ...prev, platform: e.target.value }))}
@@ -329,7 +329,7 @@ export default function RelationshipsDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Temperature</label>
+                <label className="block text-xs text-secondary mb-1">Temperature</label>
                 <select
                   value={addForm.temperature}
                   onChange={(e) => setAddForm(prev => ({ ...prev, temperature: e.target.value }))}
@@ -341,7 +341,7 @@ export default function RelationshipsDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Context</label>
+                <label className="block text-xs text-secondary mb-1">Context</label>
                 <textarea
                   value={addForm.context}
                   onChange={(e) => setAddForm(prev => ({ ...prev, context: e.target.value }))}
@@ -351,7 +351,7 @@ export default function RelationshipsDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Follow-up Date</label>
+                <label className="block text-xs text-secondary mb-1">Follow-up Date</label>
                 <input
                   type="date"
                   value={addForm.followUpDate}
@@ -363,7 +363,7 @@ export default function RelationshipsDashboard() {
             <div className="flex justify-end gap-2 mt-6">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>

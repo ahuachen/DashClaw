@@ -20,10 +20,10 @@ const SCOPES = [
 ];
 
 const SEVERITY_CONFIG = {
-  critical: { variant: 'error', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-  high:     { variant: 'warning', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
-  medium:   { variant: 'warning', color: 'text-amber-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-  low:      { variant: 'success', color: 'text-emerald-400', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  critical: { variant: 'error', color: 'text-error', bg: 'bg-error-subtle', border: 'border-error/20' },
+  high:     { variant: 'warning', color: 'text-brand', bg: 'bg-orange-500/10', border: 'border-active/20' },
+  medium:   { variant: 'warning', color: 'text-warning', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  low:      { variant: 'success', color: 'text-success', bg: 'bg-green-500/10', border: 'border-green-500/20' },
 };
 
 export default function BugHunterPage() {
@@ -92,7 +92,7 @@ export default function BugHunterPage() {
   };
 
   const getSeverityColor = (severity) => {
-    return SEVERITY_CONFIG[severity]?.color || 'text-zinc-400';
+    return SEVERITY_CONFIG[severity]?.color || 'text-secondary';
   };
 
   return (
@@ -103,7 +103,7 @@ export default function BugHunterPage() {
       actions={
         <button
           onClick={fetchData}
-          className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+          className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
         >
           <RotateCw size={14} />
           Refresh
@@ -119,17 +119,17 @@ export default function BugHunterPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
-            <StatCompact label="Issues Found" value={stats.issuesFound} color="text-amber-400" />
+            <StatCompact label="Issues Found" value={stats.issuesFound} color="text-warning" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
-            <StatCompact label="Resolved" value={stats.resolved} color="text-emerald-400" />
+            <StatCompact label="Resolved" value={stats.resolved} color="text-success" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
-            <StatCompact label="Open" value={stats.open} color="text-red-400" />
+            <StatCompact label="Open" value={stats.open} color="text-error" />
           </CardContent>
         </Card>
       </div>
@@ -141,11 +141,11 @@ export default function BugHunterPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Agent Selector */}
             <div className="flex-1">
-              <label className="text-xs text-zinc-500 mb-1 block">Agent</label>
+              <label className="text-xs text-tertiary mb-1 block">Agent</label>
               <select
                 value={selectedAgent}
                 onChange={(e) => setSelectedAgent(e.target.value)}
-                className="w-full px-3 py-2 text-sm text-zinc-200 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg focus:outline-none focus:border-brand/50 transition-colors"
+                className="w-full px-3 py-2 text-sm text-secondary bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg focus:outline-none focus:border-brand/50 transition-colors"
               >
                 <option value="">Select an agent...</option>
                 {agents.map((agent) => (
@@ -158,11 +158,11 @@ export default function BugHunterPage() {
 
             {/* Scope Selector */}
             <div className="flex-1">
-              <label className="text-xs text-zinc-500 mb-1 block">Scan Scope</label>
+              <label className="text-xs text-tertiary mb-1 block">Scan Scope</label>
               <select
                 value={selectedScope}
                 onChange={(e) => setSelectedScope(e.target.value)}
-                className="w-full px-3 py-2 text-sm text-zinc-200 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg focus:outline-none focus:border-brand/50 transition-colors"
+                className="w-full px-3 py-2 text-sm text-secondary bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg focus:outline-none focus:border-brand/50 transition-colors"
               >
                 {SCOPES.map((scope) => (
                   <option key={scope} value={scope}>{scope}</option>
@@ -215,14 +215,14 @@ export default function BugHunterPage() {
                         {finding.severity?.toUpperCase()}
                       </Badge>
                     </div>
-                    <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                    <div className="text-[10px] text-tertiary flex items-center gap-1">
                       <Clock size={10} />
                       {finding.timestamp ? new Date(finding.timestamp).toLocaleString() : 'Just now'}
                     </div>
                   </div>
-                  <div className="text-sm text-zinc-200 mb-1">{finding.description}</div>
+                  <div className="text-sm text-secondary mb-1">{finding.description}</div>
                   {finding.location && (
-                    <div className="text-xs text-zinc-500 font-mono">{finding.location}</div>
+                    <div className="text-xs text-tertiary font-mono">{finding.location}</div>
                   )}
                 </div>
               ))}
@@ -248,14 +248,14 @@ export default function BugHunterPage() {
                   <div className="flex items-center gap-3">
                     <div className={`w-2 h-2 rounded-full ${scan.status === 'completed' ? 'bg-green-400' : scan.status === 'running' ? 'bg-yellow-400 animate-pulse' : 'bg-zinc-500'}`} />
                     <div>
-                      <div className="text-sm text-zinc-200">{scan.scope || 'All Tabs'}</div>
-                      <div className="text-[10px] text-zinc-500">{scan.agent_name || scan.agent_id || 'Unknown Agent'}</div>
+                      <div className="text-sm text-secondary">{scan.scope || 'All Tabs'}</div>
+                      <div className="text-[10px] text-tertiary">{scan.agent_name || scan.agent_id || 'Unknown Agent'}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-xs text-zinc-400">{scan.findings_count ?? 0} findings</div>
-                      <div className="text-[10px] text-zinc-500">
+                      <div className="text-xs text-secondary">{scan.findings_count ?? 0} findings</div>
+                      <div className="text-[10px] text-tertiary">
                         {scan.created_at ? new Date(scan.created_at).toLocaleString() : ''}
                       </div>
                     </div>

@@ -173,7 +173,7 @@ export default function TokensDashboard() {
   const refreshButton = (
     <button
       onClick={fetchTokenData}
-      className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+      className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
     >
       <RotateCw size={14} />
       Refresh
@@ -189,7 +189,7 @@ export default function TokensDashboard() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowBudgetModal(true)}
-            className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
           >
             <Settings size={14} />
             Configure Budgets
@@ -209,7 +209,7 @@ export default function TokensDashboard() {
           <Card key={budget.label} hover={false}>
             <CardContent className="pt-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-zinc-200">{budget.label}</span>
+                <span className="text-sm font-medium text-secondary">{budget.label}</span>
                 <Badge variant={getStatusVariant(budget.pct)} size="xs">
                   {getStatusText(budget.pct)}
                 </Badge>
@@ -218,7 +218,7 @@ export default function TokensDashboard() {
                 {budget.pct.toFixed(1)}%
               </div>
               <ProgressBar value={budget.pct} color={getProgressColor(budget.pct)} className="mb-3" />
-              <div className="flex justify-between text-xs text-zinc-500">
+              <div className="flex justify-between text-xs text-tertiary">
                 <span>{formatNumber(budget.used)} used</span>
                 <span>{formatNumber(budget.limit)} limit</span>
               </div>
@@ -255,17 +255,17 @@ export default function TokensDashboard() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="text-sm font-medium text-white">{op.name}</div>
-                        <div className="text-xs text-zinc-500">{op.timestamp}</div>
+                        <div className="text-xs text-tertiary">{op.timestamp}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-semibold tabular-nums text-red-400">{formatNumber(op.total)}</div>
-                        <div className="text-xs text-zinc-500">tokens</div>
+                        <div className="text-sm font-semibold tabular-nums text-error">{formatNumber(op.total)}</div>
+                        <div className="text-xs text-tertiary">tokens</div>
                       </div>
                     </div>
                     <div className="flex items-center text-sm">
                       <div className="flex space-x-4">
-                        <span className="text-emerald-400 text-xs tabular-nums">In: {formatNumber(op.tokensIn)}</span>
-                        <span className="text-blue-400 text-xs tabular-nums">Out: {formatNumber(op.tokensOut)}</span>
+                        <span className="text-success text-xs tabular-nums">In: {formatNumber(op.tokensIn)}</span>
+                        <span className="text-info text-xs tabular-nums">Out: {formatNumber(op.tokensOut)}</span>
                       </div>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export default function TokensDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="text-left text-xs text-zinc-500 border-b border-[rgba(255,255,255,0.06)]">
+                  <tr className="text-left text-xs text-tertiary border-b border-[rgba(255,255,255,0.06)]">
                     <th className="pb-3">Operation</th>
                     <th className="pb-3">Tokens</th>
                     <th className="pb-3">Est. Cost</th>
@@ -293,8 +293,8 @@ export default function TokensDashboard() {
                   {costGuide.map((item, index) => (
                     <tr key={index} className="border-b border-[rgba(255,255,255,0.03)]">
                       <td className="py-3 text-sm text-white">{item.operation}</td>
-                      <td className="py-3 text-sm text-zinc-300 tabular-nums">{formatNumber(item.tokens)}</td>
-                      <td className="py-3 text-sm text-zinc-300">{item.cost}</td>
+                      <td className="py-3 text-sm text-secondary tabular-nums">{formatNumber(item.tokens)}</td>
+                      <td className="py-3 text-sm text-secondary">{item.cost}</td>
                       <td className="py-3">
                         <Badge variant={getRiskVariant(item.risk)} size="xs">
                           {item.risk}
@@ -315,8 +315,8 @@ export default function TokensDashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-surface-tertiary p-4 rounded-lg border-l-4 border-l-red-500">
-              <div className="text-sm text-red-400 font-semibold mb-2">When Budget Low (&lt;25%)</div>
-              <ul className="text-sm text-zinc-300 space-y-1">
+              <div className="text-sm text-error font-semibold mb-2">When Budget Low (&lt;25%)</div>
+              <ul className="text-sm text-secondary space-y-1">
                 <li>1. Switch to Sonnet for automation</li>
                 <li>2. Avoid browser snapshots</li>
                 <li>3. Summarize context to files</li>
@@ -324,8 +324,8 @@ export default function TokensDashboard() {
               </ul>
             </div>
             <div className="bg-surface-tertiary p-4 rounded-lg border-l-4 border-l-yellow-500">
-              <div className="text-sm text-amber-400 font-semibold mb-2">Model Selection</div>
-              <ul className="text-sm text-zinc-300 space-y-1">
+              <div className="text-sm text-warning font-semibold mb-2">Model Selection</div>
+              <ul className="text-sm text-secondary space-y-1">
                 <li>Complex reasoning: Opus</li>
                 <li>Automation/execution: Sonnet</li>
                 <li>Simple/status: Haiku</li>
@@ -347,7 +347,7 @@ export default function TokensDashboard() {
                 { key: 'monthly_limit', label: 'Monthly Limit' },
               ].map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-xs text-zinc-400 mb-1">{label}</label>
+                  <label className="block text-xs text-secondary mb-1">{label}</label>
                   <input
                     type="number"
                     min="0"
@@ -361,7 +361,7 @@ export default function TokensDashboard() {
             <div className="flex justify-end gap-2 mt-6">
               <button
                 onClick={() => setShowBudgetModal(false)}
-                className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>

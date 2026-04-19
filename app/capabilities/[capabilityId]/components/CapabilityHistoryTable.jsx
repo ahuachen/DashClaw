@@ -36,7 +36,7 @@ export default function CapabilityHistoryTable({
       <CardHeader title="Recent History" count={events.length} />
       <CardContent className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row">
-          <label className="flex flex-col gap-1 text-xs text-zinc-500">
+          <label className="flex flex-col gap-1 text-xs text-tertiary">
             <span>Action type</span>
             <select
               aria-label="Action type filter"
@@ -50,7 +50,7 @@ export default function CapabilityHistoryTable({
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-xs text-zinc-500">
+          <label className="flex flex-col gap-1 text-xs text-tertiary">
             <span>Status</span>
             <select
               aria-label="Status filter"
@@ -66,20 +66,20 @@ export default function CapabilityHistoryTable({
         </div>
 
         {loading ? (
-          <div className="text-sm text-zinc-500">Refreshing history...</div>
+          <div className="text-sm text-tertiary">Refreshing history...</div>
         ) : error ? (
           <div className="space-y-3">
-            <div className="text-sm text-red-400">{error}</div>
+            <div className="text-sm text-error">{error}</div>
             <button
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:text-white"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:text-white"
             >
               Retry History
             </button>
           </div>
         ) : events.length === 0 ? (
-          <div className="text-sm text-zinc-500">No recent capability events.</div>
+          <div className="text-sm text-tertiary">No recent capability events.</div>
         ) : (
           <div className="space-y-2">
             {events.map((event) => {
@@ -92,7 +92,7 @@ export default function CapabilityHistoryTable({
                     </Badge>
                   </div>
                   {event.action_id ? (
-                    <div className="text-xs text-zinc-500 font-mono mt-1">{event.action_id}</div>
+                    <div className="text-xs text-tertiary font-mono mt-1">{event.action_id}</div>
                   ) : null}
                 </div>
               );

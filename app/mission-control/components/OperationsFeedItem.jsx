@@ -11,10 +11,10 @@ const SEVERITY_DOT = {
 
 const CATEGORY_PILL = {
   approval: { label: 'Approval', color: 'bg-purple-400/10 text-purple-400 border-purple-400/20' },
-  failure: { label: 'Failure', color: 'bg-red-400/10 text-red-400 border-red-400/20' },
-  signal: { label: 'Signal', color: 'bg-amber-400/10 text-amber-400 border-amber-400/20' },
-  health: { label: 'Health', color: 'bg-blue-400/10 text-blue-400 border-blue-400/20' },
-  stale: { label: 'Stale', color: 'bg-zinc-400/10 text-zinc-400 border-zinc-400/20' },
+  failure: { label: 'Failure', color: 'bg-red-400/10 text-error border-error/20' },
+  signal: { label: 'Signal', color: 'bg-amber-400/10 text-warning border-warning/20' },
+  health: { label: 'Health', color: 'bg-blue-400/10 text-info border-blue-400/20' },
+  stale: { label: 'Stale', color: 'bg-zinc-400/10 text-secondary border-zinc-400/20' },
 };
 
 function formatRelativeTime(ts) {
@@ -42,19 +42,19 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
             {pill.label}
           </span>
           {item.agent_id && (
-            <span className="max-w-[140px] truncate text-[11px] text-zinc-500">{item.agent_id}</span>
+            <span className="max-w-[140px] truncate text-[11px] text-tertiary">{item.agent_id}</span>
           )}
-          <span className="ml-auto flex-shrink-0 text-[11px] tabular-nums text-zinc-500">
+          <span className="ml-auto flex-shrink-0 text-[11px] tabular-nums text-tertiary">
             {formatRelativeTime(item.timestamp)}
           </span>
         </div>
 
-        <Link href={item.action_url || '#'} className="text-sm text-zinc-200 transition-colors hover:text-white">
+        <Link href={item.action_url || '#'} className="text-sm text-secondary transition-colors hover:text-white">
           {item.title}
         </Link>
 
         {item.detail && (
-          <p className="mt-0.5 truncate text-xs text-zinc-500">{item.detail}</p>
+          <p className="mt-0.5 truncate text-xs text-tertiary">{item.detail}</p>
         )}
       </div>
 
@@ -63,13 +63,13 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
           <>
             <button
               onClick={() => onApprove(item.source_id)}
-              className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[11px] font-medium text-emerald-400 transition-colors hover:border-emerald-400/40 hover:bg-emerald-400/20"
+              className="rounded-md border border-success/20 bg-emerald-400/10 px-2 py-1 text-[11px] font-medium text-success transition-colors hover:border-success/40 hover:bg-emerald-400/20"
             >
               Approve
             </button>
             <button
               onClick={() => onDeny(item.source_id)}
-              className="rounded-md border border-red-400/20 bg-red-400/10 px-2 py-1 text-[11px] font-medium text-red-400 transition-colors hover:border-red-400/40 hover:bg-red-400/20"
+              className="rounded-md border border-error/20 bg-red-400/10 px-2 py-1 text-[11px] font-medium text-error transition-colors hover:border-error/40 hover:bg-red-400/20"
             >
               Deny
             </button>
@@ -78,7 +78,7 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
         {item.suggested_action === 'retry' && onRetry && (
           <button
             onClick={() => onRetry(item.metadata)}
-            className="rounded-md border border-blue-400/20 bg-blue-400/10 px-2 py-1 text-[11px] font-medium text-blue-400 transition-colors hover:border-blue-400/40 hover:bg-blue-400/20"
+            className="rounded-md border border-blue-400/20 bg-blue-400/10 px-2 py-1 text-[11px] font-medium text-info transition-colors hover:border-blue-400/40 hover:bg-blue-400/20"
           >
             Retry
           </button>
@@ -86,7 +86,7 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
         {item.suggested_action === 'cancel' && onCancel && (
           <button
             onClick={() => onCancel(item.metadata)}
-            className="rounded-md border border-red-400/20 bg-red-400/10 px-2 py-1 text-[11px] font-medium text-red-400 transition-colors hover:border-red-400/40 hover:bg-red-400/20"
+            className="rounded-md border border-error/20 bg-red-400/10 px-2 py-1 text-[11px] font-medium text-error transition-colors hover:border-error/40 hover:bg-red-400/20"
           >
             Cancel
           </button>
@@ -94,7 +94,7 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
         {item.suggested_action === 'disable' && onDisable && (
           <button
             onClick={() => onDisable(item.metadata)}
-            className="rounded-md border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-[11px] font-medium text-amber-400 transition-colors hover:border-amber-400/40 hover:bg-amber-400/20"
+            className="rounded-md border border-warning/20 bg-amber-400/10 px-2 py-1 text-[11px] font-medium text-warning transition-colors hover:border-warning/40 hover:bg-amber-400/20"
           >
             Disable
           </button>
@@ -102,7 +102,7 @@ export default function OperationsFeedItem({ item, onApprove, onDeny, onRetry, o
         {item.category !== 'approval' && (
           <Link
             href={item.action_url || '#'}
-            className="rounded-md border border-border bg-white/5 px-2 py-1 text-[11px] font-medium text-zinc-400 transition-colors hover:border-border-hover hover:bg-white/10 hover:text-zinc-200"
+            className="rounded-md border border-border bg-white/5 px-2 py-1 text-[11px] font-medium text-secondary transition-colors hover:border-border-hover hover:bg-white/10 hover:text-secondary"
           >
             View
           </Link>

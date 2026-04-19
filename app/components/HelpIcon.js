@@ -26,17 +26,17 @@ export function HelpIcon({ sectionKey, tip }) {
     <span className="relative inline-flex items-center ml-1.5">
       <button
         onClick={() => setOpen(!open)}
-        className="text-zinc-400 hover:text-blue-400 transition-colors"
+        className="text-secondary hover:text-info transition-colors"
         aria-label={`Help: ${sectionKey}`}
       >
         <HelpCircle className="w-4 h-4" />
       </button>
       {open && (
-        <div className="absolute left-6 top-0 z-50 w-72 rounded-lg border border-zinc-700 bg-zinc-800 p-3 shadow-xl text-sm text-zinc-300">
+        <div className="absolute left-6 top-0 z-50 w-72 rounded-lg border border-zinc-700 bg-tertiary p-3 shadow-xl text-sm text-secondary">
           <p>{tip}</p>
           <button
             onClick={dismiss}
-            className="mt-2 text-xs text-blue-400 hover:text-blue-300"
+            className="mt-2 text-xs text-info hover:text-info"
           >
             Got it
           </button>

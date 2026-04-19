@@ -19,9 +19,9 @@ function CopyButton({ value }) {
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.08)] bg-[#161616] px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-[rgba(255,255,255,0.16)] hover:text-white"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.08)] bg-[#161616] px-3 py-1.5 text-xs text-secondary transition-colors hover:border-[rgba(255,255,255,0.16)] hover:text-white"
     >
-      {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+      {copied ? <Check size={12} className="text-success" /> : <Copy size={12} />}
       {copied ? 'Copied' : 'Copy'}
     </button>
   );
@@ -33,10 +33,10 @@ function CodeCard({ title, body, tone = 'default' }) {
   return (
     <div className={`rounded-2xl border bg-[#111] ${toneClass}`}>
       <div className="flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.06)] px-4 py-3">
-        <p className="text-sm font-medium text-zinc-200">{title}</p>
+        <p className="text-sm font-medium text-secondary">{title}</p>
         <CopyButton value={body} />
       </div>
-      <pre className="overflow-x-auto whitespace-pre-wrap px-4 py-4 text-xs text-zinc-300">{body}</pre>
+      <pre className="overflow-x-auto whitespace-pre-wrap px-4 py-4 text-xs text-secondary">{body}</pre>
     </div>
   );
 }
@@ -50,7 +50,7 @@ function StepSection({ number, title, summary, children }) {
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-xl font-semibold text-white">{title}</h2>
-          <p className="mt-2 text-sm text-zinc-400">{summary}</p>
+          <p className="mt-2 text-sm text-secondary">{summary}</p>
           {children && <div className="mt-5">{children}</div>}
         </div>
       </div>
@@ -93,13 +93,13 @@ export default function GuideClient({
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           {frameworkName}
         </h1>
-        <p className="mt-3 max-w-3xl text-sm text-zinc-400">
+        <p className="mt-3 max-w-3xl text-sm text-secondary">
           Connect {frameworkName} to DashClaw and get your first governed action into{' '}
-          <span className="text-zinc-300">/decisions</span> in under 20 minutes.
+          <span className="text-secondary">/decisions</span> in under 20 minutes.
         </p>
         {baseUrl && (
-          <p className="mt-2 text-xs text-zinc-500">
-            Instance URL detected: <span className="text-zinc-400">{baseUrl}</span>
+          <p className="mt-2 text-xs text-tertiary">
+            Instance URL detected: <span className="text-secondary">{baseUrl}</span>
           </p>
         )}
       </section>
@@ -116,17 +116,17 @@ export default function GuideClient({
             <CodeCard title={step.codeTitle} body={step.codeBody} />
           )}
           {step.note && (
-            <p className="mt-4 text-sm text-zinc-500">{step.note}</p>
+            <p className="mt-4 text-sm text-tertiary">{step.note}</p>
           )}
         </StepSection>
       ))}
 
       {/* Proof moment */}
-      <section className="rounded-3xl border border-emerald-500/20 bg-[#0a0a0a] p-6">
-        <p className="text-xs uppercase tracking-[0.32em] text-emerald-400">What success looks like</p>
-        <p className="mt-4 text-sm text-zinc-300">{proofMoment}</p>
-        <p className="mt-3 text-sm text-zinc-500">
-          Navigate to <span className="font-mono text-zinc-300">/decisions</span> in your DashClaw
+      <section className="rounded-3xl border border-success/20 bg-[#0a0a0a] p-6">
+        <p className="text-xs uppercase tracking-[0.32em] text-success">What success looks like</p>
+        <p className="mt-4 text-sm text-secondary">{proofMoment}</p>
+        <p className="mt-3 text-sm text-tertiary">
+          Navigate to <span className="font-mono text-secondary">/decisions</span> in your DashClaw
           instance. Your action should appear in the ledger within seconds of the agent run.
         </p>
       </section>
@@ -134,10 +134,10 @@ export default function GuideClient({
       {/* Governance as Code */}
       {guardrailsYaml && (
         <section className="rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#0a0a0a] p-6">
-          <p className="text-xs uppercase tracking-[0.32em] text-zinc-500">Governance as Code</p>
-          <p className="mt-3 text-sm text-zinc-400">
+          <p className="text-xs uppercase tracking-[0.32em] text-tertiary">Governance as Code</p>
+          <p className="mt-3 text-sm text-secondary">
             Drop a{' '}
-            <span className="font-mono text-zinc-300">guardrails.yml</span> in your project root
+            <span className="font-mono text-secondary">guardrails.yml</span> in your project root
             to enforce policies without code changes. DashClaw evaluates these rules at the guard
             step before any action executes.
           </p>

@@ -69,8 +69,8 @@ export default function AgentsFleetPage() {
 
   const statRail = [
     { label: 'Total', value: stats.total, color: 'text-white' },
-    { label: 'Online', value: stats.active, color: 'text-emerald-400' },
-    { label: 'Critical', value: stats.critical, color: stats.critical > 0 ? 'text-red-400' : 'text-zinc-400' },
+    { label: 'Online', value: stats.active, color: 'text-success' },
+    { label: 'Critical', value: stats.critical, color: stats.critical > 0 ? 'text-error' : 'text-secondary' },
     { label: 'Governed', value: stats.governed, color: 'text-white' },
   ];
 
@@ -83,7 +83,7 @@ export default function AgentsFleetPage() {
       actions={
         <button
           onClick={() => { setLoading(true); fetchAgents(); }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
         >
           <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
           Refresh
@@ -98,7 +98,7 @@ export default function AgentsFleetPage() {
               key={stat.label}
               className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 {stat.label}
               </div>
               <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
@@ -110,7 +110,7 @@ export default function AgentsFleetPage() {
       {/* Search & Filters */}
       <div className="relative mb-6 flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tertiary" size={16} />
           <input
             type="text"
             placeholder="Search agents by ID or name…"
@@ -124,7 +124,7 @@ export default function AgentsFleetPage() {
           className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
             showFilters || filterStatus !== 'all'
               ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
-              : 'border-border bg-surface-secondary text-zinc-400 hover:border-border-hover hover:text-white'
+              : 'border-border bg-surface-secondary text-secondary hover:border-border-hover hover:text-white'
           }`}
         >
           <Filter size={14} />
@@ -134,16 +134,16 @@ export default function AgentsFleetPage() {
         {showFilters && (
           <div className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-border bg-surface-secondary py-1 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(0,0,0,0.45)]">
             {[
-              { id: 'all', label: 'All agents', icon: Users, color: 'text-zinc-400' },
-              { id: 'online', label: 'Online only', icon: CheckCircle2, color: 'text-emerald-400' },
-              { id: 'critical', label: 'Critical only', icon: ShieldAlert, color: 'text-red-400' },
-              { id: 'offline', label: 'Offline only', icon: XCircle, color: 'text-zinc-500' },
+              { id: 'all', label: 'All agents', icon: Users, color: 'text-secondary' },
+              { id: 'online', label: 'Online only', icon: CheckCircle2, color: 'text-success' },
+              { id: 'critical', label: 'Critical only', icon: ShieldAlert, color: 'text-error' },
+              { id: 'offline', label: 'Offline only', icon: XCircle, color: 'text-tertiary' },
             ].map((f) => (
               <button
                 key={f.id}
                 onClick={() => { setFilterStatus(f.id); setShowFilters(false); }}
                 className={`flex w-full items-center gap-3 px-4 py-2.5 text-xs font-medium transition-colors hover:bg-white/5 ${
-                  filterStatus === f.id ? 'bg-brand/5 text-brand' : 'text-zinc-400'
+                  filterStatus === f.id ? 'bg-brand/5 text-brand' : 'text-secondary'
                 }`}
               >
                 <f.icon size={14} className={f.color} />
@@ -175,7 +175,7 @@ export default function AgentsFleetPage() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                     <th className="px-6 py-4">Agent</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Governance</th>
@@ -190,14 +190,14 @@ export default function AgentsFleetPage() {
                       <tr key={agent.agent_id} className="transition-colors hover:bg-white/[0.02]">
                         <td className="px-6 py-4">
                           <Link href={`/agents/${encodeURIComponent(agent.agent_id)}`} className="group/name flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded border border-border bg-white/[0.03] text-zinc-400">
+                            <div className="flex h-8 w-8 items-center justify-center rounded border border-border bg-white/[0.03] text-secondary">
                               <Brain size={16} />
                             </div>
                             <div className="min-w-0">
                               <div className="truncate text-sm font-medium text-white transition-colors group-hover/name:text-brand">
                                 {agent.name || agent.agent_id}
                               </div>
-                              <div className="mt-0.5 text-[11px] text-zinc-500">
+                              <div className="mt-0.5 text-[11px] text-tertiary">
                                 {agent.action_count != null
                                   ? `${agent.action_count} decisions`
                                   : agent.agent_id !== (agent.name || agent.agent_id)
@@ -210,7 +210,7 @@ export default function AgentsFleetPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
-                            <span className="text-xs capitalize text-zinc-300">{agent.status || 'unknown'}</span>
+                            <span className="text-xs capitalize text-secondary">{agent.status || 'unknown'}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -228,14 +228,14 @@ export default function AgentsFleetPage() {
                             )}
                             {agent.verified ? (
                               <div
-                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-emerald-400"
+                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-success"
                                 title="Agent identity cryptographically verified"
                               >
                                 <Lock size={10} /> Verified
                               </div>
                             ) : (
                               <div
-                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500"
+                                className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-tertiary"
                                 title="Agent is using an unsigned session"
                               >
                                 <Info size={10} /> Unsigned
@@ -246,11 +246,11 @@ export default function AgentsFleetPage() {
                         <td className="px-6 py-4">
                           {agent.last_action_at ? (
                             <div className="flex flex-col text-xs">
-                              <span className="text-zinc-300 tabular-nums">{new Date(agent.last_action_at).toLocaleDateString()}</span>
-                              <span className="text-[11px] text-zinc-500 tabular-nums">{new Date(agent.last_action_at).toLocaleTimeString()}</span>
+                              <span className="text-secondary tabular-nums">{new Date(agent.last_action_at).toLocaleDateString()}</span>
+                              <span className="text-[11px] text-tertiary tabular-nums">{new Date(agent.last_action_at).toLocaleTimeString()}</span>
                             </div>
                           ) : (
-                            <span className="text-xs text-zinc-500">Never</span>
+                            <span className="text-xs text-tertiary">Never</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-right">

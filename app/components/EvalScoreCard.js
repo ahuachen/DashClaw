@@ -58,7 +58,7 @@ export default function EvalScoreCard() {
   }
 
   const avgPct = overall.avg_score ? Math.round(overall.avg_score * 100) : 0;
-  const avgColor = avgPct >= 80 ? 'text-emerald-400' : avgPct >= 50 ? 'text-amber-400' : 'text-red-400';
+  const avgColor = avgPct >= 80 ? 'text-success' : avgPct >= 50 ? 'text-warning' : 'text-error';
 
   return (
     <Card className="h-full" ref={sizeRef}>
@@ -67,7 +67,7 @@ export default function EvalScoreCard() {
         icon={BarChart3}
         count={overall.total_scores || 0}
         action={
-          <Link href="/evaluations" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
+          <Link href="/evaluations" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">
             View <ArrowRight size={12} />
           </Link>
         }
@@ -90,7 +90,7 @@ export default function EvalScoreCard() {
                   <div className="w-full rounded-t" style={{ height: `${Math.max(height, 8)}%` }}>
                     <div className={`w-full h-full rounded-t ${color}`} />
                   </div>
-                  <span className="text-[9px] text-zinc-600 capitalize">{bucket.bucket}</span>
+                  <span className="text-[9px] text-disabled capitalize">{bucket.bucket}</span>
                 </div>
               );
             })}
@@ -101,7 +101,7 @@ export default function EvalScoreCard() {
           <div className="mt-3 space-y-1">
             {stats.by_scorer.slice(0, fitItems(tileHeight, 24, 3)).map(scorer => (
               <div key={scorer.scorer_name} className="flex items-center justify-between text-xs">
-                <span className="text-zinc-400 truncate">{scorer.scorer_name}</span>
+                <span className="text-secondary truncate">{scorer.scorer_name}</span>
                 <Badge variant={parseFloat(scorer.avg_score) >= 0.8 ? 'success' : parseFloat(scorer.avg_score) >= 0.5 ? 'warning' : 'error'} size="xs">
                   {Math.round(parseFloat(scorer.avg_score) * 100)}%
                 </Badge>

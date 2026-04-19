@@ -216,7 +216,7 @@ export default function TeamPage() {
     return (
       <PageLayout title="Team" subtitle="Manage workspace members" breadcrumbs={['Dashboard', 'Team']}>
         <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading team...</div>
+          <div className="text-sm text-tertiary">Loading team...</div>
         </div>
       </PageLayout>
     );
@@ -240,15 +240,15 @@ export default function TeamPage() {
       }
     >
       {isDemo && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-secondary text-sm">
           Demo mode: team management is read-only.
         </div>
       )}
       {/* Error banner */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center justify-between">
+        <div className="mb-4 p-3 bg-error-subtle border border-error/20 rounded-lg text-sm text-error flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300 ml-4">&times;</button>
+          <button onClick={() => setError(null)} className="text-error hover:text-error ml-4">&times;</button>
         </div>
       )}
 
@@ -258,29 +258,29 @@ export default function TeamPage() {
           <CardContent className="pt-5">
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Link2 size={16} className="text-emerald-400" />
+                <Link2 size={16} className="text-success" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-emerald-400 mb-1">
+                <div className="text-sm font-medium text-success mb-1">
                   Invite Created{newInvite.email ? ` for ${newInvite.email}` : ''}
                 </div>
-                <p className="text-xs text-zinc-400 mb-3">
+                <p className="text-xs text-secondary mb-3">
                   Share this link with the person you want to invite. It expires in 7 days.
                 </p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm font-mono text-emerald-400 overflow-x-auto">
+                  <code className="flex-1 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm font-mono text-success overflow-x-auto">
                     {newInvite.invite_url}
                   </code>
                   <button
                     onClick={() => handleCopy(newInvite.invite_url)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg text-sm text-zinc-300 hover:text-white hover:border-[rgba(255,255,255,0.12)] transition-colors flex-shrink-0"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg text-sm text-secondary hover:text-white hover:border-[rgba(255,255,255,0.12)] transition-colors flex-shrink-0"
                   >
-                    {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                    {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
                     {copied ? 'Copied' : 'Copy'}
                   </button>
                 </div>
               </div>
-              <button onClick={() => setNewInvite(null)} className="text-zinc-500 hover:text-zinc-300 text-lg leading-none flex-shrink-0">
+              <button onClick={() => setNewInvite(null)} className="text-tertiary hover:text-secondary text-lg leading-none flex-shrink-0">
                 &times;
               </button>
             </div>
@@ -302,7 +302,7 @@ export default function TeamPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Pending Invites" value={invites.length} color="text-blue-400" />
+            <StatCompact label="Pending Invites" value={invites.length} color="text-info" />
           </CardContent>
         </Card>
       </div>
@@ -311,7 +311,7 @@ export default function TeamPage() {
       {showInviteForm && canEdit && (
         <Card hover={false} className="mb-6">
           <CardContent className="pt-5">
-            <div className="text-sm font-medium text-zinc-200 mb-3">Create Invite Link</div>
+            <div className="text-sm font-medium text-secondary mb-3">Create Invite Link</div>
             <div className="flex items-center gap-3">
               <input
                 type="email"
@@ -337,7 +337,7 @@ export default function TeamPage() {
               </button>
               <button
                 onClick={() => { setShowInviteForm(false); setInviteEmail(''); }}
-                className="px-3 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-3 py-2 text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -350,17 +350,17 @@ export default function TeamPage() {
       {invites.length > 0 && (
         <Card hover={false} className="mb-6">
           <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)]">
-            <div className="text-sm font-medium text-zinc-200">Pending Invites</div>
+            <div className="text-sm font-medium text-secondary">Pending Invites</div>
           </div>
           <div className="divide-y divide-[rgba(255,255,255,0.04)]">
             {invites.map((inv) => (
               <div key={inv.id} className="px-5 py-3 flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                  {inv.email ? <Mail size={14} className="text-blue-400" /> : <Link2 size={14} className="text-blue-400" />}
+                <div className="w-8 h-8 rounded-lg bg-info-subtle flex items-center justify-center flex-shrink-0">
+                  {inv.email ? <Mail size={14} className="text-info" /> : <Link2 size={14} className="text-info" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-zinc-200">
+                    <span className="text-sm text-secondary">
                       {inv.email || 'Open invite (anyone with link)'}
                     </span>
                     <Badge variant={inv.role === 'admin' ? 'warning' : 'default'} size="xs">
@@ -368,8 +368,8 @@ export default function TeamPage() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <Clock size={10} className="text-zinc-600" />
-                    <span className="text-[10px] text-zinc-600">
+                    <Clock size={10} className="text-disabled" />
+                    <span className="text-[10px] text-disabled">
                       Expires in {formatExpiry(inv.expires_at)}
                     </span>
                   </div>
@@ -378,16 +378,16 @@ export default function TeamPage() {
                   {canEdit ? (
                     revokingId === inv.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-400">Revoke?</span>
+                        <span className="text-xs text-secondary">Revoke?</span>
                         <button
                           onClick={() => handleRevokeInvite(inv.id)}
-                          className="px-2.5 py-1 text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors"
+                          className="px-2.5 py-1 text-xs font-medium text-error bg-error-subtle border border-error/20 rounded-md hover:bg-error-subtle transition-colors"
                         >
                           Confirm
                         </button>
                         <button
                           onClick={() => setRevokingId(null)}
-                          className="px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors"
+                          className="px-2.5 py-1 text-xs text-secondary hover:text-white transition-colors"
                         >
                           Cancel
                         </button>
@@ -395,14 +395,14 @@ export default function TeamPage() {
                     ) : (
                       <button
                         onClick={() => setRevokingId(inv.id)}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs text-zinc-500 hover:text-red-400 transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs text-tertiary hover:text-error transition-colors"
                       >
                         <Ban size={12} />
                         Revoke
                       </button>
                     )
                   ) : (
-                    <span className="text-xs text-zinc-600">Read-only</span>
+                    <span className="text-xs text-disabled">Read-only</span>
                   )}
                 </div>
               </div>
@@ -414,7 +414,7 @@ export default function TeamPage() {
       {/* Members list */}
       <Card hover={false}>
         <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)]">
-          <div className="text-sm font-medium text-zinc-200">Members</div>
+          <div className="text-sm font-medium text-secondary">Members</div>
         </div>
         {(!data?.members || data.members.length === 0) ? (
           <CardContent className="pt-4">
@@ -433,7 +433,7 @@ export default function TeamPage() {
                   {member.image ? (
                     <Image src={member.image} alt="" width={32} height={32} className="w-8 h-8 rounded-full" />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs text-zinc-300 font-medium">
+                    <div className="w-8 h-8 rounded-full bg-elevated flex items-center justify-center text-xs text-secondary font-medium">
                       {(member.name || member.email || '?')[0].toUpperCase()}
                     </div>
                   )}
@@ -442,19 +442,19 @@ export default function TeamPage() {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-zinc-200">
+                    <span className="text-sm font-medium text-secondary">
                       {member.name || member.email}
                     </span>
                     {member.is_self && (
-                      <span className="text-[10px] text-zinc-500">(you)</span>
+                      <span className="text-[10px] text-tertiary">(you)</span>
                     )}
                     <Badge variant={member.role === 'admin' ? 'warning' : 'default'} size="xs">
                       {member.role}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-xs text-zinc-500">{member.email}</span>
-                    <span className="text-[10px] text-zinc-600">
+                    <span className="text-xs text-tertiary">{member.email}</span>
+                    <span className="text-[10px] text-disabled">
                       Last login: {formatDate(member.last_login_at)}
                     </span>
                   </div>
@@ -466,7 +466,7 @@ export default function TeamPage() {
                     {/* Role toggle */}
                     {changingRole === member.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-400">
+                        <span className="text-xs text-secondary">
                           Make {member.role === 'admin' ? 'member' : 'admin'}?
                         </span>
                         <button
@@ -478,24 +478,24 @@ export default function TeamPage() {
                         </button>
                         <button
                           onClick={() => setChangingRole(null)}
-                          className="px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors"
+                          className="px-2.5 py-1 text-xs text-secondary hover:text-white transition-colors"
                         >
                           Cancel
                         </button>
                       </div>
                     ) : removingUser === member.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-400">Remove?</span>
+                        <span className="text-xs text-secondary">Remove?</span>
                         <button
                           onClick={() => handleRemoveMember(member.id)}
                           disabled={actionLoading}
-                          className="px-2.5 py-1 text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                          className="px-2.5 py-1 text-xs font-medium text-error bg-error-subtle border border-error/20 rounded-md hover:bg-error-subtle transition-colors disabled:opacity-50"
                         >
                           {actionLoading ? 'Removing...' : 'Confirm'}
                         </button>
                         <button
                           onClick={() => setRemovingUser(null)}
-                          className="px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors"
+                          className="px-2.5 py-1 text-xs text-secondary hover:text-white transition-colors"
                         >
                           Cancel
                         </button>
@@ -504,14 +504,14 @@ export default function TeamPage() {
                       <>
                         <button
                           onClick={() => setChangingRole(member.id)}
-                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-zinc-500 hover:text-brand transition-colors"
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-tertiary hover:text-brand transition-colors"
                         >
                           <Shield size={12} />
                           {member.role === 'admin' ? 'Demote' : 'Promote'}
                         </button>
                         <button
                           onClick={() => setRemovingUser(member.id)}
-                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-zinc-500 hover:text-red-400 transition-colors"
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-tertiary hover:text-error transition-colors"
                         >
                           <UserMinus size={12} />
                           Remove
@@ -531,17 +531,17 @@ export default function TeamPage() {
         <div className="mt-8 pt-6 border-t border-[rgba(255,255,255,0.04)]">
           {showLeaveConfirm ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-zinc-400">Leave this workspace? You will be moved back to the default workspace.</span>
+              <span className="text-sm text-secondary">Leave this workspace? You will be moved back to the default workspace.</span>
               <button
                 onClick={handleLeave}
                 disabled={leaving}
-                className="px-3 py-1.5 text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-sm font-medium text-error bg-error-subtle border border-error/20 rounded-lg hover:bg-error-subtle transition-colors disabled:opacity-50"
               >
                 {leaving ? 'Leaving...' : 'Confirm Leave'}
               </button>
               <button
                 onClick={() => setShowLeaveConfirm(false)}
-                className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white transition-colors"
+                className="px-3 py-1.5 text-sm text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -549,7 +549,7 @@ export default function TeamPage() {
           ) : (
             <button
               onClick={() => setShowLeaveConfirm(true)}
-              className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-red-400 transition-colors"
+              className="flex items-center gap-1.5 text-sm text-tertiary hover:text-error transition-colors"
             >
               <LogOut size={14} />
               Leave Workspace

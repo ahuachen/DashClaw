@@ -164,7 +164,7 @@ export default function NewCapabilityPage() {
       breadcrumbs={['Studio', 'Capabilities', 'New']}
       maturity="stable"
       actions={(
-        <Link href="/capabilities" className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors">
+        <Link href="/capabilities" className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors">
           <ArrowLeft size={14} /> Back
         </Link>
       )}
@@ -206,7 +206,7 @@ export default function NewCapabilityPage() {
         </Card>
 
         {error ? (
-          <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          <div className="px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
             {error}
           </div>
         ) : null}
@@ -219,7 +219,7 @@ export default function NewCapabilityPage() {
           >
             <Save size={14} /> {saving ? 'Registering...' : 'Register Capability'}
           </button>
-          <Link href="/capabilities" className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+          <Link href="/capabilities" className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors">
             Cancel
           </Link>
         </div>

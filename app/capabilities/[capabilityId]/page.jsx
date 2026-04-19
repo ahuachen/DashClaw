@@ -200,7 +200,7 @@ export default function CapabilityDetailPage({ params }) {
             <CapabilityHealthCards health={health} />
 
             {healthError ? (
-              <div role="alert" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+              <div role="alert" className="rounded-lg border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-warning">
                 <span className="font-medium">Health summary unavailable.</span>{' '}
                 <span>{healthError}</span>
               </div>
@@ -229,7 +229,7 @@ export default function CapabilityDetailPage({ params }) {
                 />
               ) : null
             ) : (
-              <div className="rounded-lg border border-border bg-surface-tertiary px-4 py-3 text-sm text-zinc-400">
+              <div className="rounded-lg border border-border bg-surface-tertiary px-4 py-3 text-sm text-secondary">
                 Testing is available for runnable HTTP capabilities only.
               </div>
             )}

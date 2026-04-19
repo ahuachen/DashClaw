@@ -148,7 +148,7 @@ export default function IdentitiesPage() {
         breadcrumbs={['Dashboard', 'Agent Identities']}
       >
         <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-zinc-500">Loading identities...</div>
+          <div className="text-sm text-tertiary">Loading identities...</div>
         </div>
       </PageLayout>
     );
@@ -165,10 +165,10 @@ export default function IdentitiesPage() {
         <Card hover={false}>
           <CardContent className="pt-8 pb-8 text-center">
             <div className="flex justify-center mb-3">
-              <Shield size={32} className="text-zinc-600" />
+              <Shield size={32} className="text-disabled" />
             </div>
-            <div className="text-sm font-medium text-zinc-300 mb-1">Admin access required</div>
-            <div className="text-xs text-zinc-500">Only workspace admins can manage agent identities.</div>
+            <div className="text-sm font-medium text-secondary mb-1">Admin access required</div>
+            <div className="text-xs text-tertiary">Only workspace admins can manage agent identities.</div>
           </CardContent>
         </Card>
       </PageLayout>
@@ -184,20 +184,20 @@ export default function IdentitiesPage() {
     >
       {/* Error banner */}
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400 flex items-center justify-between">
+        <div className="mb-4 p-3 bg-error-subtle border border-error/20 rounded-lg text-sm text-error flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-400 hover:text-red-300 ml-4">&times;</button>
+          <button onClick={() => setError(null)} className="text-error hover:text-error ml-4">&times;</button>
         </div>
       )}
 
       {/* Success banner */}
       {successMsg && (
-        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-emerald-400 flex items-center justify-between">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-success flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle size={14} />
             <span>{successMsg}</span>
           </div>
-          <button onClick={() => setSuccessMsg(null)} className="text-emerald-400 hover:text-green-300 ml-4">&times;</button>
+          <button onClick={() => setSuccessMsg(null)} className="text-success hover:text-success ml-4">&times;</button>
         </div>
       )}
 
@@ -210,7 +210,7 @@ export default function IdentitiesPage() {
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Pending Pairings" value={pendingPairings.length} color={pendingPairings.length > 0 ? 'text-amber-400' : 'text-zinc-400'} />
+            <StatCompact label="Pending Pairings" value={pendingPairings.length} color={pendingPairings.length > 0 ? 'text-warning' : 'text-secondary'} />
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -218,7 +218,7 @@ export default function IdentitiesPage() {
             <StatCompact
               label="Signature Enforcement"
               value={enforcementOn ? 'On' : 'Off'}
-              color={enforcementOn ? 'text-emerald-400' : 'text-zinc-500'}
+              color={enforcementOn ? 'text-success' : 'text-tertiary'}
             />
           </CardContent>
         </Card>
@@ -227,8 +227,8 @@ export default function IdentitiesPage() {
       {/* Pending Pairings */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-3">
-          <Clock size={16} className="text-amber-400" />
-          <h2 className="text-sm font-medium text-zinc-200">Pending Pairings</h2>
+          <Clock size={16} className="text-warning" />
+          <h2 className="text-sm font-medium text-secondary">Pending Pairings</h2>
           {pendingPairings.length > 0 && (
             <Badge variant="warning" size="xs">{pendingPairings.length}</Badge>
           )}
@@ -253,26 +253,26 @@ export default function IdentitiesPage() {
 
                 return (
                   <div key={pairing.id} className="px-5 py-4 flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                      <Fingerprint size={14} className="text-amber-400" />
+                    <div className="w-8 h-8 rounded-lg bg-warning-subtle flex items-center justify-center flex-shrink-0">
+                      <Fingerprint size={14} className="text-warning" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-zinc-200 truncate">
+                        <span className="text-sm font-medium text-secondary truncate">
                           {pairing.agent_name || pairing.agent_id}
                         </span>
                         {pairing.agent_name && (
-                          <code className="text-[10px] font-mono text-zinc-500 truncate">{pairing.agent_id}</code>
+                          <code className="text-[10px] font-mono text-tertiary truncate">{pairing.agent_id}</code>
                         )}
                         <Badge variant={isExpired ? 'error' : 'warning'} size="xs">
                           {isExpired ? 'Expired' : 'Pending'}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-[10px] text-zinc-600">Requested {formatDate(pairing.created_at)}</span>
+                        <span className="text-[10px] text-disabled">Requested {formatDate(pairing.created_at)}</span>
                         {remaining && (
-                          <span className={`text-[10px] ${isExpired ? 'text-red-500' : 'text-amber-500'}`}>
+                          <span className={`text-[10px] ${isExpired ? 'text-error' : 'text-warning'}`}>
                             {remaining}
                           </span>
                         )}
@@ -287,7 +287,7 @@ export default function IdentitiesPage() {
                           onChange={(e) =>
                             setPermLevels((prev) => ({ ...prev, [pairing.id]: e.target.value }))
                           }
-                          className="bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-brand transition-colors"
+                          className="bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-2 py-1.5 text-xs text-secondary focus:outline-none focus:border-brand transition-colors"
                         >
                           {PERMISSION_LEVELS.map((level) => (
                             <option key={level} value={level}>
@@ -315,8 +315,8 @@ export default function IdentitiesPage() {
       {/* Approved Identities */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Shield size={16} className="text-emerald-400" />
-          <h2 className="text-sm font-medium text-zinc-200">Approved Identities</h2>
+          <Shield size={16} className="text-success" />
+          <h2 className="text-sm font-medium text-secondary">Approved Identities</h2>
           {identities.length > 0 && (
             <Badge variant="success" size="xs">{identities.length}</Badge>
           )}
@@ -342,27 +342,27 @@ export default function IdentitiesPage() {
                 return (
                   <div key={identity.agent_id} className="px-5 py-4 flex items-center gap-4">
                     <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Fingerprint size={14} className="text-emerald-400" />
+                      <Fingerprint size={14} className="text-success" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-zinc-200 truncate">
+                        <span className="text-sm font-medium text-secondary truncate">
                           {identity.agent_name || identity.agent_id}
                         </span>
                         {identity.agent_name && (
-                          <code className="text-[10px] font-mono text-zinc-500 truncate">{identity.agent_id}</code>
+                          <code className="text-[10px] font-mono text-tertiary truncate">{identity.agent_id}</code>
                         )}
                         <Badge variant={PERMISSION_BADGE_VARIANT[permLevel] || 'default'} size="xs">
                           {permLevel}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
-                        <span className="text-[10px] text-zinc-600">
+                        <span className="text-[10px] text-disabled">
                           Enrolled {formatDate(identity.created_at)}
                         </span>
                         {identity.algorithm && (
-                          <span className="text-[10px] text-zinc-600">{identity.algorithm}</span>
+                          <span className="text-[10px] text-disabled">{identity.algorithm}</span>
                         )}
                       </div>
                     </div>
@@ -371,17 +371,17 @@ export default function IdentitiesPage() {
                     <div className="flex-shrink-0">
                       {isConfirmingRevoke ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-400">Revoke?</span>
+                          <span className="text-xs text-secondary">Revoke?</span>
                           <button
                             onClick={() => handleRevoke(identity.agent_id)}
                             disabled={revokeLoading}
-                            className="px-2.5 py-1 text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-md hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                            className="px-2.5 py-1 text-xs font-medium text-error bg-error-subtle border border-error/20 rounded-md hover:bg-error-subtle transition-colors disabled:opacity-50"
                           >
                             {revokeLoading ? 'Revoking...' : 'Yes'}
                           </button>
                           <button
                             onClick={() => setRevokingId(null)}
-                            className="px-2.5 py-1 text-xs text-zinc-400 hover:text-white transition-colors"
+                            className="px-2.5 py-1 text-xs text-secondary hover:text-white transition-colors"
                           >
                             No
                           </button>
@@ -389,7 +389,7 @@ export default function IdentitiesPage() {
                       ) : (
                         <button
                           onClick={() => setRevokingId(identity.agent_id)}
-                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-zinc-500 hover:text-red-400 transition-colors"
+                          className="flex items-center gap-1 px-2.5 py-1 text-xs text-tertiary hover:text-error transition-colors"
                         >
                           <AlertTriangle size={12} />
                           Revoke

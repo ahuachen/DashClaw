@@ -33,16 +33,16 @@ export default function MessageDetail({ message, onMarkRead, onArchive, onReply,
           <MessageSquare size={12} />
         </div>
         <span className="text-sm font-medium text-white">{fromAgentId}</span>
-        {message.urgent && <AlertCircle size={12} className="text-red-400" />}
+        {message.urgent && <AlertCircle size={12} className="text-error" />}
         <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
           {messageType}
         </Badge>
       </div>
-      <div className="text-xs text-zinc-500 mb-1">
+      <div className="text-xs text-tertiary mb-1">
         To: {toAgentId || 'All Agents (Broadcast)'}
       </div>
       {message.subject && (
-        <div className="text-sm font-medium text-zinc-200 mb-2">{message.subject}</div>
+        <div className="text-sm font-medium text-secondary mb-2">{message.subject}</div>
       )}
       <div className="mb-3 bg-[rgba(255,255,255,0.02)] rounded-md p-3">
         <MarkdownBody content={body} />
@@ -51,18 +51,18 @@ export default function MessageDetail({ message, onMarkRead, onArchive, onReply,
       <div className="flex gap-1.5 mb-3 mt-2">
         <button
           onClick={() => handleCopy('markdown')}
-          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-zinc-400 hover:text-zinc-200 hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-secondary hover:text-secondary hover:bg-[rgba(255,255,255,0.08)] transition-colors"
         >
           <Copy size={10} /> {copyState === 'markdown' ? 'Copied!' : 'Copy Markdown'}
         </button>
         <button
           onClick={() => handleCopy('plain')}
-          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-zinc-400 hover:text-zinc-200 hover:bg-[rgba(255,255,255,0.08)] transition-colors"
+          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[rgba(255,255,255,0.04)] text-secondary hover:text-secondary hover:bg-[rgba(255,255,255,0.08)] transition-colors"
         >
           <FileType size={10} /> {copyState === 'plain' ? 'Copied!' : 'Copy Plain Text'}
         </button>
       </div>
-      <div className="text-xs text-zinc-600 mb-3">
+      <div className="text-xs text-disabled mb-3">
         {new Date(message.created_at).toLocaleString()}
         {message.read_at && ` · Read ${timeAgo(message.read_at)}`}
         {message.thread_id && (
@@ -77,14 +77,14 @@ export default function MessageDetail({ message, onMarkRead, onArchive, onReply,
             <button
               onClick={() => onMarkRead(message.id)}
               disabled={isDemo}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-300 hover:bg-[rgba(255,255,255,0.1)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-secondary hover:bg-[rgba(255,255,255,0.1)] transition-colors disabled:opacity-50"
             >
               <Eye size={12} /> Mark Read
             </button>
             <button
               onClick={() => onArchive(message.id)}
               disabled={isDemo}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-300 hover:bg-[rgba(255,255,255,0.1)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-secondary hover:bg-[rgba(255,255,255,0.1)] transition-colors disabled:opacity-50"
             >
               <Archive size={12} /> Archive
             </button>
@@ -102,7 +102,7 @@ export default function MessageDetail({ message, onMarkRead, onArchive, onReply,
         {message.thread_id && onViewThread && (
           <button
             onClick={() => onViewThread(message.thread_id)}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-zinc-300 hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md bg-[rgba(255,255,255,0.06)] text-secondary hover:bg-[rgba(255,255,255,0.1)] transition-colors"
           >
             <Hash size={12} /> View Thread
           </button>

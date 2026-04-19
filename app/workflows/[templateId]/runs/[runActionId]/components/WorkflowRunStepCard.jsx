@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight, CheckCircle2, XCircle, Loader2, SkipForward, RotateCcw } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  completed: { icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-  failed: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-400/10' },
-  running: { icon: Loader2, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-  skipped: { icon: SkipForward, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
-  pending: { icon: Loader2, color: 'text-zinc-500', bg: 'bg-zinc-500/10' },
-  reused: { icon: RotateCcw, color: 'text-zinc-400', bg: 'bg-zinc-400/5' },
+  completed: { icon: CheckCircle2, color: 'text-success', bg: 'bg-emerald-400/10' },
+  failed: { icon: XCircle, color: 'text-error', bg: 'bg-red-400/10' },
+  running: { icon: Loader2, color: 'text-info', bg: 'bg-blue-400/10' },
+  skipped: { icon: SkipForward, color: 'text-tertiary', bg: 'bg-zinc-500/10' },
+  pending: { icon: Loader2, color: 'text-tertiary', bg: 'bg-zinc-500/10' },
+  reused: { icon: RotateCcw, color: 'text-secondary', bg: 'bg-zinc-400/5' },
 };
 
 const TYPE_LABELS = {
@@ -30,36 +30,36 @@ export default function WorkflowRunStepCard({ step }) {
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
         <Icon className={`w-4 h-4 ${config.color} flex-shrink-0`} />
-        <span className="font-medium text-sm text-zinc-200 flex-1">{step.step_name}</span>
-        <span className="text-[10px] font-mono text-zinc-500 uppercase">{TYPE_LABELS[step.step_type] || step.step_type}</span>
+        <span className="font-medium text-sm text-secondary flex-1">{step.step_name}</span>
+        <span className="text-[10px] font-mono text-tertiary uppercase">{TYPE_LABELS[step.step_type] || step.step_type}</span>
         {step.retry_count > 0 && (
-          <span className="text-[10px] font-mono text-amber-400">{step.retry_count + 1} attempts</span>
+          <span className="text-[10px] font-mono text-warning">{step.retry_count + 1} attempts</span>
         )}
         {step.duration_ms != null && (
-          <span className="text-xs font-mono text-zinc-500">{(step.duration_ms / 1000).toFixed(1)}s</span>
+          <span className="text-xs font-mono text-tertiary">{(step.duration_ms / 1000).toFixed(1)}s</span>
         )}
-        {expanded ? <ChevronDown className="w-3 h-3 text-zinc-500" /> : <ChevronRight className="w-3 h-3 text-zinc-500" />}
+        {expanded ? <ChevronDown className="w-3 h-3 text-tertiary" /> : <ChevronRight className="w-3 h-3 text-tertiary" />}
       </button>
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-[rgba(255,255,255,0.04)]">
           {step.error_message && (
-            <div className="mt-3 p-2 rounded bg-red-400/10 text-red-300 text-xs font-mono">{step.error_message}</div>
+            <div className="mt-3 p-2 rounded bg-red-400/10 text-error text-xs font-mono">{step.error_message}</div>
           )}
           {step.input && (
             <div className="mt-3">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Input</div>
-              <pre className="text-xs text-zinc-400 bg-black/30 rounded p-2 overflow-auto max-h-48">{JSON.stringify(step.input, null, 2)}</pre>
+              <div className="text-[10px] font-mono text-tertiary uppercase mb-1">Input</div>
+              <pre className="text-xs text-secondary bg-black/30 rounded p-2 overflow-auto max-h-48">{JSON.stringify(step.input, null, 2)}</pre>
             </div>
           )}
           {step.output && (
             <div>
-              <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Output</div>
-              <pre className="text-xs text-zinc-400 bg-black/30 rounded p-2 overflow-auto max-h-48">{JSON.stringify(step.output, null, 2)}</pre>
+              <div className="text-[10px] font-mono text-tertiary uppercase mb-1">Output</div>
+              <pre className="text-xs text-secondary bg-black/30 rounded p-2 overflow-auto max-h-48">{JSON.stringify(step.output, null, 2)}</pre>
             </div>
           )}
           {!step.input && !step.output && !step.error_message && (
-            <div className="mt-3 text-xs text-zinc-600">No data recorded</div>
+            <div className="mt-3 text-xs text-disabled">No data recorded</div>
           )}
         </div>
       )}

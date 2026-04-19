@@ -292,13 +292,13 @@ export default function CustomTab() {
         </button>
         <button
           onClick={openImport}
-          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
         >
           <Upload size={12} aria-hidden="true" /> Import
         </button>
         <button
           onClick={() => { setShowGenerator(!showGenerator); setShowAuthoring(false); setShowImport(false); }}
-          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
         >
           <Sparkles size={12} aria-hidden="true" /> AI generator
         </button>
@@ -314,25 +314,25 @@ export default function CustomTab() {
             </div>
             <button
               onClick={() => { setShowGenerator(false); setGenError(null); setGenSuccess(null); }}
-              className="text-zinc-500 transition-colors hover:text-white"
+              className="text-tertiary transition-colors hover:text-white"
               aria-label="Close AI generator"
             >
               <X size={16} />
             </button>
           </div>
-          <p className="text-xs text-zinc-400">Describe what you want DashClaw to prevent or enforce in plain English.</p>
-          {genSuccess && <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">{genSuccess}</div>}
-          {genError && <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">{genError}</div>}
+          <p className="text-xs text-secondary">Describe what you want DashClaw to prevent or enforce in plain English.</p>
+          {genSuccess && <div className="rounded-lg border border-success/30 bg-success-subtle px-3 py-2 text-xs text-success">{genSuccess}</div>}
+          {genError && <div className="rounded-lg border border-error/30 bg-error-subtle px-3 py-2 text-xs text-error">{genError}</div>}
           <textarea
             value={genInput}
             onChange={e => setGenInput(e.target.value)}
             placeholder="e.g. Require approval before any agent can deploy to production or send external messages"
             rows={3}
             maxLength={5000}
-            className="w-full resize-none rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+            className="w-full resize-none rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-xs text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
           />
           <div className="flex items-center justify-between">
-            <span className="text-[11px] tabular-nums text-zinc-500">{genInput.length}/5000</span>
+            <span className="text-[11px] tabular-nums text-tertiary">{genInput.length}/5000</span>
             <button
               onClick={handleGenerate}
               disabled={genLoading || !genInput.trim()}
@@ -354,7 +354,7 @@ export default function CustomTab() {
             </div>
             <button
               onClick={closeAuthoring}
-              className="text-zinc-500 transition-colors hover:text-white"
+              className="text-tertiary transition-colors hover:text-white"
               aria-label="Close policy editor"
             >
               <X size={16} />
@@ -371,7 +371,7 @@ export default function CustomTab() {
           />
 
           {authoringError && (
-            <div className="text-xs text-red-400">{authoringError}</div>
+            <div className="text-xs text-error">{authoringError}</div>
           )}
 
           <div className="flex items-center gap-2 pt-1">
@@ -384,7 +384,7 @@ export default function CustomTab() {
             </button>
             <button
               onClick={closeAuthoring}
-              className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+              className="rounded-lg border border-border bg-surface-tertiary px-4 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
             >
               Cancel
             </button>
@@ -417,14 +417,14 @@ export default function CustomTab() {
           placeholder="Search policies…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="min-w-[200px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="min-w-[200px] flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         />
         <label htmlFor="policy-type-filter" className="sr-only">Filter by type</label>
         <select
           id="policy-type-filter"
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
-          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All types</option>
           <option value="risk_threshold">Risk threshold</option>
@@ -439,7 +439,7 @@ export default function CustomTab() {
           id="policy-status-filter"
           value={filterActive}
           onChange={e => setFilterActive(e.target.value)}
-          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+          className="rounded-lg border border-border bg-surface-tertiary px-2.5 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
           <option value="">All</option>
           <option value="active">Active</option>
@@ -478,14 +478,14 @@ export default function CustomTab() {
                         {isActive ? 'active' : 'inactive'}
                       </Badge>
                     </div>
-                    <div className="mt-0.5 truncate text-xs text-zinc-500">
+                    <div className="mt-0.5 truncate text-xs text-tertiary">
                       {formatRules(p)} <span aria-hidden="true" className="text-zinc-700">&middot;</span> {agentCount === 0 ? 'All agents' : `${agentCount} agents`} <span aria-hidden="true" className="text-zinc-700">&middot;</span> {p.id}
                     </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <button
                       onClick={() => handleToggleActive(p)}
-                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
                       aria-label={isActive ? `Deactivate ${p.name}` : `Activate ${p.name}`}
                     >
                       {isActive
@@ -494,25 +494,25 @@ export default function CustomTab() {
                     </button>
                     <button
                       onClick={() => openEdit(p)}
-                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
                       aria-label={`Edit ${p.name}`}
                     >
                       <Pencil size={13} />
                     </button>
                     <button
                       onClick={() => handleSimulate(p)}
-                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
                       aria-label={`Simulate ${p.name}`}
                     >
                       <Play size={13} />
                     </button>
                     <button
                       onClick={() => handleExport(p)}
-                      className="rounded p-1 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
+                      className="rounded p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-brand/40"
                       aria-label={`Export ${p.name} as JSON`}
                     >
                       {copiedId === p.id
-                        ? <Check size={13} className="text-emerald-400" />
+                        ? <Check size={13} className="text-success" />
                         : <Copy size={13} />}
                     </button>
                     {confirmDeleteId === p.id ? (
@@ -520,13 +520,13 @@ export default function CustomTab() {
                         <button
                           onClick={() => handleDelete(p.id)}
                           disabled={deleting}
-                          className="rounded px-1.5 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
+                          className="rounded px-1.5 py-0.5 text-error transition-colors hover:bg-error-subtle hover:text-error disabled:opacity-50"
                         >
                           {deleting ? '…' : 'Yes'}
                         </button>
                         <button
                           onClick={() => setConfirmDeleteId(null)}
-                          className="rounded px-1.5 py-0.5 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                          className="rounded px-1.5 py-0.5 text-secondary transition-colors hover:bg-white/5 hover:text-white"
                         >
                           No
                         </button>
@@ -534,7 +534,7 @@ export default function CustomTab() {
                     ) : (
                       <button
                         onClick={() => setConfirmDeleteId(p.id)}
-                        className="rounded p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/40"
+                        className="rounded p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error focus:outline-none focus:ring-2 focus:ring-red-500/40"
                         aria-label={`Delete ${p.name}`}
                       >
                         <Trash2 size={13} />

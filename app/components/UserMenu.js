@@ -49,7 +49,7 @@ export default function UserMenu() {
           />
         ) : (
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface-tertiary">
-            <User size={16} className="text-zinc-400" aria-hidden="true" />
+            <User size={16} className="text-secondary" aria-hidden="true" />
           </div>
         )}
       </button>
@@ -61,13 +61,13 @@ export default function UserMenu() {
         >
           <div className="border-b border-border px-4 py-3">
             <p className="truncate text-sm font-medium text-white">{user.name || 'User'}</p>
-            <p className="truncate text-xs text-zinc-500">{user.email}</p>
+            <p className="truncate text-xs text-tertiary">{user.email}</p>
           </div>
           <div className="p-1.5">
             <button
               onClick={() => { resetAllTips(); window.location.reload(); }}
               role="menuitem"
-              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-secondary transition-colors hover:bg-white/5 hover:text-white"
             >
               Reset tips
             </button>
@@ -80,7 +80,7 @@ export default function UserMenu() {
                   signOut({ callbackUrl: '/' });
                 }}
                 role="menuitem"
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-secondary transition-colors hover:bg-white/5 hover:text-white"
               >
                 <LogOut size={14} aria-hidden="true" />
                 Sign out
@@ -92,7 +92,7 @@ export default function UserMenu() {
               {/* Cookie-based demo: user can exit back to real mode.
                   Env-based demo (NEXT_PUBLIC_DASHCLAW_MODE=demo): no real mode exists. */}
               {process.env.NEXT_PUBLIC_DASHCLAW_MODE === 'demo' ? (
-                <div className="px-3 py-2 text-xs text-zinc-500">
+                <div className="px-3 py-2 text-xs text-tertiary">
                   Demo mode — read-only with sample data.
                 </div>
               ) : (
@@ -102,7 +102,7 @@ export default function UserMenu() {
                     window.location.href = '/';
                   }}
                   role="menuitem"
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-secondary transition-colors hover:bg-white/5 hover:text-white"
                 >
                   <LogOut size={14} aria-hidden="true" />
                   Exit demo

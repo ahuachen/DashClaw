@@ -130,11 +130,11 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
             Operations Feed
           </span>
           {counts.total > 0 && (
-            <span className="text-xs font-medium tabular-nums text-zinc-400">· {counts.total}</span>
+            <span className="text-xs font-medium tabular-nums text-secondary">· {counts.total}</span>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -142,7 +142,7 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
             counts[sev] > 0 && (
               <span key={sev} className="flex items-center gap-1.5">
                 <span className={`h-1.5 w-1.5 rounded-full ${cfg.color}`} />
-                <span className="text-[11px] font-medium tabular-nums text-zinc-400">{counts[sev]}</span>
+                <span className="text-[11px] font-medium tabular-nums text-secondary">{counts[sev]}</span>
               </span>
             )
           ))}
@@ -158,7 +158,7 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
             className={`rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors ${
               activeCategory === cat.key
                 ? 'border-brand/30 bg-brand/10 text-brand'
-                : 'border-transparent text-zinc-500 hover:border-border hover:text-zinc-300'
+                : 'border-transparent text-tertiary hover:border-border hover:text-secondary'
             }`}
           >
             {cat.label}
@@ -170,12 +170,12 @@ export default function OperationsFeed({ agentId, onRefreshRequest }) {
       <div className="max-h-[560px] overflow-y-auto">
         {loading ? (
           <div className="p-6 text-center">
-            <div className="animate-pulse text-sm text-zinc-500">Loading operations feed…</div>
+            <div className="animate-pulse text-sm text-tertiary">Loading operations feed…</div>
           </div>
         ) : items.length === 0 ? (
           <div className="p-10 text-center">
-            <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-emerald-500/40" />
-            <p className="text-sm text-zinc-400">All clear — no items need attention.</p>
+            <ShieldCheck className="mx-auto mb-2 h-8 w-8 text-success/40" />
+            <p className="text-sm text-secondary">All clear — no items need attention.</p>
           </div>
         ) : (
           <div className="divide-y divide-border p-2">

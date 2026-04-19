@@ -131,7 +131,7 @@ export default function ContextCard() {
             {/* Stats Row */}
             {hasStats && (
               <div className="grid grid-cols-3 gap-2 bg-surface-tertiary rounded-lg p-3 flex-shrink-0">
-                <StatCompact label="Success" value={`${contextData.stats.successRate}%`} color="text-emerald-400" />
+                <StatCompact label="Success" value={`${contextData.stats.successRate}%`} color="text-success" />
                 <StatCompact label="Decisions" value={contextData.stats.totalDecisions || 0} />
                 <StatCompact label="Patterns" value={contextData.stats.patterns || 0} color="text-purple-400" />
               </div>
@@ -139,7 +139,7 @@ export default function ContextCard() {
 
             {/* Recent Decisions */}
             <div className="flex-1 min-h-0">
-              <div className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Recent Decisions</div>
+              <div className="text-xs font-medium text-secondary uppercase tracking-wider mb-2">Recent Decisions</div>
               <div className="space-y-2">
                 {visibleDecisions.map((point) => {
                   const IconComponent = getCategoryIcon(point.category);
@@ -147,15 +147,15 @@ export default function ContextCard() {
                     <div key={point.id} className="bg-surface-tertiary rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-1.5">
-                          <IconComponent size={14} className="text-zinc-400" />
+                          <IconComponent size={14} className="text-secondary" />
                           <Badge variant={getCategoryVariant(point.category)} size="xs">
                             {point.category}
                           </Badge>
                         </div>
-                        <span className="text-[10px] text-zinc-500">{point.timestamp}</span>
+                        <span className="text-[10px] text-tertiary">{point.timestamp}</span>
                       </div>
 
-                      <div className="text-sm text-zinc-200 mb-2">{point.text}</div>
+                      <div className="text-sm text-secondary mb-2">{point.text}</div>
 
                       <ProgressBar value={point.importance * 10} color="brand" />
                     </div>

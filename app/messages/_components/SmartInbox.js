@@ -29,8 +29,8 @@ function MessageRow({ msg, onSelect, selectedId, onReply, onMarkRead, onArchive 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           {isUnread && <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />}
-          {msg.urgent && <AlertCircle size={10} className="text-red-400 flex-shrink-0" />}
-          <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-zinc-300'}`}>
+          {msg.urgent && <AlertCircle size={10} className="text-error flex-shrink-0" />}
+          <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-secondary'}`}>
             {fromAgentId}
           </span>
           <Badge variant={TYPE_VARIANTS[messageType] || 'default'} size="xs">
@@ -42,14 +42,14 @@ function MessageRow({ msg, onSelect, selectedId, onReply, onMarkRead, onArchive 
             </Badge>
           )}
           {msg.attachments?.length > 0 && (
-            <Paperclip size={10} className="text-zinc-500 flex-shrink-0" />
+            <Paperclip size={10} className="text-tertiary flex-shrink-0" />
           )}
         </div>
-        {msg.subject && <div className="text-sm text-zinc-200 truncate mt-0.5">{msg.subject}</div>}
-        <div className="text-xs text-zinc-500 truncate mt-0.5">{body}</div>
+        {msg.subject && <div className="text-sm text-secondary truncate mt-0.5">{msg.subject}</div>}
+        <div className="text-xs text-tertiary truncate mt-0.5">{body}</div>
       </div>
       <div className="flex flex-col items-end gap-1 flex-shrink-0">
-        <span className="text-xs text-zinc-600">{timeAgo(msg.created_at)}</span>
+        <span className="text-xs text-disabled">{timeAgo(msg.created_at)}</span>
         <MessageActionMenu
           message={msg}
           onMarkRead={onMarkRead}
@@ -115,7 +115,7 @@ export default function SmartInbox({ messages, onSelect, selectedId, onReply, on
           title="Needs Your Input"
           icon={MessageCircleQuestion}
           count={needsInput.length}
-          color="text-amber-400 hover:bg-amber-500/10"
+          color="text-warning hover:bg-warning-subtle"
           defaultOpen
         >
           {needsInput.map(msg => (
@@ -127,7 +127,7 @@ export default function SmartInbox({ messages, onSelect, selectedId, onReply, on
           title="Urgent"
           icon={AlertTriangle}
           count={urgent.length}
-          color="text-red-400 hover:bg-red-500/10"
+          color="text-error hover:bg-error-subtle"
           defaultOpen
         >
           {urgent.map(msg => (
@@ -139,7 +139,7 @@ export default function SmartInbox({ messages, onSelect, selectedId, onReply, on
           title="Everything Else"
           icon={Inbox}
           count={rest.length}
-          color="text-zinc-400 hover:bg-[rgba(255,255,255,0.06)]"
+          color="text-secondary hover:bg-[rgba(255,255,255,0.06)]"
           defaultOpen={!hasTriaged}
         >
           {rest.map(msg => (

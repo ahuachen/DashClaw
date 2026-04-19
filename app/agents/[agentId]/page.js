@@ -80,7 +80,7 @@ export default function AgentProfilePage() {
         <div className="mx-auto mt-12 max-w-md text-center">
           <Card hover={false}>
             <CardContent className="pt-8">
-              <ShieldAlert size={32} className="mx-auto mb-3 text-zinc-500" aria-hidden="true" />
+              <ShieldAlert size={32} className="mx-auto mb-3 text-tertiary" aria-hidden="true" />
               <div className="mb-2 text-lg font-semibold text-white">{error || 'Agent not found'}</div>
               <Link
                 href="/agents"
@@ -103,13 +103,13 @@ export default function AgentProfilePage() {
         <div className="flex items-center gap-2">
           <Link
             href="/agents"
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <ArrowLeft size={14} aria-hidden="true" /> Fleet
           </Link>
           <button
             onClick={fetchProfile}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
             aria-label="Refresh"
           >
             <RotateCw size={14} aria-hidden="true" /> Refresh

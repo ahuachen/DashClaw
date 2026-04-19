@@ -212,7 +212,7 @@ export default function TaskRoutingPage() {
       actions={
         <button
           onClick={fetchData}
-          className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="p-2 rounded-lg text-secondary hover:text-white hover:bg-white/5 transition-colors"
           title="Refresh"
         >
           <RefreshCw size={16} />
@@ -220,14 +220,14 @@ export default function TaskRoutingPage() {
       }
     >
       {isDemo && (
-        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-zinc-300 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg bg-zinc-500/10 border border-zinc-500/20 text-secondary text-sm flex items-center gap-2">
           <AlertTriangle size={14} /> Demo mode: write operations are disabled.
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg bg-error-subtle border border-error/20 text-error text-sm flex items-center gap-2">
           <AlertTriangle size={14} /> {error}
-          <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">&times;</button>
+          <button onClick={() => setError(null)} className="ml-auto text-error hover:text-error">&times;</button>
         </div>
       )}
 
@@ -236,9 +236,9 @@ export default function TaskRoutingPage() {
         <div className="mb-4 flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary border border-border text-sm">
             <span className={`inline-block w-2 h-2 rounded-full ${health.status === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-zinc-300">Router: {health.status}</span>
+            <span className="text-secondary">Router: {health.status}</span>
             {health.router_version && (
-              <span className="text-zinc-600 text-xs font-mono">v{health.router_version}</span>
+              <span className="text-disabled text-xs font-mono">v{health.router_version}</span>
             )}
           </div>
         </div>
@@ -247,10 +247,10 @@ export default function TaskRoutingPage() {
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <StatCompact label="Total Agents" value={stats?.total_agents ?? '\u2014'} />
-        <StatCompact label="Available" value={stats?.available_agents ?? '\u2014'} color="text-emerald-400" />
-        <StatCompact label="Busy" value={stats?.busy_agents ?? '\u2014'} color="text-amber-400" />
+        <StatCompact label="Available" value={stats?.available_agents ?? '\u2014'} color="text-success" />
+        <StatCompact label="Busy" value={stats?.busy_agents ?? '\u2014'} color="text-warning" />
         <StatCompact label="Pending Tasks" value={stats?.pending_tasks ?? '\u2014'} />
-        <StatCompact label="Completed" value={stats?.completed_tasks ?? '\u2014'} color="text-emerald-400" />
+        <StatCompact label="Completed" value={stats?.completed_tasks ?? '\u2014'} color="text-success" />
         <StatCompact label="Decisions" value={stats?.routing_decisions ?? '\u2014'} />
       </div>
 
@@ -278,7 +278,7 @@ export default function TaskRoutingPage() {
               {showTaskForm && canEdit && (
                 <form onSubmit={handleSubmitTask} className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] space-y-4 bg-[rgba(255,255,255,0.02)]">
                   <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Title</label>
+                    <label className="block text-xs text-secondary mb-1">Title</label>
                     <input
                       type="text"
                       value={taskTitle}
@@ -289,7 +289,7 @@ export default function TaskRoutingPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Description</label>
+                    <label className="block text-xs text-secondary mb-1">Description</label>
                     <textarea
                       value={taskDesc}
                       onChange={(e) => setTaskDesc(e.target.value)}
@@ -300,7 +300,7 @@ export default function TaskRoutingPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1">Required Skills (comma-separated)</label>
+                      <label className="block text-xs text-secondary mb-1">Required Skills (comma-separated)</label>
                       <input
                         type="text"
                         value={taskSkills}
@@ -310,7 +310,7 @@ export default function TaskRoutingPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1">Urgency</label>
+                      <label className="block text-xs text-secondary mb-1">Urgency</label>
                       <select
                         value={taskUrgency}
                         onChange={(e) => setTaskUrgency(e.target.value)}
@@ -343,7 +343,7 @@ export default function TaskRoutingPage() {
                     className={`px-2.5 py-1 rounded-md text-xs transition-colors ${
                       taskFilter === filter
                         ? 'bg-brand text-white'
-                        : 'bg-[#1a1a1a] text-zinc-400 border border-[rgba(255,255,255,0.06)] hover:text-white'
+                        : 'bg-[#1a1a1a] text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white'
                     }`}
                   >
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -370,10 +370,10 @@ export default function TaskRoutingPage() {
                       return (
                         <div key={task.id} className="py-3 flex items-start gap-3">
                           <StatusIcon size={14} className={`mt-0.5 flex-shrink-0 ${
-                            task.status === 'completed' ? 'text-emerald-400' :
-                            task.status === 'failed' ? 'text-red-400' :
-                            task.status === 'assigned' ? 'text-blue-400' :
-                            'text-zinc-500'
+                            task.status === 'completed' ? 'text-success' :
+                            task.status === 'failed' ? 'text-error' :
+                            task.status === 'assigned' ? 'text-info' :
+                            'text-tertiary'
                           }`} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -386,16 +386,16 @@ export default function TaskRoutingPage() {
                               </Badge>
                             </div>
                             {task.description && (
-                              <p className="text-xs text-zinc-500 truncate">{task.description}</p>
+                              <p className="text-xs text-tertiary truncate">{task.description}</p>
                             )}
                             <div className="flex items-center gap-3 mt-1">
                               {task.assigned_agent && (
-                                <span className="text-[10px] text-zinc-400">
-                                  Agent: <span className="text-zinc-300">{task.assigned_agent}</span>
+                                <span className="text-[10px] text-secondary">
+                                  Agent: <span className="text-secondary">{task.assigned_agent}</span>
                                 </span>
                               )}
                               {task.created_at && (
-                                <span className="text-[10px] text-zinc-600 font-mono">
+                                <span className="text-[10px] text-disabled font-mono">
                                   {new Date(task.created_at).toLocaleString()}
                                 </span>
                               )}
@@ -404,7 +404,7 @@ export default function TaskRoutingPage() {
                           {canEdit && (
                             <button
                               onClick={() => handleDeleteTask(task.id)}
-                              className="text-zinc-600 hover:text-red-400 transition-colors flex-shrink-0 mt-0.5"
+                              className="text-disabled hover:text-error transition-colors flex-shrink-0 mt-0.5"
                               title="Delete task"
                             >
                               <Trash2 size={14} />
@@ -439,7 +439,7 @@ export default function TaskRoutingPage() {
               {showAgentForm && canEdit && (
                 <form onSubmit={handleRegisterAgent} className="px-5 py-4 border-b border-[rgba(255,255,255,0.06)] space-y-4 bg-[rgba(255,255,255,0.02)]">
                   <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Agent Name</label>
+                    <label className="block text-xs text-secondary mb-1">Agent Name</label>
                     <input
                       type="text"
                       value={agentName}
@@ -450,7 +450,7 @@ export default function TaskRoutingPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Capabilities (comma-separated)</label>
+                    <label className="block text-xs text-secondary mb-1">Capabilities (comma-separated)</label>
                     <input
                       type="text"
                       value={agentCapabilities}
@@ -461,7 +461,7 @@ export default function TaskRoutingPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1">Max Concurrent Tasks</label>
+                      <label className="block text-xs text-secondary mb-1">Max Concurrent Tasks</label>
                       <input
                         type="number"
                         min="1"
@@ -472,7 +472,7 @@ export default function TaskRoutingPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1">Endpoint (optional)</label>
+                      <label className="block text-xs text-secondary mb-1">Endpoint (optional)</label>
                       <input
                         type="text"
                         value={agentEndpoint}
@@ -517,7 +517,7 @@ export default function TaskRoutingPage() {
                                 <select
                                   value={agent.status}
                                   onChange={(e) => handleAgentStatusChange(agent.id, e.target.value)}
-                                  className="px-2 py-1 rounded bg-[#111] border border-[rgba(255,255,255,0.1)] text-[10px] text-zinc-300 focus:outline-none focus:border-brand"
+                                  className="px-2 py-1 rounded bg-[#111] border border-[rgba(255,255,255,0.1)] text-[10px] text-secondary focus:outline-none focus:border-brand"
                                 >
                                   <option value="available">Available</option>
                                   <option value="busy">Busy</option>
@@ -525,7 +525,7 @@ export default function TaskRoutingPage() {
                                 </select>
                                 <button
                                   onClick={() => handleDeleteAgent(agent.id)}
-                                  className="text-zinc-500 hover:text-red-400 transition-colors"
+                                  className="text-tertiary hover:text-error transition-colors"
                                   title="Remove agent"
                                 >
                                   <Trash2 size={13} />
@@ -538,7 +538,7 @@ export default function TaskRoutingPage() {
                           {caps.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-1.5">
                               {caps.map((cap, i) => (
-                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300">
+                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-elevated text-secondary">
                                   {cap}
                                 </span>
                               ))}
@@ -549,7 +549,7 @@ export default function TaskRoutingPage() {
                           <div className="flex items-center gap-2">
                             {agent.current_load !== undefined && agent.max_concurrent !== undefined && (
                               <>
-                                <div className="flex-1 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                                <div className="flex-1 h-1.5 rounded-full bg-tertiary overflow-hidden">
                                   <div
                                     className={`h-full rounded-full transition-all ${
                                       agent.current_load / agent.max_concurrent >= 0.8
@@ -561,7 +561,7 @@ export default function TaskRoutingPage() {
                                     style={{ width: `${Math.min(100, (agent.current_load / agent.max_concurrent) * 100)}%` }}
                                   />
                                 </div>
-                                <span className="text-[10px] text-zinc-500 font-mono flex-shrink-0">
+                                <span className="text-[10px] text-tertiary font-mono flex-shrink-0">
                                   {agent.current_load}/{agent.max_concurrent}
                                 </span>
                               </>

@@ -46,12 +46,12 @@ export default function PoliciesPage() {
       maturity="stable"
     >
       {/* Stats bar — prose rail, not another card grid */}
-      <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+      <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary">
         <span><span className="font-semibold tabular-nums text-white">{stats.active}</span> active shields</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-red-400">{stats.blocks}</span> blocks this week</span>
+        <span><span className="font-semibold tabular-nums text-error">{stats.blocks}</span> blocks this week</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-amber-400">{stats.approvals}</span> approvals this week</span>
+        <span><span className="font-semibold tabular-nums text-warning">{stats.approvals}</span> approvals this week</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
         <span><span className="font-semibold tabular-nums text-white">{stats.agents}</span> agents governed</span>
       </div>
@@ -67,7 +67,7 @@ export default function PoliciesPage() {
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
               className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
               }`}
             >
               {tab.label}

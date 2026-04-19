@@ -42,7 +42,7 @@ export default function LocalPasswordForm() {
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-surface-primary px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <span className="bg-surface-primary px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
             or
           </span>
         </div>
@@ -60,13 +60,13 @@ export default function LocalPasswordForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:opacity-50"
+            className="w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20 disabled:opacity-50"
             required
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-xs text-red-400">{error}</p>
+          <p role="alert" className="text-xs text-error">{error}</p>
         )}
 
         <button

@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { ShieldCheck, Plus, Trash2 } from 'lucide-react';
 
 const ACCESS_PILL = {
-  allow: { label: 'Allow', color: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' },
-  deny: { label: 'Deny', color: 'bg-red-400/10 text-red-400 border-red-400/20' },
-  require_approval: { label: 'Require Approval', color: 'bg-amber-400/10 text-amber-400 border-amber-400/20' },
+  allow: { label: 'Allow', color: 'bg-emerald-400/10 text-success border-success/20' },
+  deny: { label: 'Deny', color: 'bg-red-400/10 text-error border-error/20' },
+  require_approval: { label: 'Require Approval', color: 'bg-amber-400/10 text-warning border-warning/20' },
 };
 
 export default function CapabilityAccessTab({ capabilityId }) {
@@ -73,7 +73,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
   }
 
   if (loading) {
-    return <div className="text-sm text-zinc-500 py-4">Loading access rules...</div>;
+    return <div className="text-sm text-tertiary py-4">Loading access rules...</div>;
   }
 
   const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
@@ -81,7 +81,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-tertiary">
           {rules.length === 0 ? 'No access rules — all agents can invoke this capability.' : `${rules.length} rule${rules.length !== 1 ? 's' : ''} configured`}
         </span>
         <button
@@ -96,7 +96,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
       {showForm && (
         <div className="rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-4 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Agent ID (leave blank for org-wide default)</label>
+            <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Agent ID (leave blank for org-wide default)</label>
             <input
               type="text"
               value={formAgentId}
@@ -106,7 +106,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Access Level</label>
+            <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Access Level</label>
             <select
               value={formAccess}
               onChange={(e) => setFormAccess(e.target.value)}
@@ -118,7 +118,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Reason (optional)</label>
+            <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">Reason (optional)</label>
             <input
               type="text"
               value={formReason}
@@ -127,7 +127,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
               className={inputClass}
             />
           </div>
-          {error && <div className="text-xs text-red-400">{error}</div>}
+          {error && <div className="text-xs text-error">{error}</div>}
           <div className="flex gap-2">
             <button
               onClick={handleCreate}
@@ -138,7 +138,7 @@ export default function CapabilityAccessTab({ capabilityId }) {
             </button>
             <button
               onClick={() => { setShowForm(false); setError(null); }}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-secondary hover:text-secondary transition-colors"
             >
               Cancel
             </button>
@@ -155,13 +155,13 @@ export default function CapabilityAccessTab({ capabilityId }) {
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${pill.color}`}>
                   {pill.label}
                 </span>
-                <span className="text-sm text-zinc-300 flex-1">
-                  {rule.agent_id || <span className="text-zinc-500 italic">All agents (default)</span>}
+                <span className="text-sm text-secondary flex-1">
+                  {rule.agent_id || <span className="text-tertiary italic">All agents (default)</span>}
                 </span>
-                {rule.reason && <span className="text-xs text-zinc-500 truncate max-w-[200px]">{rule.reason}</span>}
+                {rule.reason && <span className="text-xs text-tertiary truncate max-w-[200px]">{rule.reason}</span>}
                 <button
                   onClick={() => handleDelete(rule.rule_id)}
-                  className="text-zinc-600 hover:text-red-400 transition-colors"
+                  className="text-disabled hover:text-error transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

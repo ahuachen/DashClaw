@@ -73,16 +73,16 @@ export default function AgentPoliciesSection({ agentId, policies, allPolicies, o
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] px-5 py-4">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield size={14} className="text-zinc-500" />
+          <Shield size={14} className="text-tertiary" />
           <span className="text-sm font-medium text-white">Policies</span>
-          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-zinc-400">{applicablePolicies.length} active</span>
+          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-secondary">{applicablePolicies.length} active</span>
         </div>
         <button onClick={() => setShowPicker(!showPicker)} className="flex items-center gap-1 text-xs text-brand hover:text-brand/80">
           <Plus size={12} /> Manage
         </button>
       </div>
       {applicablePolicies.length === 0 ? (
-        <div className="py-4 text-center text-sm text-zinc-500">No policies apply to this agent.</div>
+        <div className="py-4 text-center text-sm text-tertiary">No policies apply to this agent.</div>
       ) : (
         <div className="space-y-2">
           {applicablePolicies.map(p => {
@@ -91,12 +91,12 @@ export default function AgentPoliciesSection({ agentId, policies, allPolicies, o
               <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg bg-white/[0.02] px-3 py-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <Badge size="xs">{p.policy_type || p.type}</Badge>
-                  <span className="text-xs text-zinc-300 truncate">{formatPolicyRules(p)}</span>
+                  <span className="text-xs text-secondary truncate">{formatPolicyRules(p)}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Badge variant={isGlobal ? 'default' : 'brand'} size="xs">{isGlobal ? 'global' : 'agent'}</Badge>
                   {!isGlobal && (
-                    <button onClick={() => handleUnassign(p)} disabled={assigning} className="text-zinc-500 hover:text-red-400 disabled:opacity-50"><X size={12} /></button>
+                    <button onClick={() => handleUnassign(p)} disabled={assigning} className="text-tertiary hover:text-error disabled:opacity-50"><X size={12} /></button>
                   )}
                 </div>
               </div>
@@ -106,13 +106,13 @@ export default function AgentPoliciesSection({ agentId, policies, allPolicies, o
       )}
       {showPicker && unassignedPolicies.length > 0 && (
         <div className="mt-3 border-t border-white/[0.04] pt-3">
-          <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Assign policy</div>
+          <div className="text-[10px] uppercase tracking-widest text-tertiary mb-2">Assign policy</div>
           <div className="space-y-1">
             {unassignedPolicies.map(p => (
               <button key={p.id} onClick={() => handleAssign(p)} disabled={assigning} className="w-full flex items-center justify-between gap-3 rounded-lg bg-white/[0.02] px-3 py-2 text-left hover:bg-white/[0.04] disabled:opacity-50">
                 <div className="flex items-center gap-2 min-w-0">
                   <Badge size="xs">{p.policy_type || p.type}</Badge>
-                  <span className="text-xs text-zinc-400 truncate">{formatPolicyRules(p)}</span>
+                  <span className="text-xs text-secondary truncate">{formatPolicyRules(p)}</span>
                 </div>
                 <Plus size={12} className="text-brand shrink-0" />
               </button>

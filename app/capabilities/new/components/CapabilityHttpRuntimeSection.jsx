@@ -1,6 +1,6 @@
 function Label({ htmlFor, children }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+    <label htmlFor={htmlFor} className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
       {children}
     </label>
   );
@@ -95,7 +95,7 @@ export default function CapabilityHttpRuntimeSection({
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Retry policy</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-secondary">Retry policy</p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor="capability-max-retries">Max retries</Label>
@@ -168,10 +168,10 @@ export default function CapabilityHttpRuntimeSection({
       </div>
 
       <div className="space-y-3">
-        <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Circuit breaker</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-secondary">Circuit breaker</p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <label className="flex items-center gap-2 text-sm text-secondary">
               <input
                 aria-label="Enable circuit breaker"
                 type="checkbox"
@@ -204,8 +204,8 @@ export default function CapabilityHttpRuntimeSection({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">Input fields</p>
-            <p className="text-sm text-zinc-500">These fields drive the guided test form and runtime payload contract.</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-secondary">Input fields</p>
+            <p className="text-sm text-tertiary">These fields drive the guided test form and runtime payload contract.</p>
           </div>
           <button
             type="button"
@@ -217,7 +217,7 @@ export default function CapabilityHttpRuntimeSection({
         </div>
 
         {runtime.inputFields.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-white/10 px-4 py-3 text-sm text-zinc-500">
+          <div className="rounded-lg border border-dashed border-white/10 px-4 py-3 text-sm text-tertiary">
             No input fields yet. Add one to generate a guided test form.
           </div>
         ) : runtime.inputFields.map((field, index) => (
@@ -264,7 +264,7 @@ export default function CapabilityHttpRuntimeSection({
             </div>
 
             <div className="flex items-end justify-between gap-4">
-              <label className="flex items-center gap-2 text-sm text-zinc-300">
+              <label className="flex items-center gap-2 text-sm text-secondary">
                 <input
                   aria-label={index === 0 ? 'Required field' : `Required field ${index + 1}`}
                   type="checkbox"
@@ -277,7 +277,7 @@ export default function CapabilityHttpRuntimeSection({
               <button
                 type="button"
                 onClick={() => onRemoveInputField(index)}
-                className="text-sm text-zinc-400 hover:text-white"
+                className="text-sm text-secondary hover:text-white"
               >
                 Remove
               </button>

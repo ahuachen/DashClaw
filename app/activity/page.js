@@ -138,15 +138,15 @@ export default function GlobalActivityFeed() {
 
   const getStatusColor = (category, status) => {
     if (category === 'guard') {
-      if (status === 'block') return 'text-red-400 bg-red-500/10 border-red-500/30';
-      if (status === 'warn') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-      if (status === 'require_approval') return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
-      return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+      if (status === 'block') return 'text-error bg-error-subtle border-error/30';
+      if (status === 'warn') return 'text-warning bg-warning-subtle border-warning/30';
+      if (status === 'require_approval') return 'text-info bg-info-subtle border-blue-500/30';
+      return 'text-success bg-success-subtle border-success/30';
     }
-    if (status === 'completed' || status === 'success') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-    if (status === 'failed' || status === 'error') return 'text-red-400 bg-red-500/10 border-red-500/30';
-    if (status === 'running' || status === 'pending') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-    return 'text-zinc-400 bg-white/5 border-border';
+    if (status === 'completed' || status === 'success') return 'text-success bg-success-subtle border-success/30';
+    if (status === 'failed' || status === 'error') return 'text-error bg-error-subtle border-error/30';
+    if (status === 'running' || status === 'pending') return 'text-warning bg-warning-subtle border-warning/30';
+    return 'text-secondary bg-white/5 border-border';
   };
 
   const formatTime = (ts) => {
@@ -168,9 +168,9 @@ export default function GlobalActivityFeed() {
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">Live feed</h2>
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Live feed</h2>
             </div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-tertiary">
               Retention · 50 events
             </div>
           </div>
@@ -192,25 +192,25 @@ export default function GlobalActivityFeed() {
                       <div className="flex items-start gap-4">
                         {/* Time & Icon */}
                         <div className="flex min-w-[60px] flex-col items-center gap-2 pt-1">
-                          <span className="font-mono text-[11px] tabular-nums text-zinc-500">
+                          <span className="font-mono text-[11px] tabular-nums text-tertiary">
                             {formatTime(evt.timestamp)}
                           </span>
                           <div className="rounded-lg border border-border bg-surface-tertiary p-1.5 transition-colors group-hover:border-border-hover">
-                            <Icon size={14} className="text-zinc-400" aria-hidden="true" />
+                            <Icon size={14} className="text-secondary" aria-hidden="true" />
                           </div>
                         </div>
 
                         {/* Content */}
                         <div className="min-w-0 flex-1">
                           <div className="mb-1 flex flex-wrap items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                               {evt.label}
                             </span>
                             <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(evt.actorId)}`}>
                               {evt.actor}
                             </span>
                           </div>
-                          <div className="line-clamp-2 text-sm leading-relaxed text-zinc-200">
+                          <div className="line-clamp-2 text-sm leading-relaxed text-secondary">
                             {evt.detail}
                           </div>
                         </div>
@@ -223,7 +223,7 @@ export default function GlobalActivityFeed() {
                           {evt.link && (
                             <a
                               href={evt.link}
-                              className="flex items-center gap-0.5 text-[11px] font-medium text-zinc-400 transition-colors hover:text-brand"
+                              className="flex items-center gap-0.5 text-[11px] font-medium text-secondary transition-colors hover:text-brand"
                             >
                               Details
                               <ChevronRight size={11} aria-hidden="true" />

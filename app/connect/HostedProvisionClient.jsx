@@ -21,7 +21,7 @@ function CopyButton({ value, label = 'Copy config' }) {
       onClick={onClick}
       className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
     >
-      {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+      {copied ? <Check size={12} className="text-success" /> : <Copy size={12} />}
       {copied ? 'Copied' : label}
     </button>
   );

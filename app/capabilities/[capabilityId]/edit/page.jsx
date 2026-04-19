@@ -210,7 +210,7 @@ export default function EditCapabilityPage() {
         breadcrumbs={['Studio', 'Capabilities', 'Edit']}
         maturity="stable"
       >
-        <div className="py-12 text-center text-sm text-zinc-500">Loading capability...</div>
+        <div className="py-12 text-center text-sm text-tertiary">Loading capability...</div>
       </PageLayout>
     );
   }
@@ -223,11 +223,11 @@ export default function EditCapabilityPage() {
         breadcrumbs={['Studio', 'Capabilities', 'Edit']}
         maturity="stable"
       >
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+        <div className="rounded-lg bg-error-subtle border border-error/20 px-4 py-3 text-sm text-error">
           {loadError}
         </div>
         <div className="mt-4">
-          <Link href="/capabilities" className="text-sm text-zinc-400 hover:text-white transition-colors">
+          <Link href="/capabilities" className="text-sm text-secondary hover:text-white transition-colors">
             Back to registry
           </Link>
         </div>
@@ -244,7 +244,7 @@ export default function EditCapabilityPage() {
       actions={(
         <Link
           href={detailHref}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
         >
           <ArrowLeft size={14} /> Back
         </Link>
@@ -287,7 +287,7 @@ export default function EditCapabilityPage() {
         </Card>
 
         {saveError ? (
-          <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          <div className="px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
             {saveError}
           </div>
         ) : null}
@@ -300,7 +300,7 @@ export default function EditCapabilityPage() {
           >
             <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <Link href={detailHref} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">
+          <Link href={detailHref} className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors">
             Cancel
           </Link>
         </div>

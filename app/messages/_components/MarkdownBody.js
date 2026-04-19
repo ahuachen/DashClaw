@@ -1,10 +1,10 @@
 import ReactMarkdown from 'react-markdown';
 
 const MD_COMPONENTS = {
-  p: ({ children }) => <p className="text-sm text-zinc-300 mb-2 leading-relaxed last:mb-0">{children}</p>,
-  h1: ({ children }) => <h1 className="text-base font-semibold text-zinc-200 mb-2">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-sm font-semibold text-zinc-200 mb-2">{children}</h2>,
-  h3: ({ children }) => <h3 className="text-sm font-medium text-zinc-200 mb-1">{children}</h3>,
+  p: ({ children }) => <p className="text-sm text-secondary mb-2 leading-relaxed last:mb-0">{children}</p>,
+  h1: ({ children }) => <h1 className="text-base font-semibold text-secondary mb-2">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-sm font-semibold text-secondary mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-sm font-medium text-secondary mb-1">{children}</h3>,
   code: ({ children, className }) => {
     const isBlock = className?.includes('language-');
     if (isBlock) return <code className={className}>{children}</code>;
@@ -28,15 +28,15 @@ const MD_COMPONENTS = {
       </a>
     );
   },
-  ul: ({ children }) => <ul className="list-disc list-inside text-sm text-zinc-300 mb-2 space-y-0.5">{children}</ul>,
-  ol: ({ children }) => <ol className="list-decimal list-inside text-sm text-zinc-300 mb-2 space-y-0.5">{children}</ol>,
+  ul: ({ children }) => <ul className="list-disc list-inside text-sm text-secondary mb-2 space-y-0.5">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-inside text-sm text-secondary mb-2 space-y-0.5">{children}</ol>,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-2 border-zinc-600 pl-3 text-sm text-zinc-400 italic mb-2">
+    <blockquote className="border-l-2 border-zinc-600 pl-3 text-sm text-secondary italic mb-2">
       {children}
     </blockquote>
   ),
-  strong: ({ children }) => <strong className="font-semibold text-zinc-200">{children}</strong>,
-  em: ({ children }) => <em className="italic text-zinc-400">{children}</em>,
+  strong: ({ children }) => <strong className="font-semibold text-secondary">{children}</strong>,
+  em: ({ children }) => <em className="italic text-secondary">{children}</em>,
 };
 
 export default function MarkdownBody({ content, className = '' }) {

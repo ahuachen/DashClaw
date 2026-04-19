@@ -108,12 +108,12 @@ export default function ImageCarousel({
         {showCaption && (item.title || item.description) && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4">
             {item.title && <div className="text-sm font-semibold text-white">{item.title}</div>}
-            {item.description && <div className="mt-0.5 text-xs text-zinc-300">{item.description}</div>}
+            {item.description && <div className="mt-0.5 text-xs text-secondary">{item.description}</div>}
           </div>
         )}
 
         {safeItems.length > 1 && (
-          <div className="pointer-events-none absolute top-3 left-3 z-10 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/35 border border-white/10 text-[11px] text-zinc-200">
+          <div className="pointer-events-none absolute top-3 left-3 z-10 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/35 border border-white/10 text-[11px] text-secondary">
             {safeIndex + 1} / {safeItems.length}
           </div>
         )}

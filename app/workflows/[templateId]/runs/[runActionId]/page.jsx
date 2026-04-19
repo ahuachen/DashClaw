@@ -63,7 +63,7 @@ export default function WorkflowRunDetailPage() {
   if (loading) {
     return (
       <PageLayout title="Loading run...">
-        <div className="animate-pulse text-zinc-500 text-sm">Loading workflow run...</div>
+        <div className="animate-pulse text-tertiary text-sm">Loading workflow run...</div>
       </PageLayout>
     );
   }
@@ -72,8 +72,8 @@ export default function WorkflowRunDetailPage() {
     return (
       <PageLayout title="Run not found">
         <div className="text-center py-12">
-          <p className="text-zinc-400 mb-4">This workflow run was not found.</p>
-          <Link href={`/workflows/${templateId}`} className="text-blue-400 hover:text-blue-300 text-sm">
+          <p className="text-secondary mb-4">This workflow run was not found.</p>
+          <Link href={`/workflows/${templateId}`} className="text-info hover:text-info text-sm">
             Back to workflow
           </Link>
         </div>
@@ -85,8 +85,8 @@ export default function WorkflowRunDetailPage() {
     return (
       <PageLayout title="Error">
         <div className="text-center py-12">
-          <p className="text-red-400 mb-4">Failed to load workflow run.</p>
-          <button onClick={() => window.location.reload()} className="text-blue-400 hover:text-blue-300 text-sm">
+          <p className="text-error mb-4">Failed to load workflow run.</p>
+          <button onClick={() => window.location.reload()} className="text-info hover:text-info text-sm">
             Retry
           </button>
         </div>
@@ -99,11 +99,11 @@ export default function WorkflowRunDetailPage() {
       <div className="space-y-8">
         <WorkflowRunHeader run={run} templateId={templateId} onResume={handleResume} resuming={resuming} />
         <div>
-          <h2 className="text-sm font-medium text-zinc-300 mb-3">Steps</h2>
+          <h2 className="text-sm font-medium text-secondary mb-3">Steps</h2>
           <WorkflowRunTimeline steps={run.steps} />
         </div>
         <div>
-          <h2 className="text-sm font-medium text-zinc-300 mb-3">Artifacts</h2>
+          <h2 className="text-sm font-medium text-secondary mb-3">Artifacts</h2>
           <ArtifactsTab actionId={runActionId} />
         </div>
       </div>

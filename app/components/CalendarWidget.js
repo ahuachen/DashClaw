@@ -78,7 +78,7 @@ export default function CalendarWidget() {
       <Card className="h-full">
         <CardHeader title="Calendar" icon={Calendar} />
         <CardContent>
-          <div className="text-sm text-zinc-500">Loading...</div>
+          <div className="text-sm text-tertiary">Loading...</div>
         </CardContent>
       </Card>
     );
@@ -117,11 +117,11 @@ export default function CalendarWidget() {
                     <div className="text-sm font-medium text-white truncate">
                       {event.summary}
                     </div>
-                    <div className="text-xs text-zinc-400 mt-0.5">
+                    <div className="text-xs text-secondary mt-0.5">
                       {formatTime(event.start_time)}
                     </div>
                     {event.location && (
-                      <div className="flex items-center gap-1 text-xs text-zinc-500 mt-1 truncate">
+                      <div className="flex items-center gap-1 text-xs text-tertiary mt-1 truncate">
                         <MapPin size={12} className="shrink-0" />
                         <span className="truncate">{event.location}</span>
                       </div>

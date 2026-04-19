@@ -12,7 +12,7 @@ function FallbackRow({ fallback, index, onChange, onProviderChange, onRemove, ca
   return (
     <div className="grid grid-cols-1 gap-3 rounded-lg border border-white/10 bg-white/5 p-3 md:grid-cols-[1fr_1fr_auto]">
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
           Fallback provider {index + 1}
         </label>
         <select
@@ -29,7 +29,7 @@ function FallbackRow({ fallback, index, onChange, onProviderChange, onRemove, ca
         </select>
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
           Fallback model {index + 1}
         </label>
         <select
@@ -50,7 +50,7 @@ function FallbackRow({ fallback, index, onChange, onProviderChange, onRemove, ca
           type="button"
           onClick={() => onRemove(index)}
           disabled={!canRemove}
-          className="rounded-lg border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg border border-white/10 px-3 py-2 text-xs text-secondary hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Remove
         </button>
@@ -112,7 +112,7 @@ export default function ModelStrategyExecutionSection({
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Primary provider
           </label>
           <select
@@ -137,7 +137,7 @@ export default function ModelStrategyExecutionSection({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Primary model
           </label>
           <select
@@ -157,7 +157,7 @@ export default function ModelStrategyExecutionSection({
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <div className="text-xs font-medium uppercase tracking-wider text-secondary">
             Fallback chain
           </div>
           <button
@@ -185,7 +185,7 @@ export default function ModelStrategyExecutionSection({
       </div>
 
       <div className="max-w-xs">
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
           Max retries
         </label>
         <input

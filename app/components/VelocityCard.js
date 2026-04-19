@@ -58,23 +58,23 @@ export default function VelocityCard() {
       <CardHeader
         title={<span className="flex items-center">Learning Velocity<HelpIcon sectionKey="velocity" tip={HELP_TIPS['velocity']} /></span>}
         icon={Zap}
-        action={<Link href="/learning/analytics" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}
+        action={<Link href="/learning/analytics" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">View <ArrowRight size={12} /></Link>}
       />
       <CardContent>
         <div className="flex items-center justify-around mb-3">
           <StatCompact label="Episodes" value={overall.total_episodes || 0} />
-          <StatCompact label="Avg Score" value={overall.avg_score || '--'} color={parseFloat(overall.avg_score) >= 70 ? 'text-emerald-400' : 'text-amber-400'} />
-          <StatCompact label="Success" value={overall.success_rate ? `${Math.round(overall.success_rate * 100)}%` : '--'} color="text-emerald-400" />
+          <StatCompact label="Avg Score" value={overall.avg_score || '--'} color={parseFloat(overall.avg_score) >= 70 ? 'text-success' : 'text-warning'} />
+          <StatCompact label="Success" value={overall.success_rate ? `${Math.round(overall.success_rate * 100)}%` : '--'} color="text-success" />
         </div>
 
         <div className="space-y-1.5">
           {agents.slice(0, fitItems(tileHeight, 28, 2)).map(a => {
             const VelIcon = a.velocity > 0.5 ? TrendingUp : a.velocity < -0.5 ? TrendingDown : Minus;
-            const velColor = a.velocity > 0.5 ? 'text-emerald-400' : a.velocity < -0.5 ? 'text-red-400' : 'text-zinc-500';
+            const velColor = a.velocity > 0.5 ? 'text-success' : a.velocity < -0.5 ? 'text-error' : 'text-tertiary';
             return (
               <div key={a.agent_id} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-zinc-300 truncate">{a.agent_id}</span>
+                  <span className="text-secondary truncate">{a.agent_id}</span>
                   <Badge variant={MATURITY_VARIANT[a.maturity_level] || 'default'} size="xs">{a.maturity_level}</Badge>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">

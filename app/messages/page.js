@@ -337,7 +337,7 @@ export default function MessagesPage() {
 
   // ── Render ────────────────────────────────────────────────────
 
-  const kbdClass = 'rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-zinc-400';
+  const kbdClass = 'rounded border border-border bg-surface-tertiary px-1 py-0.5 font-mono text-secondary';
 
   return (
     <PageLayout
@@ -355,7 +355,7 @@ export default function MessagesPage() {
       }
     >
       {isDemo && (
-        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
+        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-secondary">
           Demo mode · messaging is read-only.
         </div>
       )}
@@ -363,19 +363,19 @@ export default function MessagesPage() {
       {/* Instrument rail */}
       <div className="mb-4 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Unread</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Unread</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-brand">{stats.unread}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Today</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-blue-400">{stats.today}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Today</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-info">{stats.today}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active threads</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.activeThreads}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Active threads</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{stats.activeThreads}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Shared docs</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Shared docs</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.docCount}</div>
         </div>
       </div>
@@ -392,7 +392,7 @@ export default function MessagesPage() {
               aria-selected={isActive}
               onClick={() => { setTab(t.key); setSelected(null); setSelectedIndex(-1); }}
               className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors ${
-                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
               }`}
             >
               <Icon size={14} aria-hidden="true" />
@@ -403,7 +403,7 @@ export default function MessagesPage() {
                 </span>
               )}
               {t.key === 'threads' && stats.activeThreads > 0 && (
-                <span className="ml-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-400">
+                <span className="ml-1 rounded-full border border-success/30 bg-success-subtle px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-success">
                   {stats.activeThreads}
                 </span>
               )}
@@ -418,14 +418,14 @@ export default function MessagesPage() {
             {stats.unread > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
               >
                 <CheckCheck size={12} aria-hidden="true" /> Mark all read
               </button>
             )}
             <button
               onClick={handleArchiveAll}
-              className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-zinc-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+              className="flex items-center gap-1 rounded-lg border border-border bg-surface-tertiary px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-error/30 hover:bg-error-subtle hover:text-error"
             >
               <Archive size={12} aria-hidden="true" /> Archive all
             </button>
@@ -444,9 +444,9 @@ export default function MessagesPage() {
       </div>
 
       {error && (
-        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+        <div role="alert" className="mb-4 flex items-center justify-between rounded-lg border border-error/30 bg-error-subtle p-3 text-sm text-error">
           <span>{error}</span>
-          <button onClick={() => setError(null)} aria-label="Dismiss error" className="rounded p-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300">
+          <button onClick={() => setError(null)} aria-label="Dismiss error" className="rounded p-0.5 text-error transition-colors hover:bg-error-subtle hover:text-error">
             <X size={14} />
           </button>
         </div>
@@ -464,7 +464,7 @@ export default function MessagesPage() {
           <CardContent className="pt-4">
             <button
               onClick={() => { setSelected(null); setSelectedType(null); setSelectedIndex(-1); }}
-              className="mb-3 flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+              className="mb-3 flex items-center gap-1.5 text-sm text-secondary transition-colors hover:text-white"
             >
               <ArrowLeft size={14} aria-hidden="true" /> Back to threads
             </button>
@@ -530,13 +530,13 @@ export default function MessagesPage() {
               <Card hover={false}>
                 <CardContent className="pt-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                       {selectedType === 'message' ? 'Message' : 'Document'}
                     </span>
                     <button
                       onClick={() => { setSelected(null); setSelectedIndex(-1); }}
                       aria-label="Close detail"
-                      className="rounded p-0.5 text-zinc-500 transition-colors hover:bg-white/5 hover:text-white"
+                      className="rounded p-0.5 text-tertiary transition-colors hover:bg-white/5 hover:text-white"
                     >
                       <X size={14} />
                     </button>
@@ -560,7 +560,7 @@ export default function MessagesPage() {
       )}
 
       {/* Keyboard shortcuts hint */}
-      <div className="mt-4 hidden items-center justify-center gap-3 text-xs text-zinc-500 md:flex">
+      <div className="mt-4 hidden items-center justify-center gap-3 text-xs text-tertiary md:flex">
         <span><kbd className={kbdClass}>j</kbd>/<kbd className={kbdClass}>k</kbd> navigate</span>
         <span aria-hidden="true" className="text-zinc-700">·</span>
         <span><kbd className={kbdClass}>r</kbd> reply</span>

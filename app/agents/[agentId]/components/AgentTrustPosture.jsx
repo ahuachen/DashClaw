@@ -19,8 +19,8 @@ export default function AgentTrustPosture({ trust }) {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
-        <Shield size={14} className="text-zinc-500" />
-        <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Trust Posture</span>
+        <Shield size={14} className="text-tertiary" />
+        <span className="text-xs font-medium uppercase tracking-widest text-tertiary">Trust Posture</span>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={permissionVariant[trust.permission_level] || 'default'} size="xs">

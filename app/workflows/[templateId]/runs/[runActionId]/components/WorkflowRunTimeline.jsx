@@ -4,7 +4,7 @@ import WorkflowRunStepCard from './WorkflowRunStepCard.jsx';
 
 export default function WorkflowRunTimeline({ steps }) {
   if (!steps || steps.length === 0) {
-    return <div className="text-sm text-zinc-500">No steps recorded for this run.</div>;
+    return <div className="text-sm text-tertiary">No steps recorded for this run.</div>;
   }
 
   return (

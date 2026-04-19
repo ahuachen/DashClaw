@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 const inputClass = 'w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-brand';
-const labelClass = 'block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5';
+const labelClass = 'block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5';
 
 function toggleArrayValue(values, candidate) {
   return values.includes(candidate)
@@ -22,10 +22,10 @@ function ResourceChecklist({
     <div>
       <div className="flex items-center justify-between gap-3 mb-2">
         <label className={labelClass}>{label}</label>
-        <span className="text-xs text-zinc-500">{selectedValues.length} selected</span>
+        <span className="text-xs text-tertiary">{selectedValues.length} selected</span>
       </div>
       {options.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-white/10 px-3 py-3 text-sm text-zinc-500">
+        <div className="rounded-lg border border-dashed border-white/10 px-3 py-3 text-sm text-tertiary">
           {emptyText}
         </div>
       ) : (
@@ -35,7 +35,7 @@ function ResourceChecklist({
             return (
               <label
                 key={option.value}
-                className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent px-2 py-2 text-sm text-zinc-300 transition-colors hover:border-white/10 hover:bg-white/5"
+                className="flex cursor-pointer items-start gap-3 rounded-lg border border-transparent px-2 py-2 text-sm text-secondary transition-colors hover:border-white/10 hover:bg-white/5"
               >
                 <input
                   type="checkbox"
@@ -46,7 +46,7 @@ function ResourceChecklist({
                 <div className="min-w-0">
                   <div className="text-sm text-white">{option.label}</div>
                   {option.subtitle && (
-                    <div className="text-xs text-zinc-500">{option.subtitle}</div>
+                    <div className="text-xs text-tertiary">{option.subtitle}</div>
                   )}
                 </div>
               </label>
@@ -86,7 +86,7 @@ export default function WorkflowLinkedResourcesSection({
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-sm font-medium text-white uppercase tracking-wider">Linked resources</div>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-secondary">
             Link the workflow to real DashClaw resources so steps and future runs have the right context.
           </p>
         </div>
@@ -154,13 +154,13 @@ export default function WorkflowLinkedResourcesSection({
         <label htmlFor="workflow-capability-tag-input" className={labelClass}>Capability tags</label>
         <div className="flex flex-wrap gap-2 mb-3">
           {draft.linked_capability_tags.length === 0 ? (
-            <span className="text-sm text-zinc-500">No capability tags linked yet.</span>
+            <span className="text-sm text-tertiary">No capability tags linked yet.</span>
           ) : draft.linked_capability_tags.map((tag) => (
             <button
               key={tag}
               type="button"
               onClick={() => updateField('linked_capability_tags', draft.linked_capability_tags.filter((candidate) => candidate !== tag))}
-              className="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs text-orange-200 transition-colors hover:bg-orange-500/20"
+              className="rounded-full border border-active/20 bg-orange-500/10 px-3 py-1 text-xs text-orange-200 transition-colors hover:bg-orange-500/20"
             >
               {tag} ×
             </button>
@@ -184,7 +184,7 @@ export default function WorkflowLinkedResourcesSection({
           <button
             type="button"
             onClick={addTag}
-            className="rounded-lg bg-white/5 px-3 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/10"
+            className="rounded-lg bg-white/5 px-3 py-2 text-sm text-secondary transition-colors hover:bg-white/10"
           >
             Add tag
           </button>

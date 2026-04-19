@@ -11,9 +11,9 @@ import { useRealtime } from '../hooks/useRealtime';
 // "quiet confidence" into "vigilant alertness". Attention-grabbing motion is
 // reserved for incoming decisions and approval arrivals elsewhere in the UI.
 export function computePosture(redCount, amberCount) {
-  if (redCount >= 1) return { label: 'Critical', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', dot: 'bg-red-500' };
-  if (amberCount >= 1) return { label: 'Elevated', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', dot: 'bg-amber-500' };
-  return { label: 'Nominal', color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', dot: 'bg-emerald-500' };
+  if (redCount >= 1) return { label: 'Critical', color: 'text-error', bg: 'bg-error-subtle', border: 'border-error/30', dot: 'bg-red-500' };
+  if (amberCount >= 1) return { label: 'Elevated', color: 'text-warning', bg: 'bg-warning-subtle', border: 'border-warning/30', dot: 'bg-amber-500' };
+  return { label: 'Nominal', color: 'text-success', bg: 'bg-success-subtle', border: 'border-success/30', dot: 'bg-emerald-500' };
 }
 
 export default function SystemStatusBar() {
@@ -80,19 +80,19 @@ export default function SystemStatusBar() {
         {/* Signal Counts */}
         <div className="flex items-center gap-3">
           {redCount > 0 && (
-            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-red-400">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-error">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
               {redCount} Critical
             </span>
           )}
           {amberCount > 0 && (
-            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-amber-400">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-warning">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
               {amberCount} Elevated
             </span>
           )}
           {redCount === 0 && amberCount === 0 && (
-            <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium text-success">
               <ShieldCheck size={11} aria-hidden="true" />
               All clear
             </span>
@@ -101,7 +101,7 @@ export default function SystemStatusBar() {
       </div>
 
       {/* Total count */}
-      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-tertiary">
         {totalCount} active governance signal{totalCount !== 1 ? 's' : ''}
       </span>
     </div>

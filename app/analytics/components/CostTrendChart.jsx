@@ -7,9 +7,9 @@ function CustomTooltip({ active, payload }) {
   const d = payload[0]?.payload;
   return (
     <div className="rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#1a1a1a] px-3 py-2 text-xs shadow-xl">
-      <div className="text-zinc-400">{d.date}</div>
+      <div className="text-secondary">{d.date}</div>
       <div className="text-white font-medium">${d.cost?.toFixed(2)}</div>
-      <div className="text-zinc-500">{d.actions} actions</div>
+      <div className="text-tertiary">{d.actions} actions</div>
     </div>
   );
 }
@@ -21,15 +21,15 @@ export default function CostTrendChart({ daily }) {
 
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-      <div className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-4">Cost Trend</div>
+      <div className="text-[10px] font-medium uppercase tracking-widest text-tertiary mb-4">Cost Trend</div>
       {noCostData ? (
         <div className="flex flex-col items-center justify-center h-48 text-center px-6">
-          <div className="text-sm text-zinc-300">
+          <div className="text-sm text-secondary">
             {hasActions ? 'No cost data reported yet' : 'No cost data in this period'}
           </div>
           {hasActions && (
-            <div className="mt-1 text-xs text-zinc-500 max-w-xs">
-              Report <code className="font-mono text-zinc-300">tokens_in</code>, <code className="font-mono text-zinc-300">tokens_out</code>, and <code className="font-mono text-zinc-300">model</code> with each action to populate this chart.
+            <div className="mt-1 text-xs text-tertiary max-w-xs">
+              Report <code className="font-mono text-secondary">tokens_in</code>, <code className="font-mono text-secondary">tokens_out</code>, and <code className="font-mono text-secondary">model</code> with each action to populate this chart.
             </div>
           )}
         </div>

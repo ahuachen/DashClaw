@@ -205,13 +205,13 @@ await claw.createAction({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Rocket size={16} className="text-brand" />
-            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Getting Started</span>
+            <span className="text-sm font-medium text-secondary uppercase tracking-wider">Getting Started</span>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="brand">{completedCount} of 4 complete</Badge>
             <button
               onClick={handleDismiss}
-              className="p-1 rounded text-zinc-600 hover:text-zinc-300 hover:bg-white/5 transition-colors"
+              className="p-1 rounded text-disabled hover:text-secondary hover:bg-white/5 transition-colors"
               title="Dismiss getting started"
             >
               <X size={14} />
@@ -232,7 +232,7 @@ await claw.createAction({
           >
             {activeStep === 'workspace' && (
               <div className="mt-3 space-y-3">
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-secondary">
                   A workspace isolates your data. Choose a name for your team or project.
                 </p>
                 <div className="flex gap-2">
@@ -248,13 +248,13 @@ await claw.createAction({
                   <button
                     onClick={handleCreateWorkspace}
                     disabled={!workspaceName.trim() || workspaceLoading}
-                    className="bg-brand hover:bg-brand-hover disabled:bg-zinc-800 disabled:text-zinc-600 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
+                    className="bg-brand hover:bg-brand-hover disabled:bg-tertiary disabled:text-disabled text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap"
                   >
                     {workspaceLoading ? <Loader2 size={14} className="animate-spin" /> : 'Create Workspace'}
                   </button>
                 </div>
                 {workspaceError && (
-                  <div className="flex items-center gap-1.5 text-xs text-red-400">
+                  <div className="flex items-center gap-1.5 text-xs text-error">
                     <AlertTriangle size={12} />
                     {workspaceError}
                   </div>
@@ -262,7 +262,7 @@ await claw.createAction({
               </div>
             )}
             {steps.workspace_created && createdOrg && (
-              <p className="text-xs text-zinc-500 mt-1">Workspace: {createdOrg.name}</p>
+              <p className="text-xs text-tertiary mt-1">Workspace: {createdOrg.name}</p>
             )}
           </StepRow>
 
@@ -275,18 +275,18 @@ await claw.createAction({
           >
             {activeStep === 'api_key' && !generatedKey && (
               <div className="mt-3 space-y-3">
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-secondary">
                   Your agent uses this key to authenticate with the API.
                 </p>
                 <button
                   onClick={handleGenerateKey}
                   disabled={keyLoading}
-                  className="bg-brand hover:bg-brand-hover disabled:bg-zinc-800 disabled:text-zinc-600 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+                  className="bg-brand hover:bg-brand-hover disabled:bg-tertiary disabled:text-disabled text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
                 >
                   {keyLoading ? <Loader2 size={14} className="animate-spin" /> : 'Generate API Key'}
                 </button>
                 {keyError && (
-                  <div className="flex items-center gap-1.5 text-xs text-red-400">
+                  <div className="flex items-center gap-1.5 text-xs text-error">
                     <AlertTriangle size={12} />
                     {keyError}
                   </div>
@@ -296,7 +296,7 @@ await claw.createAction({
             {generatedKey && (
               <div className="mt-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-surface-elevated px-3 py-2 rounded-lg text-xs text-emerald-400 font-mono truncate">
+                  <code className="flex-1 bg-surface-elevated px-3 py-2 rounded-lg text-xs text-success font-mono truncate">
                     {generatedKey}
                   </code>
                   <button
@@ -304,10 +304,10 @@ await claw.createAction({
                     className="p-2 hover:bg-surface-elevated rounded-lg transition-colors"
                     title="Copy key"
                   >
-                    {copied === 'key' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-zinc-400" />}
+                    {copied === 'key' ? <Check size={14} className="text-success" /> : <Copy size={14} className="text-secondary" />}
                   </button>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                <div className="flex items-center gap-1.5 text-xs text-warning">
                   <AlertTriangle size={12} />
                   Save this key now. It won&apos;t be shown again.
                 </div>
@@ -324,7 +324,7 @@ await claw.createAction({
           >
             {(activeStep === 'install' || activeStep === 'first_action' || activeStep === 'done') && steps.api_key_exists && (
               <div className="mt-3 space-y-3">
-                <p className="text-xs text-zinc-400">Install the SDK, then create a client in your agent&apos;s entry point:</p>
+                <p className="text-xs text-secondary">Install the SDK, then create a client in your agent&apos;s entry point:</p>
                 <CodeBlock
                   code={installSnippet}
                   copyId="install"
@@ -354,7 +354,7 @@ await claw.createAction({
           >
             {(activeStep === 'bootstrap' || activeStep === 'first_action' || activeStep === 'done') && steps.api_key_exists && (
               <div className="mt-3 space-y-3">
-                <p className="text-xs text-zinc-400">Optional: Import your current integrations, goals, and memory immediately:</p>
+                <p className="text-xs text-secondary">Optional: Import your current integrations, goals, and memory immediately:</p>
                 <CodeBlock
                   code={bootstrapSnippet}
                   copyId="bootstrap"
@@ -374,7 +374,7 @@ await claw.createAction({
           >
             {activeStep === 'first_action' && !actionDetected && (
               <div className="mt-3 space-y-3">
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-secondary">
                   Run this in your agent to verify everything works:
                 </p>
                 <CodeBlock
@@ -383,14 +383,14 @@ await claw.createAction({
                   copied={copied}
                   onCopy={copyToClipboard}
                 />
-                <div className="flex items-center gap-2 text-xs text-zinc-500">
+                <div className="flex items-center gap-2 text-xs text-tertiary">
                   <Loader2 size={12} className="animate-spin text-brand" />
                   Waiting for your first action...
                 </div>
               </div>
             )}
             {(steps.first_action_sent || actionDetected) && (
-              <p className="text-xs text-emerald-400 mt-1">Action received!</p>
+              <p className="text-xs text-success mt-1">Action received!</p>
             )}
           </StepRow>
         </div>
@@ -400,8 +400,8 @@ await claw.createAction({
           <div className="mt-4 pt-4 border-t border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-emerald-400" />
-                <span className="text-sm text-emerald-400 font-medium">You&apos;re all set!</span>
+                <CheckCircle2 size={16} className="text-success" />
+                <span className="text-sm text-success font-medium">You&apos;re all set!</span>
               </div>
               <button
                 onClick={handleFinish}
@@ -426,13 +426,13 @@ function StepRow({ step, completed, active, future, children }) {
           completed ? 'bg-green-500/20' : active ? 'bg-brand/20' : 'bg-white/5'
         }`}>
           {completed ? (
-            <CheckCircle2 size={14} className="text-emerald-400" />
+            <CheckCircle2 size={14} className="text-success" />
           ) : (
-            <Icon size={14} className={active ? 'text-brand' : 'text-zinc-600'} />
+            <Icon size={14} className={active ? 'text-brand' : 'text-disabled'} />
           )}
         </div>
         <span className={`text-sm ${
-          completed ? 'text-zinc-500 line-through' : active ? 'text-white font-medium' : future ? 'text-zinc-600' : 'text-zinc-300'
+          completed ? 'text-tertiary line-through' : active ? 'text-white font-medium' : future ? 'text-disabled' : 'text-secondary'
         }`}>
           {step.label}
         </span>
@@ -445,7 +445,7 @@ function StepRow({ step, completed, active, future, children }) {
 function CodeBlock({ code, copyId, copied, onCopy }) {
   return (
     <div className="relative group">
-      <pre className="bg-surface-elevated rounded-lg px-3 py-2.5 text-xs text-zinc-300 font-mono overflow-x-auto whitespace-pre-wrap break-all">
+      <pre className="bg-surface-elevated rounded-lg px-3 py-2.5 text-xs text-secondary font-mono overflow-x-auto whitespace-pre-wrap break-all">
         {code}
       </pre>
       <button
@@ -453,7 +453,7 @@ function CodeBlock({ code, copyId, copied, onCopy }) {
         className="absolute top-2 right-2 p-1.5 bg-surface-tertiary hover:bg-surface-secondary rounded opacity-0 group-hover:opacity-100 transition-opacity"
         title="Copy"
       >
-        {copied === copyId ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} className="text-zinc-400" />}
+        {copied === copyId ? <Check size={12} className="text-success" /> : <Copy size={12} className="text-secondary" />}
       </button>
     </div>
   );

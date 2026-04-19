@@ -17,7 +17,7 @@ export default function ModelStrategyConstraintsSection({
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Budget cap
           </label>
           <input
@@ -31,7 +31,7 @@ export default function ModelStrategyConstraintsSection({
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Latency sensitivity
           </label>
           <select
@@ -46,7 +46,7 @@ export default function ModelStrategyConstraintsSection({
           </select>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Cost sensitivity
           </label>
           <select
@@ -64,7 +64,7 @@ export default function ModelStrategyConstraintsSection({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Allowed providers
           </label>
           <input
@@ -77,7 +77,7 @@ export default function ModelStrategyConstraintsSection({
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+          <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
             Blocked providers
           </label>
           <input

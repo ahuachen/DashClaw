@@ -7,11 +7,11 @@ function CustomTooltip({ active, payload }) {
   const d = payload[0]?.payload;
   return (
     <div className="rounded-lg border border-[rgba(255,255,255,0.1)] bg-[#1a1a1a] px-3 py-2 text-xs shadow-xl">
-      <div className="text-zinc-400 mb-1">{d.date}</div>
-      <div className="text-emerald-400">Completed: {d.completed}</div>
-      <div className="text-red-400">Failed: {d.failed}</div>
-      <div className="text-amber-400">Blocked: {d.blocked}</div>
-      <div className="text-zinc-400">Other: {d.other}</div>
+      <div className="text-secondary mb-1">{d.date}</div>
+      <div className="text-success">Completed: {d.completed}</div>
+      <div className="text-error">Failed: {d.failed}</div>
+      <div className="text-warning">Blocked: {d.blocked}</div>
+      <div className="text-secondary">Other: {d.other}</div>
     </div>
   );
 }
@@ -19,9 +19,9 @@ function CustomTooltip({ active, payload }) {
 export default function ActionVolumeChart({ daily }) {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-5">
-      <div className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-4">Action Volume</div>
+      <div className="text-[10px] font-medium uppercase tracking-widest text-tertiary mb-4">Action Volume</div>
       {daily.length === 0 ? (
-        <div className="flex items-center justify-center h-48 text-sm text-zinc-500">No actions in this period.</div>
+        <div className="flex items-center justify-center h-48 text-sm text-tertiary">No actions in this period.</div>
       ) : (
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={daily} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>

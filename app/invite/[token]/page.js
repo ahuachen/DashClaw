@@ -75,7 +75,7 @@ export default function InviteAcceptPage() {
         <div className="w-full max-w-sm text-center">
           <DashClawLogo size={32} className="mx-auto mb-4" />
           <h1 className="text-xl font-bold text-white mb-2">Sign in Required</h1>
-          <p className="text-sm text-zinc-400 mb-6">You need to sign in before accepting this invite.</p>
+          <p className="text-sm text-secondary mb-6">You need to sign in before accepting this invite.</p>
           <a
             href={`/login`}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand/90 text-white text-sm font-medium rounded-lg transition-colors"
@@ -101,11 +101,11 @@ export default function InviteAcceptPage() {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
         <div className="w-full max-w-sm text-center">
-          <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle size={24} className="text-red-400" />
+          <div className="w-12 h-12 rounded-xl bg-error-subtle flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle size={24} className="text-error" />
           </div>
           <h1 className="text-xl font-bold text-white mb-2">Invalid Invite</h1>
-          <p className="text-sm text-zinc-400 mb-6">{error}</p>
+          <p className="text-sm text-secondary mb-6">{error}</p>
           <a
             href="/dashboard"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-surface-secondary border border-[rgba(255,255,255,0.06)] text-white text-sm font-medium rounded-lg hover:bg-surface-tertiary transition-colors"
@@ -127,7 +127,7 @@ export default function InviteAcceptPage() {
   const getStatusDisplay = () => {
     if (accepted) {
       return {
-        icon: <Check size={24} className="text-emerald-400" />,
+        icon: <Check size={24} className="text-success" />,
         iconBg: 'bg-green-500/10',
         title: 'Invite Accepted!',
         desc: 'Redirecting to dashboard...',
@@ -135,7 +135,7 @@ export default function InviteAcceptPage() {
     }
     if (isExpired) {
       return {
-        icon: <Clock size={24} className="text-zinc-400" />,
+        icon: <Clock size={24} className="text-secondary" />,
         iconBg: 'bg-zinc-500/10',
         title: 'Invite Expired',
         desc: 'This invite link has expired. Ask the workspace admin for a new one.',
@@ -143,7 +143,7 @@ export default function InviteAcceptPage() {
     }
     if (isAccepted) {
       return {
-        icon: <Check size={24} className="text-zinc-400" />,
+        icon: <Check size={24} className="text-secondary" />,
         iconBg: 'bg-zinc-500/10',
         title: 'Already Accepted',
         desc: 'This invite has already been used.',
@@ -151,7 +151,7 @@ export default function InviteAcceptPage() {
     }
     if (isRevoked) {
       return {
-        icon: <Ban size={24} className="text-zinc-400" />,
+        icon: <Ban size={24} className="text-secondary" />,
         iconBg: 'bg-zinc-500/10',
         title: 'Invite Revoked',
         desc: 'This invite has been revoked by the workspace admin.',
@@ -170,7 +170,7 @@ export default function InviteAcceptPage() {
             {statusDisplay.icon}
           </div>
           <h1 className="text-xl font-bold text-white mb-2">{statusDisplay.title}</h1>
-          <p className="text-sm text-zinc-400 mb-6">{statusDisplay.desc}</p>
+          <p className="text-sm text-secondary mb-6">{statusDisplay.desc}</p>
           {!accepted && (
             <a
               href="/dashboard"
@@ -195,9 +195,9 @@ export default function InviteAcceptPage() {
           <h1 className="text-xl font-bold text-white mb-2">
             Join {invite.org_name}
           </h1>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-secondary">
             You&apos;ve been invited to join as {invite.role === 'admin' ? 'an' : 'a'}{' '}
-            <span className={invite.role === 'admin' ? 'text-amber-400 font-medium' : 'text-zinc-200 font-medium'}>
+            <span className={invite.role === 'admin' ? 'text-warning font-medium' : 'text-secondary font-medium'}>
               {invite.role}
             </span>
           </p>
@@ -206,30 +206,30 @@ export default function InviteAcceptPage() {
         {/* Invite details */}
         <div className="bg-surface-secondary border border-[rgba(255,255,255,0.06)] rounded-xl p-4 mb-6 space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-500">Workspace</span>
-            <span className="text-zinc-200 font-medium">{invite.org_name}</span>
+            <span className="text-tertiary">Workspace</span>
+            <span className="text-secondary font-medium">{invite.org_name}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-500">Role</span>
-            <span className={invite.role === 'admin' ? 'text-amber-400 font-medium' : 'text-zinc-200 font-medium'}>
+            <span className="text-tertiary">Role</span>
+            <span className={invite.role === 'admin' ? 'text-warning font-medium' : 'text-secondary font-medium'}>
               {invite.role}
             </span>
           </div>
           {invite.email && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Restricted to</span>
-              <span className="text-zinc-200">{invite.email}</span>
+              <span className="text-tertiary">Restricted to</span>
+              <span className="text-secondary">{invite.email}</span>
             </div>
           )}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-500">Expires</span>
-            <span className="text-zinc-400">{new Date(invite.expires_at).toLocaleDateString()}</span>
+            <span className="text-tertiary">Expires</span>
+            <span className="text-secondary">{new Date(invite.expires_at).toLocaleDateString()}</span>
           </div>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400">
+          <div className="mb-4 p-3 bg-error-subtle border border-error/20 rounded-lg text-sm text-error">
             {error}
           </div>
         )}
@@ -244,7 +244,7 @@ export default function InviteAcceptPage() {
         </button>
 
         <div className="text-center mt-4">
-          <a href="/dashboard" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          <a href="/dashboard" className="text-xs text-tertiary hover:text-secondary transition-colors">
             Skip — go to dashboard
           </a>
         </div>

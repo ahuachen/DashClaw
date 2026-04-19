@@ -5,7 +5,7 @@ export function RecommendedSteps({ recommendations }) {
 
   return (
     <div className="mt-8">
-      <p className="mb-3 text-xs uppercase tracking-[0.3em] text-zinc-500">Recommended next steps</p>
+      <p className="mb-3 text-xs uppercase tracking-[0.3em] text-tertiary">Recommended next steps</p>
       <div className="space-y-3">
         {recommendations.map((step) => (
           <ActionBlock key={step.id} step={step} />
@@ -23,19 +23,19 @@ function ActionBlock({ step }) {
   }[step.variant] || 'border-[rgba(255,255,255,0.08)]';
 
   const titleColor = {
-    error: 'text-red-400',
-    warn: 'text-amber-400',
-    info: 'text-zinc-300',
-  }[step.variant] || 'text-zinc-200';
+    error: 'text-error',
+    warn: 'text-warning',
+    info: 'text-secondary',
+  }[step.variant] || 'text-secondary';
 
   return (
     <div className={`rounded-2xl border bg-[#111] p-5 ${borderColor}`}>
       <p className={`mb-2 text-sm font-semibold ${titleColor}`}>{step.title}</p>
-      <p className="text-sm text-zinc-300">{step.summary}</p>
+      <p className="text-sm text-secondary">{step.summary}</p>
       {step.details?.length ? (
         <div className="mt-3 space-y-1">
           {step.details.map((detail) => (
-            <p key={detail} className="text-xs text-zinc-500">
+            <p key={detail} className="text-xs text-tertiary">
               {detail}
             </p>
           ))}
@@ -46,7 +46,7 @@ function ActionBlock({ step }) {
           <CodeBlock>{step.code}</CodeBlock>
         </div>
       ) : null}
-      {step.note ? <p className="mt-3 text-xs text-zinc-500">{step.note}</p> : null}
+      {step.note ? <p className="mt-3 text-xs text-tertiary">{step.note}</p> : null}
     </div>
   );
 }

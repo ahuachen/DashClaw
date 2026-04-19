@@ -83,7 +83,7 @@ export default function CapabilityHighlightsCard() {
         action={(
           <button
             onClick={handleDismiss}
-            className="p-1 rounded text-zinc-500 hover:text-zinc-200 hover:bg-white/5 transition-colors"
+            className="p-1 rounded text-tertiary hover:text-secondary hover:bg-white/5 transition-colors"
             title="Dismiss"
             aria-label="Dismiss shipped platform capabilities"
           >
@@ -92,7 +92,7 @@ export default function CapabilityHighlightsCard() {
         )}
       />
       <CardContent>
-        <p className="text-xs text-zinc-500 mb-3">
+        <p className="text-xs text-tertiary mb-3">
           Major release highlights ({HIGHLIGHTS_VERSION})
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
@@ -106,9 +106,9 @@ export default function CapabilityHighlightsCard() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={14} className="text-brand" />
-                  <span className="text-xs font-semibold text-zinc-200">{item.title}</span>
+                  <span className="text-xs font-semibold text-secondary">{item.title}</span>
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">{item.detail}</p>
+                <p className="text-xs text-secondary leading-relaxed">{item.detail}</p>
                 <div className="mt-2 inline-flex items-center gap-1 text-[11px] text-brand">
                   View
                   <ArrowRight size={11} />

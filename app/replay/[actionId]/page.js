@@ -105,7 +105,7 @@ export default function PublicReplayPage() {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6">
         <DashClawLogo size={48} className="mb-8 opacity-20" />
-        <div className="text-zinc-500 font-medium text-center">{error || 'Replay unavailable'}</div>
+        <div className="text-tertiary font-medium text-center">{error || 'Replay unavailable'}</div>
         <Link href="/" className="mt-6 text-brand text-sm hover:underline">Back to DashClaw</Link>
       </div>
     );
@@ -150,9 +150,9 @@ export default function PublicReplayPage() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={copyEmbed}
-                className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest"
+                className="flex items-center gap-1.5 text-[10px] font-bold text-tertiary hover:text-white transition-colors uppercase tracking-widest"
               >
-                {copied ? <Check size={12} className="text-emerald-500" /> : <Code size={12} />}
+                {copied ? <Check size={12} className="text-success" /> : <Code size={12} />}
                 {copied ? 'Copied!' : 'Copy Embed'}
               </button>
               <Link href="/" className="text-[10px] font-bold text-brand hover:text-brand-hover transition-colors uppercase tracking-widest">
@@ -175,15 +175,15 @@ export default function PublicReplayPage() {
             {/* Header / ID */}
             <div className="px-6 py-4 border-b border-white/[0.04] flex items-center justify-between bg-white/[0.01]">
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono text-zinc-600 tracking-tight">{action.action_id}</span>
+                <span className="text-[10px] font-mono text-disabled tracking-tight">{action.action_id}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 {action.verified ? (
-                  <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-500/80 uppercase tracking-widest">
+                  <div className="flex items-center gap-1 text-[9px] font-bold text-success/80 uppercase tracking-widest">
                     <ShieldCheck size={10} /> Verified Identity
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+                  <div className="flex items-center gap-1 text-[9px] font-bold text-disabled uppercase tracking-widest">
                     <Info size={10} /> Unsigned
                   </div>
                 )}
@@ -196,18 +196,18 @@ export default function PublicReplayPage() {
 
               {/* 1. THE INTENT */}
               <div className="relative flex gap-6">
-                <div className="z-10 h-10 w-10 shrink-0 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                <div className="z-10 h-10 w-10 shrink-0 rounded-xl bg-info-subtle border border-blue-500/20 flex items-center justify-center text-info shadow-[0_0_15px_rgba(59,130,246,0.1)]">
                   <Zap size={20} className="fill-blue-400/20" />
                 </div>
                 <div>
-                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Agent Intent</div>
+                  <div className="text-[10px] font-black text-disabled uppercase tracking-[0.2em] mb-1">Agent Intent</div>
                   <h1 className="text-xl font-bold text-white leading-tight mb-2">{action.declared_goal}</h1>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500 font-medium">Agent:</span>
+                    <span className="text-xs text-tertiary font-medium">Agent:</span>
                     <Link 
                       href={`/agents/${action.agent_id}`}
                       target={isEmbed ? "_blank" : "_self"}
-                      className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-zinc-300 uppercase tracking-wider hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer"
+                      className="px-1.5 py-0.5 rounded bg-tertiary text-[10px] font-bold text-secondary uppercase tracking-wider hover:bg-elevated hover:text-white transition-colors cursor-pointer"
                     >
                       {action.agent_name}
                     </Link>
@@ -222,34 +222,34 @@ export default function PublicReplayPage() {
                 className="relative flex gap-6 group/decision cursor-pointer"
               >
                 <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all group-hover/decision:scale-105 group-hover/decision:border-white/20 ${
-                  decisionType === 'block' ? 'text-red-400 border-red-500/30 bg-red-500/10' : 
-                  decisionType === 'require_approval' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
-                  'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+                  decisionType === 'block' ? 'text-error border-error/30 bg-error-subtle' : 
+                  decisionType === 'require_approval' ? 'text-warning border-warning/30 bg-warning-subtle' :
+                  'text-success border-success/30 bg-success-subtle'
                 }`}>
                   {decisionType === 'block' ? <ShieldAlert size={20} /> : <ShieldCheck size={20} />}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Governance Decision</div>
+                    <div className="text-[10px] font-black text-disabled uppercase tracking-[0.2em]">Governance Decision</div>
                     <div className="h-px flex-1 bg-white/5" />
-                    <div className="flex items-center gap-1 text-[8px] font-bold text-zinc-500 uppercase tracking-widest opacity-0 group-hover/decision:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 text-[8px] font-bold text-tertiary uppercase tracking-widest opacity-0 group-hover/decision:opacity-100 transition-opacity">
                       View Details <ExternalLink size={8} />
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`text-2xl font-black tracking-tighter transition-transform group-hover/decision:translate-x-0.5 ${
-                      decisionType === 'block' ? 'text-red-400' : 
-                      decisionType === 'require_approval' ? 'text-amber-400' :
-                      'text-emerald-400'
+                      decisionType === 'block' ? 'text-error' : 
+                      decisionType === 'require_approval' ? 'text-warning' :
+                      'text-success'
                     }`}>
                       {decisionType.toUpperCase()}
                     </span>
-                    <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-500 uppercase">
+                    <div className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-tertiary uppercase">
                       Risk: {action.risk_score || 0}
                     </div>
                   </div>
                   {guardDecision?.reason && (
-                    <p className="mt-3 text-sm text-zinc-400 italic border-l-2 border-white/5 pl-3 leading-relaxed group-hover/decision:text-zinc-300 transition-colors">
+                    <p className="mt-3 text-sm text-secondary italic border-l-2 border-white/5 pl-3 leading-relaxed group-hover/decision:text-secondary transition-colors">
                       &ldquo;{guardDecision.reason}&rdquo;
                     </p>
                   )}
@@ -261,20 +261,20 @@ export default function PublicReplayPage() {
 
               {/* 3. THE OUTCOME */}
               <div className="relative flex gap-6">
-                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
+                <div className={`z-10 h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${isSuccess ? 'text-success' : 'text-error'}`}>
                   {isSuccess ? <Check size={20} /> : (decisionType === 'block' ? <ShieldAlert size={20} /> : <X size={20} />)}
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-1">Final Result</div>
+                  <div className="text-[10px] font-black text-disabled uppercase tracking-[0.2em] mb-1">Final Result</div>
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className={`text-lg font-bold tracking-tight ${isSuccess ? 'text-emerald-400' : 'text-red-400'} uppercase`}>
+                    <span className={`text-lg font-bold tracking-tight ${isSuccess ? 'text-success' : 'text-error'} uppercase`}>
                       {getResultText()}
                     </span>
                     {action.duration_ms && (
-                      <span className="text-xs text-zinc-600 font-mono">in {(action.duration_ms/1000).toFixed(2)}s</span>
+                      <span className="text-xs text-disabled font-mono">in {(action.duration_ms/1000).toFixed(2)}s</span>
                     )}
                     {action.cost_estimate > 0 && (
-                      <span className="text-xs text-zinc-600 font-mono">
+                      <span className="text-xs text-disabled font-mono">
                         | {formatCost(action.cost_estimate)}
                         {(action.tokens_in > 0 || action.tokens_out > 0) && (
                           <> | {formatTokens(action.tokens_in)} in / {formatTokens(action.tokens_out)} out</>
@@ -282,7 +282,7 @@ export default function PublicReplayPage() {
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-zinc-300 font-mono bg-black/40 p-3 rounded-lg border border-white/5 leading-relaxed">
+                  <div className="text-xs text-secondary font-mono bg-black/40 p-3 rounded-lg border border-white/5 leading-relaxed">
                     {getResultSummary()}
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function PublicReplayPage() {
             <div className="px-6 py-4 border-t border-white/[0.04] bg-white/[0.01] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <DashClawLogo size={14} className="grayscale opacity-50" />
-                <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em]">Verified by DashClaw Runtime</span>
+                <span className="text-[9px] font-bold text-disabled uppercase tracking-[0.2em]">Verified by DashClaw Runtime</span>
               </div>
               <div className="text-[9px] font-mono text-zinc-700 uppercase tracking-tighter">
                 {new Date(action.timestamp_start).toLocaleDateString()} {new Date(action.timestamp_start).toLocaleTimeString()}
@@ -314,13 +314,13 @@ export default function PublicReplayPage() {
               </Link>
               <button 
                 onClick={copyEmbed}
-                className="px-6 py-3 bg-zinc-900 text-zinc-400 border border-white/10 font-black text-xs uppercase tracking-widest rounded-xl hover:text-white hover:border-white/20 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-secondary text-secondary border border-white/10 font-black text-xs uppercase tracking-widest rounded-xl hover:text-white hover:border-white/20 transition-all flex items-center gap-2"
               >
                 <Code size={14} /> {copied ? 'Code Copied' : 'Embed Replay'}
               </button>
             </div>
             
-            <p className="text-[10px] text-zinc-600 font-medium uppercase tracking-[0.2em] max-w-sm text-center leading-relaxed">
+            <p className="text-[10px] text-disabled font-medium uppercase tracking-[0.2em] max-w-sm text-center leading-relaxed">
               DashClaw is the decision infrastructure for AI agents. Governed by Practical Systems.
             </p>
           </div>

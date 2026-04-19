@@ -14,10 +14,10 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { isDemoMode } from '../lib/isDemoMode';
 
 const STATUS_CONFIG = {
-  validated: { icon: CheckCircle2, color: 'text-emerald-400', variant: 'success' },
-  invalidated: { icon: XCircle, color: 'text-red-400', variant: 'error' },
-  pending: { icon: HelpCircle, color: 'text-amber-400', variant: 'warning' },
-  awaiting_validation: { icon: Clock, color: 'text-blue-400', variant: 'info' },
+  validated: { icon: CheckCircle2, color: 'text-success', variant: 'success' },
+  invalidated: { icon: XCircle, color: 'text-error', variant: 'error' },
+  pending: { icon: HelpCircle, color: 'text-warning', variant: 'warning' },
+  awaiting_validation: { icon: Clock, color: 'text-info', variant: 'info' },
 };
 
 const FILTER_OPTIONS = [
@@ -75,20 +75,20 @@ export default function AssumptionsPage() {
       {/* Instrument rail — one container, divided columns */}
       <div className="mb-8 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary md:grid-cols-4 md:divide-y-0">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.total}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Validated</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.validated}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Validated</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{stats.validated}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Invalidated</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{stats.invalidated}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Invalidated</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-error">{stats.invalidated}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Pending</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{stats.pending}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Pending</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-warning">{stats.pending}</div>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default function AssumptionsPage() {
               aria-selected={isActive}
               onClick={() => setFilter(opt.value)}
               className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'
+                isActive ? 'text-white' : 'text-tertiary hover:text-secondary'
               }`}
             >
               {opt.label}
@@ -138,10 +138,10 @@ export default function AssumptionsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 text-sm font-medium text-white">{a.assumption}</div>
                     {a.basis && (
-                      <div className="mb-2 text-xs text-zinc-500">Basis: {a.basis}</div>
+                      <div className="mb-2 text-xs text-tertiary">Basis: {a.basis}</div>
                     )}
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
-                      <span className="font-mono text-zinc-400">{a.agent_id}</span>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-tertiary">
+                      <span className="font-mono text-secondary">{a.agent_id}</span>
                       {a.action_id && (
                         <Link
                           href={`/actions/${a.action_id}`}

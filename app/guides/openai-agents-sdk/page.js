@@ -138,16 +138,16 @@ DASHCLAW_API_KEY=<your-workspace-api-key>`,
 
       <main className="px-6 pb-20 pt-28">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-8 flex items-center gap-2 text-sm text-zinc-500">
-            <Link href="/" className="transition-colors hover:text-zinc-300">
+          <div className="mb-8 flex items-center gap-2 text-sm text-tertiary">
+            <Link href="/" className="transition-colors hover:text-secondary">
               Home
             </Link>
             <ChevronRight size={14} />
-            <Link href="/connect" className="transition-colors hover:text-zinc-300">
+            <Link href="/connect" className="transition-colors hover:text-secondary">
               Connect
             </Link>
             <ChevronRight size={14} />
-            <span className="text-zinc-300">OpenAI Agents SDK</span>
+            <span className="text-secondary">OpenAI Agents SDK</span>
           </div>
 
           <GuideClient

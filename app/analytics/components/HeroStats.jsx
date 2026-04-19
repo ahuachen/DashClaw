@@ -7,7 +7,7 @@ function TrendBadge({ current, previous, invert = false }) {
   if (pct === 0) return null;
   // invert: for cost/latency, lower is better (green); for actions/agents, higher is better (green)
   const isPositive = invert ? pct < 0 : pct > 0;
-  const color = isPositive ? 'text-emerald-400' : 'text-red-400';
+  const color = isPositive ? 'text-success' : 'text-error';
   const Icon = pct > 0 ? TrendingUp : TrendingDown;
   return (
     <span className={`flex items-center gap-1 text-xs ${color}`}>
@@ -19,7 +19,7 @@ function TrendBadge({ current, previous, invert = false }) {
 function StatCard({ label, value, trend }) {
   return (
     <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-4">
-      <div className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">{label}</div>
+      <div className="text-[10px] font-medium uppercase tracking-widest text-tertiary">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
         <span className="text-2xl font-semibold text-white">{value}</span>
         {trend}

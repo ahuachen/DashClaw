@@ -118,20 +118,20 @@ export default function RecentMessagesCard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         {isUnread && <div className="w-1.5 h-1.5 rounded-full bg-brand flex-shrink-0" />}
-                        {msg.urgent === 1 && <AlertCircle size={11} className="text-red-400 flex-shrink-0" />}
-                        <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-zinc-300'}`}>
+                        {msg.urgent === 1 && <AlertCircle size={11} className="text-error flex-shrink-0" />}
+                        <span className={`text-sm truncate ${isUnread ? 'font-semibold text-white' : 'text-secondary'}`}>
                           {msg.from_agent_id || 'Unknown'}
                         </span>
                         <Badge variant={TYPE_VARIANTS[msg.message_type] || 'default'} size="xs">
                           {msg.message_type}
                         </Badge>
                       </div>
-                      <div className="text-xs text-zinc-500 truncate mt-0.5">
+                      <div className="text-xs text-tertiary truncate mt-0.5">
                         {msg.subject || msg.body || '(no content)'}
                       </div>
                     </div>
 
-                    <span className="text-[10px] text-zinc-600 flex-shrink-0 mt-1">
+                    <span className="text-[10px] text-disabled flex-shrink-0 mt-1">
                       {timeAgo(msg.created_at)}
                     </span>
                   </div>

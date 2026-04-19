@@ -76,14 +76,14 @@ function GalleryContent() {
         <div className="mb-8 flex items-center gap-3">
           <Link
             href="/"
-            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="rounded-lg border border-border bg-surface-tertiary p-2 text-secondary transition-colors hover:border-border-hover hover:text-white"
             aria-label="Back to home"
           >
             <ArrowLeft size={18} aria-hidden="true" />
           </Link>
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">Product gallery</h1>
-            <p className="mt-1 text-sm text-zinc-400">
+            <p className="mt-1 text-sm text-secondary">
               Click any image to view fullscreen. Use ← → keys or the arrows to browse. Click anywhere to close.
             </p>
           </div>
@@ -108,7 +108,7 @@ function GalleryContent() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">{s.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-zinc-400">{s.description}</p>
+                <p className="mt-1 text-sm leading-relaxed text-secondary">{s.description}</p>
               </div>
             </button>
           ))}

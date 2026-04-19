@@ -115,7 +115,7 @@ export default function ModelStrategyDetailPage() {
   if (loading) {
     return (
       <PageLayout title="Loading..." breadcrumbs={['Studio', 'Model Strategies']}>
-        <div className="py-12 text-center text-sm text-zinc-500">Loading...</div>
+        <div className="py-12 text-center text-sm text-tertiary">Loading...</div>
       </PageLayout>
     );
   }
@@ -126,7 +126,7 @@ export default function ModelStrategyDetailPage() {
         <Card className="mx-auto mt-12 max-w-md">
           <CardContent className="p-6 text-center">
             <div className="mb-2 text-lg font-medium text-white">{error}</div>
-            <div className="text-sm text-zinc-500">{strategyId}</div>
+            <div className="text-sm text-tertiary">{strategyId}</div>
           </CardContent>
         </Card>
       </PageLayout>
@@ -143,13 +143,13 @@ export default function ModelStrategyDetailPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/model-strategies"
-            className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
+            className="flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:text-white"
           >
             <ArrowLeft size={14} /> Back
           </Link>
           <button
             onClick={handleDelete}
-            className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-sm text-red-400 transition-colors hover:bg-red-500/20 hover:text-red-300"
+            className="flex items-center gap-2 rounded-lg border border-error/20 bg-error-subtle px-3 py-1.5 text-sm text-error transition-colors hover:bg-error-subtle hover:text-error"
           >
             <Trash2 size={14} /> Delete
           </button>
@@ -164,7 +164,7 @@ export default function ModelStrategyDetailPage() {
       }
     >
       {error ? (
-        <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="mb-4 rounded-lg border border-error/20 bg-error-subtle px-4 py-3 text-sm text-error">
           {error}
         </div>
       ) : null}
@@ -180,8 +180,8 @@ export default function ModelStrategyDetailPage() {
               onDescriptionChange={setDescription}
             />
             <div>
-              <div className="mb-1 text-[10px] uppercase tracking-wider text-zinc-500">Strategy ID</div>
-              <div className="font-mono text-xs text-zinc-300">{strategy.strategy_id}</div>
+              <div className="mb-1 text-[10px] uppercase tracking-wider text-tertiary">Strategy ID</div>
+              <div className="font-mono text-xs text-secondary">{strategy.strategy_id}</div>
             </div>
           </CardContent>
         </Card>

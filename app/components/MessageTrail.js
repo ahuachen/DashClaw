@@ -7,14 +7,14 @@ import { MessageSquare, Link2, Link as LinkDashed, ChevronDown, ChevronRight } f
 function MatchBadge({ type }) {
   if (type === 'explicit') {
     return (
-      <span title="Explicitly tagged by SDK" className="inline-flex items-center gap-1 text-[10px] text-green-500">
+      <span title="Explicitly tagged by SDK" className="inline-flex items-center gap-1 text-[10px] text-success">
         <Link2 size={10} />
         linked
       </span>
     );
   }
   return (
-    <span title="Inferred from timestamp proximity (±60s)" className="inline-flex items-center gap-1 text-[10px] text-zinc-500">
+    <span title="Inferred from timestamp proximity (±60s)" className="inline-flex items-center gap-1 text-[10px] text-tertiary">
       <LinkDashed size={10} />
       inferred
     </span>
@@ -28,17 +28,17 @@ function MessageCard({ message, compact }) {
 
   return (
     <div className="flex items-start gap-2 py-1.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
-      <MessageSquare size={14} className="text-blue-400 mt-0.5 flex-shrink-0" />
+      <MessageSquare size={14} className="text-info mt-0.5 flex-shrink-0" />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-zinc-300 font-medium">{message.from_agent_id}</span>
-          <span className="text-zinc-600">→</span>
-          <span className="text-zinc-400">{message.to_agent_id || 'broadcast'}</span>
-          <span className="text-zinc-600">·</span>
-          <span className="text-zinc-500">{time}</span>
+          <span className="text-secondary font-medium">{message.from_agent_id}</span>
+          <span className="text-disabled">→</span>
+          <span className="text-secondary">{message.to_agent_id || 'broadcast'}</span>
+          <span className="text-disabled">·</span>
+          <span className="text-tertiary">{time}</span>
           <MatchBadge type={message.match_type} />
         </div>
-        <div className={`text-sm text-zinc-300 mt-0.5 ${compact ? 'line-clamp-2' : ''}`}>
+        <div className={`text-sm text-secondary mt-0.5 ${compact ? 'line-clamp-2' : ''}`}>
           {message.body}
         </div>
       </div>
@@ -88,19 +88,19 @@ export default function MessageTrail({ actionId, summary, compact = true, defaul
     <div>
       <button
         onClick={handleToggle}
-        className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider hover:text-zinc-300 transition-colors"
+        className="flex items-center gap-2 text-xs text-tertiary uppercase tracking-wider hover:text-secondary transition-colors"
       >
         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         Messages ({summary.total})
         {summary.participants?.length > 0 && (
-          <span className="normal-case tracking-normal text-zinc-600">
+          <span className="normal-case tracking-normal text-disabled">
             — {summary.participants.join(', ')}
           </span>
         )}
       </button>
       {expanded && (
         <div className="mt-2 pl-1">
-          {loading && <div className="text-xs text-zinc-500">Loading messages...</div>}
+          {loading && <div className="text-xs text-tertiary">Loading messages...</div>}
           {messages && messages.map(msg => (
             <MessageCard key={msg.id} message={msg} compact={compact} />
           ))}
@@ -122,21 +122,21 @@ export function TimelineMessage({ message }) {
   return (
     <div className="flex gap-3 py-3">
       <div className="flex flex-col items-center">
-        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-          <MessageSquare size={14} className="text-blue-400" />
+        <div className="w-8 h-8 rounded-full bg-info-subtle flex items-center justify-center flex-shrink-0">
+          <MessageSquare size={14} className="text-info" />
         </div>
         <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
       </div>
       <div className="min-w-0 flex-1 pb-2">
         <div className="flex items-center gap-2 text-xs mb-1">
-          <span className="text-zinc-500">{time}</span>
-          <span className="text-zinc-500 uppercase font-medium">Message</span>
-          <span className="text-zinc-300">{message.from_agent_id}</span>
-          <span className="text-zinc-600">→</span>
-          <span className="text-zinc-400">{message.to_agent_id || 'broadcast'}</span>
+          <span className="text-tertiary">{time}</span>
+          <span className="text-tertiary uppercase font-medium">Message</span>
+          <span className="text-secondary">{message.from_agent_id}</span>
+          <span className="text-disabled">→</span>
+          <span className="text-secondary">{message.to_agent_id || 'broadcast'}</span>
           <MatchBadge type={message.match_type} />
         </div>
-        <div className="text-sm text-zinc-300 whitespace-pre-wrap">{message.body}</div>
+        <div className="text-sm text-secondary whitespace-pre-wrap">{message.body}</div>
       </div>
     </div>
   );

@@ -46,9 +46,9 @@ export default function MemoryHealthCard() {
   }, []);
 
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-400';
-    if (score >= 60) return 'text-amber-400';
-    return 'text-red-400';
+    if (score >= 80) return 'text-success';
+    if (score >= 60) return 'text-warning';
+    return 'text-error';
   };
 
   const getScoreBarColor = (score) => {
@@ -69,11 +69,11 @@ export default function MemoryHealthCard() {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'person': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'person': return 'bg-info-subtle text-info border-blue-500/20';
       case 'tool': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'service': return 'bg-green-500/10 text-emerald-400 border-green-500/20';
-      case 'file': return 'bg-yellow-500/10 text-amber-400 border-yellow-500/20';
-      default: return 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20';
+      case 'service': return 'bg-green-500/10 text-success border-green-500/20';
+      case 'file': return 'bg-yellow-500/10 text-warning border-yellow-500/20';
+      default: return 'bg-zinc-500/10 text-secondary border-zinc-500/20';
     }
   };
 
@@ -98,7 +98,7 @@ export default function MemoryHealthCard() {
           </span>
         )}
         {agentId && (
-          <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-1.5 py-0.5">Org-wide</span>
+          <span className="text-xs text-tertiary border border-zinc-700 rounded px-1.5 py-0.5">Org-wide</span>
         )}
       </CardHeader>
       <CardContent>
@@ -107,8 +107,8 @@ export default function MemoryHealthCard() {
             {/* Health Score Bar */}
             <div>
               <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-zinc-500">Health Score</span>
-                <span className="text-zinc-400 tabular-nums">{health.score}/100</span>
+                <span className="text-tertiary">Health Score</span>
+                <span className="text-secondary tabular-nums">{health.score}/100</span>
               </div>
               <ProgressBar value={health.score} color={getScoreBarColor(health.score)} />
             </div>
@@ -122,14 +122,14 @@ export default function MemoryHealthCard() {
 
             {/* Issues */}
             <div className="flex gap-4 text-xs">
-              <div className={`flex items-center gap-1 ${health.duplicates > 5 ? 'text-amber-400' : 'text-emerald-400'}`}>
+              <div className={`flex items-center gap-1 ${health.duplicates > 5 ? 'text-warning' : 'text-success'}`}>
                 {health.duplicates > 5
                   ? <AlertTriangle size={14} />
                   : <CheckCircle2 size={14} />
                 }
                 {health.duplicates} duplicates
               </div>
-              <div className={`flex items-center gap-1 ${health.staleCount > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+              <div className={`flex items-center gap-1 ${health.staleCount > 0 ? 'text-warning' : 'text-success'}`}>
                 {health.staleCount > 0
                   ? <AlertTriangle size={14} />
                   : <CheckCircle2 size={14} />
@@ -141,7 +141,7 @@ export default function MemoryHealthCard() {
             {/* Top Entities */}
             {data.entities.length > 0 && (
               <div>
-                <div className="text-xs text-zinc-500 mb-2">Top Entities</div>
+                <div className="text-xs text-tertiary mb-2">Top Entities</div>
                 <div className="flex flex-wrap gap-1">
                   {data.entities.slice(0, 6).map((entity, i) => {
                     const TypeIcon = getTypeIcon(entity.type);
@@ -163,7 +163,7 @@ export default function MemoryHealthCard() {
             {/* Topics */}
             {data.topics.length > 0 && (
               <div>
-                <div className="text-xs text-zinc-500 mb-2">Topics</div>
+                <div className="text-xs text-tertiary mb-2">Topics</div>
                 <div className="flex flex-wrap gap-1">
                   {data.topics.slice(0, 8).map((topic, i) => (
                     <span
@@ -178,7 +178,7 @@ export default function MemoryHealthCard() {
             )}
 
             {/* Last Updated */}
-            <div className="text-[10px] text-zinc-600">
+            <div className="text-[10px] text-disabled">
               Updated: {new Date(health.updatedAt).toLocaleString()}
             </div>
           </div>

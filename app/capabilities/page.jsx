@@ -161,7 +161,7 @@ export default function CapabilitiesPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={fetchCapabilities}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
           </button>
@@ -178,7 +178,7 @@ export default function CapabilitiesPage() {
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <div className="relative max-w-md flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-tertiary" />
           <input
             type="text"
             value={search}
@@ -195,7 +195,7 @@ export default function CapabilitiesPage() {
               className={`rounded-md border px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${
                 riskFilter === level
                   ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
-                  : 'border-transparent text-zinc-500 hover:border-border hover:text-zinc-300'
+                  : 'border-transparent text-tertiary hover:border-border hover:text-secondary'
               }`}
             >
               {level}
@@ -214,19 +214,19 @@ export default function CapabilitiesPage() {
       />
 
       {error ? (
-        <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className="mb-4 rounded-lg border border-error/20 bg-error-subtle px-4 py-3 text-sm text-error">
           {error}
         </div>
       ) : null}
 
       {healthError ? (
-        <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+        <div className="mb-4 rounded-lg border border-warning/20 bg-warning-subtle px-4 py-3 text-sm text-warning">
           {healthError}
         </div>
       ) : null}
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">Loading…</div>
+        <div className="py-12 text-center text-sm text-tertiary">Loading…</div>
       ) : filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={Wrench}

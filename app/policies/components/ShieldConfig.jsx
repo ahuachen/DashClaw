@@ -85,7 +85,7 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
       {shield.policyType === 'risk_threshold' && (
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Risk Threshold</label>
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Risk Threshold</label>
             <div className="flex items-center gap-3">
               <input
                 type="range" min="0" max="100" value={config.threshold || 70}
@@ -93,18 +93,18 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
                 className="flex-1 accent-brand"
               />
               <span className={`font-mono text-sm font-medium w-8 text-right ${
-                (config.threshold || 70) >= 70 ? 'text-red-400' : (config.threshold || 70) >= 30 ? 'text-amber-400' : 'text-emerald-400'
+                (config.threshold || 70) >= 70 ? 'text-error' : (config.threshold || 70) >= 30 ? 'text-warning' : 'text-success'
               }`}>
                 {config.threshold || 70}
               </span>
             </div>
-            <div className="flex justify-between text-[10px] text-zinc-600 mt-1">
+            <div className="flex justify-between text-[10px] text-disabled mt-1">
               <span>Low risk</span><span>Medium</span><span>High risk</span>
             </div>
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Action</label>
-            <select value={config.action || 'block'} onChange={e => updateConfig('action', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Action</label>
+            <select value={config.action || 'block'} onChange={e => updateConfig('action', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
               {DECISION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
@@ -114,7 +114,7 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
 
       {(shield.policyType === 'require_approval' || shield.policyType === 'block_action_type') && (
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-2">Action Types</label>
+          <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-2">Action Types</label>
           <div className="flex flex-wrap gap-1.5">
             {ACTION_OPTIONS.map(type => {
               const active = (config.action_types || []).includes(type);
@@ -128,7 +128,7 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
                     updateConfig('action_types', types);
                   }}
                   className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
-                    active ? 'bg-brand/15 border border-brand/40 text-brand' : 'bg-white/5 border border-white/5 text-zinc-400 hover:text-white'
+                    active ? 'bg-brand/15 border border-brand/40 text-brand' : 'bg-white/5 border border-white/5 text-secondary hover:text-white'
                   }`}
                 >
                   {type}
@@ -142,18 +142,18 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
       {shield.policyType === 'rate_limit' && (
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Max Actions</label>
-            <input type="number" min="1" value={config.max_actions || 30} onChange={e => updateConfig('max_actions', parseInt(e.target.value, 10) || 1)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50" />
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Max Actions</label>
+            <input type="number" min="1" value={config.max_actions || 30} onChange={e => updateConfig('max_actions', parseInt(e.target.value, 10) || 1)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50" />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Time Window</label>
-            <select value={config.window_minutes || 60} onChange={e => updateConfig('window_minutes', parseInt(e.target.value, 10))} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Time Window</label>
+            <select value={config.window_minutes || 60} onChange={e => updateConfig('window_minutes', parseInt(e.target.value, 10))} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
               {WINDOW_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Action</label>
-            <select value={config.action || 'warn'} onChange={e => updateConfig('action', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Action</label>
+            <select value={config.action || 'warn'} onChange={e => updateConfig('action', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
               {DECISION_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
@@ -163,16 +163,16 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
       {shield.policyType === 'semantic_check' && (
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Instruction</label>
-            <textarea value={config.instruction || ''} onChange={e => updateConfig('instruction', e.target.value)} rows={3} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50 resize-none" />
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Instruction</label>
+            <textarea value={config.instruction || ''} onChange={e => updateConfig('instruction', e.target.value)} rows={3} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50 resize-none" />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Fallback</label>
-            <select value={config.fallback || 'allow'} onChange={e => updateConfig('fallback', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Fallback</label>
+            <select value={config.fallback || 'allow'} onChange={e => updateConfig('fallback', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
               <option value="allow">Allow (fail-open)</option>
               <option value="block">Block (fail-closed)</option>
             </select>
-            <div className="mt-1 text-[10px] text-zinc-500">Requires GUARD_LLM_KEY or OPENAI_API_KEY environment variable.</div>
+            <div className="mt-1 text-[10px] text-tertiary">Requires GUARD_LLM_KEY or OPENAI_API_KEY environment variable.</div>
           </div>
         </div>
       )}
@@ -180,13 +180,13 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
       {shield.policyType === 'webhook_check' && (
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Webhook URL (HTTPS)</label>
-            <input type="url" value={config.url || ''} onChange={e => updateConfig('url', e.target.value)} placeholder="https://api.example.com/guard" className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50" />
+            <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Webhook URL (HTTPS)</label>
+            <input type="url" value={config.url || ''} onChange={e => updateConfig('url', e.target.value)} placeholder="https://api.example.com/guard" className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">Timeout</label>
-              <select value={config.timeout_ms || 5000} onChange={e => updateConfig('timeout_ms', parseInt(e.target.value, 10))} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+              <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">Timeout</label>
+              <select value={config.timeout_ms || 5000} onChange={e => updateConfig('timeout_ms', parseInt(e.target.value, 10))} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
                 <option value="1000">1 second</option>
                 <option value="3000">3 seconds</option>
                 <option value="5000">5 seconds</option>
@@ -194,8 +194,8 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
               </select>
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-widest text-zinc-500 block mb-1">On Timeout</label>
-              <select value={config.on_timeout || 'allow'} onChange={e => updateConfig('on_timeout', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-brand/50">
+              <label className="text-[10px] uppercase tracking-widest text-tertiary block mb-1">On Timeout</label>
+              <select value={config.on_timeout || 'allow'} onChange={e => updateConfig('on_timeout', e.target.value)} className="w-full rounded-lg border border-white/5 bg-surface-tertiary px-3 py-2 text-xs text-secondary focus:outline-none focus:border-brand/50">
                 <option value="allow">Allow (fail-open)</option>
                 <option value="block">Block (fail-closed)</option>
               </select>
@@ -209,10 +209,10 @@ export default function ShieldConfig({ shield, policy, onSaved }) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2">
-        <button onClick={resetDefaults} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+        <button onClick={resetDefaults} className="text-xs text-tertiary hover:text-secondary transition-colors">
           Reset to defaults
         </button>
-        {saved && <span className="text-xs text-emerald-400">Saved</span>}
+        {saved && <span className="text-xs text-success">Saved</span>}
       </div>
     </div>
   );

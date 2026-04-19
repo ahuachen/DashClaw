@@ -160,7 +160,7 @@ export default function WorkflowTemplateDetailPage() {
   if (loading) {
     return (
       <PageLayout title="Loading..." breadcrumbs={['Studio', 'Workflows']}>
-        <div className="text-sm text-zinc-500 py-12 text-center">Loading...</div>
+        <div className="text-sm text-tertiary py-12 text-center">Loading...</div>
       </PageLayout>
     );
   }
@@ -171,7 +171,7 @@ export default function WorkflowTemplateDetailPage() {
         <Card className="max-w-md mx-auto mt-12">
           <CardContent className="p-6 text-center">
             <div className="text-lg font-medium text-white mb-2">{error || 'Template not found'}</div>
-            <div className="text-sm text-zinc-500">{templateId}</div>
+            <div className="text-sm text-tertiary">{templateId}</div>
           </CardContent>
         </Card>
       </PageLayout>
@@ -197,14 +197,14 @@ export default function WorkflowTemplateDetailPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/workflows"
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
           >
             <ArrowLeft size={14} /> Back
           </Link>
           <button
             onClick={handleDuplicate}
             disabled={duplicating}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors disabled:opacity-50"
           >
             <Copy size={14} /> {duplicating ? 'Duplicating...' : 'Duplicate'}
           </button>
@@ -222,39 +222,39 @@ export default function WorkflowTemplateDetailPage() {
         <Card hover={false}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-semibold text-white">v{template.version}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Version</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Version</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
             <Badge variant={statusVariant[template.status] || 'default'} size="sm">{template.status}</Badge>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-2">Status</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-2">Status</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-semibold text-white">{visibleStepCount}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Steps</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Steps</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="p-4 text-center">
-            <div className="text-xs font-mono text-zinc-300 truncate">{template.slug}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Slug</div>
+            <div className="text-xs font-mono text-secondary truncate">{template.slug}</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Slug</div>
           </CardContent>
         </Card>
       </div>
 
       {launchResult && !launchResult.error && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-success-subtle border border-success/20">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-emerald-300">
+            <div className="text-sm text-success">
               Launched as action <span className="font-mono">{launchResult.action_id}</span>
               {launchResult.resolved_strategy && ' · strategy snapshotted'}
             </div>
             <Link
               href={`/decisions/${launchResult.action_id}`}
-              className="flex items-center gap-1.5 text-xs text-emerald-300 hover:text-emerald-200"
+              className="flex items-center gap-1.5 text-xs text-success hover:text-emerald-200"
             >
               <ExternalLink size={12} /> View replay
             </Link>
@@ -262,7 +262,7 @@ export default function WorkflowTemplateDetailPage() {
         </div>
       )}
       {launchResult?.error && (
-        <div className="mb-6 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+        <div className="mb-6 px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
           Launch failed: {launchResult.error}
         </div>
       )}
@@ -270,24 +270,24 @@ export default function WorkflowTemplateDetailPage() {
       <Card className="mb-4">
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps</span>
+            <span className="text-sm font-medium text-secondary uppercase tracking-wider">Steps</span>
             <div className="flex items-center gap-1 bg-white/5 rounded-lg p-0.5">
               <button
                 onClick={() => setStepsView('builder')}
                 disabled={stepData.mode !== 'builder'}
-                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'builder' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'} disabled:opacity-40 disabled:hover:text-zinc-400`}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'builder' ? 'bg-brand text-white' : 'text-secondary hover:text-white'} disabled:opacity-40 disabled:hover:text-secondary`}
               >
                 Builder
               </button>
               <button
                 onClick={() => setStepsView('source')}
-                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'source' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'source' ? 'bg-brand text-white' : 'text-secondary hover:text-white'}`}
               >
                 Source
               </button>
               <button
                 onClick={() => setStepsView('runs')}
-                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'runs' ? 'bg-brand text-white' : 'text-zinc-400 hover:text-white'}`}
+                className={`px-2.5 py-1 text-[10px] rounded-md transition-colors ${stepsView === 'runs' ? 'bg-brand text-white' : 'text-secondary hover:text-white'}`}
               >
                 Runs
               </button>
@@ -321,9 +321,9 @@ export default function WorkflowTemplateDetailPage() {
         <CardContent className="p-5 pt-0">
           {stepsView === 'runs' ? (
             runsLoading ? (
-              <div className="text-sm text-zinc-500 py-4">Loading runs...</div>
+              <div className="text-sm text-tertiary py-4">Loading runs...</div>
             ) : runs.length === 0 ? (
-              <div className="text-sm text-zinc-500 py-8 text-center">
+              <div className="text-sm text-tertiary py-8 text-center">
                 No runs yet. Use the SDK or API to execute this workflow.
               </div>
             ) : (
@@ -335,10 +335,10 @@ export default function WorkflowTemplateDetailPage() {
                     className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[rgba(255,255,255,0.06)] hover:bg-white/[0.02] transition-colors"
                   >
                     <span className={`w-2 h-2 rounded-full flex-shrink-0 ${run.status === 'completed' ? 'bg-emerald-400' : run.status === 'failed' ? 'bg-red-400' : 'bg-blue-400'}`} />
-                    <span className="text-sm text-zinc-300 flex-1 truncate">{run.declared_goal || 'Workflow run'}</span>
-                    <span className="text-xs text-zinc-500">{run.steps_completed}/{run.step_count} steps</span>
-                    {run.duration_ms != null && <span className="text-xs font-mono text-zinc-500">{(run.duration_ms / 1000).toFixed(1)}s</span>}
-                    <span className="text-xs text-zinc-600">{run.started_at ? new Date(run.started_at).toLocaleString() : ''}</span>
+                    <span className="text-sm text-secondary flex-1 truncate">{run.declared_goal || 'Workflow run'}</span>
+                    <span className="text-xs text-tertiary">{run.steps_completed}/{run.step_count} steps</span>
+                    {run.duration_ms != null && <span className="text-xs font-mono text-tertiary">{(run.duration_ms / 1000).toFixed(1)}s</span>}
+                    <span className="text-xs text-disabled">{run.started_at ? new Date(run.started_at).toLocaleString() : ''}</span>
                   </Link>
                 ))}
               </div>
@@ -346,7 +346,7 @@ export default function WorkflowTemplateDetailPage() {
           ) : (
             <>
               {workflowResources.errors?.length > 0 && stepData.mode === 'builder' && (
-                <div className="mb-4 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+                <div className="mb-4 px-4 py-3 rounded-lg bg-warning-subtle border border-warning/20 text-sm text-warning">
                   Some workflow resources could not be loaded. Saved values are preserved, but some selectors may be incomplete.
                 </div>
               )}
@@ -364,7 +364,7 @@ export default function WorkflowTemplateDetailPage() {
                   <WorkflowStepLegacyNotice legacyFallback={stepData.legacyFallback} />
                 )
               ) : (
-                <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
+                <pre className="text-xs text-secondary bg-black/40 rounded-lg p-3 overflow-auto max-h-[420px] font-mono">
                   {JSON.stringify(stepData.mode === 'builder' ? draft.steps : template.steps, null, 2)}
                 </pre>
               )}
@@ -377,8 +377,8 @@ export default function WorkflowTemplateDetailPage() {
         <Card>
           <CardHeader title="Objective" icon={FileText} />
           <CardContent className="p-5 pt-0">
-            <div className="text-sm text-zinc-300 whitespace-pre-wrap">
-              {template.objective || <span className="text-zinc-500">No objective defined.</span>}
+            <div className="text-sm text-secondary whitespace-pre-wrap">
+              {template.objective || <span className="text-tertiary">No objective defined.</span>}
             </div>
           </CardContent>
         </Card>
@@ -422,7 +422,7 @@ export default function WorkflowTemplateDetailPage() {
         <Card className="mt-4">
           <CardHeader title="Last launched strategy snapshot" icon={Cpu} />
           <CardContent className="p-5 pt-0">
-            <pre className="text-xs text-zinc-300 bg-black/40 rounded-lg p-3 overflow-auto max-h-[320px]">
+            <pre className="text-xs text-secondary bg-black/40 rounded-lg p-3 overflow-auto max-h-[320px]">
               {JSON.stringify(template.model_strategy_snapshot, null, 2)}
             </pre>
           </CardContent>

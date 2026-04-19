@@ -19,8 +19,8 @@ function CustomTooltip({ active, payload, label }) {
     return (
       <div className="bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm shadow-lg">
         <p className="text-white font-medium">{label}</p>
-        <p className="text-zinc-400 mt-0.5">Tokens: <span className="text-white tabular-nums">{tokens.toLocaleString()}</span></p>
-        <p className="text-zinc-500 mt-0.5">Cost: <span className="text-zinc-300 tabular-nums">${cost.toFixed(4)}</span></p>
+        <p className="text-secondary mt-0.5">Tokens: <span className="text-white tabular-nums">{tokens.toLocaleString()}</span></p>
+        <p className="text-tertiary mt-0.5">Cost: <span className="text-secondary tabular-nums">${cost.toFixed(4)}</span></p>
       </div>
     );
   }
@@ -137,7 +137,7 @@ export default function TokenChart() {
         <div className="flex justify-center mt-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 bg-brand rounded-full" />
-            <span className="text-zinc-400">Daily Usage</span>
+            <span className="text-secondary">Daily Usage</span>
           </div>
         </div>
       </CardContent>

@@ -157,8 +157,8 @@ export default function IntegrationsCard() {
                   }`}
                   title={`${integration.name} - ${integration.status}`}
                 >
-                  <Plug size={16} className="text-zinc-400" />
-                  <span className="text-[10px] text-zinc-400 truncate w-full text-center">{integration.name}</span>
+                  <Plug size={16} className="text-secondary" />
+                  <span className="text-[10px] text-secondary truncate w-full text-center">{integration.name}</span>
                   <div
                     className={`w-2 h-2 rounded-full ${
                       integration.status === 'connected' ? 'bg-green-500'
@@ -171,7 +171,7 @@ export default function IntegrationsCard() {
             </div>
 
             {/* Bottom status line */}
-            <div className="flex items-center justify-between text-xs text-zinc-500 flex-shrink-0">
+            <div className="flex items-center justify-between text-xs text-tertiary flex-shrink-0">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
                 {connected} connected

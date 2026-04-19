@@ -71,7 +71,7 @@ export default function ContentDashboard() {
       actions={
         <button
           onClick={fetchData}
-          className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+          className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
         >
           <RotateCw size={14} />
           Refresh
@@ -83,25 +83,25 @@ export default function ContentDashboard() {
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.totalContent}</div>
-            <div className="text-xs text-zinc-500 mt-1">Total Content</div>
+            <div className="text-xs text-tertiary mt-1">Total Content</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.published}</div>
-            <div className="text-xs text-zinc-500 mt-1">Published</div>
+            <div className="text-xs text-tertiary mt-1">Published</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.draft}</div>
-            <div className="text-xs text-zinc-500 mt-1">Draft</div>
+            <div className="text-xs text-tertiary mt-1">Draft</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{platformCount}</div>
-            <div className="text-xs text-zinc-500 mt-1">Platforms</div>
+            <div className="text-xs text-tertiary mt-1">Platforms</div>
           </CardContent>
         </Card>
       </div>
@@ -122,7 +122,7 @@ export default function ContentDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="text-left text-xs text-zinc-500 border-b border-[rgba(255,255,255,0.06)]">
+                  <tr className="text-left text-xs text-tertiary border-b border-[rgba(255,255,255,0.06)]">
                     <th className="pb-3 font-medium">Title</th>
                     <th className="pb-3 font-medium">Platform</th>
                     <th className="pb-3 font-medium">Status</th>
@@ -146,7 +146,7 @@ export default function ContentDashboard() {
                         </Badge>
                       </td>
                       <td className="py-3">
-                        <span className="text-xs text-zinc-500 font-mono">{formatDate(item.created_at)}</span>
+                        <span className="text-xs text-tertiary font-mono">{formatDate(item.created_at)}</span>
                       </td>
                     </tr>
                   ))}

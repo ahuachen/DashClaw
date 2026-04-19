@@ -50,7 +50,7 @@ function ParamTable({ params }) {
             <tr key={p.name} className="border-b border-border">
               <td className="py-2 pr-4 font-mono text-xs text-brand">{p.name}</td>
               <td className="py-2 pr-4 font-mono text-xs text-text-tertiary">{p.type}</td>
-              <td className="py-2 pr-4 text-xs">{p.required ? <span className="text-red-400">Yes</span> : <span className="text-text-disabled">No</span>}</td>
+              <td className="py-2 pr-4 text-xs">{p.required ? <span className="text-error">Yes</span> : <span className="text-text-disabled">No</span>}</td>
               <td className="py-2 text-text-secondary text-xs">{p.desc}</td>
             </tr>
           ))}
@@ -461,7 +461,7 @@ except Exception as e:
           <section id="cli-and-doctor" className="scroll-mt-20 py-12 border-b border-border">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-status-success-subtle flex items-center justify-center">
-                <Terminal size={16} className="text-emerald-400" />
+                <Terminal size={16} className="text-success" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">CLI & Doctor</h2>
             </div>
@@ -523,7 +523,7 @@ npm run doctor`}</CodeBlock>
           <section id="behavior-guard" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-status-info-subtle flex items-center justify-center">
-                <Shield size={16} className="text-blue-400" />
+                <Shield size={16} className="text-info" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Behavior Guard</h2>
             </div>
@@ -626,7 +626,7 @@ if created.get("action", {}).get("status") == "pending_approval":
           <section id="signals" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-status-error-subtle flex items-center justify-center">
-                <ShieldAlert size={16} className="text-red-400" />
+                <ShieldAlert size={16} className="text-error" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Signals</h2>
             </div>
@@ -648,7 +648,7 @@ if created.get("action", {}).get("status") == "pending_approval":
           <section id="agent-lifecycle" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-status-success-subtle flex items-center justify-center">
-                <Activity size={16} className="text-emerald-400" />
+                <Activity size={16} className="text-success" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Agent Lifecycle</h2>
             </div>
@@ -980,7 +980,7 @@ rendered = res["rendered"]`}
           <section id="security-scanning" className="scroll-mt-20 pt-12 border-t border-border">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-status-error-subtle flex items-center justify-center">
-                <ShieldAlert size={16} className="text-red-400" />
+                <ShieldAlert size={16} className="text-error" />
               </div>
               <h2 className="text-2xl font-bold tracking-tight">Security Scanning</h2>
             </div>

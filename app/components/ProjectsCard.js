@@ -157,10 +157,10 @@ export default function ProjectsCard() {
               className="flex items-center gap-3 px-2 py-2 rounded-lg transition-colors duration-150 hover:bg-white/[0.03]"
             >
               <div className="flex-1 min-w-0">
-                <div className="text-sm text-zinc-300 truncate">{project.name}</div>
+                <div className="text-sm text-secondary truncate">{project.name}</div>
               </div>
 
-              <span className="text-xs text-zinc-500 tabular-nums flex-shrink-0 w-10 text-right">
+              <span className="text-xs text-tertiary tabular-nums flex-shrink-0 w-10 text-right">
                 {project.total}
               </span>
 
@@ -172,7 +172,7 @@ export default function ProjectsCard() {
                 {project.status}
               </Badge>
 
-              <span className="font-mono text-[10px] text-zinc-600 flex-shrink-0 w-14 text-right">
+              <span className="font-mono text-[10px] text-disabled flex-shrink-0 w-14 text-right">
                 {formatDate(project.lastUpdate)}
               </span>
             </div>
@@ -180,9 +180,9 @@ export default function ProjectsCard() {
         </div>
         <div className="mt-auto pt-3 border-t border-[rgba(255,255,255,0.06)] flex-shrink-0 relative z-10 bg-surface-secondary">
           <div className="grid grid-cols-3 gap-2">
-            <StatCompact label="Active" value={activeCount} color="text-emerald-400" />
-            <StatCompact label="Building" value={buildingCount} color="text-amber-400" />
-            <StatCompact label="Maintaining" value={maintainingCount} color="text-blue-400" />
+            <StatCompact label="Active" value={activeCount} color="text-success" />
+            <StatCompact label="Building" value={buildingCount} color="text-warning" />
+            <StatCompact label="Maintaining" value={maintainingCount} color="text-info" />
           </div>
         </div>
         </div>

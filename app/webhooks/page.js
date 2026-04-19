@@ -262,9 +262,9 @@ export default function WebhooksPage() {
   };
 
   const primaryBtn = 'flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:cursor-not-allowed disabled:opacity-50';
-  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-sm text-zinc-400 transition-colors hover:border-border-hover hover:text-white';
-  const inputClass = 'w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-600 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
-  const fieldLabel = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500';
+  const secondaryBtn = 'rounded-lg border border-border bg-surface-tertiary px-4 py-2 text-sm text-secondary transition-colors hover:border-border-hover hover:text-white';
+  const inputClass = 'w-full rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const fieldLabel = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary';
 
   return (
     <PageLayout
@@ -288,7 +288,7 @@ export default function WebhooksPage() {
       }
     >
       {isDemo && (
-        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
+        <div role="note" className="mb-4 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-secondary">
           Demo mode · webhooks are read-only.
         </div>
       )}
@@ -296,43 +296,43 @@ export default function WebhooksPage() {
       {/* Instrument rail */}
       <div className="mb-6 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total webhooks</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total webhooks</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{stats.total}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Active</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{stats.active}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Active</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{stats.active}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Failed</div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{stats.failed}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Failed</div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-warning">{stats.failed}</div>
         </div>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div role="alert" className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-red-400" aria-hidden="true" />
-          <div className="text-sm text-red-400">{error}</div>
+        <div role="alert" className="mb-6 flex items-start gap-3 rounded-lg border border-error/30 bg-error-subtle p-4">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-error" aria-hidden="true" />
+          <div className="text-sm text-error">{error}</div>
         </div>
       )}
 
       {/* New secret banner (show once after creation) */}
       {newSecret && (
-        <div role="status" className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+        <div role="status" className="mb-6 rounded-lg border border-success/30 bg-success-subtle p-4">
           <div className="mb-2 flex items-start gap-3">
-            <Check size={16} className="mt-0.5 shrink-0 text-emerald-400" aria-hidden="true" />
-            <div className="text-sm font-medium text-emerald-400">
+            <Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
+            <div className="text-sm font-medium text-success">
               Webhook created successfully. Save your signing secret now — it will not be shown again.
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <code className="flex-1 break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-zinc-200">
+            <code className="flex-1 break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
               {newSecret}
             </code>
             <button
               onClick={handleCopySecret}
-              className="flex items-center gap-2 rounded border border-border bg-surface-tertiary px-3 py-2 text-xs text-zinc-300 transition-colors hover:border-border-hover hover:text-white"
+              className="flex items-center gap-2 rounded border border-border bg-surface-tertiary px-3 py-2 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
             >
               {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
               {copied ? 'Copied' : 'Copy'}
@@ -360,8 +360,8 @@ export default function WebhooksPage() {
                       }}
                       className="group rounded-lg border border-border bg-surface-tertiary p-3 text-left transition-colors hover:border-border-hover"
                     >
-                      <div className="text-xs font-medium text-zinc-200 group-hover:text-white">{tpl.name}</div>
-                      <div className="mt-1 line-clamp-2 text-[11px] text-zinc-500">{tpl.description}</div>
+                      <div className="text-xs font-medium text-secondary group-hover:text-white">{tpl.name}</div>
+                      <div className="mt-1 line-clamp-2 text-[11px] text-tertiary">{tpl.description}</div>
                     </button>
                   ))}
                 </div>
@@ -377,7 +377,7 @@ export default function WebhooksPage() {
                   placeholder="https://example.com/webhook"
                   className={inputClass}
                 />
-                <div className="mt-1 text-xs text-zinc-500">Must use HTTPS</div>
+                <div className="mt-1 text-xs text-tertiary">Must use HTTPS</div>
               </div>
 
               <div>
@@ -394,7 +394,7 @@ export default function WebhooksPage() {
                         onChange={() => handleEventToggle(event.value)}
                         className="h-4 w-4 accent-brand"
                       />
-                      <span className="text-sm text-zinc-300">{event.label}</span>
+                      <span className="text-sm text-secondary">{event.label}</span>
                     </label>
                   ))}
                 </div>
@@ -468,7 +468,7 @@ export default function WebhooksPage() {
                   <div className="mb-3 flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="mb-2 flex items-center gap-2">
-                        <code className="block max-w-md truncate font-mono text-xs text-zinc-300">
+                        <code className="block max-w-md truncate font-mono text-xs text-secondary">
                           {webhook.url}
                         </code>
                         {webhook.active ? (
@@ -485,12 +485,12 @@ export default function WebhooksPage() {
                         ))}
                       </div>
                       {webhook.failure_count > 0 && (
-                        <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-warning">
                           <AlertTriangle size={12} aria-hidden="true" />
                           <span className="tabular-nums">{webhook.failure_count} recent failures</span>
                         </div>
                       )}
-                      <div className="mt-2 tabular-nums text-xs text-zinc-500">
+                      <div className="mt-2 tabular-nums text-xs text-tertiary">
                         Last triggered: {formatTimestamp(webhook.last_triggered_at)}
                       </div>
                     </div>
@@ -501,14 +501,14 @@ export default function WebhooksPage() {
                           <button
                             onClick={() => handleTest(webhook.id)}
                             disabled={testResult === 'testing'}
-                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
+                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-secondary transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
                             aria-label="Test webhook"
                           >
                             <Play size={14} />
                           </button>
                           <button
                             onClick={() => handleDelete(webhook.id)}
-                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                            className="rounded-lg border border-border bg-surface-tertiary p-2 text-secondary transition-colors hover:border-error/30 hover:bg-error-subtle hover:text-error"
                             aria-label="Delete webhook"
                           >
                             <Trash2 size={14} />
@@ -517,7 +517,7 @@ export default function WebhooksPage() {
                       )}
                       <button
                         onClick={() => toggleDeliveries(webhook.id)}
-                        className="rounded-lg border border-border bg-surface-tertiary p-2 text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+                        className="rounded-lg border border-border bg-surface-tertiary p-2 text-secondary transition-colors hover:border-border-hover hover:text-white"
                         aria-label={isExpanded ? 'Hide delivery history' : 'Show delivery history'}
                         aria-expanded={isExpanded}
                       >
@@ -532,8 +532,8 @@ export default function WebhooksPage() {
                       role="status"
                       className={`mt-3 flex items-center gap-2 rounded-lg border p-2 text-xs ${
                         testResult.success
-                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                          : 'border-red-500/30 bg-red-500/10 text-red-400'
+                          ? 'border-success/30 bg-success-subtle text-success'
+                          : 'border-error/30 bg-error-subtle text-error'
                       }`}
                     >
                       {testResult.success ? <Check size={12} aria-hidden="true" /> : <AlertTriangle size={12} aria-hidden="true" />}
@@ -546,29 +546,29 @@ export default function WebhooksPage() {
                   {/* Delivery history */}
                   {isExpanded && (
                     <div className="mt-4 border-t border-border pt-4">
-                      <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                      <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                         Delivery history
                       </div>
                       {loadingDeliveries ? (
-                        <div className="py-4 text-center text-xs text-zinc-500">Loading deliveries…</div>
+                        <div className="py-4 text-center text-xs text-tertiary">Loading deliveries…</div>
                       ) : webhookDeliveries.length === 0 ? (
-                        <div className="py-4 text-center text-xs text-zinc-500">No deliveries yet</div>
+                        <div className="py-4 text-center text-xs text-tertiary">No deliveries yet</div>
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-border">
-                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Event type</th>
-                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Status</th>
-                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">HTTP</th>
-                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Time</th>
-                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Duration</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Event type</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Status</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">HTTP</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Time</th>
+                                <th className="pb-2 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Duration</th>
                               </tr>
                             </thead>
                             <tbody>
                               {webhookDeliveries.slice(0, 20).map((delivery) => (
                                 <tr key={delivery.id} className="border-b border-border last:border-0">
-                                  <td className="py-2 text-zinc-300">
+                                  <td className="py-2 text-secondary">
                                     {EVENT_TYPES.find((e) => e.value === delivery.event_type)?.label ||
                                       delivery.event_type}
                                   </td>
@@ -586,9 +586,9 @@ export default function WebhooksPage() {
                                       {delivery.status}
                                     </Badge>
                                   </td>
-                                  <td className="py-2 font-mono tabular-nums text-zinc-400">{delivery.response_status || '—'}</td>
-                                  <td className="py-2 tabular-nums text-zinc-400">{formatTimestamp(delivery.attempted_at)}</td>
-                                  <td className="py-2 tabular-nums text-zinc-400">
+                                  <td className="py-2 font-mono tabular-nums text-secondary">{delivery.response_status || '—'}</td>
+                                  <td className="py-2 tabular-nums text-secondary">{formatTimestamp(delivery.attempted_at)}</td>
+                                  <td className="py-2 tabular-nums text-secondary">
                                     {delivery.duration_ms ? `${delivery.duration_ms}ms` : '—'}
                                   </td>
                                 </tr>
@@ -611,10 +611,10 @@ export default function WebhooksPage() {
         <Card className="mt-6">
           <CardContent className="py-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
               <div>
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Admin only</div>
-                <div className="text-xs text-zinc-400">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Admin only</div>
+                <div className="text-xs text-secondary">
                   Only workspace admins can add, test, or delete webhooks. Contact an admin to manage webhook
                   configurations.
                 </div>

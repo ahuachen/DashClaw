@@ -63,20 +63,20 @@ export default function FeedbackCard() {
         icon={MessageCircle}
         count={overall.total_feedback || 0}
         action={
-          <Link href="/feedback" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
+          <Link href="/feedback" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">
             View <ArrowRight size={12} />
           </Link>
         }
       />
       <CardContent>
         <div className="flex items-center justify-around mb-4">
-          <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-emerald-400' : parseFloat(overall.avg_rating) >= 3 ? 'text-amber-400' : 'text-red-400'} />
-          <StatCompact label="Positive" value={`${posRate}%`} color="text-emerald-400" />
-          <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-amber-400' : 'text-zinc-400'} />
+          <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-success' : parseFloat(overall.avg_rating) >= 3 ? 'text-warning' : 'text-error'} />
+          <StatCompact label="Positive" value={`${posRate}%`} color="text-success" />
+          <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-warning' : 'text-secondary'} />
         </div>
 
         {/* Sentiment bar */}
-        <div className="flex h-2 rounded-full overflow-hidden bg-zinc-800 mb-3">
+        <div className="flex h-2 rounded-full overflow-hidden bg-tertiary mb-3">
           {overall.positive_count > 0 && (
             <div className="bg-green-500" style={{ width: `${(overall.positive_count / overall.total_feedback) * 100}%` }} />
           )}
@@ -87,18 +87,18 @@ export default function FeedbackCard() {
             <div className="bg-red-500" style={{ width: `${(overall.negative_count / overall.total_feedback) * 100}%` }} />
           )}
         </div>
-        <div className="flex justify-between text-[9px] text-zinc-600 mb-3">
-          <span className="flex items-center gap-1"><ThumbsUp size={9} className="text-green-500" /> {overall.positive_count}</span>
+        <div className="flex justify-between text-[9px] text-disabled mb-3">
+          <span className="flex items-center gap-1"><ThumbsUp size={9} className="text-success" /> {overall.positive_count}</span>
           <span>{overall.neutral_count} neutral</span>
-          <span className="flex items-center gap-1"><ThumbsDown size={9} className="text-red-500" /> {overall.negative_count}</span>
+          <span className="flex items-center gap-1"><ThumbsDown size={9} className="text-error" /> {overall.negative_count}</span>
         </div>
 
         {stats?.by_agent && stats.by_agent.length > 0 && (
           <div className="space-y-1">
             {stats.by_agent.slice(0, fitItems(tileHeight, 22, 2)).map(a => (
               <div key={a.agent_id} className="flex items-center justify-between text-xs">
-                <span className="text-zinc-400 truncate">{a.agent_id}</span>
-                <span className="text-zinc-500 tabular-nums shrink-0">{a.avg_rating}/5</span>
+                <span className="text-secondary truncate">{a.agent_id}</span>
+                <span className="text-tertiary tabular-nums shrink-0">{a.avg_rating}/5</span>
               </div>
             ))}
           </div>

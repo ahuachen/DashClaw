@@ -40,7 +40,7 @@ export default function CapabilityStatusHero({ capability, health, loading, onRe
             {capabilityId ? (
               <Link
                 href={`/capabilities/${capabilityId}/edit`}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-secondary transition-colors hover:text-white"
               >
                 <Pencil size={14} />
                 Edit
@@ -48,7 +48,7 @@ export default function CapabilityStatusHero({ capability, health, loading, onRe
             ) : null}
             <button
               onClick={onRefresh}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:text-white"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:text-white"
             >
               <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
               Refresh
@@ -59,7 +59,7 @@ export default function CapabilityStatusHero({ capability, health, loading, onRe
       <CardContent className="space-y-3">
         <div>
           <div className="text-xl font-semibold text-white">{capability?.name}</div>
-          <div className="text-xs text-zinc-500 font-mono mt-1">{capability?.slug}</div>
+          <div className="text-xs text-tertiary font-mono mt-1">{capability?.slug}</div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={healthVariant[health?.status] || 'default'}>{health?.status || 'unknown'}</Badge>

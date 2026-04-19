@@ -7,8 +7,8 @@ export default function ModelStrategyBasicsSection({
   return (
     <div className="space-y-4">
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
-          Name <span className="text-red-400">*</span>
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
+          Name <span className="text-error">*</span>
         </label>
         <input
           aria-label="Name"
@@ -22,7 +22,7 @@ export default function ModelStrategyBasicsSection({
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-400">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-secondary">
           Description
         </label>
         <textarea

@@ -18,12 +18,12 @@ export default function DemoBanner() {
       className="border-b border-border bg-surface-secondary"
     >
       <div className="flex flex-col gap-2 px-6 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3 text-xs text-zinc-400">
-          <span className="flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-400">
+        <div className="flex items-center gap-3 text-xs text-secondary">
+          <span className="flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-warning">
             <FlaskConical size={11} aria-hidden="true" />
             Demo
           </span>
-          <span className="text-zinc-300">
+          <span className="text-secondary">
             Simulated data. Deploy your own DashClaw instance to connect real agents.
           </span>
         </div>
@@ -36,7 +36,7 @@ export default function DemoBanner() {
           </Link>
           <Link
             href="/"
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-secondary transition-colors hover:text-white"
           >
             What is DashClaw?
           </Link>

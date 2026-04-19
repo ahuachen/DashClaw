@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
               key={r.value}
               onClick={() => setDays(r.value)}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-                days === r.value ? 'bg-brand/15 text-brand' : 'text-zinc-400 hover:text-white'
+                days === r.value ? 'bg-brand/15 text-brand' : 'text-secondary hover:text-white'
               }`}
             >
               {r.label}
@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
           <TokenUsage tokens={data.tokens} />
         </div>
       ) : (
-        <div className="text-center py-12 text-sm text-zinc-500">Failed to load analytics data.</div>
+        <div className="text-center py-12 text-sm text-tertiary">Failed to load analytics data.</div>
       )}
     </PageLayout>
   );

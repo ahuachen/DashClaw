@@ -101,7 +101,7 @@ export default function RiskSignalsCard() {
           ) : (
             visibleSignals.map((signal, idx) => {
               const dotColor = signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500';
-              const titleColor = signal.severity === 'red' ? 'text-red-400' : 'text-amber-400';
+              const titleColor = signal.severity === 'red' ? 'text-error' : 'text-warning';
 
               return (
                 <div
@@ -111,7 +111,7 @@ export default function RiskSignalsCard() {
                   <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotColor}`} />
                   <div className="flex-1 min-w-0">
                     <div className={`text-sm font-medium ${titleColor}`}>{signal.label}</div>
-                    <div className="text-xs text-zinc-500 mt-0.5">{signal.detail}</div>
+                    <div className="text-xs text-tertiary mt-0.5">{signal.detail}</div>
                   </div>
                 </div>
               );

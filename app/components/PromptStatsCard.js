@@ -66,7 +66,7 @@ export default function PromptStatsCard() {
         icon={FileCode}
         count={overall.unique_templates || 0}
         action={
-          <Link href="/prompts" className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors">
+          <Link href="/prompts" className="flex items-center gap-1 text-xs text-secondary hover:text-white transition-colors">
             View <ArrowRight size={12} />
           </Link>
         }
@@ -82,8 +82,8 @@ export default function PromptStatsCard() {
           <div className="space-y-1.5">
             {stats.by_template.slice(0, fitItems(tileHeight, 24, 3)).map(t => (
               <div key={t.template_name} className="flex items-center justify-between text-xs">
-                <span className="text-zinc-400 truncate">{t.template_name}</span>
-                <span className="text-zinc-500 tabular-nums shrink-0">{t.total_runs} runs</span>
+                <span className="text-secondary truncate">{t.template_name}</span>
+                <span className="text-tertiary tabular-nums shrink-0">{t.total_runs} runs</span>
               </div>
             ))}
           </div>

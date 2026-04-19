@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:336090bcc66600212be6ddde75d1f791e84cb1c8",
+  "timestamp": "sha1:a1f824d6b2d5e5e8e45fa07ccb620fcea398a9dc",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2443,6 +2443,7 @@
       "files": [
         "__tests__/unit/cron-auth.test.js",
         "__tests__/unit/cron-routing-maintenance.route.test.js",
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/workspace-admin.test.js",
         "app/api/cron/integration-health/route.js",
         "app/api/cron/learning-episodes-backfill/route.js",
@@ -2492,6 +2493,7 @@
         ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
         ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
         ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "app/api/keys/reveal/route.js",
         "app/api/setup/migrate/route.js",
@@ -2548,6 +2550,7 @@
         "scripts/report-action.mjs",
         "scripts/report-tokens.mjs",
         "scripts/seed-demo-capabilities.mjs",
+        "scripts/smoke-hosted.mjs",
         "scripts/telegram-setup-wizard.mjs",
         "scripts/telegram-verify-loop.mjs",
         "scripts/test-actions.mjs",
@@ -2670,6 +2673,7 @@
       "required": false,
       "files": [
         "__tests__/integration/hosted/end-to-end.test.js",
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/flag.test.js",
         "__tests__/unit/hosted/publicConfig.test.js",
         "__tests__/unit/hosted/workspace-admin.test.js",
@@ -2754,6 +2758,7 @@
         "__tests__/unit/guard.route.test.js",
         "__tests__/unit/health-tables.test.js",
         "__tests__/unit/health.route.test.js",
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "__tests__/unit/hosted/workspace-admin.test.js",
         "__tests__/unit/keys.route.test.js",
@@ -3010,6 +3015,7 @@
       "name": "HOSTED_CLEANUP_SECRET",
       "required": false,
       "files": [
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/workspace-admin.test.js",
         "app/api/hosted/cleanup/route.js"
       ],
@@ -3022,6 +3028,14 @@
         "__tests__/unit/hosted/flag.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",
         "app/lib/hosted/flag.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "HOSTED_SMOKE_BASE_URL",
+      "required": false,
+      "files": [
+        "scripts/smoke-hosted.mjs"
       ],
       "in_env_example": false
     },
@@ -3557,6 +3571,7 @@
       "name": "TURNSTILE_SECRET_KEY",
       "required": false,
       "files": [
+        "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/publicConfig.test.js",
         "__tests__/unit/hosted/turnstile.test.js",
         "__tests__/unit/hosted/workspace-provision.test.js",

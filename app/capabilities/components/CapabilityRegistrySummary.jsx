@@ -3,17 +3,17 @@ const SUMMARY_ITEMS = [
   {
     key: 'attention',
     label: 'Attention needed',
-    toneFor: (value) => (value > 0 ? 'text-red-400' : 'text-emerald-400'),
+    toneFor: (value) => (value > 0 ? 'text-error' : 'text-success'),
   },
   {
     key: 'stale',
     label: 'Stale certifications',
-    toneFor: (value) => (value > 0 ? 'text-amber-400' : 'text-zinc-400'),
+    toneFor: (value) => (value > 0 ? 'text-warning' : 'text-secondary'),
   },
   {
     key: 'uncertified',
     label: 'Uncertified',
-    toneFor: (value) => (value > 0 ? 'text-amber-400' : 'text-zinc-400'),
+    toneFor: (value) => (value > 0 ? 'text-warning' : 'text-secondary'),
   },
 ];
 
@@ -28,7 +28,7 @@ export default function CapabilityRegistrySummary({ counts }) {
               key={item.key}
               className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 {item.label}
               </div>
               <div className={`mt-1 text-3xl font-semibold tabular-nums ${item.toneFor(value)}`}>{value}</div>

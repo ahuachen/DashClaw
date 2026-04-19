@@ -169,9 +169,9 @@ export default function CompliancePage() {
   const riskLevel = gapAnalysis?.risk_level || 'unknown';
 
   const coverageTextColor =
-    coveragePercent >= 80 ? 'text-emerald-400'
-    : coveragePercent >= 50 ? 'text-amber-400'
-    : 'text-red-400';
+    coveragePercent >= 80 ? 'text-success'
+    : coveragePercent >= 50 ? 'text-warning'
+    : 'text-error';
   const coverageBarColor =
     coveragePercent >= 80 ? 'success'
     : coveragePercent >= 50 ? 'warning'
@@ -185,25 +185,25 @@ export default function CompliancePage() {
       actions={
         <Link
           href="/compliance/exports"
-          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
         >
           <FileDown size={14} aria-hidden="true" /> Exports
         </Link>
       }
     >
       {isDemo && (
-        <div role="note" className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-zinc-400">
-          <AlertTriangle size={14} aria-hidden="true" className="text-amber-400" />
+        <div role="note" className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-surface-secondary p-3 text-sm text-secondary">
+          <AlertTriangle size={14} aria-hidden="true" className="text-warning" />
           Demo mode · compliance data is read-only.
         </div>
       )}
       {error && (
-        <div role="alert" className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+        <div role="alert" className="mb-4 flex items-center gap-2 rounded-lg border border-error/30 bg-error-subtle p-3 text-sm text-error">
           <AlertTriangle size={14} aria-hidden="true" />
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-auto rounded px-2 py-0.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
+            className="ml-auto rounded px-2 py-0.5 text-error transition-colors hover:bg-error-subtle hover:text-error"
             aria-label="Dismiss error"
           >
             &times;
@@ -214,9 +214,9 @@ export default function CompliancePage() {
       {/* Framework Selector */}
       <div className="mb-6 flex flex-wrap gap-2">
         {loading ? (
-          <div className="text-sm text-zinc-500">Loading frameworks…</div>
+          <div className="text-sm text-tertiary">Loading frameworks…</div>
         ) : frameworks.length === 0 ? (
-          <div className="text-sm text-zinc-500">No frameworks available</div>
+          <div className="text-sm text-tertiary">No frameworks available</div>
         ) : (
           frameworks.map(fw => {
             const id = fw.id || fw;
@@ -230,7 +230,7 @@ export default function CompliancePage() {
                 className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors ${
                   isActive
                     ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/50 hover:bg-brand/15'
-                    : 'border-border bg-surface-tertiary text-zinc-400 hover:border-border-hover hover:text-white'
+                    : 'border-border bg-surface-tertiary text-secondary hover:border-border-hover hover:text-white'
                 }`}
               >
                 {label}
@@ -245,23 +245,23 @@ export default function CompliancePage() {
         <div className="mb-6">
           <div className="grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-5">
             <div className="p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Total controls</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total controls</div>
               <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{coverage.total ?? 0}</div>
             </div>
             <div className="p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Covered</div>
-              <div className="mt-1 text-2xl font-semibold tabular-nums text-emerald-400">{coverage.covered ?? 0}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Covered</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{coverage.covered ?? 0}</div>
             </div>
             <div className="p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Partial</div>
-              <div className="mt-1 text-2xl font-semibold tabular-nums text-amber-400">{coverage.partial ?? 0}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Partial</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-warning">{coverage.partial ?? 0}</div>
             </div>
             <div className="p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Gaps</div>
-              <div className="mt-1 text-2xl font-semibold tabular-nums text-red-400">{coverage.gaps ?? 0}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Gaps</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums text-error">{coverage.gaps ?? 0}</div>
             </div>
             <div className="p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Coverage</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Coverage</div>
               <div className={`mt-1 text-2xl font-semibold tabular-nums ${coverageTextColor}`}>{coveragePercent}%</div>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function CompliancePage() {
                 <HelpIcon sectionKey="compliance" tip={HELP_TIPS['compliance']} />
               </h2>
               {controls.length > 0 && (
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-tertiary">
                   {controls.length} controls
                 </span>
               )}
@@ -315,29 +315,29 @@ export default function CompliancePage() {
                           className="flex w-full items-center gap-2 text-left"
                         >
                           {isExpanded
-                            ? <ChevronDown size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />
-                            : <ChevronRight size={14} className="shrink-0 text-zinc-500" aria-hidden="true" />}
+                            ? <ChevronDown size={14} className="shrink-0 text-tertiary" aria-hidden="true" />
+                            : <ChevronRight size={14} className="shrink-0 text-tertiary" aria-hidden="true" />}
                           <Badge variant={STATUS_VARIANTS[control.status] || 'default'} size="xs">
                             {control.status}
                           </Badge>
-                          <span className="font-mono text-xs text-zinc-500">{control.control_id || control.id}</span>
-                          <span className="truncate text-sm text-zinc-300">{control.title || control.name}</span>
+                          <span className="font-mono text-xs text-tertiary">{control.control_id || control.id}</span>
+                          <span className="truncate text-sm text-secondary">{control.title || control.name}</span>
                         </button>
                         {isExpanded && (
                           <div className="ml-6 mt-2 space-y-3">
                             {control.description && (
-                              <p className="text-xs text-zinc-400">{control.description}</p>
+                              <p className="text-xs text-secondary">{control.description}</p>
                             )}
                             {policies.length > 0 && (
                               <div>
-                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                                   Matched policies
                                 </div>
                                 <div className="mt-1 flex flex-wrap gap-1">
                                   {policies.map((p, i) => (
                                     <span
                                       key={i}
-                                      className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-400"
+                                      className="rounded border border-success/30 bg-success-subtle px-1.5 py-0.5 text-[10px] text-success"
                                     >
                                       {typeof p === 'string' ? p : p.name || p.id}
                                     </span>
@@ -347,13 +347,13 @@ export default function CompliancePage() {
                             )}
                             {recs.length > 0 && (
                               <div>
-                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                                   Recommendations
                                 </div>
                                 <ul className="mt-1 space-y-1">
                                   {recs.map((r, i) => (
-                                    <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-400">
-                                      <AlertCircle size={12} className="mt-0.5 shrink-0 text-amber-400" aria-hidden="true" />
+                                    <li key={i} className="flex items-start gap-1.5 text-xs text-secondary">
+                                      <AlertCircle size={12} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                                       {typeof r === 'string' ? r : r.text || r.description}
                                     </li>
                                   ))}
@@ -387,29 +387,29 @@ export default function CompliancePage() {
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Risk level</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Risk level</span>
                     <Badge variant={riskLevel === 'high' ? 'error' : riskLevel === 'medium' ? 'warning' : 'success'}>
                       {riskLevel}
                     </Badge>
                   </div>
                   {gapAnalysis.narrative && (
-                    <p className="text-xs text-zinc-400">{gapAnalysis.narrative}</p>
+                    <p className="text-xs text-secondary">{gapAnalysis.narrative}</p>
                   )}
                   {gapAnalysis.quick_wins && (
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Quick wins</div>
-                      <p className="mt-1 text-xs text-zinc-400">{gapAnalysis.quick_wins}</p>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Quick wins</div>
+                      <p className="mt-1 text-xs text-secondary">{gapAnalysis.quick_wins}</p>
                     </div>
                   )}
                   {gaps.length > 0 && (
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                         Critical gaps <span className="tabular-nums">({gaps.length})</span>
                       </div>
                       <ul className="mt-1 space-y-1">
                         {gaps.slice(0, 5).map((g, i) => (
-                          <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-400">
-                            <AlertCircle size={12} className="mt-0.5 shrink-0 text-red-400" aria-hidden="true" />
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-secondary">
+                            <AlertCircle size={12} className="mt-0.5 shrink-0 text-error" aria-hidden="true" />
                             {typeof g === 'string' ? g : g.title || g.control || g.description}
                           </li>
                         ))}
@@ -418,10 +418,10 @@ export default function CompliancePage() {
                   )}
                   {remediations.length > 0 && (
                     <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Top remediations</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Top remediations</div>
                       <ul className="mt-1 space-y-1.5">
                         {remediations.slice(0, 5).map((r, i) => (
-                          <li key={i} className="flex items-center gap-2 text-xs text-zinc-400">
+                          <li key={i} className="flex items-center gap-2 text-xs text-secondary">
                             <span className="flex-1">{typeof r === 'string' ? r : r.action || r.description}</span>
                             {r.effort && (
                               <Badge variant={EFFORT_VARIANTS[r.effort] || 'default'} size="xs">
@@ -452,20 +452,20 @@ export default function CompliancePage() {
               ) : (
                 <div className="grid grid-cols-2 divide-x divide-y divide-border">
                   <div className="p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Guard decisions</div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Guard decisions</div>
                     <div className="mt-1 text-lg font-semibold tabular-nums text-white">{evidence.guard_decisions ?? 0}</div>
                   </div>
                   <div className="p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Blocked</div>
-                    <div className="mt-1 text-lg font-semibold tabular-nums text-red-400">{evidence.blocked ?? 0}</div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Blocked</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-error">{evidence.blocked ?? 0}</div>
                   </div>
                   <div className="p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Approval requests</div>
-                    <div className="mt-1 text-lg font-semibold tabular-nums text-amber-400">{evidence.approval_requests ?? 0}</div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Approval requests</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-warning">{evidence.approval_requests ?? 0}</div>
                   </div>
                   <div className="p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Actions recorded</div>
-                    <div className="mt-1 text-lg font-semibold tabular-nums text-blue-400">{evidence.actions_recorded ?? 0}</div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Actions recorded</div>
+                    <div className="mt-1 text-lg font-semibold tabular-nums text-info">{evidence.actions_recorded ?? 0}</div>
                   </div>
                 </div>
               )}
@@ -476,7 +476,7 @@ export default function CompliancePage() {
           <Card>
             <div className="flex items-center justify-between border-b border-border px-5 py-3">
               <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <ShieldAlert size={14} className="text-amber-400" aria-hidden="true" />
+                <ShieldAlert size={14} className="text-warning" aria-hidden="true" />
                 Live integrity signals
               </h2>
             </div>
@@ -485,8 +485,8 @@ export default function CompliancePage() {
                 <ListSkeleton rows={2} />
               ) : signals.length === 0 ? (
                 <div className="flex items-center gap-2 py-2">
-                  <CheckCircle size={14} className="text-emerald-400" aria-hidden="true" />
-                  <span className="text-xs text-emerald-400">All clear — no active integrity signals</span>
+                  <CheckCircle size={14} className="text-success" aria-hidden="true" />
+                  <span className="text-xs text-success">All clear — no active integrity signals</span>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -503,11 +503,11 @@ export default function CompliancePage() {
                         </div>
                         {affectedControls.length > 0 && (
                           <div className="ml-3.5 mt-1 flex flex-wrap items-center gap-1">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Affects</span>
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Affects</span>
                             {affectedControls.map((c, j) => (
                               <span
                                 key={j}
-                                className="rounded border border-border bg-surface-tertiary px-1.5 py-0.5 text-[10px] text-zinc-400"
+                                className="rounded border border-border bg-surface-tertiary px-1.5 py-0.5 text-[10px] text-secondary"
                               >
                                 {c}
                               </span>
@@ -540,7 +540,7 @@ export default function CompliancePage() {
                   id="report-format"
                   value={reportFormat}
                   onChange={(e) => setReportFormat(e.target.value)}
-                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
+                  className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
                 >
                   <option value="markdown">Markdown</option>
                   <option value="json">JSON</option>
@@ -558,18 +558,18 @@ export default function CompliancePage() {
                   <div className="mb-2 flex items-center gap-3">
                     <button
                       onClick={handleCopyReport}
-                      className="flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-white"
+                      className="flex items-center gap-1 text-xs text-secondary transition-colors hover:text-white"
                     >
                       <Copy size={12} aria-hidden="true" /> Copy
                     </button>
                     <button
                       onClick={handleDownloadReport}
-                      className="flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-white"
+                      className="flex items-center gap-1 text-xs text-secondary transition-colors hover:text-white"
                     >
                       <FileDown size={12} aria-hidden="true" /> Download
                     </button>
                   </div>
-                  <pre className="max-h-[500px] overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-tertiary p-4 font-mono text-xs text-zinc-300">
+                  <pre className="max-h-[500px] overflow-y-auto whitespace-pre-wrap rounded-lg border border-border bg-surface-tertiary p-4 font-mono text-xs text-secondary">
                     {report}
                   </pre>
                 </div>

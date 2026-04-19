@@ -20,7 +20,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
 
   if (!trace) {
     return (
-      <div className="py-6 text-center text-sm text-zinc-500">
+      <div className="py-6 text-center text-sm text-tertiary">
         No trace data available for this action.
       </div>
     );
@@ -36,8 +36,8 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
 
   if (!hasContent) {
     return (
-      <div className="py-6 text-center text-sm text-zinc-500">
-        <GitBranch size={24} className="mx-auto mb-2 text-zinc-600" />
+      <div className="py-6 text-center text-sm text-tertiary">
+        <GitBranch size={24} className="mx-auto mb-2 text-disabled" />
         No parent chain, assumptions, loops, or sub-actions to visualize.
       </div>
     );
@@ -174,18 +174,18 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
     if (node.type === 'current') return 'border-brand';
     if (node.type === 'assumption') {
       if (node.validated) return 'border-green-500';
-      if (node.invalidated) return 'border-red-500';
-      return 'border-amber-500';
+      if (node.invalidated) return 'border-error';
+      return 'border-warning';
     }
     if (node.type === 'loop') {
       if (node.status === 'resolved') return 'border-green-500';
       if (node.status === 'cancelled') return 'border-zinc-500';
-      return 'border-amber-500';
+      return 'border-warning';
     }
     // action / related
     switch (node.status) {
       case 'completed': return 'border-green-500/50';
-      case 'failed': return 'border-red-500/50';
+      case 'failed': return 'border-error/50';
       case 'cancelled': return 'border-zinc-500/50';
       default: return 'border-zinc-600';
     }
@@ -216,24 +216,24 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
 
   const NodeIcon = ({ node }) => {
     if (node.type === 'assumption') {
-      if (node.validated) return <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />;
-      if (node.invalidated) return <XCircle size={14} className="text-red-400 flex-shrink-0" />;
-      return <HelpCircle size={14} className="text-amber-400 flex-shrink-0" />;
+      if (node.validated) return <CheckCircle2 size={14} className="text-success flex-shrink-0" />;
+      if (node.invalidated) return <XCircle size={14} className="text-error flex-shrink-0" />;
+      return <HelpCircle size={14} className="text-warning flex-shrink-0" />;
     }
     if (node.type === 'loop') {
-      if (node.status === 'resolved') return <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />;
-      if (node.status === 'cancelled') return <XCircle size={14} className="text-zinc-400 flex-shrink-0" />;
-      return <RefreshCw size={14} className="text-amber-400 flex-shrink-0" />;
+      if (node.status === 'resolved') return <CheckCircle2 size={14} className="text-success flex-shrink-0" />;
+      if (node.status === 'cancelled') return <XCircle size={14} className="text-secondary flex-shrink-0" />;
+      return <RefreshCw size={14} className="text-warning flex-shrink-0" />;
     }
     if (node.type === 'current') return <Zap size={14} className="text-brand flex-shrink-0" />;
-    return <Zap size={14} className="text-zinc-400 flex-shrink-0" />;
+    return <Zap size={14} className="text-secondary flex-shrink-0" />;
   };
 
   const offsetX = -minX;
 
   return (
     <div className="mb-8 overflow-x-auto">
-      <div className="text-xs text-zinc-500 uppercase font-medium mb-3 flex items-center gap-2">
+      <div className="text-xs text-tertiary uppercase font-medium mb-3 flex items-center gap-2">
         <GitBranch size={14} />
         Trace Graph
       </div>
@@ -339,8 +339,8 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-emerald-400' :
-                node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                node.status === 'completed' ? 'text-success' :
+                node.status === 'failed' ? 'text-error' : 'text-secondary'
               }`}>
                 {node.status}
               </span>
@@ -364,12 +364,12 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
           >
             <div className="flex items-center gap-2">
               <NodeIcon node={node} />
-              <span className="text-xs text-zinc-300 font-medium truncate">{node.label}</span>
+              <span className="text-xs text-secondary font-medium truncate">{node.label}</span>
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-emerald-400' :
-                node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                node.status === 'completed' ? 'text-success' :
+                node.status === 'failed' ? 'text-error' : 'text-secondary'
               }`}>
                 {node.status}
               </span>
@@ -393,7 +393,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
           >
             <div className="flex items-center gap-2 h-full">
               <NodeIcon node={node} />
-              <span className="text-[11px] text-zinc-300 truncate">{node.label}</span>
+              <span className="text-[11px] text-secondary truncate">{node.label}</span>
             </div>
           </div>
         ))}
@@ -414,7 +414,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
           >
             <div className="flex items-center gap-2 h-full">
               <NodeIcon node={node} />
-              <span className="text-[11px] text-zinc-300 truncate">{node.label}</span>
+              <span className="text-[11px] text-secondary truncate">{node.label}</span>
             </div>
           </div>
         ))}
@@ -435,12 +435,12 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
           >
             <div className="flex items-center gap-2">
               <NodeIcon node={node} />
-              <span className="text-xs text-zinc-300 truncate">{node.label}</span>
+              <span className="text-xs text-secondary truncate">{node.label}</span>
             </div>
             {node.status && (
               <span className={`text-[10px] mt-0.5 inline-block ${
-                node.status === 'completed' ? 'text-emerald-400' :
-                node.status === 'failed' ? 'text-red-400' : 'text-zinc-400'
+                node.status === 'completed' ? 'text-success' :
+                node.status === 'failed' ? 'text-error' : 'text-secondary'
               }`}>
                 {node.status}
               </span>
@@ -451,7 +451,7 @@ export default function AssumptionGraph({ trace, currentActionId, onNodeClick })
         {/* Related actions label */}
         {relatedNodes.length > 0 && (
           <div
-            className="absolute text-[10px] text-zinc-500 uppercase font-medium"
+            className="absolute text-[10px] text-tertiary uppercase font-medium"
             style={{ left: 40, top: relatedY - 18, zIndex: 1 }}
           >
             Related Actions

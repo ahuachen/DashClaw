@@ -25,19 +25,19 @@ function safeJsonArray(value) {
 
 function Banner({ icon: Icon, tone, title, children }) {
   const tones = {
-    neutral: 'border-border bg-white/[0.02] text-zinc-300',
-    warning: 'border-amber-500/20 bg-amber-500/10 text-amber-200',
+    neutral: 'border-border bg-white/[0.02] text-secondary',
+    warning: 'border-warning/20 bg-warning-subtle text-amber-200',
   };
   const iconTone = {
-    neutral: 'text-zinc-400',
-    warning: 'text-amber-400',
+    neutral: 'text-secondary',
+    warning: 'text-warning',
   };
   return (
     <div className={`mb-5 flex items-start gap-3 rounded-xl border p-4 ${tones[tone]}`}>
       <Icon size={16} className={`mt-0.5 shrink-0 ${iconTone[tone]}`} />
       <div className="min-w-0">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em]">{title}</div>
-        <p className="mt-1 text-xs text-zinc-400">{children}</p>
+        <p className="mt-1 text-xs text-secondary">{children}</p>
       </div>
     </div>
   );
@@ -110,7 +110,7 @@ export default function ApprovalsPage() {
       actions={
         <button
           onClick={fetchPending}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
           aria-label="Refresh pending approvals"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -143,7 +143,7 @@ export default function ApprovalsPage() {
             {pendingActions.map((action) => {
               const systems = safeJsonArray(action.systems_touched);
               const isProcessing = processingId === action.action_id;
-              const riskColor = action.risk_score >= 70 ? 'text-red-400' : 'text-amber-400';
+              const riskColor = action.risk_score >= 70 ? 'text-error' : 'text-warning';
               return (
                 <Card key={action.action_id} hover={false}>
                   <CardContent className="pt-5">
@@ -154,12 +154,12 @@ export default function ApprovalsPage() {
                           <div className="min-w-0">
                             <div className="mb-2 flex flex-wrap items-center gap-2">
                               <Badge variant="warning">Awaiting Approval</Badge>
-                              <span className="font-mono text-[11px] text-zinc-500">{action.action_id}</span>
+                              <span className="font-mono text-[11px] text-tertiary">{action.action_id}</span>
                             </div>
                             <h3 className="text-lg font-semibold text-white">{action.declared_goal}</h3>
                           </div>
                           <div className="shrink-0 text-right">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                               Risk
                             </div>
                             <div className={`mt-0.5 text-2xl font-semibold tabular-nums ${riskColor}`}>
@@ -170,26 +170,26 @@ export default function ApprovalsPage() {
 
                         <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                           <div className="space-y-2.5">
-                            <div className="flex items-center gap-2 text-zinc-500">
+                            <div className="flex items-center gap-2 text-tertiary">
                               <User size={14} />
                               <span>Agent</span>
-                              <span className="ml-auto text-zinc-200">{action.agent_name || action.agent_id}</span>
+                              <span className="ml-auto text-secondary">{action.agent_name || action.agent_id}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-zinc-500">
+                            <div className="flex items-center gap-2 text-tertiary">
                               <Zap size={14} />
                               <span>Type</span>
-                              <span className="ml-auto text-zinc-200">{action.action_type}</span>
+                              <span className="ml-auto text-secondary">{action.action_type}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-zinc-500">
+                            <div className="flex items-center gap-2 text-tertiary">
                               <Clock size={14} />
                               <span>Triggered</span>
-                              <span className="ml-auto tabular-nums text-zinc-200">
+                              <span className="ml-auto tabular-nums text-secondary">
                                 {new Date(action.timestamp_start).toLocaleString()}
                               </span>
                             </div>
                           </div>
                           <div className="space-y-2 rounded-lg border border-border bg-surface-tertiary p-3">
-                            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                               <Info size={10} /> Systems Touched
                             </div>
                             {systems.length > 0 ? (
@@ -199,13 +199,13 @@ export default function ApprovalsPage() {
                                 ))}
                               </div>
                             ) : (
-                              <div className="text-xs text-zinc-500">None declared</div>
+                              <div className="text-xs text-tertiary">None declared</div>
                             )}
                           </div>
                         </div>
 
                         {action.reasoning && (
-                          <blockquote className="rounded-lg border-l-2 border-border bg-surface-tertiary/50 px-4 py-2.5 text-sm italic text-zinc-400">
+                          <blockquote className="rounded-lg border-l-2 border-border bg-surface-tertiary/50 px-4 py-2.5 text-sm italic text-secondary">
                             &ldquo;{action.reasoning}&rdquo;
                           </blockquote>
                         )}
@@ -216,14 +216,14 @@ export default function ApprovalsPage() {
                         <button
                           onClick={() => handleDecision(action.action_id, 'allow')}
                           disabled={!canDecide || isProcessing}
-                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-400 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/20 focus:border-emerald-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-success/20 bg-success-subtle px-4 py-2.5 text-sm font-semibold text-success transition-colors hover:border-success/40 hover:bg-success-subtle focus:border-success/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Check size={16} /> Allow
                         </button>
                         <button
                           onClick={() => handleDecision(action.action_id, 'deny')}
                           disabled={!canDecide || isProcessing}
-                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:border-red-500/40 hover:bg-red-500/20 focus:border-red-500/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-error/20 bg-error-subtle px-4 py-2.5 text-sm font-semibold text-error transition-colors hover:border-error/40 hover:bg-error-subtle focus:border-error/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <X size={16} /> Deny
                         </button>

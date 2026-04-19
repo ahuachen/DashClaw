@@ -292,12 +292,12 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
           </button>
           {selectedNode && (
             <>
-              <span className="text-[10px] text-zinc-500 ml-2">
-                Selected: <span className="text-zinc-300">{selectedNode.data?.label}</span>
+              <span className="text-[10px] text-tertiary ml-2">
+                Selected: <span className="text-secondary">{selectedNode.data?.label}</span>
               </span>
               <button
                 onClick={deleteSelected}
-                className="px-2 py-1 text-xs text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded transition-colors"
+                className="px-2 py-1 text-xs text-error hover:text-error bg-error-subtle hover:bg-error-subtle rounded transition-colors"
               >
                 Delete
               </button>
@@ -337,10 +337,10 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
       {/* Node edit panel */}
       {!readOnly && selectedNode && (
         <div className="absolute bottom-4 right-4 w-72 bg-[#111] border border-white/10 rounded-lg p-4 z-10 shadow-2xl">
-          <div className="text-xs text-zinc-500 uppercase tracking-wider mb-3">Edit Step</div>
+          <div className="text-xs text-tertiary uppercase tracking-wider mb-3">Edit Step</div>
           <div className="space-y-3">
             <div>
-              <label className="block text-[10px] text-zinc-400 uppercase mb-1">Label</label>
+              <label className="block text-[10px] text-secondary uppercase mb-1">Label</label>
               <input
                 type="text"
                 value={editLabel}
@@ -349,7 +349,7 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
               />
             </div>
             <div>
-              <label className="block text-[10px] text-zinc-400 uppercase mb-1">Type</label>
+              <label className="block text-[10px] text-secondary uppercase mb-1">Type</label>
               <select
                 value={editType}
                 onChange={(e) => setEditType(e.target.value)}
@@ -361,7 +361,7 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] text-zinc-400 uppercase mb-1">Description</label>
+              <label className="block text-[10px] text-secondary uppercase mb-1">Description</label>
               <textarea
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
@@ -378,7 +378,7 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
               </button>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="px-2 py-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+                className="px-2 py-1.5 text-xs text-secondary hover:text-white transition-colors"
               >
                 Cancel
               </button>

@@ -46,17 +46,17 @@ const TYPE_ICONS = {
 function StatusIcon({ status }) {
   switch (status) {
     case 'completed':
-      return <CheckCircle2 size={14} className="text-emerald-400" />;
+      return <CheckCircle2 size={14} className="text-success" />;
     case 'failed':
-      return <XCircle size={14} className="text-red-400" />;
+      return <XCircle size={14} className="text-error" />;
     case 'pending':
-      return <Clock size={14} className="text-amber-400" />;
+      return <Clock size={14} className="text-warning" />;
     case 'in-progress':
-      return <Loader2 size={14} className="text-blue-400" />;
+      return <Loader2 size={14} className="text-info" />;
     case 'cancelled':
-      return <Ban size={14} className="text-zinc-500" />;
+      return <Ban size={14} className="text-tertiary" />;
     default:
-      return <HelpCircle size={14} className="text-zinc-500" />;
+      return <HelpCircle size={14} className="text-tertiary" />;
   }
 }
 
@@ -152,7 +152,7 @@ export default function RecentActionsCard() {
     return (
       <Card className="h-full animate-pulse">
         <CardHeader title={<span className="flex items-center">Decision Ledger<HelpIcon sectionKey="actions" tip={HELP_TIPS['actions']} /></span>} icon={Zap} />
-        <CardContent className="h-80 bg-zinc-900/50 rounded-lg" />
+        <CardContent className="h-80 bg-secondary/50 rounded-lg" />
       </Card>
     );
   }
@@ -199,27 +199,27 @@ export default function RecentActionsCard() {
                 <Link
                   key={action.id}
                   href={`/actions/${action.id}`}
-                  className="group flex items-center gap-3 px-3 py-2.5 rounded-lg border border-transparent hover:border-zinc-800 hover:bg-zinc-800/30 transition-all duration-200"
+                  className="group flex items-center gap-3 px-3 py-2.5 rounded-lg border border-transparent hover:border-zinc-800 hover:bg-tertiary/30 transition-all duration-200"
                 >
                   {/* Type icon */}
-                  <div className={`p-1.5 rounded-md bg-zinc-900/50 text-zinc-400 group-hover:text-zinc-200 transition-colors`}>
+                  <div className={`p-1.5 rounded-md bg-secondary/50 text-secondary group-hover:text-secondary transition-colors`}>
                     <TypeIcon size={14} />
                   </div>
 
                   {/* Action name + agent + system */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-zinc-300 truncate group-hover:text-white transition-colors">
+                    <div className="text-sm font-medium text-secondary truncate group-hover:text-white transition-colors">
                       {action.action}
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${agentColorClass} bg-opacity-10`}>
                         {action.agentName}
                         {action.verified && (
-                          <ShieldCheck size={10} className="ml-1 text-emerald-400" aria-label="Verified Identity" />
+                          <ShieldCheck size={10} className="ml-1 text-success" aria-label="Verified Identity" />
                         )}
                       </span>
-                      <span className="text-[10px] text-zinc-500">•</span>
-                      <span className="text-[10px] text-zinc-500 truncate max-w-[100px]">{action.platform}</span>
+                      <span className="text-[10px] text-tertiary">•</span>
+                      <span className="text-[10px] text-tertiary truncate max-w-[100px]">{action.platform}</span>
                     </div>
                   </div>
 
@@ -227,19 +227,19 @@ export default function RecentActionsCard() {
                   <div className="flex flex-col items-end gap-1 flex-shrink-0 pl-2 border-l border-zinc-800/50 ml-1">
                     <div className="flex items-center gap-1.5">
                       <span className={`text-[10px] font-medium capitalize ${
-                        action.status === 'completed' ? 'text-green-500' :
-                        action.status === 'failed' ? 'text-red-500' :
-                        action.status === 'in-progress' ? 'text-blue-500' :
-                        'text-yellow-500'
+                        action.status === 'completed' ? 'text-success' :
+                        action.status === 'failed' ? 'text-error' :
+                        action.status === 'in-progress' ? 'text-info' :
+                        'text-warning'
                       }`}>
                         {action.status}
                       </span>
-                      {action.status === 'completed' ? <CheckCircle2 size={12} className="text-green-500" /> :
-                       action.status === 'failed' ? <XCircle size={12} className="text-red-500" /> :
-                       action.status === 'in-progress' ? <Loader2 size={12} className="text-blue-500 animate-spin" /> :
-                       <Clock size={12} className="text-yellow-500" />}
+                      {action.status === 'completed' ? <CheckCircle2 size={12} className="text-success" /> :
+                       action.status === 'failed' ? <XCircle size={12} className="text-error" /> :
+                       action.status === 'in-progress' ? <Loader2 size={12} className="text-info animate-spin" /> :
+                       <Clock size={12} className="text-warning" />}
                     </div>
-                    <div className="text-[10px] text-zinc-600 font-mono tracking-tight">
+                    <div className="text-[10px] text-disabled font-mono tracking-tight">
                       {date} {time}
                     </div>
                   </div>

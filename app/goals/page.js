@@ -86,7 +86,7 @@ export default function GoalsDashboard() {
       actions={
         <button
           onClick={fetchData}
-          className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
+          className="px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150 flex items-center gap-1.5"
         >
           <RotateCw size={14} />
           Refresh
@@ -98,25 +98,25 @@ export default function GoalsDashboard() {
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.totalGoals}</div>
-            <div className="text-xs text-zinc-500 mt-1">Total Goals</div>
+            <div className="text-xs text-tertiary mt-1">Total Goals</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.active}</div>
-            <div className="text-xs text-zinc-500 mt-1">Active</div>
+            <div className="text-xs text-tertiary mt-1">Active</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.completed}</div>
-            <div className="text-xs text-zinc-500 mt-1">Completed</div>
+            <div className="text-xs text-tertiary mt-1">Completed</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-5 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{stats.avgProgress}%</div>
-            <div className="text-xs text-zinc-500 mt-1">Avg Progress</div>
+            <div className="text-xs text-tertiary mt-1">Avg Progress</div>
           </CardContent>
         </Card>
       </div>
@@ -146,11 +146,11 @@ export default function GoalsDashboard() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-surface-tertiary flex items-center justify-center">
-                        <CategoryIcon size={18} className="text-zinc-400" />
+                        <CategoryIcon size={18} className="text-secondary" />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-white">{goal.title}</h3>
-                        <div className="text-xs text-zinc-500">
+                        <div className="text-xs text-tertiary">
                           {goal.target_date && `Target: ${goal.target_date}`}
                           {daysRemaining !== null && ` -- ${daysRemaining} days remaining`}
                         </div>
@@ -163,13 +163,13 @@ export default function GoalsDashboard() {
 
                   {/* Description */}
                   {goal.description && (
-                    <p className="text-sm text-zinc-300 mb-4">{goal.description}</p>
+                    <p className="text-sm text-secondary mb-4">{goal.description}</p>
                   )}
 
                   {/* Main Progress Bar */}
                   <div className="mb-4">
                     <div className="flex justify-between text-xs mb-2">
-                      <span className="text-zinc-500">Overall Progress</span>
+                      <span className="text-tertiary">Overall Progress</span>
                       <span className="text-white font-medium tabular-nums">{progress}%</span>
                     </div>
                     <ProgressBar value={progress} color={getProgressColor(progress)} className="h-2" />
@@ -178,17 +178,17 @@ export default function GoalsDashboard() {
                   {/* Milestones */}
                   {milestones.length > 0 && (
                     <div>
-                      <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Milestones</h4>
+                      <h4 className="text-xs font-medium text-tertiary uppercase tracking-wider mb-3">Milestones</h4>
                       <div className="space-y-2">
                         {milestones.map((milestone) => (
                           <div key={milestone.id} className="bg-surface-tertiary rounded-lg p-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {milestone.status === 'completed' ? (
-                                <CheckCircle2 size={16} className="text-emerald-400" />
+                                <CheckCircle2 size={16} className="text-success" />
                               ) : (
-                                <Circle size={16} className="text-zinc-600" />
+                                <Circle size={16} className="text-disabled" />
                               )}
-                              <span className={`text-sm ${milestone.status === 'completed' ? 'text-zinc-500 line-through' : 'text-white'}`}>
+                              <span className={`text-sm ${milestone.status === 'completed' ? 'text-tertiary line-through' : 'text-white'}`}>
                                 {milestone.title}
                               </span>
                             </div>
@@ -216,11 +216,11 @@ export default function GoalsDashboard() {
               }}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-emerald-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-success flex items-center gap-1.5">
                 <Search size={14} />
                 Health Check
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Review all goal status</div>
+              <div className="text-xs text-tertiary mt-1">Review all goal status</div>
             </button>
             <button
               onClick={() => {
@@ -229,11 +229,11 @@ export default function GoalsDashboard() {
               }}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-blue-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-info flex items-center gap-1.5">
                 <Plus size={14} />
                 Add Goal
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Create a new goal</div>
+              <div className="text-xs text-tertiary mt-1">Create a new goal</div>
             </button>
             <button
               onClick={() => {
@@ -242,11 +242,11 @@ export default function GoalsDashboard() {
               }}
               className="bg-surface-tertiary rounded-lg p-4 text-left hover:border-[rgba(255,255,255,0.12)] transition-colors duration-150"
             >
-              <div className="text-sm font-medium text-amber-400 flex items-center gap-1.5">
+              <div className="text-sm font-medium text-warning flex items-center gap-1.5">
                 <BarChart3 size={14} />
                 Update Progress
               </div>
-              <div className="text-xs text-zinc-500 mt-1">Log goal progress</div>
+              <div className="text-xs text-tertiary mt-1">Log goal progress</div>
             </button>
           </div>
         </CardContent>

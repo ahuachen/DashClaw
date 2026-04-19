@@ -81,10 +81,10 @@ export default function NotificationCenter() {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case 'error': return <XCircle size={14} className="text-red-400" aria-hidden="true" />;
-      case 'warning': return <AlertTriangle size={14} className="text-amber-400" aria-hidden="true" />;
-      case 'success': return <CheckCircle2 size={14} className="text-emerald-400" aria-hidden="true" />;
-      default: return <Info size={14} className="text-blue-400" aria-hidden="true" />;
+      case 'error': return <XCircle size={14} className="text-error" aria-hidden="true" />;
+      case 'warning': return <AlertTriangle size={14} className="text-warning" aria-hidden="true" />;
+      case 'success': return <CheckCircle2 size={14} className="text-success" aria-hidden="true" />;
+      default: return <Info size={14} className="text-info" aria-hidden="true" />;
     }
   };
 
@@ -97,7 +97,7 @@ export default function NotificationCenter() {
         aria-haspopup="dialog"
         className="relative rounded-lg p-2 transition-colors duration-150 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-brand/40"
       >
-        <Bell size={18} className="text-zinc-400" aria-hidden="true" />
+        <Bell size={18} className="text-secondary" aria-hidden="true" />
         {unreadCount > 0 && (
           <span
             aria-hidden="true"
@@ -122,10 +122,10 @@ export default function NotificationCenter() {
                   Enable
                 </button>
               )}
-              <button onClick={markAllRead} className="text-xs text-zinc-500 transition-colors hover:text-white">
+              <button onClick={markAllRead} className="text-xs text-tertiary transition-colors hover:text-white">
                 Mark read
               </button>
-              <button onClick={clearAll} className="text-xs text-zinc-500 transition-colors hover:text-white">
+              <button onClick={clearAll} className="text-xs text-tertiary transition-colors hover:text-white">
                 Clear
               </button>
             </div>
@@ -133,8 +133,8 @@ export default function NotificationCenter() {
 
           <div className="max-h-72 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center py-8 text-zinc-500">
-                <Bell size={24} className="mb-2 text-zinc-600" aria-hidden="true" />
+              <div className="flex flex-col items-center py-8 text-tertiary">
+                <Bell size={24} className="mb-2 text-disabled" aria-hidden="true" />
                 <span className="text-sm">No notifications</span>
               </div>
             ) : (
@@ -149,10 +149,10 @@ export default function NotificationCenter() {
                         <div className="mt-0.5 shrink-0">{getTypeIcon(notif.type)}</div>
                         <div className="min-w-0">
                           <div className="text-xs font-medium text-white">{notif.title}</div>
-                          <div className="mt-0.5 text-xs text-zinc-400">{notif.message}</div>
+                          <div className="mt-0.5 text-xs text-secondary">{notif.message}</div>
                         </div>
                       </div>
-                      <span className="shrink-0 text-[11px] tabular-nums text-zinc-500">{notif.timestamp}</span>
+                      <span className="shrink-0 text-[11px] tabular-nums text-tertiary">{notif.timestamp}</span>
                     </div>
                   </div>
                 ))}

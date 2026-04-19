@@ -19,13 +19,13 @@ export default function PolicyGeneratedDraftEditor({
     <div className="space-y-4 rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] p-5">
       <div>
         <h2 className="text-lg font-semibold text-white">Generated Draft</h2>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-secondary">
           Review the generated policy, adjust the guided fields, and create it when it looks right.
         </p>
       </div>
 
       {draft.hasAdvancedDetails && (
-        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-sm text-yellow-300">
+        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-sm text-warning">
           Advanced config details need review before saving.
         </div>
       )}

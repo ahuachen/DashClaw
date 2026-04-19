@@ -276,7 +276,7 @@ export default function ApprovePage() {
   if (sessionStatus === 'loading') {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-zinc-500" size={24} aria-label="Loading" />
+        <Loader2 className="animate-spin text-tertiary" size={24} aria-label="Loading" />
       </div>
     );
   }
@@ -287,12 +287,12 @@ export default function ApprovePage() {
         <div className="max-w-xs text-center">
           <div className="mb-4 flex justify-center"><DashClawLogo size={40} /></div>
           <h1 className="mb-2 text-base font-semibold text-white">Sign in to approve actions</h1>
-          <p className="mb-6 text-sm text-zinc-400">
+          <p className="mb-6 text-sm text-secondary">
             Authentication is required to review and decide on pending agent actions.
           </p>
           <Link
             href="/login"
-            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-orange-500/30 bg-orange-500/10 px-4 text-sm font-semibold text-orange-400 transition-colors hover:border-orange-500/50 hover:bg-orange-500/20"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-active/30 bg-orange-500/10 px-4 text-sm font-semibold text-brand transition-colors hover:border-active/50 hover:bg-orange-500/20"
           >
             Go to login
           </Link>
@@ -342,33 +342,33 @@ export default function ApprovePage() {
       >
         {refreshing && (
           <div className="flex justify-center py-2" aria-hidden="true">
-            <Loader2 className="animate-spin text-zinc-500" size={16} />
+            <Loader2 className="animate-spin text-tertiary" size={16} />
           </div>
         )}
 
         {/* Status / count bar */}
         <div className="mb-4">
           {isDemo && (
-            <div className="mb-3 flex items-start gap-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-white/[0.02] p-3 text-xs text-zinc-400">
-              <Info size={14} className="mt-0.5 shrink-0 text-zinc-500" />
+            <div className="mb-3 flex items-start gap-2 rounded-lg border border-[rgba(255,255,255,0.08)] bg-white/[0.02] p-3 text-xs text-secondary">
+              <Info size={14} className="mt-0.5 shrink-0 text-tertiary" />
               <span>Demo mode — approvals are read-only. Self-host to decide for real agents.</span>
             </div>
           )}
           {!isDemo && !isAdmin && (
-            <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
-              <ShieldAlert size={14} className="mt-0.5 shrink-0 text-amber-400" />
+            <div className="mb-3 flex items-start gap-2 rounded-lg border border-warning/20 bg-warning-subtle p-3 text-xs text-amber-200">
+              <ShieldAlert size={14} className="mt-0.5 shrink-0 text-warning" />
               <span>Admin access required to approve actions.</span>
             </div>
           )}
           {loading ? (
-            <div className="text-sm text-zinc-500">Loading pending actions…</div>
+            <div className="text-sm text-tertiary">Loading pending actions…</div>
           ) : pendingCount === 0 ? (
-            <div className="flex items-center gap-2 text-sm text-emerald-400">
+            <div className="flex items-center gap-2 text-sm text-success">
               <CheckCircle2 size={16} />
               All clear — no actions pending
             </div>
           ) : (
-            <div className="text-sm text-zinc-400">
+            <div className="text-sm text-secondary">
               {pendingCount} {pendingCount === 1 ? 'action' : 'actions'} awaiting your decision
             </div>
           )}
@@ -383,16 +383,16 @@ export default function ApprovePage() {
           </div>
         ) : pendingCount === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <CheckCircle2 className="mb-4 text-emerald-400" size={48} aria-hidden="true" />
+            <CheckCircle2 className="mb-4 text-success" size={48} aria-hidden="true" />
             <h2 className="mb-1 text-base font-semibold text-white">All clear</h2>
-            <p className="text-sm text-zinc-400">No actions waiting for approval</p>
+            <p className="text-sm text-secondary">No actions waiting for approval</p>
           </div>
         ) : (
           <ul className="space-y-3">
             {actions.map((action) => {
               const risk = Number(action.risk_score) || 0;
               const riskColor =
-                risk >= 70 ? 'text-red-400' : risk >= 40 ? 'text-amber-400' : 'text-zinc-400';
+                risk >= 70 ? 'text-error' : risk >= 40 ? 'text-warning' : 'text-secondary';
               const isProcessing = processingId === action.action_id;
               const isRemoving = removingId === action.action_id;
               return (
@@ -407,7 +407,7 @@ export default function ApprovePage() {
                       <h3 className="text-base font-semibold text-white break-words">
                         {action.declared_goal || 'Untitled action'}
                       </h3>
-                      <p className="mt-0.5 truncate text-sm text-zinc-400">
+                      <p className="mt-0.5 truncate text-sm text-secondary">
                         {action.agent_name || action.agent_id || 'unknown agent'}
                       </p>
                     </div>
@@ -420,10 +420,10 @@ export default function ApprovePage() {
                   </div>
 
                   <div className="mt-3 flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-md border border-[rgba(255,255,255,0.08)] bg-white/[0.02] px-2 py-0.5 font-mono text-[11px] font-medium text-zinc-300">
+                    <span className="inline-flex items-center rounded-md border border-[rgba(255,255,255,0.08)] bg-white/[0.02] px-2 py-0.5 font-mono text-[11px] font-medium text-secondary">
                       {action.action_type || 'action'}
                     </span>
-                    <span className="tabular-nums text-[11px] text-zinc-500">
+                    <span className="tabular-nums text-[11px] text-tertiary">
                       {timeAgo(action.timestamp_start || action.created_at)}
                     </span>
                   </div>
@@ -431,16 +431,16 @@ export default function ApprovePage() {
                   {(action._matchedPolicy || action._guardReason || action.reasoning) && (
                     <div className="mt-3 rounded-lg border border-[rgba(255,255,255,0.06)] bg-white/[0.02] p-2.5">
                       {action._matchedPolicy && (
-                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                          <ShieldAlert size={10} className="text-orange-400" />
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-tertiary">
+                          <ShieldAlert size={10} className="text-brand" />
                           Triggered by
-                          <span className="ml-1 font-mono normal-case tracking-normal text-zinc-300">
+                          <span className="ml-1 font-mono normal-case tracking-normal text-secondary">
                             {action._matchedPolicy}
                           </span>
                         </div>
                       )}
                       {(action._guardReason || action.reasoning) && (
-                        <p className={`text-xs text-zinc-400 ${action._matchedPolicy ? 'mt-1' : ''}`}>
+                        <p className={`text-xs text-secondary ${action._matchedPolicy ? 'mt-1' : ''}`}>
                           {action._guardReason || action.reasoning}
                         </p>
                       )}
@@ -452,7 +452,7 @@ export default function ApprovePage() {
                       type="button"
                       onClick={() => handleDecision(action.action_id, 'allow')}
                       disabled={!canDecide || isProcessing || isRemoving}
-                      className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 text-sm font-semibold text-emerald-400 transition-colors hover:border-emerald-500/50 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-success/30 bg-success-subtle px-4 text-sm font-semibold text-success transition-colors hover:border-success/50 hover:bg-success-subtle disabled:cursor-not-allowed disabled:opacity-50"
                       aria-label={`Allow action ${action.action_id}`}
                     >
                       {isProcessing ? (
@@ -466,7 +466,7 @@ export default function ApprovePage() {
                       type="button"
                       onClick={() => handleDecision(action.action_id, 'deny')}
                       disabled={!canDecide || isProcessing || isRemoving}
-                      className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 text-sm font-semibold text-red-400 transition-colors hover:border-red-500/50 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg border border-error/30 bg-error-subtle px-4 text-sm font-semibold text-error transition-colors hover:border-error/50 hover:bg-error-subtle disabled:cursor-not-allowed disabled:opacity-50"
                       aria-label={`Deny action ${action.action_id}`}
                     >
                       {isProcessing ? (
@@ -487,7 +487,7 @@ export default function ApprovePage() {
       {/* Toast (error feedback) */}
       {toast && (
         <div
-          className="fixed inset-x-4 z-30 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center text-sm text-red-300"
+          className="fixed inset-x-4 z-30 rounded-lg border border-error/30 bg-error-subtle p-3 text-center text-sm text-error"
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
           role="alert"
         >

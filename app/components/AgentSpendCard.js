@@ -47,7 +47,7 @@ export default function AgentSpendCard({ agentId }) {
 
   return (
     <div className="space-y-3">
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-tertiary">
         Agent Spend (30d)
       </div>
 
@@ -58,7 +58,7 @@ export default function AgentSpendCard({ agentId }) {
         </div>
         <div
           className={`flex items-center gap-0.5 text-xs font-medium ${
-            isPositiveTrend ? 'text-emerald-400' : 'text-zinc-500'
+            isPositiveTrend ? 'text-success' : 'text-tertiary'
           }`}
         >
           {isPositiveTrend ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -88,7 +88,7 @@ export default function AgentSpendCard({ agentId }) {
         <div className="space-y-1 pt-1">
           {top3.map((a) => (
             <div key={a.agent_id} className="flex items-center justify-between text-xs">
-              <span className="truncate max-w-[120px] text-zinc-400">
+              <span className="truncate max-w-[120px] text-secondary">
                 {a.agent_name || a.agent_id}
               </span>
               <span className="font-mono text-white tabular-nums">{formatCost(a.cost_usd)}</span>
@@ -98,7 +98,7 @@ export default function AgentSpendCard({ agentId }) {
       )}
 
       {totalCost === 0 && (
-        <div className="text-xs text-zinc-600">No cost data yet</div>
+        <div className="text-xs text-disabled">No cost data yet</div>
       )}
     </div>
   );

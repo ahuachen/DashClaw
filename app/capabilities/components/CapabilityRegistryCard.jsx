@@ -86,14 +86,14 @@ export default function CapabilityRegistryCard({
                 {capability.name}
               </Link>
             </div>
-            <div className="mt-0.5 truncate font-mono text-xs text-zinc-500">{capability.slug}</div>
+            <div className="mt-0.5 truncate font-mono text-xs text-tertiary">{capability.slug}</div>
           </div>
 
           <Badge variant={riskVariant[capability.risk_level] || 'default'}>{capability.risk_level}</Badge>
         </div>
 
         {capability.description ? (
-          <div className="mb-3 line-clamp-2 text-xs text-zinc-400">{capability.description}</div>
+          <div className="mb-3 line-clamp-2 text-xs text-secondary">{capability.description}</div>
         ) : null}
 
         <div className="mb-3 flex flex-wrap items-center gap-1.5">
@@ -123,20 +123,20 @@ export default function CapabilityRegistryCard({
           <Badge size="xs">{capability.source_type}</Badge>
         </div>
 
-        <div className="mb-4 space-y-1.5 text-xs text-zinc-400">
+        <div className="mb-4 space-y-1.5 text-xs text-secondary">
           <div>
-            <span className="text-zinc-500">Last tested:</span>{' '}
+            <span className="text-tertiary">Last tested:</span>{' '}
             <span>{formatRelativeDate(capability.last_tested_at)}</span>
           </div>
           <div>
-            <span className="text-zinc-500">Recent failures:</span>{' '}
+            <span className="text-tertiary">Recent failures:</span>{' '}
             <span>{capability.recent_failure_count ?? capability.failed_invocations ?? 0}</span>
           </div>
           {!canRunTest ? (
-            <div className="text-zinc-500">Metadata-only entry. Use detail view for registry facts.</div>
+            <div className="text-tertiary">Metadata-only entry. Use detail view for registry facts.</div>
           ) : null}
           {recentError ? (
-            <div className="flex items-center gap-1 text-amber-300">
+            <div className="flex items-center gap-1 text-warning">
               <AlertTriangle size={12} />
               <span className="truncate">{recentError}</span>
             </div>
@@ -148,7 +148,7 @@ export default function CapabilityRegistryCard({
             {capability.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="rounded border border-border bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                className="rounded border border-border bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-secondary"
               >
                 {tag}
               </span>
@@ -166,14 +166,14 @@ export default function CapabilityRegistryCard({
             </Link>
             <Link
               href={`/capabilities/${capability.capability_id}/edit`}
-              className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+              className="inline-flex items-center gap-1 text-xs text-secondary hover:text-white"
               aria-label={`Edit ${capability.name}`}
             >
               <Pencil size={11} /> Edit
             </Link>
             {confirmDelete ? (
               <span className="inline-flex items-center gap-1.5 text-xs">
-                <span className="text-red-400">Delete?</span>
+                <span className="text-error">Delete?</span>
                 <button
                   onClick={async () => {
                     setDeleting(true);
@@ -182,13 +182,13 @@ export default function CapabilityRegistryCard({
                     setConfirmDelete(false);
                   }}
                   disabled={deleting}
-                  className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                  className="text-error hover:text-error disabled:opacity-50"
                 >
                   {deleting ? 'Deleting…' : 'Yes'}
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
-                  className="text-zinc-400 hover:text-white"
+                  className="text-secondary hover:text-white"
                 >
                   No
                 </button>
@@ -196,7 +196,7 @@ export default function CapabilityRegistryCard({
             ) : (
               <button
                 onClick={() => setConfirmDelete(true)}
-                className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-red-400"
+                className="inline-flex items-center gap-1 text-xs text-secondary hover:text-error"
                 aria-label={`Delete ${capability.name}`}
               >
                 <Trash2 size={11} /> Delete
@@ -208,7 +208,7 @@ export default function CapabilityRegistryCard({
               onClick={() => onRunTest(capability)}
               disabled={testStatus?.submitting}
               aria-label={`Run test ${capability.name}`}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
             >
               <FlaskConical size={12} />
               {testStatus?.submitting ? 'Running…' : 'Run test'}
@@ -217,7 +217,7 @@ export default function CapabilityRegistryCard({
         </div>
 
         {testStatus?.message ? (
-          <div className={`mt-3 text-xs ${testStatus.error ? 'text-red-400' : 'text-emerald-400'}`}>
+          <div className={`mt-3 text-xs ${testStatus.error ? 'text-error' : 'text-success'}`}>
             {testStatus.message}
           </div>
         ) : null}

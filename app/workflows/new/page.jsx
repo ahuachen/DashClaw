@@ -141,7 +141,7 @@ export default function NewWorkflowTemplatePage() {
           </button>
           <Link
             href="/workflows"
-            className="flex items-center gap-2 px-3 py-1.5 text-sm text-zinc-400 hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg transition-colors"
           >
             <ArrowLeft size={14} /> Back
           </Link>
@@ -149,7 +149,7 @@ export default function NewWorkflowTemplatePage() {
       )}
     >
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
-        <div className="rounded-xl border border-orange-500/20 bg-orange-500/10 p-4">
+        <div className="rounded-xl border border-active/20 bg-orange-500/10 p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-sm font-medium text-orange-100">Prefer to describe the workflow instead?</div>
@@ -177,7 +177,7 @@ export default function NewWorkflowTemplatePage() {
         )}
 
         {draftNotes.length > 0 && (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+          <div className="rounded-lg border border-warning/20 bg-warning-subtle px-4 py-3 text-sm text-warning">
             <div className="font-medium text-amber-200 mb-1">Draft review notes</div>
             <ul className="space-y-1">
               {draftNotes.map((note) => (
@@ -190,8 +190,8 @@ export default function NewWorkflowTemplatePage() {
         <Card>
           <CardContent className="p-5 space-y-4">
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
-                Name <span className="text-red-400">*</span>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
+                Name <span className="text-error">*</span>
               </label>
               <input
                 type="text"
@@ -205,8 +205,8 @@ export default function NewWorkflowTemplatePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
-                Slug <span className="text-zinc-600">(auto-generated if blank)</span>
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
+                Slug <span className="text-disabled">(auto-generated if blank)</span>
               </label>
               <input
                 type="text"
@@ -218,7 +218,7 @@ export default function NewWorkflowTemplatePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
                 Description
               </label>
               <textarea
@@ -231,7 +231,7 @@ export default function NewWorkflowTemplatePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
                 Objective
               </label>
               <textarea
@@ -244,7 +244,7 @@ export default function NewWorkflowTemplatePage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
                 Status
               </label>
               <select
@@ -268,13 +268,13 @@ export default function NewWorkflowTemplatePage() {
 
         <Card>
           <div className="px-5 pt-5 pb-3">
-            <span className="text-sm font-medium text-zinc-200 uppercase tracking-wider">Steps</span>
-            <span className="text-xs text-zinc-500 ml-2">Build a real ordered sequence of executable workflow steps.</span>
+            <span className="text-sm font-medium text-secondary uppercase tracking-wider">Steps</span>
+            <span className="text-xs text-tertiary ml-2">Build a real ordered sequence of executable workflow steps.</span>
           </div>
           <CardContent className="p-5 pt-0">
             <div className="space-y-4">
               {resourceError && (
-                <div className="px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-300">
+                <div className="px-4 py-3 rounded-lg bg-warning-subtle border border-warning/20 text-sm text-warning">
                   Some workflow resources could not be loaded. You can still author the workflow, but some selectors may be incomplete.
                 </div>
               )}
@@ -289,7 +289,7 @@ export default function NewWorkflowTemplatePage() {
         </Card>
 
         {error && (
-          <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          <div className="px-4 py-3 rounded-lg bg-error-subtle border border-error/20 text-sm text-error">
             {error}
           </div>
         )}
@@ -305,7 +305,7 @@ export default function NewWorkflowTemplatePage() {
           </button>
           <Link
             href="/workflows"
-            className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-secondary hover:text-white transition-colors"
           >
             Cancel
           </Link>

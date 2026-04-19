@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { FileJson, Package, ChevronDown, ChevronRight } from 'lucide-react';
 
 const TYPE_PILL = {
-  json: 'bg-blue-400/10 text-blue-400 border-blue-400/20',
+  json: 'bg-blue-400/10 text-info border-blue-400/20',
   evidence_bundle: 'bg-purple-400/10 text-purple-400 border-purple-400/20',
-  report: 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20',
-  file: 'bg-zinc-400/10 text-zinc-400 border-zinc-400/20',
-  transcript: 'bg-amber-400/10 text-amber-400 border-amber-400/20',
-  patch: 'bg-orange-400/10 text-orange-400 border-orange-400/20',
+  report: 'bg-emerald-400/10 text-success border-success/20',
+  file: 'bg-zinc-400/10 text-secondary border-zinc-400/20',
+  transcript: 'bg-amber-400/10 text-warning border-warning/20',
+  patch: 'bg-orange-400/10 text-brand border-active/20',
 };
 
 function ArtifactRow({ artifact }) {
@@ -22,23 +22,23 @@ function ArtifactRow({ artifact }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
-        <FileJson className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-        <span className="text-sm text-zinc-200 flex-1">{artifact.name}</span>
+        <FileJson className="w-4 h-4 text-tertiary flex-shrink-0" />
+        <span className="text-sm text-secondary flex-1">{artifact.name}</span>
         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${pill}`}>
           {artifact.artifact_type}
         </span>
-        <span className="text-[10px] text-zinc-600">
+        <span className="text-[10px] text-disabled">
           {artifact.created_at ? new Date(artifact.created_at).toLocaleString() : ''}
         </span>
         {expanded ? (
-          <ChevronDown className="w-3 h-3 text-zinc-500" />
+          <ChevronDown className="w-3 h-3 text-tertiary" />
         ) : (
-          <ChevronRight className="w-3 h-3 text-zinc-500" />
+          <ChevronRight className="w-3 h-3 text-tertiary" />
         )}
       </button>
       {expanded && artifact.content && (
         <div className="px-4 pb-4 border-t border-[rgba(255,255,255,0.04)]">
-          <pre className="text-xs text-zinc-400 bg-black/30 rounded p-2 overflow-auto max-h-48 mt-3">
+          <pre className="text-xs text-secondary bg-black/30 rounded p-2 overflow-auto max-h-48 mt-3">
             {JSON.stringify(artifact.content, null, 2)}
           </pre>
         </div>
@@ -93,13 +93,13 @@ export default function ArtifactsTab({ actionId }) {
   }
 
   if (loading) {
-    return <div className="text-sm text-zinc-500 py-4">Loading artifacts...</div>;
+    return <div className="text-sm text-tertiary py-4">Loading artifacts...</div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-tertiary">
           {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}
         </span>
         <button
@@ -113,7 +113,7 @@ export default function ArtifactsTab({ actionId }) {
       </div>
 
       {artifacts.length === 0 ? (
-        <div className="text-sm text-zinc-500 py-8 text-center">
+        <div className="text-sm text-tertiary py-8 text-center">
           No artifacts linked to this action yet.
         </div>
       ) : (

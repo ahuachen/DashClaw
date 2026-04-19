@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '../../../components/ui/Card';
 function FactRow({ label, value }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-zinc-500">{label}</span>
+      <span className="text-tertiary">{label}</span>
       <span className="text-white text-right">{value}</span>
     </div>
   );

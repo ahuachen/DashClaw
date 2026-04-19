@@ -63,7 +63,7 @@ export default function DocsSidebarClient({ items }) {
             />
             <div className="w-7 h-4 bg-border-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand/60 peer-checked:after:bg-white"></div>
           </div>
-          <span className="text-[11px] font-medium text-text-tertiary group-hover:text-zinc-300 transition-colors flex items-center gap-1.5">
+          <span className="text-[11px] font-medium text-text-tertiary group-hover:text-secondary transition-colors flex items-center gap-1.5">
             <History size={12} />
             Show Legacy (v1)
           </span>

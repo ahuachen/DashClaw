@@ -3,7 +3,7 @@ const REGISTRY_SOURCE_TYPES = ['internal_sdk', 'webhook', 'human_approval', 'ext
 
 function Label({ htmlFor, children }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+    <label htmlFor={htmlFor} className="block text-xs font-medium text-secondary uppercase tracking-wider mb-1.5">
       {children}
     </label>
   );
@@ -13,7 +13,7 @@ export default function CapabilityBasicsSection({ form, mode, onChange }) {
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="capability-name">Name <span className="text-red-400">*</span></Label>
+        <Label htmlFor="capability-name">Name <span className="text-error">*</span></Label>
         <input
           id="capability-name"
           aria-label="Name"
@@ -78,7 +78,7 @@ export default function CapabilityBasicsSection({ form, mode, onChange }) {
               type="text"
               value="http_api"
               disabled
-              className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-zinc-400"
+              className="w-full px-3 py-2 bg-surface-tertiary border border-white/10 rounded-lg text-sm text-secondary"
             />
           ) : (
             <select
@@ -140,7 +140,7 @@ export default function CapabilityBasicsSection({ form, mode, onChange }) {
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+      <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
         <input
           aria-label="Requires approval"
           type="checkbox"

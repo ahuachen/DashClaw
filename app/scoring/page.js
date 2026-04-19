@@ -197,17 +197,17 @@ export default function ScoringPage() {
   // --- Score color helper ---------------------------------
 
   const scoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-400';
-    if (score >= 60) return 'text-amber-400';
-    if (score >= 40) return 'text-orange-400';
-    return 'text-red-400';
+    if (score >= 80) return 'text-success';
+    if (score >= 60) return 'text-warning';
+    if (score >= 40) return 'text-brand';
+    return 'text-error';
   };
 
   const scoreBg = (score) => {
-    if (score >= 80) return 'bg-emerald-500/20';
+    if (score >= 80) return 'bg-success-subtle';
     if (score >= 60) return 'bg-yellow-500/20';
     if (score >= 40) return 'bg-orange-500/20';
-    return 'bg-red-500/20';
+    return 'bg-error-subtle';
   };
 
   // --- Render ---------------------------------------------
@@ -223,7 +223,7 @@ export default function ScoringPage() {
         {TABS.map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === tab ? 'bg-[#222] text-white' : 'text-zinc-500 hover:text-zinc-300'
+              activeTab === tab ? 'bg-[#222] text-white' : 'text-tertiary hover:text-secondary'
             }`}>{tab}</button>
         ))}
       </div>
@@ -259,7 +259,7 @@ export default function ScoringPage() {
                 </select>
               </div>
 
-              <h4 className="text-sm font-medium text-zinc-300 mt-2">Dimensions</h4>
+              <h4 className="text-sm font-medium text-secondary mt-2">Dimensions</h4>
               {newProfile.dimensions.map((dim, i) => (
                 <div key={i} className="grid grid-cols-3 gap-2 items-center">
                   <input value={dim.name} onChange={e => {
@@ -275,18 +275,18 @@ export default function ScoringPage() {
                     {DATA_SOURCES.map(ds => <option key={ds.value} value={ds.value}>{ds.label}</option>)}
                   </select>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs text-zinc-500">Weight:</label>
+                    <label className="text-xs text-tertiary">Weight:</label>
                     <input type="range" min="0" max="1" step="0.05" value={dim.weight}
                       onChange={e => {
                         const dims = [...newProfile.dimensions];
                         dims[i] = { ...dims[i], weight: parseFloat(e.target.value) };
                         setNewProfile(p => ({ ...p, dimensions: dims }));
                       }} className="flex-1" />
-                    <span className="text-xs text-zinc-400 w-8">{dim.weight}</span>
+                    <span className="text-xs text-secondary w-8">{dim.weight}</span>
                     <button onClick={() => {
                       const dims = newProfile.dimensions.filter((_, j) => j !== i);
                       setNewProfile(p => ({ ...p, dimensions: dims }));
-                    }} className="text-red-400 text-xs hover:text-red-300">x</button>
+                    }} className="text-error text-xs hover:text-error">x</button>
                   </div>
                 </div>
               ))}
@@ -294,7 +294,7 @@ export default function ScoringPage() {
                 ...p, dimensions: [...p.dimensions, { name: '', data_source: 'duration_ms', weight: 0.25, scale: [], data_config: {} }],
               }))} className="text-sm text-brand hover:text-brand/80">+ Add dimension</button>
 
-              <p className="text-xs text-zinc-500 mt-2">
+              <p className="text-xs text-tertiary mt-2">
                 Tip: Use Auto-Calibrate tab to generate scales from your real data, then copy them here.
               </p>
 
@@ -315,7 +315,7 @@ export default function ScoringPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium text-white">{profile.name}</h3>
-                    {profile.description && <p className="text-sm text-zinc-500 mt-1">{profile.description}</p>}
+                    {profile.description && <p className="text-sm text-tertiary mt-1">{profile.description}</p>}
                     <div className="flex gap-2 mt-2">
                       {profile.action_type && <Badge color="blue">{profile.action_type}</Badge>}
                       <Badge color="zinc">{profile.composite_method?.replace(/_/g, ' ')}</Badge>
@@ -326,7 +326,7 @@ export default function ScoringPage() {
                     <button onClick={() => { setSelectedProfile(profile); fetchScores(profile.id); setActiveTab('Score Explorer'); }}
                       className="text-xs text-brand hover:text-brand/80">View Scores</button>
                     <button onClick={() => handleArchiveProfile(profile.id)}
-                      className="text-xs text-zinc-500 hover:text-red-400">Archive</button>
+                      className="text-xs text-tertiary hover:text-error">Archive</button>
                   </div>
                 </div>
 
@@ -336,8 +336,8 @@ export default function ScoringPage() {
                     {profile.dimensions.map(dim => (
                       <div key={dim.id} className="p-2 rounded bg-[#111] border border-[rgba(255,255,255,0.04)]">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-zinc-300">{dim.name}</span>
-                          <span className="text-xs text-zinc-600">{Math.round(dim.weight * 100)}%</span>
+                          <span className="text-xs font-medium text-secondary">{dim.name}</span>
+                          <span className="text-xs text-disabled">{Math.round(dim.weight * 100)}%</span>
                         </div>
                         <div className="w-full bg-[#222] rounded-full h-1 mt-1">
                           <div className="bg-brand h-1 rounded-full" style={{ width: `${dim.weight * 100}%` }} />
@@ -364,8 +364,8 @@ export default function ScoringPage() {
               <Card key={score.id} className="p-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <span className="text-sm text-zinc-400">{score.profile_name || score.profile_id}</span>
-                    {score.action_id && <span className="text-xs text-zinc-600 ml-2">{score.action_id}</span>}
+                    <span className="text-sm text-secondary">{score.profile_name || score.profile_id}</span>
+                    {score.action_id && <span className="text-xs text-disabled ml-2">{score.action_id}</span>}
                   </div>
                   <div className={`text-2xl font-bold ${scoreColor(score.composite_score)}`}>
                     {score.composite_score}
@@ -376,7 +376,7 @@ export default function ScoringPage() {
                   <div className="mt-2 space-y-1">
                     {score.dimension_scores.map((ds, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
-                        <span className="text-zinc-500 w-24 truncate">{ds.dimension_name}</span>
+                        <span className="text-tertiary w-24 truncate">{ds.dimension_name}</span>
                         <div className="flex-1 bg-[#111] rounded-full h-2">
                           <div className={`h-2 rounded-full ${scoreBg(ds.score || 0)}`}
                             style={{ width: `${ds.score || 0}%` }} />
@@ -399,13 +399,13 @@ export default function ScoringPage() {
       {activeTab === 'Risk Templates' && (
         <div>
           <h2 className="text-lg font-semibold mb-4">Risk Templates</h2>
-          <p className="text-sm text-zinc-400 mb-4">
+          <p className="text-sm text-secondary mb-4">
             Define rules for automatic risk scoring. Instead of agents hardcoding a number,
             DashClaw computes risk based on action properties matching your rules.
           </p>
 
           <Card className="mb-6 p-4 space-y-3">
-            <h3 className="text-sm font-medium text-zinc-300">Create Risk Template</h3>
+            <h3 className="text-sm font-medium text-secondary">Create Risk Template</h3>
             <input value={newTemplate.name} onChange={e => setNewTemplate(t => ({ ...t, name: e.target.value }))}
               placeholder="Template name (e.g. 'Production Safety')"
               className="w-full px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
@@ -414,14 +414,14 @@ export default function ScoringPage() {
                 placeholder="Action type (optional)"
                 className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <div className="flex items-center gap-2">
-                <label className="text-xs text-zinc-500">Base risk:</label>
+                <label className="text-xs text-tertiary">Base risk:</label>
                 <input type="number" min="0" max="100" value={newTemplate.base_risk}
                   onChange={e => setNewTemplate(t => ({ ...t, base_risk: parseInt(e.target.value) || 0 }))}
                   className="w-20 px-2 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               </div>
             </div>
 
-            <h4 className="text-xs font-medium text-zinc-400 mt-2">Rules (condition -&gt; add risk)</h4>
+            <h4 className="text-xs font-medium text-secondary mt-2">Rules (condition -&gt; add risk)</h4>
             {newTemplate.rules.map((rule, i) => (
               <div key={i} className="flex gap-2 items-center">
                 <input value={rule.condition} onChange={e => {
@@ -430,14 +430,14 @@ export default function ScoringPage() {
                   setNewTemplate(t => ({ ...t, rules }));
                 }} placeholder="e.g. metadata.environment == 'production'"
                   className="flex-1 px-2 py-1.5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] rounded text-sm text-white font-mono" />
-                <span className="text-xs text-zinc-500">+</span>
+                <span className="text-xs text-tertiary">+</span>
                 <input type="number" value={rule.add} onChange={e => {
                   const rules = [...newTemplate.rules];
                   rules[i] = { ...rules[i], add: parseInt(e.target.value) || 0 };
                   setNewTemplate(t => ({ ...t, rules }));
                 }} className="w-16 px-2 py-1.5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] rounded text-sm text-white text-center" />
                 <button onClick={() => setNewTemplate(t => ({ ...t, rules: t.rules.filter((_, j) => j !== i) }))}
-                  className="text-red-400 text-xs hover:text-red-300">x</button>
+                  className="text-error text-xs hover:text-error">x</button>
               </div>
             ))}
             <button onClick={() => setNewTemplate(t => ({ ...t, rules: [...t.rules, { condition: '', add: 10 }] }))}
@@ -464,13 +464,13 @@ export default function ScoringPage() {
                     </div>
                   </div>
                   <button onClick={() => handleDeleteTemplate(tmpl.id)}
-                    className="text-xs text-zinc-500 hover:text-red-400">Delete</button>
+                    className="text-xs text-tertiary hover:text-error">Delete</button>
                 </div>
                 {tmpl.rules && tmpl.rules.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {tmpl.rules.map((rule, i) => (
-                      <div key={i} className="text-xs text-zinc-500 font-mono">
-                        if <span className="text-zinc-300">{rule.condition}</span> -&gt; <span className="text-orange-400">+{rule.add}</span>
+                      <div key={i} className="text-xs text-tertiary font-mono">
+                        if <span className="text-secondary">{rule.condition}</span> -&gt; <span className="text-brand">+{rule.add}</span>
                       </div>
                     ))}
                   </div>
@@ -485,7 +485,7 @@ export default function ScoringPage() {
       {activeTab === 'Calibrate' && (
         <div>
           <h2 className="text-lg font-semibold mb-2">Auto-Calibration</h2>
-          <p className="text-sm text-zinc-400 mb-4">
+          <p className="text-sm text-secondary mb-4">
             Analyze your historical action data to generate suggested scoring scales.
             Based on percentile analysis of your real data  --  no LLM involved.
           </p>
@@ -497,11 +497,11 @@ export default function ScoringPage() {
                 placeholder="Action type (optional, blank = all)"
                 className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <div className="flex items-center gap-2">
-                <label className="text-xs text-zinc-500">Lookback:</label>
+                <label className="text-xs text-tertiary">Lookback:</label>
                 <input type="number" value={calibrateForm.lookback_days}
                   onChange={e => setCalibrateForm(f => ({ ...f, lookback_days: parseInt(e.target.value) || 30 }))}
                   className="w-20 px-2 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
-                <span className="text-xs text-zinc-500">days</span>
+                <span className="text-xs text-tertiary">days</span>
               </div>
             </div>
             <button onClick={handleCalibrate}
@@ -512,13 +512,13 @@ export default function ScoringPage() {
 
           {calibration && calibration.status === 'insufficient_data' && (
             <Card className="p-4">
-              <p className="text-sm text-amber-400">{calibration.message}</p>
+              <p className="text-sm text-warning">{calibration.message}</p>
             </Card>
           )}
 
           {calibration && calibration.status === 'ok' && (
             <div className="space-y-4">
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-secondary">
                 Analyzed <span className="text-white font-medium">{calibration.count}</span> actions
                 over the last {calibration.lookback_days} days
                 {calibration.action_type !== '(all)' && ` for type "${calibration.action_type}"`}.
@@ -529,7 +529,7 @@ export default function ScoringPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-sm font-medium text-white">{s.metric.replace(/_/g, ' ')}</h3>
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <p className="text-xs text-tertiary mt-1">
                         {s.sample_size} data points * {s.lower_is_better ? 'Lower is better' : 'Higher is better'}
                       </p>
                     </div>
@@ -539,42 +539,42 @@ export default function ScoringPage() {
 
                   {/* Distribution visualization */}
                   <div className="mt-3 flex items-center gap-1 text-xs">
-                    <span className="text-zinc-600 w-16">min: {s.distribution.min}</span>
+                    <span className="text-disabled w-16">min: {s.distribution.min}</span>
                     <div className="flex-1 h-6 bg-[#111] rounded relative overflow-hidden">
-                      <div className="absolute inset-y-0 bg-red-500/20" style={{
+                      <div className="absolute inset-y-0 bg-error-subtle" style={{
                         left: '0%', width: `${((s.distribution.p25 - s.distribution.min) / (s.distribution.max - s.distribution.min)) * 100}%`
                       }} />
                       <div className="absolute inset-y-0 bg-yellow-500/20" style={{
                         left: `${((s.distribution.p25 - s.distribution.min) / (s.distribution.max - s.distribution.min)) * 100}%`,
                         width: `${((s.distribution.p75 - s.distribution.p25) / (s.distribution.max - s.distribution.min)) * 100}%`
                       }} />
-                      <div className="absolute inset-y-0 bg-emerald-500/20" style={{
+                      <div className="absolute inset-y-0 bg-success-subtle" style={{
                         left: `${((s.distribution.p75 - s.distribution.min) / (s.distribution.max - s.distribution.min)) * 100}%`,
                         width: `${((s.distribution.max - s.distribution.p75) / (s.distribution.max - s.distribution.min)) * 100}%`
                       }} />
                     </div>
-                    <span className="text-zinc-600 w-16 text-right">max: {s.distribution.max}</span>
+                    <span className="text-disabled w-16 text-right">max: {s.distribution.max}</span>
                   </div>
 
                   {/* Suggested scale */}
                   <div className="mt-2 grid grid-cols-4 gap-2">
                     {s.suggested_scale.map((rule, j) => (
                       <div key={j} className={`p-2 rounded text-center ${
-                        rule.label === 'excellent' ? 'bg-emerald-500/10 text-emerald-400' :
-                        rule.label === 'good' ? 'bg-blue-500/10 text-blue-400' :
-                        rule.label === 'acceptable' ? 'bg-yellow-500/10 text-amber-400' :
-                        'bg-red-500/10 text-red-400'
+                        rule.label === 'excellent' ? 'bg-success-subtle text-success' :
+                        rule.label === 'good' ? 'bg-info-subtle text-info' :
+                        rule.label === 'acceptable' ? 'bg-yellow-500/10 text-warning' :
+                        'bg-error-subtle text-error'
                       }`}>
                         <div className="text-xs font-medium">{rule.label}</div>
                         <div className="text-xs mt-0.5">{rule.operator} {
                           Array.isArray(rule.value) ? rule.value.join('-') : rule.value
                         }</div>
-                        <div className="text-xs text-zinc-500">score: {rule.score}</div>
+                        <div className="text-xs text-tertiary">score: {rule.score}</div>
                       </div>
                     ))}
                   </div>
 
-                  <p className="text-xs text-zinc-600 mt-2">
+                  <p className="text-xs text-disabled mt-2">
                     Suggested weight: {s.suggested_weight}
                   </p>
                 </Card>

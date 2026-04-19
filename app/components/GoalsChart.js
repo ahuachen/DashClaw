@@ -82,8 +82,8 @@ export default function GoalsChart() {
         <div className="bg-surface-tertiary rounded-lg px-3 py-2.5 mb-4">
           <div className="grid grid-cols-4 gap-2">
             <StatCompact label="Total" value={totalGoals} />
-            <StatCompact label="Active" value={stats.active || 0} color="text-blue-400" />
-            <StatCompact label="Done" value={stats.completed || 0} color="text-emerald-400" />
+            <StatCompact label="Active" value={stats.active || 0} color="text-info" />
+            <StatCompact label="Done" value={stats.completed || 0} color="text-success" />
             <StatCompact label="Avg %" value={`${stats.avgProgress || 0}%`} color="text-brand" />
           </div>
         </div>
@@ -93,10 +93,10 @@ export default function GoalsChart() {
           {topGoals.map((goal) => (
             <div key={goal.id || goal.title} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-300 truncate mr-2">
+                <span className="text-sm text-secondary truncate mr-2">
                   {goal.title || 'Goal'}
                 </span>
-                <span className="text-xs text-zinc-500 tabular-nums flex-shrink-0">
+                <span className="text-xs text-tertiary tabular-nums flex-shrink-0">
                   {goal.progress || 0}%
                 </span>
               </div>

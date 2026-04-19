@@ -1,9 +1,9 @@
 const variants = {
-  default: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-  success: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  warning: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  error: 'bg-red-500/10 text-red-400 border-red-500/20',
-  info: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  default: 'bg-zinc-500/10 text-secondary border-zinc-500/20',
+  success: 'bg-success-subtle text-success border-success/20',
+  warning: 'bg-warning-subtle text-warning border-warning/20',
+  error: 'bg-error-subtle text-error border-error/20',
+  info: 'bg-info-subtle text-info border-blue-500/20',
   brand: 'bg-brand/10 text-brand border-brand/20',
 };
 

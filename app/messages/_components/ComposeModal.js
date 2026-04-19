@@ -139,18 +139,18 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
       <div className="bg-surface-secondary border border-[rgba(255,255,255,0.06)] rounded-lg w-full max-w-lg mx-4 p-5" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-white">Compose Message</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300">
+          <button onClick={onClose} className="text-tertiary hover:text-secondary">
             <X size={16} />
           </button>
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">To</label>
+            <label className="text-xs text-tertiary mb-1 block">To</label>
             <select
               value={to}
               onChange={e => setTo(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-zinc-200"
+              className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-secondary"
             >
               <option value="">All Agents (Broadcast)</option>
               {agents.map(a => (
@@ -160,11 +160,11 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-xs text-zinc-500 mb-1 block">Type</label>
+              <label className="text-xs text-tertiary mb-1 block">Type</label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-zinc-200"
+                className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-secondary"
               >
                 <option value="info">Info</option>
                 <option value="action">Action</option>
@@ -174,7 +174,7 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
               </select>
             </div>
             <div className="flex items-end">
-              <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-secondary cursor-pointer">
                 <input
                   type="checkbox"
                   checked={urgent}
@@ -186,14 +186,14 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
             </div>
           </div>
           <div>
-            <label className="text-xs text-zinc-500 mb-1 block">Subject</label>
+            <label className="text-xs text-tertiary mb-1 block">Subject</label>
             <input
               type="text"
               value={subject}
               onChange={e => setSubject(e.target.value)}
               placeholder="Optional subject"
               maxLength={200}
-              className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-zinc-200 placeholder:text-zinc-600"
+              className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-secondary placeholder:text-disabled"
             />
           </div>
           <div
@@ -201,14 +201,14 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <label className="text-xs text-zinc-500 mb-1 block">Body</label>
+            <label className="text-xs text-tertiary mb-1 block">Body</label>
             <textarea
               value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="Message body... (drag & drop files here)"
               maxLength={2000}
               rows={5}
-              className={`w-full px-3 py-2 text-sm bg-surface-primary border rounded-md text-zinc-200 placeholder:text-zinc-600 resize-none transition-colors ${
+              className={`w-full px-3 py-2 text-sm bg-surface-primary border rounded-md text-secondary placeholder:text-disabled resize-none transition-colors ${
                 dragging ? 'border-brand bg-brand/5' : 'border-[rgba(255,255,255,0.06)]'
               }`}
             />
@@ -218,7 +218,7 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={attachments.length >= MAX_FILES}
-                  className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200 disabled:opacity-40 transition-colors"
+                  className="flex items-center gap-1 text-xs text-secondary hover:text-secondary disabled:opacity-40 transition-colors"
                 >
                   <Paperclip size={12} /> Attach file
                 </button>
@@ -231,7 +231,7 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
                   onChange={e => { if (e.target.files.length) addFiles(e.target.files); e.target.value = ''; }}
                 />
               </div>
-              <span className="text-xs text-zinc-600">{body.length}/2000</span>
+              <span className="text-xs text-disabled">{body.length}/2000</span>
             </div>
           </div>
 
@@ -239,11 +239,11 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
           {attachments.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {attachments.map((att, idx) => (
-                <span key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] text-xs text-zinc-300">
-                  <Paperclip size={10} className="text-zinc-400" />
+                <span key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] text-xs text-secondary">
+                  <Paperclip size={10} className="text-secondary" />
                   <span className="truncate max-w-[100px]">{att.filename}</span>
-                  <span className="text-zinc-500">{formatSize(att.size)}</span>
-                  <button onClick={() => removeAttachment(idx)} className="text-zinc-500 hover:text-red-400 ml-0.5">
+                  <span className="text-tertiary">{formatSize(att.size)}</span>
+                  <button onClick={() => removeAttachment(idx)} className="text-tertiary hover:text-error ml-0.5">
                     <X size={10} />
                   </button>
                 </span>
@@ -252,16 +252,16 @@ export default function ComposeModal({ show, onClose, agents, threads, filterAge
           )}
 
           {attachError && (
-            <div className="text-xs text-red-400">{attachError}</div>
+            <div className="text-xs text-error">{attachError}</div>
           )}
 
           {openThreads.length > 0 && (
             <div>
-              <label className="text-xs text-zinc-500 mb-1 block">Thread (optional)</label>
+              <label className="text-xs text-tertiary mb-1 block">Thread (optional)</label>
               <select
                 value={threadId}
                 onChange={e => setThreadId(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-zinc-200"
+                className="w-full px-3 py-2 text-sm bg-surface-primary border border-[rgba(255,255,255,0.06)] rounded-md text-secondary"
               >
                 <option value="">None</option>
                 {openThreads.map(t => (

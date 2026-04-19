@@ -147,13 +147,13 @@ export default function PolicyGeneratePage() {
     <div className="mx-auto max-w-5xl p-6">
       <div className="mb-6">
         <h1 className="mb-2 text-2xl font-bold text-white">AI Policy Generator</h1>
-        <p className="text-zinc-400">
+        <p className="text-secondary">
           Describe what you want DashClaw to prevent or enforce, then review the generated draft in the guided policy editor before saving it.
         </p>
       </div>
 
       {success && (
-        <div className="mb-4 rounded border border-green-700 bg-green-900/30 p-3 text-green-300">
+        <div className="mb-4 rounded border border-green-700 bg-green-900/30 p-3 text-success">
           {success}{' '}
           <a href="/policies" className="text-green-200 underline hover:text-white">
             View policies
@@ -162,7 +162,7 @@ export default function PolicyGeneratePage() {
       )}
 
       {error && (
-        <div className="mb-4 rounded border border-red-700 bg-red-900/30 p-3 text-red-300">
+        <div className="mb-4 rounded border border-red-700 bg-red-900/30 p-3 text-error">
           {error}
         </div>
       )}
@@ -175,9 +175,9 @@ export default function PolicyGeneratePage() {
           placeholder="Paste your company policy, Slack message, or compliance requirement..."
           rows={6}
           maxLength={5000}
-          className="w-full resize-y rounded-lg border border-zinc-700 bg-zinc-800 p-3 text-white outline-none placeholder-zinc-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+          className="w-full resize-y rounded-lg border border-zinc-700 bg-tertiary p-3 text-white outline-none placeholder-zinc-500 focus:border-active focus:ring-1 focus:ring-orange-500"
         />
-        <div className="mt-1 text-right text-xs text-zinc-500">
+        <div className="mt-1 text-right text-xs text-tertiary">
           {inputText.length}/5000
         </div>
         <button
@@ -191,7 +191,7 @@ export default function PolicyGeneratePage() {
       </div>
 
       {warnings.length > 0 && (
-        <div className="mb-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
+        <div className="mb-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-warning">
           {warnings.length === 1 ? warnings[0] : `${warnings.length} generation warnings were returned.`}
         </div>
       )}

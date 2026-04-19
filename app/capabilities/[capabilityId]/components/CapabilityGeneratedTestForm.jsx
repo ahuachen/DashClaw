@@ -24,7 +24,7 @@ export default function CapabilityGeneratedTestForm({
 
         if (field.type === 'boolean') {
           return (
-            <label key={field.key} htmlFor={inputId} className="flex items-center gap-2 text-sm text-zinc-300">
+            <label key={field.key} htmlFor={inputId} className="flex items-center gap-2 text-sm text-secondary">
               <input
                 id={inputId}
                 aria-label={field.label}
@@ -38,10 +38,10 @@ export default function CapabilityGeneratedTestForm({
         }
 
         return (
-          <label key={field.key} htmlFor={inputId} className="flex flex-col gap-1 text-sm text-zinc-400">
+          <label key={field.key} htmlFor={inputId} className="flex flex-col gap-1 text-sm text-secondary">
             <span>
               {field.label}
-              {field.required ? <span className="text-red-400"> *</span> : null}
+              {field.required ? <span className="text-error"> *</span> : null}
             </span>
             <input
               id={inputId}
@@ -52,7 +52,7 @@ export default function CapabilityGeneratedTestForm({
               className="rounded-lg border border-white/10 bg-surface-tertiary px-3 py-2 text-sm text-white"
             />
             {field.helpText ? (
-              <span className="text-xs text-zinc-500">{field.helpText}</span>
+              <span className="text-xs text-tertiary">{field.helpText}</span>
             ) : null}
           </label>
         );

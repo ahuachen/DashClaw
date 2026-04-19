@@ -40,19 +40,19 @@ export default function AgentVitalsStrip({ agent, identityVerified }) {
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold text-white truncate">{agent.agent_name}</h2>
               {identityVerified && (
-                <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 uppercase tracking-wide">
+                <span className="flex items-center gap-1 rounded-full bg-success-subtle border border-success/20 px-2 py-0.5 text-[10px] font-semibold text-success uppercase tracking-wide">
                   <Fingerprint size={10} /> Verified
                 </span>
               )}
             </div>
-            <div className="font-mono text-xs text-zinc-500 truncate">{agent.agent_id}</div>
+            <div className="font-mono text-xs text-tertiary truncate">{agent.agent_id}</div>
           </div>
         </div>
-        <div className="flex items-center gap-6 text-xs text-zinc-400">
+        <div className="flex items-center gap-6 text-xs text-secondary">
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${presenceDot[status]}`} />
-            <span className="text-zinc-300">{presenceLabel[status]}</span>
-            <span className="text-zinc-500">&middot;</span>
+            <span className="text-secondary">{presenceLabel[status]}</span>
+            <span className="text-tertiary">&middot;</span>
             <span>Last seen {formatRelativeTime(agent.presence?.last_heartbeat_at || agent.last_active)}</span>
           </div>
           <div className="hidden sm:flex items-center gap-4">
