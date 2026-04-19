@@ -16,7 +16,7 @@ export default function RealtimeIndicator() {
       aria-label="Realtime connection live"
       className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success-subtle px-2 py-0.5"
     >
-      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-success" />
       <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success">Live</span>
     </div>
   );

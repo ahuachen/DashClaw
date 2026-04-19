@@ -257,7 +257,7 @@ export default function TeamPage() {
         <Card hover={false} className="mb-6 border-green-500/30">
           <CardContent className="pt-5">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-lg bg-status-success/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Link2 size={16} className="text-success" />
               </div>
               <div className="flex-1 min-w-0">

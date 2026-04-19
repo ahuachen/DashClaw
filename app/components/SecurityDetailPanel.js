@@ -57,7 +57,7 @@ function SignalDetail({ signal, onClose, onDismiss }) {
 
       {/* Help */}
       {signal.help && (
-        <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3">
+        <div className="bg-status-info/5 border border-blue-500/10 rounded-lg p-3">
           <div className="flex items-start gap-2">
             <Info size={14} className="text-info mt-0.5 shrink-0" />
             <p className="text-sm text-info">{signal.help}</p>

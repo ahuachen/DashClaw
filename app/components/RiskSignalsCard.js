@@ -100,7 +100,7 @@ export default function RiskSignalsCard() {
             />
           ) : (
             visibleSignals.map((signal, idx) => {
-              const dotColor = signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500';
+              const dotColor = signal.severity === 'red' ? 'bg-status-error' : 'bg-status-warning';
               const titleColor = signal.severity === 'red' ? 'text-error' : 'text-warning';
 
               return (

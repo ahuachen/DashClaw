@@ -593,8 +593,8 @@ export default function SwarmIntelligencePage() {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-xl ${
-              action.status === 'completed' ? 'bg-green-500/10 text-success' :
-              action.status === 'failed' ? 'bg-error-subtle text-error' : 'bg-yellow-500/10 text-warning'
+              action.status === 'completed' ? 'bg-status-success/10 text-success' :
+              action.status === 'failed' ? 'bg-error-subtle text-error' : 'bg-status-warning/10 text-warning'
             }`}>
               {action.status === 'completed' ? <CheckCircle2 size={28} /> : action.status === 'failed' ? <AlertCircle size={28} /> : <Clock size={28} />}
             </div>
@@ -602,7 +602,7 @@ export default function SwarmIntelligencePage() {
               <h2 className="text-2xl font-bold text-white leading-none mb-2">{action.action_type}</h2>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0.5 px-2 border-none ${
-                  action.status === 'completed' ? 'bg-green-500/10 text-success' :
+                  action.status === 'completed' ? 'bg-status-success/10 text-success' :
                   action.status === 'failed' ? 'bg-error-subtle text-error' : 'bg-tertiary text-secondary'
                 }`}>{action.status}</Badge>
                 <span className="text-[10px] text-tertiary font-mono tracking-tight">{action.action_id}</span>
@@ -747,7 +747,7 @@ export default function SwarmIntelligencePage() {
                         <code className="text-[10px] text-tertiary font-mono">{selectedAgent.id.substring(0, 12)}...</code>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Badge variant="outline" className="text-[9px] bg-white/5 border-white/10 uppercase tracking-tighter">AGENT_CLASS_V2</Badge>
-                          <Badge variant="outline" className={`text-[9px] border-none ${(selectedAgent.risk || 0) > 40 ? 'bg-yellow-500/10 text-warning' : 'bg-green-500/10 text-success'}`}>RISK: {(selectedAgent.risk || 0).toFixed(0)}%</Badge>
+                          <Badge variant="outline" className={`text-[9px] border-none ${(selectedAgent.risk || 0) > 40 ? 'bg-status-warning/10 text-warning' : 'bg-status-success/10 text-success'}`}>RISK: {(selectedAgent.risk || 0).toFixed(0)}%</Badge>
                         </div>
                       </div>
                     </div>

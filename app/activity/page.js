@@ -167,7 +167,7 @@ export default function GlobalActivityFeed() {
         <Card hover={false}>
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-success" />
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">Live feed</h2>
             </div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-tertiary">

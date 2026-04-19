@@ -184,7 +184,7 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-xl border border-border bg-surface-secondary overflow-hidden">
               <div className="px-4 py-2 border-b border-border flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500/60"></div>
+                <div className="w-2 h-2 rounded-full bg-status-error/60"></div>
                 <span className="text-xs font-mono text-text-tertiary">without DashClaw</span>
               </div>
               <pre className="p-4 text-xs font-mono text-text-secondary leading-relaxed overflow-x-auto">{`await deleteFiles({
@@ -196,7 +196,7 @@ export default function LandingPage() {
 
             <div className="rounded-xl border border-brand/20 bg-surface-secondary overflow-hidden shadow-[0_0_20px_rgba(249,115,22,0.05)]">
               <div className="px-4 py-2 border-b border-brand/20 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500/60"></div>
+                <div className="w-2 h-2 rounded-full bg-status-success/60"></div>
                 <span className="text-xs font-mono text-brand">with DashClaw</span>
               </div>
               <pre className="p-4 text-xs font-mono text-text-secondary leading-relaxed overflow-x-auto">{`const { decision } = await dc.guard({
@@ -373,7 +373,7 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase">Agent Intent</span>
-                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-status-info animate-pulse"></div>
                           </div>
                           <div className="text-[11px] font-bold text-text-primary mb-1 leading-tight">Sync local data to Neon dashboard</div>
                           <div className="text-[9px] text-text-tertiary mb-2">Actor: moltfire</div>
@@ -387,7 +387,7 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase">Guard Policy</span>
-                            <span className="px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20 text-[8px] text-success font-bold uppercase tracking-tighter">active</span>
+                            <span className="px-1.5 py-0.5 rounded bg-status-success/10 border border-green-500/20 text-[8px] text-success font-bold uppercase tracking-tighter">active</span>
                           </div>
                           <div className="text-[11px] font-bold text-text-primary mb-1 leading-tight">Block if risk &gt; 80</div>
                           <div className="text-[10px] font-mono text-brand mb-2">Risk &gt;= 80 → block</div>
@@ -399,14 +399,14 @@ if (decision === "allow") {
                         <>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-bold text-text-secondary tracking-tight uppercase tracking-tighter">Human Approval</span>
-                            <span className="px-1.5 py-0.5 rounded bg-orange-500/10 border border-active/20 text-[8px] text-brand font-bold uppercase tracking-tighter">pending</span>
+                            <span className="px-1.5 py-0.5 rounded bg-brand/10 border border-active/20 text-[8px] text-brand font-bold uppercase tracking-tighter">pending</span>
                           </div>
                           <div className="text-[11px] font-bold text-text-primary mb-1 leading-tight">REVIEW: data alerting</div>
                           <div className="text-[9px] text-text-tertiary mb-2">Agent: api-monitor</div>
                           <div className="flex justify-between items-center pt-2 border-t border-border-hover/50">
                             <span className="text-[10px] font-bold text-error font-mono">96% RISK</span>
                             <div className="flex gap-1">
-                              <div className="w-3 h-3 rounded bg-green-500/20 border border-green-500/40"></div>
+                              <div className="w-3 h-3 rounded bg-status-success/20 border border-green-500/40"></div>
                               <div className="w-3 h-3 rounded bg-error-subtle border border-error/40"></div>
                             </div>
                           </div>
@@ -617,7 +617,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-orange-500/10 border border-active/20 text-brand">
+                <div className="p-2 rounded-lg bg-brand/10 border border-active/20 text-brand">
                   <Activity size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Detect agent reasoning drift</h3>
@@ -646,7 +646,7 @@ if (decision === "allow") {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-primary">
-                <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20 text-success">
+                <div className="p-2 rounded-lg bg-status-success/10 border border-green-500/20 text-success">
                   <FileJson size={20} />
                 </div>
                 <h3 className="text-xl font-bold">Produce audit trails</h3>

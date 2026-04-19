@@ -204,9 +204,9 @@ export default function IntegrationsPage() {
 
   const getStatusDot = (status) => {
     const color =
-      status === 'connected' ? 'bg-emerald-500'
-      : status === 'agent_connected' ? 'bg-blue-500'
-      : status === 'configured' ? 'bg-amber-500'
+      status === 'connected' ? 'bg-status-success'
+      : status === 'agent_connected' ? 'bg-status-info'
+      : status === 'configured' ? 'bg-status-warning'
       : 'bg-zinc-500';
     return <span aria-hidden="true" className={`inline-block h-1.5 w-1.5 rounded-full ${color}`} />;
   };
@@ -419,7 +419,7 @@ export default function IntegrationsPage() {
                         className="inline-flex items-center gap-1 text-[11px] text-success"
                         title={`Verified: ${healthData[key]?.message}`}
                       >
-                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-success" />
                         Live
                       </span>
                     )}
@@ -428,7 +428,7 @@ export default function IntegrationsPage() {
                         className="inline-flex items-center gap-1 text-[11px] text-error"
                         title={healthData[key]?.message}
                       >
-                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-error" />
                         Error
                       </span>
                     )}
@@ -437,7 +437,7 @@ export default function IntegrationsPage() {
                         className="inline-flex items-center gap-1 text-[11px] text-warning"
                         title={healthData[key]?.message}
                       >
-                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-warning" />
                         Degraded
                       </span>
                     )}

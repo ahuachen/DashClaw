@@ -37,7 +37,7 @@ const SCORE_VARIANT = (score) => {
 function ScoreBar({ score }) {
   if (score === null || score === undefined) return <span className="text-xs text-tertiary">—</span>;
   const pct = Math.round(score * 100);
-  const color = score >= 0.8 ? 'bg-emerald-500' : score >= 0.5 ? 'bg-amber-500' : 'bg-red-500';
+  const color = score >= 0.8 ? 'bg-status-success' : score >= 0.5 ? 'bg-status-warning' : 'bg-status-error';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">
@@ -476,9 +476,9 @@ export default function EvaluationsPage() {
                   const maxCount = Math.max(...stats.distribution.map(b => parseInt(b.count) || 0));
                   const height = maxCount > 0 ? ((parseInt(bucket.count) || 0) / maxCount) * 100 : 0;
                   const color =
-                    bucket.bucket === 'excellent' ? 'bg-emerald-500'
-                    : bucket.bucket === 'acceptable' ? 'bg-amber-500'
-                    : 'bg-red-500';
+                    bucket.bucket === 'excellent' ? 'bg-status-success'
+                    : bucket.bucket === 'acceptable' ? 'bg-status-warning'
+                    : 'bg-status-error';
                   return (
                     <div key={bucket.bucket} className="flex flex-1 flex-col items-center gap-1">
                       <span className="text-[11px] tabular-nums text-tertiary">{bucket.count}</span>

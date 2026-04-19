@@ -208,7 +208,7 @@ export default function OpenLoopsCard() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleResolve(loop.loop_id, 'resolved')}
-                          className="px-2 py-1 text-xs bg-green-500/10 text-success border border-green-500/20 rounded hover:bg-green-500/20 transition-colors"
+                          className="px-2 py-1 text-xs bg-status-success/10 text-success border border-green-500/20 rounded hover:bg-status-success/20 transition-colors"
                         >
                           Resolve
                         </button>

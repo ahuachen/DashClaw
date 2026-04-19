@@ -292,7 +292,7 @@ export default function ApprovePage() {
           </p>
           <Link
             href="/login"
-            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-active/30 bg-orange-500/10 px-4 text-sm font-semibold text-brand transition-colors hover:border-active/50 hover:bg-orange-500/20"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-active/30 bg-brand/10 px-4 text-sm font-semibold text-brand transition-colors hover:border-active/50 hover:bg-brand/20"
           >
             Go to login
           </Link>

@@ -3,10 +3,10 @@
 import Link from 'next/link';
 
 const SEVERITY_DOT = {
-  critical: 'bg-red-500',
-  high: 'bg-orange-500',
-  medium: 'bg-amber-500',
-  low: 'bg-blue-500',
+  critical: 'bg-status-error',
+  high: 'bg-brand',
+  medium: 'bg-status-warning',
+  low: 'bg-status-info',
 };
 
 const CATEGORY_PILL = {

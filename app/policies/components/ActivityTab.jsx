@@ -12,10 +12,10 @@ const decisionVariant = {
 };
 
 const decisionDot = {
-  block: 'bg-red-500',
-  require_approval: 'bg-amber-500',
-  warn: 'bg-blue-500',
-  allow: 'bg-emerald-500',
+  block: 'bg-status-error',
+  require_approval: 'bg-status-warning',
+  warn: 'bg-status-info',
+  allow: 'bg-status-success',
 };
 
 function formatRelativeTime(isoString) {

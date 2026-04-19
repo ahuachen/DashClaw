@@ -23,10 +23,10 @@ const TABS = [
 
 const MATURITY_CONFIG = {
   master: { color: 'text-purple-400', bg: 'bg-purple-500', variant: 'info' },
-  expert: { color: 'text-success', bg: 'bg-green-500', variant: 'success' },
-  proficient: { color: 'text-info', bg: 'bg-blue-500', variant: 'info' },
-  competent: { color: 'text-warning', bg: 'bg-yellow-500', variant: 'warning' },
-  developing: { color: 'text-brand', bg: 'bg-orange-500', variant: 'warning' },
+  expert: { color: 'text-success', bg: 'bg-status-success', variant: 'success' },
+  proficient: { color: 'text-info', bg: 'bg-status-info', variant: 'info' },
+  competent: { color: 'text-warning', bg: 'bg-status-warning', variant: 'warning' },
+  developing: { color: 'text-brand', bg: 'bg-brand', variant: 'warning' },
   novice: { color: 'text-secondary', bg: 'bg-zinc-500', variant: 'default' },
   unknown: { color: 'text-disabled', bg: 'bg-elevated', variant: 'default' },
 };
@@ -52,7 +52,7 @@ function MaturityBar({ score, level }) {
 
 function ScoreBar({ score, maxScore = 100 }) {
   const pct = Math.min((score / maxScore) * 100, 100);
-  const color = score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+  const color = score >= 70 ? 'bg-status-success' : score >= 50 ? 'bg-status-warning' : 'bg-status-error';
   return (
     <div className="flex items-center gap-2">
       <div className="w-16 h-1.5 bg-tertiary rounded-full overflow-hidden">
@@ -358,10 +358,10 @@ export default function LearningAnalyticsPage() {
                 <div className="space-y-3">
                   {[
                     { level: 'master', desc: '1000+ episodes, 92%+ success, 85+ avg score', color: 'bg-purple-500' },
-                    { level: 'expert', desc: '500+ episodes, 85%+ success, 75+ avg score', color: 'bg-green-500' },
-                    { level: 'proficient', desc: '150+ episodes, 75%+ success, 65+ avg score', color: 'bg-blue-500' },
-                    { level: 'competent', desc: '50+ episodes, 60%+ success, 55+ avg score', color: 'bg-yellow-500' },
-                    { level: 'developing', desc: '10+ episodes, 40%+ success, 40+ avg score', color: 'bg-orange-500' },
+                    { level: 'expert', desc: '500+ episodes, 85%+ success, 75+ avg score', color: 'bg-status-success' },
+                    { level: 'proficient', desc: '150+ episodes, 75%+ success, 65+ avg score', color: 'bg-status-info' },
+                    { level: 'competent', desc: '50+ episodes, 60%+ success, 55+ avg score', color: 'bg-status-warning' },
+                    { level: 'developing', desc: '10+ episodes, 40%+ success, 40+ avg score', color: 'bg-brand' },
                     { level: 'novice', desc: 'Starting out - fewer than 10 episodes', color: 'bg-zinc-500' },
                   ].map(m => {
                     const agentsAtLevel = agents.filter(a => a.maturity_level === m.level);

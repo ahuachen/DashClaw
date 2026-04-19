@@ -375,7 +375,7 @@ export default function LearningDashboard() {
                       <div className="w-24">
                         <div className="w-full bg-white/5 rounded-full h-1.5">
                           <div
-                            className={`h-1.5 rounded-full ${(lesson.confidence || 0) >= 90 ? 'bg-green-500' : (lesson.confidence || 0) >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            className={`h-1.5 rounded-full ${(lesson.confidence || 0) >= 90 ? 'bg-status-success' : (lesson.confidence || 0) >= 70 ? 'bg-status-warning' : 'bg-status-error'}`}
                             style={{ width: `${lesson.confidence || 0}%` }}
                           />
                         </div>

@@ -205,8 +205,8 @@ export default function ScoringPage() {
 
   const scoreBg = (score) => {
     if (score >= 80) return 'bg-success-subtle';
-    if (score >= 60) return 'bg-yellow-500/20';
-    if (score >= 40) return 'bg-orange-500/20';
+    if (score >= 60) return 'bg-status-warning/20';
+    if (score >= 40) return 'bg-brand/20';
     return 'bg-error-subtle';
   };
 
@@ -544,7 +544,7 @@ export default function ScoringPage() {
                       <div className="absolute inset-y-0 bg-error-subtle" style={{
                         left: '0%', width: `${((s.distribution.p25 - s.distribution.min) / (s.distribution.max - s.distribution.min)) * 100}%`
                       }} />
-                      <div className="absolute inset-y-0 bg-yellow-500/20" style={{
+                      <div className="absolute inset-y-0 bg-status-warning/20" style={{
                         left: `${((s.distribution.p25 - s.distribution.min) / (s.distribution.max - s.distribution.min)) * 100}%`,
                         width: `${((s.distribution.p75 - s.distribution.p25) / (s.distribution.max - s.distribution.min)) * 100}%`
                       }} />
@@ -562,7 +562,7 @@ export default function ScoringPage() {
                       <div key={j} className={`p-2 rounded text-center ${
                         rule.label === 'excellent' ? 'bg-success-subtle text-success' :
                         rule.label === 'good' ? 'bg-info-subtle text-info' :
-                        rule.label === 'acceptable' ? 'bg-yellow-500/10 text-warning' :
+                        rule.label === 'acceptable' ? 'bg-status-warning/10 text-warning' :
                         'bg-error-subtle text-error'
                       }`}>
                         <div className="text-xs font-medium">{rule.label}</div>

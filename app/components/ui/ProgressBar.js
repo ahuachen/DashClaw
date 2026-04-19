@@ -1,9 +1,9 @@
 const colorMap = {
   brand: 'bg-brand',
-  success: 'bg-green-500',
-  warning: 'bg-yellow-500',
-  error: 'bg-red-500',
-  info: 'bg-blue-500',
+  success: 'bg-status-success',
+  warning: 'bg-status-warning',
+  error: 'bg-status-error',
+  info: 'bg-status-info',
   purple: 'bg-purple-500',
 };
 

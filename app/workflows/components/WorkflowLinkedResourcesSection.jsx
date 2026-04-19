@@ -160,7 +160,7 @@ export default function WorkflowLinkedResourcesSection({
               key={tag}
               type="button"
               onClick={() => updateField('linked_capability_tags', draft.linked_capability_tags.filter((candidate) => candidate !== tag))}
-              className="rounded-full border border-active/20 bg-orange-500/10 px-3 py-1 text-xs text-orange-200 transition-colors hover:bg-orange-500/20"
+              className="rounded-full border border-active/20 bg-brand/10 px-3 py-1 text-xs text-orange-200 transition-colors hover:bg-brand/20"
             >
               {tag} ×
             </button>

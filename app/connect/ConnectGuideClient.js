@@ -153,7 +153,7 @@ export default function ConnectGuideClient({ content }) {
         summary="Set the minimum connection values in the agent runtime. The agent only talks to the DashClaw HTTP API."
       >
         <CodeCard title={`${language.label} environment`} body={language.envBlock} tone="accent" />
-        <div className="mt-4 rounded-2xl border border-warning/20 bg-amber-500/5 p-4">
+        <div className="mt-4 rounded-2xl border border-warning/20 bg-status-warning/5 p-4">
           <p className="text-sm text-amber-100">{content.envNote}</p>
         </div>
       </StepSection>

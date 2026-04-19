@@ -21,9 +21,9 @@ const SCOPES = [
 
 const SEVERITY_CONFIG = {
   critical: { variant: 'error', color: 'text-error', bg: 'bg-error-subtle', border: 'border-error/20' },
-  high:     { variant: 'warning', color: 'text-brand', bg: 'bg-orange-500/10', border: 'border-active/20' },
-  medium:   { variant: 'warning', color: 'text-warning', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-  low:      { variant: 'success', color: 'text-success', bg: 'bg-green-500/10', border: 'border-green-500/20' },
+  high:     { variant: 'warning', color: 'text-brand', bg: 'bg-brand/10', border: 'border-active/20' },
+  medium:   { variant: 'warning', color: 'text-warning', bg: 'bg-status-warning/10', border: 'border-yellow-500/20' },
+  low:      { variant: 'success', color: 'text-success', bg: 'bg-status-success/10', border: 'border-green-500/20' },
 };
 
 export default function BugHunterPage() {

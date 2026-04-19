@@ -84,7 +84,7 @@ export default function EvalScoreCard() {
             {distribution.map((bucket) => {
               const maxCount = Math.max(...distribution.map(b => parseInt(b.count) || 0));
               const height = maxCount > 0 ? ((parseInt(bucket.count) || 0) / maxCount) * 100 : 0;
-              const color = bucket.bucket === 'excellent' ? 'bg-green-500' : bucket.bucket === 'acceptable' ? 'bg-yellow-500' : 'bg-red-500';
+              const color = bucket.bucket === 'excellent' ? 'bg-status-success' : bucket.bucket === 'acceptable' ? 'bg-status-warning' : 'bg-status-error';
               return (
                 <div key={bucket.bucket} className="flex-1 flex flex-col items-center gap-0.5">
                   <div className="w-full rounded-t" style={{ height: `${Math.max(height, 8)}%` }}>

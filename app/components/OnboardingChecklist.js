@@ -423,7 +423,7 @@ function StepRow({ step, completed, active, future, children }) {
     <div className={`rounded-lg px-3 py-3 transition-colors ${active ? 'bg-surface-tertiary' : ''}`}>
       <div className="flex items-center gap-3">
         <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-          completed ? 'bg-green-500/20' : active ? 'bg-brand/20' : 'bg-white/5'
+          completed ? 'bg-status-success/20' : active ? 'bg-brand/20' : 'bg-white/5'
         }`}>
           {completed ? (
             <CheckCircle2 size={14} className="text-success" />

@@ -128,7 +128,7 @@ export default function InviteAcceptPage() {
     if (accepted) {
       return {
         icon: <Check size={24} className="text-success" />,
-        iconBg: 'bg-green-500/10',
+        iconBg: 'bg-status-success/10',
         title: 'Invite Accepted!',
         desc: 'Redirecting to dashboard...',
       };

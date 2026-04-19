@@ -1,8 +1,8 @@
 import { Brain, Fingerprint } from 'lucide-react';
 
 const presenceDot = {
-  online: 'bg-emerald-500',
-  stale: 'bg-amber-500',
+  online: 'bg-status-success',
+  stale: 'bg-status-warning',
   offline: 'bg-zinc-500',
   unknown: 'bg-zinc-500',
 };

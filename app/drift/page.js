@@ -37,7 +37,7 @@ function ZScoreBar({ zScore }) {
   const absZ = Math.abs(zScore);
   const maxZ = 5;
   const pct = Math.min((absZ / maxZ) * 100, 100);
-  const color = absZ >= 3 ? 'bg-red-500' : absZ >= 2 ? 'bg-amber-500' : 'bg-blue-500';
+  const color = absZ >= 3 ? 'bg-status-error' : absZ >= 2 ? 'bg-status-warning' : 'bg-status-info';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/5">

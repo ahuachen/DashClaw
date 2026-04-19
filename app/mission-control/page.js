@@ -230,7 +230,7 @@ export default function MissionControlPage() {
   const loopList = useMemo(() => loops?.loops || [], [loops]);
 
   const healthStatus = health?.status || 'unknown';
-  const healthDot = healthStatus === 'healthy' ? 'bg-emerald-500' : healthStatus === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500';
+  const healthDot = healthStatus === 'healthy' ? 'bg-status-success' : healthStatus === 'degraded' ? 'bg-status-warning' : 'bg-zinc-500';
   const healthLabel = healthStatus === 'healthy' ? 'Healthy' : healthStatus === 'degraded' ? 'Degraded' : 'Unknown';
   const healthColor = healthStatus === 'healthy' ? 'text-success' : healthStatus === 'degraded' ? 'text-warning' : 'text-tertiary';
 
@@ -365,7 +365,7 @@ export default function MissionControlPage() {
                 </span>
                 {hasPendingApprovals && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-error/30 bg-error-subtle px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-error">
-                    <span className="h-1 w-1 animate-pulse rounded-full bg-red-500" />
+                    <span className="h-1 w-1 animate-pulse rounded-full bg-status-error" />
                     Urgent
                   </span>
                 )}
@@ -445,13 +445,13 @@ export default function MissionControlPage() {
                 <div className="flex flex-wrap items-center gap-3 text-xs">
                   {signalCounts.red > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-status-error" />
                       <span className="font-medium text-error">{signalCounts.red} critical</span>
                     </span>
                   )}
                   {signalCounts.amber > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-status-warning" />
                       <span className="font-medium text-warning">{signalCounts.amber} elevated</span>
                     </span>
                   )}
@@ -526,7 +526,7 @@ export default function MissionControlPage() {
                       href={`/agents/${encodeURIComponent(agent.agent_id)}`}
                       className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-white/5 focus:bg-white/5 focus:outline-none"
                     >
-                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-amber-500' : 'bg-emerald-500/50'}`} />
+                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-status-warning' : 'bg-status-success/50'}`} />
                       <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-warning' : 'text-secondary'}`}>
                         {agent.name || agent.agent_id}
                       </span>

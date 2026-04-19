@@ -497,7 +497,7 @@ export default function CompliancePage() {
                         <div className="flex items-center gap-2">
                           <span
                             aria-hidden="true"
-                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500'}`}
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${signal.severity === 'red' ? 'bg-status-error' : 'bg-status-warning'}`}
                           />
                           <span className="text-sm text-white">{signal.label || signal.type.replace(/_/g, ' ')}</span>
                         </div>

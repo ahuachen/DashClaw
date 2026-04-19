@@ -11,9 +11,9 @@ import { useRealtime } from '../hooks/useRealtime';
 // "quiet confidence" into "vigilant alertness". Attention-grabbing motion is
 // reserved for incoming decisions and approval arrivals elsewhere in the UI.
 export function computePosture(redCount, amberCount) {
-  if (redCount >= 1) return { label: 'Critical', color: 'text-error', bg: 'bg-error-subtle', border: 'border-error/30', dot: 'bg-red-500' };
-  if (amberCount >= 1) return { label: 'Elevated', color: 'text-warning', bg: 'bg-warning-subtle', border: 'border-warning/30', dot: 'bg-amber-500' };
-  return { label: 'Nominal', color: 'text-success', bg: 'bg-success-subtle', border: 'border-success/30', dot: 'bg-emerald-500' };
+  if (redCount >= 1) return { label: 'Critical', color: 'text-error', bg: 'bg-error-subtle', border: 'border-error/30', dot: 'bg-status-error' };
+  if (amberCount >= 1) return { label: 'Elevated', color: 'text-warning', bg: 'bg-warning-subtle', border: 'border-warning/30', dot: 'bg-status-warning' };
+  return { label: 'Nominal', color: 'text-success', bg: 'bg-success-subtle', border: 'border-success/30', dot: 'bg-status-success' };
 }
 
 export default function SystemStatusBar() {
@@ -81,13 +81,13 @@ export default function SystemStatusBar() {
         <div className="flex items-center gap-3">
           {redCount > 0 && (
             <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-error">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-red-500" />
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-error" />
               {redCount} Critical
             </span>
           )}
           {amberCount > 0 && (
             <span className="flex items-center gap-1.5 text-[11px] font-medium tabular-nums text-warning">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-status-warning" />
               {amberCount} Elevated
             </span>
           )}

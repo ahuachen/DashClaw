@@ -25,10 +25,10 @@ const healthVariant = {
 };
 
 const healthDot = {
-  healthy: 'bg-emerald-500',
-  degraded: 'bg-amber-500',
-  unhealthy: 'bg-red-500',
-  failing: 'bg-red-500',
+  healthy: 'bg-status-success',
+  degraded: 'bg-status-warning',
+  unhealthy: 'bg-status-error',
+  failing: 'bg-status-error',
   unknown: 'bg-zinc-500',
   untested: 'bg-zinc-500',
 };

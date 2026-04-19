@@ -49,7 +49,7 @@ function RatingBar({ rating, count, maxCount }) {
       <span className="text-xs text-secondary w-4 text-right">{rating}</span>
       <Star size={10} className="text-warning fill-yellow-400 shrink-0" />
       <div className="flex-1 h-1.5 bg-tertiary rounded-full overflow-hidden">
-        <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${pct}%` }} />
+        <div className="h-full bg-status-warning rounded-full" style={{ width: `${pct}%` }} />
       </div>
       <span className="text-[10px] text-disabled w-6 text-right tabular-nums">{count}</span>
     </div>

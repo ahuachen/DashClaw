@@ -14,11 +14,11 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
 
 const statusDotMap = {
-  active: 'bg-emerald-500',
-  online: 'bg-emerald-500',
-  critical: 'bg-red-500',
-  error: 'bg-red-500',
-  degraded: 'bg-amber-500',
+  active: 'bg-status-success',
+  online: 'bg-status-success',
+  critical: 'bg-status-error',
+  error: 'bg-status-error',
+  degraded: 'bg-status-warning',
   offline: 'bg-zinc-600',
   unknown: 'bg-zinc-500',
 };

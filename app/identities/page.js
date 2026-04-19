@@ -192,7 +192,7 @@ export default function IdentitiesPage() {
 
       {/* Success banner */}
       {successMsg && (
-        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-success flex items-center justify-between">
+        <div className="mb-4 p-3 bg-status-success/10 border border-green-500/20 rounded-lg text-sm text-success flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CheckCircle size={14} />
             <span>{successMsg}</span>
@@ -341,7 +341,7 @@ export default function IdentitiesPage() {
 
                 return (
                   <div key={identity.agent_id} className="px-5 py-4 flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-status-success/10 flex items-center justify-center flex-shrink-0">
                       <Fingerprint size={14} className="text-success" />
                     </div>
 

@@ -193,7 +193,7 @@ export default function RelationshipsDashboard() {
                       className={`px-3 py-1 text-xs rounded-md font-medium transition-colors duration-150 ${
                         tempFilter === temp
                           ? temp === 'HOT' ? 'bg-error-subtle text-error border border-error/40'
-                            : temp === 'WARM' ? 'bg-yellow-500/20 text-warning border border-yellow-500/40'
+                            : temp === 'WARM' ? 'bg-status-warning/20 text-warning border border-yellow-500/40'
                             : temp === 'COLD' ? 'bg-info-subtle text-info border border-blue-500/40'
                             : 'bg-white/10 text-white border border-[rgba(255,255,255,0.2)]'
                           : 'bg-surface-tertiary text-secondary border border-[rgba(255,255,255,0.06)] hover:text-white hover:border-[rgba(255,255,255,0.12)]'

@@ -66,7 +66,7 @@ export default function FleetPresenceCard() {
       <CardContent>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-lg bg-emerald-500/5 border border-success/10">
+            <div className="p-3 rounded-lg bg-status-success/5 border border-success/10">
               <div className="text-xl font-bold text-success tabular-nums">{onlineAgents.length}</div>
               <div className="text-[10px] text-tertiary uppercase font-semibold">Online</div>
             </div>
@@ -89,12 +89,12 @@ export default function FleetPresenceCard() {
               if (isOnline) {
                 statusColor = 'text-success';
                 ringColor = 'ring-emerald-500';
-                dotColor = 'bg-emerald-500';
+                dotColor = 'bg-status-success';
                 statusTextClass = 'text-success';
               } else if (isStale) {
                 statusColor = 'text-warning';
                 ringColor = 'ring-amber-500';
-                dotColor = 'bg-amber-500';
+                dotColor = 'bg-status-warning';
                 statusTextClass = 'text-warning';
               }
 

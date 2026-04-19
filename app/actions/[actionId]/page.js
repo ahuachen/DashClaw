@@ -104,7 +104,7 @@ export default function DecisionReplayPage() {
     const s = parseInt(score, 10);
     if (s >= 70) return 'text-error bg-error-subtle border-error/20';
     if (s >= 40) return 'text-warning bg-warning-subtle border-warning/20';
-    return 'text-success bg-green-500/10 border-green-500/20';
+    return 'text-success bg-status-success/10 border-green-500/20';
   };
 
   // --- Assumption actions ---
@@ -317,7 +317,7 @@ export default function DecisionReplayPage() {
                   <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-px before:bg-white/5">
                     {/* 1. Goal */}
                     <div className="relative flex gap-4 pl-1">
-                      <div className="z-10 mt-1 h-4 w-4 rounded-full bg-blue-500 border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" />
+                      <div className="z-10 mt-1 h-4 w-4 rounded-full bg-status-info border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" />
                       <div>
                         <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Goal Declared</div>
                         <div className="text-sm text-white font-medium">{action.declared_goal}</div>
@@ -332,9 +332,9 @@ export default function DecisionReplayPage() {
                     {/* 2. Policy Evaluation */}
                     <div className="relative flex gap-4 pl-1">
                       <div className={`z-10 mt-1 h-4 w-4 rounded-full border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(255,255,255,0.1)] ${
-                        guardDecision?.decision === 'allow' ? 'bg-emerald-500' :
-                        guardDecision?.decision === 'block' ? 'bg-red-500' :
-                        guardDecision?.decision === 'require_approval' ? 'bg-amber-500' : 'bg-zinc-500'
+                        guardDecision?.decision === 'allow' ? 'bg-status-success' :
+                        guardDecision?.decision === 'block' ? 'bg-status-error' :
+                        guardDecision?.decision === 'require_approval' ? 'bg-status-warning' : 'bg-zinc-500'
                       }`} />
                       <div className="flex-1">
                         <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Policy Evaluation</div>
@@ -366,8 +366,8 @@ export default function DecisionReplayPage() {
                     {assumptions.length > 0 && (
                       <div className="relative flex gap-4 pl-1">
                         <div className={`z-10 mt-1 h-4 w-4 rounded-full border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(255,255,255,0.1)] ${
-                          assumptions.every(a => a.validated) ? 'bg-emerald-500' :
-                          assumptions.some(a => a.invalidated) ? 'bg-red-500' : 'bg-amber-500'
+                          assumptions.every(a => a.validated) ? 'bg-status-success' :
+                          assumptions.some(a => a.invalidated) ? 'bg-status-error' : 'bg-status-warning'
                         }`} />
                         <div>
                           <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Assumption Check</div>
@@ -388,7 +388,7 @@ export default function DecisionReplayPage() {
                     {/* 4. Risk Signals */}
                     {trace?.root_cause_indicators?.length > 0 && (
                       <div className="relative flex gap-4 pl-1">
-                        <div className="z-10 mt-1 h-4 w-4 rounded-full bg-amber-500 border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(245,158,11,0.3)]" />
+                        <div className="z-10 mt-1 h-4 w-4 rounded-full bg-status-warning border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(245,158,11,0.3)]" />
                         <div>
                           <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Risk Signals</div>
                           <div className="space-y-1.5 mt-2">
@@ -405,7 +405,7 @@ export default function DecisionReplayPage() {
 
                     {/* 5. Final Decision */}
                     <div className="relative flex gap-4 pl-1">
-                      <div className={`z-10 mt-1 h-4 w-4 rounded-full border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(255,255,255,0.1)] ${getStatusVariant(action.status) === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                      <div className={`z-10 mt-1 h-4 w-4 rounded-full border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(255,255,255,0.1)] ${getStatusVariant(action.status) === 'success' ? 'bg-status-success' : 'bg-status-error'}`} />
                       <div>
                         <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Final Outcome</div>
                         <div className="flex items-center gap-2">
@@ -552,7 +552,7 @@ export default function DecisionReplayPage() {
                                   </div>
                                 )}
                                 {asm.invalidated_reason && (
-                                  <div className="text-xs text-error mt-2 p-2 rounded bg-red-500/5 border border-error/10">
+                                  <div className="text-xs text-error mt-2 p-2 rounded bg-status-error/5 border border-error/10">
                                     <span className="font-semibold uppercase text-[9px] tracking-wider">Invalidated Reason:</span> {asm.invalidated_reason}
                                   </div>
                                 )}
@@ -562,7 +562,7 @@ export default function DecisionReplayPage() {
                                     <button
                                       onClick={() => handleValidateAssumption(asm.assumption_id)}
                                       disabled={isPending}
-                                      className="px-3 py-1.5 bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 text-[11px] rounded font-semibold transition-colors"
+                                      className="px-3 py-1.5 bg-status-success text-white hover:bg-emerald-600 disabled:opacity-50 text-[11px] rounded font-semibold transition-colors"
                                     >
                                       {pendingOps[asm.assumption_id] === 'validating' ? 'Validating...' : 'Validate'}
                                     </button>
@@ -605,7 +605,7 @@ export default function DecisionReplayPage() {
                       <span className="text-sm font-bold text-success">0.02 (Nominal)</span>
                     </div>
                     <div className="h-2 bg-tertiary rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500" style={{ width: '2%' }} />
+                      <div className="h-full bg-status-success" style={{ width: '2%' }} />
                     </div>
                     <p className="text-xs text-tertiary">
                       Drift is calculated by comparing actual outcomes against declared intent and verified assumptions. A nominal score indicates high alignment.
@@ -664,7 +664,7 @@ export default function DecisionReplayPage() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-12 flex items-end gap-1">
                       {[20, 35, 25, 60, 45, 30, 80, 20, 15, 25, 30, 35, 40].map((h, i) => (
-                        <div key={i} className={`flex-1 rounded-t-sm transition-all ${i === 6 ? 'bg-amber-500' : 'bg-tertiary'}`} style={{ height: `${h}%` }} />
+                        <div key={i} className={`flex-1 rounded-t-sm transition-all ${i === 6 ? 'bg-status-warning' : 'bg-tertiary'}`} style={{ height: `${h}%` }} />
                       ))}
                     </div>
                     <div className="text-right">
@@ -688,7 +688,7 @@ export default function DecisionReplayPage() {
                       {parseJsonArray(action.side_effects).length > 0 ? (
                         <div className="space-y-2">
                           {parseJsonArray(action.side_effects).map((se, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 rounded bg-amber-500/5 border border-warning/10 text-xs text-amber-200">
+                            <div key={i} className="flex items-center gap-3 p-3 rounded bg-status-warning/5 border border-warning/10 text-xs text-amber-200">
                               <AlertTriangle size={14} className="shrink-0" />
                               {se}
                             </div>
@@ -704,7 +704,7 @@ export default function DecisionReplayPage() {
                       {parseJsonArray(action.artifacts_created).length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {parseJsonArray(action.artifacts_created).map((a, i) => (
-                            <div key={i} className="px-3 py-1.5 rounded bg-blue-500/5 border border-blue-500/10 text-xs text-info font-mono">
+                            <div key={i} className="px-3 py-1.5 rounded bg-status-info/5 border border-blue-500/10 text-xs text-info font-mono">
                               {a}
                             </div>
                           ))}
@@ -766,7 +766,7 @@ export default function DecisionReplayPage() {
                 <div>
                   <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-1">Status</div>
                   <div className="flex items-center gap-2">
-                    <div className={`h-2 w-2 rounded-full ${action.status === 'completed' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <div className={`h-2 w-2 rounded-full ${action.status === 'completed' ? 'bg-status-success' : 'bg-status-error'}`} />
                     <span className="text-xs font-semibold text-secondary">{action.status.toUpperCase()}</span>
                   </div>
                 </div>
@@ -854,7 +854,7 @@ export default function DecisionReplayPage() {
                           <button
                             onClick={() => handleResolveLoop(loop.loop_id)}
                             disabled={!resolveTexts[loop.loop_id]?.trim() || !!pendingOps[loop.loop_id]}
-                            className="flex-1 px-2 py-1 bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 text-[10px] rounded font-bold transition-colors"
+                            className="flex-1 px-2 py-1 bg-status-success text-white hover:bg-emerald-600 disabled:opacity-50 text-[10px] rounded font-bold transition-colors"
                           >
                             Resolve
                           </button>

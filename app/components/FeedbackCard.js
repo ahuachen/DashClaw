@@ -78,13 +78,13 @@ export default function FeedbackCard() {
         {/* Sentiment bar */}
         <div className="flex h-2 rounded-full overflow-hidden bg-tertiary mb-3">
           {overall.positive_count > 0 && (
-            <div className="bg-green-500" style={{ width: `${(overall.positive_count / overall.total_feedback) * 100}%` }} />
+            <div className="bg-status-success" style={{ width: `${(overall.positive_count / overall.total_feedback) * 100}%` }} />
           )}
           {overall.neutral_count > 0 && (
             <div className="bg-zinc-500" style={{ width: `${(overall.neutral_count / overall.total_feedback) * 100}%` }} />
           )}
           {overall.negative_count > 0 && (
-            <div className="bg-red-500" style={{ width: `${(overall.negative_count / overall.total_feedback) * 100}%` }} />
+            <div className="bg-status-error" style={{ width: `${(overall.negative_count / overall.total_feedback) * 100}%` }} />
           )}
         </div>
         <div className="flex justify-between text-[9px] text-disabled mb-3">

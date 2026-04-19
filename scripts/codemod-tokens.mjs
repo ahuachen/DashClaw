@@ -42,6 +42,15 @@ const MAPPINGS = [
   [/\bbg-amber-500\/(?:10|12|15|20)\b/g,   'bg-warning-subtle'],
   [/\bbg-red-500\/(?:10|12|15|20)\b/g,     'bg-error-subtle'],
   [/\bbg-blue-500\/(?:10|12|15|20)\b/g,    'bg-info-subtle'],
+  // bg — solid status fills (saturated indicators: dots, active chips, progress fills)
+  [/\bbg-emerald-500\b/g, 'bg-status-success'],
+  [/\bbg-green-500\b/g,   'bg-status-success'],
+  [/\bbg-amber-500\b/g,   'bg-status-warning'],
+  [/\bbg-yellow-500\b/g,  'bg-status-warning'],
+  [/\bbg-red-500\b/g,     'bg-status-error'],
+  [/\bbg-rose-500\b/g,    'bg-status-error'],
+  [/\bbg-blue-500\b/g,    'bg-status-info'],
+  [/\bbg-orange-500\b/g,  'bg-brand'],
   // border — semantic active edges
   [/\bborder-orange-(400|500)\b/g, 'border-active'],
   [/\bborder-emerald-(400|500)\b/g, 'border-success'],

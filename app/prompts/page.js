@@ -229,7 +229,7 @@ export default function PromptsPage() {
         </div>
 
         {statsUnavailable && (
-          <div className="rounded-xl border border-warning/20 bg-amber-500/6 px-4 py-3 text-sm text-amber-200">
+          <div className="rounded-xl border border-warning/20 bg-status-warning/6 px-4 py-3 text-sm text-amber-200">
             Prompt usage analytics are not enabled in this database yet. {stats?.setup_hint || 'Run scripts/migrate-prompts.mjs.'}
           </div>
         )}
@@ -361,7 +361,7 @@ export default function PromptsPage() {
                       ) : (
                         <div className="space-y-3">
                           {versions.map(v => (
-                            <div key={v.id} className={`rounded-lg border ${v.is_active ? 'border-green-500/30 bg-green-500/5' : 'border-[rgba(255,255,255,0.04)] bg-[#111]'}`}>
+                            <div key={v.id} className={`rounded-lg border ${v.is_active ? 'border-green-500/30 bg-status-success/5' : 'border-[rgba(255,255,255,0.04)] bg-[#111]'}`}>
                               <div className="flex items-center justify-between px-3 py-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-medium text-white">v{v.version}</span>

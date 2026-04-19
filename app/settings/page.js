@@ -261,7 +261,7 @@ export default async function SettingsPage({ searchParams }) {
               {viewer.isAuthenticated ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-status-success" />
                     <span className="text-sm text-success">Authenticated</span>
                   </div>
                   <Link

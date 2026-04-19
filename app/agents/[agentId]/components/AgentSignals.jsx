@@ -17,7 +17,7 @@ export default function AgentSignals({ signals }) {
       <div className="space-y-3">
         {signals.map((signal, i) => (
           <div key={signal.type + '-' + i} className="flex items-start gap-3">
-            <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${signal.severity === 'red' ? 'bg-red-500' : 'bg-amber-500'}`} />
+            <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${signal.severity === 'red' ? 'bg-status-error' : 'bg-status-warning'}`} />
             <div className="min-w-0">
               <div className="text-sm font-medium text-white">{signal.label}</div>
               <div className="mt-0.5 text-xs text-secondary">{signal.detail}</div>

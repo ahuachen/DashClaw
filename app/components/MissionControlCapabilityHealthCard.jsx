@@ -59,13 +59,13 @@ export default function MissionControlCapabilityHealthCard({
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 {unhealthyCount > 0 && (
                   <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-status-error" />
                     <span className="font-medium text-error">{unhealthyCount} unhealthy</span>
                   </span>
                 )}
                 {staleCount > 0 && (
                   <span className="flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-status-warning" />
                     <span className="font-medium text-warning">{staleCount} stale</span>
                   </span>
                 )}
@@ -86,7 +86,7 @@ export default function MissionControlCapabilityHealthCard({
                     href={`/capabilities/${capability.capability_id}`}
                     className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-white/5 focus:bg-white/5 focus:outline-none"
                   >
-                    <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${['unhealthy', 'failing'].includes(capability.status) ? 'bg-red-500' : capability.status === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500/40'}`} />
+                    <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${['unhealthy', 'failing'].includes(capability.status) ? 'bg-status-error' : capability.status === 'degraded' ? 'bg-status-warning' : 'bg-zinc-500/40'}`} />
                     <span className="flex-1 truncate text-xs text-secondary">
                       {capability.capability_name || capability.name}
                     </span>

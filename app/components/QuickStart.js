@@ -147,7 +147,7 @@ export default function QuickStart({ onDismiss }) {
             {/* Step 3: Success */}
             <div className={`flex gap-4 transition-all duration-300 ${step < 3 ? 'opacity-40 grayscale' : ''}`}>
               <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 3 ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tertiary text-tertiary'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 3 ? 'bg-status-success text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tertiary text-tertiary'}`}>
                   {step === 3 ? <Sparkles size={14} /> : '3'}
                 </div>
               </div>

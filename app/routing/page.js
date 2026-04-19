@@ -235,7 +235,7 @@ export default function TaskRoutingPage() {
       {health && (
         <div className="mb-4 flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-secondary border border-border text-sm">
-            <span className={`inline-block w-2 h-2 rounded-full ${health.status === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className={`inline-block w-2 h-2 rounded-full ${health.status === 'healthy' ? 'bg-status-success' : 'bg-status-error'}`} />
             <span className="text-secondary">Router: {health.status}</span>
             {health.router_version && (
               <span className="text-disabled text-xs font-mono">v{health.router_version}</span>
@@ -553,10 +553,10 @@ export default function TaskRoutingPage() {
                                   <div
                                     className={`h-full rounded-full transition-all ${
                                       agent.current_load / agent.max_concurrent >= 0.8
-                                        ? 'bg-red-500'
+                                        ? 'bg-status-error'
                                         : agent.current_load / agent.max_concurrent >= 0.5
-                                        ? 'bg-yellow-500'
-                                        : 'bg-green-500'
+                                        ? 'bg-status-warning'
+                                        : 'bg-status-success'
                                     }`}
                                     style={{ width: `${Math.min(100, (agent.current_load / agent.max_concurrent) * 100)}%` }}
                                   />

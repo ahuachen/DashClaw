@@ -138,7 +138,7 @@ export default function GuardSimulation() {
                     )}
 
                     {step === 'finished' && (
-                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-success' : 'bg-error-subtle border-error/30 text-error'} animate-in zoom-in-95 duration-300 shadow-lg`}>
+                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-status-success/10 border-green-500/30 text-success' : 'bg-error-subtle border-error/30 text-error'} animate-in zoom-in-95 duration-300 shadow-lg`}>
                         <div className="flex items-center gap-3 mb-2">
                           {decision === 'allowed' ? <ShieldCheck size={20} className="text-success" /> : <ShieldAlert size={20} className="text-error" />}
                           <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-success' : 'text-error'}`}>
@@ -179,7 +179,7 @@ export default function GuardSimulation() {
                   <h4 className="text-[11px] font-bold text-brand uppercase tracking-tight">Policy Firewall</h4>
                 </div>
                 <div className="flex gap-1">
-                  <div className={`w-1.5 h-1.5 rounded-full ${step !== 'idle' ? 'bg-green-500 animate-pulse' : 'bg-elevated'}`}></div>
+                  <div className={`w-1.5 h-1.5 rounded-full ${step !== 'idle' ? 'bg-status-success animate-pulse' : 'bg-elevated'}`}></div>
                 </div>
               </div>
 
@@ -249,13 +249,13 @@ export default function GuardSimulation() {
                       <div className="mt-auto flex gap-2">
                         <button 
                           onClick={() => handleDecision('allowed')}
-                          className="flex-1 py-2.5 rounded-xl bg-green-500 text-white text-[10px] font-bold hover:bg-green-600 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-green-500/20 relative z-50 cursor-pointer"
+                          className="flex-1 py-2.5 rounded-xl bg-status-success text-white text-[10px] font-bold hover:bg-green-600 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-green-500/20 relative z-50 cursor-pointer"
                         >
                           ALLOW
                         </button>
                         <button 
                           onClick={() => handleDecision('blocked')}
-                          className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-[10px] font-bold hover:bg-red-600 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-500/20 relative z-50 cursor-pointer"
+                          className="flex-1 py-2.5 rounded-xl bg-status-error text-white text-[10px] font-bold hover:bg-red-600 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-red-500/20 relative z-50 cursor-pointer"
                         >
                           DENY
                         </button>
@@ -268,7 +268,7 @@ export default function GuardSimulation() {
                     step === 'finished' ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
                   }`}>
                     <div className="p-4 rounded-2xl bg-black border border-white/5 text-center space-y-3 shadow-xl h-full flex flex-col justify-center">
-                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 text-success mb-1">
+                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-status-success/10 border border-green-500/20 text-success mb-1">
                         <ShieldCheck size={20} />
                       </div>
                       <div className="text-[11px] font-bold text-secondary uppercase tracking-widest">Evidence Recorded</div>
@@ -276,7 +276,7 @@ export default function GuardSimulation() {
                         <div className="text-[9px] font-mono text-tertiary flex-1 truncate text-left italic">
                           act_9283_dec_signed_v1...
                         </div>
-                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20">
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-status-success/10 border border-green-500/20">
                           <CheckCircle2 size={10} className="text-success" />
                           <span className="text-[8px] font-bold text-success uppercase tracking-tighter">verified</span>
                         </div>

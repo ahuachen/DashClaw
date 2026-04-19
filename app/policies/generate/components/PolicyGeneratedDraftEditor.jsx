@@ -25,7 +25,7 @@ export default function PolicyGeneratedDraftEditor({
       </div>
 
       {draft.hasAdvancedDetails && (
-        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-sm text-warning">
+        <div className="rounded-lg border border-yellow-500/20 bg-status-warning/10 px-3 py-2 text-sm text-warning">
           Advanced config details need review before saving.
         </div>
       )}

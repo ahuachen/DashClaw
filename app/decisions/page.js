@@ -35,11 +35,11 @@ const statusIconMap = {
 };
 
 const statusDotMap = {
-  completed: 'bg-emerald-500',
-  running: 'bg-amber-500',
-  pending: 'bg-blue-500',
-  failed: 'bg-red-500',
-  blocked: 'bg-red-500',
+  completed: 'bg-status-success',
+  running: 'bg-status-warning',
+  pending: 'bg-status-info',
+  failed: 'bg-status-error',
+  blocked: 'bg-status-error',
   cancelled: 'bg-zinc-500',
 };
 
@@ -608,7 +608,7 @@ export default function DecisionsLedger() {
                                 <div className="space-y-1">
                                   {detail.open_loops.map(loop => (
                                     <div key={loop.loop_id} className="flex items-center gap-2 text-sm">
-                                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${loop.status === 'open' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${loop.status === 'open' ? 'bg-status-warning' : 'bg-status-success'}`} />
                                       <span className="text-secondary">{loop.description}</span>
                                       <span className="text-[11px] text-tertiary">({loop.loop_type} · {loop.priority})</span>
                                     </div>

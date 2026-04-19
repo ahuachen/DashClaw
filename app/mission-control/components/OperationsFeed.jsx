@@ -14,10 +14,10 @@ const CATEGORIES = [
 ];
 
 const SEVERITY_BADGE = {
-  critical: { color: 'bg-red-500', label: 'Critical' },
-  high: { color: 'bg-orange-500', label: 'High' },
-  medium: { color: 'bg-amber-500', label: 'Medium' },
-  low: { color: 'bg-blue-500', label: 'Low' },
+  critical: { color: 'bg-status-error', label: 'Critical' },
+  high: { color: 'bg-brand', label: 'High' },
+  medium: { color: 'bg-status-warning', label: 'Medium' },
+  low: { color: 'bg-status-info', label: 'Low' },
 };
 
 export default function OperationsFeed({ agentId, onRefreshRequest }) {

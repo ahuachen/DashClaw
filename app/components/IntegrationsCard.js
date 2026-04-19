@@ -161,9 +161,9 @@ export default function IntegrationsCard() {
                   <span className="text-[10px] text-secondary truncate w-full text-center">{integration.name}</span>
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      integration.status === 'connected' ? 'bg-green-500'
-                        : integration.status === 'agent_connected' ? 'bg-blue-500'
-                        : 'bg-yellow-500'
+                      integration.status === 'connected' ? 'bg-status-success'
+                        : integration.status === 'agent_connected' ? 'bg-status-info'
+                        : 'bg-status-warning'
                     }`}
                   />
                 </div>
@@ -173,17 +173,17 @@ export default function IntegrationsCard() {
             {/* Bottom status line */}
             <div className="flex items-center justify-between text-xs text-tertiary flex-shrink-0">
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+                <span className="w-2 h-2 rounded-full bg-status-success inline-block" />
                 {connected} connected
               </span>
               {agentConnected > 0 && (
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+                  <span className="w-2 h-2 rounded-full bg-status-info inline-block" />
                   {agentConnected} agent
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block" />
+                <span className="w-2 h-2 rounded-full bg-status-warning inline-block" />
                 {total - connected - agentConnected} configured
               </span>
             </div>

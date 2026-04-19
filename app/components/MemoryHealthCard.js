@@ -71,8 +71,8 @@ export default function MemoryHealthCard() {
     switch (type) {
       case 'person': return 'bg-info-subtle text-info border-blue-500/20';
       case 'tool': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'service': return 'bg-green-500/10 text-success border-green-500/20';
-      case 'file': return 'bg-yellow-500/10 text-warning border-yellow-500/20';
+      case 'service': return 'bg-status-success/10 text-success border-green-500/20';
+      case 'file': return 'bg-status-warning/10 text-warning border-yellow-500/20';
       default: return 'bg-zinc-500/10 text-secondary border-zinc-500/20';
     }
   };

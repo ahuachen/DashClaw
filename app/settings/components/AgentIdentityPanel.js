@@ -32,7 +32,7 @@ const PERMISSION_LABELS = {
 const PERMISSION_COLORS = {
   readonly: 'text-secondary bg-zinc-500/10 border-zinc-500/20',
   workspace_write: 'text-info bg-info-subtle border-blue-500/20',
-  prompt: 'text-warning bg-yellow-500/10 border-yellow-500/20',
+  prompt: 'text-warning bg-status-warning/10 border-yellow-500/20',
   allow: 'text-success bg-success-subtle border-success/20',
   danger: 'text-error bg-error-subtle border-error/20',
 };
@@ -264,7 +264,7 @@ export default function AgentIdentityPanel({ highlightPairingId }) {
           <button
             onClick={toggleEnforcement}
             disabled={enforcementLoading}
-            className={`relative w-11 h-6 rounded-full transition-colors ${enforcement ? 'bg-emerald-500' : 'bg-elevated'}`}
+            className={`relative w-11 h-6 rounded-full transition-colors ${enforcement ? 'bg-status-success' : 'bg-elevated'}`}
           >
             <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${enforcement ? 'translate-x-5' : ''}`} />
           </button>

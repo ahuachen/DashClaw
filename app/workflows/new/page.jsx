@@ -149,7 +149,7 @@ export default function NewWorkflowTemplatePage() {
       )}
     >
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-4">
-        <div className="rounded-xl border border-active/20 bg-orange-500/10 p-4">
+        <div className="rounded-xl border border-active/20 bg-brand/10 p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-sm font-medium text-orange-100">Prefer to describe the workflow instead?</div>

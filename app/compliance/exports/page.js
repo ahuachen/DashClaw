@@ -479,7 +479,7 @@ export default function ComplianceExportsPage() {
                       <div className="flex min-w-0 items-center gap-3">
                         <span
                           aria-hidden="true"
-                          className={`h-1.5 w-1.5 shrink-0 rounded-full ${sch.enabled ? 'bg-emerald-500' : 'bg-zinc-500'}`}
+                          className={`h-1.5 w-1.5 shrink-0 rounded-full ${sch.enabled ? 'bg-status-success' : 'bg-zinc-500'}`}
                         />
                         <span className="truncate text-sm font-medium text-white">{sch.name}</span>
                         {fws.map(fw => <Badge key={fw} size="xs">{fw}</Badge>)}
@@ -516,9 +516,9 @@ export default function ComplianceExportsPage() {
               <div className="space-y-2">
                 {trends.slice(0, 10).map((t, i) => {
                   const barColor =
-                    t.coverage_percentage >= 80 ? 'bg-emerald-500'
-                    : t.coverage_percentage >= 60 ? 'bg-amber-500'
-                    : 'bg-red-500';
+                    t.coverage_percentage >= 80 ? 'bg-status-success'
+                    : t.coverage_percentage >= 60 ? 'bg-status-warning'
+                    : 'bg-status-error';
                   return (
                     <div key={i} className="flex items-center justify-between gap-3 py-1.5">
                       <div className="flex items-center gap-2">

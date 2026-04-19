@@ -184,14 +184,14 @@ export default function PolicyGeneratePage() {
           type="button"
           onClick={handleGenerate}
           disabled={loading || !inputText.trim()}
-          className="mt-4 rounded bg-orange-600 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-4 rounded bg-orange-600 px-4 py-2 font-medium text-white transition-colors hover:bg-brand disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? 'Generating...' : 'Generate Drafts'}
         </button>
       </div>
 
       {warnings.length > 0 && (
-        <div className="mb-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-sm text-warning">
+        <div className="mb-6 rounded-xl border border-yellow-500/20 bg-status-warning/10 px-4 py-3 text-sm text-warning">
           {warnings.length === 1 ? warnings[0] : `${warnings.length} generation warnings were returned.`}
         </div>
       )}
