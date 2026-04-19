@@ -46,14 +46,14 @@ export default function GuardSimulation() {
           <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
             <div className="flex items-center gap-3">
               <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-zinc-800 border border-white/5"></div>
-                <div className="w-3 h-3 rounded-full bg-zinc-800 border border-white/5"></div>
-                <div className="w-3 h-3 rounded-full bg-zinc-800 border border-white/5"></div>
+                <div className="w-3 h-3 rounded-full bg-tertiary border border-white/5"></div>
+                <div className="w-3 h-3 rounded-full bg-tertiary border border-white/5"></div>
+                <div className="w-3 h-3 rounded-full bg-tertiary border border-white/5"></div>
               </div>
-              <div className="h-4 w-px bg-zinc-800 mx-1"></div>
+              <div className="h-4 w-px bg-tertiary mx-1"></div>
               <div className="flex items-center gap-2">
                 <Activity size={12} className="text-brand animate-pulse" />
-                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-bold">Runtime Interception</span>
+                <span className="text-[10px] font-mono text-tertiary uppercase tracking-widest font-bold">Runtime Interception</span>
               </div>
             </div>
             
@@ -61,12 +61,12 @@ export default function GuardSimulation() {
               {step === 'finished' && (
                 <button 
                   onClick={reset}
-                  className="text-[10px] font-bold text-zinc-500 hover:text-brand uppercase tracking-tight transition-colors"
+                  className="text-[10px] font-bold text-tertiary hover:text-brand uppercase tracking-tight transition-colors"
                 >
                   Restart Demo
                 </button>
               )}
-              <div className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[9px] font-mono text-zinc-500">
+              <div className="px-2 py-0.5 rounded bg-secondary border border-zinc-800 text-[9px] font-mono text-tertiary">
                 v2.1.0-stable
               </div>
             </div>
@@ -76,42 +76,42 @@ export default function GuardSimulation() {
             {/* Left Column: The Agent Environment */}
             <div className="flex-1 p-8 flex flex-col bg-gradient-to-br from-transparent to-white/[0.01] text-left">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center shadow-inner">
-                  <Cpu size={16} className="text-zinc-400" />
+                <div className="w-8 h-8 rounded-xl bg-secondary border border-white/5 flex items-center justify-center shadow-inner">
+                  <Cpu size={16} className="text-secondary" />
                 </div>
                 <div>
-                  <h4 className="text-[11px] font-bold text-zinc-300 uppercase tracking-tight">Autonomous Actor</h4>
-                  <p className="text-[9px] text-zinc-500 font-mono">agent-moltfire-01</p>
+                  <h4 className="text-[11px] font-bold text-secondary uppercase tracking-tight">Autonomous Actor</h4>
+                  <p className="text-[9px] text-tertiary font-mono">agent-moltfire-01</p>
                 </div>
               </div>
 
               <div className="flex-1 font-mono text-[13px] leading-relaxed text-left">
-                <div className="flex items-center gap-3 text-zinc-500 mb-4">
+                <div className="flex items-center gap-3 text-tertiary mb-4">
                   <span className="text-brand/50 font-sans">#</span>
                   <span className="italic">Attempting cross-region deployment...</span>
                 </div>
                 
-                <div className="flex items-start gap-3 text-zinc-300 mb-6">
-                  <span className="text-zinc-600 mt-1.5 select-none opacity-50 font-mono text-xs">&gt;</span>
+                <div className="flex items-start gap-3 text-secondary mb-6">
+                  <span className="text-disabled mt-1.5 select-none opacity-50 font-mono text-xs">&gt;</span>
                   <div className="bg-black/50 p-4 rounded-lg border border-white/5 w-full font-mono text-[12px] leading-relaxed shadow-inner text-left">
                     <div>
                       <span className="text-purple-400">const</span>
-                      <span className="text-zinc-300"> decision = </span>
+                      <span className="text-secondary"> decision = </span>
                       <span className="text-purple-400">await</span>
-                      <span className="text-zinc-300"> claw.</span>
+                      <span className="text-secondary"> claw.</span>
                       <span className="text-yellow-200">guard</span>
-                      <span className="text-zinc-400">({'{'}</span>
+                      <span className="text-secondary">({'{'}</span>
                     </div>
                     <div className="pl-6">
-                      <span className="text-zinc-400">action: </span>
-                      <span className="text-emerald-400">&quot;db_migration&quot;</span>
-                      <span className="text-zinc-400">,</span>
+                      <span className="text-secondary">action: </span>
+                      <span className="text-success">&quot;db_migration&quot;</span>
+                      <span className="text-secondary">,</span>
                     </div>
                     <div className="pl-6">
-                      <span className="text-zinc-400">risk: </span>
+                      <span className="text-secondary">risk: </span>
                       <span className="text-cyan-400">92</span>
                     </div>
-                    <div><span className="text-zinc-400">{'}'})</span></div>
+                    <div><span className="text-secondary">{'}'})</span></div>
                   </div>
                 </div>
 
@@ -121,9 +121,9 @@ export default function GuardSimulation() {
                       {step === 'requesting' ? (
                         <div className="w-1.5 h-1.5 rounded-full bg-brand animate-ping"></div>
                       ) : (
-                        <CheckCircle2 size={12} className="text-green-500" />
+                        <CheckCircle2 size={12} className="text-success" />
                       )}
-                      <span className={step === 'requesting' ? "text-zinc-300" : "text-zinc-500"}>Connecting to DashClaw Runtime...</span>
+                      <span className={step === 'requesting' ? "text-secondary" : "text-tertiary"}>Connecting to DashClaw Runtime...</span>
                     </div>
                     
                     {(step === 'evaluating' || step === 'approval' || step === 'finished') && (
@@ -131,21 +131,21 @@ export default function GuardSimulation() {
                         {step === 'evaluating' ? (
                           <div className="w-1.5 h-1.5 rounded-full bg-brand animate-ping"></div>
                         ) : (
-                          <CheckCircle2 size={12} className="text-green-500" />
+                          <CheckCircle2 size={12} className="text-success" />
                         )}
-                        <span className={step === 'evaluating' ? "text-zinc-300" : "text-zinc-500"}>Evaluating semantic policies...</span>
+                        <span className={step === 'evaluating' ? "text-secondary" : "text-tertiary"}>Evaluating semantic policies...</span>
                       </div>
                     )}
 
                     {step === 'finished' && (
-                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'} animate-in zoom-in-95 duration-300 shadow-lg`}>
+                      <div className={`mt-4 p-4 rounded-xl border ${decision === 'allowed' ? 'bg-green-500/10 border-green-500/30 text-success' : 'bg-error-subtle border-error/30 text-error'} animate-in zoom-in-95 duration-300 shadow-lg`}>
                         <div className="flex items-center gap-3 mb-2">
-                          {decision === 'allowed' ? <ShieldCheck size={20} className="text-emerald-400" /> : <ShieldAlert size={20} className="text-red-400" />}
-                          <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {decision === 'allowed' ? <ShieldCheck size={20} className="text-success" /> : <ShieldAlert size={20} className="text-error" />}
+                          <span className={`font-black text-lg tracking-tighter uppercase ${decision === 'allowed' ? 'text-success' : 'text-error'}`}>
                             {decision === 'allowed' ? 'APPROVED' : 'BLOCKED'}
                           </span>
                         </div>
-                        <p className="text-[11px] font-medium pl-8 leading-relaxed text-zinc-300">
+                        <p className="text-[11px] font-medium pl-8 leading-relaxed text-secondary">
                           {decision === 'allowed' 
                             ? 'Action permitted under governance. Decision evidence recorded and signed.' 
                             : 'Action blocked by policy. The agent was prevented from reaching production.'}
@@ -170,7 +170,7 @@ export default function GuardSimulation() {
             </div>
 
             {/* Right Column: DashClaw Guard Logic */}
-            <div className="md:w-[380px] p-8 bg-zinc-900/30 border-l border-white/5 relative flex flex-col shadow-2xl">
+            <div className="md:w-[380px] p-8 bg-secondary/30 border-l border-white/5 relative flex flex-col shadow-2xl">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.1)]">
@@ -179,7 +179,7 @@ export default function GuardSimulation() {
                   <h4 className="text-[11px] font-bold text-brand uppercase tracking-tight">Policy Firewall</h4>
                 </div>
                 <div className="flex gap-1">
-                  <div className={`w-1.5 h-1.5 rounded-full ${step !== 'idle' ? 'bg-green-500 animate-pulse' : 'bg-zinc-700'}`}></div>
+                  <div className={`w-1.5 h-1.5 rounded-full ${step !== 'idle' ? 'bg-green-500 animate-pulse' : 'bg-elevated'}`}></div>
                 </div>
               </div>
 
@@ -191,13 +191,13 @@ export default function GuardSimulation() {
                     : 'bg-black border-white/5 shadow-xl opacity-100'
                 }`}>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest text-[8px]">Active Policy Match</span>
+                    <span className="text-[9px] text-tertiary font-bold uppercase tracking-widest text-[8px]">Active Policy Match</span>
                     {step === 'evaluating' ? (
                       <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand/10 border border-brand/20 text-[8px] font-bold text-brand animate-pulse">
                         SCANNING
                       </div>
                     ) : (step === 'approval' || step === 'finished') ? (
-                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[8px] font-bold text-red-400">
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-error-subtle border border-error/20 text-[8px] font-bold text-error">
                         CRITICAL
                       </div>
                     ) : null}
@@ -206,16 +206,16 @@ export default function GuardSimulation() {
                   <div className={`space-y-2 transition-all duration-500 ${
                     (step === 'evaluating' || step === 'approval' || step === 'finished') ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
                   }`}>
-                    <div className="text-[11px] font-mono text-zinc-200 bg-zinc-900/80 p-2 rounded border border-white/5 leading-relaxed relative overflow-hidden">
-                      <span className="text-zinc-500 uppercase text-[9px]">Rule:</span> PRODUCTION_INTEGRITY<br/>
-                      <span className="text-zinc-500 uppercase text-[9px]">Trigger:</span> RISK_SCORE &gt; 80
+                    <div className="text-[11px] font-mono text-secondary bg-secondary/80 p-2 rounded border border-white/5 leading-relaxed relative overflow-hidden">
+                      <span className="text-tertiary uppercase text-[9px]">Rule:</span> PRODUCTION_INTEGRITY<br/>
+                      <span className="text-tertiary uppercase text-[9px]">Trigger:</span> RISK_SCORE &gt; 80
                       {step === 'evaluating' && (
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand/10 to-transparent animate-shimmer -translate-x-full"></div>
                       )}
                     </div>
                     <div className="flex items-center justify-between text-[10px] px-1">
-                      <span className="text-zinc-500 text-[9px]">Status</span>
-                      <span className={step === 'evaluating' ? "text-zinc-600 italic" : "text-brand font-bold"}>
+                      <span className="text-tertiary text-[9px]">Status</span>
+                      <span className={step === 'evaluating' ? "text-disabled italic" : "text-brand font-bold"}>
                         {step === 'evaluating' ? 'Analyzing...' : 'Interception Required'}
                       </span>
                     </div>
@@ -227,8 +227,8 @@ export default function GuardSimulation() {
                   {/* Idle/Standby State */}
                   {(step === 'idle' || step === 'requesting' || step === 'evaluating') && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-20 transition-opacity duration-700">
-                      <Radar className="text-zinc-500 mb-2" size={48} />
-                      <p className="text-[9px] text-zinc-500 font-mono uppercase tracking-[0.2em]">Decisional Stream Standby</p>
+                      <Radar className="text-tertiary mb-2" size={48} />
+                      <p className="text-[9px] text-tertiary font-mono uppercase tracking-[0.2em]">Decisional Stream Standby</p>
                     </div>
                   )}
 
@@ -242,7 +242,7 @@ export default function GuardSimulation() {
                         <span className="text-[10px] font-extrabold text-white uppercase tracking-widest">Awaiting Approval</span>
                       </div>
                       
-                      <p className="text-[11px] text-zinc-400 mb-5 leading-relaxed">
+                      <p className="text-[11px] text-secondary mb-5 leading-relaxed">
                         High-risk action detected. Human intervention required before execution.
                       </p>
 
@@ -268,17 +268,17 @@ export default function GuardSimulation() {
                     step === 'finished' ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
                   }`}>
                     <div className="p-4 rounded-2xl bg-black border border-white/5 text-center space-y-3 shadow-xl h-full flex flex-col justify-center">
-                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 text-emerald-400 mb-1">
+                      <div className="inline-flex w-10 h-10 mx-auto items-center justify-center rounded-full bg-green-500/10 border border-green-500/20 text-success mb-1">
                         <ShieldCheck size={20} />
                       </div>
-                      <div className="text-[11px] font-bold text-zinc-200 uppercase tracking-widest">Evidence Recorded</div>
-                      <div className="flex items-center gap-2 bg-zinc-900/50 p-2 rounded-lg border border-white/5">
-                        <div className="text-[9px] font-mono text-zinc-500 flex-1 truncate text-left italic">
+                      <div className="text-[11px] font-bold text-secondary uppercase tracking-widest">Evidence Recorded</div>
+                      <div className="flex items-center gap-2 bg-secondary/50 p-2 rounded-lg border border-white/5">
+                        <div className="text-[9px] font-mono text-tertiary flex-1 truncate text-left italic">
                           act_9283_dec_signed_v1...
                         </div>
                         <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-green-500/10 border border-green-500/20">
-                          <CheckCircle2 size={10} className="text-emerald-400" />
-                          <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-tighter">verified</span>
+                          <CheckCircle2 size={10} className="text-success" />
+                          <span className="text-[8px] font-bold text-success uppercase tracking-tighter">verified</span>
                         </div>
                       </div>
                     </div>

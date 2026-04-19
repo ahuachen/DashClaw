@@ -215,9 +215,9 @@ export default function DecisionReplayPage() {
 
   const getRiskColor = (score) => {
     const s = parseInt(score, 10);
-    if (s >= 70) return 'text-red-400 bg-red-500/10 border-red-500/20';
-    if (s >= 40) return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-    return 'text-emerald-400 bg-green-500/10 border-green-500/20';
+    if (s >= 70) return 'text-error bg-error-subtle border-error/20';
+    if (s >= 40) return 'text-warning bg-warning-subtle border-warning/20';
+    return 'text-success bg-green-500/10 border-green-500/20';
   };
 
   // --- Assumption actions ---
@@ -307,9 +307,9 @@ export default function DecisionReplayPage() {
       <PageLayout title="Decision Not Found" breadcrumbs={['Governance', 'Decisions', actionId]}>
         <Card hover={false} className="max-w-md mx-auto mt-12 text-center">
           <CardContent className="pt-8">
-            <Search size={32} className="text-zinc-600 mx-auto mb-3" />
+            <Search size={32} className="text-disabled mx-auto mb-3" />
             <div className="text-lg font-medium text-white mb-2">{error || 'Decision not found'}</div>
-            <div className="text-sm text-zinc-500">Decision ID: {actionId}</div>
+            <div className="text-sm text-tertiary">Decision ID: {actionId}</div>
           </CardContent>
         </Card>
       </PageLayout>
@@ -360,24 +360,24 @@ export default function DecisionReplayPage() {
       actions={
         <div className="flex items-center gap-3">
           {action.verified ? (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-500 uppercase tracking-wider" title="Decision cryptographically signed by agent">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-success-subtle border border-success/20 text-[10px] font-bold text-success uppercase tracking-wider" title="Decision cryptographically signed by agent">
               <ShieldCheck size={12} /> Verified Agent
             </div>
           ) : action.signature ? (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-500 uppercase tracking-wider" title="Cryptographic signature is invalid">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-error-subtle border border-error/20 text-[10px] font-bold text-error uppercase tracking-wider" title="Cryptographic signature is invalid">
               <ShieldAlert size={12} /> Invalid Signature
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-500 uppercase tracking-wider" title="No cryptographic signature provided">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-tertiary uppercase tracking-wider" title="No cryptographic signature provided">
               <Info size={12} /> Unsigned Decision
             </div>
           )}
           
           {/* Dominant Decision Signal */}
           <div className={`flex items-center gap-2 px-3 py-1 rounded-lg border font-black text-xs tracking-tighter ${
-            guardDecision?.decision === 'block' ? 'bg-red-500/20 border-red-500/40 text-red-400' :
-            guardDecision?.decision === 'require_approval' ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' :
-            'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+            guardDecision?.decision === 'block' ? 'bg-error-subtle border-error/40 text-error' :
+            guardDecision?.decision === 'require_approval' ? 'bg-warning-subtle border-warning/40 text-warning' :
+            'bg-success-subtle border-success/40 text-success'
           }`}>
             <div className={`w-2 h-2 rounded-full animate-pulse ${
               guardDecision?.decision === 'block' ? 'bg-red-500' :
@@ -393,7 +393,7 @@ export default function DecisionReplayPage() {
               navigator.clipboard.writeText(url);
               alert('Replay link copied to clipboard!');
             }}
-            className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-semibold text-zinc-300 hover:bg-white/10 hover:text-white transition-all"
+            className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded text-xs font-semibold text-secondary hover:bg-white/10 hover:text-white transition-all"
           >
             <ExternalLink size={14} /> Share
           </button>
@@ -405,21 +405,21 @@ export default function DecisionReplayPage() {
         <Card hover={false} className={`border ${getRiskColor(action.risk_score)}`}>
           <CardContent className="pt-4 pb-4 text-center">
             <div className="text-2xl font-semibold tabular-nums">{action.risk_score || 0}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Risk Score</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Risk Score</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4 text-center">
             <div className="text-2xl font-semibold tabular-nums text-white">{action.confidence || 50}%</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Confidence</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Confidence</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4 text-center">
-            <div className={`text-2xl font-semibold tabular-nums ${action.reversible ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`text-2xl font-semibold tabular-nums ${action.reversible ? 'text-success' : 'text-error'}`}>
               {action.reversible ? 'Yes' : 'No'}
             </div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Reversible</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Reversible</div>
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -427,13 +427,13 @@ export default function DecisionReplayPage() {
             <div className="text-2xl font-semibold tabular-nums text-white">
               {action.duration_ms ? `${(action.duration_ms / 1000).toFixed(1)}s` : '--'}
             </div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Duration</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Duration</div>
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4 text-center">
             <div className="text-2xl font-semibold tabular-nums text-purple-400">${parseFloat(action.cost_estimate || 0).toFixed(4)}</div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Cost</div>
+            <div className="text-[10px] text-tertiary uppercase tracking-wider mt-1">Cost</div>
           </CardContent>
         </Card>
       </div>
@@ -447,7 +447,7 @@ export default function DecisionReplayPage() {
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors relative ${
               activeTab === tab.id
                 ? 'text-brand'
-                : 'text-zinc-500 hover:text-zinc-300'
+                : 'text-tertiary hover:text-secondary'
             }`}
           >
             <tab.icon size={16} />
@@ -472,12 +472,12 @@ export default function DecisionReplayPage() {
                 <CardContent>
                   {(messages.length > 0) && (
                     <div className="flex flex-wrap items-center gap-2 pb-3 mb-3 border-b border-border text-[11px]">
-                      <span className="text-zinc-500 uppercase tracking-wider font-medium">
+                      <span className="text-tertiary uppercase tracking-wider font-medium">
                         Messages: {messages.length}
                       </span>
                       {messageCorrelation === 'time_window' && (
                         <span
-                          className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest border border-amber-500/20 bg-amber-500/10 rounded px-1.5 py-0.5"
+                          className="text-[10px] font-bold text-warning/80 uppercase tracking-widest border border-warning/20 bg-warning-subtle rounded px-1.5 py-0.5"
                           title="No messages tagged this action explicitly; showing messages sent during the action's time window."
                         >
                           inferred from timing
@@ -485,22 +485,22 @@ export default function DecisionReplayPage() {
                       )}
                       {messageCorrelation === 'explicit' && (
                         <span
-                          className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-widest border border-emerald-500/20 bg-emerald-500/10 rounded px-1.5 py-0.5"
+                          className="text-[10px] font-bold text-success/80 uppercase tracking-widest border border-success/20 bg-success-subtle rounded px-1.5 py-0.5"
                           title="Messages were tagged with this action_id by the SDK."
                         >
                           explicitly linked
                         </span>
                       )}
                       {messageThreadName && (
-                        <span className="text-zinc-500">
-                          Thread: <span className="text-zinc-300">{messageThreadName}</span>
+                        <span className="text-tertiary">
+                          Thread: <span className="text-secondary">{messageThreadName}</span>
                         </span>
                       )}
                     </div>
                   )}
                   <div className="space-y-0">
                     {timelineEvents.length === 0 && (
-                      <div className="text-sm text-zinc-500 py-4">No timeline events to display.</div>
+                      <div className="text-sm text-tertiary py-4">No timeline events to display.</div>
                     )}
                     {timelineEvents.map((event, idx) => {
                       if (event.type === 'message') {
@@ -510,19 +510,19 @@ export default function DecisionReplayPage() {
                         return (
                           <div key={`guard-${idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
-                              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                <ShieldCheck size={14} className="text-emerald-400" />
+                              <div className="w-8 h-8 rounded-full bg-success-subtle flex items-center justify-center flex-shrink-0">
+                                <ShieldCheck size={14} className="text-success" />
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex items-center gap-2 text-xs mb-1">
-                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
-                                <span className="text-zinc-500 uppercase font-medium">Guard</span>
+                                <span className="text-tertiary">{formatTime(event.timestamp)}</span>
+                                <span className="text-tertiary uppercase font-medium">Guard</span>
                               </div>
-                              <div className="text-sm text-zinc-300">
-                                Decision: <span className={event.data.decision === 'allow' ? 'text-emerald-400' : 'text-red-400'}>{event.data.decision?.toUpperCase()}</span>
-                                {event.data.risk_score != null && <span className="text-zinc-500 ml-2">(risk {event.data.risk_score})</span>}
+                              <div className="text-sm text-secondary">
+                                Decision: <span className={event.data.decision === 'allow' ? 'text-success' : 'text-error'}>{event.data.decision?.toUpperCase()}</span>
+                                {event.data.risk_score != null && <span className="text-tertiary ml-2">(risk {event.data.risk_score})</span>}
                               </div>
                             </div>
                           </div>
@@ -532,21 +532,21 @@ export default function DecisionReplayPage() {
                         return (
                           <div key={`start-${idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
-                              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                <Rocket size={14} className="text-blue-400" />
+                              <div className="w-8 h-8 rounded-full bg-info-subtle flex items-center justify-center flex-shrink-0">
+                                <Rocket size={14} className="text-info" />
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex items-center gap-2 text-xs mb-1">
-                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
-                                <span className="text-zinc-500 uppercase font-medium">Action Started</span>
+                                <span className="text-tertiary">{formatTime(event.timestamp)}</span>
+                                <span className="text-tertiary uppercase font-medium">Action Started</span>
                               </div>
-                              <div className="text-sm text-zinc-300">
+                              <div className="text-sm text-secondary">
                                 {event.data.action_type} — {event.data.declared_goal}
                               </div>
                               {event.data.reasoning && (
-                                <div className="text-xs text-zinc-500 mt-1">{event.data.reasoning}</div>
+                                <div className="text-xs text-tertiary mt-1">{event.data.reasoning}</div>
                               )}
                             </div>
                           </div>
@@ -563,11 +563,11 @@ export default function DecisionReplayPage() {
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex items-center gap-2 text-xs mb-1">
-                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
-                                <span className="text-zinc-500 uppercase font-medium">Assumption</span>
-                                {event.data.validated ? <CheckCircle2 size={12} className="text-emerald-400" /> : event.data.invalidated ? <XCircle size={12} className="text-red-400" /> : <Clock size={12} className="text-zinc-500" />}
+                                <span className="text-tertiary">{formatTime(event.timestamp)}</span>
+                                <span className="text-tertiary uppercase font-medium">Assumption</span>
+                                {event.data.validated ? <CheckCircle2 size={12} className="text-success" /> : event.data.invalidated ? <XCircle size={12} className="text-error" /> : <Clock size={12} className="text-tertiary" />}
                               </div>
-                              <div className="text-sm text-zinc-300">{event.data.assumption}</div>
+                              <div className="text-sm text-secondary">{event.data.assumption}</div>
                             </div>
                           </div>
                         );
@@ -577,18 +577,18 @@ export default function DecisionReplayPage() {
                         return (
                           <div key={`outcome-${idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
-                              <div className={`w-8 h-8 rounded-full ${isSuccessOutcome ? 'bg-green-500/20' : 'bg-red-500/20'} flex items-center justify-center flex-shrink-0`}>
-                                {isSuccessOutcome ? <CheckCircle2 size={14} className="text-emerald-400" /> : <XCircle size={14} className="text-red-400" />}
+                              <div className={`w-8 h-8 rounded-full ${isSuccessOutcome ? 'bg-green-500/20' : 'bg-error-subtle'} flex items-center justify-center flex-shrink-0`}>
+                                {isSuccessOutcome ? <CheckCircle2 size={14} className="text-success" /> : <XCircle size={14} className="text-error" />}
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex items-center gap-2 text-xs mb-1">
-                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
-                                <span className="text-zinc-500 uppercase font-medium">Outcome</span>
+                                <span className="text-tertiary">{formatTime(event.timestamp)}</span>
+                                <span className="text-tertiary uppercase font-medium">Outcome</span>
                               </div>
-                              <div className="text-sm text-zinc-300">{event.data.output_summary || event.data.error_message}</div>
-                              <div className="flex gap-3 text-xs text-zinc-500 mt-1">
+                              <div className="text-sm text-secondary">{event.data.output_summary || event.data.error_message}</div>
+                              <div className="flex gap-3 text-xs text-tertiary mt-1">
                                 {event.data.duration_ms && <span>{event.data.duration_ms}ms</span>}
                                 {event.data.cost_estimate > 0 && <span>${parseFloat(event.data.cost_estimate).toFixed(4)}</span>}
                                 {(event.data.tokens_in > 0 || event.data.tokens_out > 0) && (
@@ -604,18 +604,18 @@ export default function DecisionReplayPage() {
                           <div key={`loop-${event.data.loop_id || idx}`} className="flex gap-3 py-3">
                             <div className="flex flex-col items-center">
                               <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
-                                <AlertTriangle size={14} className="text-amber-400" />
+                                <AlertTriangle size={14} className="text-warning" />
                               </div>
                               <div className="w-px flex-1 bg-[rgba(255,255,255,0.06)] mt-2" />
                             </div>
                             <div className="min-w-0 flex-1 pb-2">
                               <div className="flex items-center gap-2 text-xs mb-1">
-                                <span className="text-zinc-500">{formatTime(event.timestamp)}</span>
-                                <span className="text-zinc-500 uppercase font-medium">Open Loop</span>
-                                <span className={`text-xs ${event.data.status === 'open' ? 'text-yellow-500' : 'text-green-500'}`}>{event.data.status}</span>
+                                <span className="text-tertiary">{formatTime(event.timestamp)}</span>
+                                <span className="text-tertiary uppercase font-medium">Open Loop</span>
+                                <span className={`text-xs ${event.data.status === 'open' ? 'text-warning' : 'text-success'}`}>{event.data.status}</span>
                               </div>
-                              <div className="text-sm text-zinc-300">{event.data.description}</div>
-                              <div className="text-xs text-zinc-500 mt-0.5">{event.data.loop_type} / {event.data.priority}</div>
+                              <div className="text-sm text-secondary">{event.data.description}</div>
+                              <div className="text-xs text-tertiary mt-0.5">{event.data.loop_type} / {event.data.priority}</div>
                             </div>
                           </div>
                         );
@@ -635,10 +635,10 @@ export default function DecisionReplayPage() {
                     <div className="relative flex gap-4 pl-1">
                       <div className="z-10 mt-1 h-4 w-4 rounded-full bg-blue-500 border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" />
                       <div>
-                        <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-1">Goal Declared</div>
+                        <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Goal Declared</div>
                         <div className="text-sm text-white font-medium">{action.declared_goal}</div>
                         {action.reasoning && (
-                          <div className="mt-2 text-xs text-zinc-500 bg-white/5 p-2 rounded italic">
+                          <div className="mt-2 text-xs text-tertiary bg-white/5 p-2 rounded italic">
                             &ldquo;{action.reasoning}&rdquo;
                           </div>
                         )}
@@ -653,19 +653,19 @@ export default function DecisionReplayPage() {
                         guardDecision?.decision === 'require_approval' ? 'bg-amber-500' : 'bg-zinc-500'
                       }`} />
                       <div className="flex-1">
-                        <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-1">Policy Evaluation</div>
+                        <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Policy Evaluation</div>
                         {guardDecision ? (
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2">
                               <Badge variant={getStatusVariant(guardDecision.decision === 'allow' ? 'completed' : guardDecision.decision === 'block' ? 'failed' : 'running')} size="xs">
                                 {guardDecision.decision.toUpperCase()}
                               </Badge>
-                              {guardDecision.reason && <span className="text-xs text-zinc-300">{guardDecision.reason}</span>}
+                              {guardDecision.reason && <span className="text-xs text-secondary">{guardDecision.reason}</span>}
                             </div>
                             {guardDecision.matched_policies && (
                               <div className="flex flex-wrap gap-1">
                                 {parseJsonArray(guardDecision.matched_policies).map((p, i) => (
-                                  <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 border border-white/10">
+                                  <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-secondary border border-white/10">
                                     {typeof p === 'string' ? p : p.name || p.id}
                                   </span>
                                 ))}
@@ -673,7 +673,7 @@ export default function DecisionReplayPage() {
                             )}
                           </div>
                         ) : (
-                          <div className="text-xs text-zinc-500 italic">No guard evaluation recorded for this decision.</div>
+                          <div className="text-xs text-tertiary italic">No guard evaluation recorded for this decision.</div>
                         )}
                       </div>
                     </div>
@@ -686,14 +686,14 @@ export default function DecisionReplayPage() {
                           assumptions.some(a => a.invalidated) ? 'bg-red-500' : 'bg-amber-500'
                         }`} />
                         <div>
-                          <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-1">Assumption Check</div>
+                          <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Assumption Check</div>
                           <div className="space-y-2 mt-2">
                             {assumptions.map((asm, i) => (
                               <div key={i} className="flex items-center gap-2 text-xs">
-                                {asm.validated ? <CheckCircle2 size={12} className="text-emerald-500" /> :
-                                 asm.invalidated ? <XCircle size={12} className="text-red-500" /> :
-                                 <HelpCircle size={12} className="text-amber-500" />}
-                                <span className={asm.invalidated ? 'text-red-300' : 'text-zinc-300'}>{asm.assumption}</span>
+                                {asm.validated ? <CheckCircle2 size={12} className="text-success" /> :
+                                 asm.invalidated ? <XCircle size={12} className="text-error" /> :
+                                 <HelpCircle size={12} className="text-warning" />}
+                                <span className={asm.invalidated ? 'text-error' : 'text-secondary'}>{asm.assumption}</span>
                               </div>
                             ))}
                           </div>
@@ -706,10 +706,10 @@ export default function DecisionReplayPage() {
                       <div className="relative flex gap-4 pl-1">
                         <div className="z-10 mt-1 h-4 w-4 rounded-full bg-amber-500 border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(245,158,11,0.3)]" />
                         <div>
-                          <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-1">Risk Signals</div>
+                          <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Risk Signals</div>
                           <div className="space-y-1.5 mt-2">
                             {trace.root_cause_indicators.map((sig, i) => (
-                              <div key={i} className="flex items-center gap-2 text-xs text-amber-300">
+                              <div key={i} className="flex items-center gap-2 text-xs text-warning">
                                 <ShieldAlert size={12} />
                                 <span>{sig.type.replace(/_/g, ' ')} detected ({sig.count})</span>
                               </div>
@@ -723,15 +723,15 @@ export default function DecisionReplayPage() {
                     <div className="relative flex gap-4 pl-1">
                       <div className={`z-10 mt-1 h-4 w-4 rounded-full border-4 border-surface-secondary shadow-[0_0_0_1px_rgba(255,255,255,0.1)] ${getStatusVariant(action.status) === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`} />
                       <div>
-                        <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-1">Final Outcome</div>
+                        <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-1">Final Outcome</div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-lg font-bold tracking-tight ${getStatusVariant(action.status) === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          <span className={`text-lg font-bold tracking-tight ${getStatusVariant(action.status) === 'success' ? 'text-success' : 'text-error'}`}>
                             {action.status.toUpperCase()}
                           </span>
-                          {action.duration_ms && <span className="text-xs text-zinc-500">in {(action.duration_ms / 1000).toFixed(2)}s</span>}
+                          {action.duration_ms && <span className="text-xs text-tertiary">in {(action.duration_ms / 1000).toFixed(2)}s</span>}
                         </div>
                         {action.output_summary && (
-                          <div className="mt-2 text-sm text-zinc-300 bg-surface-tertiary p-3 rounded-lg border border-white/5">
+                          <div className="mt-2 text-sm text-secondary bg-surface-tertiary p-3 rounded-lg border border-white/5">
                             {action.output_summary}
                           </div>
                         )}
@@ -765,24 +765,24 @@ export default function DecisionReplayPage() {
                     <div className="space-y-6">
                       <div className="flex items-center justify-between p-4 rounded-lg bg-surface-tertiary border border-white/5">
                         <div>
-                          <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Decision</div>
+                          <div className="text-xs text-tertiary uppercase tracking-wider mb-1">Decision</div>
                           <div className={`text-xl font-bold ${
-                            guardDecision.decision === 'allow' ? 'text-emerald-400' :
-                            guardDecision.decision === 'block' ? 'text-red-400' : 'text-amber-400'
+                            guardDecision.decision === 'allow' ? 'text-success' :
+                            guardDecision.decision === 'block' ? 'text-error' : 'text-warning'
                           }`}>
                             {guardDecision.decision.toUpperCase()}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Evaluated At</div>
-                          <div className="text-sm text-zinc-300">{formatTime(guardDecision.created_at)}</div>
+                          <div className="text-xs text-tertiary uppercase tracking-wider mb-1">Evaluated At</div>
+                          <div className="text-sm text-secondary">{formatTime(guardDecision.created_at)}</div>
                         </div>
                       </div>
 
                       {guardDecision.reason && (
                         <div>
-                          <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Reasoning</div>
-                          <div className="p-4 rounded-lg bg-white/5 text-sm text-zinc-300 italic">
+                          <div className="text-xs text-tertiary uppercase tracking-wider mb-2">Reasoning</div>
+                          <div className="p-4 rounded-lg bg-white/5 text-sm text-secondary italic">
                             &ldquo;{guardDecision.reason}&rdquo;
                           </div>
                         </div>
@@ -790,11 +790,11 @@ export default function DecisionReplayPage() {
 
                       {guardDecision.matched_policies && (
                         <div>
-                          <div className="text-xs text-zinc-500 uppercase tracking-wider mb-3">Enforced Policies</div>
+                          <div className="text-xs text-tertiary uppercase tracking-wider mb-3">Enforced Policies</div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {parseJsonArray(guardDecision.matched_policies).map((p, i) => (
                               <div key={i} className="p-3 rounded-lg border border-white/5 bg-surface-tertiary flex items-center gap-3">
-                                <ShieldCheck size={16} className="text-emerald-400" />
+                                <ShieldCheck size={16} className="text-success" />
                                 <div className="text-sm text-white font-medium">{typeof p === 'string' ? p : p.name || p.id}</div>
                               </div>
                             ))}
@@ -804,10 +804,10 @@ export default function DecisionReplayPage() {
                     </div>
                   ) : (
                     <div className="py-12 text-center">
-                      <HelpCircle size={40} className="text-zinc-600 mx-auto mb-4" />
+                      <HelpCircle size={40} className="text-disabled mx-auto mb-4" />
                       <div className="text-white font-medium mb-2">No Governance Data</div>
-                      <p className="text-sm text-zinc-500 max-w-sm mx-auto">
-                        This decision was not governed by the DashClaw Guard engine. Ensure your SDK implementation uses <code className="text-zinc-400">claw.guard()</code> for full decision replay capability.
+                      <p className="text-sm text-tertiary max-w-sm mx-auto">
+                        This decision was not governed by the DashClaw Guard engine. Ensure your SDK implementation uses <code className="text-secondary">claw.guard()</code> for full decision replay capability.
                       </p>
                     </div>
                   )}
@@ -818,18 +818,18 @@ export default function DecisionReplayPage() {
               <Card hover={false}>
                 <CardHeader title="Governance Proof" icon={Scale} />
                 <CardContent>
-                  <div className="bg-zinc-950 p-6 rounded-lg border border-emerald-500/20 font-mono text-xs text-emerald-400/80 leading-relaxed overflow-x-auto">
-                    <div className="mb-4 text-emerald-500 font-bold uppercase tracking-widest">--- DashClaw Governance Evidence ---</div>
+                  <div className="bg-primary p-6 rounded-lg border border-success/20 font-mono text-xs text-success/80 leading-relaxed overflow-x-auto">
+                    <div className="mb-4 text-success font-bold uppercase tracking-widest">--- DashClaw Governance Evidence ---</div>
                     <div>DECISION_ID: {actionId}</div>
                     <div>TIMESTAMP: {new Date(action.timestamp_start).toISOString()}</div>
                     <div>AGENT: {action.agent_id}</div>
                     <div>OUTCOME: {action.status.toUpperCase()}</div>
-                    <div className="my-4 border-t border-emerald-500/20" />
+                    <div className="my-4 border-t border-success/20" />
                     <div>POLICIES_MATCHED: {guardDecision ? parseJsonArray(guardDecision.matched_policies).length : 0}</div>
                     <div>INTEGRITY_SIGNALS: {trace?.root_cause_indicators?.length || 0}</div>
                     <div>ASSUMPTIONS_CHECKED: {assumptions.length}</div>
-                    <div className="my-4 border-t border-emerald-500/20" />
-                    <div className="text-emerald-300 font-bold mt-4">VERIFIABLE_SIGNATURE:</div>
+                    <div className="my-4 border-t border-success/20" />
+                    <div className="text-success font-bold mt-4">VERIFIABLE_SIGNATURE:</div>
                     <div className="break-all mt-1 opacity-60">
                       dc_sig_v1_{Buffer.from(JSON.stringify({ id: actionId, status: action.status, salt: Math.random() })).toString('base64').substring(0, 128)}
                     </div>
@@ -854,21 +854,21 @@ export default function DecisionReplayPage() {
                             <div className="flex items-start space-x-3">
                               <span className="mt-1">
                                 {asm.validated
-                                  ? <CheckCircle2 size={18} className="text-emerald-400" />
+                                  ? <CheckCircle2 size={18} className="text-success" />
                                   : asm.invalidated
-                                    ? <XCircle size={18} className="text-red-400" />
-                                    : <HelpCircle size={18} className="text-amber-400" />
+                                    ? <XCircle size={18} className="text-error" />
+                                    : <HelpCircle size={18} className="text-warning" />
                                 }
                               </span>
                               <div className="flex-1">
                                 <div className="text-white text-sm font-medium">{asm.assumption}</div>
                                 {asm.basis && (
-                                  <div className="text-xs text-zinc-500 mt-2">
-                                    <span className="text-zinc-600 uppercase font-semibold text-[9px] tracking-wider">Basis:</span> {asm.basis}
+                                  <div className="text-xs text-tertiary mt-2">
+                                    <span className="text-disabled uppercase font-semibold text-[9px] tracking-wider">Basis:</span> {asm.basis}
                                   </div>
                                 )}
                                 {asm.invalidated_reason && (
-                                  <div className="text-xs text-red-400 mt-2 p-2 rounded bg-red-500/5 border border-red-500/10">
+                                  <div className="text-xs text-error mt-2 p-2 rounded bg-red-500/5 border border-error/10">
                                     <span className="font-semibold uppercase text-[9px] tracking-wider">Invalidated Reason:</span> {asm.invalidated_reason}
                                   </div>
                                 )}
@@ -888,12 +888,12 @@ export default function DecisionReplayPage() {
                                         placeholder="Invalidate with reason..."
                                         value={invalidateReasons[asm.assumption_id] || ''}
                                         onChange={(e) => setInvalidateReasons(prev => ({ ...prev, [asm.assumption_id]: e.target.value }))}
-                                        className="flex-1 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded text-[11px] text-white focus:outline-none focus:border-red-500/50"
+                                        className="flex-1 px-3 py-1.5 bg-secondary border border-white/10 rounded text-[11px] text-white focus:outline-none focus:border-error/50"
                                       />
                                       <button
                                         onClick={() => handleInvalidateAssumption(asm.assumption_id)}
                                         disabled={!invalidateReasons[asm.assumption_id]?.trim() || isPending}
-                                        className="px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 disabled:opacity-50 text-[11px] rounded font-semibold transition-colors"
+                                        className="px-3 py-1.5 bg-error-subtle border border-error/20 text-error hover:bg-error-subtle disabled:opacity-50 text-[11px] rounded font-semibold transition-colors"
                                       >
                                         Invalidate
                                       </button>
@@ -907,7 +907,7 @@ export default function DecisionReplayPage() {
                       })}
                     </div>
                   ) : (
-                    <div className="py-12 text-center text-zinc-500 text-sm">No explicit assumptions recorded for this decision.</div>
+                    <div className="py-12 text-center text-tertiary text-sm">No explicit assumptions recorded for this decision.</div>
                   )}
                 </CardContent>
               </Card>
@@ -917,13 +917,13 @@ export default function DecisionReplayPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-zinc-400">Current Drift Score</span>
-                      <span className="text-sm font-bold text-emerald-400">0.02 (Nominal)</span>
+                      <span className="text-sm text-secondary">Current Drift Score</span>
+                      <span className="text-sm font-bold text-success">0.02 (Nominal)</span>
                     </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-2 bg-tertiary rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500" style={{ width: '2%' }} />
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-tertiary">
                       Drift is calculated by comparing actual outcomes against declared intent and verified assumptions. A nominal score indicates high alignment.
                     </p>
                   </div>
@@ -941,13 +941,13 @@ export default function DecisionReplayPage() {
                     <div className="space-y-4">
                       {trace.root_cause_indicators.map((indicator, idx) => (
                         <div key={idx} className={`p-4 rounded-lg border-l-4 ${
-                          indicator.severity === 'high' ? 'border-red-500 bg-red-500/10' : 'border-amber-500 bg-amber-500/10'
+                          indicator.severity === 'high' ? 'border-error bg-error-subtle' : 'border-warning bg-warning-subtle'
                         }`}>
                           <div className="flex items-center justify-between mb-3">
                             <div className="text-white font-semibold text-sm flex items-center gap-2">
-                              {indicator.type === 'invalidated_assumptions' && <XCircle size={14} className="text-red-400" />}
-                              {indicator.type === 'unresolved_loops' && <RefreshCw size={14} className="text-amber-400" />}
-                              {indicator.type === 'parent_failures' && <ArrowUp size={14} className="text-amber-400" />}
+                              {indicator.type === 'invalidated_assumptions' && <XCircle size={14} className="text-error" />}
+                              {indicator.type === 'unresolved_loops' && <RefreshCw size={14} className="text-warning" />}
+                              {indicator.type === 'parent_failures' && <ArrowUp size={14} className="text-warning" />}
                               <span className="uppercase tracking-wider text-xs">{indicator.type.replace(/_/g, ' ')}</span>
                             </div>
                             <Badge variant={indicator.severity === 'high' ? 'error' : 'warning'} size="xs">
@@ -956,9 +956,9 @@ export default function DecisionReplayPage() {
                           </div>
                           <div className="space-y-2">
                             {indicator.detail.map((item, i) => (
-                              <div key={i} className="text-xs text-zinc-300 bg-black/20 p-2 rounded">
+                              <div key={i} className="text-xs text-secondary bg-black/20 p-2 rounded">
                                 {item.assumption || item.description || item.goal || 'Signal detail'}
-                                {item.reason && <span className="block mt-1 text-zinc-500">Reason: {item.reason}</span>}
+                                {item.reason && <span className="block mt-1 text-tertiary">Reason: {item.reason}</span>}
                               </div>
                             ))}
                           </div>
@@ -967,8 +967,8 @@ export default function DecisionReplayPage() {
                     </div>
                   ) : (
                     <div className="py-12 text-center">
-                      <ShieldCheck size={40} className="text-emerald-500/20 mx-auto mb-4" />
-                      <div className="text-zinc-400 font-medium">No anomaly signals detected</div>
+                      <ShieldCheck size={40} className="text-success/20 mx-auto mb-4" />
+                      <div className="text-secondary font-medium">No anomaly signals detected</div>
                     </div>
                   )}
                 </CardContent>
@@ -980,11 +980,11 @@ export default function DecisionReplayPage() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-12 flex items-end gap-1">
                       {[20, 35, 25, 60, 45, 30, 80, 20, 15, 25, 30, 35, 40].map((h, i) => (
-                        <div key={i} className={`flex-1 rounded-t-sm transition-all ${i === 6 ? 'bg-amber-500' : 'bg-zinc-800'}`} style={{ height: `${h}%` }} />
+                        <div key={i} className={`flex-1 rounded-t-sm transition-all ${i === 6 ? 'bg-amber-500' : 'bg-tertiary'}`} style={{ height: `${h}%` }} />
                       ))}
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-zinc-500 uppercase">Current Variance</div>
+                      <div className="text-xs text-tertiary uppercase">Current Variance</div>
                       <div className="text-lg font-bold text-white">+12%</div>
                     </div>
                   </div>
@@ -1004,49 +1004,49 @@ export default function DecisionReplayPage() {
                 <CardContent>
                   <div className="space-y-6">
                     <div>
-                      <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-3">Side Effects</div>
+                      <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-3">Side Effects</div>
                       {parseJsonArray(action.side_effects).length > 0 ? (
                         <div className="space-y-2">
                           {parseJsonArray(action.side_effects).map((se, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 rounded bg-amber-500/5 border border-amber-500/10 text-xs text-amber-200">
+                            <div key={i} className="flex items-center gap-3 p-3 rounded bg-amber-500/5 border border-warning/10 text-xs text-amber-200">
                               <AlertTriangle size={14} className="shrink-0" />
                               {se}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-xs text-zinc-500 italic">No side effects recorded.</div>
+                        <div className="text-xs text-tertiary italic">No side effects recorded.</div>
                       )}
                     </div>
 
                     <div>
-                      <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-3">Created Artifacts</div>
+                      <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-3">Created Artifacts</div>
                       {parseJsonArray(action.artifacts_created).length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {parseJsonArray(action.artifacts_created).map((a, i) => (
-                            <div key={i} className="px-3 py-1.5 rounded bg-blue-500/5 border border-blue-500/10 text-xs text-blue-300 font-mono">
+                            <div key={i} className="px-3 py-1.5 rounded bg-blue-500/5 border border-blue-500/10 text-xs text-info font-mono">
                               {a}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-xs text-zinc-500 italic">No artifacts recorded.</div>
+                        <div className="text-xs text-tertiary italic">No artifacts recorded.</div>
                       )}
                     </div>
 
                     <div>
-                      <div className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-3">Systems Touched</div>
+                      <div className="text-[10px] font-semibold text-disabled uppercase tracking-widest mb-3">Systems Touched</div>
                       {parseJsonArray(action.systems_touched).length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {parseJsonArray(action.systems_touched).map((s, i) => (
-                            <div key={i} className="px-3 py-1.5 rounded bg-surface-tertiary border border-white/5 text-xs text-zinc-300">
+                            <div key={i} className="px-3 py-1.5 rounded bg-surface-tertiary border border-white/5 text-xs text-secondary">
                               <Database size={12} className="inline mr-2 opacity-50" />
                               {s}
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-xs text-zinc-500 italic">No systems recorded.</div>
+                        <div className="text-xs text-tertiary italic">No systems recorded.</div>
                       )}
                     </div>
                   </div>
@@ -1056,7 +1056,7 @@ export default function DecisionReplayPage() {
               <Card hover={false}>
                 <CardHeader title="Raw Decision Object" icon={LayoutPanelLeft} />
                 <CardContent>
-                  <pre className="p-4 bg-zinc-950 rounded border border-white/5 text-[10px] text-zinc-400 font-mono overflow-auto max-h-[400px]">
+                  <pre className="p-4 bg-primary rounded border border-white/5 text-[10px] text-secondary font-mono overflow-auto max-h-[400px]">
                     {JSON.stringify(action, null, 2)}
                   </pre>
                 </CardContent>
@@ -1073,29 +1073,29 @@ export default function DecisionReplayPage() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Decision ID</div>
-                  <div className="text-[11px] font-mono text-zinc-400 break-all bg-white/5 p-2 rounded">{action.action_id}</div>
+                  <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-1">Decision ID</div>
+                  <div className="text-[11px] font-mono text-secondary break-all bg-white/5 p-2 rounded">{action.action_id}</div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Agent</div>
+                    <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-1">Agent</div>
                     <div className="text-xs text-white font-medium">{action.agent_name || action.agent_id}</div>
                   </div>
                   <Badge variant="info" size="xs">{action.action_type}</Badge>
                 </div>
                 <div>
-                  <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Status</div>
+                  <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-1">Status</div>
                   <div className="flex items-center gap-2">
                     <div className={`h-2 w-2 rounded-full ${action.status === 'completed' ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                    <span className="text-xs font-semibold text-zinc-300">{action.status.toUpperCase()}</span>
+                    <span className="text-xs font-semibold text-secondary">{action.status.toUpperCase()}</span>
                   </div>
                 </div>
                 <div>
-                  <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Verified Identity</div>
+                  <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-1">Verified Identity</div>
                   <div className="flex items-center gap-1.5 text-xs">
                     {action.verified
-                      ? <><ShieldCheck size={14} className="text-emerald-500" /><span className="text-emerald-500">Cryptographically Signed</span></>
-                      : <><ShieldAlert size={14} className="text-zinc-600" /><span className="text-zinc-500">Unsigned session</span></>
+                      ? <><ShieldCheck size={14} className="text-success" /><span className="text-success">Cryptographically Signed</span></>
+                      : <><ShieldAlert size={14} className="text-disabled" /><span className="text-tertiary">Unsigned session</span></>
                     }
                   </div>
                 </div>
@@ -1111,12 +1111,12 @@ export default function DecisionReplayPage() {
                 <div className="space-y-4">
                   {trace.parent_chain?.length > 0 && (
                     <div>
-                      <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Parents</div>
+                      <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-2">Parents</div>
                       <div className="space-y-2">
                         {trace.parent_chain.map((p, i) => (
                           <Link key={i} href={`/decisions/${p.action_id}`} className="flex items-center gap-2 group">
-                            <ArrowUp size={12} className="text-zinc-600 group-hover:text-brand" />
-                            <span className="text-[11px] text-zinc-400 group-hover:text-white truncate max-w-[150px]">{p.declared_goal}</span>
+                            <ArrowUp size={12} className="text-disabled group-hover:text-brand" />
+                            <span className="text-[11px] text-secondary group-hover:text-white truncate max-w-[150px]">{p.declared_goal}</span>
                           </Link>
                         ))}
                       </div>
@@ -1124,12 +1124,12 @@ export default function DecisionReplayPage() {
                   )}
                   {trace.sub_actions?.length > 0 && (
                     <div>
-                      <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Children ({trace.sub_actions.length})</div>
+                      <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-2">Children ({trace.sub_actions.length})</div>
                       <div className="space-y-2">
                         {trace.sub_actions.slice(0, 3).map((c, i) => (
                           <Link key={i} href={`/decisions/${c.action_id}`} className="flex items-center gap-2 group">
-                            <ChevronRight size={12} className="text-zinc-600 group-hover:text-brand" />
-                            <span className="text-[11px] text-zinc-400 group-hover:text-white truncate max-w-[150px]">{c.declared_goal}</span>
+                            <ChevronRight size={12} className="text-disabled group-hover:text-brand" />
+                            <span className="text-[11px] text-secondary group-hover:text-white truncate max-w-[150px]">{c.declared_goal}</span>
                           </Link>
                         ))}
                       </div>
@@ -1137,12 +1137,12 @@ export default function DecisionReplayPage() {
                   )}
                   {trace.related_actions?.length > 0 && (
                     <div>
-                      <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Correlated Actions</div>
+                      <div className="text-[9px] font-bold text-disabled uppercase tracking-widest mb-2">Correlated Actions</div>
                       <div className="space-y-2">
                         {trace.related_actions.slice(0, 3).map((r, i) => (
                           <Link key={i} href={`/decisions/${r.action_id}`} className="flex items-center gap-2 group">
-                            <Link2 size={12} className="text-zinc-600 group-hover:text-brand" />
-                            <span className="text-[11px] text-zinc-400 group-hover:text-white truncate max-w-[150px]">{r.declared_goal}</span>
+                            <Link2 size={12} className="text-disabled group-hover:text-brand" />
+                            <span className="text-[11px] text-secondary group-hover:text-white truncate max-w-[150px]">{r.declared_goal}</span>
                           </Link>
                         ))}
                       </div>
@@ -1168,7 +1168,7 @@ export default function DecisionReplayPage() {
                           placeholder="Resolution info..."
                           value={resolveTexts[loop.loop_id] || ''}
                           onChange={(e) => setResolveTexts(prev => ({ ...prev, [loop.loop_id]: e.target.value }))}
-                          className="px-2 py-1.5 bg-black/40 border border-white/10 rounded text-[10px] text-white focus:outline-none focus:border-emerald-500/50"
+                          className="px-2 py-1.5 bg-black/40 border border-white/10 rounded text-[10px] text-white focus:outline-none focus:border-success/50"
                         />
                         <div className="flex items-center gap-2">
                           <button
@@ -1181,7 +1181,7 @@ export default function DecisionReplayPage() {
                           <button
                             onClick={() => handleCancelLoop(loop.loop_id)}
                             disabled={!!pendingOps[loop.loop_id]}
-                            className="px-2 py-1 text-zinc-400 hover:text-white text-[10px] transition-colors"
+                            className="px-2 py-1 text-secondary hover:text-white text-[10px] transition-colors"
                           >
                             Cancel
                           </button>

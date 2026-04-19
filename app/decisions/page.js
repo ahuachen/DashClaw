@@ -43,12 +43,12 @@ const statusDotMap = {
 };
 
 const statusTextMap = {
-  completed: 'text-emerald-400',
-  running: 'text-amber-400',
-  pending: 'text-blue-400',
-  failed: 'text-red-400',
-  blocked: 'text-red-400',
-  cancelled: 'text-zinc-500',
+  completed: 'text-success',
+  running: 'text-warning',
+  pending: 'text-info',
+  failed: 'text-error',
+  blocked: 'text-error',
+  cancelled: 'text-tertiary',
 };
 
 export default function DecisionsLedger() {
@@ -230,19 +230,19 @@ export default function DecisionsLedger() {
 
   const getTypeIcon = (type) => {
     const Icon = typeIconMap[type] || Zap;
-    return <Icon size={16} className="text-zinc-400" />;
+    return <Icon size={16} className="text-secondary" />;
   };
 
   const getStatusIcon = (status) => {
     const Icon = statusIconMap[status] || Clock;
-    return <Icon size={14} className={statusTextMap[status] || 'text-zinc-400'} />;
+    return <Icon size={14} className={statusTextMap[status] || 'text-secondary'} />;
   };
 
   const getRiskColor = (score) => {
     const s = parseInt(score, 10);
-    if (s >= 70) return 'text-red-400';
-    if (s >= 40) return 'text-amber-400';
-    return 'text-emerald-400';
+    if (s >= 70) return 'text-error';
+    if (s >= 40) return 'text-warning';
+    return 'text-success';
   };
 
   const formatTime = (ts) => {
@@ -282,7 +282,7 @@ export default function DecisionsLedger() {
             <button
               onClick={handleBulkDeleteSelected}
               disabled={bulkDeleting}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:border-red-500/40 hover:bg-red-500/20 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-error/20 bg-error-subtle px-3 py-1.5 text-sm font-medium text-error transition-colors hover:border-error/40 hover:bg-error-subtle disabled:opacity-50"
             >
               <Trash2 size={14} />
               {bulkDeleting ? 'Deleting…' : `Delete ${selectedActions.size} selected`}
@@ -292,7 +292,7 @@ export default function DecisionsLedger() {
             <button
               onClick={handleClearActions}
               disabled={clearing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:border-red-500/30 hover:text-red-300 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-error transition-colors hover:border-error/30 hover:text-error disabled:opacity-50"
             >
               <Trash2 size={14} />
               {clearing ? 'Clearing…' : 'Clear actions'}
@@ -300,7 +300,7 @@ export default function DecisionsLedger() {
           )}
           <button
             onClick={() => { setLoading(true); fetchActions(); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:border-border-hover hover:text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} />
             Refresh
@@ -313,12 +313,12 @@ export default function DecisionsLedger() {
         <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-5">
           {[
             { label: 'Total', value: stats.total || 0, color: 'text-white' },
-            { label: 'Success', value: `${successRate}%`, color: 'text-emerald-400' },
-            { label: 'Running', value: stats.running || 0, color: 'text-amber-400' },
+            { label: 'Success', value: `${successRate}%`, color: 'text-success' },
+            { label: 'Running', value: stats.running || 0, color: 'text-warning' },
             {
               label: 'High Risk',
               value: stats.high_risk || 0,
-              color: parseInt(stats.high_risk, 10) > 0 ? 'text-red-400' : 'text-emerald-400',
+              color: parseInt(stats.high_risk, 10) > 0 ? 'text-error' : 'text-success',
             },
             {
               label: 'Spend',
@@ -330,7 +330,7 @@ export default function DecisionsLedger() {
               key={stat.label}
               className={`px-5 py-4 ${i >= 2 ? 'border-t border-border md:border-t-0' : ''}`}
             >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 {stat.label}
               </div>
               <div className={`mt-1 text-3xl font-semibold tabular-nums ${stat.color}`}>{stat.value}</div>
@@ -365,7 +365,7 @@ export default function DecisionsLedger() {
               className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
                 hideRoutine
                   ? 'border-brand/30 bg-brand/10 text-brand hover:border-brand/40'
-                  : 'border-border bg-white/5 text-zinc-400 hover:border-border-hover hover:text-white'
+                  : 'border-border bg-white/5 text-secondary hover:border-border-hover hover:text-white'
               }`}
             >
               {hideRoutine ? 'Hiding routine' : 'Showing all'}
@@ -378,28 +378,28 @@ export default function DecisionsLedger() {
       <Card hover={false}>
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-baseline gap-2">
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
               Decisions
             </h2>
-            <span className="text-[11px] tabular-nums text-zinc-500">· {total}</span>
+            <span className="text-[11px] tabular-nums text-tertiary">· {total}</span>
           </div>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/5 disabled:opacity-30"
+                className="rounded-md p-1 text-secondary transition-colors hover:bg-white/5 disabled:opacity-30"
                 aria-label="Previous page"
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="px-1 text-[11px] tabular-nums text-zinc-500">
+              <span className="px-1 text-[11px] tabular-nums text-tertiary">
                 {page + 1} / {totalPages}
               </span>
               <button
                 onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/5 disabled:opacity-30"
+                className="rounded-md p-1 text-secondary transition-colors hover:bg-white/5 disabled:opacity-30"
                 aria-label="Next page"
               >
                 <ChevronRight size={16} />
@@ -422,12 +422,12 @@ export default function DecisionsLedger() {
               {/* Select all row */}
               {isAdmin && actions.length > 1 && (
                 <div className="flex items-center gap-2 px-2 py-1">
-                  <button onClick={toggleSelectAllActions} className="text-zinc-500 hover:text-white transition-colors p-0.5">
+                  <button onClick={toggleSelectAllActions} className="text-tertiary hover:text-white transition-colors p-0.5">
                     {selectedActions.size === actions.length
                       ? <CheckSquare size={16} className="text-brand" />
                       : <Square size={16} />}
                   </button>
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-xs text-tertiary">
                     {selectedActions.size === actions.length ? 'Deselect all' : `Select all (${actions.length})`}
                   </span>
                 </div>
@@ -453,7 +453,7 @@ export default function DecisionsLedger() {
                         {isAdmin && (
                           <button
                             onClick={(e) => toggleSelectAction(action.action_id, e)}
-                            className="hidden flex-shrink-0 p-0.5 text-zinc-500 transition-colors hover:text-white md:block"
+                            className="hidden flex-shrink-0 p-0.5 text-tertiary transition-colors hover:text-white md:block"
                             aria-label="Select decision"
                           >
                             {selectedActions.has(action.action_id)
@@ -469,7 +469,7 @@ export default function DecisionsLedger() {
                             <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(action.agent_id)}`}>
                               {action.agent_name || action.agent_id}
                             </span>
-                            <span className="font-mono text-[11px] tabular-nums text-zinc-500">{formatTime(action.timestamp_start)}</span>
+                            <span className="font-mono text-[11px] tabular-nums text-tertiary">{formatTime(action.timestamp_start)}</span>
                           </div>
                           <div className="truncate border-l border-white/5 pl-3.5 text-sm font-medium text-white">
                             {action.declared_goal}
@@ -478,9 +478,9 @@ export default function DecisionsLedger() {
 
                         {/* 2. Governance — risk score */}
                         <div className="flex items-center gap-3 rounded-lg border border-border bg-white/[0.02] px-3 py-2 md:min-w-[140px]">
-                          <Shield size={14} className={action.risk_score >= 70 ? 'text-red-400' : 'text-emerald-400'} />
+                          <Shield size={14} className={action.risk_score >= 70 ? 'text-error' : 'text-success'} />
                           <div>
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Governance</div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Governance</div>
                             <div className={`text-xs font-semibold tabular-nums ${getRiskColor(action.risk_score)}`}>
                               Risk {action.risk_score || 0}
                             </div>
@@ -491,31 +491,31 @@ export default function DecisionsLedger() {
                         <div className="flex items-center justify-between gap-4 md:min-w-[200px]">
                           <div className="mr-2 flex flex-col items-end gap-1">
                             {action.verified ? (
-                              <div className="inline-flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-400" title="Cryptographically signed by agent">
+                              <div className="inline-flex items-center gap-1 rounded border border-success/20 bg-success-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-success" title="Cryptographically signed by agent">
                                 <ShieldCheck size={10} /> Verified
                               </div>
                             ) : action.signature ? (
-                              <div className="inline-flex items-center gap-1 rounded border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-red-400" title="Signature invalid or tampered">
+                              <div className="inline-flex items-center gap-1 rounded border border-error/20 bg-error-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-error" title="Signature invalid or tampered">
                                 <ShieldAlert size={10} /> Invalid
                               </div>
                             ) : (
-                              <div className="inline-flex items-center gap-1 rounded border border-border bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500" title="No cryptographic signature provided">
+                              <div className="inline-flex items-center gap-1 rounded border border-border bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-tertiary" title="No cryptographic signature provided">
                                 <Info size={10} /> Unsigned
                               </div>
                             )}
                             <div className="flex items-center gap-1.5">
                               {getStatusIcon(action.status)}
-                              <span className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${statusTextMap[action.status] || 'text-zinc-400'}`}>
+                              <span className={`text-[11px] font-semibold uppercase tracking-[0.12em] ${statusTextMap[action.status] || 'text-secondary'}`}>
                                 {action.status}
                               </span>
                             </div>
                             {action.cost_estimate > 0 && (
                               <div className="flex flex-col items-end">
-                                <span className="font-mono text-[11px] tabular-nums text-zinc-300">
+                                <span className="font-mono text-[11px] tabular-nums text-secondary">
                                   {formatCost(action.cost_estimate)}
                                 </span>
                                 {(action.tokens_in > 0 || action.tokens_out > 0) && (
-                                  <span className="font-mono text-[10px] tabular-nums text-zinc-500">
+                                  <span className="font-mono text-[10px] tabular-nums text-tertiary">
                                     {formatTokens(action.tokens_in)} in · {formatTokens(action.tokens_out)} out
                                   </span>
                                 )}
@@ -528,7 +528,7 @@ export default function DecisionsLedger() {
                               <button
                                 onClick={(e) => handleDeleteAction(action.action_id, e)}
                                 disabled={deletingId === action.action_id}
-                                className="rounded-md p-1 text-zinc-500 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                                className="rounded-md p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error disabled:opacity-50"
                                 aria-label="Delete decision"
                                 title="Delete decision"
                               >
@@ -536,8 +536,8 @@ export default function DecisionsLedger() {
                               </button>
                             )}
                             {isExpanded
-                              ? <ChevronUp size={14} className="text-zinc-500" />
-                              : <ChevronDown size={14} className="text-zinc-500" />}
+                              ? <ChevronUp size={14} className="text-tertiary" />
+                              : <ChevronDown size={14} className="text-tertiary" />}
                           </div>
                         </div>
                       </div>
@@ -547,51 +547,51 @@ export default function DecisionsLedger() {
                       <div className="space-y-5 border-t border-border bg-surface-secondary p-5">
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Decision Rationale</div>
-                            <div className="text-sm text-zinc-300">{action.reasoning || 'Not specified'}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Decision Rationale</div>
+                            <div className="text-sm text-secondary">{action.reasoning || 'Not specified'}</div>
                           </div>
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Authorization</div>
-                            <div className="text-sm text-zinc-300">{action.authorization_scope || 'Not specified'}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Authorization</div>
+                            <div className="text-sm text-secondary">{action.authorization_scope || 'Not specified'}</div>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm md:grid-cols-4">
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Confidence</span>
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">Confidence</span>
                             <span className="tabular-nums text-white">{action.confidence || 50}%</span>
                           </div>
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Reversible</span>
-                            <span className={action.reversible ? 'text-emerald-400' : 'text-red-400'}>{action.reversible ? 'Yes' : 'No'}</span>
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">Reversible</span>
+                            <span className={action.reversible ? 'text-success' : 'text-error'}>{action.reversible ? 'Yes' : 'No'}</span>
                           </div>
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Duration</span>
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">Duration</span>
                             <span className="tabular-nums text-white">{action.duration_ms ? `${(action.duration_ms / 1000).toFixed(1)}s` : '--'}</span>
                           </div>
                           <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">Cost</span>
+                            <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">Cost</span>
                             <span className="font-mono tabular-nums text-white">${parseFloat(action.cost_estimate || 0).toFixed(4)}</span>
                           </div>
                         </div>
 
                         {action.output_summary && (
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Output</div>
-                            <div className="rounded-md border border-border bg-surface-primary p-3 font-mono text-xs text-zinc-300">{action.output_summary}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Output</div>
+                            <div className="rounded-md border border-border bg-surface-primary p-3 font-mono text-xs text-secondary">{action.output_summary}</div>
                           </div>
                         )}
 
                         {action.error_message && (
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Error</div>
-                            <div className="rounded-md border border-red-500/20 bg-red-500/10 p-3 font-mono text-xs text-red-300">{action.error_message}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Error</div>
+                            <div className="rounded-md border border-error/20 bg-error-subtle p-3 font-mono text-xs text-error">{action.error_message}</div>
                           </div>
                         )}
 
                         {sideEffects.length > 0 && (
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Side Effects · {sideEffects.length}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Side Effects · {sideEffects.length}</div>
                             <div className="flex flex-wrap gap-1">
                               {sideEffects.map((se, i) => <Badge key={i} variant="warning" size="xs">{se}</Badge>)}
                             </div>
@@ -600,7 +600,7 @@ export default function DecisionsLedger() {
 
                         {artifacts.length > 0 && (
                           <div>
-                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Artifacts · {artifacts.length}</div>
+                            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Artifacts · {artifacts.length}</div>
                             <div className="flex flex-wrap gap-1">
                               {artifacts.map((a, i) => <Badge key={i} variant="info" size="xs">{a}</Badge>)}
                             </div>
@@ -611,13 +611,13 @@ export default function DecisionsLedger() {
                           <>
                             {detail.open_loops?.length > 0 && (
                               <div>
-                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Open Loops · {detail.open_loops.length}</div>
+                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Open Loops · {detail.open_loops.length}</div>
                                 <div className="space-y-1">
                                   {detail.open_loops.map(loop => (
                                     <div key={loop.loop_id} className="flex items-center gap-2 text-sm">
                                       <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${loop.status === 'open' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                      <span className="text-zinc-300">{loop.description}</span>
-                                      <span className="text-[11px] text-zinc-500">({loop.loop_type} · {loop.priority})</span>
+                                      <span className="text-secondary">{loop.description}</span>
+                                      <span className="text-[11px] text-tertiary">({loop.loop_type} · {loop.priority})</span>
                                     </div>
                                   ))}
                                 </div>
@@ -626,16 +626,16 @@ export default function DecisionsLedger() {
 
                             {detail.assumptions?.length > 0 && (
                               <div>
-                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Assumptions · {detail.assumptions.length}</div>
+                                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Assumptions · {detail.assumptions.length}</div>
                                 <div className="space-y-1">
                                   {detail.assumptions.map(asm => (
                                     <div key={asm.assumption_id} className="flex items-center gap-2 text-sm">
                                       {asm.validated
-                                        ? <CheckCircle2 size={14} className="shrink-0 text-emerald-400" />
+                                        ? <CheckCircle2 size={14} className="shrink-0 text-success" />
                                         : asm.invalidated
-                                          ? <XCircle size={14} className="shrink-0 text-red-400" />
-                                          : <Clock size={14} className="shrink-0 text-zinc-500" />}
-                                      <span className="text-zinc-300">{asm.assumption}</span>
+                                          ? <XCircle size={14} className="shrink-0 text-error" />
+                                          : <Clock size={14} className="shrink-0 text-tertiary" />}
+                                      <span className="text-secondary">{asm.assumption}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -666,7 +666,7 @@ export default function DecisionsLedger() {
                               navigator.clipboard.writeText(url);
                               alert('Replay link copied to clipboard.');
                             }}
-                            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                            className="inline-flex items-center gap-1.5 text-xs text-tertiary transition-colors hover:text-secondary"
                           >
                             <ExternalLink size={12} />
                             Share replay

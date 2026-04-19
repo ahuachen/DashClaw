@@ -232,7 +232,7 @@ export default function MissionControlPage() {
   const healthStatus = health?.status || 'unknown';
   const healthDot = healthStatus === 'healthy' ? 'bg-emerald-500' : healthStatus === 'degraded' ? 'bg-amber-500' : 'bg-zinc-500';
   const healthLabel = healthStatus === 'healthy' ? 'Healthy' : healthStatus === 'degraded' ? 'Degraded' : 'Unknown';
-  const healthColor = healthStatus === 'healthy' ? 'text-emerald-400' : healthStatus === 'degraded' ? 'text-amber-400' : 'text-zinc-500';
+  const healthColor = healthStatus === 'healthy' ? 'text-success' : healthStatus === 'degraded' ? 'text-warning' : 'text-tertiary';
 
   const lastActivity = actions[0]?.timestamp_start || loopList[0]?.created_at || null;
   const fleetCount = agents.length;
@@ -304,7 +304,7 @@ export default function MissionControlPage() {
           <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
             {/* System Posture */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Posture</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Posture</span>
               <div className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-0.5 ${posture.bg} ${posture.border}`}>
                 <div className={`h-1.5 w-1.5 rounded-full ${posture.color.replace('text-', 'bg-')} ${posture.pulse ? 'animate-pulse' : ''}`} />
                 <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${posture.color}`}>
@@ -317,16 +317,16 @@ export default function MissionControlPage() {
 
             {/* Fleet count */}
             <div className="flex items-center gap-2">
-              <Users size={13} className="text-zinc-500" />
+              <Users size={13} className="text-tertiary" />
               <span className="text-sm font-medium tabular-nums text-white">{fleetCount}</span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">agents</span>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">agents</span>
             </div>
 
             <div className="hidden h-3.5 w-px bg-border sm:block" />
 
             {/* DB Health */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Database</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Database</span>
               <span className={`h-1.5 w-1.5 rounded-full ${healthDot}`} />
               <span className={`text-sm font-medium ${healthColor}`}>{healthLabel}</span>
             </div>
@@ -335,9 +335,9 @@ export default function MissionControlPage() {
 
             {/* Active interventions */}
             <div className="flex items-center gap-2">
-              <Activity size={13} className="text-zinc-500" />
+              <Activity size={13} className="text-tertiary" />
               <span className="text-sm font-medium tabular-nums text-white">{interventions.length}</span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">
                 {interventions.length === 1 ? 'intervention' : 'interventions'}
               </span>
             </div>
@@ -346,8 +346,8 @@ export default function MissionControlPage() {
 
             {/* Last activity */}
             <div className="hidden sm:flex items-center gap-2">
-              <Clock size={13} className="text-zinc-500" />
-              <span className="text-sm text-zinc-400 tabular-nums">{formatRelativeTime(lastActivity)}</span>
+              <Clock size={13} className="text-tertiary" />
+              <span className="text-sm text-secondary tabular-nums">{formatRelativeTime(lastActivity)}</span>
             </div>
           </div>
         </div>
@@ -360,11 +360,11 @@ export default function MissionControlPage() {
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                   Intervention Required
                 </span>
                 {hasPendingApprovals && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-red-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-error/30 bg-error-subtle px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-error">
                     <span className="h-1 w-1 animate-pulse rounded-full bg-red-500" />
                     Urgent
                   </span>
@@ -381,14 +381,14 @@ export default function MissionControlPage() {
             </div>
             {loading ? <InterventionSkeleton /> : interventions.length === 0 ? (
               <div className="flex items-center gap-2 py-1">
-                <CheckCircle2 size={16} className="text-emerald-500/60" />
-                <span className="text-sm text-zinc-400">No intervention required</span>
+                <CheckCircle2 size={16} className="text-success/60" />
+                <span className="text-sm text-secondary">No intervention required</span>
               </div>
             ) : (
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="flex shrink-0 items-baseline gap-1.5 sm:w-28">
                   <div className="text-4xl font-semibold tabular-nums text-white">{interventions.length}</div>
-                  <div className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+                  <div className="text-[11px] uppercase tracking-[0.14em] text-tertiary">
                     {interventions.length === 1 ? 'item' : 'items'}
                   </div>
                 </div>
@@ -408,10 +408,10 @@ export default function MissionControlPage() {
                       <span className={`shrink-0 truncate rounded border px-1.5 py-0.5 text-[10px] font-medium ${getAgentColor(item.agentId)}`} style={{ maxWidth: '7.5rem' }}>
                         {(item.agentName || '').substring(0, 14) || item.agentId?.substring(0, 8) || 'system'}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-zinc-300">
+                      <span className="min-w-0 flex-1 truncate text-secondary">
                         {truncateText(item.description, 80)}
                       </span>
-                      <ArrowRight size={10} className="shrink-0 text-zinc-500" />
+                      <ArrowRight size={10} className="shrink-0 text-tertiary" />
                     </Link>
                   ))}
                   {interventions.length > 4 && (
@@ -429,15 +429,15 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Risk Signals</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Risk Signals</span>
               <Link href="/security" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
                 View <ArrowRight size={10} />
               </Link>
             </div>
             {loading ? <MetricSkeleton /> : signalCounts.total === 0 ? (
               <div className="flex items-center gap-2 py-1">
-                <ShieldCheck size={16} className="text-emerald-500/60" />
-                <span className="text-sm text-zinc-400">No signals</span>
+                <ShieldCheck size={16} className="text-success/60" />
+                <span className="text-sm text-secondary">No signals</span>
               </div>
             ) : (
               <>
@@ -446,13 +446,13 @@ export default function MissionControlPage() {
                   {signalCounts.red > 0 && (
                     <span className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                      <span className="font-medium text-red-400">{signalCounts.red} critical</span>
+                      <span className="font-medium text-error">{signalCounts.red} critical</span>
                     </span>
                   )}
                   {signalCounts.amber > 0 && (
                     <span className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                      <span className="font-medium text-amber-400">{signalCounts.amber} elevated</span>
+                      <span className="font-medium text-warning">{signalCounts.amber} elevated</span>
                     </span>
                   )}
                 </div>
@@ -465,7 +465,7 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Decisions · 24h</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Decisions · 24h</span>
               <Link href="/decisions" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
                 History <ArrowRight size={10} />
               </Link>
@@ -474,28 +474,28 @@ export default function MissionControlPage() {
               <>
                 <div className="mb-1 flex items-baseline gap-2">
                   <div className="text-4xl font-semibold tabular-nums text-white">{decisionMetrics.total}</div>
-                  <div className={`flex items-center gap-0.5 text-xs font-medium tabular-nums ${decisionMetrics.change_percent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <div className={`flex items-center gap-0.5 text-xs font-medium tabular-nums ${decisionMetrics.change_percent >= 0 ? 'text-success' : 'text-error'}`}>
                     {decisionMetrics.change_percent >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                     {decisionMetrics.change_percent >= 0 ? '+' : ''}{decisionMetrics.change_percent}%
                   </div>
                 </div>
-                <div className="mb-4 text-[11px] text-zinc-500">vs. previous 24h</div>
+                <div className="mb-4 text-[11px] text-tertiary">vs. previous 24h</div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Completed</span>
-                    <span className="text-xs font-semibold tabular-nums text-emerald-400">{decisionMetrics.completed}</span>
+                    <span className="text-xs text-tertiary">Completed</span>
+                    <span className="text-xs font-semibold tabular-nums text-success">{decisionMetrics.completed}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Failed</span>
-                    <span className="text-xs font-semibold tabular-nums text-red-400">{decisionMetrics.failed}</span>
+                    <span className="text-xs text-tertiary">Failed</span>
+                    <span className="text-xs font-semibold tabular-nums text-error">{decisionMetrics.failed}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Cancelled</span>
-                    <span className="text-xs font-semibold tabular-nums text-amber-400">{decisionMetrics.cancelled}</span>
+                    <span className="text-xs text-tertiary">Cancelled</span>
+                    <span className="text-xs font-semibold tabular-nums text-warning">{decisionMetrics.cancelled}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-500">Approval</span>
+                    <span className="text-xs text-tertiary">Approval</span>
                     <span className="text-xs font-semibold tabular-nums text-brand">{decisionMetrics.approval}</span>
                   </div>
                 </div>
@@ -508,13 +508,13 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Fleet Status</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Fleet Status</span>
               <Link href="/agents" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
                 Manage <ArrowRight size={10} />
               </Link>
             </div>
             {loading ? <MetricSkeleton /> : agents.length === 0 ? (
-              <div className="text-sm text-zinc-500">No agents connected</div>
+              <div className="text-sm text-tertiary">No agents connected</div>
             ) : (
               <div className="space-y-1.5">
                 {sortedAgents.slice(0, 5).map((agent) => {
@@ -527,15 +527,15 @@ export default function MissionControlPage() {
                       className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-white/5 focus:bg-white/5 focus:outline-none"
                     >
                       <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${isDegraded ? 'bg-amber-500' : 'bg-emerald-500/50'}`} />
-                      <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-amber-300' : 'text-zinc-300'}`}>
+                      <span className={`flex-1 truncate text-xs ${isDegraded ? 'text-warning' : 'text-secondary'}`}>
                         {agent.name || agent.agent_id}
                       </span>
-                      {isCritical && <AlertTriangle size={10} className="shrink-0 text-red-400" />}
+                      {isCritical && <AlertTriangle size={10} className="shrink-0 text-error" />}
                     </Link>
                   );
                 })}
                 {agents.length > 5 && (
-                  <Link href="/agents" className="block px-1.5 pt-1 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300">
+                  <Link href="/agents" className="block px-1.5 pt-1 text-[11px] text-tertiary transition-colors hover:text-secondary">
                     +{agents.length - 5} more
                   </Link>
                 )}

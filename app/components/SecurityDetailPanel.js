@@ -27,14 +27,14 @@ function SignalDetail({ signal, onClose, onDismiss }) {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
-          <ShieldAlert size={18} className={signal.severity === 'red' ? 'text-red-400' : 'text-amber-400'} />
+          <ShieldAlert size={18} className={signal.severity === 'red' ? 'text-error' : 'text-warning'} />
           <div>
             <div className="text-sm font-medium text-white">{signal.label}</div>
             <div className="flex items-center gap-2 mt-1.5">
               <Badge variant={severityVariant} size="xs">
                 {signal.severity === 'red' ? 'Critical' : 'Warning'}
               </Badge>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{signal.type.replace(/_/g, ' ')}</span>
+              <span className="text-[10px] text-tertiary uppercase tracking-wider">{signal.type.replace(/_/g, ' ')}</span>
             </div>
           </div>
         </div>
@@ -43,23 +43,23 @@ function SignalDetail({ signal, onClose, onDismiss }) {
       {/* Agent */}
       {signal.agent_id && (
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Agent</div>
+          <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Agent</div>
           <AgentDot agentId={signal.agent_id} />
         </div>
       )}
 
       {/* Detail */}
       <div>
-        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Detail</div>
-        <p className="text-sm text-zinc-300">{signal.detail}</p>
+        <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Detail</div>
+        <p className="text-sm text-secondary">{signal.detail}</p>
       </div>
 
       {/* Help */}
       {signal.help && (
         <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3">
           <div className="flex items-start gap-2">
-            <Info size={14} className="text-blue-400 mt-0.5 shrink-0" />
-            <p className="text-sm text-blue-300">{signal.help}</p>
+            <Info size={14} className="text-info mt-0.5 shrink-0" />
+            <p className="text-sm text-info">{signal.help}</p>
           </div>
         </div>
       )}
@@ -79,7 +79,7 @@ function SignalDetail({ signal, onClose, onDismiss }) {
       {onDismiss && (
         <button
           onClick={() => { onDismiss(signal); onClose(); }}
-          className="w-full mt-2 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.06)] text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="w-full mt-2 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-[rgba(255,255,255,0.06)] text-sm text-secondary hover:text-white hover:bg-white/5 transition-colors"
         >
           <X size={14} />
           Dismiss Signal
@@ -112,10 +112,10 @@ function ActionDetail({ action }) {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1.5">
-          <Zap size={16} className="text-zinc-400" />
+          <Zap size={16} className="text-secondary" />
           <Badge variant={statusVariant} size="xs">{action.status}</Badge>
           {action.action_type && (
-            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{action.action_type}</span>
+            <span className="text-[10px] text-tertiary uppercase tracking-wider">{action.action_type}</span>
           )}
         </div>
         <div className="text-sm font-medium text-white">{action.declared_goal || 'No goal declared'}</div>
@@ -124,7 +124,7 @@ function ActionDetail({ action }) {
       {/* Agent */}
       {action.agent_id && (
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Agent</div>
+          <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Agent</div>
           <AgentDot agentId={action.agent_id} />
         </div>
       )}
@@ -132,7 +132,7 @@ function ActionDetail({ action }) {
       {/* Risk Score */}
       <div>
         <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-zinc-500">Risk Score</span>
+          <span className="text-tertiary">Risk Score</span>
           <span className="text-white font-medium tabular-nums">{riskScore}/100</span>
         </div>
         <ProgressBar value={riskScore} color={riskColor} className="h-2" />
@@ -141,16 +141,16 @@ function ActionDetail({ action }) {
       {/* Reasoning */}
       {action.reasoning && (
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Reasoning</div>
-          <p className="text-sm text-zinc-300">{action.reasoning}</p>
+          <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Reasoning</div>
+          <p className="text-sm text-secondary">{action.reasoning}</p>
         </div>
       )}
 
       {/* Authorization scope */}
       {action.authorization_scope && (
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Authorization Scope</div>
-          <p className="text-sm text-zinc-300 font-mono">{action.authorization_scope}</p>
+          <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Authorization Scope</div>
+          <p className="text-sm text-secondary font-mono">{action.authorization_scope}</p>
         </div>
       )}
 
@@ -160,15 +160,15 @@ function ActionDetail({ action }) {
           className="flex items-center gap-1.5"
           title="The agent declared whether this action can be rolled back. DashClaw records the signal but does not execute reversals — use the system the agent touched to undo it."
         >
-          <Undo2 size={14} className={action.reversible === 1 ? 'text-emerald-400' : 'text-red-400'} />
-          <span className="text-xs text-zinc-300">
+          <Undo2 size={14} className={action.reversible === 1 ? 'text-success' : 'text-error'} />
+          <span className="text-xs text-secondary">
             {action.reversible === 1 ? 'Self-recoverable (agent asserted)' : 'Not self-recoverable'}
           </span>
         </div>
         {parseSideEffects(action.side_effects).length > 0 && (
           <div className="flex items-center gap-1.5">
-            <AlertTriangle size={14} className="text-amber-400" />
-            <span className="text-xs text-zinc-300">Has side effects</span>
+            <AlertTriangle size={14} className="text-warning" />
+            <span className="text-xs text-secondary">Has side effects</span>
           </div>
         )}
       </div>
@@ -176,8 +176,8 @@ function ActionDetail({ action }) {
       {/* Side effects detail */}
       {parseSideEffects(action.side_effects).length > 0 && (
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Side Effects</div>
-          <ul className="text-sm text-zinc-300 list-disc pl-5 space-y-0.5">
+          <div className="text-[10px] text-tertiary uppercase tracking-wider mb-1.5">Side Effects</div>
+          <ul className="text-sm text-secondary list-disc pl-5 space-y-0.5">
             {parseSideEffects(action.side_effects).map((se, i) => (
               <li key={i}>{typeof se === 'string' ? se : JSON.stringify(se)}</li>
             ))}
@@ -263,7 +263,7 @@ export default function SecurityDetailPanel({ item, type, onClose, onDismiss }) 
         <div className="sticky top-0 bg-surface-secondary z-10 flex items-center justify-between px-5 py-4 border-b border-border">
           <span
             id={titleId}
-            className="text-xs font-medium text-zinc-500 uppercase tracking-wider"
+            className="text-xs font-medium text-tertiary uppercase tracking-wider"
           >
             {type === 'signal' ? 'Signal Detail' : 'Action Detail'}
           </span>
@@ -272,7 +272,7 @@ export default function SecurityDetailPanel({ item, type, onClose, onDismiss }) 
             type="button"
             onClick={onClose}
             aria-label="Close detail panel"
-            className="p-1.5 text-zinc-500 hover:text-white transition-colors"
+            className="p-1.5 text-tertiary hover:text-white transition-colors"
           >
             <X size={16} aria-hidden="true" />
           </button>

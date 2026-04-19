@@ -73,7 +73,7 @@ export default function QuickStart({ onDismiss }) {
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="absolute -top-3 -right-3 z-10 p-1.5 bg-surface-secondary border border-white/10 rounded-full text-zinc-500 hover:text-white opacity-0 group-hover/qs:opacity-100 transition-all shadow-xl"
+          className="absolute -top-3 -right-3 z-10 p-1.5 bg-surface-secondary border border-white/10 rounded-full text-tertiary hover:text-white opacity-0 group-hover/qs:opacity-100 transition-all shadow-xl"
           title="Dismiss guide"
         >
           <X size={14} />
@@ -88,7 +88,7 @@ export default function QuickStart({ onDismiss }) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Connect your first agent</h2>
-              <p className="text-sm text-zinc-400 font-medium tracking-tight">See your first governed decision in under 2 minutes.</p>
+              <p className="text-sm text-secondary font-medium tracking-tight">See your first governed decision in under 2 minutes.</p>
             </div>
           </div>
 
@@ -96,15 +96,15 @@ export default function QuickStart({ onDismiss }) {
             {/* Step 1: Install */}
             <div className={`flex gap-4 transition-all duration-300 ${step < 1 ? 'opacity-40 grayscale' : ''}`}>
               <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step >= 1 ? 'bg-brand text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step >= 1 ? 'bg-brand text-white' : 'bg-tertiary text-tertiary'}`}>
                   {step > 1 ? <CheckCircle2 size={14} /> : '1'}
                 </div>
                 <div className={`flex-1 w-px my-1 transition-colors ${step > 1 ? 'bg-brand/30' : 'bg-white/5'}`} />
               </div>
               <div className="flex-1 pb-4">
                 <div className="text-sm font-semibold text-white mb-1">Install SDK</div>
-                <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-xs text-zinc-300 group/term relative">
-                  <Terminal size={12} className="text-zinc-500" />
+                <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-xs text-secondary group/term relative">
+                  <Terminal size={12} className="text-tertiary" />
                   <span>npm install dashclaw</span>
                   <button
                     onClick={() => {
@@ -122,7 +122,7 @@ export default function QuickStart({ onDismiss }) {
             {/* Step 2: Act */}
             <div className={`flex gap-4 transition-all duration-300 ${step < 2 ? 'opacity-40 grayscale' : ''}`}>
               <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step >= 2 ? 'bg-brand text-white' : 'bg-zinc-800 text-zinc-500'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step >= 2 ? 'bg-brand text-white' : 'bg-tertiary text-tertiary'}`}>
                   {step > 2 ? <CheckCircle2 size={14} /> : '2'}
                 </div>
                 <div className={`flex-1 w-px my-1 transition-colors ${step > 2 ? 'bg-brand/30' : 'bg-white/5'}`} />
@@ -130,15 +130,15 @@ export default function QuickStart({ onDismiss }) {
               <div className="flex-1 pb-4">
                 <div className="text-sm font-semibold text-white mb-1">Run Example</div>
                 <div className="relative group">
-                  <pre className={`bg-black/40 p-3 rounded border font-mono text-[10px] overflow-x-auto max-h-[140px] transition-colors ${step === 2 ? 'border-brand/30 text-zinc-200' : 'border-white/5 text-zinc-500'}`}>
+                  <pre className={`bg-black/40 p-3 rounded border font-mono text-[10px] overflow-x-auto max-h-[140px] transition-colors ${step === 2 ? 'border-brand/30 text-secondary' : 'border-white/5 text-tertiary'}`}>
                     {sdkCode}
                   </pre>
                   <button
                     onClick={handleCopy}
                     disabled={step < 2}
-                    className="absolute top-2 right-2 p-1.5 bg-zinc-800 rounded border border-white/10 text-zinc-400 hover:text-white transition-colors disabled:opacity-0"
+                    className="absolute top-2 right-2 p-1.5 bg-tertiary rounded border border-white/10 text-secondary hover:text-white transition-colors disabled:opacity-0"
                   >
-                    {copied ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                    {copied ? <CheckCircle2 size={12} className="text-success" /> : <Copy size={12} />}
                   </button>
                 </div>
               </div>
@@ -147,13 +147,13 @@ export default function QuickStart({ onDismiss }) {
             {/* Step 3: Success */}
             <div className={`flex gap-4 transition-all duration-300 ${step < 3 ? 'opacity-40 grayscale' : ''}`}>
               <div className="flex flex-col items-center">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 3 ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-zinc-800 text-zinc-500'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 3 ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-tertiary text-tertiary'}`}>
                   {step === 3 ? <Sparkles size={14} /> : '3'}
                 </div>
               </div>
               <div className="flex-1 relative">
                 <div className="text-sm font-semibold text-white mb-1">Watch Governance Happen</div>
-                <p className="text-xs text-zinc-500 leading-relaxed">
+                <p className="text-xs text-tertiary leading-relaxed">
                   {isDemoMode()
                     ? 'Self-host to connect real agents. In demo mode, use the simulator to see governance.'
                     : 'Mission Control will light up the moment your agent acts.'}
@@ -178,12 +178,12 @@ export default function QuickStart({ onDismiss }) {
       <Card className="border-white/5 bg-surface-secondary overflow-hidden" hover={false}>
         <div className="p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-white/5 flex items-center justify-center text-zinc-400">
+            <div className="w-10 h-10 rounded-xl bg-tertiary/80 border border-white/5 flex items-center justify-center text-secondary">
               <FileText size={20} />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white">Environment Setup</h3>
-              <p className="text-sm text-zinc-500">Configure your agent project</p>
+              <p className="text-sm text-tertiary">Configure your agent project</p>
             </div>
           </div>
 
@@ -191,29 +191,29 @@ export default function QuickStart({ onDismiss }) {
             {/* .env file */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Key size={13} className="text-zinc-500" />
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Create a <code className="text-brand/80 font-mono">.env</code> file</span>
+                <Key size={13} className="text-tertiary" />
+                <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Create a <code className="text-brand/80 font-mono">.env</code> file</span>
               </div>
               <div className="relative group/env">
-                <pre className="bg-black/40 p-3 rounded border border-white/5 font-mono text-[11px] text-zinc-300">
+                <pre className="bg-black/40 p-3 rounded border border-white/5 font-mono text-[11px] text-secondary">
                   {envFileContent}
                 </pre>
                 <button
                   onClick={handleEnvCopy}
-                  className="absolute top-2 right-2 p-1.5 bg-zinc-800 rounded border border-white/10 text-zinc-400 hover:text-white transition-colors opacity-0 group-hover/env:opacity-100"
+                  className="absolute top-2 right-2 p-1.5 bg-tertiary rounded border border-white/10 text-secondary hover:text-white transition-colors opacity-0 group-hover/env:opacity-100"
                 >
-                  {envCopied ? <CheckCircle2 size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  {envCopied ? <CheckCircle2 size={12} className="text-success" /> : <Copy size={12} />}
                 </button>
               </div>
-              <p className="text-[10px] text-zinc-600 mt-1.5 leading-relaxed">
+              <p className="text-[10px] text-disabled mt-1.5 leading-relaxed">
                 {revealedKey ? (
                   <>
-                    <span className="text-emerald-400">API key pre-filled from your instance.</span>{' '}
-                    Copy the block above and paste into your <code className="text-zinc-500">.env</code>.
+                    <span className="text-success">API key pre-filled from your instance.</span>{' '}
+                    Copy the block above and paste into your <code className="text-tertiary">.env</code>.
                   </>
                 ) : (
                   <>
-                    Your API key starts with <code className="text-zinc-500">oc_live_</code> — find your key at{' '}
+                    Your API key starts with <code className="text-tertiary">oc_live_</code> — find your key at{' '}
                     <a href="/api-keys" className="text-brand hover:text-brand-hover underline">/api-keys</a>.
                   </>
                 )}
@@ -223,15 +223,15 @@ export default function QuickStart({ onDismiss }) {
             {/* baseUrl explanation */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Globe size={13} className="text-zinc-500" />
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Base URL</span>
+                <Globe size={13} className="text-tertiary" />
+                <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Base URL</span>
               </div>
-              <p className="text-xs text-zinc-500 leading-relaxed">
-                Set <code className="text-zinc-300 font-mono text-[10px]">baseUrl</code> to your deployed DashClaw instance URL.
+              <p className="text-xs text-tertiary leading-relaxed">
+                Set <code className="text-secondary font-mono text-[10px]">baseUrl</code> to your deployed DashClaw instance URL.
                 {isDemoMode() ? (
-                  <> DashClaw is self-hosted — there is no shared cloud. After deploying via the Vercel button, your URL will look like <code className="text-zinc-300 font-mono text-[10px]">https://your-app.vercel.app</code>.</>
+                  <> DashClaw is self-hosted — there is no shared cloud. After deploying via the Vercel button, your URL will look like <code className="text-secondary font-mono text-[10px]">https://your-app.vercel.app</code>.</>
                 ) : (
-                  <> For this instance, use <code className="text-zinc-300 font-mono text-[10px]">{baseUrl}</code>.</>
+                  <> For this instance, use <code className="text-secondary font-mono text-[10px]">{baseUrl}</code>.</>
                 )}
               </p>
             </div>
@@ -239,11 +239,11 @@ export default function QuickStart({ onDismiss }) {
             {/* Run command */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Terminal size={13} className="text-zinc-500" />
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wide">Run it</span>
+                <Terminal size={13} className="text-tertiary" />
+                <span className="text-xs font-semibold text-secondary uppercase tracking-wide">Run it</span>
               </div>
-              <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-[11px] text-zinc-300 group/run relative">
-                <span className="text-zinc-600">$</span>
+              <div className="flex items-center gap-2 bg-black/40 p-2 rounded border border-white/5 font-mono text-[11px] text-secondary group/run relative">
+                <span className="text-disabled">$</span>
                 <span>node --env-file=.env demo.js</span>
                 <button
                   onClick={() => navigator.clipboard.writeText('node --env-file=.env demo.js')}
@@ -252,8 +252,8 @@ export default function QuickStart({ onDismiss }) {
                   <Copy size={10} />
                 </button>
               </div>
-              <p className="text-[10px] text-zinc-600 mt-1.5">
-                Requires Node.js 20+. The <code className="text-zinc-500">--env-file</code> flag loads your <code className="text-zinc-500">.env</code> automatically.
+              <p className="text-[10px] text-disabled mt-1.5">
+                Requires Node.js 20+. The <code className="text-tertiary">--env-file</code> flag loads your <code className="text-tertiary">.env</code> automatically.
               </p>
             </div>
           </div>
