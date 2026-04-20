@@ -67,6 +67,59 @@ class TestPrioritizer(unittest.TestCase):
         items = generate_work_items(report, max_items=10)
         self.assertLessEqual(len(items), 10)
 
+    def test_long_file_allowlist_skips_intentional_large_files(self):
+        """Files on the allowlist shouldn't generate split work items even
+        when they're huge. Non-allowlisted files still should."""
+        from livingcode.planner.prioritizer import generate_work_items
+        report = _make_report(code_quality=CodeQualityReport(
+            files_over_300_lines=12,
+            largest_files=[
+                FileInfo("sdk/legacy/dashclaw-v1.js", 2934),  # allowlisted
+                FileInfo("app/docs/page.js", 2164),  # allowlisted
+                FileInfo("middleware.js", 1374),  # NOT allowlisted
+            ],
+            eslint_status="pass",
+            python_files_over_300=0,
+            todo_count=1,
+            archive_size_kb=100,
+        ))
+        items = generate_work_items(
+            report,
+            long_file_allowlist=["sdk/legacy/dashclaw-v1.js", "app/docs/page.js"],
+        )
+        split_items = [i for i in items if "Split" in i.title]
+        self.assertEqual(len(split_items), 1)
+        self.assertIn("middleware.js", split_items[0].title)
+
+    def test_load_long_file_allowlist_reads_organism_json(self):
+        """The helper pulls quality_standards.long_file_allowlist from
+        organism.json, with graceful fallback when missing/invalid."""
+        from livingcode.planner.prioritizer import load_long_file_allowlist
+
+        with tempfile.TemporaryDirectory() as td:
+            # Missing organism.json -> empty list
+            self.assertEqual(load_long_file_allowlist(td), [])
+
+            # Valid organism.json with allowlist -> returns list
+            organism = {
+                "quality_standards": {
+                    "long_file_allowlist": ["a.js", "b/c.js"]
+                }
+            }
+            Path(td, "organism.json").write_text(json.dumps(organism))
+            self.assertEqual(
+                load_long_file_allowlist(td),
+                ["a.js", "b/c.js"],
+            )
+
+            # organism.json without the key -> empty list
+            Path(td, "organism.json").write_text(json.dumps({"identity": {}}))
+            self.assertEqual(load_long_file_allowlist(td), [])
+
+            # Malformed JSON -> empty list (no crash)
+            Path(td, "organism.json").write_text("{not valid json")
+            self.assertEqual(load_long_file_allowlist(td), [])
+
     def test_sorted_by_tier(self):
         from livingcode.planner.prioritizer import generate_work_items
         report = _make_report()

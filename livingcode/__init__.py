@@ -15,9 +15,12 @@ class Organism:
 
     def plan(self):
         from livingcode.sensing import run_sensing
-        from livingcode.planner.prioritizer import generate_work_items
+        from livingcode.planner.prioritizer import generate_work_items, load_long_file_allowlist
         report, _ = run_sensing(self.repo_path)
-        return generate_work_items(report)
+        return generate_work_items(
+            report,
+            long_file_allowlist=load_long_file_allowlist(self.repo_path),
+        )
 
     def review(self, branch: str | None = None):
         from livingcode.sensing import run_sensing

@@ -2490,6 +2490,9 @@
       "name": "DASHCLAW_API_KEY",
       "required": true,
       "files": [
+        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
         "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "app/api/keys/reveal/route.js",
@@ -2576,6 +2579,9 @@
       "name": "DASHCLAW_BASE_URL",
       "required": false,
       "files": [
+        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
+        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
         "app/docs/page.js",
         "app/guides/openai-agents-sdk/page.js",
         "app/landingData.js",

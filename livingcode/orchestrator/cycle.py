@@ -10,7 +10,7 @@ from livingcode.schema.validator import load_organism
 from livingcode.sensing import run_sensing
 from livingcode.immune.checks import run_all_checks
 from livingcode.immune.verdict import generate_verdict
-from livingcode.planner.prioritizer import generate_work_items
+from livingcode.planner.prioritizer import generate_work_items, load_long_file_allowlist
 from livingcode.planner.backlog import write_backlog_item
 from livingcode.orchestrator.safety import (
     is_kill_switch_active, is_paused, is_cycle_locked,
@@ -85,7 +85,10 @@ def run_lifecycle_cycle(repo_path: str, supervised: bool = True) -> CycleResult:
         phases.append("sense")
 
         # PLAN
-        items = generate_work_items(report)
+        items = generate_work_items(
+            report,
+            long_file_allowlist=load_long_file_allowlist(repo_path),
+        )
         for item in items:
             write_backlog_item(repo_path, item)
         phases.append("plan")
