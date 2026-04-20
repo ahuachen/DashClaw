@@ -5,9 +5,40 @@ import subprocess
 from pathlib import Path
 from livingcode.types import CodeQualityReport, FileInfo
 
-SKIP_DIRS = {"node_modules", ".next", "dist", ".git", "__pycache__", ".organism", "coverage"}
+SKIP_DIRS = {
+    "node_modules",
+    ".next",
+    "dist",
+    ".git",
+    "__pycache__",
+    ".organism",
+    "coverage",
+    # Snapshot, not live code — surfacing its TODOs as actionable creates
+    # false planner work items that regenerate every cycle.
+    "graphify-pilot",
+}
 CODE_EXTENSIONS = {".js", ".ts", ".jsx", ".tsx"}
 PYTHON_EXTENSIONS = {".py"}
+
+# Match TODO/FIXME only when preceded by a comment marker. Bare string
+# occurrences (regex patterns like `r'TODO'`, docstrings describing the
+# metric, test fixture strings) should not count as deferred work.
+TODO_PATTERN = re.compile(r"(?:#|//|/\*|\*|<!--)\s*(?:TODO|FIXME)\b")
+
+
+def _is_test_file(rel_path: str) -> bool:
+    """Test files often contain 'TODO' as sample input or fixture content;
+    counting them inflates the deferred-work signal."""
+    lowered = rel_path.replace("\\", "/").lower()
+    if "/tests/" in lowered or lowered.startswith("tests/"):
+        return True
+    basename = os.path.basename(lowered)
+    if basename.startswith("test_"):
+        return True
+    if basename.endswith((".test.js", ".test.ts", ".test.jsx", ".test.tsx",
+                         ".spec.js", ".spec.ts", ".spec.jsx", ".spec.tsx")):
+        return True
+    return False
 
 
 def _run_lint(repo_path: str) -> str:
@@ -60,8 +91,12 @@ def collect_code_quality(repo_path: str, max_file_length: int = 300) -> CodeQual
                 if lines > max_file_length:
                     python_over_limit += 1
 
-            # Count TODOs and FIXMEs
-            todo_count += len(re.findall(r"\bTODO\b|\bFIXME\b", content))
+            # Count TODOs and FIXMEs that look like deferred-work comments.
+            # Skip test files (TODO is commonly used as fixture content) and
+            # require a comment-marker prefix so regex patterns and metric
+            # names in strings don't inflate the count.
+            if not _is_test_file(rel_path):
+                todo_count += len(TODO_PATTERN.findall(content))
 
     # Sort largest files descending, take top 10
     all_files.sort(key=lambda f: f.lines, reverse=True)

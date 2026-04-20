@@ -79,6 +79,60 @@ class TestCodeQualityCollector(unittest.TestCase):
             result = collect_code_quality(self.tmpdir, max_file_length=300)
         self.assertEqual(result.files_over_300_lines, 0)
 
+    def test_todo_count_ignores_bare_strings_without_comment_marker(self):
+        """Regex patterns, docstring metric names, and sample strings containing
+        bare TODO/FIXME should not be counted as deferred work."""
+        from livingcode.collectors.code_quality import collect_code_quality
+        app_dir = Path(self.tmpdir) / "app"
+        app_dir.mkdir()
+        f = app_dir / "scanner.py"
+        f.write_text(
+            '"""Security scanner — detects TODO and FIXME patterns."""\n'
+            "import re\n"
+            "PATTERNS = [r'TODO', r'FIXME']\n"
+            'MESSAGE = "grep -rn TODO src/"\n'
+        )
+        with patch("livingcode.collectors.code_quality._run_lint") as mock_lint:
+            mock_lint.return_value = "pass"
+            result = collect_code_quality(self.tmpdir, max_file_length=300)
+        self.assertEqual(result.todo_count, 0)
+
+    def test_todo_count_skips_test_files(self):
+        """Test files use TODO as fixture content; those shouldn't count."""
+        from livingcode.collectors.code_quality import collect_code_quality
+        tests_dir = Path(self.tmpdir) / "app" / "tests"
+        tests_dir.mkdir(parents=True)
+        # In tests/ dir — skipped
+        (tests_dir / "fixture.js").write_text("// TODO: never counted\n")
+        # Filename starts with test_ — skipped
+        test_prefixed = Path(self.tmpdir) / "app" / "test_handler.py"
+        test_prefixed.write_text("# TODO: also never counted\n")
+        # *.spec.js — skipped
+        spec_file = Path(self.tmpdir) / "app" / "feature.spec.js"
+        spec_file.write_text("// FIXME: nope\n")
+        # Real code file — counted
+        real_file = Path(self.tmpdir) / "app" / "handler.js"
+        real_file.write_text("// TODO: real deferred work\n")
+        with patch("livingcode.collectors.code_quality._run_lint") as mock_lint:
+            mock_lint.return_value = "pass"
+            result = collect_code_quality(self.tmpdir, max_file_length=300)
+        self.assertEqual(result.todo_count, 1)
+
+    def test_todo_count_skips_graphify_pilot_snapshot(self):
+        """graphify-pilot/ is a snapshot, not live code. Its TODOs are
+        duplicates of the live tree and shouldn't be counted twice."""
+        from livingcode.collectors.code_quality import collect_code_quality
+        snap_dir = Path(self.tmpdir) / "graphify-pilot" / "app"
+        snap_dir.mkdir(parents=True)
+        (snap_dir / "old.js").write_text("// TODO: snapshot\n// TODO: still snapshot\n")
+        live_dir = Path(self.tmpdir) / "app"
+        live_dir.mkdir()
+        (live_dir / "live.js").write_text("// TODO: real\n")
+        with patch("livingcode.collectors.code_quality._run_lint") as mock_lint:
+            mock_lint.return_value = "pass"
+            result = collect_code_quality(self.tmpdir, max_file_length=300)
+        self.assertEqual(result.todo_count, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
