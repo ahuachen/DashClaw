@@ -1,6 +1,6 @@
 ---
 owner: Ops
-last-verified: 2026-04-18
+last-verified: 2026-04-20
 doc-type: runbook
 ---
 
@@ -161,9 +161,7 @@ On `/connect`, confirm:
 - the Turnstile widget appears if site key is configured
 - clicking the mint button returns a workspace ID, API key, and config snippet
 
-On `/setup`, confirm the instance reports healthy readiness.
-
-Note: today `/setup` is still a redirect to `/settings`, so operator validation may rely more on `/api/setup/status` and the doctor output than on a dedicated public truth page.
+On `/setup`, confirm the page renders the "Deployment truth surface" with green database, schema, and environment sections. `/api/setup/status` returns the same report as JSON if you need to diff it against the UI.
 
 ---
 
@@ -251,4 +249,4 @@ Before calling the hosted deployment ready, verify all of this:
 
 ---
 
-Runbook last verified: 2026-04-18
+Runbook last verified: 2026-04-20
