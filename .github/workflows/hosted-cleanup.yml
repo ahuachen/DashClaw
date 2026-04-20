@@ -20,7 +20,6 @@ on:
 jobs:
   sweep:
     runs-on: ubuntu-latest
-    if: ${{ vars.DASHCLAW_BASE_URL != '' || secrets.DASHCLAW_BASE_URL != '' }}
     steps:
       - name: POST /api/hosted/cleanup
         env:
