@@ -46,6 +46,7 @@
 #### Optional
 
 - **Live decision stream** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel env vars. Without this, Mission Control uses in-memory events (fine for getting started, but won't persist across serverless invocations).
+- **Hosted trial mode** — If you want DashClaw to mint hosted trial workspaces from `/connect`, follow [`docs/hosted-deployment-runbook.md`](./docs/hosted-deployment-runbook.md). That path needs extra env vars, Turnstile, cleanup secrets, and operator-managed infrastructure.
 
 ## Connect Your Agent
 

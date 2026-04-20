@@ -18,29 +18,39 @@ export async function runChecks({ env = process.env } = {}) {
     return checks;
   }
 
-  // Check 1: Turnstile secret present in production
-  const hasTurnstile = !!env.TURNSTILE_SECRET_KEY;
+  const hasTurnstileSecret = !!env.TURNSTILE_SECRET_KEY;
   checks.push({
     id: 'hosted_turnstile_secret',
     category: 'hosted',
-    status: hasTurnstile ? 'pass' : 'fail',
+    status: hasTurnstileSecret ? 'pass' : 'fail',
     title: 'Turnstile secret',
-    message: hasTurnstile
+    message: hasTurnstileSecret
       ? 'TURNSTILE_SECRET_KEY is set — CAPTCHA verification is active.'
-      : 'DASHCLAW_HOSTED=true but TURNSTILE_SECRET_KEY is unset. Provisioning is CAPTCHA-bypassed and abuse-vulnerable. Set TURNSTILE_SECRET_KEY from your Cloudflare Turnstile dashboard.',
+      : 'DASHCLAW_HOSTED=true but TURNSTILE_SECRET_KEY is unset. Provisioning is abuse-vulnerable. Set TURNSTILE_SECRET_KEY from your Cloudflare Turnstile dashboard.',
     fix: null,
   });
 
-  // Check 2: Cleanup secret is either set or unset with admin-only path (warn if cron is expected but secret missing)
-  const hasCleanupSecret = !!env.HOSTED_CLEANUP_SECRET;
+  const hasTurnstileSiteKey = !!env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  checks.push({
+    id: 'hosted_turnstile_site_key',
+    category: 'hosted',
+    status: hasTurnstileSiteKey ? 'pass' : 'warn',
+    title: 'Turnstile site key',
+    message: hasTurnstileSiteKey
+      ? 'NEXT_PUBLIC_TURNSTILE_SITE_KEY is set — the widget can render in the hosted trial UI.'
+      : 'NEXT_PUBLIC_TURNSTILE_SITE_KEY is unset — the server still enforces Turnstile, but the widget will not render for public provisioning.',
+    fix: null,
+  });
+
+  const hasCleanupSecret = !!env.HOSTED_CLEANUP_SECRET || !!env.CRON_SECRET;
   checks.push({
     id: 'hosted_cleanup_secret',
     category: 'hosted',
     status: hasCleanupSecret ? 'pass' : 'warn',
     title: 'Cleanup secret',
     message: hasCleanupSecret
-      ? 'HOSTED_CLEANUP_SECRET is set — cron-invoked cleanup is available.'
-      : 'HOSTED_CLEANUP_SECRET is unset — cleanup sweeper requires admin-role API key (cron cannot call it without the secret).',
+      ? 'A cleanup secret is configured — scheduled sweeps can authenticate.'
+      : 'No cleanup secret is configured — cleanup remains limited to admin-authenticated requests until HOSTED_CLEANUP_SECRET or CRON_SECRET is set.',
     fix: null,
   });
 
