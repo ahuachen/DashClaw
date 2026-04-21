@@ -64,6 +64,16 @@ export async function PATCH(request) {
       return NextResponse.json({ error: 'thread_id is required' }, { status: 400 });
     }
 
+    // message_threads ids are `mt_*`; context_threads are `ct_*`. Without this
+    // prefix check a ct_ id falls through to getThreadById, which queries the
+    // wrong table and returns a misleading 404 instead of a clear 400.
+    if (typeof thread_id !== 'string' || !thread_id.startsWith('mt_')) {
+      return NextResponse.json(
+        { error: 'thread_id must be a message-thread id (mt_*). Use /api/context/threads for context thread ids (ct_*).' },
+        { status: 400 },
+      );
+    }
+
     const existing = await getThreadById(sql, orgId, thread_id);
     if (!existing) {
       return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
