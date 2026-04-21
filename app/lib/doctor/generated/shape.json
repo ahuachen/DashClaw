@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:51742678b6dff1ed86dd6a83e9348824297557bb",
+  "timestamp": "sha1:7a0e5d7b1d45f7bad9643c1c77358d9f3123210a",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2701,6 +2701,14 @@
         "app/login/page.js",
         "graphify-pilot/app/api/auth/local/route.js",
         "graphify-pilot/app/login/page.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_MAX_ORG_ATTACHMENT_BYTES",
+      "required": false,
+      "files": [
+        "app/api/messages/route.js"
       ],
       "in_env_example": false
     },

@@ -170,7 +170,9 @@ export async function generateEmbeddings(apiKey, texts) {
   const data = await res.json();
   // Sort by index since OpenAI may return out of order
   const sorted = [...data.data].sort((a, b) => a.index - b.index);
-  return sorted.map((d) => d.embedding);
+  const embeddings = sorted.map((d) => d.embedding);
+  embeddings.tokens_used = Number(data.usage?.prompt_tokens) || 0;
+  return embeddings;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -335,7 +337,9 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
   }
 
   // Embed the query
-  const [queryEmbedding] = await generateEmbeddings(apiKey, [query]);
+  const embeddings = await generateEmbeddings(apiKey, [query]);
+  const [queryEmbedding] = embeddings;
+  const tokensUsed = embeddings.tokens_used || 0;
 
   // pgvector cosine distance: <=> returns distance (0 = identical), so
   // we compute similarity as 1 - distance for the score.
@@ -357,7 +361,7 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
     LIMIT ${Math.min(parseInt(limit, 10) || 5, 20)}
   `;
 
-  return results.map((r) => ({
+  const chunks = results.map((r) => ({
     chunk_id: r.chunk_id,
     item_id: r.item_id,
     content: r.content,
@@ -367,4 +371,10 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
     title: r.title || null,
     source_uri: r.source_uri || null,
   }));
+  // Attach the query-embedding token cost so the workflow executor can
+  // surface it on action_records.tokens_in — without this every
+  // knowledge_search step reports zero token usage regardless of query
+  // length, creating a metering blind spot for non-prompt steps.
+  chunks.tokens_used = tokensUsed;
+  return chunks;
 }

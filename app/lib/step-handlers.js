@@ -23,6 +23,10 @@ export async function handleKnowledgeSearch(sql, orgId, config) {
     limit: top_k,
   });
 
+  // Surface embedding-token usage so the executor writes a non-zero
+  // tokens_in on action_records for this step. searchCollection attaches
+  // `tokens_used` to the returned array; fall back to 0 if the property
+  // is absent (e.g. stub in tests).
   return {
     chunks: chunks.map((c) => ({
       content: c.content,
@@ -31,6 +35,8 @@ export async function handleKnowledgeSearch(sql, orgId, config) {
       title: c.title,
     })),
     query,
+    tokens_in: chunks.tokens_used || 0,
+    tokens_out: 0,
   };
 }
 
