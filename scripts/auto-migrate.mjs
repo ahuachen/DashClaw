@@ -96,21 +96,25 @@ let pgvectorAvailable = null; // tri-state: null=unknown, true, false
 // table that was never created.
 const skippedTables = new Set();
 
-function tableNamesFromStatement(stmt) {
-  const names = new Set();
-  const singleMatches = [
+/**
+ * Returns the primary target of a DDL statement — the table being created,
+ * altered, indexed on, or dropped. We skip statements whose primary target
+ * is a pgvector-dependent table that was skipped upstream, regardless of
+ * what else the statement references (FK targets, etc. — those are separate
+ * tables and their own skip status is evaluated on their own statements).
+ */
+function primaryTargetTable(stmt) {
+  const patterns = [
     /CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+"?(\w+)"?/i,
     /CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+CONCURRENTLY)?(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+"?(\w+)"?/i,
     /ALTER\s+TABLE(?:\s+IF\s+EXISTS)?\s+"?(\w+)"?/i,
+    /DROP\s+TABLE(?:\s+IF\s+EXISTS)?\s+"?(\w+)"?/i,
   ];
-  for (const re of singleMatches) {
+  for (const re of patterns) {
     const m = stmt.match(re);
-    if (m) names.add(m[1]);
+    if (m) return m[1];
   }
-  const refRe = /REFERENCES\s+"?(\w+)"?/gi;
-  let m;
-  while ((m = refRe.exec(stmt)) !== null) names.add(m[1]);
-  return [...names];
+  return null;
 }
 
 for (const stmt of statements) {
@@ -128,21 +132,22 @@ for (const stmt of statements) {
     }
   }
   if (needsVector && pgvectorAvailable === false) {
-    // pgvector not installed — skip this table/index. Record every table
-    // name the statement defined so dependent objects can skip too.
-    for (const t of tableNamesFromStatement(stmt)) skippedTables.add(t);
+    // pgvector not installed — skip this statement. Record the primary
+    // target (the table being created) so every subsequent ALTER / INDEX /
+    // constraint that targets it is also skipped on its own turn.
+    const target = primaryTargetTable(stmt);
+    if (target) skippedTables.add(target);
     skipped++;
     continue;
   }
 
-  // Skip statements whose target table is a pgvector-dependent table we
-  // already skipped. Only skip when every referenced table is in the
-  // skipped set; statements that touch one skipped table and one real
-  // table still run and will error out loudly (intentional — that case
-  // indicates a real cross-dependency that needs human attention).
+  // Skip statements whose primary target is a pgvector-dependent table
+  // that was skipped. A FK / REFERENCES to an existing real table is
+  // irrelevant — the statement still can't run because its own target
+  // doesn't exist on this DB.
   if (skippedTables.size > 0) {
-    const refs = tableNamesFromStatement(stmt);
-    if (refs.length > 0 && refs.every((t) => skippedTables.has(t))) {
+    const target = primaryTargetTable(stmt);
+    if (target && skippedTables.has(target)) {
       skipped++;
       continue;
     }
