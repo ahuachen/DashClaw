@@ -17,7 +17,7 @@ import { scanSensitiveData } from './security.js';
  * address between the two calls because fetch never re-resolves.
  * Falls back to identity lookup when no pinned IP is known.
  */
-function buildPinnedDispatcher(validatedIps) {
+export function buildPinnedDispatcher(validatedIps) {
   if (!Array.isArray(validatedIps) || validatedIps.length === 0) {
     return undefined;
   }
@@ -31,7 +31,7 @@ function buildPinnedDispatcher(validatedIps) {
   });
 }
 
-async function safeUrlWithIps(url) {
+export async function safeUrlWithIps(url) {
   const parsed = new URL(url);
   if (parsed.protocol !== 'https:') throw new Error('Webhook URL must use https');
   if (parsed.username || parsed.password) throw new Error('Webhook URL must not include credentials');
