@@ -143,17 +143,24 @@ export async function deliverWebhook({ webhookId, orgId, url, secret, eventType,
 
   const durationMs = Date.now() - start;
 
-  // Log delivery
+  // Log delivery — await so the audit row is committed before we tell the
+  // caller the delivery succeeded. A lost INSERT here would leave an
+  // operator investigating a missed webhook alert with no delivery attempt
+  // in the UI, unable to distinguish "never tried" from "tried and lost".
   const storedPayload = redactForStorage(payloadStr);
   const storedResponseBody = redactForStorage(responseBody);
-  sql`
-    INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
-    VALUES (${deliveryId}, ${webhookId}, ${orgId}, ${eventType}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
-  `.catch((err) => {
+  let deliveryLogged = true;
+  try {
+    await sql`
+      INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
+      VALUES (${deliveryId}, ${webhookId}, ${orgId}, ${eventType}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
+    `;
+  } catch (err) {
     console.error('[WEBHOOK] Failed to log delivery:', err.message);
-  });
+    deliveryLogged = false;
+  }
 
-  return { success: status === 'success', status: responseStatus };
+  return { success: status === 'success', status: responseStatus, delivery_logged: deliveryLogged };
 }
 
 /**
@@ -225,17 +232,23 @@ export async function deliverGuardWebhook({ url, policyId, orgId, payload, timeo
 
   const durationMs = Date.now() - start;
 
-  // Log delivery (use policyId as webhook_id for guard webhooks)
+  // Log delivery (use policyId as webhook_id for guard webhooks). Await so
+  // the audit row is committed before the caller acts on the response — a
+  // lost INSERT would hide the guard decision from replay and forensics.
   const storedPayload = redactForStorage(payloadStr);
   const storedResponseBody = redactForStorage(responseBody);
-  sql`
-    INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
-    VALUES (${deliveryId}, ${policyId}, ${orgId}, ${'guard.evaluation'}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
-  `.catch((err) => {
+  let deliveryLogged = true;
+  try {
+    await sql`
+      INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
+      VALUES (${deliveryId}, ${policyId}, ${orgId}, ${'guard.evaluation'}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
+    `;
+  } catch (err) {
     console.error('[GUARD WEBHOOK] Failed to log delivery:', err.message);
-  });
+    deliveryLogged = false;
+  }
 
-  return { success: status === 'success', response: parsedResponse, status: responseStatus };
+  return { success: status === 'success', response: parsedResponse, status: responseStatus, delivery_logged: deliveryLogged };
 }
 
 /**
