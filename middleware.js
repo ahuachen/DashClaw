@@ -1063,6 +1063,10 @@ export async function middleware(request) {
 
   // SECURITY: Always strip externally-provided org context headers for API routes.
   // Only middleware should inject these after authenticating the request.
+  // NOTE: x-cleanup-secret is intentionally NOT stripped — it is a
+  // caller-authenticating header that the hosted/cleanup route handler
+  // must see to validate against HOSTED_CLEANUP_SECRET. Stripping it would
+  // break the GH-Actions cleanup flow.
   const strippedApiRequestHeaders = (() => {
     const h = new Headers(request.headers);
     h.delete('x-org-id');
