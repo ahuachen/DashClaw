@@ -88,17 +88,26 @@ export function computeDriftChecks(shape, snapshot) {
     ];
   }
 
+  // Matching timestamps are a strong but not sufficient signal: two
+  // refresh runs in the same second could produce identical timestamps
+  // with different content. Require the counts to also match before
+  // short-circuiting to pass.
   if (shape.timestamp && snapshot.timestamp && shape.timestamp === snapshot.timestamp) {
-    return [
-      {
-        id: 'drift_status',
-        category: 'drift',
-        status: 'pass',
-        title: 'Shape vs baseline',
-        message: `Baseline matches current shape (${shape.timestamp})`,
-        fix: null,
-      },
-    ];
+    const tsDiffs = summariseDrift(countsOf(snapshot), countsOf(shape));
+    if (tsDiffs.length === 0) {
+      return [
+        {
+          id: 'drift_status',
+          category: 'drift',
+          status: 'pass',
+          title: 'Shape vs baseline',
+          message: `Baseline matches current shape (${shape.timestamp})`,
+          fix: null,
+        },
+      ];
+    }
+    // Fall through to the full drift reporting below when counts disagree
+    // despite the timestamp tie.
   }
 
   const diffs = summariseDrift(countsOf(snapshot), countsOf(shape));

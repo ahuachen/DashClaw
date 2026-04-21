@@ -7,11 +7,7 @@ from pathlib import Path
 from livingcode.collectors.git_stats import collect_git_stats
 from livingcode.collectors.code_quality import collect_code_quality
 from livingcode.orchestrator.cycle import run_lifecycle_cycle
-from livingcode.state import ensure_organism_dir
-
-
-def _safe_timestamp() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
+from livingcode.state import ensure_organism_dir, _safe_timestamp
 
 
 def run_heartbeat(repo_path: str, mode: str = "quick") -> dict:

@@ -249,28 +249,31 @@ export async function updateCapability(sql, orgId, capabilityId, patch = {}) {
     );
   }
 
+  // Push fallback to SQL via COALESCE so the UPDATE reads the current row
+  // atomically instead of merging against the earlier SELECT. Two concurrent
+  // PATCHes no longer lose each other's non-overlapping field writes; the
+  // SELECT above is kept only for enum validation and schema-compatibility.
+  const requiresApprovalPatch =
+    'requires_approval' in patch ? (patch.requires_approval ? 1 : 0) : null;
+  const tagsPatch = patch.tags !== undefined ? JSON.stringify(patch.tags) : null;
+  const pricingPatch = patch.pricing !== undefined ? JSON.stringify(patch.pricing) : null;
+  const invocationSchemaPatch =
+    patch.invocation_schema !== undefined ? JSON.stringify(patch.invocation_schema) : null;
+
   const rows = await sql`
     UPDATE capabilities SET
-      name = ${patch.name ?? existing.name},
-      description = ${patch.description ?? existing.description},
-      category = ${patch.category ?? existing.category},
-      source_type = ${patch.source_type ?? existing.source_type},
-      auth_type = ${patch.auth_type ?? existing.auth_type},
-      risk_level = ${patch.risk_level ?? existing.risk_level},
-      requires_approval = ${
-        'requires_approval' in patch
-          ? patch.requires_approval
-            ? 1
-            : 0
-          : existing.requires_approval
-          ? 1
-          : 0
-      },
-      tags_json = ${JSON.stringify(patch.tags ?? existing.tags)},
-      pricing_json = ${JSON.stringify(patch.pricing ?? existing.pricing)},
-      health_status = ${patch.health_status ?? existing.health_status},
-      docs_url = ${patch.docs_url ?? existing.docs_url},
-      invocation_schema_json = ${JSON.stringify(patch.invocation_schema ?? existing.invocation_schema)},
+      name = COALESCE(${patch.name ?? null}, name),
+      description = COALESCE(${patch.description ?? null}, description),
+      category = COALESCE(${patch.category ?? null}, category),
+      source_type = COALESCE(${patch.source_type ?? null}, source_type),
+      auth_type = COALESCE(${patch.auth_type ?? null}, auth_type),
+      risk_level = COALESCE(${patch.risk_level ?? null}, risk_level),
+      requires_approval = COALESCE(${requiresApprovalPatch}, requires_approval),
+      tags_json = COALESCE(${tagsPatch}, tags_json),
+      pricing_json = COALESCE(${pricingPatch}, pricing_json),
+      health_status = COALESCE(${patch.health_status ?? null}, health_status),
+      docs_url = COALESCE(${patch.docs_url ?? null}, docs_url),
+      invocation_schema_json = COALESCE(${invocationSchemaPatch}, invocation_schema_json),
       updated_at = now()
     WHERE org_id = ${orgId} AND capability_id = ${capabilityId}
     RETURNING *

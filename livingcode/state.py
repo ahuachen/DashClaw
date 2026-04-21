@@ -1,6 +1,8 @@
 """Filesystem operations for .organism/ state directory."""
 import json
+import os
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -111,9 +113,38 @@ def get_cycle_counter(repo_path: str) -> int:
 
 
 def increment_cycle_counter(repo_path: str) -> int:
-    """Increment and return the new cycle counter value."""
+    """Increment and return the new cycle counter value.
+
+    Uses an O_EXCL lock file to serialize the read-modify-write across
+    concurrent processes (e.g. a pre-commit hook running at the same
+    time as a manual `python -m livingcode start`). The threading lock
+    serializes within a single process; the lock file covers cross-
+    process races. On any lock-file error we fall back to the plain
+    write — a rare clobber is better than hanging the orchestrator.
+    """
     path = Path(repo_path) / ORGANISM_DIR / "cycle-counter.json"
-    current = get_cycle_counter(repo_path)
-    new_val = current + 1
-    write_json_file(path, {"cycle": new_val})
-    return new_val
+    lock_path = path.with_suffix(".lock")
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with _counter_lock:
+        fd = None
+        deadline = time.monotonic() + 5.0
+        while fd is None and time.monotonic() < deadline:
+            try:
+                fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                time.sleep(0.05)
+            except OSError:
+                break  # fall back to unlocked write
+        try:
+            current = get_cycle_counter(repo_path)
+            new_val = current + 1
+            write_json_file(path, {"cycle": new_val})
+            return new_val
+        finally:
+            if fd is not None:
+                os.close(fd)
+                try:
+                    lock_path.unlink()
+                except OSError:
+                    pass

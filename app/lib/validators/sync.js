@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // Helper for loose string fields that might be null/undefined
 const optionalString = z.string().nullish().transform(val => val || null);
-const optionalNumber = z.number().nullish().transform(val => val || 0);
+const optionalNumber = z.number().nullish().transform(val => (val == null ? 0 : val));
 
 export const syncSchema = z.object({
   agent_id: z.string().optional(),
