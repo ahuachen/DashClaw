@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../lib/db.js';
+import { getSql } from '../../lib/db.js';
 import { validateAssumption } from '../../lib/validate.js';
 import { getOrgId } from '../../lib/org.js';
 import { scanSensitiveData } from '../../lib/security.js';
@@ -20,13 +20,6 @@ function redactAny(value, findings) {
     return out;
   }
   return value;
-}
-
-let _sql;
-function getSql() {
-  if (_sql) return _sql;
-  _sql = getDbSql();
-  return _sql;
 }
 
 export async function GET(request) {
