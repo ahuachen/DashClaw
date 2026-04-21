@@ -9,7 +9,6 @@ import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
-import { useSession } from 'next-auth/react';
 import { isDemoMode } from '../lib/isDemoMode';
 import { parseJsonArray as safeJsonArray } from '../lib/parseJson';
 
@@ -37,7 +36,12 @@ export default function ApprovalsPage() {
   const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-  const { data: session, status: sessionStatus } = useSession();
+  // BUG-03b: derive the viewer's effective role from a server endpoint that
+  // unifies NextAuth and local-session auth, rather than `useSession()` which
+  // ignores the `dashclaw-local-session` cookie used by the local-password
+  // path and would wrongly render a local-admin as a read-only member.
+  const [effectiveRole, setEffectiveRole] = useState(null);
+  const [sessionSettled, setSessionSettled] = useState(false);
 
   const fetchPending = useCallback(async () => {
     try {
@@ -58,6 +62,24 @@ export default function ApprovalsPage() {
     const interval = setInterval(fetchPending, 10000); // Polling for new approvals
     return () => clearInterval(interval);
   }, [fetchPending]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/session/effective');
+        if (!res.ok) throw new Error(`effective-session ${res.status}`);
+        const json = await res.json();
+        if (!cancelled) setEffectiveRole(json.role || null);
+      } catch {
+        // Leave role null — the banner then correctly renders for an
+        // unauthenticated viewer once sessionSettled flips true.
+      } finally {
+        if (!cancelled) setSessionSettled(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleDecision = async (actionId, decision) => {
     try {
@@ -82,17 +104,9 @@ export default function ApprovalsPage() {
     }
   };
 
-  const isAdmin = session?.user?.role === 'admin';
+  const isAdmin = effectiveRole === 'admin';
   const isDemo = isDemoMode();
   const canDecide = isAdmin && !isDemo;
-
-  // BUG-03 fix: do not render the READ-ONLY banner while the session is still
-  // hydrating. useSession() returns status='loading' on the initial mount until
-  // NextAuth resolves the JWT; during that window session.user.role is undefined,
-  // which naively evaluates as !isAdmin and causes the orange banner to flash
-  // for a real admin user during page refresh. Gate the banner on a settled
-  // session state instead.
-  const sessionSettled = sessionStatus !== 'loading';
 
   return (
     <PageLayout

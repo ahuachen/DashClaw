@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:c9f41502ba424d0166f83aa16936d2c85dd51c6a",
+  "timestamp": "sha1:51742678b6dff1ed86dd6a83e9348824297557bb",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1940,6 +1940,15 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/security/status/route.js"
+    },
+    {
+      "path": "/api/session/effective",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/session/effective/route.js"
     },
     {
       "path": "/api/sessions",

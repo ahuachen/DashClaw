@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `225`
+- Total routes: `226`
 - Stable routes: `41`
 - Beta routes: `20`
-- Experimental routes: `164`
+- Experimental routes: `165`
 
 ## Routes
 
@@ -212,6 +212,7 @@ doc-type: architecture
 | `/api/security/prompt-injection` | `GET, POST` | `beta` | `/api/security` | `app/api/security/prompt-injection/route.js` |
 | `/api/security/scan` | `POST` | `beta` | `/api/security` | `app/api/security/scan/route.js` |
 | `/api/security/status` | `GET` | `beta` | `/api/security` | `app/api/security/status/route.js` |
+| `/api/session/effective` | `GET` | `experimental` | `(default)` | `app/api/session/effective/route.js` |
 | `/api/sessions` | `GET, POST` | `experimental` | `(default)` | `app/api/sessions/route.js` |
 | `/api/sessions/{sessionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/sessions/[sessionId]/route.js` |
 | `/api/sessions/{sessionId}/events` | `GET` | `experimental` | `(default)` | `app/api/sessions/[sessionId]/events/route.js` |
