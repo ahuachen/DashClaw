@@ -11,6 +11,7 @@ import { estimateCost } from '../../../lib/billing.js';
 import { getModelPricing } from '../../../lib/repositories/settings.repository.js';
 import { maybeFireCostAlert } from '../../../lib/cost-alerts.js';
 import {
+  getActionStatus,
   getActionWithRelations,
   updateActionOutcome,
 } from '../../../lib/repositories/actions.repository.js';
@@ -158,13 +159,13 @@ export async function PATCH(request, { params }) {
           return NextResponse.json({ error: 'Action not found' }, { status: 404 });
         }
         // Close-fields path returned null — either not found OR terminal row.
-        // A lightweight existence check distinguishes the two.
-        const existing = await sql`SELECT status FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1`;
-        if (existing.length === 0) {
+        // Lightweight repository lookup distinguishes the two.
+        const current = await getActionStatus(sql, orgId, actionId);
+        if (!current) {
           return NextResponse.json({ error: 'Action not found' }, { status: 404 });
         }
         return NextResponse.json(
-          { error: 'Action is in a terminal state and cannot be modified', status: existing[0].status },
+          { error: 'Action is in a terminal state and cannot be modified', status: current.status },
           { status: 409 },
         );
       }

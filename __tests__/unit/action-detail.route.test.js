@@ -4,6 +4,7 @@ import { makeRequest } from '../helpers.js';
 const {
   mockSql,
   mockValidateActionOutcome,
+  mockGetActionStatus,
   mockGetActionWithRelations,
   mockUpdateActionOutcome,
   mockPublishOrgEvent,
@@ -14,6 +15,7 @@ const {
 } = vi.hoisted(() => ({
   mockSql: Object.assign(vi.fn(async () => []), { query: vi.fn(async () => []) }),
   mockValidateActionOutcome: vi.fn(),
+  mockGetActionStatus: vi.fn(),
   mockGetActionWithRelations: vi.fn(),
   mockUpdateActionOutcome: vi.fn(),
   mockPublishOrgEvent: vi.fn(),
@@ -32,6 +34,7 @@ vi.mock('@/lib/events.js', () => ({
 }));
 vi.mock('@/lib/security.js', () => ({ scanSensitiveData: mockScanSensitiveData }));
 vi.mock('@/lib/repositories/actions.repository.js', () => ({
+  getActionStatus: mockGetActionStatus,
   getActionWithRelations: mockGetActionWithRelations,
   updateActionOutcome: mockUpdateActionOutcome,
 }));
