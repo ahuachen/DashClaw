@@ -1197,3 +1197,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_agent
 CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_default
   ON capability_access_rules (org_id, capability_id)
   WHERE agent_id IS NULL;
+--> statement-breakpoint
+-- Role allowlist on users.role and api_keys.role. Prevents typos
+-- ('Admin', 'administrator') and stale values from historical imports
+-- from silently granting or denying access. Null-repair first (default
+-- is 'member'), then add the constraint — it trips loudly if any
+-- unexpected value remains, so the operator can reconcile manually.
+UPDATE users SET role = 'member' WHERE role IS NULL;
+--> statement-breakpoint
+UPDATE api_keys SET role = 'member' WHERE role IS NULL;
+--> statement-breakpoint
+ALTER TABLE users ADD CONSTRAINT users_role_check
+  CHECK (role IN ('admin', 'member'));
+--> statement-breakpoint
+ALTER TABLE api_keys ADD CONSTRAINT api_keys_role_check
+  CHECK (role IN ('admin', 'member'));

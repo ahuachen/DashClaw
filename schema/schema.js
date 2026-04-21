@@ -4,7 +4,7 @@
 // app/lib/doctor/shape.mjs can filter via getTablesByDomain('<name>') without
 // a hand-maintained map. Current domains: governance. Regenerate after edits
 // with `npm run livingcode:refresh`.
-import { pgTable, text, timestamp, integer, boolean, uniqueIndex, numeric, customType, serial, real, jsonb, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, boolean, uniqueIndex, numeric, customType, serial, real, jsonb, pgEnum, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // Custom vector type for pgvector
@@ -46,6 +46,7 @@ export const users = pgTable('users', {
   lastLoginAt: timestamp('last_login_at').defaultNow(),
 }, (table) => ({
   providerUnique: uniqueIndex('users_provider_account_unique').on(table.provider, table.providerAccountId),
+  roleCheck: check('users_role_check', sql`${table.role} IN ('admin', 'member')`),
 }));
 
 // @domain governance
@@ -60,7 +61,9 @@ export const apiKeys = pgTable('api_keys', {
   lastUsedAt: timestamp('last_used_at'),
   revokedAt: timestamp('revoked_at'),
   createdAt: timestamp('created_at').defaultNow(),
-});
+}, (table) => ({
+  roleCheck: check('api_keys_role_check', sql`${table.role} IN ('admin', 'member')`),
+}));
 
 // --- Action & Governance Tables ---
 
