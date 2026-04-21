@@ -51,9 +51,19 @@ export function executeScorer(scorer, action) {
 
 function _executeRegex(config, action) {
   try {
-    const pattern = new RegExp(config.pattern || '', config.flags || 'i');
-    const target = String(action.outcome || '');
-    const matched = pattern.test(target);
+    // ReDoS guard: admin-supplied patterns can exhibit catastrophic backtracking
+    // on crafted targets (e.g. /(a+)+b/ vs 'aaaa…aaaa'). Node's regex engine is
+    // synchronous and has no built-in timeout, so run the match inside a vm
+    // context with a 100ms ceiling — a runaway pattern aborts with a thrown
+    // error rather than pegging the worker.
+    const source = String(config.pattern || '');
+    const flags = String(config.flags || 'i');
+    const target = String(action.outcome || '').slice(0, 100_000);
+    const matched = vm.runInNewContext(
+      'new RegExp(src, flags).test(target)',
+      { src: source, flags, target },
+      { timeout: 100 }
+    );
     return {
       score: matched ? (config.match_score ?? 1.0) : (config.no_match_score ?? 0.0),
       label: matched ? 'match' : 'no_match',
