@@ -1617,9 +1617,12 @@ class DashClaw:
 
     def submit_feedback(self, rating: int = None, comment: str = "", action_id: str = None, agent_id: str = None, category: str = "general", tags: list = None, metadata: dict = None) -> dict:
         """Submit user feedback, optionally tied to an action trace."""
+        # Parity with the JS SDK: fall back to self.agent_id when the caller
+        # omits an explicit agent_id. Without this the feedback row landed
+        # with a null agent_id and broke per-agent analytics attribution.
         return self._request("POST", "/api/feedback", body={
             "action_id": action_id,
-            "agent_id": agent_id,
+            "agent_id": agent_id or self.agent_id,
             "rating": rating,
             "comment": comment,
             "category": category,
