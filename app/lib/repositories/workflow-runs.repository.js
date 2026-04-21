@@ -61,6 +61,38 @@ export function shapeStepResult(row) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function insertStepResult(sql, { stepResultId, runActionId, orgId, templateId, stepData }) {
+  // Idempotent insert: if a row already exists for (run_action_id, step_id)
+  // reset it to 'running' rather than inserting a duplicate. Before this guard
+  // a crash between insertStepResult and updateStepResult would leave a stale
+  // 'running' row on disk, and resume would insert a second row with a new
+  // step_result_id — getWorkflowRun then returned duplicate steps and
+  // buildResumeContext would read whichever landed first in step_index order.
+  const existing = await sql`
+    SELECT 1 FROM workflow_step_results
+    WHERE run_action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND step_id = ${stepData.step_id}
+    LIMIT 1
+  `;
+
+  if (existing.length > 0) {
+    await sql`
+      UPDATE workflow_step_results
+      SET status = 'running',
+          input_json = ${JSON.stringify(stepData.input_json)},
+          started_at = ${stepData.started_at},
+          output_json = NULL,
+          error_message = NULL,
+          retry_count = 0,
+          duration_ms = NULL,
+          finished_at = NULL
+      WHERE run_action_id = ${runActionId}
+        AND org_id = ${orgId}
+        AND step_id = ${stepData.step_id}
+    `;
+    return;
+  }
+
   await sql`
     INSERT INTO workflow_step_results (
       step_result_id, run_action_id, org_id, template_id,
