@@ -1183,3 +1183,15 @@ CREATE TABLE IF NOT EXISTS capability_access_rules (
   created_by TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+--> statement-breakpoint
+-- Prevent duplicate access rules via two partial unique indexes
+-- (agent-specific vs org-wide default). Postgres treats NULLs as distinct
+-- in normal unique indexes, so a plain UNIQUE(org_id, capability_id, agent_id)
+-- would allow multiple org-wide rules per capability — we split the cases.
+CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_agent
+  ON capability_access_rules (org_id, capability_id, agent_id)
+  WHERE agent_id IS NOT NULL;
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_default
+  ON capability_access_rules (org_id, capability_id)
+  WHERE agent_id IS NULL;
