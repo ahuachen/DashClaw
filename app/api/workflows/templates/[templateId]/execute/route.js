@@ -13,6 +13,7 @@ import { getModelStrategy } from '../../../../../lib/repositories/model-strategi
 import {
   createActionRecord,
   createBlockedActionRecord,
+  updateActionOutcome,
 } from '../../../../../lib/repositories/actions.repository.js';
 import { scanSensitiveData } from '../../../../../lib/security.js';
 import { executeWorkflow } from '../../../../../lib/workflow-executor.js';
@@ -85,6 +86,14 @@ export async function POST(request, { params }) {
       dlpFindings,
     );
 
+    // Attach reasoning at creation time so the outcome UPDATE only has to
+    // write OUTCOME_FIELDS and can go through updateActionOutcome (matches
+    // the resume route's pattern and respects the route-SQL guardrail).
+    const reasoning = JSON.stringify({
+      template_id: template.template_id,
+      template_name: template.name,
+    });
+
     const actionData = {
       agent_id: agentId,
       action_type: 'workflow_execute',
@@ -95,6 +104,7 @@ export async function POST(request, { params }) {
       confidence: 50,
       input_summary: inputSummary,
       trigger: `workflow:${template.template_id}`,
+      reasoning,
     };
 
     // 4. Handle guard blocked
@@ -205,27 +215,21 @@ export async function POST(request, { params }) {
       { strategyConfig, agentId, persistStepResult },
     );
 
-    // 9. Update parent action outcome
+    // 9. Update parent action outcome via repository (no direct SQL).
+    // reasoning was set at creation time above; `steps` detail is visible
+    // through the workflow_step_results rows persisted by persistStepResult.
     const timestamp_end = new Date().toISOString();
-    const reasoning = JSON.stringify({
-      template_id: template.template_id,
-      template_name: template.name,
-      steps: result.steps,
-    });
     const outputSummary = result.success
       ? JSON.stringify(result.result).slice(0, 500)
       : result.error;
 
-    await sql`
-      UPDATE action_records
-      SET status = ${result.success ? 'completed' : 'failed'},
-          output_summary = ${outputSummary},
-          error_message = ${result.success ? null : result.error},
-          reasoning = ${reasoning},
-          timestamp_end = ${timestamp_end},
-          duration_ms = ${result.total_elapsed_ms || 0}
-      WHERE action_id = ${action_id} AND org_id = ${orgId}
-    `;
+    await updateActionOutcome(sql, orgId, action_id, {
+      status: result.success ? 'completed' : 'failed',
+      output_summary: outputSummary,
+      error_message: result.success ? null : result.error,
+      timestamp_end,
+      duration_ms: result.total_elapsed_ms || 0,
+    });
 
     // Meter increment (fire-and-forget)
     void Promise.all([
