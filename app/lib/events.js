@@ -363,15 +363,24 @@ export async function publishOrgEvent(event, { orgId, ...payload } = {}) {
   if (!orgId) return;
   const envelope = createEventEnvelope(event, orgId, payload);
 
-  // Always publish to memory backend to keep local fallback path alive.
-  await memoryBackend.publish(envelope);
+  if (selectedBackendName === 'memory') {
+    await memoryBackend.publish(envelope);
+    return;
+  }
 
-  if (selectedBackendName === 'memory') return;
-
+  // Redis is selected. Publish *only* to Redis so memory-backend subscribers
+  // that survived a transient Redis outage don't also receive the event via
+  // the in-process EventEmitter — that was the source of the duplicate-frame
+  // bug on the SSE live stream. Redis handles its own durability and replay.
   try {
     await selectedBackend.publish(envelope);
   } catch (err) {
-    console.error('[REALTIME] Redis publish failed; event delivered only locally:', err?.message || err);
+    console.error('[REALTIME] Redis publish failed; falling back to local memory delivery:', err?.message || err);
+    try {
+      await memoryBackend.publish(envelope);
+    } catch (memErr) {
+      console.error('[REALTIME] Local memory delivery also failed:', memErr?.message || memErr);
+    }
   }
 }
 
