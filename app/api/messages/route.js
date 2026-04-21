@@ -24,6 +24,7 @@ import {
   updateMessageReadBy,
 } from '../../lib/repositories/messagesContext.repository.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
+import { agentExistsInOrg } from '../../lib/repositories/agents.repository.js';
 import { randomUUID } from 'node:crypto';
 
 const VALID_TYPES = ['action', 'info', 'lesson', 'question', 'status'];
@@ -113,6 +114,21 @@ export async function POST(request) {
 
     if (!from_agent_id) {
       return NextResponse.json({ error: 'from_agent_id is required' }, { status: 400 });
+    }
+
+    // SECURITY: verify the claimed from_agent_id actually belongs to this
+    // org before accepting the message. Without this gate a caller with a
+    // valid API key could spoof a message as originating from an agent in
+    // a different org, corrupting the ledger's attribution trail.
+    const fromOk = await agentExistsInOrg(sql, orgId, from_agent_id);
+    if (!fromOk) {
+      return NextResponse.json({ error: 'from_agent_id not found in this org' }, { status: 403 });
+    }
+    if (to_agent_id) {
+      const toOk = await agentExistsInOrg(sql, orgId, to_agent_id);
+      if (!toOk) {
+        return NextResponse.json({ error: 'to_agent_id not found in this org' }, { status: 403 });
+      }
     }
 
     const msgType = message_type || 'info';

@@ -2,6 +2,41 @@ function isMissingTable(err) {
   return String(err?.code || '').includes('42P01') || String(err?.message || '').includes('does not exist');
 }
 
+/**
+ * Returns true when the agent_id has any trace of belonging to the org:
+ * a presence record, an identity record, a pairing, or a recorded action.
+ * Used as a tenant-ownership gate on user-supplied agent_id fields —
+ * messages/feedback/etc — to prevent cross-org spoofing.
+ */
+export async function agentExistsInOrg(sql, orgId, agentId) {
+  if (!agentId || typeof agentId !== 'string') return false;
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_presence WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_identities WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_pairings WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  return false;
+}
+
 function maxIso(a, b) {
   if (!a) return b || null;
   if (!b) return a || null;
