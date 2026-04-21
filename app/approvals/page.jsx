@@ -11,6 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { parseJsonArray as safeJsonArray } from '../lib/parseJson';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 function Banner({ icon: Icon, tone, title, children }) {
   const tones = {
@@ -36,12 +37,7 @@ export default function ApprovalsPage() {
   const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-  // BUG-03b: derive the viewer's effective role from a server endpoint that
-  // unifies NextAuth and local-session auth, rather than `useSession()` which
-  // ignores the `dashclaw-local-session` cookie used by the local-password
-  // path and would wrongly render a local-admin as a read-only member.
-  const [effectiveRole, setEffectiveRole] = useState(null);
-  const [sessionSettled, setSessionSettled] = useState(false);
+  const { isAdmin, settled: sessionSettled } = useEffectiveRole();
 
   const fetchPending = useCallback(async () => {
     try {
@@ -62,24 +58,6 @@ export default function ApprovalsPage() {
     const interval = setInterval(fetchPending, 10000); // Polling for new approvals
     return () => clearInterval(interval);
   }, [fetchPending]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/session/effective');
-        if (!res.ok) throw new Error(`effective-session ${res.status}`);
-        const json = await res.json();
-        if (!cancelled) setEffectiveRole(json.role || null);
-      } catch {
-        // Leave role null — the banner then correctly renders for an
-        // unauthenticated viewer once sessionSettled flips true.
-      } finally {
-        if (!cancelled) setSessionSettled(true);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
 
   const handleDecision = async (actionId, decision) => {
     try {
@@ -104,7 +82,6 @@ export default function ApprovalsPage() {
     }
   };
 
-  const isAdmin = effectiveRole === 'admin';
   const isDemo = isDemoMode();
   const canDecide = isAdmin && !isDemo;
 
