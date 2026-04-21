@@ -23,7 +23,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postgres from 'postgres';
@@ -58,24 +58,43 @@ const sql = postgres(process.env.DATABASE_URL, {
 });
 
 // ── Step 1: Execute DDL directly (no drizzle-kit, no prompts) ──────────────
-// Read the Drizzle-generated DDL SQL and execute each statement individually.
-// Skips "already exists" errors so this is safe to re-run on every deploy.
+// Read every Drizzle migration file under drizzle/ in filename order and
+// execute each statement individually. Files are expected to be named with
+// a zero-padded sequence prefix (0000_..., 0001_..., 0002_..., etc.) so the
+// filename sort matches the intended apply order. All statements use
+// IF NOT EXISTS / IF EXISTS idempotent guards, and SAFE_CODES below covers
+// the remaining "already applied" Postgres error codes, so re-running on an
+// already-migrated database is a no-op.
 log('Executing schema DDL...');
 
-const ddlPath = resolve(projectRoot, 'drizzle', '0000_clammy_falcon.sql');
-let ddl;
+const migrationsDir = resolve(projectRoot, 'drizzle');
+let migrationFiles;
 try {
-  ddl = readFileSync(ddlPath, 'utf8');
+  migrationFiles = readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
 } catch (err) {
-  fail(`Could not read DDL file at ${ddlPath}: ${err.message}`);
+  fail(`Could not read migrations directory at ${migrationsDir}: ${err.message}`);
 }
 
-const statements = ddl
-  .split('--> statement-breakpoint')
-  .map((s) => s.trim())
-  .filter(Boolean);
+if (migrationFiles.length === 0) {
+  fail(`No migration files found under ${migrationsDir}`);
+}
 
-log(`Found ${statements.length} DDL statements.`);
+log(`Found ${migrationFiles.length} migration file(s): ${migrationFiles.join(', ')}`);
+
+const statements = [];
+for (const filename of migrationFiles) {
+  const content = readFileSync(resolve(migrationsDir, filename), 'utf8');
+  const fileStatements = content
+    .split('--> statement-breakpoint')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  log(`  ${filename}: ${fileStatements.length} statements`);
+  for (const stmt of fileStatements) statements.push(stmt);
+}
+
+log(`Total DDL statements across all migrations: ${statements.length}.`);
 
 // Postgres error codes we can safely skip (idempotent re-runs):
 const SAFE_CODES = new Set([
