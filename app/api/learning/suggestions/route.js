@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { getSql } from '../../../lib/db.js';

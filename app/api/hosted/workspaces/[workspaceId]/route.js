@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { isHostedMode } from '../../../../lib/hosted/flag.js';
 import { getHostedWorkspace, deleteHostedWorkspace } from '../../../../lib/repositories/hosted-workspace.repository.js';
