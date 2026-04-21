@@ -5,47 +5,11 @@ import { NextResponse } from 'next/server';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
-import { createHash } from 'node:crypto';
-import { timingSafeCompare } from '../../../lib/timing-safe.js';
+import { isAlreadyInitialized, isAuthorizedSetupWriter } from '../../../lib/setup/auth-gate.js';
 import {
   ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS,
   ACTION_RECORDS_RUNTIME_INDEX_DEFINITIONS,
 } from '../../../lib/setup/action-records-runtime-schema.mjs';
-
-/**
- * Returns true when the instance has already been initialized — the
- * `organizations` table exists and contains org_default. Once that's
- * true, this endpoint must require an admin-level API key to re-run
- * migrations and reseed. Before that point it is left unauthenticated
- * so the 8-minute bootstrap flow can run against an empty database.
- */
-async function isAlreadyInitialized(sql) {
-  try {
-    const rows = await sql`SELECT 1 FROM organizations WHERE id = 'org_default' LIMIT 1`;
-    return rows.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-async function isAuthorizedWriter(sql, request) {
-  const header = request.headers.get('authorization') || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
-  if (!token) return false;
-
-  // Env-var fast path: match against DASHCLAW_API_KEY directly.
-  const envKey = process.env.DASHCLAW_API_KEY;
-  if (envKey && timingSafeCompare(token, envKey)) return true;
-
-  // Fallback: look up by hash in api_keys. Only accept admin-scoped keys.
-  try {
-    const hash = createHash('sha256').update(token).digest('hex');
-    const rows = await sql`SELECT role FROM api_keys WHERE key_hash = ${hash} LIMIT 1`;
-    return rows.length > 0 && rows[0].role === 'admin';
-  } catch {
-    return false;
-  }
-}
 
 export {
   ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS,
@@ -97,7 +61,7 @@ export async function POST(request) {
   const sql = postgres(url, { max: 1, connect_timeout: 30, idle_timeout: 5 });
 
   try {
-    if (await isAlreadyInitialized(sql) && !(await isAuthorizedWriter(sql, request))) {
+    if (await isAlreadyInitialized(sql) && !(await isAuthorizedSetupWriter(sql, request))) {
       return NextResponse.json(
         { error: 'Instance already initialized. Admin API key required to re-run migrations.' },
         { status: 401 }

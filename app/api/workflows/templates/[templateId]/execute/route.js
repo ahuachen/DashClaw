@@ -205,15 +205,38 @@ export async function POST(request, { params }) {
       }
     };
 
-    // 8. Execute workflow
-    const result = await executeWorkflow(
-      sql,
-      orgId,
-      action_id,
-      steps,
-      variables,
-      { strategyConfig, agentId, persistStepResult },
-    );
+    // 8. Execute workflow. Any throw inside executeWorkflow (step handler
+    // crash, DB write failure mid-run, quota error) used to fall through
+    // to the outer catch below, which returned an error response but left
+    // the parent action_records row in status='running' forever. The
+    // workflow_stuck + stale_running_action signals then fired against it
+    // on every cron tick. Wrap here so we always transition the parent to
+    // a terminal state before the outer handler returns.
+    let result;
+    try {
+      result = await executeWorkflow(
+        sql,
+        orgId,
+        action_id,
+        steps,
+        variables,
+        { strategyConfig, agentId, persistStepResult },
+      );
+    } catch (executeError) {
+      const failTs = new Date().toISOString();
+      try {
+        await updateActionOutcome(sql, orgId, action_id, {
+          status: 'failed',
+          output_summary: executeError?.message?.slice(0, 500) || 'Workflow execution threw',
+          error_message: executeError?.message || String(executeError),
+          timestamp_end: failTs,
+          duration_ms: Date.now() - Date.parse(timestamp_start),
+        });
+      } catch (outcomeError) {
+        console.error('[WORKFLOW_EXECUTE] failed to mark parent action as failed:', outcomeError?.message);
+      }
+      throw executeError;
+    }
 
     // 9. Update parent action outcome via repository (no direct SQL).
     // reasoning was set at creation time above; `steps` detail is visible

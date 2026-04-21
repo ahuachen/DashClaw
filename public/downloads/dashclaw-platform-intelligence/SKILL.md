@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:58050e1b90a22a624a3de3f692fe000459b8368b`
+**Shape snapshot:** `sha1:2b81c29dca07a73242e32a915f2a36e2488db063`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -352,7 +352,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 These must be set — DashClaw will fail to start without them.
 
-- **`DASHCLAW_API_KEY`** - referenced in 69 file(s)
+- **`DASHCLAW_API_KEY`** - referenced in 70 file(s)
 - **`DATABASE_URL`** - referenced in 83 file(s)
 - **`ENCRYPTION_KEY`** - referenced in 8 file(s)
 - **`NEXTAUTH_SECRET`** - referenced in 6 file(s)

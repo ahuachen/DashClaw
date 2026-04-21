@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:58050e1b90a22a624a3de3f692fe000459b8368b",
+  "timestamp": "sha1:2b81c29dca07a73242e32a915f2a36e2488db063",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -2506,6 +2506,7 @@
         "app/lib/demo/fixtures/journey-agents.js",
         "app/lib/demo/fixtures/persona-agents.js",
         "app/lib/demo/fixtures/tutorial-threads.js",
+        "app/lib/setup/auth-gate.js",
         "app/lib/starterSnippet.js",
         "app/self-host/SetupTabs.js",
         "examples/agent-chat-complete.js",
