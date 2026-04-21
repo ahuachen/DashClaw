@@ -43,8 +43,15 @@ export async function rebuildLearningRecommendations(sql, orgId, options = {}) {
   });
   const recommendations = buildRecommendationsFromEpisodes(episodes, { minSamples });
 
-  await clearLearningRecommendations(sql, orgId, { agentId, actionType });
+  // Upsert-then-prune (atomic in effect): capture a batch timestamp before
+  // writing, upsert every new recommendation (stamping updated_at = now),
+  // then delete only rows whose updated_at is strictly older than the batch.
+  // Previously clear-then-upsert left the table empty for the duration of the
+  // rebuild — if the process crashed or Vercel timed out mid-upsert, agents
+  // requesting recommendations got nothing until the next rebuild completed.
+  const batchTime = new Date().toISOString();
   const saved = await upsertLearningRecommendations(sql, orgId, recommendations);
+  await clearLearningRecommendations(sql, orgId, { agentId, actionType, olderThan: batchTime });
 
   return {
     episodes_scanned: episodes.length,

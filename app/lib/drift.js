@@ -55,14 +55,40 @@ function zScore(currentMean, baselineMean, baselineStddev) {
 // Metrics we track for drift
 // -----------------------------------------------
 
-const DRIFT_METRICS = [
-  { id: 'risk_score', label: 'Risk Score', source: 'action_records', column: 'risk_score', filter: 'risk_score IS NOT NULL' },
-  { id: 'confidence', label: 'Confidence', source: 'action_records', column: 'confidence', filter: 'confidence IS NOT NULL' },
-  { id: 'duration_ms', label: 'Duration (ms)', source: 'action_records', column: 'duration_ms', filter: 'duration_ms IS NOT NULL AND duration_ms > 0' },
-  { id: 'cost_estimate', label: 'Cost Estimate', source: 'action_records', column: 'cost_estimate', filter: 'cost_estimate IS NOT NULL AND cost_estimate > 0' },
-  { id: 'tokens_total', label: 'Total Tokens', source: 'action_records', column: '(tokens_in + tokens_out)', filter: '(tokens_in + tokens_out) > 0' },
-  { id: 'learning_score', label: 'Learning Score', source: 'learning_episodes', column: 'score', filter: 'score IS NOT NULL' },
-];
+// DRIFT_METRICS is the single source of truth for what column/filter
+// strings can be interpolated into the raw-SQL drift queries. Both this
+// top-level array AND every member object are deep-frozen to guarantee
+// no caller (including future code) can append a metric with
+// caller-controlled values. `assertSafeMetric` below validates the shape
+// of `column` and `filter` against a conservative pattern before the
+// string is spliced into SQL — any future config-sourced metric would
+// fail this check loudly rather than become an injection vector.
+const DRIFT_METRICS = Object.freeze([
+  Object.freeze({ id: 'risk_score', label: 'Risk Score', source: 'action_records', column: 'risk_score', filter: 'risk_score IS NOT NULL' }),
+  Object.freeze({ id: 'confidence', label: 'Confidence', source: 'action_records', column: 'confidence', filter: 'confidence IS NOT NULL' }),
+  Object.freeze({ id: 'duration_ms', label: 'Duration (ms)', source: 'action_records', column: 'duration_ms', filter: 'duration_ms IS NOT NULL AND duration_ms > 0' }),
+  Object.freeze({ id: 'cost_estimate', label: 'Cost Estimate', source: 'action_records', column: 'cost_estimate', filter: 'cost_estimate IS NOT NULL AND cost_estimate > 0' }),
+  Object.freeze({ id: 'tokens_total', label: 'Total Tokens', source: 'action_records', column: '(tokens_in + tokens_out)', filter: '(tokens_in + tokens_out) > 0' }),
+  Object.freeze({ id: 'learning_score', label: 'Learning Score', source: 'learning_episodes', column: 'score', filter: 'score IS NOT NULL' }),
+]);
+
+// Conservative allowlist: column / filter strings may only contain
+// identifiers, parentheses, basic comparison operators, SQL keywords
+// (IS NULL, AND, OR), and whitespace. If a future metric (e.g. sourced
+// from config or DB) slips something outside this set, we throw before
+// it reaches sql.query().
+const SAFE_METRIC_TOKEN = /^[\w\s().,+\-*/<>=!'\d]+$/;
+function assertSafeMetric(metric) {
+  if (!SAFE_METRIC_TOKEN.test(metric.column) || !SAFE_METRIC_TOKEN.test(metric.filter)) {
+    throw new Error(`Unsafe drift metric definition for id=${metric.id}`);
+  }
+  // Reject SQL keywords that could enable injection regardless of token shape.
+  const forbidden = /;|--|\/\*|\*\/|xp_|union|drop|insert|update|delete|truncate|grant|revoke/i;
+  if (forbidden.test(metric.column) || forbidden.test(metric.filter)) {
+    throw new Error(`Forbidden SQL keyword in drift metric id=${metric.id}`);
+  }
+}
+for (const m of DRIFT_METRICS) assertSafeMetric(m);
 
 export function listMetrics() {
   return DRIFT_METRICS.map(m => ({ id: m.id, label: m.label }));

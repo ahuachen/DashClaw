@@ -48,12 +48,12 @@ p.kicker{background:var(--accent-bg);border:1px solid var(--accent-border);borde
 p.kicker b{color:var(--accent-deep)}
 </style></head><body>
 <h1>DashClaw Livingcode Dashboard</h1>
-<div class="sig" id="sig">Shape signature: sha1:2b81c29dca07a73242e32a915f2a36e2488db063 · signature-stable</div>
+<div class="sig" id="sig">Shape signature: sha1:c9f41502ba424d0166f83aa16936d2c85dd51c6a · signature-stable</div>
 <div class="grid">
       <div class="cell"><div class="n">178</div><div class="k">Active routes</div></div>
       <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
       <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
-      <div class="cell"><div class="n">111</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">112</div><div class="k">Optional env vars</div></div>
       <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
       <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
       <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
@@ -260,14 +260,15 @@ p.kicker b{color:var(--accent-deep)}
       <div class="cell"><div class="n">1<span class="trend">→</span></div><div class="k">TODOs</div></div>
       <div class="cell"><div class="n">104<span class="trend">→</span></div><div class="k">Files &gt;300 lines</div></div></div></section>
 
-<section><h2>Changed since last snapshot</h2><p class="kicker"><b>5</b> env_vars added, <b>3</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
+<section><h2>Changed since last snapshot</h2><p class="kicker"><b>6</b> env_vars added, <b>3</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces <span class="sig">New route: GET, POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces/[workspaceId] <span class="sig">New route: DELETE, GET</span></li>
     <li><code>added</code> <b>env_vars</b>: HOSTED_CLEANUP_SECRET <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: HOSTED_SMOKE_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: INTEGRATION_DATABASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: NEXT_PUBLIC_TURNSTILE_SITE_KEY <span class="sig">New env var (optional, undocumented)</span></li>
-    <li><code>added</code> <b>env_vars</b>: TEST_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
+    <li><code>added</code> <b>env_vars</b>: TEST_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: X <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
 
 <section class="routes"><h2>Active routes</h2><input id="route-filter" type="search" placeholder="Filter routes…" oninput="var q=this.value.toLowerCase();document.querySelectorAll('section.routes tr[data-path]').forEach(function(r){r.style.display=r.dataset.path.toLowerCase().includes(q)?'':'none';});document.querySelectorAll('section.routes details').forEach(function(d){var visible=d.querySelectorAll("tr[data-path]:not([style*='none'])").length;d.style.display=visible||!q?'':'none';if(q)d.open=true;});"><details><summary>/actions/* (10)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/actions"><td><code>/api/actions</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/actions/route.js</td></tr>
     <tr data-path="/api/actions/[actionId]"><td><code>/api/actions/[actionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/[actionId]/route.js</td></tr>

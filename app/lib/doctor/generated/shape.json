@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:2b81c29dca07a73242e32a915f2a36e2488db063",
+  "timestamp": "sha1:c9f41502ba424d0166f83aa16936d2c85dd51c6a",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3630,6 +3630,14 @@
         "app/lib/validate.js",
         "graphify-pilot/app/api/security/status/route.js",
         "graphify-pilot/app/lib/validate.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "X",
+      "required": false,
+      "files": [
+        "vitest.config.js"
       ],
       "in_env_example": false
     }

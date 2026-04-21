@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:2b81c29dca07a73242e32a915f2a36e2488db063`
+**Shape snapshot:** `sha1:c9f41502ba424d0166f83aa16936d2c85dd51c6a`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **178** active API routes across **45** categories
-- **4** required + **111** optional environment variables
+- **4** required + **112** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -472,6 +472,7 @@ These have fallbacks or only activate specific features.
 - `VERCEL` *(undocumented)*
 - `VERCEL_URL` *(undocumented)*
 - `WEBHOOK_ALLOWED_DOMAINS` *(undocumented)*
+- `X` *(undocumented)*
 
 ## Database Tables
 

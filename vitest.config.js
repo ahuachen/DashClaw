@@ -8,6 +8,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: [],
+    // Automatically reset env-var mutations between tests so `vi.stubEnv`
+    // or direct `process.env.X = ...` writes in one test do not leak into
+    // the next. Many existing tests set env vars without a matching
+    // afterEach restore — `unstubEnvs: true` provides the guardrail while
+    // those test files are gradually migrated to vi.stubEnv.
+    unstubEnvs: true,
     // Exclude Playwright specs (tests/) — they use @playwright/test, not vitest.
     // Also skip the Playwright defaults and Vitest's own build outputs.
     exclude: [

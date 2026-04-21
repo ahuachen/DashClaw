@@ -183,7 +183,7 @@ export async function listLearningEpisodes(sql, orgId, filters = {}) {
 }
 
 export async function clearLearningRecommendations(sql, orgId, filters = {}) {
-  const { agentId, actionType } = filters;
+  const { agentId, actionType, olderThan } = filters;
   let idx = 1;
   const conditions = [`org_id = $${idx++}`];
   const params = [orgId];
@@ -195,6 +195,13 @@ export async function clearLearningRecommendations(sql, orgId, filters = {}) {
   if (actionType) {
     conditions.push(`action_type = $${idx++}`);
     params.push(actionType);
+  }
+  if (olderThan) {
+    // Used by the rebuild service to drop only recommendations that weren't
+    // refreshed in the current batch. Lets us upsert-then-prune so the
+    // learning_recommendations table is never empty mid-rebuild.
+    conditions.push(`updated_at::timestamptz < $${idx++}`);
+    params.push(olderThan);
   }
 
   const rows = await sql.query(
