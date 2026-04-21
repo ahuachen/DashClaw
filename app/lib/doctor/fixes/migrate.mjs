@@ -29,6 +29,7 @@ export async function apply({ env = process.env } = {}) {
 
     let created = 0;
     let skipped = 0;
+    const errors = [];
     for (const stmt of statements) {
       try {
         if (stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION')) {
@@ -37,8 +38,15 @@ export async function apply({ env = process.env } = {}) {
         await sql.unsafe(stmt);
         created++;
       } catch (err) {
-        if (SAFE_CODES.has(err.code)) skipped++;
-        // Other errors are silently skipped — same as /api/setup/migrate
+        if (SAFE_CODES.has(err.code)) {
+          skipped++;
+        } else {
+          // Surface the first real error rather than silently dropping it —
+          // a claim of `applied: true` when DDL actually failed leaves the
+          // operator staring at a doctor check that still reports missing
+          // tables after an apparent success.
+          errors.push({ code: err.code || 'unknown', message: (err.message || '').slice(0, 200) });
+        }
       }
     }
 
@@ -48,6 +56,14 @@ export async function apply({ env = process.env } = {}) {
       VALUES ('org_default', 'Default Organization', 'default', 'pro')
       ON CONFLICT (id) DO NOTHING
     `;
+
+    if (errors.length > 0) {
+      const first = errors[0];
+      return {
+        applied: false,
+        description: `Ran migrations: ${created} applied, ${skipped} skipped, ${errors.length} failed. First failure (${first.code}): ${first.message}`,
+      };
+    }
 
     return {
       applied: true,
