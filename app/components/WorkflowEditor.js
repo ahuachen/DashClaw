@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -162,8 +162,6 @@ function flowToSteps(nodes, edges) {
 // Editor component
 // ─────────────────────────────────────────────────────────────────────────────
 
-let nextNodeId = 100;
-
 /**
  * Visual workflow step editor built on React Flow.
  *
@@ -173,6 +171,11 @@ let nextNodeId = 100;
  * @param {boolean} [props.readOnly=false]
  */
 export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
+  // Per-instance node-id counter. Previously a module-level `let nextNodeId`
+  // was shared across every mounted editor + StrictMode double-invocations,
+  // producing non-deterministic IDs that could collide and corrupt the
+  // saved steps_json. useRef scopes the counter to this component instance.
+  const nextNodeIdRef = useRef(100);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally compute once on mount
   const initial = useMemo(() => stepsToFlow(steps), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
@@ -205,32 +208,43 @@ export default function WorkflowEditor({ steps, onChange, readOnly = false }) {
   const handleNodesChange = useCallback(
     (changes) => {
       onNodesChange(changes);
-      // Use a microtask to read the latest nodes after the state update
+      // Read both nodes AND edges via functional setters so we emit against
+      // the latest committed state of each dimension. Previously `edges`
+      // was captured in this callback's closure and went stale whenever
+      // the user interleaved a drag with an edge change — the saved
+      // steps_json then diverged from the canvas.
       queueMicrotask(() => {
-        setNodes((current) => {
-          emitChange(current, edges);
-          return current;
+        setNodes((currentNodes) => {
+          setEdges((currentEdges) => {
+            emitChange(currentNodes, currentEdges);
+            return currentEdges;
+          });
+          return currentNodes;
         });
       });
     },
-    [onNodesChange, setNodes, edges, emitChange]
+    [onNodesChange, setNodes, setEdges, emitChange]
   );
 
   const handleEdgesChange = useCallback(
     (changes) => {
       onEdgesChange(changes);
       queueMicrotask(() => {
-        setEdges((current) => {
-          emitChange(nodes, current);
-          return current;
+        setEdges((currentEdges) => {
+          setNodes((currentNodes) => {
+            emitChange(currentNodes, currentEdges);
+            return currentNodes;
+          });
+          return currentEdges;
         });
       });
     },
-    [onEdgesChange, setEdges, nodes, emitChange]
+    [onEdgesChange, setEdges, setNodes, emitChange]
   );
 
   const addNode = useCallback(() => {
-    const id = `step_${++nextNodeId}`;
+    nextNodeIdRef.current += 1;
+    const id = `step_${nextNodeIdRef.current}`;
     const newNode = {
       id,
       type: 'step',
