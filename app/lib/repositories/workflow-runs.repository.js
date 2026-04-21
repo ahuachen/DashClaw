@@ -238,16 +238,37 @@ export async function cancelWorkflowRun(sql, orgId, runActionId) {
 
   const now = new Date().toISOString();
 
-  // Cancel the parent action
-  await sql`
+  // Cancel the parent action with a status CAS so a concurrent
+  // executeWorkflow that transitions 'running' → 'completed'/'failed'
+  // between the read above and this UPDATE does not have its terminal
+  // outcome overwritten. RETURNING lets us distinguish the cancel from
+  // the lost-the-race case.
+  const cancelled = await sql`
     UPDATE action_records
     SET status = 'cancelled',
         error_message = 'Cancelled by operator',
         timestamp_end = ${now}
-    WHERE action_id = ${runActionId} AND org_id = ${orgId}
+    WHERE action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND status = 'running'
+    RETURNING action_id
   `;
 
-  // Cancel any running step results
+  if (cancelled.length === 0) {
+    // Race lost — the workflow reached a terminal state before the
+    // cancel UPDATE ran. Re-read the current status and return it so
+    // the caller can surface "already completed/failed" instead of a
+    // misleading cancelled confirmation.
+    const latest = await sql`
+      SELECT status FROM action_records
+      WHERE org_id = ${orgId} AND action_id = ${runActionId}
+      LIMIT 1
+    `;
+    return { found: true, running: false, status: latest[0]?.status ?? 'unknown' };
+  }
+
+  // Cancel any step results still marked running. Children that already
+  // completed stay as-is — this mirrors the parent CAS pattern.
   await sql`
     UPDATE workflow_step_results
     SET status = 'cancelled',
