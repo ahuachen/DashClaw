@@ -9,7 +9,12 @@ import { handoffs as tutorialHandoffs } from './fixtures/tutorial-handoffs.js';
 import { policies as guardPolicies, guardDecisions as guardDecisionsData } from './fixtures/guard-fixtures.js';
 import { complianceData } from './fixtures/compliance-fixtures.js';
 
-let _cached = null;
+// No module-level cache: returning the same object by reference let
+// mutating callers (e.g. demoCreateAction) permanently alter the
+// fixtures for the lifetime of the process, causing unbounded growth
+// and cross-request corruption under concurrent demo traffic. The
+// LCG-seeded builder is deterministic and cheap, so building fresh on
+// each call gives every caller their own isolated copy.
 
 function buildFixtures() {
   const rnd = lcg(0xD15C1A57);
@@ -179,6 +184,7 @@ function buildFixtures() {
     ]),
     basis: 'Observed variance in manual risk scoring.',
     confidence: int(rnd, 70, 95),
+    active: true,
     created_at: isoFromNow(int(rnd, 1, 10) * 24 * MS_HOUR),
   }));
 
@@ -440,7 +446,5 @@ function buildFixtures() {
 }
 
 export function getDemoFixtures() {
-  if (_cached) return _cached;
-  _cached = buildFixtures();
-  return _cached;
+  return buildFixtures();
 }

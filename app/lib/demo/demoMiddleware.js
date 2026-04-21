@@ -556,6 +556,11 @@ export function demoGuardPost(fixtures, body) {
     };
   }
 
+  // Mirror the pipeline-agent threshold so unknown demo agents hitting a
+  // high-risk action get a consistent "block at 75" experience. Previously
+  // this reference `shouldBlock` was undeclared, throwing ReferenceError
+  // on every demo call from unrecognised agents.
+  const shouldBlock = riskScore >= 75;
   const evaluation = {
     id: `gd_demo_${Math.random().toString(36).slice(2, 10)}`,
     agent_id: agentId,
@@ -563,7 +568,7 @@ export function demoGuardPost(fixtures, body) {
     action_type: body.action_type || 'unknown',
     decision: shouldBlock ? 'block' : 'allow',
     action_id: `ar_demo_${Math.random().toString(36).slice(2, 10)}`,
-    reason: shouldBlock 
+    reason: shouldBlock
       ? 'High-risk production action requires explicit approval per Demo Policy.'
       : 'Action permitted under default demo policy.',
     matched_policies: shouldBlock ? ['Demo Production Guard'] : [],
