@@ -1212,3 +1212,25 @@ ALTER TABLE users ADD CONSTRAINT users_role_check
 --> statement-breakpoint
 ALTER TABLE api_keys ADD CONSTRAINT api_keys_role_check
   CHECK (role IN ('admin', 'member'));
+--> statement-breakpoint
+-- Hot-path indexes on high-growth tables. All four tables had zero
+-- indexes before this, which meant dashboard listings, retry checks,
+-- and analytics queries did sequential scans as soon as the tables
+-- grew past a few thousand rows per org.
+CREATE INDEX IF NOT EXISTS idx_activity_logs_org_created
+  ON activity_logs (org_id, created_at DESC);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_org_status
+  ON webhook_deliveries (org_id, status);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_webhook_status
+  ON webhook_deliveries (webhook_id, status);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_guard_decisions_org_created
+  ON guard_decisions (org_id, created_at DESC);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_eval_scores_org_action
+  ON eval_scores (org_id, action_id);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_eval_scores_run
+  ON eval_scores (run_id);
