@@ -54,5 +54,24 @@ export async function runChecks({ env = process.env } = {}) {
     fix: null,
   });
 
+  // On serverless platforms (Vercel, Netlify Functions, Lambda) the
+  // per-IP provisioning rate-limiter lives in per-instance memory, so each
+  // cold start resets the hit map. Warn the operator so they know the
+  // per-IP limit is effectively a soft hint under cold-start load.
+  const isServerless = !!(env.VERCEL || env.NETLIFY || env.AWS_LAMBDA_FUNCTION_NAME);
+  const hasSharedStore = !!(env.UPSTASH_REDIS_REST_URL || env.REDIS_URL);
+  checks.push({
+    id: 'hosted_rate_limiter_backing',
+    category: 'hosted',
+    status: !isServerless || hasSharedStore ? 'pass' : 'warn',
+    title: 'Rate limiter backing store',
+    message: !isServerless
+      ? 'In-memory rate limiter is adequate for long-lived server deployments.'
+      : hasSharedStore
+        ? 'A shared store (Redis/Upstash) is configured — rate-limit state survives cold starts.'
+        : 'Serverless platform detected and no shared store is configured — the per-IP provisioning rate limit resets on every cold start and provides little protection under real traffic. Rely on Turnstile as the primary defence or wire in Upstash/Redis.',
+    fix: null,
+  });
+
   return checks;
 }

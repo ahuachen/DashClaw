@@ -44,4 +44,28 @@ describe('doctor hosted checks', () => {
       ])
     );
   });
+
+  it('warns on Vercel when no shared rate-limit store is configured', async () => {
+    const checks = await runChecks({
+      env: { DASHCLAW_HOSTED: 'true', VERCEL: '1' },
+    });
+
+    expect(checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'hosted_rate_limiter_backing', status: 'warn' }),
+      ])
+    );
+  });
+
+  it('passes rate-limit check on long-lived server deployments', async () => {
+    const checks = await runChecks({
+      env: { DASHCLAW_HOSTED: 'true' },
+    });
+
+    expect(checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'hosted_rate_limiter_backing', status: 'pass' }),
+      ])
+    );
+  });
 });
