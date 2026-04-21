@@ -90,6 +90,28 @@ const SAFE_CODES = new Set([
 let created = 0;
 let skipped = 0;
 let pgvectorAvailable = null; // tri-state: null=unknown, true, false
+// Tables we skipped because their CREATE TABLE required pgvector. Every
+// later statement that only references one of these tables (index, FK,
+// ALTER, policy) must also skip — otherwise it fails with 42P01 on a
+// table that was never created.
+const skippedTables = new Set();
+
+function tableNamesFromStatement(stmt) {
+  const names = new Set();
+  const singleMatches = [
+    /CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+"?(\w+)"?/i,
+    /CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+CONCURRENTLY)?(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+"?(\w+)"?/i,
+    /ALTER\s+TABLE(?:\s+IF\s+EXISTS)?\s+"?(\w+)"?/i,
+  ];
+  for (const re of singleMatches) {
+    const m = stmt.match(re);
+    if (m) names.add(m[1]);
+  }
+  const refRe = /REFERENCES\s+"?(\w+)"?/gi;
+  let m;
+  while ((m = refRe.exec(stmt)) !== null) names.add(m[1]);
+  return [...names];
+}
 
 for (const stmt of statements) {
   // Enable pgvector on demand and remember whether it's available on this
@@ -106,11 +128,24 @@ for (const stmt of statements) {
     }
   }
   if (needsVector && pgvectorAvailable === false) {
-    // pgvector not installed — skip this table/index so the remaining
-    // schema applies. Not a real DDL failure; the feature that depends
-    // on vector columns simply won't be available at runtime.
+    // pgvector not installed — skip this table/index. Record every table
+    // name the statement defined so dependent objects can skip too.
+    for (const t of tableNamesFromStatement(stmt)) skippedTables.add(t);
     skipped++;
     continue;
+  }
+
+  // Skip statements whose target table is a pgvector-dependent table we
+  // already skipped. Only skip when every referenced table is in the
+  // skipped set; statements that touch one skipped table and one real
+  // table still run and will error out loudly (intentional — that case
+  // indicates a real cross-dependency that needs human attention).
+  if (skippedTables.size > 0) {
+    const refs = tableNamesFromStatement(stmt);
+    if (refs.length > 0 && refs.every((t) => skippedTables.has(t))) {
+      skipped++;
+      continue;
+    }
   }
 
   try {
