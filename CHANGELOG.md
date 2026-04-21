@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 DashClaw ships two independently versioned artifacts from this repo:
 
 - **Platform** — the Next.js app, API routes, dashboard, and supporting
-  libraries. Current: **2.13.1**. This is the version of the DashClaw instance
+  libraries. Current: **2.13.3**. This is the version of the DashClaw instance
   you deploy to Vercel. Governance features, UI changes, new API routes, and
   database migrations land on this track.
 - **SDK** — the `dashclaw` npm package published from `sdk/`. Current:
@@ -24,6 +24,91 @@ which is why SDK 2.11.1 (2026-04-11) appears above platform 2.13.1
 releases only ship client changes, platform releases can ship anything.
 Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
 are prefixed with the package name.
+
+## [2.13.3] - 2026-04-21 — Parallel-Reviewer Round
+
+A five-agent parallel review over axes the earlier sweeps hadn't touched
+(app/api/_archive reachability, workflow executor state machine, file
+upload handling, CSP/non-API headers, performance / N+1 / indexes)
+surfaced 10 findings plus 2 moot audits. 9 atomic commits between
+`91a7fb36` and `fe4c2d09` closed all 8 fix-worthy findings; 1 was a
+verified false positive (filename XSS — React text nodes auto-escape)
+and 2 audits came back clean (archive routes are unreachable by Next.js
+convention; page-route security headers are already complete via
+next.config.js).
+
+### Security
+
+- **Workflow cancel CAS** (F1, `7864cabd`): `cancelWorkflowRun` read
+  `status='running'` then UPDATEd to `'cancelled'` with no gate in the
+  WHERE clause. A concurrent executeWorkflow completing between the
+  read and the UPDATE had its terminal status/output/timestamp
+  overwritten — the completed workflow's result became irretrievable.
+  UPDATE now carries `AND status = 'running'` + RETURNING, and a lost
+  race re-reads the current status so the route surfaces "already
+  completed" instead of silently stomping.
+- **Attachment MIME verification** (F4+F5, `6e7a13ec`):
+  `POST /api/messages` previously took the client's `mime_type` on
+  faith — an attacker could upload HTML/JS bytes labelled
+  `application/pdf` and GET would echo them back at our origin.
+  `verifyMagicBytes` now sniffs PNG / JPEG / GIF / WebP / PDF / JSON
+  structure and returns 400 on mismatch. GET also sets
+  `X-Content-Type-Options: nosniff` as a second line against browsers
+  that ignore `Content-Disposition: attachment`.
+- **Per-org attachment storage quota** (F8, `fe4c2d09`): per-attachment
+  (5MB) and per-message (3 attachments) caps existed but total DB
+  footprint was unbounded. New `MAX_ORG_ATTACHMENT_BYTES` (default
+  100MB, env-configurable via `DASHCLAW_MAX_ORG_ATTACHMENT_BYTES`) with
+  a SUM(size_bytes) check on upload returning 413 with detailed
+  usage/incoming/quota.
+
+### Data integrity / state machines
+
+- **Step result CAS** (F3, `6bd614ba`): `updateStepResult` had no status
+  guard, so a duplicate persistStepResult call, a stale retry from an
+  in-flight resume, or a natural completion racing against the cancel
+  cascade could silently overwrite a terminal row. Added
+  `AND status = 'running'` — first writer to transition out of running
+  wins; later writers match zero rows.
+- **Resume by step.id, not positional index** (F2, `384a780f`): the
+  executor's "is this step reused?" check used
+  `steps.indexOf(step) < resumeContext.resumeFromIndex`, comparing the
+  OLD run's index against the (possibly edited) CURRENT template.
+  Template edits between runs silently misaligned the check — a new
+  step inserted before the failure point would cause all subsequent
+  completed steps to re-execute. Switched to
+  `resumeContext.priorSteps?.[step.id]` — stable across edits.
+
+### Performance
+
+- **getAgentTrustPosture parallelized + consolidated** (F6, `0b8ac660`):
+  7 serial SQL round-trips per agent-profile view → 5 parallel queries
+  with the three action_records COUNTs collapsed into one scan with
+  FILTER clauses. Roughly 35ms → 5ms per view against Neon.
+- **Hot-path indexes** (F7, `91ce92b8`): six indexes on four tables
+  that had zero coverage —
+  `idx_activity_logs_org_created`,
+  `idx_webhook_deliveries_org_status`,
+  `idx_webhook_deliveries_webhook_status`,
+  `idx_guard_decisions_org_created`,
+  `idx_eval_scores_org_action`,
+  `idx_eval_scores_run`. Dashboard listings, retry-delivery checks,
+  and evaluation analytics flip from Seq Scan to Index Scan on the
+  next ANALYZE.
+- **workflow_step_results index** (F11, `b52958b9`): single-column
+  `idx_workflow_step_results_run_action` so the LATERAL aggregation
+  in listWorkflowRuns scales with page size (≤100) rather than total
+  step history.
+
+### Observability
+
+- **knowledge_search token accounting** (F10, `8701d998`): embedding
+  tokens from the OpenAI embeddings call now propagate through
+  `generateEmbeddings` → `searchCollection` → `handleKnowledgeSearch` →
+  `action_records.tokens_in`. Previously every knowledge_search step
+  wrote zero tokens regardless of query length — a metering blind
+  spot for non-prompt step types. capability_invoke stays at 0/0 (no
+  token semantics from our side; it's an opaque HTTP call).
 
 ## Systematic Hardening Follow-Up - 2026-04-21
 

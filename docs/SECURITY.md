@@ -2,6 +2,74 @@
 
 This is the operator-facing security guide for DashClaw (self-host and cloud). It documents the security model, key controls, and how to run audits.
 
+## 2026-04-21 Parallel-Reviewer Round (v2.13.3)
+
+A five-agent parallel review targeting axes the earlier sweeps hadn't
+covered — app/api/_archive reachability, workflow executor state
+machine, file upload handling, non-API page security headers, and
+performance / N+1 / missing indexes. Two axes came back clean
+(archive routes are unreachable by Next.js `_`-prefix convention;
+page-route security headers are already complete via next.config.js
+globals). The remaining axes produced 10 findings: 8 fixed across
+commits `7864cabd..fe4c2d09`, 1 verified false positive (filename
+XSS — React text nodes auto-escape), 1 skipped as already-mitigated.
+
+### Workflow cancel TOCTOU closed
+
+`cancelWorkflowRun` previously read `status='running'` and then
+UPDATEd to `'cancelled'` with no status gate in the WHERE clause. A
+concurrent `executeWorkflow` that transitioned the parent action to
+`'completed'` (or `'failed'`) between the read and the UPDATE had its
+terminal status, output, and timestamp overwritten — the completed
+workflow's result became irretrievable. The UPDATE now carries
+`AND status = 'running'` + `RETURNING action_id`; when the CAS loses
+the race we re-read the current status and return it, so the cancel
+route surfaces "already completed" instead of silently stomping the
+outcome.
+
+### Attachment MIME verification + nosniff
+
+`POST /api/messages` previously trusted the client's `mime_type`
+field. An attacker could upload HTML/JS bytes labelled
+`application/pdf`; the stored bytes later came back through the GET
+endpoint with the claimed (and wrong) Content-Type. The
+`Content-Disposition: attachment` header downgrades most browsers to
+download-only, but not all.
+
+Two defenses now stack:
+
+- `verifyMagicBytes` on upload validates the first few decoded bytes
+  against the claimed MIME type for every binary format the API
+  accepts (PNG / JPEG / GIF / WebP / PDF + JSON structure validation).
+  Mismatches return 400 with a specific per-attachment error.
+- `GET /api/messages/attachments` now sets
+  `X-Content-Type-Options: nosniff` so browsers honour the declared
+  type even if `Content-Disposition` is ignored.
+
+### Per-org attachment storage quota
+
+Per-attachment (5MB) and per-message (3 attachments) caps existed
+but total DB footprint was unbounded. A patient caller could fill
+the database one max-sized upload at a time. New
+`MAX_ORG_ATTACHMENT_BYTES` (default 100MB, configurable via
+`DASHCLAW_MAX_ORG_ATTACHMENT_BYTES`) with a `SUM(size_bytes)` check
+on upload returns 413 with detailed usage/incoming/quota numbers.
+
+### Workflow step result CAS + resume by step.id
+
+`updateStepResult` had no status guard — duplicate
+persistStepResult calls, stale retries, or natural completion
+racing against the cancel cascade could silently overwrite a
+terminal row. Added `AND status = 'running'` to the WHERE clause;
+first writer to transition out of running wins.
+
+The executor's "step is reused from the prior run" check used
+`steps.indexOf(step) < resumeContext.resumeFromIndex`, comparing
+the OLD run's index against the CURRENT (possibly edited)
+template's step positions. Template edits between runs silently
+misaligned the check. Switched to
+`resumeContext.priorSteps?.[step.id]` — stable across edits.
+
 ## 2026-04-21 Session Auth Parity + SSRF Consolidation
 
 Follow-up to the same-day sprint below. 13 atomic commits between
