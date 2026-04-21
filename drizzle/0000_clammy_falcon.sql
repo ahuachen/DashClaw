@@ -1234,3 +1234,10 @@ CREATE INDEX IF NOT EXISTS idx_eval_scores_org_action
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS idx_eval_scores_run
   ON eval_scores (run_id);
+--> statement-breakpoint
+-- listWorkflowRuns joins LATERAL on workflow_step_results per run to
+-- aggregate step_count / steps_completed / steps_failed. Without an
+-- index on run_action_id that subquery does a sequential scan per
+-- listed run (20 runs × seq-scan = quadratic as the table grows).
+CREATE INDEX IF NOT EXISTS idx_workflow_step_results_run_action
+  ON workflow_step_results (run_action_id);
