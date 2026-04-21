@@ -266,9 +266,12 @@ export async function POST(request, { params }) {
       WHERE action_id = ${action_id} AND org_id = ${orgId}
     `;
 
-    // Update health_status on success (fire-and-forget)
-    if (result.success) {
-      void updateCapability(sql, orgId, capabilityId, { health_status: 'healthy' })
+    // Keep health_status in step with the invocation outcome so checkCircuitBreaker
+    // can actually count consecutive failures — without this, the 'healthy' short-circuit
+    // in capability-health.js prevents the breaker from ever opening.
+    {
+      const nextHealth = result.success ? 'healthy' : 'degraded';
+      void updateCapability(sql, orgId, capabilityId, { health_status: nextHealth })
         .catch((err) => console.warn('[API] Health status update failed:', err.message));
     }
 
