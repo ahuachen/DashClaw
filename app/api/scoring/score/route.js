@@ -11,8 +11,8 @@ export async function GET(request) {
     const agent_id = url.searchParams.get('agent_id');
     const action_id = url.searchParams.get('action_id');
     const view = url.searchParams.get('view'); // 'stats'
-    const limit = parseInt(url.searchParams.get('limit') || '50');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10) || 50, 200);
+    const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10) || 0, 0);
 
     if (view === 'stats' && profile_id) {
       const stats = await getProfileScoreStats(sql, orgId, profile_id);
