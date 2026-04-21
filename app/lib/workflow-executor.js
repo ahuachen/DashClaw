@@ -62,10 +62,17 @@ export async function executeWorkflow(
     const stepStart = Date.now();
     const stepActionId = `act_${crypto.randomUUID()}`;
 
-    // Resume: skip steps before resumeFromIndex
-    if (resumeContext && steps.indexOf(step) < resumeContext.resumeFromIndex) {
+    // Resume: a step is "reused" iff its ID has a captured output from the
+    // prior run. Using step.id instead of positional index means template
+    // edits between the original run and the resume — new steps inserted,
+    // deleted, or reordered — don't misalign the reuse decision. The old
+    // `indexOf(step) < resumeContext.resumeFromIndex` check would re-run
+    // previously-completed steps whenever a step was inserted ahead of them,
+    // and would silently skip new steps whose index happened to sit below
+    // the original resumeFromIndex.
+    if (resumeContext?.priorSteps?.[step.id]) {
       const stepIndex = steps.indexOf(step);
-      const priorOutput = resumeContext.priorSteps?.[step.id]?.output || null;
+      const priorOutput = resumeContext.priorSteps[step.id]?.output || null;
 
       await createActionRecord(sql, {
         orgId,
