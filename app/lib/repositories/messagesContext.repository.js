@@ -247,12 +247,21 @@ export async function listThreads(sql, orgId, { status, agentId, limit = 20 } = 
 
 export async function createThread(sql, orgId, { id, name, participants, created_by, now }) {
   const participantsJson = participants ? JSON.stringify(participants) : null;
+  // Idempotent on the client-supplied id so a network-retry with the same
+  // thread id reuses the existing row instead of inserting a duplicate
+  // message_threads record with a new primary key.
   const rows = await sql`
     INSERT INTO message_threads (id, org_id, name, participants, status, created_by, created_at, updated_at)
     VALUES (${id}, ${orgId}, ${name}, ${participantsJson}, 'open', ${created_by}, ${now}, ${now})
+    ON CONFLICT (id) DO NOTHING
     RETURNING *
   `;
-  return rows[0] || null;
+  if (rows.length > 0) return rows[0];
+
+  const existing = await sql`
+    SELECT * FROM message_threads WHERE id = ${id} AND org_id = ${orgId}
+  `;
+  return existing[0] || null;
 }
 
 export async function getThreadById(sql, orgId, threadId) {
