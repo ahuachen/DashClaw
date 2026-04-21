@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Zap, Hammer, Rocket, FileText, Briefcase, Shield, MessageSquare,
@@ -66,7 +66,10 @@ export default function RecentActionsCard() {
   const { agentId } = useAgentFilter();
   const { ref: sizeRef, height: tileHeight } = useTileSize();
 
-  useRealtime((event, payload) => {
+  // Stable reference — passing an inline arrow to useRealtime fires its
+  // ref-sync useEffect on every render. Memoizing by [agentId] keeps the
+  // reference stable and the hook quiet.
+  const handleRealtime = useCallback((event, payload) => {
     if (event === 'action.created') {
       // Filter if agentId is active
       if (agentId && payload.agent_id !== agentId) return;
@@ -100,7 +103,8 @@ export default function RecentActionsCard() {
         return a;
       }));
     }
-  });
+  }, [agentId]);
+  useRealtime(handleRealtime);
 
   useEffect(() => {
     async function fetchActions() {

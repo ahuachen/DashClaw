@@ -204,15 +204,32 @@ export default function MissionControlPage() {
   const getSignalHash = (s) =>
     `${s.type || s.signal_type || ''}:${s.agent_id || ''}:${s.action_id || ''}:${s.loop_id || ''}:${s.assumption_id || ''}`;
 
+  const [dismissedVersion, setDismissedVersion] = useState(0);
+
+  // Cross-tab sync: listen for `storage` events from the Security page's
+  // dismiss action. Previously `dismissedSet` only re-computed when
+  // `signals` changed, so in a quiet system a dismiss in another tab could
+  // stay invisible here indefinitely.
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onStorage = (e) => {
+      if (e.key === 'dashclaw_dismissed_signals') {
+        setDismissedVersion((v) => v + 1);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const dismissedSet = useMemo(() => {
     if (typeof window === 'undefined') return new Set();
     try {
       const stored = localStorage.getItem('dashclaw_dismissed_signals');
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
-  // Re-evaluate whenever signals change so a dismiss in another tab eventually syncs.
+  // Re-evaluate on any signals change AND any cross-tab storage event.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signals]);
+  }, [signals, dismissedVersion]);
 
   const activeSignalList = useMemo(() => {
     const list = signals?.signals || [];

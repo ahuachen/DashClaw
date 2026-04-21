@@ -70,8 +70,11 @@ export default function ApprovalsPage() {
 
       if (!res.ok) throw new Error('Failed to submit decision');
 
-      // Optimistic update
-      setPendingActions(prev => prev.filter(a => a.action_id !== actionId));
+      // Trust the server as the source of truth — re-fetch the pending list
+      // instead of optimistically filtering locally. Previously a 200 with a
+      // malformed body still passed the ok check and the action was removed
+      // locally, then re-appeared on the next 10s poll, confusing operators.
+      await fetchPending();
     } catch (err) {
       alert(`Decision failed: ${err.message}`);
     } finally {
