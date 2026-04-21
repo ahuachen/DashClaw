@@ -107,6 +107,12 @@ export async function insertStepResult(sql, { stepResultId, runActionId, orgId, 
 }
 
 export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
+  // CAS on status='running' so a later write (e.g. a stale retry, a
+  // concurrent resume that races against cancelWorkflowRun, or a
+  // duplicate persistStepResult call) cannot overwrite a row that has
+  // already reached a terminal state (completed / failed / cancelled).
+  // The first writer to transition the row out of 'running' wins; any
+  // subsequent writer matches zero rows and is silently a no-op.
   await sql`
     UPDATE workflow_step_results
     SET status = ${stepData.status},
@@ -118,6 +124,7 @@ export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
     WHERE run_action_id = ${runActionId}
       AND org_id = ${orgId}
       AND step_id = ${stepData.step_id}
+      AND status = 'running'
   `;
 }
 
