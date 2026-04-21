@@ -7,7 +7,7 @@ import { createSqlFromEnv } from './_db.mjs';
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
   console.error('DATABASE_URL is required');
-  process.exitCode = 1;
+  process.exit(1);
 }
 
 const sql = createSqlFromEnv();
