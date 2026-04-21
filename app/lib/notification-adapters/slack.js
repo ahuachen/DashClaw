@@ -1,3 +1,5 @@
+import { safeUrlWithIps, buildPinnedDispatcher } from '../webhooks.js';
+
 export const slackAdapter = {
   name: 'slack',
   requiredKeys: ['SLACK_BOT_TOKEN', 'SLACK_WEBHOOK_URL'],
@@ -31,10 +33,13 @@ export const slackAdapter = {
 
     // Prefer webhook URL (simpler), fall back to bot token + channel
     if (creds.SLACK_WEBHOOK_URL) {
+      const validatedIps = await safeUrlWithIps(creds.SLACK_WEBHOOK_URL);
+      const dispatcher = buildPinnedDispatcher(validatedIps);
       const res = await fetch(creds.SLACK_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ blocks }),
+        dispatcher,
       });
       if (!res.ok) return { success: false, message: `Slack webhook returned ${res.status}` };
       return { success: true, message: 'Posted via webhook' };

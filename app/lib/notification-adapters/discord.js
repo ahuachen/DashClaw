@@ -1,3 +1,5 @@
+import { safeUrlWithIps, buildPinnedDispatcher } from '../webhooks.js';
+
 export const discordAdapter = {
   name: 'discord',
   requiredKeys: ['DISCORD_WEBHOOK_URL'],
@@ -20,10 +22,13 @@ export const discordAdapter = {
       timestamp: new Date().toISOString(),
     };
 
+    const validatedIps = await safeUrlWithIps(creds.DISCORD_WEBHOOK_URL);
+    const dispatcher = buildPinnedDispatcher(validatedIps);
     const res = await fetch(creds.DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ embeds: [embed] }),
+      dispatcher,
     });
 
     if (res.status === 204 || res.ok) return { success: true, message: 'Posted to Discord' };
