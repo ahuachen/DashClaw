@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { Fingerprint, Shield, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 const PERMISSION_LEVELS = ['readonly', 'workspace_write', 'prompt', 'allow', 'danger'];
 
@@ -35,8 +35,7 @@ function timeLeft(expiresAt) {
 }
 
 export default function IdentitiesPage() {
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
+  const { isAdmin, settled: sessionSettled } = useEffectiveRole();
 
   const [pendingPairings, setPendingPairings] = useState([]);
   const [identities, setIdentities] = useState([]);
@@ -140,7 +139,7 @@ export default function IdentitiesPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !sessionSettled) {
     return (
       <PageLayout
         title="Agent Identities"

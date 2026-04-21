@@ -13,7 +13,11 @@ import { useEffect, useState } from 'react';
 // true once the fetch resolves — gate read-only banners on `settled` so
 // they don't flash during hydration.
 export function useEffectiveRole() {
-  const [role, setRole] = useState(null);
+  const [state, setState] = useState({
+    role: null,
+    authenticated: false,
+    authType: null,
+  });
   const [settled, setSettled] = useState(false);
 
   useEffect(() => {
@@ -23,9 +27,14 @@ export function useEffectiveRole() {
         const res = await fetch('/api/session/effective');
         if (!res.ok) throw new Error(`effective-session ${res.status}`);
         const json = await res.json();
-        if (!cancelled) setRole(json.role || null);
+        if (cancelled) return;
+        setState({
+          role: json.role || null,
+          authenticated: !!json.authenticated,
+          authType: json.authType || null,
+        });
       } catch {
-        // Leave role null — the caller treats that as non-admin.
+        // Leave state as defaults — the caller treats that as unauthenticated.
       } finally {
         if (!cancelled) setSettled(true);
       }
@@ -33,5 +42,11 @@ export function useEffectiveRole() {
     return () => { cancelled = true; };
   }, []);
 
-  return { role, isAdmin: role === 'admin', settled };
+  return {
+    role: state.role,
+    authenticated: state.authenticated,
+    authType: state.authType,
+    isAdmin: state.role === 'admin',
+    settled,
+  };
 }

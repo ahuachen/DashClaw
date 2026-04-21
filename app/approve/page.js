@@ -5,9 +5,9 @@ import Link from 'next/link';
 import {
   CheckCircle2, Check, X, Loader2, ShieldAlert, Info,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import DashClawLogo from '../components/DashClawLogo';
 import { useRealtime } from '../hooks/useRealtime';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 import { isDemoMode } from '../lib/isDemoMode';
 
 function timeAgo(timestamp) {
@@ -95,7 +95,7 @@ function SkeletonCard() {
 }
 
 export default function ApprovePage() {
-  const { data: session, status: sessionStatus } = useSession();
+  const { isAdmin, authenticated, settled: sessionSettled } = useEffectiveRole();
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -109,7 +109,6 @@ export default function ApprovePage() {
   const scrollRef = useRef(null);
 
   const isDemo = isDemoMode();
-  const isAdmin = session?.user?.role === 'admin';
   const canDecide = isAdmin && !isDemo;
 
   const fetchPending = useCallback(async () => {
@@ -148,13 +147,13 @@ export default function ApprovePage() {
 
   // Initial fetch once session is known (or demo mode).
   useEffect(() => {
-    if (sessionStatus === 'loading') return;
-    if (!session) {
+    if (!sessionSettled) return;
+    if (!authenticated) {
       setLoading(false);
       return;
     }
     fetchPending();
-  }, [sessionStatus, session, fetchPending]);
+  }, [sessionSettled, authenticated, fetchPending]);
 
   // Service worker registration for PWA install.
   useEffect(() => {
@@ -273,7 +272,7 @@ export default function ApprovePage() {
 
   // --- Render states ---
 
-  if (sessionStatus === 'loading') {
+  if (!sessionSettled) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="animate-spin text-tertiary" size={24} aria-label="Loading" />
@@ -281,7 +280,7 @@ export default function ApprovePage() {
     );
   }
 
-  if (!session) {
+  if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="max-w-xs text-center">
