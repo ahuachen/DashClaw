@@ -239,11 +239,19 @@ export async function executeEvalRun(sql, orgId, runId) {
     return { success: false, scored: 0, errors: 1, avgScore: null };
   }
 
-  // Mark as running
-  await sql`
+  // Atomic compare-and-set: only transition to running if still pending.
+  // A duplicate POST (double-click, retry) would otherwise reset a
+  // completed/running row back to running and double-write eval_scores.
+  const transitioned = await sql`
     UPDATE eval_runs SET status = 'running', started_at = ${new Date().toISOString()}
-    WHERE id = ${runId} AND org_id = ${orgId}
+    WHERE id = ${runId} AND org_id = ${orgId} AND status = 'pending'
+    RETURNING id
   `;
+  if (transitioned.length === 0) {
+    // Another executor won the race or the run was already finalized.
+    // Bail out silently — no scores will be written under this handle.
+    return;
+  }
 
   // Build action query from filter_criteria
   let filterCriteria = {};
@@ -297,10 +305,10 @@ export async function executeEvalRun(sql, orgId, runId) {
 
     const scoreId = generateId('ev_');
     await sql`
-      INSERT INTO eval_scores (id, org_id, action_id, scorer_id, scorer_name, score, label, reasoning, evaluated_by, created_at)
+      INSERT INTO eval_scores (id, org_id, action_id, scorer_id, run_id, scorer_name, score, label, reasoning, evaluated_by, created_at)
       VALUES (
         ${scoreId}, ${orgId}, ${action.action_id || action.id},
-        ${run.scorer_id}, ${run.name || 'unnamed'},
+        ${run.scorer_id}, ${runId}, ${run.name || 'unnamed'},
         ${result.score}, ${result.label}, ${result.reasoning},
         ${scorer.scorer_type === 'llm_judge' ? 'llm_judge' : 'auto'},
         ${now}

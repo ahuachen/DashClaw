@@ -913,6 +913,12 @@ export const evalScores = pgTable('eval_scores', {
   id: text('id').primaryKey(),
   orgId: text('org_id').notNull(),
   actionId: text('action_id').notNull(),
+  // scorer_id + run_id — scorer_id was already being written by
+  // executeEvalRun but was absent from schema; run_id is new, introduced
+  // by F51 so the per-run distribution query can filter against the
+  // originating run instead of aggregating every row for the same scorer.
+  scorerId: text('scorer_id'),
+  runId: text('run_id'),
   scorerName: text('scorer_name').notNull(),
   score: real('score').notNull(),
   label: text('label'),

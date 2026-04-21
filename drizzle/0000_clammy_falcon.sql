@@ -329,6 +329,8 @@ CREATE TABLE "eval_scores" (
 	"id" text PRIMARY KEY NOT NULL,
 	"org_id" text NOT NULL,
 	"action_id" text NOT NULL,
+	"scorer_id" text,
+	"run_id" text,
 	"scorer_name" text NOT NULL,
 	"score" real NOT NULL,
 	"label" text,
