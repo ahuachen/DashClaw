@@ -35,6 +35,44 @@ const ALLOWED_MIME_TYPES = [
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_ATTACHMENTS_PER_MESSAGE = 3;
 
+// Magic-byte signatures for MIME types where we can enforce the contract.
+// The client's claimed mime_type is never trusted for binary formats —
+// we read the first few decoded bytes and reject on mismatch so an
+// attacker cannot upload HTML/JS bytes labelled as application/pdf and
+// have us serve them back at our origin.
+function verifyMagicBytes(mimeType, buffer) {
+  if (!buffer || buffer.length < 4) return false;
+  const b = buffer;
+  switch (mimeType) {
+    case 'image/png':
+      return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47
+        && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a;
+    case 'image/jpeg':
+      return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+    case 'image/gif':
+      return b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38
+        && (b[4] === 0x37 || b[4] === 0x39) && b[5] === 0x61;
+    case 'image/webp':
+      return b.length >= 12
+        && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46
+        && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50;
+    case 'application/pdf':
+      return b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46; // %PDF
+    case 'application/json':
+      try { JSON.parse(buffer.toString('utf8')); return true; } catch { return false; }
+    case 'text/plain':
+    case 'text/markdown':
+    case 'text/csv':
+      // Text types have no magic bytes. Accept anything — GET serves them
+      // back with Content-Type: text/... + X-Content-Type-Options: nosniff,
+      // so browser won't render embedded HTML. Content-Disposition also
+      // forces download.
+      return true;
+    default:
+      return false;
+  }
+}
+
 export async function GET(request) {
   try {
     const sql = getSql();
@@ -166,6 +204,21 @@ export async function POST(request) {
       const sizeBytes = Math.ceil((att.data.length * 3) / 4);
       if (sizeBytes > MAX_ATTACHMENT_SIZE) {
         return NextResponse.json({ error: `Attachment "${att.filename}" exceeds 5MB limit` }, { status: 400 });
+      }
+      // Enforce magic-byte match for binary types so a claimed
+      // application/pdf that's actually HTML/JS bytes is rejected up
+      // front rather than stored and served at our origin.
+      let decoded;
+      try {
+        decoded = Buffer.from(att.data, 'base64');
+      } catch {
+        return NextResponse.json({ error: `Attachment "${att.filename}" has invalid base64 data` }, { status: 400 });
+      }
+      if (!verifyMagicBytes(att.mime_type, decoded)) {
+        return NextResponse.json(
+          { error: `Attachment "${att.filename}" content does not match declared mime_type ${att.mime_type}` },
+          { status: 400 },
+        );
       }
     }
 

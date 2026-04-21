@@ -33,7 +33,12 @@ export async function GET(request) {
       status: 200,
       headers: {
         'Content-Type': attachment.mime_type,
+        // Content-Disposition: attachment forces download over inline
+        // render; nosniff keeps browsers from second-guessing the
+        // Content-Type even if they ignore the disposition — defense in
+        // depth against a bytes-mismatch-the-type scenario.
         'Content-Disposition': `attachment; filename="${safeFilename}"`,
+        'X-Content-Type-Options': 'nosniff',
         'Content-Length': String(buffer.length),
         'Cache-Control': 'private, max-age=3600',
       },
