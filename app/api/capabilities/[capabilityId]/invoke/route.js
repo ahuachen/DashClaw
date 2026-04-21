@@ -226,6 +226,29 @@ export async function POST(request, { params }) {
         agent_id: agentId,
       }, { status: 403 });
     }
+    if (accessResult.access === 'require_approval') {
+      await createActionRecord(sql, {
+        orgId,
+        action_id,
+        data: { ...actionData, status: 'pending_approval' },
+        actionStatus: 'pending_approval',
+        costEstimate: 0,
+        signature: null,
+        verified: false,
+        timestamp_start,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'pending_approval',
+          action_id,
+          message: `Invocation requires human approval. Poll /api/approvals/${action_id} for status.`,
+          reason: accessResult.rule?.reason || null,
+        },
+        { status: 202 },
+      );
+    }
 
     // 6. Create running action record
     await createActionRecord(sql, {
