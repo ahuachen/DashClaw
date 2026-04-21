@@ -89,17 +89,31 @@ const SAFE_CODES = new Set([
 
 let created = 0;
 let skipped = 0;
+let pgvectorAvailable = null; // tri-state: null=unknown, true, false
 
 for (const stmt of statements) {
-  try {
-    // Enable pgvector if any statement uses the vector type
-    if (stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION')) {
-      try {
-        await sql.unsafe('CREATE EXTENSION IF NOT EXISTS vector');
-      } catch {
-        // pgvector not available — skip silently, table will fail gracefully
-      }
+  // Enable pgvector on demand and remember whether it's available on this
+  // database. CI Postgres images typically lack the pgvector extension;
+  // in that case the vector-dependent statements are skipped deliberately
+  // so the rest of the schema still lands.
+  const needsVector = stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION');
+  if (needsVector && pgvectorAvailable === null) {
+    try {
+      await sql.unsafe('CREATE EXTENSION IF NOT EXISTS vector');
+      pgvectorAvailable = true;
+    } catch {
+      pgvectorAvailable = false;
     }
+  }
+  if (needsVector && pgvectorAvailable === false) {
+    // pgvector not installed — skip this table/index so the remaining
+    // schema applies. Not a real DDL failure; the feature that depends
+    // on vector columns simply won't be available at runtime.
+    skipped++;
+    continue;
+  }
+
+  try {
     await sql.unsafe(stmt);
     created++;
   } catch (err) {
