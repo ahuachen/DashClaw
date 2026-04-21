@@ -343,9 +343,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] branch_stale: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] branch_stale category failed:', e?.message || e);
+  }
 
   // MCP server health from recent guard decisions with intel
   try {
@@ -370,9 +374,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] mcp_degraded: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] mcp_degraded category failed:', e?.message || e);
+  }
 
   // Green contract insufficiency from recent guard decisions
   try {
@@ -399,9 +407,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] green_insufficient: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] green_insufficient category failed:', e?.message || e);
+  }
 
   // Post-filter by agent_id if requested
   const filteredSignals = filterAgentId

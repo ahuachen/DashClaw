@@ -79,7 +79,9 @@ export default function IntegrationsPage() {
         const data = await res.json();
         setHealthData(data.health || {});
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[integrations] fetchHealth failed:', err?.message || err);
+    }
   }, []);
 
   const handleRefreshHealth = useCallback(async () => {

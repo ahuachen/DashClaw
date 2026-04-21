@@ -124,7 +124,9 @@ export default function DriftPage() {
     try {
       await fetch(`/api/drift/alerts/${id}`, { method: 'PATCH' });
       fetchData();
-    } catch {}
+    } catch {
+      alert('Failed to acknowledge alert');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -132,7 +134,9 @@ export default function DriftPage() {
     try {
       await fetch(`/api/drift/alerts/${id}`, { method: 'DELETE' });
       fetchData();
-    } catch {}
+    } catch {
+      alert('Failed to delete alert');
+    }
   };
 
   if (loading) {
