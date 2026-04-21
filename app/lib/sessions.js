@@ -37,6 +37,11 @@ async function ensureTables(sql) {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS idx_session_events_session ON session_events (session_id, seq)`;
+  // UNIQUE on (session_id, seq) turns the MAX(seq)+1 race into a hard fail
+  // instead of silent duplicate seq numbers. If concurrent status updates for
+  // the same session collide, one insert raises a constraint violation and the
+  // caller can retry — far better than two events sharing seq=N.
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS uq_session_events_session_seq ON session_events (session_id, seq)`;
   _tableChecked = true;
 }
 
@@ -96,6 +101,10 @@ export async function updateSession(sql, sessionId, orgId, updates) {
   // blocked_reason only applies when status is 'blocked'
   const effectiveBlockedReason = status === 'blocked' ? blocked_reason : null;
 
+  // Terminal-state guard: once a session is closed, reject further updates
+  // (no reviving via PATCH { status: 'active' }, no late mutations of
+  // green_level/branch_freshness/etc.). The UPDATE matches zero rows, returns
+  // null, and the event-insert below is skipped.
   const rows = await sql`
     UPDATE agent_sessions SET
       status           = COALESCE(${status}, status),
@@ -106,24 +115,22 @@ export async function updateSession(sql, sessionId, orgId, updates) {
       blocked_reason   = CASE WHEN ${status} = 'blocked' THEN ${effectiveBlockedReason} ELSE blocked_reason END,
       last_activity    = NOW(),
       updated_at       = NOW()
-    WHERE id = ${sessionId} AND org_id = ${orgId}
+    WHERE id = ${sessionId} AND org_id = ${orgId} AND status != 'closed'
     RETURNING *
   `;
 
   const session = rows[0] || null;
 
-  // Insert a session event if the status actually changed
+  // Insert a session event if the status actually changed. Single-statement
+  // insert (seq computed in the same query) narrows the TOCTOU window from
+  // the prior SELECT-then-INSERT pattern; the uq_session_events_session_seq
+  // unique index closes the rest by failing loud on any remaining collision.
   if (session && status) {
-    const seqRows = await sql`
-      SELECT COALESCE(MAX(seq), 0) + 1 AS next_seq
-      FROM session_events
-      WHERE session_id = ${sessionId}
-    `;
-    const nextSeq = seqRows[0].next_seq;
-
     await sql`
       INSERT INTO session_events (session_id, org_id, seq, kind, detail)
-      VALUES (${sessionId}, ${orgId}, ${nextSeq}, ${status}, ${effectiveBlockedReason})
+      SELECT ${sessionId}, ${orgId}, COALESCE(MAX(seq), 0) + 1, ${status}, ${effectiveBlockedReason}
+      FROM session_events
+      WHERE session_id = ${sessionId}
     `;
   }
 
