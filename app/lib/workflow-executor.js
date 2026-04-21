@@ -208,12 +208,19 @@ export async function executeWorkflow(
         const stepElapsed = Date.now() - stepStart;
 
         const retryPrefix = attempt > 0 ? `[retried: ${attempt + 1} attempts] ` : '';
+        // Persist token counts when the step returned them (prompt steps do;
+        // other step types don't). Without this, every workflow prompt step
+        // records zero tokens and analytics report a false zero-token gap.
+        const tokensIn = Number.isFinite(output?.tokens_in) ? output.tokens_in : 0;
+        const tokensOut = Number.isFinite(output?.tokens_out) ? output.tokens_out : 0;
         await sql`
           UPDATE action_records
           SET status = 'completed',
               output_summary = ${retryPrefix + JSON.stringify(output).slice(0, 500 - retryPrefix.length)},
               timestamp_end = ${new Date().toISOString()},
-              duration_ms = ${stepElapsed}
+              duration_ms = ${stepElapsed},
+              tokens_in = ${tokensIn},
+              tokens_out = ${tokensOut}
           WHERE action_id = ${stepActionId} AND org_id = ${orgId}
         `;
 
