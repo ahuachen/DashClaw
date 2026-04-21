@@ -3,6 +3,12 @@ const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverif
 export async function verifyTurnstile(token, remoteIp) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
+    // Dev/test ergonomics: allow bypass locally. In production the absence
+    // of a configured secret is a fail-closed condition — hosted provisioning
+    // must refuse to run without bot protection.
+    if (process.env.NODE_ENV === 'production') {
+      return { ok: false, reason: 'unconfigured' };
+    }
     return { ok: true, bypassed: true };
   }
   if (!token) {

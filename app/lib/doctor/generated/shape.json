@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:1a6dcc797a7b69ffcc057117033da368545c6712",
+  "timestamp": "sha1:58050e1b90a22a624a3de3f692fe000459b8368b",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -3167,6 +3167,7 @@
       "required": false,
       "files": [
         "__tests__/unit/actions.route.test.js",
+        "__tests__/unit/hosted/turnstile.test.js",
         "__tests__/unit/security-headers.test.js",
         "app/api/auth/config/route.js",
         "app/api/health/route.js",
@@ -3174,6 +3175,7 @@
         "app/lib/auth.js",
         "app/lib/db.js",
         "app/lib/events.js",
+        "app/lib/hosted/turnstile.js",
         "app/lib/readiness/workflow.mjs",
         "app/lib/validateEnv.js",
         "graphify-pilot/app/api/auth/config/route.js",
