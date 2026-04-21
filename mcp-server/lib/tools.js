@@ -239,8 +239,19 @@ export function createToolHandlers(client) {
         const status = result?.action?.status;
 
         if (status && status !== 'pending_approval') {
+          const approved = status === 'completed';
+          // Distinguish explicit operator denial (failed/cancelled) from
+          // a genuine approval. The JS and Python SDKs throw on denial;
+          // MCP can't throw through the tool channel, so surface a
+          // clear `denied:true` + reason instead of returning
+          // approved:false with no further signal.
+          const denied = !approved && (status === 'failed' || status === 'cancelled');
           return JSON.stringify({
-            approved: status === 'completed',
+            approved,
+            denied,
+            denial_reason: denied
+              ? (result?.action?.error_message || `Operator marked action as ${status}`)
+              : null,
             action: result.action,
             waited_seconds: Math.round((Date.now() - start) / 1000),
           });
