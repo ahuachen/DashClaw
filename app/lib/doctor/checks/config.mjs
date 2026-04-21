@@ -19,7 +19,7 @@ export async function runChecks({ env = process.env } = {}) {
     checks.push({
       id: `env_${envVarName}`,
       category: 'config',
-      status: check.status === 'info' ? 'pass' : check.status,
+      status: check.status,
       title: envVarName,
       message: check.detail,
       fix:
