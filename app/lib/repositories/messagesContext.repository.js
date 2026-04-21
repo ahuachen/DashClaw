@@ -309,6 +309,15 @@ export async function getAttachmentWithData(sql, orgId, attachmentId) {
   return rows[0] || null;
 }
 
+export async function getOrgAttachmentBytes(sql, orgId) {
+  const rows = await sql`
+    SELECT COALESCE(SUM(size_bytes), 0)::bigint AS total
+    FROM message_attachments
+    WHERE org_id = ${orgId}
+  `;
+  return Number(rows[0]?.total || 0);
+}
+
 // ── Context Threads ──────────────────────────────────────────
 
 export async function listContextThreads(sql, orgId, filters = {}) {

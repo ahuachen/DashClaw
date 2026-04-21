@@ -16,6 +16,7 @@ import {
   getMessageForUpdate,
   getMessagesForUpdate,
   getMessageThread,
+  getOrgAttachmentBytes,
   getUnreadMessageCount,
   listMessages,
   markBroadcastRead,
@@ -34,6 +35,16 @@ const ALLOWED_MIME_TYPES = [
 ];
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_ATTACHMENTS_PER_MESSAGE = 3;
+
+// Per-org soft cap on total attachment bytes. Per-attachment and per-message
+// limits aren't enough on their own — a determined caller could still write
+// unbounded storage one 5MB message at a time. Configurable via env so
+// self-hosters can raise it; defaults to 100MB which fits comfortably inside
+// any Neon / Postgres free tier.
+const MAX_ORG_ATTACHMENT_BYTES = (() => {
+  const v = parseInt(String(process.env.DASHCLAW_MAX_ORG_ATTACHMENT_BYTES || ''), 10);
+  return Number.isFinite(v) && v > 0 ? v : 100 * 1024 * 1024;
+})();
 
 // Magic-byte signatures for MIME types where we can enforce the contract.
 // The client's claimed mime_type is never trusted for binary formats —
@@ -218,6 +229,28 @@ export async function POST(request) {
         return NextResponse.json(
           { error: `Attachment "${att.filename}" content does not match declared mime_type ${att.mime_type}` },
           { status: 400 },
+        );
+      }
+    }
+
+    // Org-level storage quota. Per-attachment + per-message limits alone
+    // don't bound total DB growth — without this cap a patient caller can
+    // fill the database one 5MB upload at a time.
+    if (attachmentInputs.length > 0) {
+      const incomingBytes = attachmentInputs.reduce(
+        (sum, att) => sum + Math.ceil((att.data.length * 3) / 4),
+        0,
+      );
+      const existingBytes = await getOrgAttachmentBytes(sql, orgId);
+      if (existingBytes + incomingBytes > MAX_ORG_ATTACHMENT_BYTES) {
+        return NextResponse.json(
+          {
+            error: 'Org attachment storage quota exceeded',
+            used_bytes: existingBytes,
+            incoming_bytes: incomingBytes,
+            quota_bytes: MAX_ORG_ATTACHMENT_BYTES,
+          },
+          { status: 413 },
         );
       }
     }
