@@ -25,6 +25,92 @@ releases only ship client changes, platform releases can ship anything.
 Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
 are prefixed with the package name.
 
+## Bug Hunt Sprint - 2026-04-21
+
+Three consecutive read-only sweeps by parallel reviewer agents surfaced
+60 real bugs plus 2 false positives. Every finding was fixed as an
+atomic commit with the full test suite run between each. See commits
+`92ab6823` through `58982c6c` on main for the per-fix detail.
+
+### Security (high-severity)
+
+- **RCE in `custom_function` scoring / evaluations** (F36): `extractRawValue` in `app/lib/scoringProfiles.js` and `_executeCustomFunction` in `app/lib/eval.js` both evaluated org-supplied JavaScript via the `Function` constructor on bodies stored by any org member through the scoring-dimension or scorer APIs. The resulting function had full access to the enclosing realm (`process.env`, `require`, filesystem, network). Both call sites now run the body inside a `node:vm` context seeded with only the allowed fields and a 100ms timeout; the outer realm is unreachable from the sandbox.
+- **Webhook SSRF — DNS rebinding** (F39): `assertSafeWebhookUrl` resolved DNS and validated that every returned IP was public, but `fetch` then re-resolved the hostname at connect time. A short-TTL attacker-controlled record could pass the initial check then flip to `127.0.0.1` before the socket opened. `deliverWebhook` and `deliverGuardWebhook` now build an `undici` `Agent` whose `connect.lookup` is pinned to a validated IP and pass it to fetch via `dispatcher`.
+- **`/api/setup/migrate` unauthenticated post-init** (F56): The route was in `PUBLIC_ROUTES` with no handler-side auth. Any unauthenticated POST re-ran DDL, forced `plan='pro'` on `org_default`, and — if `DASHCLAW_API_KEY` was set — seeded a predictable `api_keys` row. Now: public during first-run bootstrap (before `org_default` seeded), gated after that with a Bearer token matching `DASHCLAW_API_KEY` (timing-safe) or an admin-role `api_keys` row.
+- **Turnstile fails closed in production** (F05): `verifyTurnstile` returned `{ ok: true, bypassed: true }` whenever `TURNSTILE_SECRET_KEY` was absent — so an operator who deployed with `DASHCLAW_HOSTED=true` but forgot the secret served a completely unprotected workspace-provisioning endpoint. The bypass is now gated on `NODE_ENV !== 'production'`; production refuses to run without the secret.
+- **Webhook audit log no longer fire-and-forget** (F35): `deliverWebhook` and `deliverGuardWebhook` used `.catch()` on the `webhook_deliveries` INSERT, returned `success:true` before the audit row committed. Now awaited — returns carry `delivery_logged: boolean` so downstream tooling can distinguish "delivered and logged" from "delivered but audit lost".
+- **`POST /api/messages` tenant-verifies `from_agent_id`/`to_agent_id`** (F33): Previously accepted the caller-supplied value with no org-ownership check, letting a valid API key holder spoof messages as originating from any agent in any org. Now rejects with 403 if the agent isn't in the caller's org.
+- **Access-rule uniqueness via DB constraints** (F04): `createAccessRule` used a separate SELECT duplicate-check followed by an INSERT. Two partial unique indexes on `capability_access_rules` (agent-specific and org-wide-default) now enforce uniqueness at the DB level; route catches `23505` for the "already exists" error.
+- **Workflow template admin gate** (F32): `POST` / `PATCH` `/api/workflows/templates[/:id]` previously accepted any authenticated org member. Now requires `x-org-role: admin` like the sibling `DELETE` already did.
+- **Timing-safe cleanup-secret** (F58): `app/api/hosted/cleanup/route.js` replaced `===` with `timingSafeCompare` for both `HOSTED_CLEANUP_SECRET` and `CRON_SECRET` paths.
+
+### Data integrity / state machines
+
+- **Action PATCH terminal-state gate** (F03): The non-`close_if_running` PATCH path called `updateActionOutcome` with no `gateStatus`, so the WHERE clause's `(gate IS NULL OR status = gate)` fired unconditionally. Any caller could PATCH a `completed`/`failed`/`blocked` action back to `running` and rewrite its `output_summary`. Close-fields (status/output_summary/timestamp_end) now pass via a `status='running'` gate and terminal rows return 409; token/cost/model fields apply unconditionally so late billing reconciliation still lands.
+- **Open-loop PATCH atomic compare-and-set** (F07): Two concurrent operators resolving the same loop could both pass the separate status-check read, both fire the UPDATE, silently clobbering one operator's `resolution` text. Collapsed to a single `UPDATE ... WHERE status = 'open'`; zero-row result triggers a single lookup to distinguish 404 from 409.
+- **Assumption PATCH compare-and-set on `invalidated`** (F31): Concurrent invalidation requests both passed the read-check-then-update pattern and clobbered each other's `invalidated_reason`. Added `gateInvalidated` option to `updateAssumption` that appends `WHERE invalidated = 0`; route returns 409 when the gate fails.
+- **Workflow execute orphan rescue** (F59): Any exception inside `executeWorkflow` bypassed `updateActionOutcome`, leaving the parent action `status='running'` forever and firing `workflow_stuck` + `stale_running_action` signals on every subsequent cron tick. `executeWorkflow` is now wrapped in a try/catch that marks the parent `failed` before re-throwing.
+- **Eval runs — run-scoped distribution + CAS on pending→running** (F51+F52+F54): `getEvalRun`'s distribution query aggregated across every run sharing the scorer; `executeEvalRun`'s UPDATE had no current-state guard so double-POSTs double-wrote `eval_scores`. Added `run_id` + `scorer_id` columns to `eval_scores` (schema migration), write them from the executor, filter the distribution exclusively on `run_id`, and gate the `pending→running` transition with an atomic CAS.
+- **`updateProfile` / `updateRiskTemplate` COALESCE action_type** (F40): `action_type = ${val ?? null}` overwrote the column with NULL on every PATCH that omitted the field. Swapped to `COALESCE` consistent with every other column.
+- **Learning recommendations — upsert-then-prune** (F55): `rebuildLearningRecommendations` cleared every row before upserting the new batch, leaving the table empty mid-rebuild. Reordered: capture `batchTime`, upsert (stamping `updated_at=now`), then DELETE only rows with `updated_at < batchTime`.
+- **Doctor migrate surfaces real DDL errors** (F09): Non-SAFE_CODES errors were silently logged as Warnings and skipped. Now returns `applied:false` with the first error code and message.
+- **auto-migrate fatal on non-SAFE DDL** (F45): Same silent-skip pattern in the build script. Now throws. Includes pgvector cascade (skip CREATE TABLE and all its dependent indexes/FKs when the extension is unavailable on CI).
+
+### Infrastructure
+
+- **`publishOrgEvent` dual-publish** (F37): Memory backend was published to on every call regardless of selected backend, causing duplicate SSE frames when Redis was active and a memory subscriber also existed. Now publishes only to the selected backend; falls back to memory only on Redis error.
+- **`require('resend')` crashed in ESM** (F38): `sendSignalAlertEmail` threw `ReferenceError: require is not defined` on every call — silently caught, so signal emails have never been delivered. Swapped to `await import('resend')`.
+- **WorkflowEditor stale closures + node-ID counter** (F23+F26): Interleaved drag+connect dropped the most recent change from the saved `steps_json`. Node IDs were a module-level mutable counter shared across every mounted editor and StrictMode double-invocation. Fixed with nested functional setters + `useRef`-scoped counter.
+- **`GuardSimulation` bad React imports** (F22): Imported `useActionState`, `useOptimistic`, `transition` — none exist in React 18. Dropped the dead imports.
+- **`/approvals` optimistic removal** (F25): A 200 with a malformed body still passed `res.ok` and the row vanished locally, then reappeared on the next 10s poll. Replaced optimistic filter with `await fetchPending()`.
+- **Mission Control cross-tab dismiss sync** (F27): `dismissedSet` memo only re-read localStorage when `signals` changed, so a dismiss in another tab stayed invisible indefinitely in a quiet system. Added `storage`-event listener.
+- **`useRealtime` inline callbacks** (F24): `RecentActionsCard`, `FleetPresenceCard`, `RiskSignalsCard` passed un-memoized arrows; the hook's ref-sync effect fired every render. Wrapped each in `useCallback`.
+- **Sessions DDL check pinned to globalThis** (F41): Every serverless cold-start re-ran the four `CREATE TABLE / CREATE INDEX` statements. Now pinned to `globalThis.__dashclaw_sessions_table_checked` like `app/lib/db.js`.
+- **LivingCode** — stale-lock auto-recovery (F11), snapshot lexical sort for NTFS (F12), `sensing.py` errors now logged to `.organism/errors.log` (F17), `increment_cycle_counter` O_EXCL file lock (F19), heartbeat `_safe_timestamp` deduped with `state.py` (F20).
+
+### API contract changes (callers will notice)
+
+- `PATCH /api/actions/:id` returns `409` for terminal-state modifications (F03).
+- `PATCH /api/assumptions/:id` returns `409` on concurrent invalidate-then-invalidate (F31).
+- `POST /api/messages` returns `403` for `from_agent_id` / `to_agent_id` not in the caller's org (F33).
+- `POST` / `PATCH /api/workflows/templates[/:id]` now require `x-org-role: admin` (F32).
+- `POST /api/setup/migrate` returns `401` after `org_default` is seeded unless an admin Bearer token is provided (F56).
+- `MCP dashclaw_wait_for_approval` response shape now includes `denied: boolean` and `denial_reason: string|null` so MCP agents can distinguish operator denial from approval (F44).
+- `MCP notifications/initialized` now returns `204 No Content` instead of a spurious jsonrpc frame (F15). JSON-RPC compliant.
+- `GET /api/cron/reset-meters` semantic changed: now purges prior-period rows instead of the broken archive-then-delete that wiped the current period (F01+F02). Fail-closed on `CRON_SECRET`.
+- `POST /api/capabilities/:id/invoke` now honors capability-level `require_approval` rules and returns `202` with `pending_approval` (F08).
+
+### SDK + tooling
+
+- **Python `submit_feedback` auto-injects `self.agent_id`** (F42). Matches JS SDK behavior — feedback rows are no longer unattributed when caller omits the field.
+- **`backfill-embeddings.mjs` safe-by-default** (F43): Added `--apply` (defaults to dry-run), `--org` filter, `--limit`, and `sql.end()` cleanup. Matches sibling `backfill-null-model-cost.mjs`.
+- **Stop hook timestamp** (F46): `datetime_now_iso()` in `hooks/dashclaw_stop.py` now returns `Z` suffix instead of `+00:00`.
+
+### Observability / operator UX
+
+- **Doctor rate-limit backing-store warning** (F06): New check warns when hosted mode is active on a serverless platform without a shared rate-limit store — the in-memory limiter resets on every cold start.
+- **Doctor config check stops coercing `'info'` to `'pass'`** (F10).
+- **Signal hash + overlap repairs** (F60+F61+F62): `hashSignal` now includes `session_id` and `provider` so same-agent/different-resource signals dedupe correctly. `staleRunning` query excludes `workflow_execute` so a stuck workflow no longer fires two simultaneous signals (`stale_running_action` + `workflow_stuck`).
+
+### Test infrastructure
+
+- **Vitest env-var auto-reset** (F50): `unstubEnvs: true` added to `vitest.config.js`. Previously 15+ test files set `process.env.X` in `beforeEach` without restoring — safe only because the default `forks` pool isolates each file. Now robust to pool changes.
+- **Demo fixture isolation** (F48): `_cached` singleton removed — `getDemoFixtures()` rebuilds per call so demo writes don't mutate the canonical fixtures in place.
+- **Demo guard ReferenceError** (F47): `demoGuardPost` referenced an undeclared `shouldBlock` on the unknown-agent fallback branch, causing a stack-trace-leaking 400 on every demo request from non-seeded agents.
+- **Demo recommendations missing `active` field** (F49): The demo filter now returns non-empty results.
+
+### Minor
+
+- `drift.js` DRIFT_METRICS deep-frozen and validated against a safe-character allowlist (F53) — defensive hardening against any future config-sourced metric.
+- Scoring GET — radix + cap on `limit`/`offset` (F13).
+- Agent heartbeat `status` enum-validated (F34).
+
+### Deployment notes
+
+- **Schema migration**: `eval_scores` gains `run_id` and `scorer_id` columns; `capability_access_rules` gains two partial unique indexes. Auto-applied on next deploy via `auto-migrate.mjs`. Run `npm run db:migrate` locally after pulling.
+- **No env-var changes**.
+- **No breaking SDK changes** — SDK version unchanged.
+
 ## [2.13.2] - 2026-04-13
 
 ### Added

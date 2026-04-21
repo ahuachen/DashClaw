@@ -2,6 +2,103 @@
 
 This is the operator-facing security guide for DashClaw (self-host and cloud). It documents the security model, key controls, and how to run audits.
 
+## 2026-04-21 Bug Hunt Hardening
+
+Three consecutive read-only reviewer sweeps surfaced and remediated a
+set of security-relevant issues across the runtime. Highlights (see
+CHANGELOG for per-finding detail):
+
+### Sandbox for org-supplied expressions
+- `app/lib/scoringProfiles.js` (`custom_function` data source) and
+  `app/lib/eval.js` (`_executeCustomFunction` scorer) previously evaluated
+  JavaScript strings stored by any org member via the scoring-dimension
+  and scorer APIs. The evaluator ran in the enclosing realm with full
+  access to `process.env`, `require`, filesystem, and network — an
+  RCE-class path reachable by any member account. Both now run the
+  supplied body inside a `node:vm` context seeded with only the allowed
+  fields and a 100ms timeout. `node:vm` is not a complete security
+  boundary against prototype-chain escapes, but it blocks direct access
+  to outer-scope globals — a large surface reduction.
+
+### Webhook SSRF — DNS rebinding window closed
+- `assertSafeWebhookUrl` in `app/lib/webhooks.js` resolves DNS and
+  validates that every returned IP is public. The prior implementation
+  let `fetch` re-resolve the hostname at connect time, leaving a
+  DNS-rebinding window where a short-TTL record could flip to a private
+  IP between the two lookups. Both `deliverWebhook` and
+  `deliverGuardWebhook` now build an `undici` `Agent` whose
+  `connect.lookup` is pinned to a validated IP and pass it to fetch via
+  `dispatcher`. The original URL is still used for TLS SNI / certificate
+  matching — only the IP resolution is overridden.
+
+### Setup/migrate requires auth after first-run init
+- `POST /api/setup/migrate` was in `PUBLIC_ROUTES` with no handler-side
+  auth. First-run bootstrap needs it public (the 8-minute flow runs
+  before any key exists), but nothing clamped access after init. Now
+  gates on the presence of `org_default`: before init, public; after
+  init, requires a Bearer token matching `DASHCLAW_API_KEY` (timing-safe)
+  or an admin-role `api_keys` row. Without this, any unauthenticated
+  POST could re-run DDL, force `plan='pro'` on the default org, and
+  seed a predictable `api_keys` hash.
+
+### Turnstile fails closed in production
+- `verifyTurnstile` in `app/lib/hosted/turnstile.js` previously returned
+  `{ ok: true, bypassed: true }` whenever `TURNSTILE_SECRET_KEY` was
+  unset — so an operator who deployed with `DASHCLAW_HOSTED=true` but
+  forgot the secret served unprotected workspace provisioning. The
+  bypass is now gated on `NODE_ENV !== 'production'`. Local dev and
+  vitest (`NODE_ENV='test'`) retain the convenience; production refuses
+  to run without the secret.
+
+### Cross-tenant message spoofing blocked
+- `POST /api/messages` previously accepted the caller-supplied
+  `from_agent_id` / `to_agent_id` without verifying those agents
+  belonged to the caller's org — a valid API key holder could inject
+  ledger entries that claimed to originate from another org's agent.
+  Both fields are now checked via `agentExistsInOrg` against
+  `agent_presence` / `agent_identities` / `agent_pairings` /
+  `action_records`; mismatches return 403.
+
+### Webhook audit trail no longer fire-and-forget
+- `deliverWebhook` and `deliverGuardWebhook` now await the
+  `webhook_deliveries` INSERT before returning. On failure the response
+  carries `delivery_logged: false` so downstream replay and forensic
+  tooling can distinguish "delivered and logged" from "delivered but
+  audit lost".
+
+### Cleanup secret comparison is timing-safe
+- `app/api/hosted/cleanup/route.js` replaced `===` on
+  `HOSTED_CLEANUP_SECRET` and `CRON_SECRET` with the existing
+  `timingSafeCompare` helper. Practical risk was low for long secrets
+  but the pattern diverged from every other secret comparison in the
+  codebase.
+
+### Compare-and-set on governance state machines
+- Action PATCH terminal-state gate (F03), assumption invalidate gate
+  (F31), open-loop status gate (F07), eval-run pending→running gate
+  (F52), access-rule uniqueness via partial unique indexes (F04).
+  These close a family of read-check-then-update TOCTOU holes where
+  two concurrent operators could both win and silently clobber each
+  other's audit-trail text, or where one caller could rewrite a
+  terminal ledger row. All transitions are now atomic at the SQL layer.
+
+### Governance mutation gates
+- `POST` / `PATCH /api/workflows/templates[/:id]` now require
+  `x-org-role: admin` like the sibling `DELETE` already did (F32).
+  A non-admin member could previously rewrite a production template's
+  steps or create new ones. `/api/setup/migrate` tightening (above)
+  is also in this family.
+
+### Auto-migrate stops swallowing real DDL errors
+- `scripts/auto-migrate.mjs` previously logged non-SAFE_CODES errors
+  at Warning and continued, leaving partial schemas on production
+  instances. Now fails the build when real DDL errors are detected.
+  pgvector-dependent statements are skipped deliberately when the
+  extension is unavailable (CI Postgres), with cascade tracking so
+  dependent indexes/FKs on skipped tables also skip.
+
+---
+
 ## 2026-03-13 Security Remediation
 
 On March 13, 2026, a comprehensive security audit and remediation was performed to address supply chain and runtime vulnerabilities:
