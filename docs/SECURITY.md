@@ -2,6 +2,117 @@
 
 This is the operator-facing security guide for DashClaw (self-host and cloud). It documents the security model, key controls, and how to run audits.
 
+## 2026-04-21 Session Auth Parity + SSRF Consolidation
+
+Follow-up to the same-day sprint below. 13 atomic commits between
+`c7dbcbef` and `48c3fd60` closed a set of systematic pattern-classes
+rather than one-off findings. Highlights:
+
+### BUG-03b — local-password admins were silently read-only everywhere
+
+14 client components and one hook derived `isAdmin` from NextAuth's
+`useSession()`, which only reads the `next-auth.session-token` cookie
+and ignores the `dashclaw-local-session` cookie issued by
+`POST /api/auth/local`. Every self-hoster who signed in with
+`DASHCLAW_LOCAL_ADMIN_PASSWORD` saw the orange READ-ONLY banner on
+`/approvals`, `/decisions`, `/identities`, `/integrations`, `/webhooks`,
+`/api-keys`, `/routing`, and `/approve`; was auto-redirected away from
+`/login` while already signed in; couldn't accept invite links; and
+received no realtime SSE events. Fix:
+
+- New `GET /api/session/effective` endpoint backed by the existing
+  `getViewerContextFromCookieHeader` helper, which unifies NextAuth JWT
+  + local-session JWT resolution.
+- New `useEffectiveRole()` hook in `app/hooks/useEffectiveRole.js`
+  returns `{ role, isAdmin, authenticated, authType, settled }` and is
+  now the source of truth across every admin-gated page, SSE
+  subscription, and sign-in redirect.
+- Regression test `__tests__/unit/approvals.page.test.jsx` pins the
+  five settled / NextAuth-admin / local-admin / member / endpoint-fail
+  states.
+
+### SSRF consolidation — 6 more outbound-fetch call sites DNS-pinned
+
+`safeUrlWithIps` + `buildPinnedDispatcher` from `app/lib/webhooks.js`
+(originally introduced in the April 21 sprint for webhook delivery) are
+now exported and used by every outbound fetch that takes a
+user-configured URL. The DNS-rebinding window is closed across the full
+surface:
+
+- `app/lib/knowledge-ingest.js` `fetchSourceContent` — member-reachable
+  via `POST /api/knowledge/collections/[id]/items`, previously a
+  bare `fetch(sourceUri)` that would follow any URL including
+  `http://169.254.169.254/...` (AWS IMDS) or RFC1918 ranges.
+- `app/lib/routing/router.js` `dispatchToAgent` + `fireCallback` —
+  had duplicate SSRF validation logic with no DNS pinning; ~50 lines
+  of helper code deleted in favor of the shared module.
+- `app/lib/notification-adapters/slack.js` (`SLACK_WEBHOOK_URL`) —
+  no validation at all; a member could point the webhook URL at any
+  private service and the server would POST on every signal fan-out.
+- `app/lib/notification-adapters/discord.js` (`DISCORD_WEBHOOK_URL`) —
+  same.
+- `app/lib/integration-health.js` discord checker — reached on every
+  "refresh health" click and the integration-health cron.
+
+Every call site now resolves the hostname once, rejects any private /
+loopback / link-local / IPv4-mapped-IPv6 answer, and pins the
+connection to the validated IP via a custom `connect.lookup` on an
+undici `Agent`. TLS SNI / certificate matching still uses the original
+hostname — only the IP resolution is pinned.
+
+### Privilege escalation — 8 mutation handlers now require admin role
+
+A systematic audit of `POST`/`PATCH`/`DELETE` handlers across
+`app/api/**` surfaced 8 handlers across 6 route files that let any
+authenticated org member mutate org-wide state:
+
+- `POST /api/drift/alerts` (run detection / compute baselines / record snapshots)
+- `PATCH|DELETE /api/drift/alerts/[alertId]`
+- `POST /api/prompts/templates`
+- `PATCH|DELETE /api/prompts/templates/[templateId]`
+- `POST /api/prompts/templates/[templateId]/versions`
+- `POST /api/prompts/templates/[templateId]/versions/[versionId]`
+
+Each now returns 403 on `getOrgRole(request) !== 'admin'`, matching the
+pattern already enforced on /policies, /identities, /team, /webhooks,
+and /orgs. New regression test pins the member-rejection path on
+drift/alerts.
+
+### `force-dynamic` pass — cache / static-render audit
+
+21 tenant-aware routes lacked the explicit
+`export const dynamic = 'force-dynamic'` prefix that the other 181
+routes already carried. Most were implicitly dynamic via
+`request.headers` access, but relying on auto-detection is fragile —
+a future refactor that drops the `request` param could silently flip
+the route to a statically-rendered response served identically to every
+caller. `/api/health`'s `GET()` was the highest-risk case: it took no
+request arg and was eligible for static build-time caching despite
+reading live DB state. All 21 now carry the prefix.
+
+### Schema allowlist on `users.role` + `api_keys.role`
+
+Both columns were plain `TEXT DEFAULT 'member'` with no enum or CHECK,
+so typos (`'Admin'`, `'administrator'`) and stale import values could
+silently grant or withhold permissions. Added drizzle `check()`
+definitions + a null-repair-then-ADD-CONSTRAINT block to the DDL.
+Unexpected values trip `23514 check_violation` loudly so the operator
+reconciles manually rather than being silently demoted.
+
+### Orphaned migration pipeline fixed
+
+`scripts/auto-migrate.mjs` hardcoded the read path to
+`drizzle/0000_clammy_falcon.sql`, so 0001–0003 were silently skipped.
+Fresh Neon databases never received `agent_sessions`, `session_events`,
+`organizations.hosted_mode`, `trial_action_cap`, `trial_actions_used`,
+`api_keys.scope`, `agent_pairings.permission_level`, or the
+`agent_messages(org_id, action_id)` index. The script now iterates
+`drizzle/*.sql` in filename order; the pgvector `skippedTables` set
+persists across files. A follow-up hotfix adds `CREATE TABLE IF NOT
+EXISTS` for `agent_pairings` and `agent_identities` (both present in
+`schema/schema.js` but never in any DDL file) to 0002 so the ALTER
+target exists on fresh deploys.
+
 ## 2026-04-21 Bug Hunt Hardening
 
 Three consecutive read-only reviewer sweeps surfaced and remediated a

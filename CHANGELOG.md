@@ -25,6 +25,106 @@ releases only ship client changes, platform releases can ship anything.
 Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
 are prefixed with the package name.
 
+## Systematic Hardening Follow-Up - 2026-04-21
+
+After the April 21 sprint closed, a fresh round of pattern-class audits
+surfaced a second batch of issues — each a systematic class rather than
+a one-off finding. 13 atomic commits between `c7dbcbef` and `48c3fd60`;
+full test suite ran between every commit (1639 tests passing).
+
+### Security
+
+- **BUG-03b — local-password admins were silently read-only across every
+  admin-gated UI** (`c7dbcbef`, `bed8fc04`, `4a8b302e`, `6925a6e4`): 14
+  client components and one hook derived `isAdmin` from NextAuth's
+  `useSession()`, which only reads the `next-auth.session-token` cookie
+  and ignores the `dashclaw-local-session` cookie issued by
+  `POST /api/auth/local`. Any self-hoster who signed in with
+  `DASHCLAW_LOCAL_ADMIN_PASSWORD` saw the orange READ-ONLY banner on
+  `/approvals`, `/decisions`, `/identities`, `/integrations`, `/webhooks`,
+  `/api-keys`, `/routing`, and `/approve`, was auto-redirected away from
+  `/login` even while signed in, couldn't accept invite links, and
+  received no realtime SSE events. Fix: new `/api/session/effective`
+  endpoint backed by the existing `getViewerContextFromCookieHeader`
+  helper (which already unifies both auth paths), plus a new
+  `useEffectiveRole` hook that every admin-gated UI now consumes.
+  Regression test `__tests__/unit/approvals.page.test.jsx` pins the
+  five settled/admin/member/local-admin/endpoint-fail states.
+- **SSRF consolidation — 6 more outbound-fetch call sites pinned to
+  validated IPs** (`405381ca`, `48c3fd60`): `safeUrlWithIps` +
+  `buildPinnedDispatcher` exported from `app/lib/webhooks.js` and adopted
+  by `app/lib/knowledge-ingest.js`:`fetchSourceContent` (member-reachable
+  via `POST /api/knowledge/collections/[id]/items`),
+  `app/lib/routing/router.js` (`dispatchToAgent` + `fireCallback`, both
+  used their own duplicate SSRF helper with no DNS pinning),
+  `app/lib/notification-adapters/slack.js`,
+  `app/lib/notification-adapters/discord.js`, and
+  `app/lib/integration-health.js` (discord checker). Router loses ~50
+  lines of duplicated validation. DNS-rebinding window closed across the
+  whole outbound fetch surface now.
+- **Admin-role gate on 8 mutation handlers** (`85dc50a7`):
+  `POST /api/drift/alerts` (run detection / compute baselines / record
+  snapshots), `PATCH|DELETE /api/drift/alerts/[alertId]`,
+  `POST /api/prompts/templates`,
+  `PATCH|DELETE /api/prompts/templates/[templateId]`,
+  `POST /api/prompts/templates/[templateId]/versions`, and
+  `POST /api/prompts/templates/[templateId]/versions/[versionId]` all let
+  any authenticated member mutate org-wide state — a silent privilege
+  escalation where non-admins could reshape the governance surface for
+  the whole org. Each now returns 403 on `getOrgRole(request) !== 'admin'`,
+  matching the pattern already enforced on /policies, /identities, /team,
+  /webhooks, and /orgs. New regression test on drift/alerts POST pins the
+  member-rejection path.
+- **`force-dynamic` pass across 21 tenant-aware routes** (`2b8f3db5`):
+  Most were implicitly dynamic via `request.headers` access, but the
+  explicit `export const dynamic = 'force-dynamic'` prefix was missing.
+  `/api/health`'s `GET()` took no request arg and was the highest-risk
+  case — eligible for static build-time caching despite reading live DB
+  state. 181/181 of the other tenant-aware routes already carried the
+  prefix; this closes the remaining 21 for consistency.
+
+### Deploy correctness
+
+- **Orphaned Drizzle migrations — 0001-0003 never landed on fresh
+  deploys** (`6ed2f0db`): `scripts/auto-migrate.mjs` hardcoded the read
+  path to `drizzle/0000_clammy_falcon.sql`, so the three migration files
+  that followed it were silently skipped. Any Vercel deploy was landing
+  a schema frozen at 0000 — `agent_sessions`, `session_events`,
+  `organizations.hosted_mode`, `trial_action_cap`, `trial_actions_used`,
+  `api_keys.scope`, the `agent_pairings.permission_level` column, and the
+  `agent_messages(org_id, action_id)` index all never existed. Iterate
+  `drizzle/*.sql` in filename order; the pgvector `skippedTables` set
+  persists across files so ALTERs in later migrations against skipped
+  tables are handled correctly.
+- **Hotfix — `agent_pairings` / `agent_identities` missing from the
+  original schema** (`c6ffe28c`): Once 0002 started actually running (per
+  the fix above), the ALTER on `agent_pairings.permission_level` tripped
+  `42P01 relation does not exist` on fresh Neon databases. Both tables
+  had been added to `schema/schema.js` but never made it into
+  `0000_clammy_falcon.sql`. Prepend `CREATE TABLE IF NOT EXISTS` for
+  both + the `agent_identities_org_agent_unique` index to 0002; existing
+  installs are untouched.
+- **Role allowlist constraint on `users.role` + `api_keys.role`**
+  (`10845ab5`): Both columns were plain `TEXT DEFAULT 'member'` with no
+  enum or CHECK, so typos (`'Admin'`, `'administrator'`) and stale
+  import values could silently grant or withhold permissions. Added
+  drizzle `check()` definitions and a null-repair-then-ADD-CONSTRAINT
+  block to the DDL. If any row holds an unexpected value the constraint
+  trips loudly so the operator reconciles manually.
+
+### Observability
+
+- **12 empty catch blocks surfaced** (`d4d9b130`): Audited every
+  `} catch {}` in live code; 6 are legitimate cleanup (useRealtime
+  `es.close()`, events.js Redis unsubscribe, OnboardingChecklist
+  localStorage, downloadable script JSON parsers, test mock). The other
+  12 hid real failures. User-action paths (drift acknowledge/delete,
+  compliance export/schedule delete/toggle) now `alert()` matching the
+  existing convention on the same pages. Background/server paths
+  (`fetchHealth` in integrations, three signal categories in signals.js)
+  now `console.warn` with context so operators can debug when a whole
+  signal category stops producing.
+
 ## Bug Hunt Sprint - 2026-04-21
 
 Three consecutive read-only sweeps by parallel reviewer agents surfaced
