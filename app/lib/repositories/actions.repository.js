@@ -397,17 +397,22 @@ export async function updateActionOutcome(sql, orgId, actionId, outcome, options
     return updated[0] || null;
   }
 
-  // Single atomic UPDATE with all outcome fields at once.
-  // Each field uses COALESCE to preserve existing values when not provided.
+  // Single atomic UPDATE with all outcome fields at once. Most fields use
+  // COALESCE to preserve existing values when not provided. error_message
+  // is the exception: callers that revive a previously-failed action pass
+  // error_message: null to *clear* the old error, and COALESCE would silently
+  // keep the stale string. The CASE expression distinguishes "caller did not
+  // pass the field" (keep existing) from "caller passed null" (clear it).
   // The final WHERE predicate is a no-op when `gate` is null, and an exact
   // match otherwise — atomic compare-and-set on the status column.
+  const includeErrorMessage = fields.includes('error_message');
   const updated = await sql`
     UPDATE action_records SET
       status            = COALESCE(${fields.includes('status') ? data.status : null}, status),
       output_summary    = COALESCE(${fields.includes('output_summary') ? data.output_summary : null}, output_summary),
       side_effects      = COALESCE(${fields.includes('side_effects') ? data.side_effects : null}, side_effects),
       artifacts_created = COALESCE(${fields.includes('artifacts_created') ? data.artifacts_created : null}, artifacts_created),
-      error_message     = COALESCE(${fields.includes('error_message') ? data.error_message : null}, error_message),
+      error_message     = CASE WHEN ${includeErrorMessage} THEN ${includeErrorMessage ? (data.error_message ?? null) : null}::text ELSE error_message END,
       timestamp_end     = COALESCE(${fields.includes('timestamp_end') ? data.timestamp_end : null}, timestamp_end),
       duration_ms       = COALESCE(${fields.includes('duration_ms') ? data.duration_ms : null}, duration_ms),
       cost_estimate     = COALESCE(${fields.includes('cost_estimate') ? data.cost_estimate : null}, cost_estimate),
