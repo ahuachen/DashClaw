@@ -387,6 +387,13 @@ def handle_allow(context, tool_use_id):
         if action_id:
             write_action_id(tool_use_id, action_id)
             append_turn_action(_SESSION_ID, action_id)
+        else:
+            # Governance server returned a response but no action_id — the Stop
+            # hook will produce orphan_tokens for this turn. Log so ops can spot
+            # the attribution gap instead of the failure disappearing silently.
+            _log_hook_error("handle_allow: create_action returned no action_id; response=" + str(resp)[:200])
+    else:
+        _log_hook_error("handle_allow: create_action failed (None); tool proceeded without governance record")
     sys.exit(0)
 
 
@@ -403,6 +410,10 @@ def handle_warn(guard_resp, context, tool_use_id):
         if action_id:
             write_action_id(tool_use_id, action_id)
             append_turn_action(_SESSION_ID, action_id)
+        else:
+            _log_hook_error("handle_warn: create_action returned no action_id; response=" + str(resp)[:200])
+    else:
+        _log_hook_error("handle_warn: create_action failed (None); tool proceeded without governance record")
     sys.exit(0)
 
 
