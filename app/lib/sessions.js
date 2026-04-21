@@ -1,9 +1,14 @@
 import { randomUUID } from 'node:crypto';
 
-let _tableChecked = false;
+// Pin the table-check flag on globalThis so HMR / serverless cold-starts
+// don't re-fire the four CREATE TABLE / CREATE INDEX round-trips every
+// invocation. Mirrors the pattern in app/lib/db.js for the SQL handle.
+if (!globalThis.__dashclaw_sessions_table_checked) {
+  globalThis.__dashclaw_sessions_table_checked = false;
+}
 
 async function ensureTables(sql) {
-  if (_tableChecked) return;
+  if (globalThis.__dashclaw_sessions_table_checked) return;
   await sql`
     CREATE TABLE IF NOT EXISTS agent_sessions (
       id TEXT PRIMARY KEY,
@@ -42,7 +47,7 @@ async function ensureTables(sql) {
   // the same session collide, one insert raises a constraint violation and the
   // caller can retry — far better than two events sharing seq=N.
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS uq_session_events_session_seq ON session_events (session_id, seq)`;
-  _tableChecked = true;
+  globalThis.__dashclaw_sessions_table_checked = true;
 }
 
 /**

@@ -23,6 +23,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'agent_id is required' }, { status: 400 });
     }
 
+    // Constrain status to the enum the trust-posture/signals layer expects.
+    // Accepting arbitrary strings lets a misconfigured SDK caller write
+    // garbage into the presence table that the Mission Control UI then
+    // shows as an opaque badge.
+    const VALID_STATUSES = ['online', 'offline', 'idle', 'busy', 'stale'];
+    if (!VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 },
+      );
+    }
+
     const now = new Date().toISOString();
 
     // Diagnostic logging for org mismatch troubleshooting

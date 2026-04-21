@@ -112,9 +112,11 @@ for (const stmt of statements) {
       skipped++;
       continue;
     }
-    // Non-critical: log and continue so one bad statement doesn't block deploy
-    log(`Warning: Statement failed (${err.code || 'unknown'}): ${err.message?.slice(0, 120)}`);
-    skipped++;
+    // Real DDL failure — missing ref, syntax error, permission denied,
+    // etc. Silently continuing produces a partial schema that the app
+    // boots against, which is harder to diagnose than a loud failure.
+    // Fail the deploy so the operator has to fix the DDL before ship.
+    fail(`DDL statement failed (${err.code || 'unknown'}): ${err.message?.slice(0, 200)}`);
   }
 }
 
