@@ -1223,12 +1223,11 @@ export async function middleware(request) {
       }
 
       requestHeaders.set('x-org-id', configuredOrgId);
+      // Fast-path DASHCLAW_API_KEY is the bootstrap / self-host operator key
+      // and is always admin by design — readonly scoping requires the slow-path
+      // api_keys lookup below. (A 'readonly' gate previously lived here but
+      // tested the header we had just set to 'admin', so it was dead code.)
       requestHeaders.set('x-org-role', 'admin');
-
-      // SECURITY: Enforce readonly semantics for API keys.
-      if (request.method !== 'GET' && request.method !== 'HEAD' && requestHeaders.get('x-org-role') === 'readonly') {
-        return NextResponse.json({ error: 'Forbidden - readonly API key' }, { status: 403 });
-      }
 
       const response = NextResponse.next({ request: { headers: requestHeaders } });
       response.headers.set('X-Content-Type-Options', 'nosniff');
