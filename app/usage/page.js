@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSession } from 'next-auth/react';
 import {
   AlertTriangle, ArrowRight, Zap,
   Users, KeyRound, Bot, BarChart3,
@@ -48,7 +47,6 @@ export default function UsagePage() {
 }
 
 function UsageContent() {
-  const { data: session } = useSession();
   const [billing, setBilling] = useState(null);
   const [loading, setLoading] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);

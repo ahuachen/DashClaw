@@ -1,15 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Key } from 'lucide-react';
 import DashClawLogo from '../components/DashClawLogo';
 import GithubIcon from '../components/GithubIcon';
 import LocalPasswordForm from './LocalPasswordForm';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 export default function LoginClient({ localAuthEnabled }) {
-  const { data: session, status } = useSession();
+  // BUG-03b: the previous `useSession().status === 'authenticated'` redirect
+  // missed local-password admins (NextAuth doesn't see the local-session
+  // cookie), so visiting /login while already signed in via the local path
+  // left them staring at the sign-in form. useEffectiveRole sees both paths.
+  const { authenticated, settled: sessionSettled } = useEffectiveRole();
   const [providers, setProviders] = useState([]);
   const [isProd, setIsProd] = useState(true);
   const [authMessage, setAuthMessage] = useState('');
@@ -17,10 +22,10 @@ export default function LoginClient({ localAuthEnabled }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (sessionSettled && authenticated) {
       router.replace('/mission-control');
     }
-  }, [status, router]);
+  }, [sessionSettled, authenticated, router]);
 
   useEffect(() => {
     async function fetchProviders() {
@@ -40,7 +45,7 @@ export default function LoginClient({ localAuthEnabled }) {
     fetchProviders();
   }, [localAuthEnabled]);
 
-  if (status === 'loading' || status === 'authenticated') {
+  if (!sessionSettled || authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-surface-primary">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" aria-label="Loading" />
