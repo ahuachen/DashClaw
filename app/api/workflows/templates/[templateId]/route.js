@@ -31,8 +31,16 @@ export async function PATCH(request, { params }) {
   try {
     const sql = getSql();
     const orgId = getOrgId(request);
+    const orgRole = request.headers.get('x-org-role') || '';
     const { templateId } = await params;
     const body = await request.json();
+
+    // Workflow templates are governance artifacts. Mutating one can change
+    // which steps execute for every future run — stricter than DELETE since
+    // DELETE leaves no silent drift. Match the admin gate DELETE already has.
+    if (orgRole !== 'admin') {
+      return NextResponse.json({ error: 'Admin role required' }, { status: 403 });
+    }
 
     const updated = await updateWorkflowTemplate(sql, orgId, templateId, body);
     if (!updated) {
