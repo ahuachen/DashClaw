@@ -95,7 +95,7 @@ export async function updateProfile(sql, orgId, profileId, updates) {
     UPDATE scoring_profiles
     SET name = COALESCE(${fields.name ?? null}, name),
         description = COALESCE(${fields.description ?? null}, description),
-        action_type = ${fields.action_type !== undefined ? fields.action_type : null},
+        action_type = COALESCE(${fields.action_type !== undefined ? fields.action_type : null}, action_type),
         composite_method = COALESCE(${fields.composite_method ?? null}, composite_method),
         status = COALESCE(${fields.status ?? null}, status),
         metadata = COALESCE(${fields.metadata ? sql.json(JSON.parse(fields.metadata)) : null}, metadata),
@@ -440,7 +440,7 @@ export async function updateRiskTemplate(sql, orgId, templateId, updates) {
     UPDATE risk_templates
     SET name = COALESCE(${updates.name ?? null}, name),
         description = COALESCE(${updates.description ?? null}, description),
-        action_type = ${updates.action_type !== undefined ? updates.action_type : null},
+        action_type = COALESCE(${updates.action_type !== undefined ? updates.action_type : null}, action_type),
         base_risk = COALESCE(${updates.base_risk ?? null}, base_risk),
         rules = COALESCE(${updates.rules ? JSON.stringify(updates.rules) : null}::jsonb, rules),
         status = COALESCE(${updates.status ?? null}, status),
