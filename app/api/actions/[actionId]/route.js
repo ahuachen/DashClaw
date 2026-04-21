@@ -96,31 +96,42 @@ export async function PATCH(request, { params }) {
     if (data.side_effects != null) data.side_effects = redactAny(data.side_effects, dlpFindings);
     if (data.artifacts_created != null) data.artifacts_created = redactAny(data.artifacts_created, dlpFindings);
 
-    let updatedAction;
-    if (closeIfRunning) {
-      // Split into (close fields) and (everything else). Close fields only
-      // apply via a status='running' gate; other fields apply unconditionally
-      // so tokens/cost/model land even when PostToolUse already closed the row.
-      const CLOSE_FIELDS = new Set(['status', 'output_summary', 'timestamp_end']);
-      const closeData = {};
-      const otherData = {};
-      for (const [k, v] of Object.entries(data)) {
-        if (CLOSE_FIELDS.has(k)) closeData[k] = v;
-        else otherData[k] = v;
-      }
+    // Split into (close fields) and (everything else). Close fields only
+    // apply via a status='running' gate so a late PATCH cannot rewrite a
+    // terminal ledger row; other fields apply unconditionally so late
+    // tokens/cost/model land even after the action is closed. The
+    // close_if_running flag is retained for the Stop-hook contract but the
+    // gate now always applies to prevent terminal-state overwrites.
+    const CLOSE_FIELDS = new Set(['status', 'output_summary', 'timestamp_end']);
+    const closeData = {};
+    const otherData = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (CLOSE_FIELDS.has(k)) closeData[k] = v;
+      else otherData[k] = v;
+    }
 
+    // When only close-fields are being updated, pass through the
+    // un-gated path if the caller has no token/cost/model data AND has not
+    // opted into the Stop-hook contract. This preserves the historical
+    // "404 when action not found" semantics for the common completion PATCH
+    // while still blocking terminal-state overwrites when close_if_running
+    // is set (the Stop-hook case).
+    let updatedAction;
+    const hasCloseFields = Object.keys(closeData).length > 0;
+    const hasOtherFields = Object.keys(otherData).length > 0;
+
+    if (closeIfRunning) {
       let closeResult = null;
-      if (Object.keys(closeData).length > 0) {
+      if (hasCloseFields) {
         closeResult = await updateActionOutcome(sql, orgId, actionId, closeData, { gateStatus: 'running' });
       }
       let tokenResult = null;
-      if (Object.keys(otherData).length > 0) {
+      if (hasOtherFields) {
         tokenResult = await updateActionOutcome(sql, orgId, actionId, otherData);
       }
-
       updatedAction = tokenResult || closeResult;
       if (!updatedAction) {
-        // Gate failed AND no token data — re-fetch to return the current row.
+        // Gate failed AND no non-close data — re-fetch to return the current row.
         const rel = await getActionWithRelations(sql, orgId, actionId);
         if (!rel) {
           return NextResponse.json({ error: 'Action not found' }, { status: 404 });
@@ -128,9 +139,34 @@ export async function PATCH(request, { params }) {
         updatedAction = rel.action;
       }
     } else {
-      updatedAction = await updateActionOutcome(sql, orgId, actionId, data);
+      // Non-Stop-hook PATCH. Gate close-fields against terminal statuses to
+      // prevent rewriting the ledger; allow token/cost/model through always.
+      // If neither close-path nor other-path matches, action does not exist.
+      let closeResult = null;
+      if (hasCloseFields) {
+        closeResult = await updateActionOutcome(sql, orgId, actionId, closeData, { gateStatus: 'running' });
+      }
+      let tokenResult = null;
+      if (hasOtherFields) {
+        tokenResult = await updateActionOutcome(sql, orgId, actionId, otherData);
+      }
+      updatedAction = tokenResult || closeResult;
       if (!updatedAction) {
-        return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+        // If no close fields were submitted, null from updateActionOutcome
+        // definitively means the action does not exist (no gate was applied).
+        if (!hasCloseFields) {
+          return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+        }
+        // Close-fields path returned null — either not found OR terminal row.
+        // A lightweight existence check distinguishes the two.
+        const existing = await sql`SELECT status FROM action_records WHERE action_id = ${actionId} AND org_id = ${orgId} LIMIT 1`;
+        if (existing.length === 0) {
+          return NextResponse.json({ error: 'Action not found' }, { status: 404 });
+        }
+        return NextResponse.json(
+          { error: 'Action is in a terminal state and cannot be modified', status: existing[0].status },
+          { status: 409 },
+        );
       }
     }
 
