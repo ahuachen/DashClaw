@@ -10,6 +10,7 @@
  */
 
 import crypto from 'crypto';
+import vm from 'node:vm';
 import { isLLMAvailable, tryLLMComplete } from './llm.js';
 
 function generateId(prefix) {
@@ -113,19 +114,20 @@ function _executeNumericRange(config, action) {
 function _executeCustomFunction(config, action) {
   try {
     const expression = config.expression || 'null';
-    // Safe sandbox: only pass specific action fields as arguments
-    const fn = new Function(
-      'outcome', 'action_type', 'risk_score', 'declared_goal', 'status',
-      `'use strict'; return (${expression});`
-    );
-
-    let result = fn(
-      action.outcome || '',
-      action.action_type || '',
-      parseFloat(action.risk_score) || 0,
-      action.declared_goal || '',
-      action.status || ''
-    );
+    // Evaluate in an isolated vm context that only exposes the allowed
+    // action fields as sandbox globals. The outer realm (process, require,
+    // filesystem, network) is not reachable from within the script, so a
+    // compromised scorer definition cannot exfiltrate env vars or issue
+    // I/O. A short timeout bounds infinite loops.
+    const context = vm.createContext({
+      outcome: action.outcome || '',
+      action_type: action.action_type || '',
+      risk_score: parseFloat(action.risk_score) || 0,
+      declared_goal: action.declared_goal || '',
+      status: action.status || '',
+    });
+    const script = new vm.Script(`'use strict'; (${expression})`);
+    let result = script.runInContext(context, { timeout: 100, displayErrors: false });
 
     if (typeof result !== 'number' || isNaN(result)) {
       return { score: null, label: null, reasoning: `Expression returned non-number: ${result}`, error: null };

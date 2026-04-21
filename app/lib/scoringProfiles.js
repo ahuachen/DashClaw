@@ -8,6 +8,7 @@
  */
 
 import crypto from 'crypto';
+import vm from 'node:vm';
 
 // --- ID Generation ----------------------------------------
 
@@ -191,9 +192,15 @@ function extractRawValue(action, dimension) {
     case 'custom_function': {
       const fn = dimension.data_config?.function_body;
       if (!fn) return null;
+      // Run the org-supplied body in an isolated vm context. The sandbox
+      // exposes only `action` — the outer scope (process, require,
+      // filesystem access) is not reachable from within the script, so
+      // the body cannot exfiltrate env vars or issue arbitrary I/O. A
+      // short timeout prevents accidental or intentional loops.
       try {
-        const func = new Function('action', fn);
-        return func(action);
+        const context = vm.createContext({ action });
+        const script = new vm.Script(`(function(action){${fn}})(action)`);
+        return script.runInContext(context, { timeout: 100, displayErrors: false });
       } catch {
         return null;
       }
