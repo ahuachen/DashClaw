@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getOrgRole } from '../../../../lib/org.js';
 import { getTemplate, updateTemplate, deleteTemplate } from '../../../../lib/prompt.js';
+
+function requireAdmin(request) {
+  if (getOrgRole(request) !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+  return null;
+}
 
 export async function GET(request, { params }) {
   try {
@@ -16,6 +24,8 @@ export async function GET(request, { params }) {
 }
 
 export async function PATCH(request, { params }) {
+  const gate = requireAdmin(request);
+  if (gate) return gate;
   try {
     const { templateId } = await params;
     const body = await request.json();
@@ -31,6 +41,8 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const gate = requireAdmin(request);
+  if (gate) return gate;
   try {
     const { templateId } = await params;
     await deleteTemplate(request, templateId);

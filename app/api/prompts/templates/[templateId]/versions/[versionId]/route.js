@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getOrgRole } from '../../../../../../lib/org.js';
 import { getVersion, activateVersion } from '../../../../../../lib/prompt.js';
 
 export async function GET(request, { params }) {
@@ -16,6 +17,9 @@ export async function GET(request, { params }) {
 }
 
 export async function POST(request, { params }) {
+  if (getOrgRole(request) !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
   try {
     const { versionId } = await params;
     // POST to a version = activate it

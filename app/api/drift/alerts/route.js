@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getOrgRole } from '../../../lib/org.js';
 import { listAlerts, detectDrift, computeBaselines, recordSnapshots } from '../../../lib/drift.js';
 
 export async function GET(request) {
@@ -20,6 +21,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  if (getOrgRole(request) !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
   try {
     const body = await request.json();
     const action = body.action || 'detect';

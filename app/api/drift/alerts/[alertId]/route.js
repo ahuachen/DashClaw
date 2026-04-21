@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
+import { getOrgRole } from '../../../../lib/org.js';
 import { acknowledgeAlert, deleteAlert } from '../../../../lib/drift.js';
 
+function requireAdmin(request) {
+  if (getOrgRole(request) !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+  return null;
+}
+
 export async function PATCH(request, { params }) {
+  const gate = requireAdmin(request);
+  if (gate) return gate;
   try {
     const { alertId } = await params;
     const updated = await acknowledgeAlert(request, alertId);
@@ -14,6 +24,8 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const gate = requireAdmin(request);
+  if (gate) return gate;
   try {
     const { alertId } = await params;
     await deleteAlert(request, alertId);
