@@ -14,7 +14,8 @@ Core beachhead surface. Everything else in v1 serves this.
 
 - [ ] **CCI-01**: A developer can install DashClaw in front of Claude Code and get their first approval event through the dashboard in **under 5 minutes on a fresh machine**. Measured by a recorded end-to-end walkthrough.
 - [ ] **CCI-02**: An opinionated default **coding-agent policy pack** ships with the integration: silently allow safe actions (git commits, git push to non-main branches, reading files, running tests), always block destructive actions (`rm -rf`, mass file deletion outside the repo, force-pushes to main), and require approval for ambiguous ones (network calls, package installs, editing files outside the current project).
-- [ ] **CCI-03**: A developer can receive an approval request in **Discord**, approve or deny it from their phone in **under 10 seconds**, and the coding agent proceeds (or is blocked) accordingly. No browser required for the approval itself.
+- [x] **CCI-03
+**: A developer can receive an approval request in **Discord**, approve or deny it from their phone in **under 10 seconds**, and the coding agent proceeds (or is blocked) accordingly. No browser required for the approval itself.
 - [ ] **CCI-04**: A developer can open DashClaw and see a **readable, human-scale "what did my agent do today/this week" timeline** — commands run, files edited, approvals/denials, errors — not just a raw decision ledger. One glance communicates trust or alarm.
 - [ ] **CCI-05**: Claude Code integration has **complete first-class documentation**: a dedicated page on dashclaw.io, a README section that leads the Getting Started flow, and at least one short screencast showing the install and the first Discord approval. No copy-paste snippets that don't work.
 

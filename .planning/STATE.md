@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 1.5 closed; Phase 2 pending plan authoring
-stopped_at: Phase 01.5 closed (all 3 plans done, BUG-01..04 fixed); Phase 2 context gathered — ready for /gsd-plan-phase 2
-last_updated: "2026-04-22T20:28:49.026Z"
-last_activity: 2026-04-22 -- Phase 01.5 Plan 3 (BUG-04) closed with T4 validation
+status: executing
+stopped_at: "Completed 02-02: Discord approval bridge GREEN (26 tests, full suite 1675 pass, 0 fail)"
+last_updated: "2026-04-22T21:01:05.619Z"
+last_activity: 2026-04-22
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 4
-  percent: 44
+  completed_plans: 5
+  percent: 56
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-04-11)
 
 **Core value:** Your coding agent can never surprise you with a destructive action, and you can always prove what it did.
-**Current focus:** Phase 02 — Claude Code Beachhead (ready for /gsd-plan-phase)
+**Current focus:** Phase 2 — Claude Code Beachhead
 
 ## Current Position
 
-Phase: 02 (Claude Code Beachhead) — READY TO PLAN
-Plan: n/a (02-CONTEXT.md gathered, PLAN.md not yet authored)
-Status: Phase 1.5 closed; Phase 2 pending plan authoring
-Last activity: 2026-04-22 -- Phase 01.5 Plan 3 (BUG-04) closed with T4 validation
+Phase: 2 (Claude Code Beachhead) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-22
 
-Progress: [██████████] 100% (Phase 1.5)
+Progress: [██████░░░░] 56%
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: [██████████] 100% (Phase 1.5)
 
 *Updated after each plan completion*
 | Phase 1.5 P1 | 45 | 5 tasks | 4 files |
+| Phase 02 P02 | 8 | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Full decision log lives in `PROJECT.md` (Key Decisions table). Recent decisions 
 - **2026-04-11 (Discovery)**: Activation bugs (`lucide-react` #71, 502 docs #31, Lief's CSP fixes, Elpolini's migration compat) block launch and must land in Phase 1 before the beachhead work begins.
 - [Phase 1.5]: BUG-01 fallback: require_approval when no LLM key — not fail-open, not fail-closed (2026-04-11)
 - [Phase 1.5]: BUG-02 recording is opportunistic: audit write failure does not prevent exit-2 block enforcement (2026-04-11)
+- Plan 02-02: Use tweetnacl@1.0.3 (not native crypto) for Discord Ed25519 verify — canonical library, avoids raw-key-format ambiguity (2026-04-22)
+- Plan 02-02: Wrap all tweetnacl inputs in Uint8Array.from(Buffer.from(...)) for jsdom/Node cross-realm compat — Rule 1 fix folded into GREEN commit (2026-04-22)
 
 ### Pending Todos
 
@@ -82,8 +85,8 @@ None yet (`.planning/todos/pending/` not initialized).
 
 ## Session Continuity
 
-Last session: 2026-04-22T19:30:00.000Z
-Stopped at: Phase 01.5 closed (all 3 plans done, BUG-01..04 fixed); Phase 2 context gathered — ready for /gsd-plan-phase 2
-Resume file: .planning/phases/02-claude-code-beachhead/02-CONTEXT.md
+Last session: 2026-04-22T21:01:05.613Z
+Stopped at: Completed 02-02: Discord approval bridge GREEN (26 tests, full suite 1675 pass, 0 fail)
+Resume file: None
 
 **Planned Phase:** 2 (Claude Code Beachhead) — 3 plans — 2026-04-22T20:28:49.018Z
