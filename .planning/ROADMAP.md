@@ -57,11 +57,12 @@ Plans:
 8. **A one-off promotion script** (`scripts/promote-founder-to-admin.mjs`) exists so existing users who are incorrectly `role='member'` can be promoted via the script, not a raw SQL query
 9. None of the existing guardrails (`route-sql:check`, `openapi:check`, `api-inventory:check`, `npm test`) regress
 
-**Plans**: 2 plans (sequential waves)
+**Plans**: 3 plans (sequential waves)
 
 Plans:
 - [x] 01.5-01: **Governance runtime bugfix — BUG-01 + BUG-02** *(Wave 1)* — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
 - [ ] 01.5-02: **Founder admin role bugfix — BUG-03** *(Wave 2, depends on 01.5-01)* — diagnose why Wes is `role='member'` on his own instance (top suspect: `3dcb43dc` JWT org-resolution regression), fix the root cause, add `scripts/promote-founder-to-admin.mjs` for existing users, add regression test for first-user-is-admin bootstrap, validate by having Wes visually confirm the READ-ONLY banner is gone and completing a real approval flow. Captures `01.5-BUG03-DIAGNOSIS.md` and `01.5-BUG03-VALIDATION.md`.
+- [ ] 01.5-03: **Hook fail-open bugfix — BUG-04** *(Wave 3, added 2026-04-22 during Phase 2 CONTEXT-gathering)* — `hooks/dashclaw_pretool.py:557-560` silently exits 0 when `/api/guard` is unreachable. Same failure class as BUG-02 (silent governance without audit). Fix: fail closed in enforce mode; write local orphan log (`~/.dashclaw/orphan-actions.jsonl`) in observe mode for backfill on recovery. Add env var `DASHCLAW_GUARD_UNAVAILABLE_POLICY=block|warn|allow` (default `block`). Add regression test: stop guard, run governed command, assert block-with-stderr or local-orphan-record. Captures `01.5-BUG04-DIAGNOSIS.md` and `01.5-BUG04-VALIDATION.md`. Full context: `.planning/todos/pending/todo-003-guard-unavailable-fail-open.md`.
 
 ---
 

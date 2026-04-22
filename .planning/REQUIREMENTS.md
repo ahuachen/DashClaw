@@ -66,6 +66,7 @@ Two stacked bugs caught during a `/gsd-progress` session when DashClaw's own pre
 - [x] **BUG-01**: The `"Secret Exposure Guard"` policy (`gp_178772c27d0f40e69240f82f`) in `POST /api/guard` runs a semantic classification step that is **erroring deterministically** on the hosted DashClaw instance. When it errors, the policy falls back to `decision: "block"` with reason string `"Secret Exposure Guard: Semantic check failed (fallback: block)"`. Root cause must be diagnosed (top suspect: `cd9dbaf5 chore: lazy openai, version env wiring` regression on the hosted Vercel instance, or a missing LLM provider API key), fixed, and verified by re-running the originally blocked command and confirming it no longer deterministic-blocks.
 - [x] **BUG-02**: `hooks/dashclaw_pretool.py:344 handle_block()` **never calls `create_action()`** before exiting with code 2. Every other decision handler (`handle_allow`, `handle_warn`, `handle_require_approval`) records the action. Blocks vanish into stderr with zero audit trail — directly contradicting *"audit-ready decision trails"*. Fix: record the blocked action via `create_action(context, status="blocked")` at the top of `handle_block`, ensure the server accepts `"blocked"` as a valid action status (extend enum if necessary), and verify the block appears in the decisions ledger at `/decisions` after firing. Also add a regression test on the block-audit path.
 - [ ] **BUG-03**: The founder is viewing his own DashClaw instance as `role='member'` instead of `role='admin'`. The `/approvals` page shows a *"READ-ONLY ACCESS — You are currently viewing as a member"* banner. Even if approvals existed, the founder could not approve them from his own UI. Top suspected root cause: `3dcb43dc`'s JWT org-resolution change (Lief LAN/CSP port in Plan 01-01). Fix: diagnose the exact root cause (DB default, bootstrap flow, org mismatch, or `3dcb43dc` regression), apply the minimal fix (preserving the LAN-HTTP cookie intent from `3dcb43dc` if it's the cause), add a one-off `scripts/promote-founder-to-admin.mjs` script so existing misassigned users can be promoted without raw SQL, and add a regression test verifying that the first user of a fresh DashClaw instance is auto-created with `role='admin'`. Validation requires Wes to visually confirm the banner is gone and complete a real approval flow.
+- [ ] **BUG-04** *(ADDED 2026-04-22)*: `hooks/dashclaw_pretool.py:557-560` silently exits 0 when `/api/guard` is unreachable, with the single stderr line `"[DashClaw] Guard unavailable, proceeding"`. This is structurally the same failure class as BUG-02 (silent governance decision without audit): every tool call during any guard outage proceeds unaudited, directly contradicting *"your coding agent can never surprise you with a destructive action, and you can always prove what it did."* Surfaced 2026-04-22 during a diagnosis session where the hook was mis-routed to a local `dashclaw-demo` Docker container via a stale `DASHCLAW_BASE_URL` env var (`http://localhost:3000` overriding the `.env` value pointing at the real instance). Fix: in enforce mode, fail closed (block) when guard is unreachable; in observe mode, write the action to a local orphan log (`~/.dashclaw/orphan-actions.jsonl`) that can be backfilled on recovery — never lose the audit record. Add env var `DASHCLAW_GUARD_UNAVAILABLE_POLICY=block|warn|allow` with default `block`. Add regression test in `hooks/tests/` that stops guard, runs a governed command, and asserts either block-with-stderr or local-orphan-record. Acceptance: hook never silently exits 0 when `/api/guard` is unreachable in enforce mode; orphan log captures actions during network outage. Blocks Phase 2 launch alongside BUG-01/02/03 — the same audit-trail promise that BUG-02 restored on the *block* path must hold on the *outage* path. Full context: `.planning/todos/pending/todo-003-guard-unavailable-fail-open.md`.
 
 ---
 
@@ -136,6 +137,7 @@ Mapped against `.planning/ROADMAP.md` phases.
 | BUG-01 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-01) | Complete |
 | BUG-02 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-01) | Complete |
 | BUG-03 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-02) | Pending |
+| BUG-04 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-03, new) | Pending |
 | CCI-01 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-02 | Phase 2 — Claude Code Beachhead | Pending |
 | CCI-03 | Phase 2 — Claude Code Beachhead | Pending |
@@ -151,10 +153,10 @@ Mapped against `.planning/ROADMAP.md` phases.
 | FLY-03 | Phase 4 — Growth Flywheel | Pending |
 
 **Coverage:**
-- v1 requirements: 24 total (21 original + 3 added in Phase 1.5 insertion)
-- Mapped to phases: 24
+- v1 requirements: 25 total (21 original + 3 added in Phase 1.5 insertion + 1 added 2026-04-22)
+- Mapped to phases: 25
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-11 after live dogfood bug discovery (added BUG-01, BUG-02, BUG-03, Phase 1.5 insertion with 2 plans)*
+*Last updated: 2026-04-22 added BUG-04 (hook fail-open on guard unavailable) — structurally same failure class as BUG-02; discovered during Phase 2 CONTEXT-gathering session*
