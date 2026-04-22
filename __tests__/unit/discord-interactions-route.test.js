@@ -9,10 +9,13 @@ const KEYPAIR = nacl.sign.keyPair();
 const DISCORD_PUBLIC_KEY_HEX = Buffer.from(KEYPAIR.publicKey).toString('hex');
 
 function signDiscord(timestamp, rawBody) {
-  const sig = nacl.sign.detached(
-    Buffer.from(timestamp + rawBody),
-    KEYPAIR.secretKey,
-  );
+  // tweetnacl's checkArrayTypes is `instanceof Uint8Array` — under jsdom the
+  // `Uint8Array` from `TextEncoder().encode(...)` and from Node's `Buffer`
+  // does NOT satisfy `instanceof Uint8Array` because jsdom installs its own
+  // constructor. `Uint8Array.from(...)` forces the current realm's global.
+  const msg = Uint8Array.from(new TextEncoder().encode(timestamp + rawBody));
+  const sk = Uint8Array.from(KEYPAIR.secretKey);
+  const sig = nacl.sign.detached(msg, sk);
   return Buffer.from(sig).toString('hex');
 }
 
@@ -56,7 +59,9 @@ function signedRequest(bodyObj, { skipSig = false, badSig = false, skewSec = 0, 
   const rawBody = JSON.stringify(bodyObj);
   const ts = String(Math.floor(Date.now() / 1000) + skewSec);
   let sig;
-  if (badSig) {
+  if (skipSig) {
+    sig = null; // not used — headers omitted below
+  } else if (badSig) {
     sig = '00'.repeat(64);
   } else {
     sig = signDiscord(ts, rawBody);

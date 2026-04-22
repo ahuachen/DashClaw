@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:7a0e5d7b1d45f7bad9643c1c77358d9f3123210a",
+  "timestamp": "sha1:b3614987b5d9888ec6e99984912438ec78c239ed",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1065,6 +1065,15 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/cron/signals/route.js"
+    },
+    {
+      "path": "/api/discord/interactions",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/discord/interactions/route.js"
     },
     {
       "path": "/api/docs/raw",
@@ -2487,6 +2496,15 @@
       "in_env_example": false
     },
     {
+      "name": "DASHCLAW_ALERTS_DISCORD",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-approvals.test.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "DASHCLAW_ALERTS_TELEGRAM",
       "required": false,
       "files": [
@@ -2855,6 +2873,45 @@
         "app/lib/validateEnv.js",
         "graphify-pilot/app/lib/guard.js",
         "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_APPROVER_ORG_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_APPROVER_USER_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-approvals.test.js",
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-approvals.test.js",
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_PUBLIC_KEY",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js"
       ],
       "in_env_example": false
     },

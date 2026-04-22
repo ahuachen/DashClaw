@@ -14,6 +14,7 @@ import { generateActionEmbedding, isEmbeddingsEnabled } from '../../lib/embeddin
 import { evaluateGuard } from '../../lib/guard.js';
 import { fireActionAlert } from '../../lib/actionAlerts.js';
 import { fireTelegramApproval } from '../../lib/telegramApprovals.js';
+import { fireDiscordApproval } from '../../lib/discordApprovals.js';
 import { fireWebhooksForApproval } from '../../lib/webhooks.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import { upsertAgentPresence } from '../../lib/repositories/agents.repository.js';
@@ -325,6 +326,7 @@ export async function POST(request) {
 
     if (createdAction.status === 'pending_approval') {
       after(() => fireTelegramApproval(createdAction, sql, orgId));
+      after(() => fireDiscordApproval(createdAction, sql, orgId));
       after(() => fireWebhooksForApproval(orgId, 'approval_pending', {
         ...createdAction,
         matched_policies: guardDecision?.matched_policies,

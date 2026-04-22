@@ -33,6 +33,7 @@ const PUBLIC_ROUTES = [
   '/api/auth',
   '/api/cron',
   '/api/telegram/webhook',  // auth: x-telegram-bot-api-secret-token + chat-id allowlist (in route)
+  '/api/discord/interactions',  // auth: Ed25519 signature + user_id allowlist (in route)
   // Public read-only content endpoints
   '/api/docs/raw',
   '/api/prompts',

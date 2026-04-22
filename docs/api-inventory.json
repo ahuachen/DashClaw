@@ -46,10 +46,10 @@
     ]
   },
   "summary": {
-    "total_routes": 226,
+    "total_routes": 227,
     "stable_routes": 41,
     "beta_routes": 20,
-    "experimental_routes": 165
+    "experimental_routes": 166
   },
   "routes": [
     {
@@ -1040,6 +1040,15 @@
       "maturity": "beta",
       "matched_prefix": "/api/cron",
       "file": "app/api/cron/signals/route.js"
+    },
+    {
+      "path": "/api/discord/interactions",
+      "methods": [
+        "POST"
+      ],
+      "maturity": "experimental",
+      "matched_prefix": "(default)",
+      "file": "app/api/discord/interactions/route.js"
     },
     {
       "path": "/api/docs/raw",

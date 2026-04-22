@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:7a0e5d7b1d45f7bad9643c1c77358d9f3123210a`
+**Shape snapshot:** `sha1:b3614987b5d9888ec6e99984912438ec78c239ed`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -29,8 +29,8 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 ## At a Glance
 
-- **179** active API routes across **46** categories
-- **4** required + **113** optional environment variables
+- **180** active API routes across **47** categories
+- **4** required + **118** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -127,6 +127,10 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 - `GET` `/api/cron/reset-meters`
 - `POST` `/api/cron/routing-maintenance`
 - `GET` `/api/cron/signals`
+
+### `discord`
+
+- `POST` `/api/discord/interactions`
 
 ### `docs`
 
@@ -383,6 +387,7 @@ These have fallbacks or only activate specific features.
 - `CONVERGENCE_VERBOSE` *(undocumented)*
 - `CRON_SECRET` *(undocumented)*
 - `DASHCLAW_AGENT_ID` *(undocumented)*
+- `DASHCLAW_ALERTS_DISCORD` *(undocumented)*
 - `DASHCLAW_ALERTS_TELEGRAM` *(undocumented)*
 - `DASHCLAW_API_KEY_ORG` *(undocumented)*
 - `DASHCLAW_BASE_URL` *(undocumented)*
@@ -399,6 +404,10 @@ These have fallbacks or only activate specific features.
 - `DASHCLAW_RATE_LIMIT_WINDOW_MS` *(undocumented)*
 - `DASHCLAW_URL` *(undocumented)*
 - `DISABLE_PROMPT_INJECTION_SCAN` *(undocumented)*
+- `DISCORD_APPROVER_ORG_ID` *(undocumented)*
+- `DISCORD_APPROVER_USER_ID` *(undocumented)*
+- `DISCORD_BOT_TOKEN` *(undocumented)*
+- `DISCORD_PUBLIC_KEY` *(undocumented)*
 - `ENFORCE_AGENT_SIGNATURES` *(undocumented)*
 - `GITHUB_CLIENT_ID` *(undocumented)*
 - `GITHUB_CLIENT_SECRET` *(undocumented)*
