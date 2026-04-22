@@ -12,14 +12,14 @@
 
 Core beachhead surface. Everything else in v1 serves this.
 
-- [ ] **CCI-01**: A developer can install DashClaw in front of Claude Code and get their first approval event through the dashboard in **under 5 minutes on a fresh machine**. Measured by a recorded end-to-end walkthrough.
-- [ ] **CCI-02**: An opinionated default **coding-agent policy pack** ships with the integration: silently allow safe actions (git commits, git push to non-main branches, reading files, running tests), always block destructive actions (`rm -rf`, mass file deletion outside the repo, force-pushes to main), and require approval for ambiguous ones (network calls, package installs, editing files outside the current project).
+- [ ] **CCI-01** *(partial — walkthrough deferred)*: A developer can install DashClaw in front of Claude Code and get their first approval event through the dashboard in **under 5 minutes on a fresh machine**. Measured by a recorded end-to-end walkthrough. *Close status: the integration path exists and is functional end-to-end, but the recorded ≤5:00 Windows/WSL walkthrough artifact has not yet been produced — see `.planning/phases/02-claude-code-beachhead/02-01-SUMMARY.md` section 2 for close preconditions.*
+- [x] **CCI-02
+**: An opinionated default **coding-agent policy pack** ships with the integration: silently allow safe actions (git commits, git push to non-main branches, reading files, running tests), always block destructive actions (`rm -rf`, mass file deletion outside the repo, force-pushes to main), and require approval for ambiguous ones (network calls, package installs, editing files outside the current project).
 - [x] **CCI-03
 **: A developer can receive an approval request in **Discord**, approve or deny it from their phone in **under 10 seconds**, and the coding agent proceeds (or is blocked) accordingly. No browser required for the approval itself.
 - [x] **CCI-04
 **: A developer can open DashClaw and see a **readable, human-scale "what did my agent do today/this week" timeline** — commands run, files edited, approvals/denials, errors — not just a raw decision ledger. One glance communicates trust or alarm.
-- [x] **CCI-05
-**: Claude Code integration has **complete first-class documentation**: a dedicated page on dashclaw.io, a README section that leads the Getting Started flow, and at least one short screencast showing the install and the first Discord approval. No copy-paste snippets that don't work.
+- [ ] **CCI-05** *(partial — screencast URL backfill deferred)*: Claude Code integration has **complete first-class documentation**: a dedicated page on dashclaw.io, a README section that leads the Getting Started flow, and at least one short screencast showing the install and the first Discord approval. No copy-paste snippets that don't work. *Close status: docs (`/guides/claude-code`), README Claude-Code-first lead, and 806-word homepage draft all shipped in 02-03. The ≤3-minute screencast itself has not been recorded; 4 `<SCREENCAST_URL>` placeholders remain in README.md and app/guides/claude-code/page.js — see `.planning/phases/02-claude-code-beachhead/02-01-SUMMARY.md` section 3 for backfill procedure.*
 
 ### Public Dogfood (DOG)
 
@@ -141,11 +141,11 @@ Mapped against `.planning/ROADMAP.md` phases.
 | BUG-02 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-01) | Complete |
 | BUG-03 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-02) | Pending |
 | BUG-04 | Phase 1.5 — Governance Runtime Bugfix (Plan 01.5-03, new) | Pending |
-| CCI-01 | Phase 2 — Claude Code Beachhead | Pending |
-| CCI-02 | Phase 2 — Claude Code Beachhead | Pending |
-| CCI-03 | Phase 2 — Claude Code Beachhead | Pending |
-| CCI-04 | Phase 2 — Claude Code Beachhead | Pending |
-| CCI-05 | Phase 2 — Claude Code Beachhead | Pending |
+| CCI-01 | Phase 2 — Claude Code Beachhead (Plan 02-01) | Partial — walkthrough deferred (see Open Gaps) |
+| CCI-02 | Phase 2 — Claude Code Beachhead (Plan 02-01) | Complete |
+| CCI-03 | Phase 2 — Claude Code Beachhead (Plan 02-02) | Complete |
+| CCI-04 | Phase 2 — Claude Code Beachhead (Plan 02-03) | Complete |
+| CCI-05 | Phase 2 — Claude Code Beachhead (Plan 02-03 + 02-01) | Partial — screencast URL backfill deferred (see Open Gaps) |
 | DOG-02 | Phase 3 — Public Launch | Pending |
 | DOG-03 | Phase 3 — Public Launch | Pending |
 | DOG-04 | Phase 3 — Public Launch | Pending |
@@ -161,5 +161,16 @@ Mapped against `.planning/ROADMAP.md` phases.
 - Unmapped: 0 ✓
 
 ---
+
+## Open Gaps
+
+Requirements in a **partial** close state at end of their nominal phase. Each has the core deliverable shipped but a follow-up artifact pending. Tracked so Phase 3 (or an ad-hoc closure plan via `/gsd-plan-milestone-gaps`) can pick them up without rediscovery.
+
+| Gap | Phase | Plan that left it open | Reason | Close path |
+|---|---|---|---|---|
+| CCI-01 (walkthrough recording) | Phase 2 | 02-01 | Operator deferred Task 2 human-action checkpoint with resume-signal `skip recording for now, ship placeholder`; Discord bot not yet registered and `.env.local` has zero `DISCORD_*` entries on the recording-target machine | (1) Register Discord bot + populate 5 env vars; (2) record ≤5:00 Windows/WSL walkthrough per recipe in `02-01-PLAN.md` Task 2 `<what-built>` block; (3) publish Loom public or YouTube Unlisted; (4) note URL + wall-clock + phone-to-resolution time; see `02-01-SUMMARY.md` section 5 for full runbook |
+| CCI-05 (screencast URL backfill) | Phase 2 | 02-01 | Cannot backfill without a recorded walkthrough; skipped per the same resume-signal as CCI-01 | Same as CCI-01; after recording, run the 6-step backfill procedure in `02-01-SUMMARY.md` section 3 — replaces 4 placeholders (3 raw + 1 HTML-entity-encoded) across README.md lines 8+19 and app/guides/claude-code/page.js lines 104+249, then commit `docs(02): backfill CCI-05 screencast URL after walkthrough recording` |
+
+---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-22 added BUG-04 (hook fail-open on guard unavailable) — structurally same failure class as BUG-02; discovered during Phase 2 CONTEXT-gathering session*
+*Last updated: 2026-04-22 — Plan 02-01 deferred close: CCI-02 Complete, CCI-03/CCI-04 traceability-table sweep (lagging from 02-02/02-03 closes), CCI-01/CCI-05 marked Partial with Open Gaps section added*

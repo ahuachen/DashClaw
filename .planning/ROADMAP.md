@@ -8,7 +8,7 @@ Four coarse phases take DashClaw from *"207 stars, ~4 real users, no clear audie
 
 - [ ] **Phase 1: Foundation** — Fix activation bugs, run first-ever user interviews, commit to personal dogfood
 - [ ] **Phase 1.5: Governance Runtime Bugfix** *(INSERTED 2026-04-11)* — Fix two bugs caught during live dogfood: `handle_block` has no audit trail (BUG-02) and `/api/guard` semantic check is deterministic-falling-back to block (BUG-01). Blocks Phase 2 launch
-- [ ] **Phase 2: Claude Code Beachhead** — Ship the 5-minute install-to-first-approval integration
+- [x] **Phase 2: Claude Code Beachhead** — Ship the 5-minute install-to-first-approval integration (completed 2026-04-22 — CCI-01 walkthrough + CCI-05 URL backfill deferred as open gaps)
 - [ ] **Phase 3: Public Launch** — Flagship demo, homepage rewrite, launch content, monetization trigger
 - [ ] **Phase 4: Growth Flywheel** — DashClaw-governed agents doing research + content, publicly visible
 
@@ -83,7 +83,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — **CCI-02 no-regression gate + CCI-01 recorded walkthrough (Wave 2, depends on 02-02 + 02-03)**. Foundation pieces (hook, starter policy pack, MCP tool, guides v1) shipped 2026-04-21; plan 02-01 is the end-of-phase validation: hold CCI-02 (starter pack 9/9 tests) + full suite green, then record the ≤5:00 Windows/WSL walkthrough with a live Discord approval, backfill the published screencast URL into the README + guide. (CCI-01, CCI-02)
+- [x] 02-01-PLAN.md — **CCI-02 no-regression gate + CCI-01 recorded walkthrough (Wave 2, depends on 02-02 + 02-03)** ✓ Closed 2026-04-22 (deferred state). CCI-02 no-regression gate held at `d3e96819` (1690 pass / 5 skip / 0 fail, starter pack 9/9, guardrails clean). CCI-01 walkthrough recording + CCI-05 screencast URL backfill deferred at Task 2 human-action checkpoint per operator resume-signal `skip recording for now, ship placeholder` — both recorded as open gaps in `02-01-SUMMARY.md` with close preconditions + 6-step backfill procedure. (CCI-02 closed; CCI-01 + CCI-05 partial)
 - [x] 02-02-PLAN.md — **Discord approval flow (Wave 1)** ✓ Shipped 2026-04-22 (CCI-03). `/api/discord/interactions` + `fireDiscordApproval` + middleware allowlist + .env.example block + actions-route wiring all green; 26 Discord unit tests pass; full suite 1675 pass / 0 fail. Rule 1 fix folded in for jsdom Uint8Array cross-realm compat.
 - [x] 02-03-PLAN.md — **Activity timeline + /my-agent + docs bundle (Wave 1, parallel with 02-02)** ✓ Shipped 2026-04-22 (CCI-04, CCI-05). `/activity` day-grouping `useMemo` layer + new `app/my-agent/page.jsx` narrative page (today/week toggle, pinned denials, install-prompt empty state, realtime via `useRealtime`); `/guides/claude-code` Discord Developer Portal walkthrough + screencast placeholder; README.md Claude-Code-first lead with D-17 GIF click-through (anchor-wrapped demo-gif2); `docs/homepage-draft-claude-code.md` Phase 3 handoff (806 words); `scripts/check-readme-lead.mjs` CI gate (exits 0). 15 new unit tests green; full suite 1690 pass / 5 skip / 0 fail. Week-scope fixture Rule 1 fix folded in.
 
@@ -141,7 +141,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
 | 1.5. Governance Runtime Bugfix *(INSERTED)* | 1/2 | In Progress|  |
-| 2. Claude Code Beachhead | 0/3 | Not started | - |
+| 2. Claude Code Beachhead | 3/3 | Complete    | 2026-04-22 |
 | 3. Public Launch | 0/3 | Not started | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |
 
