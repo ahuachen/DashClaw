@@ -204,6 +204,12 @@ The following were deliberately not locked — downstream agents may choose reas
 - **Demo-mode preview on `/my-agent`**: Fake data with "this is what it'll look like" banner. Rejected — violates "evidence over decoration" from `.impeccable.md` and confuses first-time users.
 - **UI setup flow at `/setup/integrations/discord`**: Paste-token wizard. Deferred — Phase 2 is ENV-only mirroring Telegram.
 
+### Surfaced during 2026-04-22 diagnosis session
+
+- **[todo-001] Hook warns at startup if BASE_URL points to demo-mode instance** (`.planning/todos/pending/todo-001-hook-warns-on-demo-mode.md`). A stale `DASHCLAW_BASE_URL=http://localhost:3000` silently redirected real Claude Code traffic to a demo Docker container; block came back with `"Demo Production Guard"` which looked like a real policy. 30 min lost. Fix: `/api/health` check at hook start, stderr warning if `mode: demo`. Candidate for inclusion in Plan 02-02's hook touches.
+- **[todo-002] Rename hardcoded "Demo Production Guard" to signal sandbox origin** (`.planning/todos/pending/todo-002-demo-guard-policy-name-clarity.md`). `demoMiddleware.js:624` catch-all block uses a policy name indistinguishable from real policies. Low-severity clarity fix.
+- **[todo-003] Hook fails open on guard unavailable — same bug class as BUG-02** (`.planning/todos/pending/todo-003-guard-unavailable-fail-open.md`). **HIGH severity.** `dashclaw_pretool.py:557-560` silently exits 0 with no audit when `/api/guard` is unreachable, violating "always prove what it did." Candidate for REQUIREMENTS.md as BUG-04; may block Phase 2 launch same way BUG-02 did.
+
 </deferred>
 
 ---
