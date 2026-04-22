@@ -17,29 +17,31 @@ function getCookieValue(cookieHeader, key) {
 async function getNextAuthViewer(cookieHeader, env) {
   if (!env.NEXTAUTH_SECRET) return null;
 
-  try {
-    // getToken infers secureCookie from req.url / x-forwarded-proto; we
-    // pass a cookies-only shim (no URL), so it defaults to the non-secure
-    // cookie name and misses `__Secure-next-auth.session-token` on HTTPS.
-    // Derive the flag from NEXTAUTH_URL so /api/session/effective returns
-    // the viewer's real role on Vercel instead of {role: null}.
-    const secureCookie = String(env.NEXTAUTH_URL || '').startsWith('https://');
-    const token = await getToken({
-      req: { headers: { cookie: cookieHeader || '' } },
-      secret: env.NEXTAUTH_SECRET,
-      secureCookie,
-    });
-
-    if (!token) return null;
-
-    return {
-      isAuthenticated: true,
-      authType: 'nextauth',
-      session: token,
-    };
-  } catch {
-    return null;
+  // getToken infers secureCookie from req.url / x-forwarded-proto; we pass a
+  // cookies-only shim (no URL), so it defaults to the non-secure cookie name
+  // and misses `__Secure-next-auth.session-token` on HTTPS. Try the secure
+  // name first (Vercel / any HTTPS deploy), then fall back to the plain name
+  // (local http dev) so we cover both without depending on NEXTAUTH_URL.
+  const req = { headers: { cookie: cookieHeader || '' } };
+  for (const secureCookie of [true, false]) {
+    try {
+      const token = await getToken({
+        req,
+        secret: env.NEXTAUTH_SECRET,
+        secureCookie,
+      });
+      if (token) {
+        return {
+          isAuthenticated: true,
+          authType: 'nextauth',
+          session: token,
+        };
+      }
+    } catch {
+      // try the other name
+    }
   }
+  return null;
 }
 
 async function getLocalViewer(cookieHeader, env) {
