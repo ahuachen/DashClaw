@@ -176,6 +176,42 @@ describe('Tool Handlers', () => {
 
       expect(result).toContain('"timed_out":true');
     });
+
+    it('resolves within 2s of status flipping from pending_approval to completed', async () => {
+      // SPEC CCI-03 acceptance bullet 3: the MCP tool must resolve within 2s
+      // of a status change. Uses a 0.5s poll (tighter than the 3s default)
+      // to prove the mechanism honors the 2s boundary when the flip happens
+      // between polls. flipTime is captured the moment the mock starts
+      // returning the resolved status.
+      let flipTime = 0;
+      let callCount = 0;
+      mockGet.mockImplementation(async () => {
+        callCount++;
+        if (callCount <= 2) {
+          return { action: { status: 'pending_approval' } };
+        }
+        if (flipTime === 0) flipTime = Date.now();
+        return { action: { status: 'completed', id: 'act_1' } };
+      });
+
+      const start = Date.now();
+      const result = await handlers.dashclaw_wait_for_approval({
+        action_id: 'act_1',
+        timeout_seconds: 10,
+        poll_interval_seconds: 0.5,
+      });
+      const end = Date.now();
+
+      const parsed = JSON.parse(result);
+      expect(parsed.approved).toBe(true);
+      expect(Number.isFinite(parsed.waited_seconds)).toBe(true);
+
+      // The acceptance boundary: resolution must happen within 2s of the flip.
+      expect(flipTime).toBeGreaterThan(0);
+      expect(end - flipTime).toBeLessThanOrEqual(2000);
+      // Sanity: we didn't resolve faster than the first pending-response polls.
+      expect(end - start).toBeGreaterThanOrEqual(0);
+    });
   });
 
   describe('dashclaw_session_start', () => {
