@@ -83,9 +83,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: **Claude Code integration core + default policy pack** — the install path, the bridging layer that intercepts Claude Code commands, the opinionated policy defaults for coding agents. (CCI-01, CCI-02)
-- [ ] 02-02: **Discord remote approval flow (mobile-first)** — the <10-second phone approval loop, tested end-to-end. (CCI-03)
-- [ ] 02-03: **Agent activity timeline UI + integration docs** — the human-readable "what did my agent do" view on the dashboard, plus the full doc bundle (dashclaw.io page, README rewrite, screencast). (CCI-04, CCI-05)
+- [ ] 02-01-PLAN.md — **CCI-02 no-regression gate + CCI-01 recorded walkthrough (Wave 2, depends on 02-02 + 02-03)**. Foundation pieces (hook, starter policy pack, MCP tool, guides v1) shipped 2026-04-21; plan 02-01 is the end-of-phase validation: hold CCI-02 (starter pack 9/9 tests) + full suite green, then record the ≤5:00 Windows/WSL walkthrough with a live Discord approval, backfill the published screencast URL into the README + guide. (CCI-01, CCI-02)
+- [ ] 02-02-PLAN.md — **Discord approval flow (Wave 1)**. Mechanical 1:1 port of `/api/telegram/webhook` to new `/api/discord/interactions` (Ed25519 verify via tweetnacl, PING handshake, MESSAGE_COMPONENT button handler) + new `fireDiscordApproval` emitter (DM with embed + Approve/Deny buttons, edit-in-place on resolve) + `middleware.js` PUBLIC_ROUTES entry + `.env.example` Discord block + wire into `app/api/actions/route.js` via `after()`. STRIDE threats T-02-02-01..07 mitigated. (CCI-03)
+- [ ] 02-03-PLAN.md — **Activity timeline + /my-agent + docs bundle (Wave 1, parallel with 02-02)**. `/activity` day-grouping `useMemo` layer (presentational only, zero schema change), new `app/my-agent/page.js` narrative page (today/week toggle, pinned denials, install-prompt empty state, realtime via `useRealtime`), `/guides/claude-code` rewrite with Discord Developer Portal walkthrough, README "Govern Claude Code in 5 minutes" lead, `docs/homepage-draft-claude-code.md` Phase 3 handoff copy (≥200 words), `scripts/check-readme-lead.mjs` CI gate. (CCI-04, CCI-05)
 
 ---
 
