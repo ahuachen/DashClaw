@@ -125,7 +125,7 @@ describe('MyAgentPage — /my-agent render states', () => {
 
   it('renders the install-prompt hero for a zero-activity user (D-10)', async () => {
     global.fetch = stubFetch({ actions: [], evaluations: [] });
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     render(<MyAgentPage />);
 
     await waitFor(() => {
@@ -144,7 +144,7 @@ describe('MyAgentPage — /my-agent render states', () => {
       makeAction({ status: 'completed', timestamp_start: new Date().toISOString() }),
     ];
     global.fetch = stubFetch({ actions, evaluations: [] });
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     render(<MyAgentPage />);
 
     await waitFor(() => {
@@ -155,20 +155,24 @@ describe('MyAgentPage — /my-agent render states', () => {
 
   it('renders correctly at 50+ events and respects the toggle re-filter', async () => {
     const now = Date.now();
-    // 30 approvals within the last day, 25 in the prior 6 days (week only)
+    const DAY = 24 * 60 * 60 * 1000;
+    // 30 approvals within the last day (today scope)
     const todayActions = Array.from({ length: 30 }, (_, i) =>
       makeAction({ status: 'completed', timestamp_start: new Date(now - i * 60 * 1000).toISOString() })
     );
+    // 25 approvals scattered across the prior 6 days (days 2–6), still within week
     const weekOnlyActions = Array.from({ length: 25 }, (_, i) =>
       makeAction({
         status: 'completed',
-        timestamp_start: new Date(now - (2 + i) * 24 * 60 * 60 * 1000).toISOString(),
+        // Spread across hours so none collide with the today cutoff, staying
+        // strictly inside the week window (t > now - 7*DAY).
+        timestamp_start: new Date(now - (1.5 * DAY + i * 2 * 60 * 60 * 1000)).toISOString(),
       })
     );
     const actions = [...todayActions, ...weekOnlyActions];
 
     global.fetch = stubFetch({ actions, evaluations: [] });
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     render(<MyAgentPage />);
 
     // Today scope first
@@ -190,7 +194,7 @@ describe('MyAgentPage — /my-agent render states', () => {
     const fetchMock = stubFetch({ actions: [makeAction()], evaluations: [] });
     global.fetch = fetchMock;
 
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     render(<MyAgentPage />);
 
     await waitForFetches(fetchMock);
@@ -229,7 +233,7 @@ describe('MyAgentPage — /my-agent render states', () => {
     ];
 
     global.fetch = stubFetch({ actions: approvals, evaluations: denials });
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     const { container } = render(<MyAgentPage />);
 
     await waitFor(() => {
@@ -251,7 +255,7 @@ describe('MyAgentPage — /my-agent render states', () => {
     const fetchMock = stubFetch({ actions: [makeAction()], evaluations: [] });
     global.fetch = fetchMock;
 
-    const { default: MyAgentPage } = await import('../../app/my-agent/page.js');
+    const { default: MyAgentPage } = await import('../../app/my-agent/page.jsx');
     render(<MyAgentPage />);
 
     await waitForFetches(fetchMock);
