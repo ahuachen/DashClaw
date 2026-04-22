@@ -66,12 +66,16 @@ export function demoListActions(fixtures, url) {
 }
 
 export function demoCreateAction(fixtures, body) {
-  const action_id = body.action_id || `act_sim_${Math.random().toString(36).slice(2, 10)}`;
-
   // Use a high-impact blocked story for simulator bot
   const isSimulator = body.agent_id === 'simulator-bot';
   const isDemoAgent = body.agent_id === 'openai-deployer-1';
   const isPipelineAgent = body.agent_id === 'pipeline-agent';
+
+  // ID prefix encodes the demo story so demoActionDetail can reconstruct it
+  // on replay without relying on fixture mutation (fixtures are rebuilt fresh
+  // per-request, so fixtures.actions.unshift() from this call won't survive).
+  const defaultPrefix = isPipelineAgent ? 'act_pipe_' : 'act_sim_';
+  const action_id = body.action_id || `${defaultPrefix}${Math.random().toString(36).slice(2, 10)}`;
 
   const now = new Date().toISOString();
   const action = {
@@ -239,6 +243,40 @@ export function demoActionDetail(fixtures, actionId) {
     }
 
     return { action: dynamicAction, open_loops, assumptions, decision, decision_reason };
+  }
+
+  if (actionId.startsWith('act_pipe_')) {
+    const now = new Date().toISOString();
+    return {
+      action: {
+        action_id: actionId,
+        org_id: 'org_demo',
+        agent_id: 'pipeline-agent',
+        agent_name: 'Pipeline Agent',
+        action_type: 'cleanup',
+        declared_goal: 'Purge customer records from production database',
+        reasoning: 'Automated data retention policy enforcement — purging expired customer records.',
+        status: 'blocked',
+        risk_score: 94,
+        confidence: 100,
+        reversible: 0,
+        systems_touched: '["postgres-prod", "customer-data", "s3-backups"]',
+        error_message: 'Blocked by policy: PRODUCTION_DATA_PROTECTION — irreversible operation on customer data',
+        output_summary: 'Blocked by policy PRODUCTION_DATA_PROTECTION. Irreversible operation on customer data requires explicit approval.',
+        timestamp_start: now,
+        timestamp_end: now,
+        duration_ms: 180,
+        cost_estimate: 0,
+        verified: true,
+      },
+      open_loops: [],
+      assumptions: [
+        { assumption_id: 'asm_pipe_1', action_id: actionId, assumption: 'Records flagged as expired are eligible for deletion', basis: 'Retention policy engine', validated: 0 },
+        { assumption_id: 'asm_pipe_2', action_id: actionId, assumption: 'No active legal holds on target records', basis: 'Compliance system check', validated: 0 },
+      ],
+      decision: 'block',
+      decision_reason: 'Risk score 94 exceeds org threshold of 75. Policy PRODUCTION_DATA_PROTECTION enforced — irreversible operations on customer data require explicit approval.',
+    };
   }
 
   if (actionId.startsWith('act_sim_')) {
@@ -512,6 +550,29 @@ export function demoGuard(fixtures, url) {
       total: 1,
       stats: { total: 1, blocks: 0, permits: 1 },
       lastUpdated: new Date().toISOString()
+    };
+  }
+
+  if (agentId === 'pipeline-agent') {
+    const now = new Date().toISOString();
+    const decision = {
+      id: 'gd_pipe_1',
+      agent_id: 'pipeline-agent',
+      agent_name: 'Pipeline Agent',
+      action_type: 'cleanup',
+      decision: 'block',
+      risk_score: 94,
+      reason: 'Risk score 94 exceeds org threshold of 75. Irreversible operations on customer data require explicit approval.',
+      matched_policies: '["PRODUCTION_DATA_PROTECTION"]',
+      created_at: now,
+      signals: [],
+    };
+    return {
+      decisions: [decision],
+      evaluations: [decision],
+      total: 1,
+      stats: { total: 1, blocks: 1, permits: 0 },
+      lastUpdated: now,
     };
   }
 
