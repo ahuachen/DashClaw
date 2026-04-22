@@ -25,6 +25,12 @@ releases only ship client changes, platform releases can ship anything.
 Plugin and tooling entries (e.g. `@dashclaw/openclaw-plugin`, `@dashclaw/cli`)
 are prefixed with the package name.
 
+## [Unreleased]
+
+### Fixed
+
+- **BUG-04 (Hook audit-trail gap on guard outage)**: `dashclaw_pretool.py` no longer silently exits 0 when `/api/guard` is unreachable. In enforce mode (default), the hook now blocks the tool (exit 2). In observe mode, it proceeds but logs the action to `~/.dashclaw/orphan-actions.jsonl` so the audit record is recoverable on guard recovery. New env var `DASHCLAW_GUARD_UNAVAILABLE_POLICY=block|warn|allow` (default `block`) governs enforce-mode behavior. Structurally same failure class as BUG-02 — both are silent governance without audit.
+
 ## [2.13.3] - 2026-04-21 — Parallel-Reviewer Round
 
 A five-agent parallel review over axes the earlier sweeps hadn't touched
