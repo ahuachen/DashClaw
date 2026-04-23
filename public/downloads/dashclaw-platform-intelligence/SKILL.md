@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:5563ac73b0308ad10e45993463abd14b2645d6ca`
+**Shape snapshot:** `sha1:98ebcae770ee25c509bfb5d131b4fdb95efd681b`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -30,7 +30,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 ## At a Glance
 
 - **181** active API routes across **48** categories
-- **4** required + **118** optional environment variables
+- **4** required + **119** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -364,7 +364,7 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 These must be set — DashClaw will fail to start without them.
 
-- **`DASHCLAW_API_KEY`** - referenced in 70 file(s)
+- **`DASHCLAW_API_KEY`** - referenced in 71 file(s)
 - **`DATABASE_URL`** - referenced in 83 file(s)
 - **`ENCRYPTION_KEY`** - referenced in 8 file(s)
 - **`NEXTAUTH_SECRET`** - referenced in 6 file(s)
@@ -404,6 +404,7 @@ These have fallbacks or only activate specific features.
 - `DASHCLAW_LOCAL_ADMIN_PASSWORD` *(undocumented)*
 - `DASHCLAW_MAX_ORG_ATTACHMENT_BYTES` *(undocumented)*
 - `DASHCLAW_MODE` *(undocumented)*
+- `DASHCLAW_NEW_CONNECT_WEBHOOK` *(undocumented)*
 - `DASHCLAW_RATE_LIMIT_MAX` *(undocumented)*
 - `DASHCLAW_RATE_LIMIT_WINDOW_MS` *(undocumented)*
 - `DASHCLAW_URL` *(undocumented)*
@@ -725,7 +726,7 @@ Each adapter delivers `integration_mismatch`, `integration_health_changed`, and 
 
 | Adapter | Required credential (any one) |
 | --- | --- |
-| `discord` | `DISCORD_WEBHOOK_URL` |
+| `org_id` | `DISCORD_WEBHOOK_URL` |
 | `email` | `RESEND_API_KEY`, `SENDGRID_API_KEY` |
 | `github` | `GITHUB_TOKEN` |
 | `linear` | `LINEAR_API_KEY` |

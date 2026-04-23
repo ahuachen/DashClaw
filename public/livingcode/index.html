@@ -48,12 +48,12 @@ p.kicker{background:var(--accent-bg);border:1px solid var(--accent-border);borde
 p.kicker b{color:var(--accent-deep)}
 </style></head><body>
 <h1>DashClaw Livingcode Dashboard</h1>
-<div class="sig" id="sig">Shape signature: sha1:5563ac73b0308ad10e45993463abd14b2645d6ca · signature-stable</div>
+<div class="sig" id="sig">Shape signature: sha1:98ebcae770ee25c509bfb5d131b4fdb95efd681b · signature-stable</div>
 <div class="grid">
       <div class="cell"><div class="n">181</div><div class="k">Active routes</div></div>
       <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
       <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
-      <div class="cell"><div class="n">118</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">119</div><div class="k">Optional env vars</div></div>
       <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
       <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
       <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
@@ -149,10 +149,10 @@ p.kicker b{color:var(--accent-deep)}
     <tr><td><code>TASK_ASSIGNED</code></td><td><code>task.assigned</code></td></tr>
     <tr><td><code>TASK_COMPLETED</code></td><td><code>task.completed</code></td></tr>
     <tr><td><code>TOKEN_USAGE</code></td><td><code>token.usage</code></td></tr></tbody></table></details>
-<details><summary>Adapters (5)</summary><table><thead><tr><th>Name</th><th>Required keys</th></tr></thead><tbody>    <tr><td><code>discord</code></td><td class="sig">DISCORD_WEBHOOK_URL</td></tr>
-    <tr><td><code>email</code></td><td class="sig">RESEND_API_KEY, SENDGRID_API_KEY</td></tr>
+<details><summary>Adapters (5)</summary><table><thead><tr><th>Name</th><th>Required keys</th></tr></thead><tbody>    <tr><td><code>email</code></td><td class="sig">RESEND_API_KEY, SENDGRID_API_KEY</td></tr>
     <tr><td><code>github</code></td><td class="sig">GITHUB_TOKEN</td></tr>
     <tr><td><code>linear</code></td><td class="sig">LINEAR_API_KEY</td></tr>
+    <tr><td><code>org_id</code></td><td class="sig">DISCORD_WEBHOOK_URL</td></tr>
     <tr><td><code>slack</code></td><td class="sig">SLACK_BOT_TOKEN, SLACK_WEBHOOK_URL</td></tr></tbody></table></details>
 <details><summary>Signals (9)</summary><ul class="diff">    <li><code>autonomy_spike</code></li>
     <li><code>branch_stale</code></li>
@@ -260,7 +260,7 @@ p.kicker b{color:var(--accent-deep)}
       <div class="cell"><div class="n">1<span class="trend">→</span></div><div class="k">TODOs</div></div>
       <div class="cell"><div class="n">106<span class="trend">→</span></div><div class="k">Files &gt;300 lines</div></div></div></section>
 
-<section><h2>Changed since last snapshot</h2><p class="kicker"><b>12</b> env_vars added, <b>6</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/discord/interactions <span class="sig">New route: POST</span></li>
+<section><h2>Changed since last snapshot</h2><p class="kicker"><b>13</b> env_vars added, <b>6</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/discord/interactions <span class="sig">New route: POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces <span class="sig">New route: GET, POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces/[workspaceId] <span class="sig">New route: DELETE, GET</span></li>
@@ -268,6 +268,7 @@ p.kicker b{color:var(--accent-deep)}
     <li><code>added</code> <b>routes</b>: /api/session/effective <span class="sig">New route: GET</span></li>
     <li><code>added</code> <b>env_vars</b>: DASHCLAW_ALERTS_DISCORD <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: DASHCLAW_MAX_ORG_ATTACHMENT_BYTES <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DASHCLAW_NEW_CONNECT_WEBHOOK <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: DISCORD_APPROVER_ORG_ID <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: DISCORD_APPROVER_USER_ID <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: DISCORD_BOT_TOKEN <span class="sig">New env var (optional, undocumented)</span></li>

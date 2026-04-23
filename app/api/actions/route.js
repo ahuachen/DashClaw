@@ -15,6 +15,7 @@ import { evaluateGuard } from '../../lib/guard.js';
 import { fireActionAlert } from '../../lib/actionAlerts.js';
 import { fireTelegramApproval } from '../../lib/telegramApprovals.js';
 import { fireDiscordApproval } from '../../lib/discordApprovals.js';
+import { fireNewConnectAlert } from '../../lib/notification-adapters/discord.js';
 import { fireWebhooksForApproval } from '../../lib/webhooks.js';
 import { scanSensitiveData } from '../../lib/security.js';
 import { upsertAgentPresence } from '../../lib/repositories/agents.repository.js';
@@ -25,6 +26,7 @@ import {
   deleteActionsByIds,
   hasAgentAction,
   insertActionEmbedding,
+  isFirstActionForOrg,
   listActions,
 } from '../../lib/repositories/actions.repository.js';
 import { getModelPricing, getSettings } from '../../lib/repositories/settings.repository.js';
@@ -332,6 +334,24 @@ export async function POST(request) {
         matched_policies: guardDecision?.matched_policies,
         reason: guardDecision?.reason,
       }, sql).catch(() => {}));
+    }
+
+    // Launch-window new-connect alert (DOG-04 telemetry).
+    // Fires only if this is the org's first action_record AND the webhook
+    // env var is configured. Fire-and-forget: never awaits, never blocks
+    // the response. Repository helper keeps route-SQL guardrail clean.
+    if (process.env.DASHCLAW_NEW_CONNECT_WEBHOOK) {
+      after(() => {
+        isFirstActionForOrg(sql, orgId, action_id)
+          .then((isFirst) => {
+            if (isFirst) {
+              return fireNewConnectAlert({ orgId, agentId: data.agent_id });
+            }
+          })
+          .catch((err) => {
+            console.warn('[NewConnectAlert] probe failed:', err?.message || err);
+          });
+      });
     }
 
     if (actionsQuota.warning) {

@@ -190,6 +190,22 @@ export async function hasAgentAction(sql, orgId, agentId) {
   return rows.length > 0;
 }
 
+/**
+ * Returns true if the given action_id is the first action_record ever
+ * created for this org — used by the launch-window new-connect alert
+ * (Plan 03-02, DOG-04 telemetry). "First" = no OTHER action_record
+ * exists for this org besides the one being created.
+ */
+export async function isFirstActionForOrg(sql, orgId, excludingActionId) {
+  const rows = await sql`
+    SELECT 1 FROM action_records
+    WHERE org_id = ${orgId}
+      AND action_id != ${excludingActionId}
+    LIMIT 1
+  `;
+  return rows.length === 0;
+}
+
 export async function createActionRecord(sql, payload) {
   const {
     orgId,
