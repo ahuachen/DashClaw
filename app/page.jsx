@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle, Radar, Zap, Compass } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Terminal, BookOpen, Package, Scale, FileCheck, Network, Shield, FolderKanban, BarChart3, MessageSquare, Activity, FileJson, History, Lock, Bot, Database, XCircle, Radar, Zap, Compass, Github, Play, Download } from 'lucide-react';
 import DashClawLogo from './components/DashClawLogo';
 import PublicNavbar from './components/PublicNavbar';
 import PublicFooter from './components/PublicFooter';
 import HeroScreenshot from './components/HeroScreenshot';
 import InlineCopyCommand from './components/InlineCopyCommand';
 import SetupBanner from './components/SetupBanner';
+import VideoHero from './components/VideoHero';
 import { allScreenshots } from './screenshotData';
 
 import {
@@ -28,103 +29,60 @@ export default function LandingPage() {
       <PublicNavbar />
       <SetupBanner />
 
-      {/* ── 2. Hero ── */}
+      {/* ── 2. Hero (DOG-02 + DOG-03) ── */}
+      {/*
+        DOG-03 hero rewrite (Plan 03-01 Task 2).
+        - Headline ≤ 60 chars / ≤ 8 words (D-12 terse-technical voice).
+        - VideoHero embed above the fold (D-11). Src is a placeholder — Task 4
+          flips it to the real flagship watch URL after Task 3 recording.
+        - CTA order locked: Watch demo → Install → Star on GitHub (D-14).
+        - Rejected framings removed (D-13): no policy-firewall, no multi-agent
+          platform positioning, no "AI governance runtime" abstraction.
+        - CSS tokens only; brand orange reserved for the primary "Watch demo"
+          signal state per .impeccable.md tiebreaker #2.
+      */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-active bg-brand-subtle text-brand text-xs font-medium mb-6">
-            <ShieldAlert size={14} />
-            Open-source AI governance runtime
-          </div>
           <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight leading-tight">
-            Intercept agent actions before they reach production.
+            Govern Claude Code before it runs rm -rf.
           </h1>
-          <p className="mt-6 text-brand font-semibold text-xl sm:text-2xl">
-            DashClaw is the policy firewall for AI agents.
+          <p className="mt-6 text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
+            Intercept risky commands. Approve from your phone. Keep an audit trail.
           </p>
-          <p className="mt-4 text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            DashClaw governs the moment agent intent becomes real-world action. Enforce policies, require human approval, and record verifiable evidence in one runtime.
+          <p className="mt-3 text-sm text-text-tertiary font-medium">
+            MIT-licensed. Self-hosted. 5-minute install.
           </p>
-          <p className="mt-4 text-sm text-text-tertiary font-medium">
-            Works with Claude Managed Agents, Claude Code, OpenAI, LangChain, CrewAI, AutoGen, Codex, Gemini CLI, and any custom agent.
-          </p>
-          <p className="mt-4 text-sm text-text-tertiary font-medium italic opacity-80">MIT Licensed. Self-host in seconds.</p>
 
-          {/* Tiny Architecture Diagram */}
-          <div className="mt-12 mb-8 flex items-center justify-center gap-3 sm:gap-6 max-w-lg mx-auto">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-tertiary border border-border-hover text-text-secondary shadow-lg">
-                <Bot size={20} />
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-bold">Agent Intent</span>
-            </div>
-            
-            <div className="flex flex-col justify-center animate-pulse">
-              <ArrowRight className="text-text-disabled" size={24} />
-            </div>
-
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-brand/10 border border-brand/40 text-brand shadow-[0_0_25px_rgba(249,115,22,0.2)] ring-1 ring-brand/20">
-                <Shield size={28} />
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-brand font-extrabold">DashClaw Guard</span>
-            </div>
-
-            <div className="flex flex-col justify-center animate-pulse delay-75">
-              <ArrowRight className="text-text-disabled" size={24} />
-            </div>
-
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-surface-tertiary border border-border-hover text-text-secondary shadow-lg">
-                <Database size={20} />
-              </div>
-              <span className="text-[10px] uppercase tracking-wider text-text-tertiary font-bold">Production System</span>
-            </div>
+          {/* VideoHero — placeholder src until Plan 03-01 Task 4 backfills. */}
+          <div className="mt-10 max-w-3xl mx-auto">
+            <VideoHero
+              src="https://www.loom.com/embed/PLACEHOLDER_VIDEO_ID"
+              title="DashClaw governing Claude Code — 3-minute walkthrough"
+            />
           </div>
 
-          <div className="mt-10 flex flex-col items-center gap-6">
-            <InlineCopyCommand command="npx dashclaw-demo" highlight={true} className="sm:scale-110 shadow-[0_0_30px_rgba(249,115,22,0.15)]" />
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/demo" className="px-8 py-3 rounded-lg bg-brand text-white text-sm font-bold hover:bg-brand-hover transition-all hover:scale-105 inline-flex items-center gap-2 shadow-xl shadow-brand/20">
-                <Terminal size={18} /> Run 1-Minute Demo
-              </Link>
-              <Link href="/self-host" className="px-8 py-3 rounded-lg bg-surface-tertiary border border-border-hover text-text-secondary text-sm font-medium hover:bg-surface-elevated hover:text-text-primary transition-all inline-flex items-center gap-2">
-                Deploy Your Own
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 opacity-40 hover:opacity-100 transition-opacity">
-            <InlineCopyCommand command="npm install dashclaw" />
-            <InlineCopyCommand command="pip install dashclaw" />
-            <InlineCopyCommand command="docker compose up -d" />
-          </div>
-
-          <div className="mt-20 mb-12">
-            <h3 className="text-xs font-mono text-text-tertiary uppercase tracking-[0.2em] mb-8 animate-pulse">Decision Interception Demo</h3>
-            <div className="overflow-hidden rounded-xl border border-border-hover shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_90px_rgba(0,0,0,0.55)]">
-              {/* eslint-disable-next-line @next/next/no-img-element -- animated GIF, next/image strips animation */}
-              <img
-                src="/images/demo-gif2.gif"
-                alt="DashClaw decision interception in action"
-                className="w-full h-auto block"
-              />
-            </div>
-          </div>
-
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] sm:text-xs font-mono text-text-tertiary uppercase tracking-widest">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-brand"></div> MIT Licensed
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-brand"></div> Self-hosted
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-brand"></div> Zero-dependency SDK
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-brand"></div> Node + Python
-            </div>
+          {/* CTAs — order locked: Watch → Install → Star (D-14). */}
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="#watch"
+              className="px-6 py-3 rounded-lg bg-brand text-white text-sm font-semibold hover:bg-brand-hover transition-colors inline-flex items-center gap-2"
+            >
+              <Play size={16} aria-hidden="true" /> Watch demo
+            </Link>
+            <Link
+              href="/connect"
+              className="px-6 py-3 rounded-lg bg-surface-tertiary border border-border-hover text-text-primary text-sm font-semibold hover:bg-surface-elevated transition-colors inline-flex items-center gap-2"
+            >
+              <Download size={16} aria-hidden="true" /> Install
+            </Link>
+            <Link
+              href="https://github.com/ucsandman/DashClaw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 rounded-lg bg-surface-tertiary border border-border-hover text-text-primary text-sm font-semibold hover:bg-surface-elevated transition-colors inline-flex items-center gap-2"
+            >
+              <Github size={16} aria-hidden="true" /> Star on GitHub
+            </Link>
           </div>
         </div>
       </section>
@@ -714,12 +672,6 @@ if (decision === "allow") {
                   AI Governance Suite
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Every governed decision produces audit-ready evidence.</h2>
-                <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm font-semibold text-text-secondary">
-                  <span className="px-3 py-1 rounded-lg bg-surface-secondary border border-border">SOC 2</span>
-                  <span className="px-3 py-1 rounded-lg bg-surface-secondary border border-border">ISO 27001</span>
-                  <span className="px-3 py-1 rounded-lg bg-surface-secondary border border-border">GDPR</span>
-                  <span className="px-3 py-1 rounded-lg bg-surface-secondary border border-border">NIST AI RMF</span>
-                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="p-6 rounded-xl bg-surface-secondary/80 border border-border text-center">

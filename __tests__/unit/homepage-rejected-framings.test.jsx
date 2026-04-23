@@ -20,7 +20,7 @@ vi.mock('@/landingData', () => ({
   frameworkQuickstarts: [],
 }));
 
-import LandingPage from '@/page.js';
+import LandingPage from '@/page.jsx';
 
 // Rejected framings per D-13. Each substring must NOT appear in the rendered
 // hero HTML (case-insensitive). Scope = whole-page render; the plan's intent

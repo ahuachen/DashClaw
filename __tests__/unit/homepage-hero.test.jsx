@@ -23,7 +23,7 @@ vi.mock('@/landingData', () => ({
 }));
 
 // Import AFTER mocks.
-import LandingPage from '@/page.js';
+import LandingPage from '@/page.jsx';
 
 function renderPage() {
   return renderToString(<LandingPage />);

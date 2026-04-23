@@ -21,7 +21,7 @@ vi.mock('@/connect/HostedProvisionClient', () => ({
   default: () => null,
 }));
 
-import ConnectPage from '@/connect/page.js';
+import ConnectPage from '@/connect/page.jsx';
 
 async function renderPage() {
   const element = await ConnectPage();
