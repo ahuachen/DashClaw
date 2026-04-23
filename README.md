@@ -66,6 +66,10 @@ npm run hooks:install
 - **Live decision stream** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel env vars. Without this, Mission Control uses in-memory events (fine for getting started, but won't persist across serverless invocations).
 - **Hosted trial mode** — If you want DashClaw to mint hosted trial workspaces from `/connect`, follow [`docs/hosted-deployment-runbook.md`](./docs/hosted-deployment-runbook.md). That path needs extra env vars, Turnstile, cleanup secrets, and operator-managed infrastructure.
 
+## Free while we grow
+
+DashClaw is free while we grow. Pro tier launches when we hit **50 verified Claude Code integrations in the wild** — measured by a public SQL query over `action_records` where `agent_id ILIKE 'claude-code%'`, excluding internal orgs, with a 90-day recency window. We'll track progress publicly at [dashclaw.io/pricing](https://dashclaw.io/pricing). The runtime — hook, policy pack, Discord approvals, audit ledger, semantic guard — stays free forever for solo devs.
+
 ## Connect Your Agent
 
 **Five ways to get governed — pick what fits your workflow:**
