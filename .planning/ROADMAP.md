@@ -106,9 +106,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: **Flagship demo video + homepage rewrite** — one bundled plan because the video is the asset the new homepage is built around. Ships the ≤3-min demo, the homepage hero rewrite, and the `/connect` Claude-Code-first onboarding path. (DOG-02, DOG-03)
-- [ ] 03-02: **Launch content bundle** — Show HN post, tweet thread, blog post, all timed with the homepage rewrite. Written partly by Wes, partly by a DashClaw-governed content agent as a pre-flywheel proof (see Phase 4). (DOG-04)
-- [ ] 03-03: **Monetization trigger + Pro tier boundary design** — pick the trigger, write it into PROJECT.md, design which features will go Pro when it fires, architect the code split, do NOT ship the paywall. (MON-01, MON-02)
+- [ ] 03-01-PLAN.md — **Flagship video + homepage rewrite + /connect runbook** *(Wave 1)* — one bundled plan because the video is the asset the new homepage is built around. Ships the ≤3-min Loom/YouTube demo, rewrites the hero around Claude Code with rejected framings removed, rewrites `/connect` as a single-page copy-paste runbook, and adds the CSP frame-src directive permitting video iframes. Closes Phase 2 CCI-01 + CCI-05 open gaps (placeholder backfill). (DOG-02, DOG-03)
+- [ ] 03-02-PLAN.md — **Launch content bundle + telemetry** *(Wave 2, depends on 03-01 + 03-03)* — Show HN post draft + tweet thread + blog post on `dashclaw.io/blog/claude-code-beachhead` all committed to `docs/launch/*` for the same-day 2-hour blitz (D-16). Includes Discord new-connect alert on first per-org action (optional launch-window telemetry). Human-action checkpoint for the actual posting (Wes-authored only per D-19). Hard ordering: homepage + /pricing must be live and incognito-verified before HN submission (Pitfall 1: URL-change after submission kills rank). (DOG-04)
+- [ ] 03-03-PLAN.md — **/pricing + requireTier + monetization commitment** *(Wave 1, parallel with 03-01)* — `requireTier('pro')` middleware helper (~15 lines composing existing `getOrgPlan()`), public `/api/monetization/verified-integrations-count` endpoint (repository-pattern encapsulated; `agent_id ILIKE 'claude-code%'` per A8 resolution), `/pricing` commitment page with live N/50 counter, and MON-01 trigger paragraph committed to PROJECT.md + README.md. Paywall explicitly NOT shipped — gate is dormant until `UPDATE organizations SET plan='pro'` fires post-MON-01. (MON-01, MON-02)
 
 ---
 
