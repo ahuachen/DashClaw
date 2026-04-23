@@ -1111,32 +1111,34 @@ const csp = [
 
 **11 items flagged. The planner and discuss-phase should confirm A8 in particular before locking the MON-01 counter SQL.**
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Where does `dashclaw.io` blog live — this repo or a separate `dashclaw-website` repo?**
+All 5 questions below were resolved during planning (2026-04-22). Left in place as a traceability audit trail — the "RESOLVED" markers encode where each answer landed in the plan set.
+
+1. **Where does `dashclaw.io` blog live — this repo or a separate `dashclaw-website` repo?** *(A1)*
    - What we know: No `app/blog/` in this repo. `dashclaw.io` links to `/guides/claude-code` from the marketing site.
    - What's unclear: Whether the blog post ships as MDX in this repo (and dashclaw.io pulls it) or as a separate markdown file in a sibling marketing repo.
-   - Recommendation: Planner checks at kickoff. If unclear, ask Wes. A3 in Assumptions Log.
+   - **RESOLVED: in-monorepo.** Planner verified 2026-04-22 that no `app/blog/` segment exists and no `../dashclaw-website` sibling repo exists. Plan 03-02 Task 2 creates `app/blog/claude-code-beachhead/page.js` as a simple SSR segment route (mirrors `app/guides/claude-code/page.js` pattern — no MDX dependency). See `<assumption_resolution>` in Plans 03-01 and 03-02.
 
-2. **What's the exact `agent_id` pattern that identifies a Claude Code integration?**
+2. **What's the exact `agent_id` pattern that identifies a Claude Code integration?** *(A8)*
    - What we know: D-01 says SQL-measurable. `action_records.agent_id` column exists.
    - What's unclear: Whether the Claude Code hook sets `agent_id = 'claude-code'`, `agent_id = <session-id>`, or something user-configured.
-   - Recommendation: Planner inspects real dogfood `action_records` data before authoring the counter SQL. A8.
+   - **RESOLVED: `agent_id ILIKE 'claude-code%'`** grounded in `hooks/dashclaw_pretool.py:75` where `AGENT_ID = os.environ.get("DASHCLAW_AGENT_ID") or "claude-code"`. The ILIKE prefix pattern catches the default and user overrides like `claude-code-wes-laptop`. Repository at `app/lib/repositories/monetization.repository.js` also excludes `org_default` + `org_demo` and enforces a 90-day recency window. See Plan 03-03 Task 2 `<assumption_resolution>`.
 
 3. **Does Vercel Web Analytics respect `DASHCLAW_MODE=demo` instances, or will demo page views pollute launch-window numbers?**
    - What we know: `app/layout.js:55-59` enables Analytics on any `VERCEL === '1'` or explicit opt-in.
    - What's unclear: Whether demo cookie visits land in the same Analytics bucket as prod visits.
-   - Recommendation: Acceptable pollution for launch day; comes out in the wash. Defer to PAY-01.
+   - **RESOLVED: deferred to PAY-01.** Acceptable pollution for launch day; comes out in the wash. Not a Phase 3 blocker — explicitly scoped out.
 
 4. **Click-to-play vs autoplay-muted for the hero video?**
    - What we know: `.impeccable.md` tiebreaker #3 = calm under pressure; autoplay is movement.
    - What's unclear: Whether click-to-play kills conversion vs. autoplay-muted.
-   - Recommendation: Click-to-play. Matches brand voice. If conversion tanks post-launch, iterate. MINOR.
+   - **RESOLVED: click-to-play.** Matches `.impeccable.md` tiebreaker #3 (calm under pressure) and the token-first VideoHero shape in Plan 03-01 Task 1. If conversion tanks post-launch, iterate — MINOR.
 
 5. **Should the 4 `<SCREENCAST_URL>` locations be backfilled in a single commit or a single PR?**
    - What we know: Phase 2 02-01-SUMMARY section 3 specifies a single commit `docs(02): backfill CCI-05 screencast URL after walkthrough recording`.
    - What's unclear: Whether Phase 3's hero embed should also land in that commit, or a subsequent one.
-   - Recommendation: Planner treats backfill as a Phase 3 03-01 atomic task. Single commit. Keeps Phase 2 gap closure and Phase 3 homepage rewrite in the same flow.
+   - **RESOLVED: single commit.** Plan 03-01 Task 4 is an atomic task that flips the VideoHero src + backfills all 4 `<SCREENCAST_URL>` placeholders (2 README.md + 1 raw + 1 HTML-entity-encoded in app/guides/claude-code/page.js) in one commit: `docs(03-01): backfill CCI-05 screencast URLs + flip VideoHero to live video (DOG-02)`.
 
 ## What the Planner Should NOT Research Further
 
