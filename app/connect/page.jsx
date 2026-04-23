@@ -17,7 +17,7 @@ export const metadata = {
 export default async function ConnectPage() {
   const headerStore = await headers();
   const host = headerStore.get('host') || 'localhost:3000';
-  const baseUrl = host === 'dashclaw.io' ? 'https://your-dashclaw-instance.example.com' : `https://${host}`;
+  const baseUrl = host === 'dashclaw.io' ? 'https://my-dashclaw.vercel.app' : `https://${host}`;
 
   return (
     <div className="min-h-screen bg-surface-primary text-text-primary">
@@ -224,6 +224,12 @@ dashclaw approvals`}</pre>
                 <h3 className="text-sm font-semibold text-text-primary">Mobile PWA <span className="font-normal text-text-tertiary">— on-call</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Add <code className="font-mono text-text-secondary">/approve</code> to your home screen. One-tap Allow / Deny from the phone.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`https://<your-instance>/approve`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-text-primary">Discord bot <span className="font-normal text-text-tertiary">— phone-first</span></h3>
+                <p className="mt-1 text-xs text-text-tertiary">Inline Approve / Deny buttons DM&rsquo;d to the registered user. Fire-and-forget — action creation succeeds even if Discord is unreachable.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`DISCORD_BOT_TOKEN=<token>
+DISCORD_APPROVER_USER_ID=<user-id>`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
                 <h3 className="text-sm font-semibold text-text-primary">Telegram bot <span className="font-normal text-text-tertiary">— optional</span></h3>
