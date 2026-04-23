@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: "Completed 02-01: deferred close — CCI-02 gate held, CCI-01 walkthrough + CCI-05 URL backfill deferred per operator resume-signal"
-last_updated: "2026-04-23T00:40:28.088Z"
-last_activity: 2026-04-22
+status: executing
+stopped_at: "Completed 03-03: MON-01 public commitment (3 of 4 D-03 locations) + MON-02 dormant Pro gate. 22 new tests, 1727/1732 full suite, 0 failed."
+last_updated: "2026-04-23T01:14:23.675Z"
+last_activity: 2026-04-23
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 12
-  completed_plans: 7
-  percent: 58
+  completed_plans: 8
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-04-11)
 
 **Core value:** Your coding agent can never surprise you with a destructive action, and you can always prove what it did.
-**Current focus:** Phase 2 — Claude Code Beachhead
+**Current focus:** Phase 3 — Public Launch
 
 ## Current Position
 
-Phase: 2 (Claude Code Beachhead) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-04-22
+Phase: 3 (Public Launch) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-23
 
-Progress: [████████░░] 78%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [████████░░] 78%
 | Phase 02 P02 | 8 | 3 tasks | 16 files |
 | Phase 02 P03 | 11 | 4 tasks | 9 files |
 | Phase 02 P01 | 15 | 3 tasks | 4 files |
+| Phase 03 P03 | 600 | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Full decision log lives in `PROJECT.md` (Key Decisions table). Recent decisions 
 - Plan 02-03: D-17 GIF click-through works via anchor-wrapped img markdown pattern — correcting the earlier 'descoped' assumption (2026-04-22)
 - Plan 02-01: Deferred walkthrough recording at Task 2 human-action checkpoint per operator resume-signal `skip recording for now, ship placeholder` — CCI-01 + CCI-05 URL backfill recorded as open gaps, not silently skipped (2026-04-22)
 - Plan 02-01: CCI-02 no-regression gate held at d3e96819 — 1690 pass / 5 skip / 0 fail full suite, 9/9 claude-code-starter-pack, all guardrails clean; Task 1 is verification-only (no commit) per plan design (2026-04-22)
+- MON-01 trigger locked 2026-04-23 (Plan 03-03): 50 verified Claude Code integrations in the wild, 90-day recency, excluding org_default + org_demo. Committed in PROJECT.md, README.md, /pricing page; launch content to land in Plan 03-02.
+- MON-02 Pro tier gate shipped dormant (Plan 03-03): requireTier('pro') in app/lib/org.js composes on existing organizations.plan + getOrgPlan() — no schema migration, no /pro/* route tree, no @dashclaw/pro package. Free orgs get 403 COMING_SOON with commitment text, NOT a buy-CTA (D-07).
 
 ### Pending Todos
 
@@ -91,8 +94,8 @@ None yet (`.planning/todos/pending/` not initialized).
 
 ## Session Continuity
 
-Last session: 2026-04-22T22:50:57.554Z
-Stopped at: Completed 02-01: deferred close — CCI-02 gate held, CCI-01 walkthrough + CCI-05 URL backfill deferred per operator resume-signal
+Last session: 2026-04-23T01:14:23.667Z
+Stopped at: Completed 03-03: MON-01 public commitment (3 of 4 D-03 locations) + MON-02 dormant Pro gate. 22 new tests, 1727/1732 full suite, 0 failed.
 Resume file: None
 
 **Planned Phase:** 3 (Public Launch) — 3 plans — 2026-04-23T00:40:28.081Z

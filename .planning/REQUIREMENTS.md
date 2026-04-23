@@ -59,8 +59,10 @@ Turn the "I've never talked to a user" answer into a recurring ritual.
 
 We're not charging yet. We're making sure "free first, paid later" has an actual *later*.
 
-- [ ] **MON-01**: A **specific monetization trigger** is defined, written down in PROJECT.md, and publicly committed to. Candidate triggers: 500 WAU, 50 Claude Code integrations verifiably running in the wild, 20 hours/week of founder time on DashClaw, or first unsolicited "take my money" inbound message. Pick one, commit.
-- [ ] **MON-02**: **Pro tier feature boundaries are designed** (which features will be paid, which stay free forever) and the code is architected to support the split — without shipping the paywall. When the trigger fires, flipping to paid is configuration, not a rewrite.
+- [x] **MON-01
+**: A **specific monetization trigger** is defined, written down in PROJECT.md, and publicly committed to. Candidate triggers: 500 WAU, 50 Claude Code integrations verifiably running in the wild, 20 hours/week of founder time on DashClaw, or first unsolicited "take my money" inbound message. Pick one, commit.
+- [x] **MON-02
+**: **Pro tier feature boundaries are designed** (which features will be paid, which stay free forever) and the code is architected to support the split — without shipping the paywall. When the trigger fires, flipping to paid is configuration, not a rewrite.
 
 ### Governance Runtime Bugfixes (BUG) *(ADDED 2026-04-11 after live dogfood bug discovery)*
 
