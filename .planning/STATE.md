@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 03-03: MON-01 public commitment (3 of 4 D-03 locations) + MON-02 dormant Pro gate. 22 new tests, 1727/1732 full suite, 0 failed."
-last_updated: "2026-04-23T01:14:23.675Z"
-last_activity: 2026-04-23
+stopped_at: "Completed 03-01 (deferred close): DOG-03 homepage + /connect + CSP + tests shipped (3eaa013d + a33bada7, 1752/5/0). DOG-02 walkthrough + 5-location URL backfill deferred per resume-signal `ship placeholder again` — closes in same future recording session as Phase 2 CCI-01 + CCI-05. Hard-gates 03-02 HN submission."
+last_updated: "2026-04-22T23:10:00.000Z"
+last_activity: 2026-04-22
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 12
-  completed_plans: 8
-  percent: 67
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md` (updated 2026-04-11)
 ## Current Position
 
 Phase: 3 (Public Launch) — EXECUTING
-Plan: 2 of 3
-Status: Ready to execute
-Last activity: 2026-04-23
+Plan: 2 of 3 (03-01 + 03-03 complete; 03-02 blocked on DOG-02 walkthrough recording + 5-location URL backfill)
+Status: Blocked — 03-02 Show HN submission gated on homepage video embed closing (Pitfall 1: HN URL-change after submit kills rank; hero currently renders broken `PLACEHOLDER_VIDEO_ID` iframe until backfill)
+Last activity: 2026-04-22
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [███████░░░] 67%
 | Phase 02 P03 | 11 | 4 tasks | 9 files |
 | Phase 02 P01 | 15 | 3 tasks | 4 files |
 | Phase 03 P03 | 600 | 3 tasks | 17 files |
+| Phase 03 P01 | 30 | 4 tasks (2 shipped, 1 deferred, 1 skipped) | 12 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,9 @@ Full decision log lives in `PROJECT.md` (Key Decisions table). Recent decisions 
 - Plan 02-01: CCI-02 no-regression gate held at d3e96819 — 1690 pass / 5 skip / 0 fail full suite, 9/9 claude-code-starter-pack, all guardrails clean; Task 1 is verification-only (no commit) per plan design (2026-04-22)
 - MON-01 trigger locked 2026-04-23 (Plan 03-03): 50 verified Claude Code integrations in the wild, 90-day recency, excluding org_default + org_demo. Committed in PROJECT.md, README.md, /pricing page; launch content to land in Plan 03-02.
 - MON-02 Pro tier gate shipped dormant (Plan 03-03): requireTier('pro') in app/lib/org.js composes on existing organizations.plan + getOrgPlan() — no schema migration, no /pro/* route tree, no @dashclaw/pro package. Free orgs get 403 COMING_SOON with commitment text, NOT a buy-CTA (D-07).
+- Plan 03-01: Deferred walkthrough recording at Task 3 human-action checkpoint per operator resume-signal `ship placeholder again` — DOG-03 shipped complete (3eaa013d + a33bada7); DOG-02 walkthrough artifact + 5-location URL backfill recorded as open gap. Mirrors Phase 2 02-01 deferred-close pattern exactly. Same future recording session closes CCI-01 + CCI-05 + DOG-02 atomically (2026-04-22).
+- Plan 03-01: VideoHero component enforces Loom + youtube-nocookie hostname allowlist at React render layer (throws on non-allowed host) — T-03-01-04 SSRF mitigation belt-and-suspenders with CSP frame-src directive; allowlist test green in video-hero.test.jsx (2026-04-22).
+- Plan 03-01: Hard-gate for 03-02 Show HN — homepage unshippable until hero VideoHero src (`PLACEHOLDER_VIDEO_ID` at app/page.jsx:59) backfilled with real embed URL. Pitfall 1 (HN URL-change after submission kills rank) blocks launch sequence (2026-04-22).
 
 ### Pending Todos
 
@@ -94,8 +98,8 @@ None yet (`.planning/todos/pending/` not initialized).
 
 ## Session Continuity
 
-Last session: 2026-04-23T01:14:23.667Z
-Stopped at: Completed 03-03: MON-01 public commitment (3 of 4 D-03 locations) + MON-02 dormant Pro gate. 22 new tests, 1727/1732 full suite, 0 failed.
+Last session: 2026-04-22T23:10:00.000Z
+Stopped at: Completed 03-01 (deferred close). DOG-03 shipped; DOG-02 walkthrough + 5-location URL backfill deferred per resume-signal `ship placeholder again`. Closes with Phase 2 CCI-01 + CCI-05 in one future recording session. 03-02 HN submission hard-gated on this backfill.
 Resume file: None
 
 **Planned Phase:** 3 (Public Launch) — 3 plans — 2026-04-23T00:40:28.081Z

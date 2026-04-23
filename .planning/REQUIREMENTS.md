@@ -26,8 +26,8 @@ Core beachhead surface. Everything else in v1 serves this.
 Pulls the Claude Code + Discord flow out of the GitHub issue comment and makes it the flagship demo.
 
 - [ ] **DOG-01**: Wes **personally runs DashClaw daily against his own Claude Code workflow** for the entire milestone. This is an explicit commitment, not a vague intention — measured by DashClaw decision events in Wes's personal instance for ≥5 of 7 days per week.
-- [ ] **DOG-02**: A **flagship demo video** (≤3 minutes) shows Wes's real setup end-to-end: Claude Code fires a risky command → Discord notification → approve from phone → Claude Code continues. Raw, no slides. Published publicly.
-- [ ] **DOG-03**: Homepage **rewrite** leads with the Claude Code beachhead: hero headline, demo above the fold, `/connect` onboarding path rewritten for Claude Code users first. Rejected framings (homelab, enterprise compliance, governance-as-abstraction) removed from the hero.
+- [ ] **DOG-02** *(partial — walkthrough deferred)*: A **flagship demo video** (≤3 minutes) shows Wes's real setup end-to-end: Claude Code fires a risky command → Discord notification → approve from phone → Claude Code continues. Raw, no slides. Published publicly. *Close status: `VideoHero` component + CSP `frame-src` directive + homepage iframe embed point shipped in 03-01 (commits `3eaa013d` + `a33bada7`) and are ready to accept a real URL; the recorded ≤3:00 walkthrough itself and the 5 placeholder backfill locations are deferred at 03-01 Task 3 human-action checkpoint per operator resume-signal `ship placeholder again`. Closes in the same future recording session as Phase 2 CCI-01 + CCI-05 — see `.planning/phases/03-public-launch/03-01-SUMMARY.md` sections 4–7 for the backfill procedure and cross-phase consolidation.*
+- [x] **DOG-03**: Homepage **rewrite** leads with the Claude Code beachhead: hero headline, demo above the fold, `/connect` onboarding path rewritten for Claude Code users first. Rejected framings (homelab, enterprise compliance, governance-as-abstraction) removed from the hero.
 - [ ] **DOG-04**: **Launch content**: public tweet thread, HN "Show HN", and at least one blog post on dashclaw.io explaining the problem, the demo, and the dogfood story. Timed with the homepage rewrite.
 
 ### Closed-Loop Growth Flywheel (FLY)
@@ -148,8 +148,8 @@ Mapped against `.planning/ROADMAP.md` phases.
 | CCI-03 | Phase 2 — Claude Code Beachhead (Plan 02-02) | Complete |
 | CCI-04 | Phase 2 — Claude Code Beachhead (Plan 02-03) | Complete |
 | CCI-05 | Phase 2 — Claude Code Beachhead (Plan 02-03 + 02-01) | Partial — screencast URL backfill deferred (see Open Gaps) |
-| DOG-02 | Phase 3 — Public Launch | Pending |
-| DOG-03 | Phase 3 — Public Launch | Pending |
+| DOG-02 | Phase 3 — Public Launch (Plan 03-01) | Partial — walkthrough recording + 5-location URL backfill deferred (see Open Gaps) |
+| DOG-03 | Phase 3 — Public Launch (Plan 03-01) | Complete |
 | DOG-04 | Phase 3 — Public Launch | Pending |
 | MON-01 | Phase 3 — Public Launch | Pending |
 | MON-02 | Phase 3 — Public Launch | Pending |
@@ -170,9 +170,10 @@ Requirements in a **partial** close state at end of their nominal phase. Each ha
 
 | Gap | Phase | Plan that left it open | Reason | Close path |
 |---|---|---|---|---|
-| CCI-01 (walkthrough recording) | Phase 2 | 02-01 | Operator deferred Task 2 human-action checkpoint with resume-signal `skip recording for now, ship placeholder`; Discord bot not yet registered and `.env.local` has zero `DISCORD_*` entries on the recording-target machine | (1) Register Discord bot + populate 5 env vars; (2) record ≤5:00 Windows/WSL walkthrough per recipe in `02-01-PLAN.md` Task 2 `<what-built>` block; (3) publish Loom public or YouTube Unlisted; (4) note URL + wall-clock + phone-to-resolution time; see `02-01-SUMMARY.md` section 5 for full runbook |
-| CCI-05 (screencast URL backfill) | Phase 2 | 02-01 | Cannot backfill without a recorded walkthrough; skipped per the same resume-signal as CCI-01 | Same as CCI-01; after recording, run the 6-step backfill procedure in `02-01-SUMMARY.md` section 3 — replaces 4 placeholders (3 raw + 1 HTML-entity-encoded) across README.md lines 8+19 and app/guides/claude-code/page.js lines 104+249, then commit `docs(02): backfill CCI-05 screencast URL after walkthrough recording` |
+| CCI-01 (walkthrough recording) | Phase 2 | 02-01 | Operator deferred Task 2 human-action checkpoint with resume-signal `skip recording for now, ship placeholder`; Discord bot not yet registered and `.env.local` has zero `DISCORD_*` entries on the recording-target machine | (1) Register Discord bot + populate 5 env vars; (2) record ≤5:00 Windows/WSL walkthrough per recipe in `02-01-PLAN.md` Task 2 `<what-built>` block; (3) publish Loom public or YouTube Unlisted; (4) note URL + wall-clock + phone-to-resolution time; see `02-01-SUMMARY.md` section 5 for full runbook. **Collapsed close with CCI-05 + DOG-02 — see cross-reference below.** |
+| CCI-05 (screencast URL backfill) | Phase 2 | 02-01 (extended by 03-01) | Cannot backfill without a recorded walkthrough; skipped per the same resume-signal as CCI-01. Plan 03-01 added a 5th placeholder location (`app/page.jsx:59` VideoHero src) on top of the 4 inherited from Phase 2 | Same as CCI-01; after recording, run the atomic 5-location backfill procedure in `03-01-SUMMARY.md` section 4 — replaces all 5 placeholders (1 hero iframe src `PLACEHOLDER_VIDEO_ID` + 3 raw `<SCREENCAST_URL>` + 1 HTML-entity `&lt;SCREENCAST_URL&gt;`) across `app/page.jsx:59`, `README.md:8,19`, `app/guides/claude-code/page.js:104,249`, then commit `docs(03-01): backfill CCI-05 screencast URLs + flip VideoHero to live video (DOG-02)`. **Collapsed close with CCI-01 + DOG-02.** |
+| DOG-02 (flagship ≤3:00 walkthrough + homepage video embed) | Phase 3 | 03-01 | Operator deferred Task 3 human-action checkpoint with resume-signal `ship placeholder again` — mirrors Phase 2 02-01's deferred-close pattern exactly. DOG-03 (homepage + /connect + CSP + tests) shipped complete in commits `3eaa013d` + `a33bada7`; DOG-02 walkthrough artifact + 5-location URL backfill deferred. Hero VideoHero currently renders with `src="...PLACEHOLDER_VIDEO_ID"` — broken iframe state | **Same future recording session** closes CCI-01 + CCI-05 + DOG-02 simultaneously. One ≤3:00 walkthrough + one atomic 5-location backfill commit. Hard-gates 03-02 Show HN submission (Pitfall 1 — URL-change after HN submit kills rank; homepage unshippable until backfill). Full runbook: `03-01-SUMMARY.md` sections 4 + 7 |
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-22 — Plan 02-01 deferred close: CCI-02 Complete, CCI-03/CCI-04 traceability-table sweep (lagging from 02-02/02-03 closes), CCI-01/CCI-05 marked Partial with Open Gaps section added*
+*Last updated: 2026-04-22 — Plan 03-01 deferred close: DOG-03 Complete; DOG-02 marked Partial with walkthrough recording + 5-location URL backfill deferred; Open Gaps row added with explicit cross-reference collapsing CCI-01 + CCI-05 + DOG-02 into a single future recording session.*
