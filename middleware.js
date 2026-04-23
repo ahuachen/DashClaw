@@ -37,6 +37,7 @@ const PUBLIC_ROUTES = [
   // Public read-only content endpoints
   '/api/docs/raw',
   '/api/prompts',
+  '/api/monetization/verified-integrations-count',  // MON-01 public counter (Plan 03-03)
   '/practical-systems',
   '/replay',
 ];
