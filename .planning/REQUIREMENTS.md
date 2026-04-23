@@ -151,8 +151,8 @@ Mapped against `.planning/ROADMAP.md` phases.
 | DOG-02 | Phase 3 — Public Launch (Plan 03-01) | Partial — walkthrough recording + 6-location URL backfill deferred (see Open Gaps) |
 | DOG-03 | Phase 3 — Public Launch (Plan 03-01) | Complete |
 | DOG-04 | Phase 3 — Public Launch (Plan 03-02) | Partial — launch blitz deferred; drafts + blog page + alert shipped (see Open Gaps) |
-| MON-01 | Phase 3 — Public Launch | Pending |
-| MON-02 | Phase 3 — Public Launch | Pending |
+| MON-01 | Phase 3 — Public Launch (Plan 03-03) | Complete (3/4 commitment locations; 4th lives in launch drafts — posts live when DOG-04 closes) |
+| MON-02 | Phase 3 — Public Launch (Plan 03-03) | Complete |
 | FLY-01 | Phase 4 — Growth Flywheel | Pending |
 | FLY-02 | Phase 4 — Growth Flywheel | Pending |
 | FLY-03 | Phase 4 — Growth Flywheel | Pending |
