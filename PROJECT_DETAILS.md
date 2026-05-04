@@ -74,6 +74,7 @@ These 8 endpoints define the DashClaw category. They are mandatory for governanc
 | `/api/doctor` | Diagnostic health checks across DB, config, auth, deploy, SDK, governance | On demand |
 | `/api/doctor/fix` | Apply safe auto-fixes (migrations, default policy) — local-scope env fixes blocked via API | On demand |
 | `/api/telegram/webhook` | Telegram approval bridge — inbound Bot API callbacks (Approve/Reject buttons). Auth: `X-Telegram-Bot-Api-Secret-Token` header + chat-id allowlist (`TELEGRAM_ADMIN_CHAT_ID`). Org resolved via `TELEGRAM_APPROVER_ORG_ID`. Experimental. | On demand (Telegram push) |
+| `/api/discord/interactions` | Discord approval bridge — inbound interactions webhook (Approve/Deny buttons on DM embeds). Auth: Ed25519 signature verify (raw body) + user-id allowlist (`DISCORD_APPROVER_USER_ID`). Org resolved via `DISCORD_APPROVER_ORG_ID`. Experimental. | On demand (Discord push) |
 | `/api/hosted/workspaces` | Hosted-mode trial provisioning (POST only, gated by `DASHCLAW_HOSTED`) | On demand |
 | `/api/hosted/workspaces/:id` | Admin inspect (GET) and manual delete (DELETE) of trial workspaces | On demand |
 | `/api/hosted/cleanup` | Sweep expired trial workspaces (admin-role or `X-Cleanup-Secret`) | Daily (cron/GH Action) |

@@ -1,13 +1,31 @@
 <div align="center">
   <img src="public/images/logo-circular.png" alt="DashClaw" width="240" />
   <h1>DashClaw</h1>
-  <p><strong>Decision Infrastructure for AI agents.</strong></p>
-  <p>Stop agents before they make expensive mistakes.</p>
-  <p><sub>Try it in 10 seconds</sub></p>
+  <p><strong>Govern Claude Code in 5 minutes.</strong></p>
+  <p>Install the hook. Connect Discord. Approve risky tool calls from your phone.<br />
+  Built so your coding agent can never surprise you with a destructive action.</p>
+
+  <a href="<SCREENCAST_URL>"><img src="public/images/demo-gif2.gif" alt="DashClaw governing Claude Code — click to watch the 3-minute walkthrough" width="1000" /></a>
+
+  <p><strong>3-step install</strong></p>
+  <pre><code>npm install
+npm run hooks:install
+# Connect Discord (see guide)
+</code></pre>
+
+  <p>
+    <a href="https://dashclaw.io/guides/claude-code">Claude Code integration guide &rarr;</a>
+    &nbsp;·&nbsp;
+    <a href="<SCREENCAST_URL>">Watch the 3-min walkthrough &rarr;</a>
+  </p>
+</div>
+
+<hr />
+
+<div align="center">
+  <p><sub>Prefer a 10-second zero-setup taste? Try the Decision Replay demo:</sub></p>
   <pre><code>npx dashclaw-demo</code></pre>
   <p><sub>No setup. Opens Decision Replay automatically.</sub></p>
-
-  <img src="public/images/demo-gif2.gif" alt="DashClaw Demo" width="1000" />
 
 <br />
 <p><strong>Works with:</strong></p>
@@ -46,6 +64,11 @@
 #### Optional
 
 - **Live decision stream** — Create a free [Upstash Redis](https://upstash.com) instance and add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in Vercel env vars. Without this, Mission Control uses in-memory events (fine for getting started, but won't persist across serverless invocations).
+- **Hosted trial mode** — If you want DashClaw to mint hosted trial workspaces from `/connect`, follow [`docs/hosted-deployment-runbook.md`](./docs/hosted-deployment-runbook.md). That path needs extra env vars, Turnstile, cleanup secrets, and operator-managed infrastructure.
+
+## Free while we grow
+
+DashClaw is free while we grow. Pro tier launches when we hit **50 verified Claude Code integrations in the wild** — measured by a public SQL query over `action_records` where `agent_id ILIKE 'claude-code%'`, excluding internal orgs, with a 90-day recency window. We'll track progress publicly at [dashclaw.io/pricing](https://dashclaw.io/pricing). The runtime — hook, policy pack, Discord approvals, audit ledger, semantic guard — stays free forever for solo devs.
 
 ## Connect Your Agent
 

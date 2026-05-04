@@ -8,7 +8,7 @@ Four coarse phases take DashClaw from *"207 stars, ~4 real users, no clear audie
 
 - [ ] **Phase 1: Foundation** — Fix activation bugs, run first-ever user interviews, commit to personal dogfood
 - [ ] **Phase 1.5: Governance Runtime Bugfix** *(INSERTED 2026-04-11)* — Fix two bugs caught during live dogfood: `handle_block` has no audit trail (BUG-02) and `/api/guard` semantic check is deterministic-falling-back to block (BUG-01). Blocks Phase 2 launch
-- [ ] **Phase 2: Claude Code Beachhead** — Ship the 5-minute install-to-first-approval integration
+- [x] **Phase 2: Claude Code Beachhead** — Ship the 5-minute install-to-first-approval integration (completed 2026-04-22 — CCI-01 walkthrough + CCI-05 URL backfill deferred as open gaps)
 - [ ] **Phase 3: Public Launch** — Flagship demo, homepage rewrite, launch content, monetization trigger
 - [ ] **Phase 4: Growth Flywheel** — DashClaw-governed agents doing research + content, publicly visible
 
@@ -57,11 +57,12 @@ Plans:
 8. **A one-off promotion script** (`scripts/promote-founder-to-admin.mjs`) exists so existing users who are incorrectly `role='member'` can be promoted via the script, not a raw SQL query
 9. None of the existing guardrails (`route-sql:check`, `openapi:check`, `api-inventory:check`, `npm test`) regress
 
-**Plans**: 2 plans (sequential waves)
+**Plans**: 3 plans (sequential waves)
 
 Plans:
 - [x] 01.5-01: **Governance runtime bugfix — BUG-01 + BUG-02** *(Wave 1)* — diagnose and fix the server-side semantic check failure (BUG-01), fix the client-side `handle_block` audit-trail gap (BUG-02), extend server-side action status handling, add regression test, and validate end-to-end by re-firing the originally blocked command. Captures `01.5-DIAGNOSIS.md` and `01.5-VALIDATION.md` as permanent evidence of the fix.
 - [ ] 01.5-02: **Founder admin role bugfix — BUG-03** *(Wave 2, depends on 01.5-01)* — diagnose why Wes is `role='member'` on his own instance (top suspect: `3dcb43dc` JWT org-resolution regression), fix the root cause, add `scripts/promote-founder-to-admin.mjs` for existing users, add regression test for first-user-is-admin bootstrap, validate by having Wes visually confirm the READ-ONLY banner is gone and completing a real approval flow. Captures `01.5-BUG03-DIAGNOSIS.md` and `01.5-BUG03-VALIDATION.md`.
+- [ ] 01.5-03: **Hook fail-open bugfix — BUG-04** *(Wave 3, added 2026-04-22 during Phase 2 CONTEXT-gathering)* — `hooks/dashclaw_pretool.py:557-560` silently exits 0 when `/api/guard` is unreachable. Same failure class as BUG-02 (silent governance without audit). Fix: fail closed in enforce mode; write local orphan log (`~/.dashclaw/orphan-actions.jsonl`) in observe mode for backfill on recovery. Add env var `DASHCLAW_GUARD_UNAVAILABLE_POLICY=block|warn|allow` (default `block`). Add regression test: stop guard, run governed command, assert block-with-stderr or local-orphan-record. Captures `01.5-BUG04-DIAGNOSIS.md` and `01.5-BUG04-VALIDATION.md`. Full context: `.planning/todos/pending/todo-003-guard-unavailable-fail-open.md`.
 
 ---
 
@@ -82,9 +83,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: **Claude Code integration core + default policy pack** — the install path, the bridging layer that intercepts Claude Code commands, the opinionated policy defaults for coding agents. (CCI-01, CCI-02)
-- [ ] 02-02: **Discord remote approval flow (mobile-first)** — the <10-second phone approval loop, tested end-to-end. (CCI-03)
-- [ ] 02-03: **Agent activity timeline UI + integration docs** — the human-readable "what did my agent do" view on the dashboard, plus the full doc bundle (dashclaw.io page, README rewrite, screencast). (CCI-04, CCI-05)
+- [x] 02-01-PLAN.md — **CCI-02 no-regression gate + CCI-01 recorded walkthrough (Wave 2, depends on 02-02 + 02-03)** ✓ Closed 2026-04-22 (deferred state). CCI-02 no-regression gate held at `d3e96819` (1690 pass / 5 skip / 0 fail, starter pack 9/9, guardrails clean). CCI-01 walkthrough recording + CCI-05 screencast URL backfill deferred at Task 2 human-action checkpoint per operator resume-signal `skip recording for now, ship placeholder` — both recorded as open gaps in `02-01-SUMMARY.md` with close preconditions + 6-step backfill procedure. (CCI-02 closed; CCI-01 + CCI-05 partial)
+- [x] 02-02-PLAN.md — **Discord approval flow (Wave 1)** ✓ Shipped 2026-04-22 (CCI-03). `/api/discord/interactions` + `fireDiscordApproval` + middleware allowlist + .env.example block + actions-route wiring all green; 26 Discord unit tests pass; full suite 1675 pass / 0 fail. Rule 1 fix folded in for jsdom Uint8Array cross-realm compat.
+- [x] 02-03-PLAN.md — **Activity timeline + /my-agent + docs bundle (Wave 1, parallel with 02-02)** ✓ Shipped 2026-04-22 (CCI-04, CCI-05). `/activity` day-grouping `useMemo` layer + new `app/my-agent/page.jsx` narrative page (today/week toggle, pinned denials, install-prompt empty state, realtime via `useRealtime`); `/guides/claude-code` Discord Developer Portal walkthrough + screencast placeholder; README.md Claude-Code-first lead with D-17 GIF click-through (anchor-wrapped demo-gif2); `docs/homepage-draft-claude-code.md` Phase 3 handoff (806 words); `scripts/check-readme-lead.mjs` CI gate (exits 0). 15 new unit tests green; full suite 1690 pass / 5 skip / 0 fail. Week-scope fixture Rule 1 fix folded in.
 
 ---
 
@@ -105,9 +106,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: **Flagship demo video + homepage rewrite** — one bundled plan because the video is the asset the new homepage is built around. Ships the ≤3-min demo, the homepage hero rewrite, and the `/connect` Claude-Code-first onboarding path. (DOG-02, DOG-03)
-- [ ] 03-02: **Launch content bundle** — Show HN post, tweet thread, blog post, all timed with the homepage rewrite. Written partly by Wes, partly by a DashClaw-governed content agent as a pre-flywheel proof (see Phase 4). (DOG-04)
-- [ ] 03-03: **Monetization trigger + Pro tier boundary design** — pick the trigger, write it into PROJECT.md, design which features will go Pro when it fires, architect the code split, do NOT ship the paywall. (MON-01, MON-02)
+- [x] 03-01-PLAN.md — **Flagship video + homepage rewrite + /connect runbook** *(Wave 1)* ✓ Closed 2026-04-22 (deferred state). DOG-03 shipped complete (commits `3eaa013d` + `a33bada7`): homepage hero rewritten with Claude Code headline "Govern Claude Code before it runs rm -rf." (47 chars / 8 words per D-12), VideoHero component with Loom + youtube-nocookie host allowlist (T-03-01-04 SSRF mitigation), CTA order Watch demo → Install → Star on GitHub (D-14), 9 rejected-framings absent from rendered HTML (D-13), `/connect` rewritten as linear single-page runbook preserving HostedProvisionSection (D-15), CSP `frame-src 'self' https://www.loom.com https://www.youtube-nocookie.com` directive added, `scripts/check-screencast-backfilled.mjs` dual-form guardrail, 25 new Wave-0 tests green, full suite 1752 pass / 5 skip / 0 fail. DOG-02 walkthrough recording + 5-location URL backfill deferred at Task 3 human-action checkpoint per operator resume-signal `ship placeholder again` — closes in the same future recording session as Phase 2 CCI-01 + CCI-05. Hard-gates 03-02 Show HN submission (homepage iframe renders broken `PLACEHOLDER_VIDEO_ID` until backfill). Full close state + atomic backfill procedure in `03-01-SUMMARY.md`. (DOG-03 closed; DOG-02 partial)
+- [x] 03-02-PLAN.md — **Launch content bundle + telemetry** *(Wave 2, depends on 03-01 + 03-03)* ✓ Closed 2026-04-23 (deferred state). Tasks 1-3 shipped complete (commits `668c548d` + `6eb67d00` + `8463abc8`): launch content drafts + assertion guardrail (`docs/launch/{hn-post,tweet-thread,blog-post}.md` + `scripts/check-launch-content.mjs` with 7-pattern secret regex set + D-03 commitment wall in all 3 drafts), blog post live at `app/blog/claude-code-beachhead/page.jsx` with VideoHero embed + `app/blog/layout.js` reusable shell, Discord new-connect alert wired (`fireNewConnectAlert` + `isFirstActionForOrg` repository helper, fire-and-forget pattern, payload masks org_id, 2-second timeout), 47 new Wave-0 tests green, full suite 1799 pass / 5 skip / 0 fail (+47 vs 1752 baseline), route-sql baseline held at 85. Task 4 same-day launch blitz DEFERRED at human-action checkpoint per operator resume-signal `defer launch` — upstream precondition is 03-01 DOG-02 walkthrough recording (Pitfall 1: HN URL-change after submission kills rank means homepage must be its final form before Show HN posts). DOG-04 marked partial-deferred. **Important — 6th placeholder location surfaced** at `app/blog/claude-code-beachhead/page.jsx:23` (VIDEO_URL constant, same `PLACEHOLDER_VIDEO_ID` as homepage hero) — joins the cross-phase backfill commit (was 5; now 6 locations). Same future recording session closes Phase 2 CCI-01 + CCI-05 + Phase 3 DOG-02 + DOG-04 atomically over one ~3-hour active window (recording + backfill + launch). Full launch-day recipe + PRE-LAUNCH GATE preserved verbatim in `03-02-SUMMARY.md` sections 4-6. (DOG-04 partial)
+- [x] 03-03-PLAN.md — **/pricing + requireTier + monetization commitment** *(Wave 1, parallel with 03-01)* ✓ Shipped 2026-04-23 (MON-01, MON-02). `requireTier('pro')` helper in `app/lib/org.js` composes on existing `getOrgPlan()` — dormant Pro gate, returns 403 COMING_SOON with commitment text (NO buy-CTA per D-07); `app/lib/repositories/monetization.repository.js` + public `GET /api/monetization/verified-integrations-count` encapsulates the SQL (route-SQL guardrail held at 85); `app/pricing/page.jsx` SSR page with live N/50 counter (brand orange on the number only), all 5 Free bullets + all 4 Pro bullets per D-05/D-06; monetization trigger paragraph committed in PROJECT.md (Key Decisions row flipped ✓ Locked) + README.md (new `## Free while we grow` section at line 69, zero collision with 03-01 Task 4 edits at lines 8/19). 22 new unit tests; full suite 1727/1732 pass, 0 fail. No schema migration, no `/pro/*` route tree, no `@dashclaw/pro` package — flip-to-paid = `UPDATE organizations SET plan='pro'`.
 
 ---
 
@@ -140,8 +141,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4. No parallelization across 
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/3 | In Progress|  |
 | 1.5. Governance Runtime Bugfix *(INSERTED)* | 1/2 | In Progress|  |
-| 2. Claude Code Beachhead | 0/3 | Not started | - |
-| 3. Public Launch | 0/3 | Not started | - |
+| 2. Claude Code Beachhead | 3/3 | Complete    | 2026-04-22 |
+| 3. Public Launch | 3/3 | In Progress (awaiting launch event) | - |
 | 4. Growth Flywheel | 0/2 | Not started | - |
 
 ---

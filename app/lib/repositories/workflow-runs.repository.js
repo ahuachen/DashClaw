@@ -61,6 +61,38 @@ export function shapeStepResult(row) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function insertStepResult(sql, { stepResultId, runActionId, orgId, templateId, stepData }) {
+  // Idempotent insert: if a row already exists for (run_action_id, step_id)
+  // reset it to 'running' rather than inserting a duplicate. Before this guard
+  // a crash between insertStepResult and updateStepResult would leave a stale
+  // 'running' row on disk, and resume would insert a second row with a new
+  // step_result_id — getWorkflowRun then returned duplicate steps and
+  // buildResumeContext would read whichever landed first in step_index order.
+  const existing = await sql`
+    SELECT 1 FROM workflow_step_results
+    WHERE run_action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND step_id = ${stepData.step_id}
+    LIMIT 1
+  `;
+
+  if (existing.length > 0) {
+    await sql`
+      UPDATE workflow_step_results
+      SET status = 'running',
+          input_json = ${JSON.stringify(stepData.input_json)},
+          started_at = ${stepData.started_at},
+          output_json = NULL,
+          error_message = NULL,
+          retry_count = 0,
+          duration_ms = NULL,
+          finished_at = NULL
+      WHERE run_action_id = ${runActionId}
+        AND org_id = ${orgId}
+        AND step_id = ${stepData.step_id}
+    `;
+    return;
+  }
+
   await sql`
     INSERT INTO workflow_step_results (
       step_result_id, run_action_id, org_id, template_id,
@@ -75,6 +107,12 @@ export async function insertStepResult(sql, { stepResultId, runActionId, orgId, 
 }
 
 export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
+  // CAS on status='running' so a later write (e.g. a stale retry, a
+  // concurrent resume that races against cancelWorkflowRun, or a
+  // duplicate persistStepResult call) cannot overwrite a row that has
+  // already reached a terminal state (completed / failed / cancelled).
+  // The first writer to transition the row out of 'running' wins; any
+  // subsequent writer matches zero rows and is silently a no-op.
   await sql`
     UPDATE workflow_step_results
     SET status = ${stepData.status},
@@ -86,6 +124,7 @@ export async function updateStepResult(sql, { runActionId, orgId, stepData }) {
     WHERE run_action_id = ${runActionId}
       AND org_id = ${orgId}
       AND step_id = ${stepData.step_id}
+      AND status = 'running'
   `;
 }
 
@@ -206,16 +245,37 @@ export async function cancelWorkflowRun(sql, orgId, runActionId) {
 
   const now = new Date().toISOString();
 
-  // Cancel the parent action
-  await sql`
+  // Cancel the parent action with a status CAS so a concurrent
+  // executeWorkflow that transitions 'running' → 'completed'/'failed'
+  // between the read above and this UPDATE does not have its terminal
+  // outcome overwritten. RETURNING lets us distinguish the cancel from
+  // the lost-the-race case.
+  const cancelled = await sql`
     UPDATE action_records
     SET status = 'cancelled',
         error_message = 'Cancelled by operator',
         timestamp_end = ${now}
-    WHERE action_id = ${runActionId} AND org_id = ${orgId}
+    WHERE action_id = ${runActionId}
+      AND org_id = ${orgId}
+      AND status = 'running'
+    RETURNING action_id
   `;
 
-  // Cancel any running step results
+  if (cancelled.length === 0) {
+    // Race lost — the workflow reached a terminal state before the
+    // cancel UPDATE ran. Re-read the current status and return it so
+    // the caller can surface "already completed/failed" instead of a
+    // misleading cancelled confirmation.
+    const latest = await sql`
+      SELECT status FROM action_records
+      WHERE org_id = ${orgId} AND action_id = ${runActionId}
+      LIMIT 1
+    `;
+    return { found: true, running: false, status: latest[0]?.status ?? 'unknown' };
+  }
+
+  // Cancel any step results still marked running. Children that already
+  // completed stay as-is — this mirrors the parent CAS pattern.
   await sql`
     UPDATE workflow_step_results
     SET status = 'cancelled',

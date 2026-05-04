@@ -3,37 +3,34 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getSql } from '../../../lib/db.js';
 import { getCurrentPeriod } from '../../../lib/usage.js';
+import { timingSafeCompare } from '../../../lib/timing-safe.js';
 
 export async function GET(request) {
   try {
+    // SECURITY: fail-closed — never run without CRON_SECRET configured.
     const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret) {
-      const authHeader = request.headers.get('authorization');
-      if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
+    if (!cronSecret) {
+      return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
+    }
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !timingSafeCompare(authHeader, `Bearer ${cronSecret}`)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const sql = getSql();
     const period = getCurrentPeriod();
 
-    const archived = await sql`
-      INSERT INTO usage_meters (org_id, period, resource, count, updated_at)
-      SELECT org_id, ${period}, resource, count, NOW()
-      FROM usage_meters
-      WHERE period = ${period}
-        AND resource IN ('governed_actions', 'capability_invocations', 'workflow_executions', 'actions_per_month')
-      ON CONFLICT (org_id, period, resource)
-      DO UPDATE SET count = EXCLUDED.count, updated_at = NOW()
-    `;
-
+    // Purge previous-period rows for per-period resources. Current period is
+    // left intact. Resources stored under the synthetic 'current' period
+    // (members, api_keys, etc.) are never period-based and are excluded.
     const reset = await sql`
       DELETE FROM usage_meters
-      WHERE period = ${period}
+      WHERE period <> ${period}
+        AND period <> 'current'
         AND resource IN ('governed_actions', 'capability_invocations', 'workflow_executions', 'actions_per_month')
     `;
 
-    console.log(`[Cron] Meter reset for period ${period}: ${reset.count || 0} meters reset`);
+    console.log(`[Cron] Meter reset: purged ${reset.count || 0} rows from prior periods (current=${period})`);
 
     return NextResponse.json({
       success: true,

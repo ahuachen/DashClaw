@@ -38,6 +38,11 @@ interface PluginConfig {
   dashclawUrl: string;
   dashclawApiKey: string;
   agentId: string;
+  // Fallback model id used when `llm_output` events fire without a `model`
+  // field. Without this, the server's `estimateCost` treats the usage as
+  // unpriceable and stores `cost_estimate = 0` — producing the "tokens
+  // but no cost" failure mode. Empty string disables the fallback.
+  defaultModel: string;
   failClosed: boolean;
   riskScoreDefault: number;
   highRiskTools: ReadonlySet<string>;
@@ -84,11 +89,16 @@ function resolveConfig(raw: Record<string, unknown> | undefined): PluginConfig {
     env.DASHCLAW_API_KEY
   );
   const agentId = firstString(cfg.agentId, env.DASHCLAW_AGENT_ID) || 'openclaw';
+  const defaultModel = firstString(
+    cfg.defaultModel,
+    env.DASHCLAW_DEFAULT_MODEL
+  );
 
   return {
     dashclawUrl,
     dashclawApiKey,
     agentId,
+    defaultModel,
     failClosed,
     riskScoreDefault,
     highRiskTools,
@@ -117,6 +127,10 @@ const pendingActions = new Map<string, string>();
 interface TokenTurnState {
   pendingUsage?: { tokens_in: number; tokens_out: number; model: string };
   turnActionIds: string[];
+  // Set after the first llm_output on this run that fires without a model
+  // field. Used to suppress repeat warnings within the same run — ops see
+  // one log line per run, not one per turn.
+  warnedMissingModel?: boolean;
 }
 const tokenTurnByRun = new Map<string, TokenTurnState>();
 
@@ -577,7 +591,22 @@ export default definePluginEntry({
           (usage.input ?? 0) + (usage.cacheWrite ?? 0) + cacheReadEffective;
         const tokens_out = usage.output ?? 0;
         if (tokens_in > 0 || tokens_out > 0) {
-          state.pendingUsage = { tokens_in, tokens_out, model: model ?? '' };
+          // Model resolution: real event value > configured default > empty.
+          // When both are empty, still stash the tokens so ops see activity,
+          // but log a one-time breadcrumb per run — otherwise the "tokens
+          // arrive but cost stays $0" failure mode is invisible.
+          const resolvedModel = (model && model.length > 0)
+            ? model
+            : config.defaultModel;
+          if (!resolvedModel && !state.warnedMissingModel) {
+            console.warn(
+              `[dashclaw-governance] llm_output has no model for run ${runId} — ` +
+              `tokens will land on action records but cost_estimate will stay $0. ` +
+              `Set config.defaultModel or DASHCLAW_DEFAULT_MODEL to price these turns.`
+            );
+            state.warnedMissingModel = true;
+          }
+          state.pendingUsage = { tokens_in, tokens_out, model: resolvedModel };
         }
       }
     });

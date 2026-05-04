@@ -61,7 +61,12 @@ export async function POST(request) {
         });
 
       case 'notifications/initialized':
-        return jsonrpc(id, {});
+        // JSON-RPC 2.0: notifications carry no id and MUST NOT receive a
+        // response body. Returning a jsonrpc result frame here is a
+        // protocol violation that strict clients (Cursor, some Desktop
+        // builds) flag as an unexpected message. 204 No Content is
+        // equivalent to "acknowledged with nothing to say".
+        return new Response(null, { status: 204 });
 
       case 'tools/list':
         return jsonrpc(id, {

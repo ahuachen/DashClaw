@@ -5,53 +5,9 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import dns from 'node:dns/promises';
-import net from 'node:net';
 import { listAgents, updateMetrics, getAllMetrics } from './registry.js';
 import { findBestMatch, rankAgents } from './matcher.js';
-
-/**
- * SSRF protection — validates that a URL is safe to make outbound requests to.
- * Blocks private/loopback/link-local IPs, requires HTTPS, rejects credentials in URL.
- */
-function isPrivateIp(ip) {
-  if (!ip || typeof ip !== 'string') return true;
-  const v = net.isIP(ip);
-  if (v === 4) {
-    const parts = ip.split('.').map((p) => parseInt(p, 10));
-    if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) return true;
-    const [a, b] = parts;
-    if (a === 0 || a === 10 || a === 127) return true;
-    if (a === 169 && b === 254) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-    return false;
-  }
-  if (v === 6) {
-    const lower = ip.toLowerCase();
-    if (lower === '::' || lower === '::1') return true;
-    if (lower.startsWith('fe80:') || lower.startsWith('fc') || lower.startsWith('fd')) return true;
-    return false;
-  }
-  return true;
-}
-
-async function assertSafeUrl(url) {
-  const parsed = new URL(url);
-  if (parsed.protocol !== 'https:') throw new Error('Endpoint URL must use HTTPS');
-  if (parsed.username || parsed.password) throw new Error('Endpoint URL must not include credentials');
-  const host = parsed.hostname;
-  if (!host) throw new Error('Endpoint URL hostname is required');
-  if (net.isIP(host)) {
-    if (isPrivateIp(host)) throw new Error('Endpoint URL cannot target private or loopback IPs');
-    return;
-  }
-  const addrs = await dns.lookup(host, { all: true, verbatim: true });
-  if (!Array.isArray(addrs) || addrs.length === 0) throw new Error('Endpoint hostname did not resolve');
-  for (const a of addrs) {
-    if (isPrivateIp(a?.address)) throw new Error('Endpoint hostname resolves to a private or loopback IP');
-  }
-}
+import { safeUrlWithIps, buildPinnedDispatcher } from '../webhooks.js';
 
 /**
  * Submit and auto-route a task
@@ -356,24 +312,28 @@ async function logRouting(sql, orgId, taskId, agentId, score, reason, candidates
 
 async function dispatchToAgent(agent, task) {
   if (!agent.endpoint) return;
-  await assertSafeUrl(agent.endpoint);
+  const validatedIps = await safeUrlWithIps(agent.endpoint);
+  const dispatcher = buildPinnedDispatcher(validatedIps);
   const response = await fetch(agent.endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event: 'task.assigned', task }),
     redirect: 'manual',
+    dispatcher,
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 }
 
 async function fireCallback(url, task) {
   try {
-    await assertSafeUrl(url);
+    const validatedIps = await safeUrlWithIps(url);
+    const dispatcher = buildPinnedDispatcher(validatedIps);
     await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event: `task.${task.status}`, task }),
       redirect: 'manual',
+      dispatcher,
     });
   } catch (err) {
     console.error(`Callback to ${url} failed:`, err.message);

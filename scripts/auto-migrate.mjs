@@ -23,7 +23,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postgres from 'postgres';
@@ -58,24 +58,43 @@ const sql = postgres(process.env.DATABASE_URL, {
 });
 
 // ── Step 1: Execute DDL directly (no drizzle-kit, no prompts) ──────────────
-// Read the Drizzle-generated DDL SQL and execute each statement individually.
-// Skips "already exists" errors so this is safe to re-run on every deploy.
+// Read every Drizzle migration file under drizzle/ in filename order and
+// execute each statement individually. Files are expected to be named with
+// a zero-padded sequence prefix (0000_..., 0001_..., 0002_..., etc.) so the
+// filename sort matches the intended apply order. All statements use
+// IF NOT EXISTS / IF EXISTS idempotent guards, and SAFE_CODES below covers
+// the remaining "already applied" Postgres error codes, so re-running on an
+// already-migrated database is a no-op.
 log('Executing schema DDL...');
 
-const ddlPath = resolve(projectRoot, 'drizzle', '0000_clammy_falcon.sql');
-let ddl;
+const migrationsDir = resolve(projectRoot, 'drizzle');
+let migrationFiles;
 try {
-  ddl = readFileSync(ddlPath, 'utf8');
+  migrationFiles = readdirSync(migrationsDir)
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
 } catch (err) {
-  fail(`Could not read DDL file at ${ddlPath}: ${err.message}`);
+  fail(`Could not read migrations directory at ${migrationsDir}: ${err.message}`);
 }
 
-const statements = ddl
-  .split('--> statement-breakpoint')
-  .map((s) => s.trim())
-  .filter(Boolean);
+if (migrationFiles.length === 0) {
+  fail(`No migration files found under ${migrationsDir}`);
+}
 
-log(`Found ${statements.length} DDL statements.`);
+log(`Found ${migrationFiles.length} migration file(s): ${migrationFiles.join(', ')}`);
+
+const statements = [];
+for (const filename of migrationFiles) {
+  const content = readFileSync(resolve(migrationsDir, filename), 'utf8');
+  const fileStatements = content
+    .split('--> statement-breakpoint')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  log(`  ${filename}: ${fileStatements.length} statements`);
+  for (const stmt of fileStatements) statements.push(stmt);
+}
+
+log(`Total DDL statements across all migrations: ${statements.length}.`);
 
 // Postgres error codes we can safely skip (idempotent re-runs):
 const SAFE_CODES = new Set([
@@ -89,17 +108,71 @@ const SAFE_CODES = new Set([
 
 let created = 0;
 let skipped = 0;
+let pgvectorAvailable = null; // tri-state: null=unknown, true, false
+// Tables we skipped because their CREATE TABLE required pgvector. Every
+// later statement that only references one of these tables (index, FK,
+// ALTER, policy) must also skip — otherwise it fails with 42P01 on a
+// table that was never created.
+const skippedTables = new Set();
+
+/**
+ * Returns the primary target of a DDL statement — the table being created,
+ * altered, indexed on, or dropped. We skip statements whose primary target
+ * is a pgvector-dependent table that was skipped upstream, regardless of
+ * what else the statement references (FK targets, etc. — those are separate
+ * tables and their own skip status is evaluated on their own statements).
+ */
+function primaryTargetTable(stmt) {
+  const patterns = [
+    /CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?\s+"?(\w+)"?/i,
+    /CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+CONCURRENTLY)?(?:\s+IF\s+NOT\s+EXISTS)?\s+\S+\s+ON\s+"?(\w+)"?/i,
+    /ALTER\s+TABLE(?:\s+IF\s+EXISTS)?\s+"?(\w+)"?/i,
+    /DROP\s+TABLE(?:\s+IF\s+EXISTS)?\s+"?(\w+)"?/i,
+  ];
+  for (const re of patterns) {
+    const m = stmt.match(re);
+    if (m) return m[1];
+  }
+  return null;
+}
 
 for (const stmt of statements) {
-  try {
-    // Enable pgvector if any statement uses the vector type
-    if (stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION')) {
-      try {
-        await sql.unsafe('CREATE EXTENSION IF NOT EXISTS vector');
-      } catch {
-        // pgvector not available — skip silently, table will fail gracefully
-      }
+  // Enable pgvector on demand and remember whether it's available on this
+  // database. CI Postgres images typically lack the pgvector extension;
+  // in that case the vector-dependent statements are skipped deliberately
+  // so the rest of the schema still lands.
+  const needsVector = stmt.includes('vector(') && !stmt.startsWith('CREATE EXTENSION');
+  if (needsVector && pgvectorAvailable === null) {
+    try {
+      await sql.unsafe('CREATE EXTENSION IF NOT EXISTS vector');
+      pgvectorAvailable = true;
+    } catch {
+      pgvectorAvailable = false;
     }
+  }
+  if (needsVector && pgvectorAvailable === false) {
+    // pgvector not installed — skip this statement. Record the primary
+    // target (the table being created) so every subsequent ALTER / INDEX /
+    // constraint that targets it is also skipped on its own turn.
+    const target = primaryTargetTable(stmt);
+    if (target) skippedTables.add(target);
+    skipped++;
+    continue;
+  }
+
+  // Skip statements whose primary target is a pgvector-dependent table
+  // that was skipped. A FK / REFERENCES to an existing real table is
+  // irrelevant — the statement still can't run because its own target
+  // doesn't exist on this DB.
+  if (skippedTables.size > 0) {
+    const target = primaryTargetTable(stmt);
+    if (target && skippedTables.has(target)) {
+      skipped++;
+      continue;
+    }
+  }
+
+  try {
     await sql.unsafe(stmt);
     created++;
   } catch (err) {
@@ -112,9 +185,11 @@ for (const stmt of statements) {
       skipped++;
       continue;
     }
-    // Non-critical: log and continue so one bad statement doesn't block deploy
-    log(`Warning: Statement failed (${err.code || 'unknown'}): ${err.message?.slice(0, 120)}`);
-    skipped++;
+    // Real DDL failure — missing ref, syntax error, permission denied,
+    // etc. Silently continuing produces a partial schema that the app
+    // boots against, which is harder to diagnose than a loud failure.
+    // Fail the deploy so the operator has to fix the DDL before ship.
+    fail(`DDL statement failed (${err.code || 'unknown'}): ${err.message?.slice(0, 200)}`);
   }
 }
 

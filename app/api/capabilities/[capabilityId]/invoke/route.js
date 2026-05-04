@@ -226,6 +226,29 @@ export async function POST(request, { params }) {
         agent_id: agentId,
       }, { status: 403 });
     }
+    if (accessResult.access === 'require_approval') {
+      await createActionRecord(sql, {
+        orgId,
+        action_id,
+        data: { ...actionData, status: 'pending_approval' },
+        actionStatus: 'pending_approval',
+        costEstimate: 0,
+        signature: null,
+        verified: false,
+        timestamp_start,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'pending_approval',
+          action_id,
+          message: `Invocation requires human approval. Poll /api/approvals/${action_id} for status.`,
+          reason: accessResult.rule?.reason || null,
+        },
+        { status: 202 },
+      );
+    }
 
     // 6. Create running action record
     await createActionRecord(sql, {
@@ -266,9 +289,12 @@ export async function POST(request, { params }) {
       WHERE action_id = ${action_id} AND org_id = ${orgId}
     `;
 
-    // Update health_status on success (fire-and-forget)
-    if (result.success) {
-      void updateCapability(sql, orgId, capabilityId, { health_status: 'healthy' })
+    // Keep health_status in step with the invocation outcome so checkCircuitBreaker
+    // can actually count consecutive failures — without this, the 'healthy' short-circuit
+    // in capability-health.js prevents the breaker from ever opening.
+    {
+      const nextHealth = result.success ? 'healthy' : 'degraded';
+      void updateCapability(sql, orgId, capabilityId, { health_status: nextHealth })
         .catch((err) => console.warn('[API] Health status update failed:', err.message));
     }
 

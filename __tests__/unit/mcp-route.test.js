@@ -42,10 +42,9 @@ describe('POST /api/mcp', () => {
     });
 
     const res = await POST(request);
-    const data = await res.json();
 
-    expect(data.jsonrpc).toBe('2.0');
-    expect(data.result).toEqual({});
+    // JSON-RPC 2.0: notifications must not receive a response body.
+    expect(res.status).toBe(204);
   });
 
   it('handles tools/list request', async () => {

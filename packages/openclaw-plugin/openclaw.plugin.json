@@ -2,7 +2,7 @@
   "id": "dashclaw-governance",
   "name": "DashClaw Governance",
   "description": "Policy enforcement, human-in-the-loop approval, and decision recording for every OpenClaw tool call. Powered by DashClaw.",
-  "version": "1.2.2",
+  "version": "1.2.5",
   "entry": "src/index.ts",
   "main": "./src/index.ts",
   "configSchema": {
@@ -31,6 +31,10 @@
         "default": "openclaw",
         "description": "Agent identifier in DashClaw"
       },
+      "defaultModel": {
+        "type": "string",
+        "description": "Fallback model id (e.g. 'openai-codex/gpt-5.4') used when llm_output events fire without a model field. Without this, server-side cost estimation cannot price the turn and stores cost_estimate = 0. Also settable via DASHCLAW_DEFAULT_MODEL env var."
+      },
       "failClosed": {
         "type": "boolean",
         "default": true,
@@ -55,6 +59,7 @@
     "baseUrl": { "label": "DashClaw URL (alias)", "advanced": true },
     "apiKey": { "sensitive": true, "label": "DashClaw API Key (alias)", "advanced": true },
     "agentId": { "label": "Agent ID" },
+    "defaultModel": { "label": "Default model (for cost pricing)", "placeholder": "openai-codex/gpt-5.4", "advanced": true },
     "failClosed": { "label": "Fail-closed when DashClaw unreachable", "advanced": true },
     "riskScoreDefault": { "label": "Default risk score", "advanced": true },
     "highRiskTools": { "label": "High-risk tool names", "advanced": true }

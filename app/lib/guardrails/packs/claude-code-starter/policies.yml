@@ -1,0 +1,105 @@
+version: 1
+project: claude-code-starter
+description: >
+  Day-one baseline for Claude Code (and similar coding-agent) hooks. Four
+  policies that cover the common cases: silently allow git commits and test
+  runs (no policy needed — default is allow), always block mass-destructive
+  operations, require approval for network calls and package installs, and
+  rate-limit runaway agents. Install this pack first; stack layered-intelligence
+  on top once the baseline is in place.
+
+policies:
+  # --- Block mass-destructive operations ---
+  # Fires when the server-computed risk score hits the 100 clamp. In practice
+  # this means bash intent=destructive on a shell-touching command (security
+  # base 80 + DESTRUCTIVE_GOAL_PATTERNS +20 = 100): rm -rf, drop table,
+  # truncate, format, wipe. Normal file edits and git commits score well
+  # below 100 and pass through.
+  - id: block_mass_destructive
+    description: "Claude Code Starter — Block Mass-Destructive Operations"
+    policy_type: risk_threshold
+    rules:
+      threshold: 100
+      action: block
+    tests:
+      - name: blocks_rm_rf
+        input:
+          action_type: security
+          declared_goal: "Bash: rm -rf /tmp/build"
+        expect:
+          decision: block
+
+      - name: allows_normal_file_edit
+        input:
+          action_type: apply
+          declared_goal: "Write: src/app.js"
+        expect:
+          decision: allow
+
+  # --- Require approval for network calls ---
+  # The pretool hook maps bash intent=network (curl, wget, ssh, scp) and MCP
+  # tool calls to action_type='api'. Matches WebFetch and RemoteTrigger too.
+  - id: require_approval_network_calls
+    description: "Claude Code Starter — Require Approval for Network Calls"
+    policy_type: require_approval
+    rules:
+      action_types:
+        - api
+    tests:
+      - name: requires_approval_for_curl
+        input:
+          action_type: api
+          declared_goal: "Bash: curl https://example.com/data"
+        expect:
+          decision: require_approval
+
+      - name: allows_non_network_action
+        input:
+          action_type: apply
+          declared_goal: "Edit: README.md"
+        expect:
+          decision: allow
+
+  # --- Require approval for package installs ---
+  # Bash intent=package_management (npm install, pip install, apt install,
+  # cargo add) maps to action_type='build'.
+  - id: require_approval_package_installs
+    description: "Claude Code Starter — Require Approval for Package Installs"
+    policy_type: require_approval
+    rules:
+      action_types:
+        - build
+    tests:
+      - name: requires_approval_for_npm_install
+        input:
+          action_type: build
+          declared_goal: "Bash: npm install express"
+        expect:
+          decision: require_approval
+
+      - name: allows_test_run
+        input:
+          action_type: test
+          declared_goal: "Bash: npm test"
+        expect:
+          decision: allow
+
+  # --- Rate-limit runaway agents ---
+  # Safety net for agents that spiral. Warns (does not block) if the same
+  # agent fires more than 200 governed actions in 10 minutes. Adjust per
+  # instance; a human is unlikely to legitimately hit this rate.
+  - id: rate_limit_runaway_safety
+    description: "Claude Code Starter — Rate-Limit Runaway Agents"
+    policy_type: rate_limit
+    rules:
+      max_actions: 200
+      window_minutes: 10
+      action: warn
+    tests:
+      - name: warns_on_200_plus_actions
+        input:
+          agent_id: claude-code
+          action_count: 250
+          window_minutes: 10
+        expect:
+          decision: warn

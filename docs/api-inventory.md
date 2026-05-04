@@ -13,10 +13,10 @@ doc-type: architecture
 
 ## Summary
 
-- Total routes: `225`
+- Total routes: `228`
 - Stable routes: `41`
 - Beta routes: `20`
-- Experimental routes: `164`
+- Experimental routes: `167`
 
 ## Routes
 
@@ -126,6 +126,7 @@ doc-type: architecture
 | `/api/cron/reset-meters` | `GET` | `beta` | `/api/cron` | `app/api/cron/reset-meters/route.js` |
 | `/api/cron/routing-maintenance` | `POST` | `beta` | `/api/cron` | `app/api/cron/routing-maintenance/route.js` |
 | `/api/cron/signals` | `GET` | `beta` | `/api/cron` | `app/api/cron/signals/route.js` |
+| `/api/discord/interactions` | `POST` | `experimental` | `(default)` | `app/api/discord/interactions/route.js` |
 | `/api/docs/raw` | `GET` | `beta` | `/api/docs` | `app/api/docs/raw/route.js` |
 | `/api/doctor` | `GET` | `experimental` | `(default)` | `app/api/doctor/route.js` |
 | `/api/doctor/fix` | `POST` | `experimental` | `(default)` | `app/api/doctor/fix/route.js` |
@@ -176,6 +177,7 @@ doc-type: architecture
 | `/api/model-strategies` | `GET, POST` | `experimental` | `(default)` | `app/api/model-strategies/route.js` |
 | `/api/model-strategies/{strategyId}` | `DELETE, GET, PATCH` | `experimental` | `(default)` | `app/api/model-strategies/[strategyId]/route.js` |
 | `/api/model-strategies/{strategyId}/complete` | `POST` | `experimental` | `(default)` | `app/api/model-strategies/[strategyId]/complete/route.js` |
+| `/api/monetization/verified-integrations-count` | `GET` | `experimental` | `(default)` | `app/api/monetization/verified-integrations-count/route.js` |
 | `/api/operations/feed` | `GET` | `experimental` | `(default)` | `app/api/operations/feed/route.js` |
 | `/api/operations/summary` | `GET` | `experimental` | `(default)` | `app/api/operations/summary/route.js` |
 | `/api/orgs` | `GET, POST` | `stable` | `/api/orgs` | `app/api/orgs/route.js` |
@@ -212,6 +214,7 @@ doc-type: architecture
 | `/api/security/prompt-injection` | `GET, POST` | `beta` | `/api/security` | `app/api/security/prompt-injection/route.js` |
 | `/api/security/scan` | `POST` | `beta` | `/api/security` | `app/api/security/scan/route.js` |
 | `/api/security/status` | `GET` | `beta` | `/api/security` | `app/api/security/status/route.js` |
+| `/api/session/effective` | `GET` | `experimental` | `(default)` | `app/api/session/effective/route.js` |
 | `/api/sessions` | `GET, POST` | `experimental` | `(default)` | `app/api/sessions/route.js` |
 | `/api/sessions/{sessionId}` | `GET, PATCH` | `experimental` | `(default)` | `app/api/sessions/[sessionId]/route.js` |
 | `/api/sessions/{sessionId}/events` | `GET` | `experimental` | `(default)` | `app/api/sessions/[sessionId]/events/route.js` |

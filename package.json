@@ -1,6 +1,6 @@
 {
   "name": "dashclaw-platform",
-  "version": "2.13.1",
+  "version": "2.13.3",
   "description": "Decision infrastructure for AI agents — governance runtime with policy enforcement, decision recording, and human-in-the-loop approval.",
   "private": true,
   "license": "MIT",
@@ -32,6 +32,8 @@
     "route-sql:check": "node scripts/check-route-sql-guard.mjs",
     "hooks:install": "node scripts/install-hooks.mjs",
     "hooks:diagnose": "node scripts/diagnose-hooks.mjs",
+    "diagnose:cost": "node scripts/diagnose-cost-attribution.mjs",
+    "backfill:null-model-cost": "node scripts/backfill-null-model-cost.mjs",
     "telegram:setup": "node scripts/telegram-setup-wizard.mjs",
     "telegram:register": "node scripts/telegram-register-webhook.mjs",
     "telegram:verify": "node scripts/telegram-verify-loop.mjs",
@@ -66,7 +68,7 @@
   "dependencies": {
     "@e965/xlsx": "^0.20.3",
     "@modelcontextprotocol/server": "^2.0.0-alpha.2",
-    "@neondatabase/serverless": "^1.0.2",
+    "@neondatabase/serverless": "^1.1.0",
     "@vercel/analytics": "2.0.1",
     "@xyflow/react": "^12.10.2",
     "better-sqlite3": "^12.9.0",
@@ -80,8 +82,8 @@
     "html2pdf.js": "^0.14.0",
     "js-yaml": "^4.1.0",
     "lucide-react": "0.577.0",
-    "next": "^16.2.3",
-    "next-auth": "^4.24.13",
+    "next": "^16.2.4",
+    "next-auth": "^4.24.14",
     "openai": "^6.34.0",
     "postgres": "^3.4.9",
     "react": "^18",
@@ -90,8 +92,9 @@
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.1",
     "redis": "^4.7.1",
-    "resend": "^6.11.0",
-    "stripe": "^22.0.1",
+    "resend": "^6.12.0",
+    "stripe": "^22.0.2",
+    "tweetnacl": "^1.0.3",
     "zod": "^4.3.6"
   },
   "overrides": {

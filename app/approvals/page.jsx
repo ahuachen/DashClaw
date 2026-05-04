@@ -9,9 +9,9 @@ import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
-import { useSession } from 'next-auth/react';
 import { isDemoMode } from '../lib/isDemoMode';
 import { parseJsonArray as safeJsonArray } from '../lib/parseJson';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 function Banner({ icon: Icon, tone, title, children }) {
   const tones = {
@@ -37,7 +37,7 @@ export default function ApprovalsPage() {
   const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
-  const { data: session, status: sessionStatus } = useSession();
+  const { isAdmin, settled: sessionSettled } = useEffectiveRole();
 
   const fetchPending = useCallback(async () => {
     try {
@@ -70,8 +70,11 @@ export default function ApprovalsPage() {
 
       if (!res.ok) throw new Error('Failed to submit decision');
 
-      // Optimistic update
-      setPendingActions(prev => prev.filter(a => a.action_id !== actionId));
+      // Trust the server as the source of truth — re-fetch the pending list
+      // instead of optimistically filtering locally. Previously a 200 with a
+      // malformed body still passed the ok check and the action was removed
+      // locally, then re-appeared on the next 10s poll, confusing operators.
+      await fetchPending();
     } catch (err) {
       alert(`Decision failed: ${err.message}`);
     } finally {
@@ -79,17 +82,8 @@ export default function ApprovalsPage() {
     }
   };
 
-  const isAdmin = session?.user?.role === 'admin';
   const isDemo = isDemoMode();
   const canDecide = isAdmin && !isDemo;
-
-  // BUG-03 fix: do not render the READ-ONLY banner while the session is still
-  // hydrating. useSession() returns status='loading' on the initial mount until
-  // NextAuth resolves the JWT; during that window session.user.role is undefined,
-  // which naively evaluates as !isAdmin and causes the orange banner to flash
-  // for a real admin user during page refresh. Gate the banner on a settled
-  // session state instead.
-  const sessionSettled = sessionStatus !== 'loading';
 
   return (
     <PageLayout

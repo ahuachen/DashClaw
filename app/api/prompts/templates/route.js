@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getOrgRole } from '../../../lib/org.js';
 import { listTemplates, createTemplate } from '../../../lib/prompt.js';
 
 export async function GET(request) {
@@ -14,6 +15,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  if (getOrgRole(request) !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
   try {
     const body = await request.json();
     if (!body.name) {

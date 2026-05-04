@@ -10,6 +10,7 @@
  */
 
 import crypto from 'crypto';
+import vm from 'node:vm';
 import { isLLMAvailable, tryLLMComplete } from './llm.js';
 
 function generateId(prefix) {
@@ -50,9 +51,19 @@ export function executeScorer(scorer, action) {
 
 function _executeRegex(config, action) {
   try {
-    const pattern = new RegExp(config.pattern || '', config.flags || 'i');
-    const target = String(action.outcome || '');
-    const matched = pattern.test(target);
+    // ReDoS guard: admin-supplied patterns can exhibit catastrophic backtracking
+    // on crafted targets (e.g. /(a+)+b/ vs 'aaaa…aaaa'). Node's regex engine is
+    // synchronous and has no built-in timeout, so run the match inside a vm
+    // context with a 100ms ceiling — a runaway pattern aborts with a thrown
+    // error rather than pegging the worker.
+    const source = String(config.pattern || '');
+    const flags = String(config.flags || 'i');
+    const target = String(action.outcome || '').slice(0, 100_000);
+    const matched = vm.runInNewContext(
+      'new RegExp(src, flags).test(target)',
+      { src: source, flags, target },
+      { timeout: 100 }
+    );
     return {
       score: matched ? (config.match_score ?? 1.0) : (config.no_match_score ?? 0.0),
       label: matched ? 'match' : 'no_match',
@@ -113,19 +124,20 @@ function _executeNumericRange(config, action) {
 function _executeCustomFunction(config, action) {
   try {
     const expression = config.expression || 'null';
-    // Safe sandbox: only pass specific action fields as arguments
-    const fn = new Function(
-      'outcome', 'action_type', 'risk_score', 'declared_goal', 'status',
-      `'use strict'; return (${expression});`
-    );
-
-    let result = fn(
-      action.outcome || '',
-      action.action_type || '',
-      parseFloat(action.risk_score) || 0,
-      action.declared_goal || '',
-      action.status || ''
-    );
+    // Evaluate in an isolated vm context that only exposes the allowed
+    // action fields as sandbox globals. The outer realm (process, require,
+    // filesystem, network) is not reachable from within the script, so a
+    // compromised scorer definition cannot exfiltrate env vars or issue
+    // I/O. A short timeout bounds infinite loops.
+    const context = vm.createContext({
+      outcome: action.outcome || '',
+      action_type: action.action_type || '',
+      risk_score: parseFloat(action.risk_score) || 0,
+      declared_goal: action.declared_goal || '',
+      status: action.status || '',
+    });
+    const script = new vm.Script(`'use strict'; (${expression})`);
+    let result = script.runInContext(context, { timeout: 100, displayErrors: false });
 
     if (typeof result !== 'number' || isNaN(result)) {
       return { score: null, label: null, reasoning: `Expression returned non-number: ${result}`, error: null };
@@ -237,11 +249,19 @@ export async function executeEvalRun(sql, orgId, runId) {
     return { success: false, scored: 0, errors: 1, avgScore: null };
   }
 
-  // Mark as running
-  await sql`
+  // Atomic compare-and-set: only transition to running if still pending.
+  // A duplicate POST (double-click, retry) would otherwise reset a
+  // completed/running row back to running and double-write eval_scores.
+  const transitioned = await sql`
     UPDATE eval_runs SET status = 'running', started_at = ${new Date().toISOString()}
-    WHERE id = ${runId} AND org_id = ${orgId}
+    WHERE id = ${runId} AND org_id = ${orgId} AND status = 'pending'
+    RETURNING id
   `;
+  if (transitioned.length === 0) {
+    // Another executor won the race or the run was already finalized.
+    // Bail out silently — no scores will be written under this handle.
+    return;
+  }
 
   // Build action query from filter_criteria
   let filterCriteria = {};
@@ -295,10 +315,10 @@ export async function executeEvalRun(sql, orgId, runId) {
 
     const scoreId = generateId('ev_');
     await sql`
-      INSERT INTO eval_scores (id, org_id, action_id, scorer_id, scorer_name, score, label, reasoning, evaluated_by, created_at)
+      INSERT INTO eval_scores (id, org_id, action_id, scorer_id, run_id, scorer_name, score, label, reasoning, evaluated_by, created_at)
       VALUES (
         ${scoreId}, ${orgId}, ${action.action_id || action.id},
-        ${run.scorer_id}, ${run.name || 'unnamed'},
+        ${run.scorer_id}, ${runId}, ${run.name || 'unnamed'},
         ${result.score}, ${result.label}, ${result.reasoning},
         ${scorer.scorer_type === 'llm_judge' ? 'llm_judge' : 'auto'},
         ${now}

@@ -1,15 +1,22 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { isHostedMode } from '../../../lib/hosted/flag.js';
 import { findExpiredWorkspaces, deleteHostedWorkspace } from '../../../lib/repositories/hosted-workspace.repository.js';
 import { getSql } from '../../../lib/db.js';
+import { timingSafeCompare } from '../../../lib/timing-safe.js';
 
 function requireAdminOrCronSecret(request) {
   const role = request.headers.get('x-org-role');
   if (role === 'owner' || role === 'admin') return true;
 
-  // Path 1: explicit x-cleanup-secret header (used by GH Actions + manual curl)
+  // Path 1: explicit x-cleanup-secret header (used by GH Actions + manual curl).
+  // timingSafeCompare — `===` on a secret leaks byte-wise equality via branch
+  // timing. Practically a weak signal for a long secret, but every other
+  // secret comparison in the codebase uses the safe helper.
   const xSecret = request.headers.get('x-cleanup-secret');
-  if (xSecret && process.env.HOSTED_CLEANUP_SECRET && xSecret === process.env.HOSTED_CLEANUP_SECRET) {
+  if (xSecret && process.env.HOSTED_CLEANUP_SECRET && timingSafeCompare(xSecret, process.env.HOSTED_CLEANUP_SECRET)) {
     return true;
   }
 
@@ -17,7 +24,7 @@ function requireAdminOrCronSecret(request) {
   const auth = request.headers.get('authorization');
   if (auth && process.env.CRON_SECRET) {
     const prefix = 'Bearer ';
-    if (auth.startsWith(prefix) && auth.slice(prefix.length) === process.env.CRON_SECRET) {
+    if (auth.startsWith(prefix) && timingSafeCompare(auth.slice(prefix.length), process.env.CRON_SECRET)) {
       return true;
     }
   }

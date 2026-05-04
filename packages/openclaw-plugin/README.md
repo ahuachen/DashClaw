@@ -117,6 +117,7 @@ empty because the wait target didn't exist. Fixed in `1.0.1`.
 | `dashclawUrl` | string | **required** | Base URL of your DashClaw instance, e.g. `https://my-dashclaw.vercel.app`. |
 | `dashclawApiKey` | string | **required** | DashClaw API key (starts with `oc_live_`). |
 | `agentId` | string | `"openclaw"` | Identifier this OpenClaw instance reports to DashClaw. |
+| `defaultModel` | string | `""` | Fallback model id (e.g. `claude-sonnet-4-6`, `gpt-4o`) used when `llm_output` events don't include a `model` field. Without this, unpriced turns land `tokens_in`/`tokens_out` but `cost_estimate` stays `$0`. Env var: `DASHCLAW_DEFAULT_MODEL`. |
 | `failClosed` | boolean | `true` | If DashClaw is unreachable, block the tool call. Set `false` to fail open. |
 | `riskScoreDefault` | number | `50` | Fallback risk score for tool calls the classifier doesn't recognize. Recognized commands (git, curl, rm, npm, etc.) compute their own risk score automatically. |
 | `highRiskTools` | string[] | `[]` | Tool names that should always start at risk score 85 before classification. The classifier may raise the score further (e.g. `rm -rf` → 90) but will never lower it below 85 for tools in this list. |
@@ -155,6 +156,36 @@ Accounting notes:
 - Tokens are split evenly across the tool calls attributable to the same assistant response. Remainders go to the earliest buckets so the sum is preserved.
 - Cache reads are weighted at 0.1× (Anthropic bills cache reads at ~10% of base input price) before being added to `tokens_in`. Cache writes are counted at full price. This keeps the derived cost aligned with real billing without requiring the server to model cache pricing.
 - Failures are silent: a warning is logged but token attribution never blocks or throws. If your provider doesn't populate `usage`, nothing is patched.
+- **Missing `model`:** if `llm_output` fires with `usage` but no `model`, the plugin stashes tokens using `config.defaultModel` / `DASHCLAW_DEFAULT_MODEL` as a fallback. When both are unset, tokens are still attributed but `cost_estimate` stays `$0` — because the server refuses to guess the model (retroactively backfilling `model = NULL` would have priced every historical row as Opus). The plugin logs a one-time breadcrumb per run in this case so ops can spot it quickly.
+
+## Troubleshooting cost attribution
+
+If actions are flowing but `cost_estimate` stays `$0` for an OpenClaw agent, run this query against your DashClaw DB — it decomposes the three failure modes in one shot:
+
+```sql
+SELECT
+  agent_id,
+  COUNT(*) AS actions,
+  COUNT(*) FILTER (WHERE tokens_in > 0 OR tokens_out > 0) AS with_tokens,
+  COUNT(*) FILTER (WHERE model IS NOT NULL AND model <> '') AS with_model,
+  COUNT(*) FILTER (WHERE cost_estimate > 0) AS with_cost
+FROM action_records
+WHERE org_id = '<your_org_id>'
+  AND timestamp_start::timestamptz >= NOW() - INTERVAL '30 days'
+GROUP BY agent_id
+ORDER BY actions DESC;
+```
+
+Interpretation:
+
+| `with_tokens` | `with_model` | `with_cost` | Likely cause |
+|---|---|---|---|
+| `0` | `0` | `0` | Plugin older than v1.2.0, or OpenClaw runtime doesn't emit `llm_output`. Upgrade both. |
+| `> 0` | `0` | `0` | `llm_output` fires without `model`. Set `config.defaultModel` or `DASHCLAW_DEFAULT_MODEL`. |
+| `> 0` | `> 0` | `0` | Model string isn't matched by DashClaw's pricing table. Add it via Settings → Model Pricing. |
+| `> 0` | `> 0` | `> 0` | Working. If the UI disagrees, check the analytics aggregation. |
+
+Repo operators can run `node scripts/diagnose-cost-attribution.mjs` from a DashClaw checkout — it auto-discovers `org_id` from `.env.local` and prints the same table.
 
 ## Links
 

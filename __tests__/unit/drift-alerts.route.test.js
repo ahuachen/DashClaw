@@ -43,10 +43,12 @@ describe('/api/drift/alerts', () => {
   });
 
   describe('POST', () => {
+    const adminHeaders = { 'x-org-id': 'org_test', 'x-org-role': 'admin' };
+
     it('runs drift detection by default', async () => {
       mockDetectDrift.mockResolvedValue({ alerts_generated: 2, alerts: [] });
       const res = await POST(makeRequest('http://localhost/api/drift/alerts', {
-        headers: { 'x-org-id': 'org_test' },
+        headers: adminHeaders,
         body: {},
       }));
       expect(res.status).toBe(201);
@@ -56,7 +58,7 @@ describe('/api/drift/alerts', () => {
     it('computes baselines when action=compute_baselines', async () => {
       mockComputeBaselines.mockResolvedValue({ baselines_computed: 5, results: [] });
       const res = await POST(makeRequest('http://localhost/api/drift/alerts', {
-        headers: { 'x-org-id': 'org_test' },
+        headers: adminHeaders,
         body: { action: 'compute_baselines', lookback_days: 30 },
       }));
       expect(res.status).toBe(201);
@@ -66,11 +68,20 @@ describe('/api/drift/alerts', () => {
     it('records snapshots when action=record_snapshots', async () => {
       mockRecordSnapshots.mockResolvedValue({ snapshots_recorded: 10, results: [] });
       const res = await POST(makeRequest('http://localhost/api/drift/alerts', {
-        headers: { 'x-org-id': 'org_test' },
+        headers: adminHeaders,
         body: { action: 'record_snapshots' },
       }));
       expect(res.status).toBe(201);
       expect(mockRecordSnapshots).toHaveBeenCalled();
+    });
+
+    it('returns 403 for non-admin members', async () => {
+      const res = await POST(makeRequest('http://localhost/api/drift/alerts', {
+        headers: { 'x-org-id': 'org_test', 'x-org-role': 'member' },
+        body: {},
+      }));
+      expect(res.status).toBe(403);
+      expect(mockDetectDrift).not.toHaveBeenCalled();
     });
   });
 });

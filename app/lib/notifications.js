@@ -55,7 +55,11 @@ export async function sendSignalAlertEmail(to, orgName, signals) {
   const text = `DashClaw Signal Alert\n\n${signals.length} new signal(s) detected for ${orgName}:\n\n${signals.map(s => `[${s.severity.toUpperCase()}] ${s.type}: ${s.label}`).join('\n')}\n\nView: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/security`;
 
   try {
-    const { Resend } = require('resend');
+    // Dynamic ESM import — `require` is not defined under the ESM
+    // runtime the app uses, so the previous CJS call threw
+    // ReferenceError on every send. await import() works in both
+    // Node runtimes and preserves the lazy-load behaviour.
+    const { Resend } = await import('resend');
     const resend = new Resend(apiKey);
     await resend.emails.send({
       from: `DashClaw Alerts <${fromEmail}>`,

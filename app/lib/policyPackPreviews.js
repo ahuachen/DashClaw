@@ -24,6 +24,11 @@ export const PACK_PREVIEWS = {
     description: 'Graduated autonomy, test verification gates, and branch freshness enforcement for coding agents',
     recommended_for: 'Teams using Claude Code hooks with dashclaw-agent-intel module',
   },
+  'claude-code-starter': {
+    name: 'Claude Code Starter',
+    description: 'Day-one baseline for coding agents — blocks mass-destructive ops, gates network calls and package installs, rate-limits runaways. Install first; stack layered-intelligence on top.',
+    recommended_for: 'Any coding agent (Claude Code, Cursor, Aider) on a fresh DashClaw instance',
+  },
 };
 
 export const AVAILABLE_PACKS = Object.keys(PACK_PREVIEWS);

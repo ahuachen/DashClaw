@@ -126,16 +126,16 @@ export default function ComplianceExportsPage() {
 
   const handleDeleteExport = async (id) => {
     if (!confirm('Delete this export?')) return;
-    try { await fetch(`/api/compliance/exports/${id}`, { method: 'DELETE' }); fetchData(); } catch {}
+    try { await fetch(`/api/compliance/exports/${id}`, { method: 'DELETE' }); fetchData(); } catch { alert('Failed to delete export'); }
   };
 
   const handleDeleteSchedule = async (id) => {
     if (!confirm('Delete this schedule?')) return;
-    try { await fetch(`/api/compliance/schedules/${id}`, { method: 'DELETE' }); fetchData(); } catch {}
+    try { await fetch(`/api/compliance/schedules/${id}`, { method: 'DELETE' }); fetchData(); } catch { alert('Failed to delete schedule'); }
   };
 
   const handleToggleSchedule = async (id, enabled) => {
-    try { await fetch(`/api/compliance/schedules/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: !enabled }) }); fetchData(); } catch {}
+    try { await fetch(`/api/compliance/schedules/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: !enabled }) }); fetchData(); } catch { alert('Failed to toggle schedule'); }
   };
 
   const handleViewExport = async (exp) => {

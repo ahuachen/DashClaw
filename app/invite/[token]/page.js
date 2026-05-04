@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Check, Clock, AlertTriangle, Ban, Users, Shield } from 'lucide-react';
 import DashClawLogo from '../../components/DashClawLogo';
+import { useEffectiveRole } from '../../hooks/useEffectiveRole';
 
 export default function InviteAcceptPage() {
   const { token } = useParams();
-  const { data: session, status: sessionStatus } = useSession();
+  const { authenticated, settled: sessionSettled } = useEffectiveRole();
 
   const [invite, setInvite] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,7 +60,7 @@ export default function InviteAcceptPage() {
   };
 
   // Not logged in
-  if (sessionStatus === 'loading') {
+  if (!sessionSettled) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-brand border-t-transparent rounded-full animate-spin" />
@@ -68,7 +68,7 @@ export default function InviteAcceptPage() {
     );
   }
 
-  if (sessionStatus === 'unauthenticated') {
+  if (!authenticated) {
     // Middleware should redirect to login, but just in case
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">

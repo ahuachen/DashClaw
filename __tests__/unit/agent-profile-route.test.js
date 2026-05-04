@@ -47,12 +47,8 @@ describe('getAgentTrustPosture', () => {
           { id: 2, policy_type: 'rate_limit', description: 'Throttle', agent_ids: '["agent_1"]' },
           { id: 3, policy_type: 'block_action_type', description: 'No deploy', agent_ids: '["agent_2"]' },
         ],
-        // approved count
-        [{ count: '8' }],
-        // denied count
-        [{ count: '2' }],
-        // blocks 30d
-        [{ count: '1' }],
+        // action_records counts — consolidated into a single row with FILTER clauses
+        [{ approved_count: 8, denied_count: 2, blocks_count: 1 }],
       ],
     });
 

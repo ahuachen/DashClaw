@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { NextResponse } from 'next/server';
-import { getSql as getDbSql } from '../../../lib/db.js';
+import { getSql } from '../../../lib/db.js';
 import { getOrgId } from '../../../lib/org.js';
 import { scanSensitiveData } from '../../../lib/security.js';
 import { getAssumption, updateAssumption } from '../../../lib/repositories/assumptions.repository.js';
@@ -20,13 +20,6 @@ function redactAny(value, findings) {
     return out;
   }
   return value;
-}
-
-let _sql;
-function getSql() {
-  if (_sql) return _sql;
-  _sql = getDbSql();
-  return _sql;
 }
 
 export async function GET(request, { params }) {
@@ -102,11 +95,26 @@ export async function PATCH(request, { params }) {
       // SECURITY: redact likely secrets before storing invalidation reason.
       const dlpFindings = [];
       const safeReason = redactAny(invalidated_reason.trim(), dlpFindings);
-      const result = await updateAssumption(sql, orgId, assumptionId, {
-        invalidated: true,
-        invalidated_reason: safeReason,
-        invalidated_at: now
-      });
+      const result = await updateAssumption(
+        sql,
+        orgId,
+        assumptionId,
+        {
+          invalidated: true,
+          invalidated_reason: safeReason,
+          invalidated_at: now,
+        },
+        { gateInvalidated: true },
+      );
+      if (!result) {
+        // Compare-and-set failed — another concurrent PATCH won the race
+        // and invalidated this assumption first. Surface 409 rather than
+        // silently clobbering the first writer's reason.
+        return NextResponse.json(
+          { error: 'Assumption is already invalidated' },
+          { status: 409 },
+        );
+      }
       return NextResponse.json({
         assumption: result,
         security: {

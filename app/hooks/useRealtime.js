@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffectiveRole } from './useEffectiveRole';
 import { isDemoMode } from '../lib/isDemoMode';
 
 // Shared EventSource per browser tab. Multiple components can subscribe without
@@ -175,16 +175,19 @@ function maybeCloseEventSource() {
 }
 
 export function useRealtime(onEvent) {
-  const { data: session } = useSession();
+  // BUG-03b: previously gated the SSE subscription on `session?.user?.id`
+  // from useSession(), which always returned null for local-password admins
+  // — they got no realtime updates on mission-control, decisions, etc.
+  // useEffectiveRole resolves both auth paths via /api/session/effective.
+  const { authenticated } = useEffectiveRole();
   const onEventRef = useRef(onEvent);
-  const sessionUserId = session?.user?.id || null;
 
   useEffect(() => {
     onEventRef.current = onEvent;
   }, [onEvent]);
 
   useEffect(() => {
-    if (!sessionUserId) return;
+    if (!authenticated) return;
 
     const handler = (event, payload) => onEventRef.current?.(event, payload);
     subscribers.add(handler);
@@ -194,5 +197,5 @@ export function useRealtime(onEvent) {
       subscribers.delete(handler);
       maybeCloseEventSource();
     };
-  }, [sessionUserId]);
+  }, [authenticated]);
 }

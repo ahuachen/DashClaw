@@ -2,6 +2,7 @@ import { getSettings } from './repositories/settings.repository.js';
 import { decrypt } from './encryption.js';
 import { shouldAutoEncrypt } from './repositories/settings.repository.js';
 import { getDefaultProviderModel } from './providers/providerRegistry.js';
+import { safeUrlWithIps, buildPinnedDispatcher } from './webhooks.js';
 
 const HEALTH_TIMEOUT = 8000;
 
@@ -62,7 +63,14 @@ const HEALTH_CHECKERS = {
   discord: async (creds) => {
     const url = creds.DISCORD_WEBHOOK_URL;
     if (!url) return { status: 'not_configured', message: 'No webhook URL' };
-    const res = await healthFetch(url);
+    let dispatcher;
+    try {
+      const validatedIps = await safeUrlWithIps(url);
+      dispatcher = buildPinnedDispatcher(validatedIps);
+    } catch (err) {
+      return { status: 'error', message: `Webhook URL rejected: ${err.message}` };
+    }
+    const res = await healthFetch(url, { dispatcher });
     if (res.ok) return { status: 'healthy', message: 'Webhook URL valid' };
     return { status: 'error', message: `Webhook returned ${res.status}` };
   },

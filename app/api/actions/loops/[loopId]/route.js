@@ -84,27 +84,31 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const existing = await sql`SELECT loop_id, status FROM open_loops WHERE loop_id = ${loopId} AND org_id = ${orgId}`;
-    if (existing.length === 0) {
-      return NextResponse.json({ error: 'Open loop not found' }, { status: 404 });
-    }
-
-    if (existing[0].status !== 'open') {
-      return NextResponse.json({ error: 'Loop is already ' + existing[0].status }, { status: 409 });
-    }
-
     // SECURITY: redact likely secrets before storing loop resolution.
     const dlpFindings = [];
     const safeResolution = resolution != null ? redactAny(resolution, dlpFindings) : null;
 
+    // Atomic compare-and-set on status='open' — two concurrent operators
+    // resolving the same loop cannot both win and silently clobber each
+    // other's resolution text. If zero rows are returned, the loop either
+    // does not exist (404) or is not open (409); a single lookup
+    // distinguishes the two cases.
     const result = await sql`
       UPDATE open_loops
       SET status = ${status},
           resolution = ${safeResolution || null},
           resolved_at = ${new Date().toISOString()}
-      WHERE loop_id = ${loopId} AND org_id = ${orgId}
+      WHERE loop_id = ${loopId} AND org_id = ${orgId} AND status = 'open'
       RETURNING *
     `;
+
+    if (result.length === 0) {
+      const existing = await sql`SELECT status FROM open_loops WHERE loop_id = ${loopId} AND org_id = ${orgId}`;
+      if (existing.length === 0) {
+        return NextResponse.json({ error: 'Open loop not found' }, { status: 404 });
+      }
+      return NextResponse.json({ error: 'Loop is already ' + existing[0].status }, { status: 409 });
+    }
 
     const loop = result[0];
 

@@ -1,7 +1,10 @@
 """Sensing orchestrator — runs all 5 collectors and produces a unified state report."""
 import os
+import sys
+import traceback
 from dataclasses import asdict
 from datetime import datetime, timezone
+from pathlib import Path
 from livingcode.types import StateReport, CollectorStatus
 from livingcode.state import ensure_organism_dir, write_state_report
 from livingcode.schema.validator import load_organism
@@ -10,6 +13,26 @@ from livingcode.collectors.test_health import collect_test_health
 from livingcode.collectors.code_quality import collect_code_quality
 from livingcode.collectors.dependency_health import collect_dependency_health
 from livingcode.collectors.ci_health import collect_ci_health
+
+
+def _record_collector_error(repo_path: str, collector_name: str, exc: BaseException) -> None:
+    """Write the traceback to .organism/errors.log and echo to stderr.
+
+    Each collector is isolated so one failure does not cascade, but
+    discarding the exception entirely (the prior behavior) silently
+    hid programmer errors — downstream checks would just show WARN.
+    """
+    try:
+        log_dir = Path(repo_path) / ".organism"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / "errors.log"
+        with log_path.open("a", encoding="utf-8") as fh:
+            fh.write(f"\n[{datetime.now(timezone.utc).isoformat()}] {collector_name}: {exc!r}\n")
+            fh.write(traceback.format_exc())
+    except Exception:
+        # Logging must never break sensing. Fall back to stderr only.
+        pass
+    print(f"[livingcode] collector '{collector_name}' failed: {exc!r}", file=sys.stderr)
 
 
 def run_sensing(repo_path: str) -> tuple[StateReport, str]:
@@ -33,35 +56,40 @@ def run_sensing(repo_path: str) -> tuple[StateReport, str]:
     try:
         git_stats = collect_git_stats(repo_path)
         collector_status["git_stats"] = CollectorStatus.OK
-    except Exception:
+    except Exception as exc:
+        _record_collector_error(repo_path, "git_stats", exc)
         collector_status["git_stats"] = CollectorStatus.FAILED
 
     test_health = None
     try:
         test_health = collect_test_health(repo_path)
         collector_status["test_health"] = CollectorStatus.OK
-    except Exception:
+    except Exception as exc:
+        _record_collector_error(repo_path, "test_health", exc)
         collector_status["test_health"] = CollectorStatus.FAILED
 
     code_quality = None
     try:
         code_quality = collect_code_quality(repo_path, max_file_length=max_file_length)
         collector_status["code_quality"] = CollectorStatus.OK
-    except Exception:
+    except Exception as exc:
+        _record_collector_error(repo_path, "code_quality", exc)
         collector_status["code_quality"] = CollectorStatus.FAILED
 
     dependency_health = None
     try:
         dependency_health = collect_dependency_health(repo_path)
         collector_status["dependency_health"] = CollectorStatus.OK
-    except Exception:
+    except Exception as exc:
+        _record_collector_error(repo_path, "dependency_health", exc)
         collector_status["dependency_health"] = CollectorStatus.FAILED
 
     ci_health = None
     try:
         ci_health = collect_ci_health(repo_path)
         collector_status["ci_health"] = CollectorStatus.OK
-    except Exception:
+    except Exception as exc:
+        _record_collector_error(repo_path, "ci_health", exc)
         collector_status["ci_health"] = CollectorStatus.FAILED
 
     report = StateReport(

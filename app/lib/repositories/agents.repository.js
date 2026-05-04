@@ -2,6 +2,41 @@ function isMissingTable(err) {
   return String(err?.code || '').includes('42P01') || String(err?.message || '').includes('does not exist');
 }
 
+/**
+ * Returns true when the agent_id has any trace of belonging to the org:
+ * a presence record, an identity record, a pairing, or a recorded action.
+ * Used as a tenant-ownership gate on user-supplied agent_id fields —
+ * messages/feedback/etc — to prevent cross-org spoofing.
+ */
+export async function agentExistsInOrg(sql, orgId, agentId) {
+  if (!agentId || typeof agentId !== 'string') return false;
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_presence WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_identities WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM agent_pairings WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  try {
+    const rows = await sql`
+      SELECT 1 FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1
+    `;
+    if (rows.length > 0) return true;
+  } catch (err) { if (!isMissingTable(err)) throw err; }
+  return false;
+}
+
 function maxIso(a, b) {
   if (!a) return b || null;
   if (!b) return a || null;
@@ -318,67 +353,58 @@ export async function attachAgentConnections(sql, orgId, agents) {
 
 /**
  * Aggregate trust posture for a single agent.
+ *
+ * Runs the five independent lookups in parallel, and collapses the three
+ * action_records COUNTs into a single scan with FILTER clauses — previously
+ * this function fired 7 serial SQL round-trips on every agent profile view.
  */
 export async function getAgentTrustPosture(sql, orgId, agentId) {
-  let permissionLevel = 'unknown';
-  let identityVerified = false;
-  let signatureEnforced = false;
-  let policies = [];
-  let approvalAllowed = 0;
-  let approvalDenied = 0;
-  let blocks30d = 0;
+  // Wrap each query so a missing-table failure degrades to a safe default
+  // without bringing down the whole aggregation.
+  const safe = async (runner, fallback) => {
+    try { return await runner(); }
+    catch (err) {
+      if (isMissingTable(err)) return fallback;
+      throw err;
+    }
+  };
 
-  // Agent pairing — permission level
-  try {
-    const rows = await sql`SELECT permission_level, status FROM agent_pairings WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'active' LIMIT 1`;
-    if (rows[0]) permissionLevel = rows[0].permission_level || 'unknown';
-  } catch (err) { if (!isMissingTable(err)) throw err; }
+  const [pairingRows, identityRows, settingsRows, policyRows, actionCountsRows] = await Promise.all([
+    safe(() => sql`SELECT permission_level, status FROM agent_pairings WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'active' LIMIT 1`, []),
+    safe(() => sql`SELECT agent_id FROM agent_identities WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1`, []),
+    safe(() => sql`SELECT value FROM settings WHERE org_id = ${orgId} AND key = 'ENFORCE_AGENT_SIGNATURES' LIMIT 1`, []),
+    safe(() => sql`SELECT id, policy_type, description, agent_ids FROM policies WHERE org_id = ${orgId} AND active = true`, []),
+    safe(() => sql`
+      SELECT
+        COUNT(*) FILTER (WHERE approved_by IS NOT NULL)::int AS approved_count,
+        COUNT(*) FILTER (WHERE status = 'failed' AND error_message LIKE '%Denied by human%')::int AS denied_count,
+        COUNT(*) FILTER (WHERE status = 'blocked' AND timestamp_start::timestamptz > NOW() - INTERVAL '30 days')::int AS blocks_count
+      FROM action_records
+      WHERE org_id = ${orgId} AND agent_id = ${agentId}
+    `, [{ approved_count: 0, denied_count: 0, blocks_count: 0 }]),
+  ]);
 
-  // Agent identity — verified?
-  try {
-    const rows = await sql`SELECT agent_id FROM agent_identities WHERE org_id = ${orgId} AND agent_id = ${agentId} LIMIT 1`;
-    identityVerified = rows.length > 0;
-  } catch (err) { if (!isMissingTable(err)) throw err; }
+  const permissionLevel = pairingRows[0]?.permission_level || 'unknown';
+  const identityVerified = identityRows.length > 0;
+  const signatureEnforced = settingsRows[0]?.value === 'true';
 
-  // Signature enforcement setting
-  try {
-    const rows = await sql`SELECT value FROM settings WHERE org_id = ${orgId} AND key = 'ENFORCE_AGENT_SIGNATURES' LIMIT 1`;
-    signatureEnforced = rows[0]?.value === 'true';
-  } catch (err) { if (!isMissingTable(err)) throw err; }
+  const policies = (policyRows || []).filter((p) => {
+    if (!p.agent_ids) return true; // global
+    try {
+      const ids = JSON.parse(p.agent_ids);
+      return Array.isArray(ids) && ids.includes(agentId);
+    } catch { return false; }
+  }).map((p) => ({
+    policy_id: p.id,
+    type: p.policy_type,
+    description: p.description,
+    scope: p.agent_ids ? 'agent' : 'global',
+  }));
 
-  // Policies that apply to this agent (global + agent-specific)
-  try {
-    const rows = await sql`SELECT id, policy_type, description, agent_ids FROM policies WHERE org_id = ${orgId} AND active = true`;
-    policies = (rows || []).filter(p => {
-      if (!p.agent_ids) return true; // global
-      try {
-        const ids = JSON.parse(p.agent_ids);
-        return Array.isArray(ids) && ids.includes(agentId);
-      } catch { return false; }
-    }).map(p => ({
-      policy_id: p.id,
-      type: p.policy_type,
-      description: p.description,
-      scope: p.agent_ids ? 'agent' : 'global',
-    }));
-  } catch (err) { if (!isMissingTable(err)) throw err; }
-
-  // Approval track record: actions that went through pending_approval
-  try {
-    const allowedRows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND approved_by IS NOT NULL`;
-    approvalAllowed = parseInt(allowedRows[0]?.count || '0', 10);
-  } catch (err) { if (!isMissingTable(err)) throw err; }
-
-  try {
-    const deniedRows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'failed' AND error_message LIKE '%Denied by human%'`;
-    approvalDenied = parseInt(deniedRows[0]?.count || '0', 10);
-  } catch (err) { if (!isMissingTable(err)) throw err; }
-
-  // Blocks in last 30 days
-  try {
-    const rows = await sql`SELECT COUNT(*)::int AS count FROM action_records WHERE org_id = ${orgId} AND agent_id = ${agentId} AND status = 'blocked' AND timestamp_start::timestamptz > NOW() - INTERVAL '30 days'`;
-    blocks30d = parseInt(rows[0]?.count || '0', 10);
-  } catch (err) { if (!isMissingTable(err)) throw err; }
+  const counts = actionCountsRows[0] || { approved_count: 0, denied_count: 0, blocks_count: 0 };
+  const approvalAllowed = counts.approved_count || 0;
+  const approvalDenied = counts.denied_count || 0;
+  const blocks30d = counts.blocks_count || 0;
 
   return {
     permission_level: permissionLevel,

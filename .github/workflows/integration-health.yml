@@ -20,9 +20,6 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    # Abort cleanly if secrets aren't wired up — users who fork without
-    # configuring these shouldn't see repeated red builds.
-    if: ${{ vars.DASHCLAW_BASE_URL != '' || secrets.DASHCLAW_BASE_URL != '' }}
     steps:
       - name: Hit /api/cron/integration-health
         env:

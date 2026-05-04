@@ -62,10 +62,17 @@ export async function executeWorkflow(
     const stepStart = Date.now();
     const stepActionId = `act_${crypto.randomUUID()}`;
 
-    // Resume: skip steps before resumeFromIndex
-    if (resumeContext && steps.indexOf(step) < resumeContext.resumeFromIndex) {
+    // Resume: a step is "reused" iff its ID has a captured output from the
+    // prior run. Using step.id instead of positional index means template
+    // edits between the original run and the resume — new steps inserted,
+    // deleted, or reordered — don't misalign the reuse decision. The old
+    // `indexOf(step) < resumeContext.resumeFromIndex` check would re-run
+    // previously-completed steps whenever a step was inserted ahead of them,
+    // and would silently skip new steps whose index happened to sit below
+    // the original resumeFromIndex.
+    if (resumeContext?.priorSteps?.[step.id]) {
       const stepIndex = steps.indexOf(step);
-      const priorOutput = resumeContext.priorSteps?.[step.id]?.output || null;
+      const priorOutput = resumeContext.priorSteps[step.id]?.output || null;
 
       await createActionRecord(sql, {
         orgId,
@@ -208,12 +215,19 @@ export async function executeWorkflow(
         const stepElapsed = Date.now() - stepStart;
 
         const retryPrefix = attempt > 0 ? `[retried: ${attempt + 1} attempts] ` : '';
+        // Persist token counts when the step returned them (prompt steps do;
+        // other step types don't). Without this, every workflow prompt step
+        // records zero tokens and analytics report a false zero-token gap.
+        const tokensIn = Number.isFinite(output?.tokens_in) ? output.tokens_in : 0;
+        const tokensOut = Number.isFinite(output?.tokens_out) ? output.tokens_out : 0;
         await sql`
           UPDATE action_records
           SET status = 'completed',
               output_summary = ${retryPrefix + JSON.stringify(output).slice(0, 500 - retryPrefix.length)},
               timestamp_end = ${new Date().toISOString()},
-              duration_ms = ${stepElapsed}
+              duration_ms = ${stepElapsed},
+              tokens_in = ${tokensIn},
+              tokens_out = ${tokensOut}
           WHERE action_id = ${stepActionId} AND org_id = ${orgId}
         `;
 

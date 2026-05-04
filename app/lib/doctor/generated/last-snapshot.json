@@ -1,5 +1,5 @@
 {
-  "timestamp": "sha1:a1f824d6b2d5e5e8e45fa07ccb620fcea398a9dc",
+  "timestamp": "sha1:0f2c77d2856357641da63b3d22458c4d6dca96d9",
   "routes": [
     {
       "path": "/api/_archive/agent-schedules",
@@ -1067,6 +1067,15 @@
       "file_path": "app/api/cron/signals/route.js"
     },
     {
+      "path": "/api/discord/interactions",
+      "methods": [
+        "POST"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/discord/interactions/route.js"
+    },
+    {
       "path": "/api/docs/raw",
       "methods": [
         "GET"
@@ -1572,6 +1581,15 @@
       "file_path": "app/api/model-strategies/[strategyId]/complete/route.js"
     },
     {
+      "path": "/api/monetization/verified-integrations-count",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/monetization/verified-integrations-count/route.js"
+    },
+    {
       "path": "/api/operations/feed",
       "methods": [
         "GET"
@@ -1940,6 +1958,15 @@
       "dynamic_params": [],
       "archived": false,
       "file_path": "app/api/security/status/route.js"
+    },
+    {
+      "path": "/api/session/effective",
+      "methods": [
+        "GET"
+      ],
+      "dynamic_params": [],
+      "archived": false,
+      "file_path": "app/api/session/effective/route.js"
     },
     {
       "path": "/api/sessions",
@@ -2478,6 +2505,15 @@
       "in_env_example": false
     },
     {
+      "name": "DASHCLAW_ALERTS_DISCORD",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-approvals.test.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "DASHCLAW_ALERTS_TELEGRAM",
       "required": false,
       "files": [
@@ -2490,9 +2526,7 @@
       "name": "DASHCLAW_API_KEY",
       "required": true,
       "files": [
-        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
-        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
-        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
+        "__tests__/unit/connect-complete-discord-alert.test.js",
         "__tests__/unit/hosted/check-hosted-ready.test.mjs",
         "__tests__/unit/hosted/middleware-trial-enforcement.test.js",
         "app/api/keys/reveal/route.js",
@@ -2506,6 +2540,7 @@
         "app/lib/demo/fixtures/journey-agents.js",
         "app/lib/demo/fixtures/persona-agents.js",
         "app/lib/demo/fixtures/tutorial-threads.js",
+        "app/lib/setup/auth-gate.js",
         "app/lib/starterSnippet.js",
         "app/self-host/SetupTabs.js",
         "examples/agent-chat-complete.js",
@@ -2579,9 +2614,6 @@
       "name": "DASHCLAW_BASE_URL",
       "required": false,
       "files": [
-        ".claude/skills/dashclaw-platform-intelligence/scripts/bootstrap-agent-quick.mjs",
-        ".claude/skills/dashclaw-platform-intelligence/scripts/diagnose.mjs",
-        ".claude/skills/dashclaw-platform-intelligence/scripts/validate-integration.mjs",
         "app/docs/page.js",
         "app/guides/openai-agents-sdk/page.js",
         "app/landingData.js",
@@ -2695,6 +2727,14 @@
       "in_env_example": false
     },
     {
+      "name": "DASHCLAW_MAX_ORG_ATTACHMENT_BYTES",
+      "required": false,
+      "files": [
+        "app/api/messages/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
       "name": "DASHCLAW_MODE",
       "required": false,
       "files": [
@@ -2705,6 +2745,16 @@
         "graphify-pilot/app/api/setup/ping/route.js",
         "graphify-pilot/app/settings/page.js",
         "middleware.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DASHCLAW_NEW_CONNECT_WEBHOOK",
+      "required": false,
+      "files": [
+        "__tests__/unit/connect-complete-discord-alert.test.js",
+        "app/api/actions/route.js",
+        "app/lib/notification-adapters/discord.js"
       ],
       "in_env_example": false
     },
@@ -2795,9 +2845,11 @@
         "scripts/auto-migrate.mjs",
         "scripts/backfill-embeddings.mjs",
         "scripts/backfill-learning-episodes.mjs",
+        "scripts/backfill-null-model-cost.mjs",
         "scripts/cleanup-actions.mjs",
         "scripts/cleanup-org-default.mjs",
         "scripts/create-org.mjs",
+        "scripts/diagnose-cost-attribution.mjs",
         "scripts/emergency-reset.mjs",
         "scripts/init-self-host-env.mjs",
         "scripts/migrate-action-model-column.mjs",
@@ -2835,6 +2887,46 @@
         "app/lib/validateEnv.js",
         "graphify-pilot/app/lib/guard.js",
         "graphify-pilot/app/lib/validateEnv.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_APPROVER_ORG_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_APPROVER_USER_ID",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-approvals.test.js",
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "required": false,
+      "files": [
+        "__tests__/unit/connect-complete-discord-alert.test.js",
+        "__tests__/unit/discord-approvals.test.js",
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/lib/discordApprovals.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "DISCORD_PUBLIC_KEY",
+      "required": false,
+      "files": [
+        "__tests__/unit/discord-interactions-route.test.js",
+        "app/api/discord/interactions/route.js"
       ],
       "in_env_example": false
     },
@@ -3165,6 +3257,7 @@
       "required": false,
       "files": [
         "__tests__/unit/actions.route.test.js",
+        "__tests__/unit/hosted/turnstile.test.js",
         "__tests__/unit/security-headers.test.js",
         "app/api/auth/config/route.js",
         "app/api/health/route.js",
@@ -3172,6 +3265,7 @@
         "app/lib/auth.js",
         "app/lib/db.js",
         "app/lib/events.js",
+        "app/lib/hosted/turnstile.js",
         "app/lib/readiness/workflow.mjs",
         "app/lib/validateEnv.js",
         "graphify-pilot/app/api/auth/config/route.js",
@@ -3625,6 +3719,14 @@
         "app/lib/validate.js",
         "graphify-pilot/app/api/security/status/route.js",
         "graphify-pilot/app/lib/validate.js"
+      ],
+      "in_env_example": false
+    },
+    {
+      "name": "X",
+      "required": false,
+      "files": [
+        "vitest.config.js"
       ],
       "in_env_example": false
     }
@@ -4366,7 +4468,7 @@
   ],
   "adapters": [
     {
-      "name": "discord",
+      "name": "org_id",
       "required_keys": [
         "DISCORD_WEBHOOK_URL"
       ]

@@ -120,22 +120,24 @@ export async function PATCH(request) {
       params.push(body.name);
     }
     if (body.rules != null) {
-      // SECURITY: Validate rules through the same validation as POST
-      // Fetch existing policy to get its policy_type for validation context
+      // SECURITY: Validate rules through the same validation as POST. If the
+      // policy does not exist in this org, return 404 *before* the UPDATE
+      // so we never accept unvalidated rules into the SQL parameter array.
       const existing = await sql.query(
         'SELECT policy_type FROM guard_policies WHERE id = $1 AND org_id = $2',
         [body.id, orgId]
       );
-      if (existing.length > 0) {
-        const policyType = body.policy_type || existing[0].policy_type;
-        const rulesStr = typeof body.rules === 'string' ? body.rules : JSON.stringify(body.rules);
-        const { valid, errors } = validatePolicy({ name: body.name || 'temp', policy_type: policyType, rules: rulesStr });
-        if (!valid) {
-          return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
-        }
+      if (existing.length === 0) {
+        return NextResponse.json({ error: 'Policy not found' }, { status: 404 });
+      }
+      const policyType = body.policy_type || existing[0].policy_type;
+      const rulesStr = typeof body.rules === 'string' ? body.rules : JSON.stringify(body.rules);
+      const { valid, errors } = validatePolicy({ name: body.name || 'temp', policy_type: policyType, rules: rulesStr });
+      if (!valid) {
+        return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
       }
       sets.push(`rules = $${idx++}`);
-      params.push(typeof body.rules === 'string' ? body.rules : JSON.stringify(body.rules));
+      params.push(rulesStr);
     }
     if (body.active != null) {
       sets.push(`active = $${idx++}`);

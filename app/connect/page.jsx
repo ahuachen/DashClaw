@@ -4,22 +4,20 @@ import { ChevronRight } from 'lucide-react';
 
 import PublicNavbar from '../components/PublicNavbar';
 import PublicFooter from '../components/PublicFooter';
-import ConnectGuideClient from './ConnectGuideClient';
 import HostedProvisionSection from './HostedProvisionSection';
-import { getConnectGuideContent } from '../lib/connectGuide.js';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Connect your first agent - DashClaw',
+  title: 'Connect Claude Code in 5 minutes - DashClaw',
   description:
-    'Connect any agent to DashClaw governance in under 2 minutes via MCP Server, or follow step-by-step guides for Claude Code, OpenAI Agents SDK, LangGraph, and CrewAI.',
+    'Single-page copy-paste runbook. Install the hook, paste your workspace token, configure Discord for phone approvals. 5 minutes end-to-end.',
 };
 
 export default async function ConnectPage() {
   const headerStore = await headers();
   const host = headerStore.get('host') || 'localhost:3000';
-  const content = getConnectGuideContent({ host });
+  const baseUrl = host === 'dashclaw.io' ? 'https://my-dashclaw.vercel.app' : `https://${host}`;
 
   return (
     <div className="min-h-screen bg-surface-primary text-text-primary">
@@ -32,12 +30,72 @@ export default async function ConnectPage() {
               Home
             </Link>
             <ChevronRight size={14} />
-            <span className="text-text-secondary">Connect your first agent</span>
+            <span className="text-text-secondary">Connect Claude Code</span>
           </div>
+
+          <header className="mb-10">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+              Connect Claude Code in 5 minutes.
+            </h1>
+            <p className="mt-3 text-base text-text-secondary max-w-2xl">
+              Top-to-bottom runbook. Copy one command, paste one workspace token, configure Discord for phone approvals. Done.
+            </p>
+          </header>
 
           <HostedProvisionSection />
 
-          <ConnectGuideClient content={content} />
+          {/* Linear runbook — D-15 single-page, no multi-step wizard. */}
+          <section className="mt-10 space-y-6">
+            <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Runbook</p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">1. Install the Claude Code hooks</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Clone the repo and run the installer. One command copies the PreToolUse, PostToolUse, and Stop hooks into <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-secondary">.claude/hooks/</code> and merges settings.
+              </p>
+              <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`git clone https://github.com/ucsandman/DashClaw
+cd DashClaw
+npm install
+npm run hooks:install`}</pre>
+            </article>
+
+            <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">2. Paste your workspace token</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Generate a workspace token above (hosted trial) or from your self-hosted instance settings. Export it alongside your instance URL:
+              </p>
+              <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`export DASHCLAW_BASE_URL=${baseUrl}
+export DASHCLAW_API_KEY=dc_live_...`}</pre>
+              <p className="mt-3 text-xs text-text-tertiary">
+                Never use https://dashclaw.io as the agent base URL — point at your own instance.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">3. Configure Discord for phone approvals</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                When Claude Code tries something risky, DashClaw pauses and sends a Discord DM with Approve / Reject buttons. Three env vars unlock the phone loop:
+              </p>
+              <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`DISCORD_BOT_TOKEN=<token>
+DISCORD_APPROVER_USER_ID=<your-discord-user-id>
+DISCORD_APPROVER_ORG_ID=<your-org-id>`}</pre>
+              <p className="mt-3 text-sm text-text-secondary">
+                Full bot-setup steps live in the{' '}
+                <Link href="/guides/claude-code" className="text-brand hover:text-brand-hover">
+                  Claude Code integration guide
+                </Link>
+                . Takes about 10 minutes end-to-end, one time.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">Verify</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Run <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">dashclaw doctor</code> from any terminal. Exit 0 = healthy. Ask Claude Code to run something risky (<code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">rm -rf test/</code>) — you should receive a Discord DM within ~1 second.
+              </p>
+              <pre className="mt-4 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`npm install -g @dashclaw/cli
+dashclaw doctor`}</pre>
+            </article>
+          </section>
 
           {/* MCP Server — Zero Code Path */}
           <section className="mt-12 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
@@ -166,6 +224,12 @@ dashclaw approvals`}</pre>
                 <h3 className="text-sm font-semibold text-text-primary">Mobile PWA <span className="font-normal text-text-tertiary">— on-call</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Add <code className="font-mono text-text-secondary">/approve</code> to your home screen. One-tap Allow / Deny from the phone.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`https://<your-instance>/approve`}</pre>
+              </div>
+              <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
+                <h3 className="text-sm font-semibold text-text-primary">Discord bot <span className="font-normal text-text-tertiary">— phone-first</span></h3>
+                <p className="mt-1 text-xs text-text-tertiary">Inline Approve / Deny buttons DM&rsquo;d to the registered user. Fire-and-forget — action creation succeeds even if Discord is unreachable.</p>
+                <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`DISCORD_BOT_TOKEN=<token>
+DISCORD_APPROVER_USER_ID=<user-id>`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
                 <h3 className="text-sm font-semibold text-text-primary">Telegram bot <span className="font-normal text-text-tertiary">— optional</span></h3>

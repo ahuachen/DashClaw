@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { NextResponse } from 'next/server';
 import { isHostedMode, hostedConfig } from '../../../lib/hosted/flag.js';
 import { verifyTurnstile } from '../../../lib/hosted/turnstile.js';

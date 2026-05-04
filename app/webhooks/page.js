@@ -5,13 +5,13 @@ import {
   Webhook, Plus, Trash2, Play, Check, Copy, ChevronDown, ChevronRight,
   AlertTriangle,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoWebhooks, demoWebhookDeliveries } from '../lib/demoWebhooksData';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 const WEBHOOK_TEMPLATES = [
   {
@@ -58,8 +58,7 @@ const EVENT_TYPES = [
 ];
 
 export default function WebhooksPage() {
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
+  const { isAdmin } = useEffectiveRole();
   const isDemo = isDemoMode();
   const canEdit = isAdmin && !isDemo;
 

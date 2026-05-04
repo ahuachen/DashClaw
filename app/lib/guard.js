@@ -97,8 +97,10 @@ export async function evaluateGuard(orgId, context, sql, options = {}) {
       if (!Array.isArray(scoped) || scoped.length === 0) return true;
       return currentAgentId && scoped.includes(currentAgentId);
     } catch (parseErr) {
-      console.error('[GUARD] Failed to parse agent_ids for policy:', p.id, parseErr.message);
-      return true; // Fail open — applies to all agents when agent_ids is malformed
+      // Fail closed on malformed scope data: skip the policy rather than silently
+      // widening a targeted rule to govern every agent in the org.
+      console.error('[GUARD] Skipping policy with malformed agent_ids:', p.id, parseErr.message);
+      return false;
     }
   });
 

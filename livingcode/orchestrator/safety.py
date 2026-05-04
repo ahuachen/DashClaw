@@ -22,9 +22,33 @@ def deactivate_kill_switch(repo_path: str) -> None:
         path.unlink()
 
 
+STALE_LOCK_AGE_SECONDS = 600  # 10 minutes — longer than any plausible cycle
+
+
 def is_cycle_locked(repo_path: str) -> bool:
     path = Path(repo_path) / ORGANISM_DIR / "active-cycle.json"
-    return path.exists()
+    if not path.exists():
+        return False
+    # Recover from a stale lock left behind by a crashed/killed cycle.
+    # If the lock file is older than STALE_LOCK_AGE_SECONDS or the
+    # embedded timestamp is unparseable, treat it as abandoned and
+    # delete it so the next run can proceed.
+    data = read_json_file(path) or {}
+    started = data.get("started")
+    try:
+        started_at = datetime.fromisoformat(started) if started else None
+    except (TypeError, ValueError):
+        started_at = None
+    now = datetime.now(timezone.utc)
+    if started_at is None or (now - started_at).total_seconds() > STALE_LOCK_AGE_SECONDS:
+        try:
+            path.unlink()
+        except OSError:
+            # Another process may have removed it concurrently — treat as
+            # unlocked; the worst case is a single duplicate cycle run.
+            pass
+        return False
+    return True
 
 
 def acquire_cycle_lock(repo_path: str) -> None:

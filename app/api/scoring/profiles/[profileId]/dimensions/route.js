@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { getSql } from '../../../../../lib/db.js';
 import { getOrgId } from '../../../../../lib/org.js';
 import { addDimension } from '../../../../../lib/scoringProfiles.js';

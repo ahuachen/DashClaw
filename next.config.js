@@ -30,6 +30,7 @@ const nextConfig = {
       "base-uri 'none'",
       "object-src 'none'",
       "frame-ancestors 'none'",
+      "frame-src 'self' https://www.loom.com https://www.youtube-nocookie.com",
       "form-action 'self'",
       ...(isTLS ? ['upgrade-insecure-requests', 'block-all-mixed-content'] : []),
     ].join('; ');

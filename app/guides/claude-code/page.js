@@ -88,15 +88,29 @@ policies:
         - "git push"
         - "vercel deploy"`;
 
+  const discordEnvBlock = `DISCORD_BOT_TOKEN=<token>
+DISCORD_PUBLIC_KEY=<64-char-hex>
+DISCORD_APPROVER_USER_ID=<numeric-user-id>
+DISCORD_APPROVER_ORG_ID=<your-org-id>
+# Kill switch — leave unset or set to true to enable DMs
+# DASHCLAW_ALERTS_DISCORD=false`;
+
   const steps = [
     {
       number: 1,
-      title: 'Deploy DashClaw',
-      summary: 'Get a running instance. Click the Vercel deploy button or run locally.',
-      note: 'Already have an instance? Skip to Step 2.',
+      title: 'Watch the 3-minute walkthrough',
+      summary:
+        'See the full install → first approval round-trip end to end. Skip if you prefer to follow the written steps below.',
+      note: 'Screencast: <SCREENCAST_URL>',
     },
     {
       number: 2,
+      title: 'Deploy DashClaw',
+      summary: 'Get a running instance. Click the Vercel deploy button or run locally.',
+      note: 'Already have an instance? Skip to Step 3.',
+    },
+    {
+      number: 3,
       title: 'Install the hook scripts',
       summary: 'One command copies all three governance hooks (PreToolUse, PostToolUse, Stop), the vendored intel module that powers semantic tool classification, and merges the matching settings.json blocks. Re-run after each git pull to upgrade.',
       codeTitle: 'Terminal',
@@ -114,7 +128,7 @@ cp hooks/dashclaw_stop.py     .claude/hooks/
 cp -r hooks/dashclaw_agent_intel .claude/hooks/`,
     },
     {
-      number: 3,
+      number: 4,
       title: 'Set environment variables',
       summary: 'Claude Code reads these from the shell or a .env file in the project root.',
       codeTitle: '.env',
@@ -123,7 +137,7 @@ DASHCLAW_API_KEY=<your-workspace-api-key>
 DASHCLAW_HOOK_MODE=enforce`,
     },
     {
-      number: 4,
+      number: 5,
       title: 'Add hooks to Claude Code settings',
       summary:
         'Merge this into your project\'s .claude/settings.json (or ~/.claude/settings.json for global).',
@@ -131,21 +145,57 @@ DASHCLAW_HOOK_MODE=enforce`,
       codeBody: hookSettingsJson,
     },
     {
-      number: 5,
+      number: 6,
+      title: 'Connect Discord (2 minutes)',
+      summary:
+        'A Discord bot turns your phone into a one-tap approval surface for risky tool calls. The built-in Discord adapter posts a DM with Approve / Deny buttons when a policy requires human judgment. Telegram parity; ENV-only setup.',
+      codeTitle: '.env.local (or Vercel env vars)',
+      codeBody: discordEnvBlock,
+      note:
+        'Step-by-step Discord Developer Portal walkthrough is printed below.',
+    },
+    {
+      number: 7,
       title: 'Run Claude Code and trigger a tool call',
       summary:
-        'Ask Claude Code to do anything that uses Bash, Edit, Write, or MultiEdit. The hook fires automatically.',
+        'Ask Claude Code to do anything that uses Bash, Edit, Write, or MultiEdit. The hook fires automatically. For policies that require approval, your phone will DM you.',
       codeTitle: 'Example prompt',
       codeBody: 'Create a file called hello.txt with the contents "Hello from a governed agent"',
       note: 'Watch the terminal — you should see [DashClaw] messages as the hook evaluates the action.',
     },
     {
-      number: 6,
+      number: 8,
       title: 'See the result in DashClaw',
       summary: 'Open your DashClaw dashboard to confirm the action was recorded.',
-      note: "Go to /decisions — you should see your tool call in the ledger with action_type 'other' (for a simple file write) or 'security' (for sensitive files), status 'completed'.",
+      note: "Go to /decisions — you should see your tool call in the ledger with action_type 'other' (for a simple file write) or 'security' (for sensitive files), status 'completed'. Approvals that ran through Discord show approved_by starting with 'discord:'.",
     },
   ];
+
+  const discordPortalWalkthrough = `## Discord Developer Portal walkthrough
+
+### Create the bot
+- Open https://discord.com/developers/applications -> New Application
+- Name the app; skip the Installation tab
+- Open the "Bot" tab -> Reset Token -> copy as DISCORD_BOT_TOKEN
+- Open "General Information" -> copy the Public Key as DISCORD_PUBLIC_KEY
+- Under "Privileged Gateway Intents" leave ALL off (button-only bot)
+
+### Invite the bot to a mutual server (so DMs work)
+- Open "OAuth2" -> URL Generator -> scopes: "bot" -> permissions: "Send Messages"
+- Paste the URL in a browser, invite the bot to a personal test server
+- In Discord client, enable Developer Mode (Settings -> Advanced)
+- Right-click your own user in the member list -> Copy User ID
+- Paste as DISCORD_APPROVER_USER_ID
+
+### Register the interactions endpoint
+- In "General Information" set:
+  Interactions Endpoint URL: https://<your-deployment>/api/discord/interactions
+- Discord sends a PING; DashClaw responds {type:1} and the URL saves.
+
+### Verify
+- Trigger a Claude Code tool call that hits an approval-required policy
+- Your phone's Discord app lights up; tap Approve or Deny
+- The DM edits in place to show APPROVED or DENIED with timestamp`;
 
   const proofMoment =
     "Go to /decisions — you should see your Claude Code tool call in the ledger. Look for action_type 'other' or 'security' with agent_id 'claude-code' and status 'completed'.";
@@ -176,6 +226,29 @@ DASHCLAW_HOOK_MODE=enforce`,
             guardrailsYaml={guardrailsYaml}
             baseUrl={baseUrl}
           />
+
+          <section className="mt-6 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#111] p-6 sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-tertiary">
+              Discord setup
+            </p>
+            <pre className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-secondary">
+              {discordPortalWalkthrough}
+            </pre>
+          </section>
+
+          <section className="mt-6 rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#0a0a0a] p-6">
+            <p className="text-xs uppercase tracking-[0.32em] text-tertiary">
+              Watch the 3-minute walkthrough
+            </p>
+            <p className="mt-3 text-sm text-secondary">
+              End-to-end install to first Discord approval. Published on
+              Loom / YouTube (Unlisted) — backfilled by plan 02-01 once
+              recorded.
+            </p>
+            <p className="mt-3 font-mono text-xs text-tertiary">
+              Screencast: &lt;SCREENCAST_URL&gt;
+            </p>
+          </section>
         </div>
       </main>
 

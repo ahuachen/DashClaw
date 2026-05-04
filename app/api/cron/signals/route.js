@@ -16,12 +16,21 @@ import { publishOrgEvent, EVENTS } from '../../../lib/events.js';
  * Uses type + relevant IDs to create a unique fingerprint.
  */
 function hashSignal(signal) {
+  // Include every resource-id-like field that might uniquely distinguish
+  // signals of the same type for the same agent. session_stalled carried
+  // session_id but it wasn't hashed — so multiple stalled sessions for
+  // one agent deduped to a single alert. integration_mismatch carries a
+  // provider field (added by F62) with the same collision risk. Keeping
+  // all slots unconditionally means adding a new signal type later is
+  // one-line: append its id field.
   const parts = [
     signal.type,
     signal.agent_id || '',
     signal.action_id || '',
     signal.loop_id || '',
     signal.assumption_id || '',
+    signal.session_id || '',
+    signal.provider || '',
   ].join(':');
   return crypto.createHash('md5').update(parts).digest('hex');
 }

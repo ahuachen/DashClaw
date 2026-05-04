@@ -107,11 +107,17 @@ export const authOptions = {
           // actions in the /approvals UI and has no path to override blocked agent
           // actions without running manual SQL against their own database.
           //
+          // Scope the count to 'org_default' (matches the org this INSERT targets)
+          // so multi-tenant deploys don't inherit another org's user rows and
+          // silently skip the promotion for a legitimately-empty org_default.
+          //
           // Race window: if two users sign up simultaneously for the very first
           // time, both could pass the count check and be promoted to admin. On a
           // single-operator self-hosted deploy this is vanishingly rare, and two
           // admins is a less-broken failure mode than zero admins. Accept it.
-          const countResult = await sql`SELECT COUNT(*)::int AS count FROM users`;
+          const countResult = await sql`
+            SELECT COUNT(*)::int AS count FROM users WHERE org_id = 'org_default'
+          `;
           const isFirstUser = Number(countResult[0]?.count || 0) === 0;
           const newUserRole = isFirstUser ? 'admin' : 'member';
 
@@ -124,9 +130,14 @@ export const authOptions = {
         }
         return true;
       } catch (err) {
-        console.error('[AUTH] signIn callback error:', err.message);
-        // Allow sign-in even if DB upsert fails (graceful degradation)
-        return true;
+        // Fail loud: a swallowed INSERT error here would let NextAuth proceed to
+        // the jwt callback, which would find no user row for a first-time signin
+        // and silently issue a role='member' token — locking the founder out of
+        // their own instance with no self-correct path. Rejecting the sign-in
+        // surfaces the DB failure to the operator so they can fix the root cause
+        // and retry, rather than getting a wrong-role session.
+        console.error('[AUTH] signIn callback error — rejecting sign-in:', err.message);
+        return false;
       }
     },
 

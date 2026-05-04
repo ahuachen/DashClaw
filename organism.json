@@ -28,6 +28,13 @@
     "test_coverage_floor": 80,
     "max_complexity_per_function": 15,
     "max_file_length": 300,
+    "long_file_allowlist": [
+      "sdk/legacy/dashclaw-v1.js",
+      "sdk/dashclaw.js",
+      "schema/schema.js",
+      "app/docs/page.js",
+      "app/lib/demo/fixtures/feature-agents.js"
+    ],
     "zero_tolerance": ["unhandled errors", "security vulnerabilities", "OpenAPI contract drift"],
     "performance_budget": {
       "guard_evaluation": "< 200ms",

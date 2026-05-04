@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Activity, ShieldCheck, ShieldAlert, Cpu, Timer, Wifi, WifiOff } from 'lucide-react';
 import { Card, CardHeader, CardContent } from './ui/Card';
 import { Badge } from './ui/Badge';
@@ -34,11 +34,12 @@ export default function FleetPresenceCard() {
     return () => clearInterval(interval);
   }, []);
 
-  useRealtime((event, payload) => {
+  const handleRealtime = useCallback((event) => {
     if (event === 'agent.heartbeat' || event === 'action.created') {
       fetchAgents();
     }
-  });
+  }, []);
+  useRealtime(handleRealtime);
 
   if (loading) return <CardSkeleton />;
 

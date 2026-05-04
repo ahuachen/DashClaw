@@ -1,4 +1,6 @@
 """Tiered prioritizer — generates work items from sensing data."""
+import json
+import os
 from datetime import datetime, timezone
 from livingcode.types import StateReport, WorkItem
 
@@ -8,8 +10,34 @@ def _next_id() -> str:
     return f"wk-{ts}"
 
 
-def generate_work_items(report: StateReport, max_items: int = 10) -> list[WorkItem]:
-    """Generate prioritized work items from a state report."""
+def load_long_file_allowlist(repo_path: str) -> list[str]:
+    """Read `quality_standards.long_file_allowlist` from organism.json.
+
+    Returns [] if organism.json is missing, unreadable, or doesn't define the
+    key — so callers can rely on this always returning a list.
+    """
+    try:
+        with open(os.path.join(repo_path, "organism.json"), encoding="utf-8") as f:
+            config = json.load(f)
+        allowlist = config.get("quality_standards", {}).get("long_file_allowlist", [])
+        return allowlist if isinstance(allowlist, list) else []
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def generate_work_items(
+    report: StateReport,
+    max_items: int = 10,
+    long_file_allowlist: list[str] | None = None,
+) -> list[WorkItem]:
+    """Generate prioritized work items from a state report.
+
+    `long_file_allowlist` lists file paths where `lines > max_file_length` is
+    intentional (legacy preservation, canonical surfaces, single-document
+    pages, etc.) — those files stay on the "largest files" dashboard list
+    but don't generate a `Split ...` work item every cycle.
+    """
+    allowlist = set(long_file_allowlist or [])
     items: list[WorkItem] = []
     now = datetime.now(timezone.utc).isoformat()
     seq = 0
@@ -73,11 +101,18 @@ def generate_work_items(report: StateReport, max_items: int = 10) -> list[WorkIt
              [], "code_quality.todo_count")
 
     if report.code_quality and report.code_quality.largest_files:
-        for f in report.code_quality.largest_files[:3]:
-            if f.lines > 500:
-                _add(3, f"Split {f.path} ({f.lines} lines)",
-                     f"Exceeds organism.json max_file_length of 300 by {f.lines/300:.1f}x.",
-                     [f.path], "code_quality.largest_files")
+        flagged = 0
+        for f in report.code_quality.largest_files:
+            if flagged >= 3:
+                break
+            if f.lines <= 500:
+                continue
+            if f.path in allowlist:
+                continue
+            _add(3, f"Split {f.path} ({f.lines} lines)",
+                 f"Exceeds organism.json max_file_length of 300 by {f.lines/300:.1f}x.",
+                 [f.path], "code_quality.largest_files")
+            flagged += 1
 
     # --- Tier 4: Improvement ---
     if report.git_stats and report.git_stats.bus_factor <= 1:

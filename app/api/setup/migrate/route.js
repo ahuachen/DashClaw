@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import postgres from 'postgres';
+import { isAlreadyInitialized, isAuthorizedSetupWriter } from '../../../lib/setup/auth-gate.js';
 import {
   ACTION_RECORDS_RUNTIME_COLUMN_DEFINITIONS,
   ACTION_RECORDS_RUNTIME_INDEX_DEFINITIONS,
@@ -44,9 +45,11 @@ async function reconcileActionRecordsRuntimeSchema(sql) {
  * Executes the Drizzle DDL SQL, seeds org_default, and returns a result.
  *
  * Idempotent — safe to call multiple times.
- * Public route (no auth required) — this must work before the database exists.
+ * Public during first-run bootstrap (before org_default exists). After
+ * initialization, requires an admin-scoped API key so it can't be used
+ * by unauthenticated callers to re-seed plan='pro' or overwrite state.
  */
-export async function POST() {
+export async function POST(request) {
   const url = process.env.DATABASE_URL;
   if (!url) {
     return NextResponse.json(
@@ -58,6 +61,12 @@ export async function POST() {
   const sql = postgres(url, { max: 1, connect_timeout: 30, idle_timeout: 5 });
 
   try {
+    if (await isAlreadyInitialized(sql) && !(await isAuthorizedSetupWriter(sql, request))) {
+      return NextResponse.json(
+        { error: 'Instance already initialized. Admin API key required to re-run migrations.' },
+        { status: 401 }
+      );
+    }
     // Read all Drizzle migration SQL files in order
     const drizzleDir = resolve(process.cwd(), 'drizzle');
     let ddl;

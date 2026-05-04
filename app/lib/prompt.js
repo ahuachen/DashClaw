@@ -184,10 +184,14 @@ export async function activateVersion(request, versionId) {
 // -----------------------------------------------
 
 export function renderPrompt(content, variables = {}) {
-  // Simple Mustache-style {{variable}} replacement
+  // Simple Mustache-style {{variable}} replacement.
+  // `key` is escaped before interpolation so a variable name containing
+  // regex metacharacters (e.g. `(a+)+b`) cannot inject pathological
+  // backtracking patterns or rewrite the surrounding `\{\{ … \}\}` anchor.
   let rendered = content;
   for (const [key, value] of Object.entries(variables)) {
-    const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+    const escapedKey = String(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\{\\{\\s*${escapedKey}\\s*\\}\\}`, 'g');
     rendered = rendered.replace(regex, String(value));
   }
   return rendered;

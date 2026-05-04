@@ -48,12 +48,12 @@ p.kicker{background:var(--accent-bg);border:1px solid var(--accent-border);borde
 p.kicker b{color:var(--accent-deep)}
 </style></head><body>
 <h1>DashClaw Livingcode Dashboard</h1>
-<div class="sig" id="sig">Shape signature: sha1:a1f824d6b2d5e5e8e45fa07ccb620fcea398a9dc · signature-stable</div>
+<div class="sig" id="sig">Shape signature: sha1:0f2c77d2856357641da63b3d22458c4d6dca96d9 · signature-stable</div>
 <div class="grid">
-      <div class="cell"><div class="n">178</div><div class="k">Active routes</div></div>
+      <div class="cell"><div class="n">181</div><div class="k">Active routes</div></div>
       <div class="cell"><div class="n">48</div><div class="k">Archived routes</div></div>
       <div class="cell"><div class="n">4</div><div class="k">Required env vars</div></div>
-      <div class="cell"><div class="n">111</div><div class="k">Optional env vars</div></div>
+      <div class="cell"><div class="n">119</div><div class="k">Optional env vars</div></div>
       <div class="cell"><div class="n">73</div><div class="k">Tables</div></div>
       <div class="cell"><div class="n">15</div><div class="k">Events</div></div>
       <div class="cell"><div class="n">9</div><div class="k">Signals</div></div>
@@ -149,10 +149,10 @@ p.kicker b{color:var(--accent-deep)}
     <tr><td><code>TASK_ASSIGNED</code></td><td><code>task.assigned</code></td></tr>
     <tr><td><code>TASK_COMPLETED</code></td><td><code>task.completed</code></td></tr>
     <tr><td><code>TOKEN_USAGE</code></td><td><code>token.usage</code></td></tr></tbody></table></details>
-<details><summary>Adapters (5)</summary><table><thead><tr><th>Name</th><th>Required keys</th></tr></thead><tbody>    <tr><td><code>discord</code></td><td class="sig">DISCORD_WEBHOOK_URL</td></tr>
-    <tr><td><code>email</code></td><td class="sig">RESEND_API_KEY, SENDGRID_API_KEY</td></tr>
+<details><summary>Adapters (5)</summary><table><thead><tr><th>Name</th><th>Required keys</th></tr></thead><tbody>    <tr><td><code>email</code></td><td class="sig">RESEND_API_KEY, SENDGRID_API_KEY</td></tr>
     <tr><td><code>github</code></td><td class="sig">GITHUB_TOKEN</td></tr>
     <tr><td><code>linear</code></td><td class="sig">LINEAR_API_KEY</td></tr>
+    <tr><td><code>org_id</code></td><td class="sig">DISCORD_WEBHOOK_URL</td></tr>
     <tr><td><code>slack</code></td><td class="sig">SLACK_BOT_TOKEN, SLACK_WEBHOOK_URL</td></tr></tbody></table></details>
 <details><summary>Signals (9)</summary><ul class="diff">    <li><code>autonomy_spike</code></li>
     <li><code>branch_stale</code></li>
@@ -243,31 +243,42 @@ p.kicker b{color:var(--accent-deep)}
 <section><h2>Timeline</h2><figure><figcaption>Active routes over time <span class="sig">(170 → 175)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,44.0 160.0,4.0 316.0,4.0"/></svg></figure>
 <figure><figcaption>Required env vars over time <span class="sig">(4 → 4)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,44.0 160.0,44.0 316.0,44.0"/></svg></figure>
 <figure><figcaption>Tables over time <span class="sig">(73 → 73)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,44.0 160.0,44.0 316.0,44.0"/></svg></figure>
-<figure><figcaption>TODOs over time <span class="sig">(16 → 16)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,44.0 12.4,44.0 20.9,44.0 29.3,44.0 37.7,44.0 46.2,44.0 54.6,44.0 63.0,44.0 71.5,44.0 79.9,44.0 88.3,44.0 96.8,44.0 105.2,44.0 113.6,44.0 122.1,44.0 130.5,44.0 138.9,44.0 147.4,44.0 155.8,44.0 164.2,44.0 172.6,44.0 181.1,44.0 189.5,44.0 197.9,44.0 206.4,44.0 214.8,44.0 223.2,44.0 231.7,44.0 240.1,44.0 248.5,44.0 257.0,44.0 265.4,44.0 273.8,44.0 282.3,44.0 290.7,44.0 299.1,44.0 307.6,44.0 316.0,44.0"/></svg></figure>
-<figure><figcaption>Files &gt;300 lines over time <span class="sig">(168 → 184)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,44.0 12.4,44.0 20.9,14.0 29.3,14.0 37.7,16.5 46.2,16.5 54.6,16.5 63.0,16.5 71.5,16.5 79.9,16.5 88.3,16.5 96.8,16.5 105.2,11.5 113.6,11.5 122.1,11.5 130.5,9.0 138.9,9.0 147.4,9.0 155.8,9.0 164.2,9.0 172.6,9.0 181.1,6.5 189.5,6.5 197.9,6.5 206.4,6.5 214.8,6.5 223.2,6.5 231.7,6.5 240.1,6.5 248.5,6.5 257.0,4.0 265.4,4.0 273.8,4.0 282.3,4.0 290.7,4.0 299.1,4.0 307.6,4.0 316.0,4.0"/></svg></figure>
-<figure><figcaption>Lockfile age over time <span class="sig">(0 → 1)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,4.0 12.4,4.0 20.9,44.0 29.3,44.0 37.7,44.0 46.2,44.0 54.6,44.0 63.0,44.0 71.5,44.0 79.9,4.0 88.3,4.0 96.8,4.0 105.2,44.0 113.6,44.0 122.1,44.0 130.5,44.0 138.9,44.0 147.4,44.0 155.8,4.0 164.2,4.0 172.6,4.0 181.1,44.0 189.5,44.0 197.9,44.0 206.4,44.0 214.8,44.0 223.2,44.0 231.7,4.0 240.1,4.0 248.5,4.0 257.0,44.0 265.4,44.0 273.8,44.0 282.3,44.0 290.7,44.0 299.1,4.0 307.6,4.0 316.0,4.0"/></svg></figure></section>
+<figure><figcaption>TODOs over time <span class="sig">(1 → 16)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,4.0 9.9,4.0 15.8,4.0 21.7,4.0 27.5,4.0 33.4,4.0 39.3,4.0 45.2,4.0 51.1,4.0 57.0,4.0 62.9,4.0 68.8,4.0 74.6,4.0 80.5,4.0 86.4,4.0 92.3,4.0 98.2,4.0 104.1,4.0 110.0,4.0 115.8,4.0 121.7,4.0 127.6,4.0 133.5,4.0 139.4,4.0 145.3,4.0 151.2,4.0 157.1,4.0 162.9,4.0 168.8,4.0 174.7,4.0 180.6,4.0 186.5,4.0 192.4,4.0 198.3,4.0 204.2,4.0 210.0,4.0 215.9,4.0 221.8,4.0 227.7,4.0 233.6,4.0 239.5,4.0 245.4,4.0 251.2,4.0 257.1,44.0 263.0,44.0 268.9,44.0 274.8,44.0 280.7,44.0 286.6,44.0 292.5,44.0 298.3,44.0 304.2,44.0 310.1,44.0 316.0,44.0"/></svg></figure>
+<figure><figcaption>Files &gt;300 lines over time <span class="sig">(104 → 184)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,12.0 9.9,12.0 15.8,6.0 21.7,6.0 27.5,6.5 33.4,6.5 39.3,6.5 45.2,6.5 51.1,6.5 57.0,6.5 62.9,6.5 68.8,6.5 74.6,5.5 80.5,5.5 86.4,5.5 92.3,5.0 98.2,5.0 104.1,5.0 110.0,5.0 115.8,5.0 121.7,5.0 127.6,4.5 133.5,4.5 139.4,4.5 145.3,4.5 151.2,4.5 157.1,4.5 162.9,4.5 168.8,4.5 174.7,4.5 180.6,4.0 186.5,4.0 192.4,4.0 198.3,4.0 204.2,4.0 210.0,4.0 215.9,4.0 221.8,4.0 227.7,4.0 233.6,4.0 239.5,4.0 245.4,4.0 251.2,4.0 257.1,44.0 263.0,44.0 268.9,44.0 274.8,44.0 280.7,44.0 286.6,44.0 292.5,44.0 298.3,44.0 304.2,43.0 310.1,43.0 316.0,43.0"/></svg></figure>
+<figure><figcaption>Lockfile age over time <span class="sig">(0 → 3)</span></figcaption><svg width="320" height="48" viewBox="0 0 320 48"><polyline fill="none" stroke="var(--accent)" stroke-width="2" points="4.0,30.7 9.9,30.7 15.8,44.0 21.7,44.0 27.5,44.0 33.4,44.0 39.3,44.0 45.2,44.0 51.1,44.0 57.0,30.7 62.9,30.7 68.8,30.7 74.6,44.0 80.5,44.0 86.4,44.0 92.3,44.0 98.2,44.0 104.1,44.0 110.0,30.7 115.8,30.7 121.7,30.7 127.6,44.0 133.5,44.0 139.4,44.0 145.3,44.0 151.2,44.0 157.1,44.0 162.9,30.7 168.8,30.7 174.7,30.7 180.6,44.0 186.5,44.0 192.4,44.0 198.3,44.0 204.2,44.0 210.0,30.7 215.9,30.7 221.8,30.7 227.7,17.3 233.6,17.3 239.5,17.3 245.4,17.3 251.2,17.3 257.1,17.3 263.0,17.3 268.9,17.3 274.8,17.3 280.7,17.3 286.6,4.0 292.5,4.0 298.3,4.0 304.2,44.0 310.1,44.0 316.0,44.0"/></svg></figure></section>
 
-<section><h2>Health</h2><div class="grid">      <div class="cell"><div class="n">182<span class="trend">→</span></div><div class="k">Commits 7d</div></div>
+<section><h2>Health</h2><div class="grid">      <div class="cell"><div class="n">184<span class="trend">→</span></div><div class="k">Commits 7d</div></div>
       <div class="cell danger"><div class="n">1<span class="trend">→</span></div><div class="k">Bus factor</div></div>
       <div class="cell"><div class="n">Wes Sander</div><div class="k">Top contributor</div></div>
       <div class="cell"><div class="n">n/a</div><div class="k">JS tests</div></div>
       <div class="cell"><div class="n">n/a</div><div class="k">Python tests</div></div>
-      <div class="cell"><div class="n">0.17<span class="trend up">↑</span></div><div class="k">Test file ratio</div></div>
-      <div class="cell danger"><div class="n">90<span class="trend">→</span></div><div class="k">Untested routes</div></div>
+      <div class="cell"><div class="n">0.17<span class="trend down">↓</span></div><div class="k">Test file ratio</div></div>
+      <div class="cell danger"><div class="n">91<span class="trend">→</span></div><div class="k">Untested routes</div></div>
       <div class="cell"><div class="n">0<span class="trend">→</span></div><div class="k">Vulnerabilities</div></div>
-      <div class="cell"><div class="n">1d</div><div class="k">Lockfile age</div></div>
-      <div class="cell"><div class="n">56.0%</div><div class="k">CI pass 30d</div></div>
-      <div class="cell"><div class="n">16<span class="trend">→</span></div><div class="k">TODOs</div></div>
-      <div class="cell"><div class="n">184<span class="trend">→</span></div><div class="k">Files &gt;300 lines</div></div></div></section>
+      <div class="cell"><div class="n">0d</div><div class="k">Lockfile age</div></div>
+      <div class="cell"><div class="n">94.0%</div><div class="k">CI pass 30d</div></div>
+      <div class="cell"><div class="n">1<span class="trend">→</span></div><div class="k">TODOs</div></div>
+      <div class="cell"><div class="n">106<span class="trend">→</span></div><div class="k">Files &gt;300 lines</div></div></div></section>
 
-<section><h2>Changed since last snapshot</h2><p class="kicker"><b>5</b> env_vars added, <b>3</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
+<section><h2>Changed since last snapshot</h2><p class="kicker"><b>13</b> env_vars added, <b>6</b> routes added since last snapshot.</p><ul class="diff">    <li><code>added</code> <b>routes</b>: /api/discord/interactions <span class="sig">New route: POST</span></li>
+    <li><code>added</code> <b>routes</b>: /api/hosted/cleanup <span class="sig">New route: POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces <span class="sig">New route: GET, POST</span></li>
     <li><code>added</code> <b>routes</b>: /api/hosted/workspaces/[workspaceId] <span class="sig">New route: DELETE, GET</span></li>
+    <li><code>added</code> <b>routes</b>: /api/monetization/verified-integrations-count <span class="sig">New route: GET</span></li>
+    <li><code>added</code> <b>routes</b>: /api/session/effective <span class="sig">New route: GET</span></li>
+    <li><code>added</code> <b>env_vars</b>: DASHCLAW_ALERTS_DISCORD <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DASHCLAW_MAX_ORG_ATTACHMENT_BYTES <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DASHCLAW_NEW_CONNECT_WEBHOOK <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DISCORD_APPROVER_ORG_ID <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DISCORD_APPROVER_USER_ID <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DISCORD_BOT_TOKEN <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: DISCORD_PUBLIC_KEY <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: HOSTED_CLEANUP_SECRET <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: HOSTED_SMOKE_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: INTEGRATION_DATABASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
     <li><code>added</code> <b>env_vars</b>: NEXT_PUBLIC_TURNSTILE_SITE_KEY <span class="sig">New env var (optional, undocumented)</span></li>
-    <li><code>added</code> <b>env_vars</b>: TEST_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
+    <li><code>added</code> <b>env_vars</b>: TEST_BASE_URL <span class="sig">New env var (optional, undocumented)</span></li>
+    <li><code>added</code> <b>env_vars</b>: X <span class="sig">New env var (optional, undocumented)</span></li></ul></section>
 
 <section class="routes"><h2>Active routes</h2><input id="route-filter" type="search" placeholder="Filter routes…" oninput="var q=this.value.toLowerCase();document.querySelectorAll('section.routes tr[data-path]').forEach(function(r){r.style.display=r.dataset.path.toLowerCase().includes(q)?'':'none';});document.querySelectorAll('section.routes details').forEach(function(d){var visible=d.querySelectorAll("tr[data-path]:not([style*='none'])").length;d.style.display=visible||!q?'':'none';if(q)d.open=true;});"><details><summary>/actions/* (10)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/actions"><td><code>/api/actions</code></td><td>DELETE, GET, POST</td><td class="sig">app/api/actions/route.js</td></tr>
     <tr data-path="/api/actions/[actionId]"><td><code>/api/actions/[actionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/actions/[actionId]/route.js</td></tr>
@@ -326,6 +337,7 @@ p.kicker b{color:var(--accent-deep)}
     <tr data-path="/api/cron/reset-meters"><td><code>/api/cron/reset-meters</code></td><td>GET</td><td class="sig">app/api/cron/reset-meters/route.js</td></tr>
     <tr data-path="/api/cron/routing-maintenance"><td><code>/api/cron/routing-maintenance</code></td><td>POST</td><td class="sig">app/api/cron/routing-maintenance/route.js</td></tr>
     <tr data-path="/api/cron/signals"><td><code>/api/cron/signals</code></td><td>GET</td><td class="sig">app/api/cron/signals/route.js</td></tr></tbody></table></details>
+<details><summary>/discord/* (1)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/discord/interactions"><td><code>/api/discord/interactions</code></td><td>POST</td><td class="sig">app/api/discord/interactions/route.js</td></tr></tbody></table></details>
 <details><summary>/docs/* (1)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/docs/raw"><td><code>/api/docs/raw</code></td><td>GET</td><td class="sig">app/api/docs/raw/route.js</td></tr></tbody></table></details>
 <details><summary>/doctor/* (2)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/doctor"><td><code>/api/doctor</code></td><td>GET</td><td class="sig">app/api/doctor/route.js</td></tr>
     <tr data-path="/api/doctor/fix"><td><code>/api/doctor/fix</code></td><td>POST</td><td class="sig">app/api/doctor/fix/route.js</td></tr></tbody></table></details>
@@ -376,6 +388,7 @@ p.kicker b{color:var(--accent-deep)}
 <details><summary>/model-strategies/* (3)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/model-strategies"><td><code>/api/model-strategies</code></td><td>GET, POST</td><td class="sig">app/api/model-strategies/route.js</td></tr>
     <tr data-path="/api/model-strategies/[strategyId]"><td><code>/api/model-strategies/[strategyId]</code></td><td>DELETE, GET, PATCH</td><td class="sig">app/api/model-strategies/[strategyId]/route.js</td></tr>
     <tr data-path="/api/model-strategies/[strategyId]/complete"><td><code>/api/model-strategies/[strategyId]/complete</code></td><td>POST</td><td class="sig">app/api/model-strategies/[strategyId]/complete/route.js</td></tr></tbody></table></details>
+<details><summary>/monetization/* (1)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/monetization/verified-integrations-count"><td><code>/api/monetization/verified-integrations-count</code></td><td>GET</td><td class="sig">app/api/monetization/verified-integrations-count/route.js</td></tr></tbody></table></details>
 <details><summary>/operations/* (2)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/operations/feed"><td><code>/api/operations/feed</code></td><td>GET</td><td class="sig">app/api/operations/feed/route.js</td></tr>
     <tr data-path="/api/operations/summary"><td><code>/api/operations/summary</code></td><td>GET</td><td class="sig">app/api/operations/summary/route.js</td></tr></tbody></table></details>
 <details><summary>/orgs/* (3)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/orgs"><td><code>/api/orgs</code></td><td>GET, POST</td><td class="sig">app/api/orgs/route.js</td></tr>
@@ -412,6 +425,7 @@ p.kicker b{color:var(--accent-deep)}
 <details><summary>/security/* (3)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/security/prompt-injection"><td><code>/api/security/prompt-injection</code></td><td>GET, POST</td><td class="sig">app/api/security/prompt-injection/route.js</td></tr>
     <tr data-path="/api/security/scan"><td><code>/api/security/scan</code></td><td>POST</td><td class="sig">app/api/security/scan/route.js</td></tr>
     <tr data-path="/api/security/status"><td><code>/api/security/status</code></td><td>GET</td><td class="sig">app/api/security/status/route.js</td></tr></tbody></table></details>
+<details><summary>/session/* (1)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/session/effective"><td><code>/api/session/effective</code></td><td>GET</td><td class="sig">app/api/session/effective/route.js</td></tr></tbody></table></details>
 <details><summary>/sessions/* (3)</summary><table><thead><tr><th>Path</th><th>Methods</th><th>File</th></tr></thead><tbody>    <tr data-path="/api/sessions"><td><code>/api/sessions</code></td><td>GET, POST</td><td class="sig">app/api/sessions/route.js</td></tr>
     <tr data-path="/api/sessions/[sessionId]"><td><code>/api/sessions/[sessionId]</code></td><td>GET, PATCH</td><td class="sig">app/api/sessions/[sessionId]/route.js</td></tr>
     <tr data-path="/api/sessions/[sessionId]/events"><td><code>/api/sessions/[sessionId]/events</code></td><td>GET</td><td class="sig">app/api/sessions/[sessionId]/events/route.js</td></tr></tbody></table></details>

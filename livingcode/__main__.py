@@ -25,9 +25,12 @@ def cmd_sense(args):
 
 def cmd_plan(args):
     from livingcode.sensing import run_sensing
-    from livingcode.planner.prioritizer import generate_work_items
+    from livingcode.planner.prioritizer import generate_work_items, load_long_file_allowlist
     report, _ = run_sensing(args.path)
-    items = generate_work_items(report)
+    items = generate_work_items(
+        report,
+        long_file_allowlist=load_long_file_allowlist(args.path),
+    )
     print(f"Generated {len(items)} work item(s):")
     for item in items:
         print(f"  [Tier {item.tier}] {item.title}")

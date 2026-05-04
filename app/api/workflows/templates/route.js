@@ -31,7 +31,12 @@ export async function POST(request) {
   try {
     const sql = getSql();
     const orgId = getOrgId(request);
+    const orgRole = request.headers.get('x-org-role') || '';
     const body = await request.json();
+
+    if (orgRole !== 'admin') {
+      return NextResponse.json({ error: 'Admin role required' }, { status: 403 });
+    }
 
     if (!body?.name || typeof body.name !== 'string') {
       return NextResponse.json({ error: 'name is required' }, { status: 400 });

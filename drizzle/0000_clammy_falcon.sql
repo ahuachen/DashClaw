@@ -329,6 +329,8 @@ CREATE TABLE "eval_scores" (
 	"id" text PRIMARY KEY NOT NULL,
 	"org_id" text NOT NULL,
 	"action_id" text NOT NULL,
+	"scorer_id" text,
+	"run_id" text,
 	"scorer_name" text NOT NULL,
 	"score" real NOT NULL,
 	"label" text,
@@ -1183,3 +1185,59 @@ CREATE TABLE IF NOT EXISTS capability_access_rules (
   created_by TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+--> statement-breakpoint
+-- Prevent duplicate access rules via two partial unique indexes
+-- (agent-specific vs org-wide default). Postgres treats NULLs as distinct
+-- in normal unique indexes, so a plain UNIQUE(org_id, capability_id, agent_id)
+-- would allow multiple org-wide rules per capability — we split the cases.
+CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_agent
+  ON capability_access_rules (org_id, capability_id, agent_id)
+  WHERE agent_id IS NOT NULL;
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS capability_access_rules_unique_default
+  ON capability_access_rules (org_id, capability_id)
+  WHERE agent_id IS NULL;
+--> statement-breakpoint
+-- Role allowlist on users.role and api_keys.role. Prevents typos
+-- ('Admin', 'administrator') and stale values from historical imports
+-- from silently granting or denying access. Null-repair first (default
+-- is 'member'), then add the constraint — it trips loudly if any
+-- unexpected value remains, so the operator can reconcile manually.
+UPDATE users SET role = 'member' WHERE role IS NULL;
+--> statement-breakpoint
+UPDATE api_keys SET role = 'member' WHERE role IS NULL;
+--> statement-breakpoint
+ALTER TABLE users ADD CONSTRAINT users_role_check
+  CHECK (role IN ('admin', 'member'));
+--> statement-breakpoint
+ALTER TABLE api_keys ADD CONSTRAINT api_keys_role_check
+  CHECK (role IN ('admin', 'member'));
+--> statement-breakpoint
+-- Hot-path indexes on high-growth tables. All four tables had zero
+-- indexes before this, which meant dashboard listings, retry checks,
+-- and analytics queries did sequential scans as soon as the tables
+-- grew past a few thousand rows per org.
+CREATE INDEX IF NOT EXISTS idx_activity_logs_org_created
+  ON activity_logs (org_id, created_at DESC);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_org_status
+  ON webhook_deliveries (org_id, status);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_webhook_status
+  ON webhook_deliveries (webhook_id, status);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_guard_decisions_org_created
+  ON guard_decisions (org_id, created_at DESC);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_eval_scores_org_action
+  ON eval_scores (org_id, action_id);
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS idx_eval_scores_run
+  ON eval_scores (run_id);
+--> statement-breakpoint
+-- listWorkflowRuns joins LATERAL on workflow_step_results per run to
+-- aggregate step_count / steps_completed / steps_failed. Without an
+-- index on run_action_id that subquery does a sequential scan per
+-- listed run (20 runs × seq-scan = quadratic as the table grows).
+CREATE INDEX IF NOT EXISTS idx_workflow_step_results_run_action
+  ON workflow_step_results (run_action_id);

@@ -10,7 +10,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { getAgentColor } from '../lib/colors';
 import { formatCost, formatTokens } from '../lib/formatCost';
 import { useAgentFilter } from '../lib/AgentFilterContext';
-import { useSession } from 'next-auth/react';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 import MessageTrail from '../components/MessageTrail';
 import { parseJsonArray } from '../lib/parseJson';
 import {
@@ -54,8 +54,7 @@ const statusTextMap = {
 
 export default function DecisionsLedger() {
   const { agentId: globalAgentId } = useAgentFilter();
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
+  const { isAdmin } = useEffectiveRole();
 
   const [actions, setActions] = useState([]);
   const [stats, setStats] = useState({});

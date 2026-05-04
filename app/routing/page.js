@@ -6,7 +6,6 @@ import {
   AlertTriangle, Activity, Clock, CheckCircle, XCircle,
   RefreshCw, Send,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -55,8 +54,6 @@ function parseCapabilities(agent) {
 }
 
 export default function TaskRoutingPage() {
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
   const isDemo = isDemoMode();
   const canEdit = !isDemo;
 

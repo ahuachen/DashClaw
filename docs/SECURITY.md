@@ -2,6 +2,282 @@
 
 This is the operator-facing security guide for DashClaw (self-host and cloud). It documents the security model, key controls, and how to run audits.
 
+## 2026-04-21 Parallel-Reviewer Round (v2.13.3)
+
+A five-agent parallel review targeting axes the earlier sweeps hadn't
+covered — app/api/_archive reachability, workflow executor state
+machine, file upload handling, non-API page security headers, and
+performance / N+1 / missing indexes. Two axes came back clean
+(archive routes are unreachable by Next.js `_`-prefix convention;
+page-route security headers are already complete via next.config.js
+globals). The remaining axes produced 10 findings: 8 fixed across
+commits `7864cabd..fe4c2d09`, 1 verified false positive (filename
+XSS — React text nodes auto-escape), 1 skipped as already-mitigated.
+
+### Workflow cancel TOCTOU closed
+
+`cancelWorkflowRun` previously read `status='running'` and then
+UPDATEd to `'cancelled'` with no status gate in the WHERE clause. A
+concurrent `executeWorkflow` that transitioned the parent action to
+`'completed'` (or `'failed'`) between the read and the UPDATE had its
+terminal status, output, and timestamp overwritten — the completed
+workflow's result became irretrievable. The UPDATE now carries
+`AND status = 'running'` + `RETURNING action_id`; when the CAS loses
+the race we re-read the current status and return it, so the cancel
+route surfaces "already completed" instead of silently stomping the
+outcome.
+
+### Attachment MIME verification + nosniff
+
+`POST /api/messages` previously trusted the client's `mime_type`
+field. An attacker could upload HTML/JS bytes labelled
+`application/pdf`; the stored bytes later came back through the GET
+endpoint with the claimed (and wrong) Content-Type. The
+`Content-Disposition: attachment` header downgrades most browsers to
+download-only, but not all.
+
+Two defenses now stack:
+
+- `verifyMagicBytes` on upload validates the first few decoded bytes
+  against the claimed MIME type for every binary format the API
+  accepts (PNG / JPEG / GIF / WebP / PDF + JSON structure validation).
+  Mismatches return 400 with a specific per-attachment error.
+- `GET /api/messages/attachments` now sets
+  `X-Content-Type-Options: nosniff` so browsers honour the declared
+  type even if `Content-Disposition` is ignored.
+
+### Per-org attachment storage quota
+
+Per-attachment (5MB) and per-message (3 attachments) caps existed
+but total DB footprint was unbounded. A patient caller could fill
+the database one max-sized upload at a time. New
+`MAX_ORG_ATTACHMENT_BYTES` (default 100MB, configurable via
+`DASHCLAW_MAX_ORG_ATTACHMENT_BYTES`) with a `SUM(size_bytes)` check
+on upload returns 413 with detailed usage/incoming/quota numbers.
+
+### Workflow step result CAS + resume by step.id
+
+`updateStepResult` had no status guard — duplicate
+persistStepResult calls, stale retries, or natural completion
+racing against the cancel cascade could silently overwrite a
+terminal row. Added `AND status = 'running'` to the WHERE clause;
+first writer to transition out of running wins.
+
+The executor's "step is reused from the prior run" check used
+`steps.indexOf(step) < resumeContext.resumeFromIndex`, comparing
+the OLD run's index against the CURRENT (possibly edited)
+template's step positions. Template edits between runs silently
+misaligned the check. Switched to
+`resumeContext.priorSteps?.[step.id]` — stable across edits.
+
+## 2026-04-21 Session Auth Parity + SSRF Consolidation
+
+Follow-up to the same-day sprint below. 13 atomic commits between
+`c7dbcbef` and `48c3fd60` closed a set of systematic pattern-classes
+rather than one-off findings. Highlights:
+
+### BUG-03b — local-password admins were silently read-only everywhere
+
+14 client components and one hook derived `isAdmin` from NextAuth's
+`useSession()`, which only reads the `next-auth.session-token` cookie
+and ignores the `dashclaw-local-session` cookie issued by
+`POST /api/auth/local`. Every self-hoster who signed in with
+`DASHCLAW_LOCAL_ADMIN_PASSWORD` saw the orange READ-ONLY banner on
+`/approvals`, `/decisions`, `/identities`, `/integrations`, `/webhooks`,
+`/api-keys`, `/routing`, and `/approve`; was auto-redirected away from
+`/login` while already signed in; couldn't accept invite links; and
+received no realtime SSE events. Fix:
+
+- New `GET /api/session/effective` endpoint backed by the existing
+  `getViewerContextFromCookieHeader` helper, which unifies NextAuth JWT
+  + local-session JWT resolution.
+- New `useEffectiveRole()` hook in `app/hooks/useEffectiveRole.js`
+  returns `{ role, isAdmin, authenticated, authType, settled }` and is
+  now the source of truth across every admin-gated page, SSE
+  subscription, and sign-in redirect.
+- Regression test `__tests__/unit/approvals.page.test.jsx` pins the
+  five settled / NextAuth-admin / local-admin / member / endpoint-fail
+  states.
+
+### SSRF consolidation — 6 more outbound-fetch call sites DNS-pinned
+
+`safeUrlWithIps` + `buildPinnedDispatcher` from `app/lib/webhooks.js`
+(originally introduced in the April 21 sprint for webhook delivery) are
+now exported and used by every outbound fetch that takes a
+user-configured URL. The DNS-rebinding window is closed across the full
+surface:
+
+- `app/lib/knowledge-ingest.js` `fetchSourceContent` — member-reachable
+  via `POST /api/knowledge/collections/[id]/items`, previously a
+  bare `fetch(sourceUri)` that would follow any URL including
+  `http://169.254.169.254/...` (AWS IMDS) or RFC1918 ranges.
+- `app/lib/routing/router.js` `dispatchToAgent` + `fireCallback` —
+  had duplicate SSRF validation logic with no DNS pinning; ~50 lines
+  of helper code deleted in favor of the shared module.
+- `app/lib/notification-adapters/slack.js` (`SLACK_WEBHOOK_URL`) —
+  no validation at all; a member could point the webhook URL at any
+  private service and the server would POST on every signal fan-out.
+- `app/lib/notification-adapters/discord.js` (`DISCORD_WEBHOOK_URL`) —
+  same.
+- `app/lib/integration-health.js` discord checker — reached on every
+  "refresh health" click and the integration-health cron.
+
+Every call site now resolves the hostname once, rejects any private /
+loopback / link-local / IPv4-mapped-IPv6 answer, and pins the
+connection to the validated IP via a custom `connect.lookup` on an
+undici `Agent`. TLS SNI / certificate matching still uses the original
+hostname — only the IP resolution is pinned.
+
+### Privilege escalation — 8 mutation handlers now require admin role
+
+A systematic audit of `POST`/`PATCH`/`DELETE` handlers across
+`app/api/**` surfaced 8 handlers across 6 route files that let any
+authenticated org member mutate org-wide state:
+
+- `POST /api/drift/alerts` (run detection / compute baselines / record snapshots)
+- `PATCH|DELETE /api/drift/alerts/[alertId]`
+- `POST /api/prompts/templates`
+- `PATCH|DELETE /api/prompts/templates/[templateId]`
+- `POST /api/prompts/templates/[templateId]/versions`
+- `POST /api/prompts/templates/[templateId]/versions/[versionId]`
+
+Each now returns 403 on `getOrgRole(request) !== 'admin'`, matching the
+pattern already enforced on /policies, /identities, /team, /webhooks,
+and /orgs. New regression test pins the member-rejection path on
+drift/alerts.
+
+### `force-dynamic` pass — cache / static-render audit
+
+21 tenant-aware routes lacked the explicit
+`export const dynamic = 'force-dynamic'` prefix that the other 181
+routes already carried. Most were implicitly dynamic via
+`request.headers` access, but relying on auto-detection is fragile —
+a future refactor that drops the `request` param could silently flip
+the route to a statically-rendered response served identically to every
+caller. `/api/health`'s `GET()` was the highest-risk case: it took no
+request arg and was eligible for static build-time caching despite
+reading live DB state. All 21 now carry the prefix.
+
+### Schema allowlist on `users.role` + `api_keys.role`
+
+Both columns were plain `TEXT DEFAULT 'member'` with no enum or CHECK,
+so typos (`'Admin'`, `'administrator'`) and stale import values could
+silently grant or withhold permissions. Added drizzle `check()`
+definitions + a null-repair-then-ADD-CONSTRAINT block to the DDL.
+Unexpected values trip `23514 check_violation` loudly so the operator
+reconciles manually rather than being silently demoted.
+
+### Orphaned migration pipeline fixed
+
+`scripts/auto-migrate.mjs` hardcoded the read path to
+`drizzle/0000_clammy_falcon.sql`, so 0001–0003 were silently skipped.
+Fresh Neon databases never received `agent_sessions`, `session_events`,
+`organizations.hosted_mode`, `trial_action_cap`, `trial_actions_used`,
+`api_keys.scope`, `agent_pairings.permission_level`, or the
+`agent_messages(org_id, action_id)` index. The script now iterates
+`drizzle/*.sql` in filename order; the pgvector `skippedTables` set
+persists across files. A follow-up hotfix adds `CREATE TABLE IF NOT
+EXISTS` for `agent_pairings` and `agent_identities` (both present in
+`schema/schema.js` but never in any DDL file) to 0002 so the ALTER
+target exists on fresh deploys.
+
+## 2026-04-21 Bug Hunt Hardening
+
+Three consecutive read-only reviewer sweeps surfaced and remediated a
+set of security-relevant issues across the runtime. Highlights (see
+CHANGELOG for per-finding detail):
+
+### Sandbox for org-supplied expressions
+- `app/lib/scoringProfiles.js` (`custom_function` data source) and
+  `app/lib/eval.js` (`_executeCustomFunction` scorer) previously evaluated
+  JavaScript strings stored by any org member via the scoring-dimension
+  and scorer APIs. The evaluator ran in the enclosing realm with full
+  access to `process.env`, `require`, filesystem, and network — an
+  RCE-class path reachable by any member account. Both now run the
+  supplied body inside a `node:vm` context seeded with only the allowed
+  fields and a 100ms timeout. `node:vm` is not a complete security
+  boundary against prototype-chain escapes, but it blocks direct access
+  to outer-scope globals — a large surface reduction.
+
+### Webhook SSRF — DNS rebinding window closed
+- `assertSafeWebhookUrl` in `app/lib/webhooks.js` resolves DNS and
+  validates that every returned IP is public. The prior implementation
+  let `fetch` re-resolve the hostname at connect time, leaving a
+  DNS-rebinding window where a short-TTL record could flip to a private
+  IP between the two lookups. Both `deliverWebhook` and
+  `deliverGuardWebhook` now build an `undici` `Agent` whose
+  `connect.lookup` is pinned to a validated IP and pass it to fetch via
+  `dispatcher`. The original URL is still used for TLS SNI / certificate
+  matching — only the IP resolution is overridden.
+
+### Setup/migrate requires auth after first-run init
+- `POST /api/setup/migrate` was in `PUBLIC_ROUTES` with no handler-side
+  auth. First-run bootstrap needs it public (the 8-minute flow runs
+  before any key exists), but nothing clamped access after init. Now
+  gates on the presence of `org_default`: before init, public; after
+  init, requires a Bearer token matching `DASHCLAW_API_KEY` (timing-safe)
+  or an admin-role `api_keys` row. Without this, any unauthenticated
+  POST could re-run DDL, force `plan='pro'` on the default org, and
+  seed a predictable `api_keys` hash.
+
+### Turnstile fails closed in production
+- `verifyTurnstile` in `app/lib/hosted/turnstile.js` previously returned
+  `{ ok: true, bypassed: true }` whenever `TURNSTILE_SECRET_KEY` was
+  unset — so an operator who deployed with `DASHCLAW_HOSTED=true` but
+  forgot the secret served unprotected workspace provisioning. The
+  bypass is now gated on `NODE_ENV !== 'production'`. Local dev and
+  vitest (`NODE_ENV='test'`) retain the convenience; production refuses
+  to run without the secret.
+
+### Cross-tenant message spoofing blocked
+- `POST /api/messages` previously accepted the caller-supplied
+  `from_agent_id` / `to_agent_id` without verifying those agents
+  belonged to the caller's org — a valid API key holder could inject
+  ledger entries that claimed to originate from another org's agent.
+  Both fields are now checked via `agentExistsInOrg` against
+  `agent_presence` / `agent_identities` / `agent_pairings` /
+  `action_records`; mismatches return 403.
+
+### Webhook audit trail no longer fire-and-forget
+- `deliverWebhook` and `deliverGuardWebhook` now await the
+  `webhook_deliveries` INSERT before returning. On failure the response
+  carries `delivery_logged: false` so downstream replay and forensic
+  tooling can distinguish "delivered and logged" from "delivered but
+  audit lost".
+
+### Cleanup secret comparison is timing-safe
+- `app/api/hosted/cleanup/route.js` replaced `===` on
+  `HOSTED_CLEANUP_SECRET` and `CRON_SECRET` with the existing
+  `timingSafeCompare` helper. Practical risk was low for long secrets
+  but the pattern diverged from every other secret comparison in the
+  codebase.
+
+### Compare-and-set on governance state machines
+- Action PATCH terminal-state gate (F03), assumption invalidate gate
+  (F31), open-loop status gate (F07), eval-run pending→running gate
+  (F52), access-rule uniqueness via partial unique indexes (F04).
+  These close a family of read-check-then-update TOCTOU holes where
+  two concurrent operators could both win and silently clobber each
+  other's audit-trail text, or where one caller could rewrite a
+  terminal ledger row. All transitions are now atomic at the SQL layer.
+
+### Governance mutation gates
+- `POST` / `PATCH /api/workflows/templates[/:id]` now require
+  `x-org-role: admin` like the sibling `DELETE` already did (F32).
+  A non-admin member could previously rewrite a production template's
+  steps or create new ones. `/api/setup/migrate` tightening (above)
+  is also in this family.
+
+### Auto-migrate stops swallowing real DDL errors
+- `scripts/auto-migrate.mjs` previously logged non-SAFE_CODES errors
+  at Warning and continued, leaving partial schemas on production
+  instances. Now fails the build when real DDL errors are detected.
+  pgvector-dependent statements are skipped deliberately when the
+  extension is unavailable (CI Postgres), with cascade tracking so
+  dependent indexes/FKs on skipped tables also skip.
+
+---
+
 ## 2026-03-13 Security Remediation
 
 On March 13, 2026, a comprehensive security audit and remediation was performed to address supply chain and runtime vulnerabilities:

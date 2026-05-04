@@ -36,15 +36,19 @@ export const DEFAULT_PRICING = [
   { pattern: 'llama-4-scout', label: 'Llama 4 Scout', input: 0.17, output: 0.35 },
 ];
 
+const _warnedUnknownModels = new Set();
+
 /**
  * Estimate cost based on token usage and model.
  *
  * @param {number} tokensIn - Input tokens
  * @param {number} tokensOut - Output tokens
- * @param {string|null|undefined} model - Model identifier. If falsy (null, undefined, ''),
- *        returns 0 — we refuse to guess a model because a wrong guess pollutes analytics
- *        (the migration that backfills `action_records.model` to NULL would otherwise
- *        retroactively price every historical row as Opus).
+ * @param {string|null|undefined} model - Model identifier. If falsy or unrecognized
+ *        returns 0 — we refuse to guess because a wrong guess pollutes cost dashboards.
+ *        Historically this fell back to the first (Opus-tier) pricing row, which priced
+ *        cheap open-source models (Llama, Groq, Sonar, DeepSeek) at ~1000x their real cost.
+ *        Unknown models now surface as $0 with a one-time warn per model, so the gap is
+ *        observable instead of silently inflated.
  * @param {Array<{pattern: string, input: number, output: number}>|null} customPricing - Optional custom pricing table from org settings
  * @returns {number} Estimated cost in USD
  */
@@ -59,9 +63,9 @@ export function estimateCost(tokensIn, tokensOut, model, customPricing = null) {
     }
   }
 
-  // Model is present but unrecognized — use the first entry (most expensive)
-  // as a conservative over-estimate. A known-but-unmapped model is different
-  // from "no model": we flag it as probably-premium rather than 0.
-  const fallback = pricing[0] || DEFAULT_PRICING[0];
-  return (tokensIn * fallback.input / 1_000_000) + (tokensOut * fallback.output / 1_000_000);
+  if (!_warnedUnknownModels.has(m)) {
+    _warnedUnknownModels.add(m);
+    console.warn('[billing] Unknown model, pricing as $0 (extend DEFAULT_PRICING or set org custom pricing):', model);
+  }
+  return 0;
 }

@@ -43,7 +43,11 @@ def load_latest_snapshot(repo_path: str) -> ShapeModel | None:
     snap_dir = Path(repo_path) / ".organism" / SNAPSHOTS_DIR
     if not snap_dir.exists():
         return None
-    files = sorted(snap_dir.glob("*.json"), key=lambda p: p.stat().st_mtime)
+    # Lexical sort, not st_mtime — NTFS has ~15ms mtime resolution and two
+    # snapshots written within the same tick produce nondeterministic
+    # ordering. Filenames come from state._safe_timestamp() which is
+    # monotonically increasing, so sorted() is stable and correct.
+    files = sorted(snap_dir.glob("*.json"))
     if not files:
         return None
     with open(files[-1]) as f:

@@ -10,6 +10,7 @@ import crypto from 'crypto';
 import { getSettings } from './repositories/settings.repository.js';
 import { decrypt } from './encryption.js';
 import { scanSensitiveData } from './security.js';
+import { safeUrlWithIps, buildPinnedDispatcher } from './webhooks.js';
 
 const EMBEDDING_MODEL = 'text-embedding-3-small';
 const EMBEDDING_DIMENSIONS = 1536;
@@ -169,7 +170,9 @@ export async function generateEmbeddings(apiKey, texts) {
   const data = await res.json();
   // Sort by index since OpenAI may return out of order
   const sorted = [...data.data].sort((a, b) => a.index - b.index);
-  return sorted.map((d) => d.embedding);
+  const embeddings = sorted.map((d) => d.embedding);
+  embeddings.tokens_used = Number(data.usage?.prompt_tokens) || 0;
+  return embeddings;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -177,10 +180,18 @@ export async function generateEmbeddings(apiKey, texts) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function fetchSourceContent(sourceUri) {
+  // SSRF guard: validate the URL, ensure it resolves to a public IP, and
+  // pin that IP for the actual fetch so a short-TTL DNS record cannot
+  // rebind to a private/loopback address between our check and undici's
+  // own connect-time resolution. safeUrlWithIps requires https:// and
+  // rejects URL-embedded credentials, which are the right defaults for
+  // knowledge ingestion too.
+  const validatedIps = await safeUrlWithIps(sourceUri);
+  const dispatcher = buildPinnedDispatcher(validatedIps);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
   try {
-    const res = await fetch(sourceUri, { signal: controller.signal });
+    const res = await fetch(sourceUri, { signal: controller.signal, dispatcher });
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${sourceUri}`);
     return await res.text();
   } finally {
@@ -326,7 +337,9 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
   }
 
   // Embed the query
-  const [queryEmbedding] = await generateEmbeddings(apiKey, [query]);
+  const embeddings = await generateEmbeddings(apiKey, [query]);
+  const [queryEmbedding] = embeddings;
+  const tokensUsed = embeddings.tokens_used || 0;
 
   // pgvector cosine distance: <=> returns distance (0 = identical), so
   // we compute similarity as 1 - distance for the score.
@@ -348,7 +361,7 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
     LIMIT ${Math.min(parseInt(limit, 10) || 5, 20)}
   `;
 
-  return results.map((r) => ({
+  const chunks = results.map((r) => ({
     chunk_id: r.chunk_id,
     item_id: r.item_id,
     content: r.content,
@@ -358,4 +371,10 @@ export async function searchCollection(sql, orgId, collectionId, query, options 
     title: r.title || null,
     source_uri: r.source_uri || null,
   }));
+  // Attach the query-embedding token cost so the workflow executor can
+  // surface it on action_records.tokens_in — without this every
+  // knowledge_search step reports zero token usage regardless of query
+  // length, creating a metering blind spot for non-prompt steps.
+  chunks.tokens_used = tokensUsed;
+  return chunks;
 }

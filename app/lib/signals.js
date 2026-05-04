@@ -84,6 +84,7 @@ export async function computeSignals(orgId, filterAgentId, sql) {
       WHERE status = 'running'
         AND org_id = ${orgId}
         AND timestamp_start::timestamptz < NOW() - INTERVAL '4 hours'
+        AND (action_type IS NULL OR action_type <> 'workflow_execute')
       ORDER BY timestamp_start ASC
       LIMIT 10
     `,
@@ -268,10 +269,11 @@ export async function computeSignals(orgId, filterAgentId, sql) {
         signals.push({
           type: 'integration_mismatch',
           severity: 'red',
-          label: 'Integration Credential Error',
+          label: `Integration Credential Error (${conn.provider})`,
           detail: `Agent "${conn.agent_id}" reports using ${conn.provider} but stored credentials are invalid.`,
           help: 'Update credentials on the Integrations page.',
           agent_id: conn.agent_id,
+          provider: conn.provider,
         });
       } else if (!h && h !== 'healthy' && h !== 'degraded') {
         // No health record means credentials were never configured or checked
@@ -280,10 +282,11 @@ export async function computeSignals(orgId, filterAgentId, sql) {
           signals.push({
             type: 'integration_mismatch',
             severity: 'amber',
-            label: 'Missing Integration Credentials',
+            label: `Missing Integration Credentials (${conn.provider})`,
             detail: `Agent "${conn.agent_id}" reports using ${conn.provider} but no credentials are configured.`,
             help: 'Configure credentials on the Integrations page.',
             agent_id: conn.agent_id,
+            provider: conn.provider,
           });
         }
       }
@@ -340,9 +343,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] branch_stale: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] branch_stale category failed:', e?.message || e);
+  }
 
   // MCP server health from recent guard decisions with intel
   try {
@@ -367,9 +374,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] mcp_degraded: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] mcp_degraded category failed:', e?.message || e);
+  }
 
   // Green contract insufficiency from recent guard decisions
   try {
@@ -396,9 +407,13 @@ export async function computeSignals(orgId, filterAgentId, sql) {
             agent_id: dec.agent_id,
           });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[signals] green_insufficient: failed to parse context for decision ${dec.id}:`, e?.message || e);
+      }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[signals] green_insufficient category failed:', e?.message || e);
+  }
 
   // Post-filter by agent_id if requested
   const filteredSignals = filterAgentId

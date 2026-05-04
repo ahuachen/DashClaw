@@ -107,6 +107,11 @@ export async function getEvalRun(sql, orgId, runId) {
   
   if (!run) return null;
 
+  // Scope the distribution to THIS run only. The prior query filtered on
+  // (scorer_id + created_at >= run.started_at) which aggregated across
+  // every run that shared the same scorer — including runs that hadn't
+  // started yet (fallback to created_at). run_id is now written on every
+  // eval_scores row by executeEvalRun, so we can filter exactly.
   const distribution = await sql`
     SELECT
       CASE
@@ -117,9 +122,8 @@ export async function getEvalRun(sql, orgId, runId) {
       COUNT(*) as count,
       AVG(score) as avg_score
     FROM eval_scores
-    WHERE scorer_id = ${run.scorer_id}
+    WHERE run_id = ${runId}
       AND org_id = ${orgId}
-      AND created_at >= ${run.started_at || run.created_at}
     GROUP BY bucket
   `;
 

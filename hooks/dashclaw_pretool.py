@@ -25,22 +25,37 @@ import urllib.error
 # ---------------------------------------------------------------------------
 
 def _load_dotenv():
-    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
-    try:
-        with open(env_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, _, val = line.partition("=")
-                key = key.strip()
-                val = val.strip().strip('"').strip("'")
-                if " #" in val:
-                    val = val[:val.index(" #")].strip()
-                if key and key not in os.environ:
-                    os.environ[key] = val
-    except FileNotFoundError:
-        pass
+    # Walk up from the hook file's directory looking for env files. Works
+    # whether this runs from hooks/X.py (project root is one parent up) or
+    # from .claude/hooks/X.py after install-hooks runs (project root is two
+    # parents up). Earlier files win because of `key not in os.environ`.
+    tried = set()
+    current = os.path.abspath(os.path.dirname(__file__))
+    for _ in range(5):
+        for fname in (".env.local", ".env"):
+            env_path = os.path.join(current, fname)
+            if env_path in tried:
+                continue
+            tried.add(env_path)
+            try:
+                with open(env_path, encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line or line.startswith("#") or "=" not in line:
+                            continue
+                        key, _, val = line.partition("=")
+                        key = key.strip()
+                        val = val.strip().strip('"').strip("'")
+                        if " #" in val:
+                            val = val[:val.index(" #")].strip()
+                        if key and key not in os.environ:
+                            os.environ[key] = val
+            except FileNotFoundError:
+                continue
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
 
 _load_dotenv()
 
@@ -63,6 +78,7 @@ WORKSPACE = os.environ.get("DASHCLAW_WORKSPACE") or os.getcwd()
 PERMISSION_MODE = os.environ.get("DASHCLAW_PERMISSION_MODE") or "danger"
 GUARD_TIMEOUT = float(os.environ.get("DASHCLAW_GUARD_TIMEOUT") or "2.5")
 APPROVAL_TIMEOUT = float(os.environ.get("DASHCLAW_APPROVAL_TIMEOUT") or "30")
+GUARD_UNAVAILABLE_POLICY = (os.environ.get("DASHCLAW_GUARD_UNAVAILABLE_POLICY") or "block").lower()
 
 # ---------------------------------------------------------------------------
 # Intent-to-action_type mapping
@@ -372,6 +388,13 @@ def handle_allow(context, tool_use_id):
         if action_id:
             write_action_id(tool_use_id, action_id)
             append_turn_action(_SESSION_ID, action_id)
+        else:
+            # Governance server returned a response but no action_id — the Stop
+            # hook will produce orphan_tokens for this turn. Log so ops can spot
+            # the attribution gap instead of the failure disappearing silently.
+            _log_hook_error("handle_allow: create_action returned no action_id; response=" + str(resp)[:200])
+    else:
+        _log_hook_error("handle_allow: create_action failed (None); tool proceeded without governance record")
     sys.exit(0)
 
 
@@ -388,6 +411,10 @@ def handle_warn(guard_resp, context, tool_use_id):
         if action_id:
             write_action_id(tool_use_id, action_id)
             append_turn_action(_SESSION_ID, action_id)
+        else:
+            _log_hook_error("handle_warn: create_action returned no action_id; response=" + str(resp)[:200])
+    else:
+        _log_hook_error("handle_warn: create_action failed (None); tool proceeded without governance record")
     sys.exit(0)
 
 
@@ -470,6 +497,57 @@ def handle_require_approval(guard_resp, context, tool_use_id):
     sys.exit(2)
 
 
+def handle_guard_unavailable(context, tool_use_id):
+    """Guard could not be reached. Behavior governed by DASHCLAW_GUARD_UNAVAILABLE_POLICY."""
+    policy = GUARD_UNAVAILABLE_POLICY
+    mode = HOOK_MODE
+
+    # Write orphan log record for backfill regardless of policy — never lose audit
+    orphan_path = os.path.join(os.path.expanduser("~"), ".dashclaw", "orphan-actions.jsonl")
+    try:
+        os.makedirs(os.path.dirname(orphan_path), exist_ok=True)
+        from datetime import datetime, timezone
+        record = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "reason": "guard_unreachable",
+            "base_url": BASE_URL,
+            "agent_id": AGENT_ID,
+            "context": context,
+            "hook_mode": mode,
+            "policy": policy,
+        }
+        with open(orphan_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception as e:
+        _log_hook_error("handle_guard_unavailable: orphan log write failed: " + type(e).__name__ + ": " + str(e))
+
+    # Observe mode always proceeds (by definition — observe is "warn loudly, don't block")
+    if mode == "observe":
+        log("[DashClaw] [observe] Guard unreachable at " + BASE_URL + " — action logged to ~/.dashclaw/orphan-actions.jsonl for backfill")
+        log("Action: " + context.get("declared_goal", "unknown"))
+        sys.exit(0)
+
+    # Enforce mode: behavior governed by DASHCLAW_GUARD_UNAVAILABLE_POLICY
+    if policy == "allow":
+        log("[DashClaw] Guard unreachable at " + BASE_URL + " — proceeding (DASHCLAW_GUARD_UNAVAILABLE_POLICY=allow)")
+        log("Action logged to ~/.dashclaw/orphan-actions.jsonl for backfill.")
+        sys.exit(0)
+
+    if policy == "warn":
+        log("[DashClaw] \u26a0 Guard unreachable at " + BASE_URL + " — proceeding anyway (DASHCLAW_GUARD_UNAVAILABLE_POLICY=warn)")
+        log("Action logged to ~/.dashclaw/orphan-actions.jsonl for backfill.")
+        log("Set DASHCLAW_GUARD_UNAVAILABLE_POLICY=block to fail closed instead.")
+        sys.exit(0)
+
+    # Default: block (fail closed)
+    log("[DashClaw] Blocked: guard at " + BASE_URL + " is unreachable")
+    log("Action: " + context.get("declared_goal", "unknown"))
+    log("This is by design — destructive actions must not proceed without governance.")
+    log("To change: set DASHCLAW_GUARD_UNAVAILABLE_POLICY=warn or =allow (not recommended).")
+    log("Action logged to ~/.dashclaw/orphan-actions.jsonl for backfill on guard recovery.")
+    sys.exit(2)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -530,8 +608,7 @@ def main():
     # Step 5: POST /api/guard with enriched context
     guard_resp = guard_check(context)
     if guard_resp is None:
-        log("[DashClaw] Guard unavailable, proceeding")
-        sys.exit(0)
+        handle_guard_unavailable(context, tool_use_id)
 
     # Step 6: Handle decision
     decision = guard_resp.get("decision", "allow")

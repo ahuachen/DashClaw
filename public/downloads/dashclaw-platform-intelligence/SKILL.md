@@ -5,7 +5,7 @@ description: DashClaw platform expert for integration, troubleshooting, and gove
 
 # DashClaw Platform Intelligence
 
-**Shape snapshot:** `sha1:a1f824d6b2d5e5e8e45fa07ccb620fcea398a9dc`
+**Shape snapshot:** `sha1:0f2c77d2856357641da63b3d22458c4d6dca96d9`
 **This file is auto-generated.** Do not edit by hand — regenerate with:
 
 ```bash
@@ -29,8 +29,8 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 ## At a Glance
 
-- **178** active API routes across **45** categories
-- **4** required + **111** optional environment variables
+- **181** active API routes across **48** categories
+- **4** required + **119** optional environment variables
 - **73** database tables
 
 ## API Surface
@@ -128,6 +128,10 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 - `POST` `/api/cron/routing-maintenance`
 - `GET` `/api/cron/signals`
 
+### `discord`
+
+- `POST` `/api/discord/interactions`
+
 ### `docs`
 
 - `GET` `/api/docs/raw`
@@ -223,6 +227,10 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 - `DELETE, GET, PATCH` `/api/model-strategies/[strategyId]`
 - `POST` `/api/model-strategies/[strategyId]/complete`
 
+### `monetization`
+
+- `GET` `/api/monetization/verified-integrations-count`
+
 ### `operations`
 
 - `GET` `/api/operations/feed`
@@ -279,6 +287,10 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 - `GET, POST` `/api/security/prompt-injection`
 - `POST` `/api/security/scan`
 - `GET` `/api/security/status`
+
+### `session`
+
+- `GET` `/api/session/effective`
 
 ### `sessions`
 
@@ -352,8 +364,8 @@ If the snapshot below disagrees with a live query, **trust the live query**.
 
 These must be set — DashClaw will fail to start without them.
 
-- **`DASHCLAW_API_KEY`** - referenced in 69 file(s)
-- **`DATABASE_URL`** - referenced in 81 file(s)
+- **`DASHCLAW_API_KEY`** - referenced in 68 file(s)
+- **`DATABASE_URL`** - referenced in 83 file(s)
 - **`ENCRYPTION_KEY`** - referenced in 8 file(s)
 - **`NEXTAUTH_SECRET`** - referenced in 6 file(s)
 
@@ -379,6 +391,7 @@ These have fallbacks or only activate specific features.
 - `CONVERGENCE_VERBOSE` *(undocumented)*
 - `CRON_SECRET` *(undocumented)*
 - `DASHCLAW_AGENT_ID` *(undocumented)*
+- `DASHCLAW_ALERTS_DISCORD` *(undocumented)*
 - `DASHCLAW_ALERTS_TELEGRAM` *(undocumented)*
 - `DASHCLAW_API_KEY_ORG` *(undocumented)*
 - `DASHCLAW_BASE_URL` *(undocumented)*
@@ -389,11 +402,17 @@ These have fallbacks or only activate specific features.
 - `DASHCLAW_GUARD_FALLBACK` *(undocumented)*
 - `DASHCLAW_HOSTED` *(undocumented)*
 - `DASHCLAW_LOCAL_ADMIN_PASSWORD` *(undocumented)*
+- `DASHCLAW_MAX_ORG_ATTACHMENT_BYTES` *(undocumented)*
 - `DASHCLAW_MODE` *(undocumented)*
+- `DASHCLAW_NEW_CONNECT_WEBHOOK` *(undocumented)*
 - `DASHCLAW_RATE_LIMIT_MAX` *(undocumented)*
 - `DASHCLAW_RATE_LIMIT_WINDOW_MS` *(undocumented)*
 - `DASHCLAW_URL` *(undocumented)*
 - `DISABLE_PROMPT_INJECTION_SCAN` *(undocumented)*
+- `DISCORD_APPROVER_ORG_ID` *(undocumented)*
+- `DISCORD_APPROVER_USER_ID` *(undocumented)*
+- `DISCORD_BOT_TOKEN` *(undocumented)*
+- `DISCORD_PUBLIC_KEY` *(undocumented)*
 - `ENFORCE_AGENT_SIGNATURES` *(undocumented)*
 - `GITHUB_CLIENT_ID` *(undocumented)*
 - `GITHUB_CLIENT_SECRET` *(undocumented)*
@@ -472,6 +491,7 @@ These have fallbacks or only activate specific features.
 - `VERCEL` *(undocumented)*
 - `VERCEL_URL` *(undocumented)*
 - `WEBHOOK_ALLOWED_DOMAINS` *(undocumented)*
+- `X` *(undocumented)*
 
 ## Database Tables
 
@@ -706,7 +726,7 @@ Each adapter delivers `integration_mismatch`, `integration_health_changed`, and 
 
 | Adapter | Required credential (any one) |
 | --- | --- |
-| `discord` | `DISCORD_WEBHOOK_URL` |
+| `org_id` | `DISCORD_WEBHOOK_URL` |
 | `email` | `RESEND_API_KEY`, `SENDGRID_API_KEY` |
 | `github` | `GITHUB_TOKEN` |
 | `linear` | `LINEAR_API_KEY` |

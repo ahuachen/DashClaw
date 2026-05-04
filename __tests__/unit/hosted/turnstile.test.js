@@ -15,6 +15,13 @@ describe('verifyTurnstile', () => {
     expect(res).toEqual({ ok: true, bypassed: true });
   });
 
+  it('refuses to bypass in production when TURNSTILE_SECRET_KEY unset', async () => {
+    delete process.env.TURNSTILE_SECRET_KEY;
+    process.env.NODE_ENV = 'production';
+    const res = await verifyTurnstile('any-token', '1.1.1.1');
+    expect(res).toEqual({ ok: false, reason: 'unconfigured' });
+  });
+
   it('returns { ok: false, reason: "missing_token" } for empty token in production', async () => {
     process.env.TURNSTILE_SECRET_KEY = 'secret';
     const res = await verifyTurnstile('', '1.1.1.1');

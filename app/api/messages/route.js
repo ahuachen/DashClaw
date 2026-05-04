@@ -16,6 +16,7 @@ import {
   getMessageForUpdate,
   getMessagesForUpdate,
   getMessageThread,
+  getOrgAttachmentBytes,
   getUnreadMessageCount,
   listMessages,
   markBroadcastRead,
@@ -24,6 +25,7 @@ import {
   updateMessageReadBy,
 } from '../../lib/repositories/messagesContext.repository.js';
 import { EVENTS, publishOrgEvent } from '../../lib/events.js';
+import { agentExistsInOrg } from '../../lib/repositories/agents.repository.js';
 import { randomUUID } from 'node:crypto';
 
 const VALID_TYPES = ['action', 'info', 'lesson', 'question', 'status'];
@@ -33,6 +35,54 @@ const ALLOWED_MIME_TYPES = [
 ];
 const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_ATTACHMENTS_PER_MESSAGE = 3;
+
+// Per-org soft cap on total attachment bytes. Per-attachment and per-message
+// limits aren't enough on their own — a determined caller could still write
+// unbounded storage one 5MB message at a time. Configurable via env so
+// self-hosters can raise it; defaults to 100MB which fits comfortably inside
+// any Neon / Postgres free tier.
+const MAX_ORG_ATTACHMENT_BYTES = (() => {
+  const v = parseInt(String(process.env.DASHCLAW_MAX_ORG_ATTACHMENT_BYTES || ''), 10);
+  return Number.isFinite(v) && v > 0 ? v : 100 * 1024 * 1024;
+})();
+
+// Magic-byte signatures for MIME types where we can enforce the contract.
+// The client's claimed mime_type is never trusted for binary formats —
+// we read the first few decoded bytes and reject on mismatch so an
+// attacker cannot upload HTML/JS bytes labelled as application/pdf and
+// have us serve them back at our origin.
+function verifyMagicBytes(mimeType, buffer) {
+  if (!buffer || buffer.length < 4) return false;
+  const b = buffer;
+  switch (mimeType) {
+    case 'image/png':
+      return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47
+        && b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a;
+    case 'image/jpeg':
+      return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+    case 'image/gif':
+      return b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38
+        && (b[4] === 0x37 || b[4] === 0x39) && b[5] === 0x61;
+    case 'image/webp':
+      return b.length >= 12
+        && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46
+        && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50;
+    case 'application/pdf':
+      return b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46; // %PDF
+    case 'application/json':
+      try { JSON.parse(buffer.toString('utf8')); return true; } catch { return false; }
+    case 'text/plain':
+    case 'text/markdown':
+    case 'text/csv':
+      // Text types have no magic bytes. Accept anything — GET serves them
+      // back with Content-Type: text/... + X-Content-Type-Options: nosniff,
+      // so browser won't render embedded HTML. Content-Disposition also
+      // forces download.
+      return true;
+    default:
+      return false;
+  }
+}
 
 export async function GET(request) {
   try {
@@ -115,6 +165,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'from_agent_id is required' }, { status: 400 });
     }
 
+    // SECURITY: verify the claimed from_agent_id actually belongs to this
+    // org before accepting the message. Without this gate a caller with a
+    // valid API key could spoof a message as originating from an agent in
+    // a different org, corrupting the ledger's attribution trail.
+    const fromOk = await agentExistsInOrg(sql, orgId, from_agent_id);
+    if (!fromOk) {
+      return NextResponse.json({ error: 'from_agent_id not found in this org' }, { status: 403 });
+    }
+    if (to_agent_id) {
+      const toOk = await agentExistsInOrg(sql, orgId, to_agent_id);
+      if (!toOk) {
+        return NextResponse.json({ error: 'to_agent_id not found in this org' }, { status: 403 });
+      }
+    }
+
     const msgType = message_type || 'info';
     if (!VALID_TYPES.includes(msgType)) {
       return NextResponse.json({ error: `message_type must be one of: ${VALID_TYPES.join(', ')}` }, { status: 400 });
@@ -150,6 +215,43 @@ export async function POST(request) {
       const sizeBytes = Math.ceil((att.data.length * 3) / 4);
       if (sizeBytes > MAX_ATTACHMENT_SIZE) {
         return NextResponse.json({ error: `Attachment "${att.filename}" exceeds 5MB limit` }, { status: 400 });
+      }
+      // Enforce magic-byte match for binary types so a claimed
+      // application/pdf that's actually HTML/JS bytes is rejected up
+      // front rather than stored and served at our origin.
+      let decoded;
+      try {
+        decoded = Buffer.from(att.data, 'base64');
+      } catch {
+        return NextResponse.json({ error: `Attachment "${att.filename}" has invalid base64 data` }, { status: 400 });
+      }
+      if (!verifyMagicBytes(att.mime_type, decoded)) {
+        return NextResponse.json(
+          { error: `Attachment "${att.filename}" content does not match declared mime_type ${att.mime_type}` },
+          { status: 400 },
+        );
+      }
+    }
+
+    // Org-level storage quota. Per-attachment + per-message limits alone
+    // don't bound total DB growth — without this cap a patient caller can
+    // fill the database one 5MB upload at a time.
+    if (attachmentInputs.length > 0) {
+      const incomingBytes = attachmentInputs.reduce(
+        (sum, att) => sum + Math.ceil((att.data.length * 3) / 4),
+        0,
+      );
+      const existingBytes = await getOrgAttachmentBytes(sql, orgId);
+      if (existingBytes + incomingBytes > MAX_ORG_ATTACHMENT_BYTES) {
+        return NextResponse.json(
+          {
+            error: 'Org attachment storage quota exceeded',
+            used_bytes: existingBytes,
+            incoming_bytes: incomingBytes,
+            quota_bytes: MAX_ORG_ATTACHMENT_BYTES,
+          },
+          { status: 413 },
+        );
       }
     }
 

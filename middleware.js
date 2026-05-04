@@ -33,9 +33,11 @@ const PUBLIC_ROUTES = [
   '/api/auth',
   '/api/cron',
   '/api/telegram/webhook',  // auth: x-telegram-bot-api-secret-token + chat-id allowlist (in route)
+  '/api/discord/interactions',  // auth: Ed25519 signature + user_id allowlist (in route)
   // Public read-only content endpoints
   '/api/docs/raw',
   '/api/prompts',
+  '/api/monetization/verified-integrations-count',  // MON-01 public counter (Plan 03-03)
   '/practical-systems',
   '/replay',
 ];
@@ -1063,6 +1065,10 @@ export async function middleware(request) {
 
   // SECURITY: Always strip externally-provided org context headers for API routes.
   // Only middleware should inject these after authenticating the request.
+  // NOTE: x-cleanup-secret is intentionally NOT stripped — it is a
+  // caller-authenticating header that the hosted/cleanup route handler
+  // must see to validate against HOSTED_CLEANUP_SECRET. Stripping it would
+  // break the GH-Actions cleanup flow.
   const strippedApiRequestHeaders = (() => {
     const h = new Headers(request.headers);
     h.delete('x-org-id');
@@ -1223,12 +1229,11 @@ export async function middleware(request) {
       }
 
       requestHeaders.set('x-org-id', configuredOrgId);
+      // Fast-path DASHCLAW_API_KEY is the bootstrap / self-host operator key
+      // and is always admin by design — readonly scoping requires the slow-path
+      // api_keys lookup below. (A 'readonly' gate previously lived here but
+      // tested the header we had just set to 'admin', so it was dead code.)
       requestHeaders.set('x-org-role', 'admin');
-
-      // SECURITY: Enforce readonly semantics for API keys.
-      if (request.method !== 'GET' && request.method !== 'HEAD' && requestHeaders.get('x-org-role') === 'readonly') {
-        return NextResponse.json({ error: 'Forbidden - readonly API key' }, { status: 403 });
-      }
 
       const response = NextResponse.next({ request: { headers: requestHeaders } });
       response.headers.set('X-Content-Type-Options', 'nosniff');

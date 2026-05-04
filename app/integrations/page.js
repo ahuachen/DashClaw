@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import {
   Plug, Search, X, Eye, EyeOff, Info, Shield, Cloud, Settings, RefreshCw,
 } from 'lucide-react';
@@ -10,10 +9,10 @@ import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
+import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 export default function IntegrationsPage() {
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === 'admin';
+  const { isAdmin } = useEffectiveRole();
 
   const [settings, setSettings] = useState({});
   const [agentConnections, setAgentConnections] = useState([]);
@@ -80,7 +79,9 @@ export default function IntegrationsPage() {
         const data = await res.json();
         setHealthData(data.health || {});
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[integrations] fetchHealth failed:', err?.message || err);
+    }
   }, []);
 
   const handleRefreshHealth = useCallback(async () => {

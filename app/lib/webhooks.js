@@ -6,7 +6,48 @@
 import crypto from 'crypto';
 import dns from 'node:dns/promises';
 import net from 'node:net';
+import { Agent as UndiciAgent } from 'undici';
 import { scanSensitiveData } from './security.js';
+
+/**
+ * Build an undici dispatcher that pins DNS resolution to the pre-validated
+ * IPs returned by assertSafeWebhookUrl. Closes the DNS-rebinding window
+ * between our lookup and fetch's own connect-time resolution — a
+ * short-TTL attacker-controlled DNS record cannot flip to a private
+ * address between the two calls because fetch never re-resolves.
+ * Falls back to identity lookup when no pinned IP is known.
+ */
+export function buildPinnedDispatcher(validatedIps) {
+  if (!Array.isArray(validatedIps) || validatedIps.length === 0) {
+    return undefined;
+  }
+  return new UndiciAgent({
+    connect: {
+      lookup(_hostname, options, callback) {
+        const family = net.isIP(validatedIps[0]);
+        callback(null, validatedIps[0], family || (options?.family ?? 4));
+      },
+    },
+  });
+}
+
+export async function safeUrlWithIps(url) {
+  const parsed = new URL(url);
+  if (parsed.protocol !== 'https:') throw new Error('Webhook URL must use https');
+  if (parsed.username || parsed.password) throw new Error('Webhook URL must not include credentials');
+  const host = parsed.hostname;
+  if (!host) throw new Error('Webhook URL hostname is required');
+  if (net.isIP(host)) {
+    if (isPrivateIp(host)) throw new Error('Webhook URL cannot target private or loopback IPs');
+    return [host];
+  }
+  const addrs = await dns.lookup(host, { all: true, verbatim: true });
+  if (!Array.isArray(addrs) || addrs.length === 0) throw new Error('Webhook hostname did not resolve');
+  for (const a of addrs) {
+    if (isPrivateIp(a?.address)) throw new Error('Webhook hostname resolves to a private or loopback IP');
+  }
+  return addrs.map((a) => a.address).filter(Boolean);
+}
 
 function isPrivateIp(ip) {
   if (!ip || typeof ip !== 'string') return true;
@@ -46,28 +87,8 @@ function isPrivateIp(ip) {
 }
 
 async function assertSafeWebhookUrl(url) {
-  const parsed = new URL(url);
-  if (parsed.protocol !== 'https:') throw new Error('Webhook URL must use https');
-  if (parsed.username || parsed.password) throw new Error('Webhook URL must not include credentials');
-
-  const host = parsed.hostname;
-  if (!host) throw new Error('Webhook URL hostname is required');
-
-  const ipKind = net.isIP(host);
-  if (ipKind) {
-    if (isPrivateIp(host)) throw new Error('Webhook URL cannot target private or loopback IPs');
-    return host;
-  }
-
-  // Resolve DNS and block any private/loopback/link-local targets.
-  const addrs = await dns.lookup(host, { all: true, verbatim: true });
-  if (!Array.isArray(addrs) || addrs.length === 0) throw new Error('Webhook hostname did not resolve');
-  for (const a of addrs) {
-    const addr = a?.address;
-    if (isPrivateIp(addr)) throw new Error('Webhook hostname resolves to a private or loopback IP');
-  }
-  
-  return addrs[0].address;
+  const ips = await safeUrlWithIps(url);
+  return ips[0];
 }
 
 /**
@@ -104,9 +125,13 @@ export async function deliverWebhook({ webhookId, orgId, url, secret, eventType,
   let responseBody = null;
 
   try {
-    // Validate URL is safe (no private/loopback IPs) — but fetch the original URL
-    // so TLS works correctly with the hostname in the certificate.
-    await assertSafeWebhookUrl(url);
+    // Validate URL is safe, capture every validated IP, and pin DNS resolution
+    // to one of them so fetch's own lookup can't be swapped mid-flight by a
+    // DNS-rebinding attacker. We fetch the original URL (for TLS SNI + cert
+    // matching) but the connect-time resolution goes through the pinned
+    // dispatcher instead of the system resolver.
+    const validatedIps = await safeUrlWithIps(url);
+    const dispatcher = buildPinnedDispatcher(validatedIps);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
@@ -123,6 +148,7 @@ export async function deliverWebhook({ webhookId, orgId, url, secret, eventType,
       },
       body: payloadStr,
       signal: controller.signal,
+      dispatcher,
     });
 
     clearTimeout(timeout);
@@ -143,17 +169,24 @@ export async function deliverWebhook({ webhookId, orgId, url, secret, eventType,
 
   const durationMs = Date.now() - start;
 
-  // Log delivery
+  // Log delivery — await so the audit row is committed before we tell the
+  // caller the delivery succeeded. A lost INSERT here would leave an
+  // operator investigating a missed webhook alert with no delivery attempt
+  // in the UI, unable to distinguish "never tried" from "tried and lost".
   const storedPayload = redactForStorage(payloadStr);
   const storedResponseBody = redactForStorage(responseBody);
-  sql`
-    INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
-    VALUES (${deliveryId}, ${webhookId}, ${orgId}, ${eventType}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
-  `.catch((err) => {
+  let deliveryLogged = true;
+  try {
+    await sql`
+      INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
+      VALUES (${deliveryId}, ${webhookId}, ${orgId}, ${eventType}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
+    `;
+  } catch (err) {
     console.error('[WEBHOOK] Failed to log delivery:', err.message);
-  });
+    deliveryLogged = false;
+  }
 
-  return { success: status === 'success', status: responseStatus };
+  return { success: status === 'success', status: responseStatus, delivery_logged: deliveryLogged };
 }
 
 /**
@@ -174,9 +207,9 @@ export async function deliverGuardWebhook({ url, policyId, orgId, payload, timeo
   let parsedResponse = null;
 
   try {
-    // Validate URL is safe (no private/loopback IPs) — but fetch the original URL
-    // so TLS works correctly with the hostname in the certificate.
-    await assertSafeWebhookUrl(url);
+    // Validate URL + capture validated IPs + pin DNS (see deliverWebhook).
+    const validatedIps = await safeUrlWithIps(url);
+    const dispatcher = buildPinnedDispatcher(validatedIps);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs || 5000);
@@ -200,6 +233,7 @@ export async function deliverGuardWebhook({ url, policyId, orgId, payload, timeo
       },
       body: payloadStr,
       signal: controller.signal,
+      dispatcher,
     });
 
     clearTimeout(timeout);
@@ -225,17 +259,23 @@ export async function deliverGuardWebhook({ url, policyId, orgId, payload, timeo
 
   const durationMs = Date.now() - start;
 
-  // Log delivery (use policyId as webhook_id for guard webhooks)
+  // Log delivery (use policyId as webhook_id for guard webhooks). Await so
+  // the audit row is committed before the caller acts on the response — a
+  // lost INSERT would hide the guard decision from replay and forensics.
   const storedPayload = redactForStorage(payloadStr);
   const storedResponseBody = redactForStorage(responseBody);
-  sql`
-    INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
-    VALUES (${deliveryId}, ${policyId}, ${orgId}, ${'guard.evaluation'}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
-  `.catch((err) => {
+  let deliveryLogged = true;
+  try {
+    await sql`
+      INSERT INTO webhook_deliveries (id, webhook_id, org_id, event_type, payload, status, response_status, response_body, attempted_at, duration_ms)
+      VALUES (${deliveryId}, ${policyId}, ${orgId}, ${'guard.evaluation'}, ${storedPayload}, ${status}, ${responseStatus}, ${storedResponseBody}, ${now}, ${durationMs})
+    `;
+  } catch (err) {
     console.error('[GUARD WEBHOOK] Failed to log delivery:', err.message);
-  });
+    deliveryLogged = false;
+  }
 
-  return { success: status === 'success', response: parsedResponse, status: responseStatus };
+  return { success: status === 'success', response: parsedResponse, status: responseStatus, delivery_logged: deliveryLogged };
 }
 
 /**

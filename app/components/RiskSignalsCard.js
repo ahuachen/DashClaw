@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { ShieldAlert, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardContent } from './ui/Card';
@@ -23,12 +23,13 @@ export default function RiskSignalsCard() {
   const { agentId } = useAgentFilter();
   const { ref: sizeRef, height: tileHeight } = useTileSize();
 
-  useRealtime((event, payload) => {
+  const handleRealtime = useCallback((event, payload) => {
     if (event === 'signal.detected') {
       if (agentId && payload.agent_id !== agentId) return;
       setSignals(prev => [payload, ...prev].slice(0, 50));
     }
-  });
+  }, [agentId]);
+  useRealtime(handleRealtime);
 
   useEffect(() => {
     async function fetchSignals() {

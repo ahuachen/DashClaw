@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -12,6 +12,11 @@ import {
 } from 'lucide-react';
 import { getAgentColor } from '../lib/colors';
 import { useAgentFilter } from '../lib/AgentFilterContext';
+import { groupEventsByDay, summarizeDay } from './dayGrouping';
+
+// Re-export day-grouping helpers so consumers that previously imported
+// from the page module continue to resolve.
+export { groupEventsByDay, summarizeDay };
 
 const categoryIconMap = {
   decision: Zap,
@@ -136,6 +141,10 @@ export default function GlobalActivityFeed() {
     }
   });
 
+  // D-13: client-side day-grouping. Presentational layer only — wraps the
+  // existing per-event render with a one-line English summary per day.
+  const groupedByDay = useMemo(() => groupEventsByDay(events), [events]);
+
   const getStatusColor = (category, status) => {
     if (category === 'guard') {
       if (status === 'block') return 'text-error bg-error-subtle border-error/30';
@@ -184,56 +193,70 @@ export default function GlobalActivityFeed() {
                 <EmptyState icon={Activity} title="No activity recorded" description="Waiting for agent actions or system events…" />
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {events.map((evt) => {
-                  const Icon = categoryIconMap[evt.category] || Activity;
-                  return (
-                    <div key={evt.id} className="group relative p-4 transition-colors hover:bg-white/[0.02]">
-                      <div className="flex items-start gap-4">
-                        {/* Time & Icon */}
-                        <div className="flex min-w-[60px] flex-col items-center gap-2 pt-1">
-                          <span className="font-mono text-[11px] tabular-nums text-tertiary">
-                            {formatTime(evt.timestamp)}
-                          </span>
-                          <div className="rounded-lg border border-border bg-surface-tertiary p-1.5 transition-colors group-hover:border-border-hover">
-                            <Icon size={14} className="text-secondary" aria-hidden="true" />
-                          </div>
-                        </div>
+              <div>
+                {groupedByDay.map((group) => (
+                  <section key={group.dayKey}>
+                    <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface-tertiary/40 px-4 py-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-secondary">
+                        {group.label}
+                      </span>
+                      <span className="text-[11px] tabular-nums text-tertiary">
+                        {summarizeDay(group)}
+                      </span>
+                    </header>
+                    <div className="divide-y divide-border">
+                      {group.events.map((evt) => {
+                        const Icon = categoryIconMap[evt.category] || Activity;
+                        return (
+                          <div key={evt.id} className="group relative p-4 transition-colors hover:bg-white/[0.02]">
+                            <div className="flex items-start gap-4">
+                              {/* Time & Icon */}
+                              <div className="flex min-w-[60px] flex-col items-center gap-2 pt-1">
+                                <span className="font-mono text-[11px] tabular-nums text-tertiary">
+                                  {formatTime(evt.timestamp)}
+                                </span>
+                                <div className="rounded-lg border border-border bg-surface-tertiary p-1.5 transition-colors group-hover:border-border-hover">
+                                  <Icon size={14} className="text-secondary" aria-hidden="true" />
+                                </div>
+                              </div>
 
-                        {/* Content */}
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 flex flex-wrap items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
-                              {evt.label}
-                            </span>
-                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(evt.actorId)}`}>
-                              {evt.actor}
-                            </span>
-                          </div>
-                          <div className="line-clamp-2 text-sm leading-relaxed text-secondary">
-                            {evt.detail}
-                          </div>
-                        </div>
+                              {/* Content */}
+                              <div className="min-w-0 flex-1">
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
+                                    {evt.label}
+                                  </span>
+                                  <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getAgentColor(evt.actorId)}`}>
+                                    {evt.actor}
+                                  </span>
+                                </div>
+                                <div className="line-clamp-2 text-sm leading-relaxed text-secondary">
+                                  {evt.detail}
+                                </div>
+                              </div>
 
-                        {/* Status & Action */}
-                        <div className="flex flex-col items-end gap-2 pt-1">
-                          <div className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(evt.category, evt.status)}`}>
-                            {evt.status}
+                              {/* Status & Action */}
+                              <div className="flex flex-col items-end gap-2 pt-1">
+                                <div className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${getStatusColor(evt.category, evt.status)}`}>
+                                  {evt.status}
+                                </div>
+                                {evt.link && (
+                                  <a
+                                    href={evt.link}
+                                    className="flex items-center gap-0.5 text-[11px] font-medium text-secondary transition-colors hover:text-brand"
+                                  >
+                                    Details
+                                    <ChevronRight size={11} aria-hidden="true" />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          {evt.link && (
-                            <a
-                              href={evt.link}
-                              className="flex items-center gap-0.5 text-[11px] font-medium text-secondary transition-colors hover:text-brand"
-                            >
-                              Details
-                              <ChevronRight size={11} aria-hidden="true" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  </section>
+                ))}
               </div>
             )}
           </CardContent>

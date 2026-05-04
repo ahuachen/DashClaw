@@ -88,8 +88,15 @@ export async function createAssumption(sql, orgId, data) {
   return result[0];
 }
 
-export async function updateAssumption(sql, orgId, assumptionId, data) {
+export async function updateAssumption(sql, orgId, assumptionId, data, options = {}) {
   const { validated, invalidated_reason, invalidated, validated_at, invalidated_at } = data;
+  // `gateInvalidated` (optional) — when true, the UPDATE only applies if
+  // the row's invalidated column is currently 0. Two concurrent invalidate
+  // PATCH requests both see invalidated=0 at the route boundary, but only
+  // one passes this compare-and-set; the loser gets null back so the
+  // caller can return 409 instead of silently overwriting the reason.
+  const { gateInvalidated = false } = options;
+  const gate = gateInvalidated ? 1 : 0;
 
   const result = await sql`
     UPDATE assumptions
@@ -100,6 +107,7 @@ export async function updateAssumption(sql, orgId, assumptionId, data) {
       validated_at = COALESCE(${validated_at || null}, validated_at),
       invalidated_at = COALESCE(${invalidated_at || null}, invalidated_at)
     WHERE assumption_id = ${assumptionId} AND org_id = ${orgId}
+      AND (${gate} = 0 OR invalidated = 0)
     RETURNING *
   `;
   return result[0] || null;

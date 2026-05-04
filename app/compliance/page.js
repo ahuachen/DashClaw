@@ -6,7 +6,6 @@ import {
   FileDown, Copy, Shield, AlertCircle, CheckCircle, ShieldAlert,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -48,7 +47,6 @@ const SIGNAL_CONTROL_MAP = {
 };
 
 export default function CompliancePage() {
-  const { data: session } = useSession();
   const isDemo = isDemoMode();
 
   // Data
