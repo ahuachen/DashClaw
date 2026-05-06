@@ -15,13 +15,19 @@ import { isSelfHostModeEnabled } from '../../lib/selfHost.js';
  * POST /api/guard — Evaluate guard policies for a proposed action.
  * Returns allow/warn/block/require_approval.
  *
- * Body: { action_type, risk_score?, agent_id?, systems_touched?, reversible?, declared_goal? }
+ * Body: { action_type, risk_score?, agent_id?, agent_name?, systems_touched?, reversible?, declared_goal? }
  * Query: ?include_signals=true (optional, adds live signal warnings)
+ *
+ * Agent identity (Phase 1, trust-on-assertion):
+ *   Pass agent_id and agent_name directly in the request body. The existing
+ *   API-key boundary provides authentication. Phase 2 will add JWKS verification
+ *   and a verification_status field.
  */
 export async function POST(request) {
   try {
     const orgId = getOrgId(request);
     const body = await request.json();
+
     const { valid, data, errors } = validateGuardInput(body);
 
     if (!valid) {
