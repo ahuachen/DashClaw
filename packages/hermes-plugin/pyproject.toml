@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dashclaw-hermes-plugin"
+version = "0.1.0"
+description = "DashClaw governance for Hermes — policy enforcement, human approval, and decision recording for every tool call."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "DashClaw" }]
+requires-python = ">=3.11"
+keywords = ["hermes", "hermes-plugin", "dashclaw", "governance", "ai-safety", "hitl"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  # urllib (stdlib) is enough for the four endpoints we hit, but httpx
+  # is widely available in Hermes deployments and makes timeouts/retries
+  # simple. Keep it as a hard dep; the alternative would be vendoring
+  # a tiny urllib wrapper.
+  "httpx>=0.25",
+]
+
+[project.urls]
+Homepage = "https://github.com/ucsandman/DashClaw/tree/main/packages/hermes-plugin"
+Repository = "https://github.com/ucsandman/DashClaw"
+
+# Hermes plugin discovery — pip-installed plugins are picked up via this
+# entry point. See hermes-agent/hermes_cli/plugins.py:116.
+[project.entry-points."hermes_agent.plugins"]
+"observability/dashclaw" = "dashclaw_governance:register"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dashclaw_governance*"]
+
+[tool.setuptools.package-data]
+dashclaw_governance = ["plugin.yaml"]

@@ -1,0 +1,14 @@
+# Drop into ~/.hermes/config.yaml after `pip install dashclaw-hermes-plugin`
+plugins:
+  enabled:
+    - observability/dashclaw
+
+# Credentials are read from env (DASHCLAW_BASE_URL, DASHCLAW_API_KEY).
+# Put them in ~/.hermes/.env so Hermes loads them automatically:
+#
+#   DASHCLAW_BASE_URL=http://localhost:3310
+#   DASHCLAW_API_KEY=dck_xxx
+#   DASHCLAW_AGENT_ID=hermes-laptop-alex
+#   DASHCLAW_AGENT_NAME="Hermes (laptop)"
+#   DASHCLAW_HIGH_RISK_TOOLS=bash,write_file,patch_file
+#   DASHCLAW_FAIL_CLOSED=true

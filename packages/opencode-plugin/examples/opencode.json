@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    [
+      "@dashclaw/opencode-plugin",
+      {
+        "baseUrl": "http://localhost:3310",
+        "apiKey": "${DASHCLAW_API_KEY}",
+        "agentId": "opencode-local",
+        "agentName": "OpenCode (local dev)",
+        "failClosed": true,
+        "riskScoreDefault": 50,
+        "highRiskTools": ["bash", "write", "patch"],
+        "ignoredTools": ["read", "glob", "grep"],
+        "approvalTimeoutMs": 300000
+      }
+    ]
+  ]
+}

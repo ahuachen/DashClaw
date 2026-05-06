@@ -1,0 +1,47 @@
+{
+  "name": "@dashclaw/opencode-plugin",
+  "version": "0.1.0",
+  "description": "DashClaw governance for opencode — policy enforcement, human approval, and decision recording for every tool call.",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "author": "DashClaw",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "dashclaw",
+    "governance",
+    "ai-safety",
+    "hitl",
+    "approval"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/DashClaw.git",
+    "directory": "packages/opencode-plugin"
+  },
+  "homepage": "https://github.com/ucsandman/DashClaw/tree/main/packages/opencode-plugin#readme",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "*"
+  },
+  "peerDependenciesMeta": {
+    "@opencode-ai/plugin": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "*",
+    "typescript": "^5.8.0"
+  }
+}
