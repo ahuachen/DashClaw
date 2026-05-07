@@ -264,7 +264,7 @@ export default function EvaluationsPage() {
             <CardHeader title={t('recentScores')} icon={BarChart3} count={scores.length} />
             <CardContent>
               {scores.length === 0 ? (
-                <EmptyState icon={BarChart3} title="No scores yet" description="Create a scorer and run an evaluation, or submit scores via the SDK." />
+                <EmptyState icon={BarChart3} title={t('noScores.title')} description={t('noScores.description')} />
               ) : (
                 <div className="space-y-2">
                   {scores.map(score => (
@@ -306,7 +306,7 @@ export default function EvaluationsPage() {
                       id="scorer-name"
                       value={newScorer.name}
                       onChange={e => setNewScorer(s => ({ ...s, name: e.target.value }))}
-                      placeholder="Scorer name"
+                      placeholder={t('scorerNamePlaceholder')}
                       className={inputClass}
                     />
                     <label htmlFor="scorer-type" className="sr-only">Scorer type</label>
@@ -328,7 +328,7 @@ export default function EvaluationsPage() {
                     id="scorer-description"
                     value={newScorer.description}
                     onChange={e => setNewScorer(s => ({ ...s, description: e.target.value }))}
-                    placeholder="Description (optional)"
+                    placeholder={t('descriptionPlaceholder')}
                     className={`w-full ${inputClass}`}
                   />
                   <label htmlFor="scorer-config" className="sr-only">Config</label>
@@ -355,10 +355,10 @@ export default function EvaluationsPage() {
             )}
 
             <Card>
-              <CardHeader title="Scorers" icon={Filter} count={scorers.length} />
+              <CardHeader title={t('scorers')} icon={Filter} count={scorers.length} />
               <CardContent>
                 {scorers.length === 0 ? (
-                  <EmptyState icon={Filter} title="No scorers defined" description="Create a scorer to start evaluating agent decisions." />
+                  <EmptyState icon={Filter} title={t('noScorers.title')} description={t('noScorers.description')} />
                 ) : (
                   <div className="space-y-2">
                     {scorers.map(scorer => (

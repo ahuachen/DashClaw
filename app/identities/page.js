@@ -206,12 +206,12 @@ export default function IdentitiesPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Total Identities" value={identities.length} color="text-white" />
+            <StatCompact label={t('stats.totalIdentities')} value={identities.length} color="text-white" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Pending Pairings" value={pendingPairings.length} color={pendingPairings.length > 0 ? 'text-warning' : 'text-secondary'} />
+            <StatCompact label={t('stats.pendingPairings')} value={pendingPairings.length} color={pendingPairings.length > 0 ? 'text-warning' : 'text-secondary'} />
           </CardContent>
         </Card>
         <Card hover={false}>
@@ -330,7 +330,7 @@ export default function IdentitiesPage() {
               <EmptyState
                 icon={Fingerprint}
                 title="No approved identities"
-                description="Approved agent identities will appear here. Use the Pending Pairings section above to approve an agent."
+                description={t('empty.description')}
               />
             </CardContent>
           </Card>

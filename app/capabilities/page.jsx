@@ -185,7 +185,7 @@ export default function CapabilitiesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, description, tags…"
+            placeholder={t('searchPlaceholder')}
             className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-9 pr-3 text-sm text-white transition-colors focus:border-brand/40 focus:outline-none"
           />
         </div>

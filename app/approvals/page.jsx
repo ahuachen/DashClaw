@@ -158,17 +158,17 @@ export default function ApprovalsPage() {
                           <div className="space-y-2.5">
                             <div className="flex items-center gap-2 text-tertiary">
                               <User size={14} />
-                              <span>Agent</span>
+                              <span>{t('columns.agent')}</span>
                               <span className="ml-auto text-secondary">{action.agent_name || action.agent_id}</span>
                             </div>
                             <div className="flex items-center gap-2 text-tertiary">
                               <Zap size={14} />
-                              <span>Type</span>
+                              <span>{t('columns.type')}</span>
                               <span className="ml-auto text-secondary">{action.action_type}</span>
                             </div>
                             <div className="flex items-center gap-2 text-tertiary">
                               <Clock size={14} />
-                              <span>Triggered</span>
+                              <span>{t('columns.triggered')}</span>
                               <span className="ml-auto tabular-nums text-secondary">
                                 {new Date(action.timestamp_start).toLocaleString()}
                               </span>

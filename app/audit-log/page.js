@@ -278,7 +278,7 @@ export default function AuditLogPage() {
               <EmptyState
                 icon={Clock}
                 title="No activity logs"
-                description="Activity will appear here as changes are made to your workspace."
+                description={t('empty.description')}
               />
             </div>
           ) : (

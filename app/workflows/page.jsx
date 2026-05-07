@@ -294,7 +294,7 @@ export default function WorkflowsPage() {
         <EmptyState
           icon={Workflow}
           title={t('empty.title')}
-          description="Package repeatable operational patterns into reusable, versioned assets. Link them to policies, knowledge, capabilities, and a model strategy."
+          description={t('empty.description')}
           action={(
             <div className="flex flex-wrap items-center justify-center gap-2">
               <Link

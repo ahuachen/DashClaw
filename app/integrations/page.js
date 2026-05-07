@@ -349,7 +349,7 @@ export default function IntegrationsPage() {
         <input
           id="integration-search"
           type="text"
-          placeholder="Search integrations…"
+          placeholder={t('searchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full rounded-lg border border-border bg-surface-tertiary py-2 pl-10 pr-4 text-sm text-secondary placeholder:text-disabled transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
@@ -591,7 +591,7 @@ export default function IntegrationsPage() {
 
       {/* Info Section */}
       <Card hover={false} className="mt-8">
-        <CardHeader title="About settings" icon={Info} />
+        <CardHeader title={t('aboutSettings')} icon={Info} />
         <CardContent>
           <div className="space-y-2 text-sm text-secondary">
             <p className="flex items-center gap-2">

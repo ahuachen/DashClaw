@@ -461,7 +461,7 @@ export default function ScoringPage() {
                     <h3 className="text-sm font-medium text-white">{tmpl.name}</h3>
                     <div className="flex gap-2 mt-1">
                       {tmpl.action_type && <Badge color="blue">{tmpl.action_type}</Badge>}
-                      <Badge color="zinc">Base: {tmpl.base_risk}</Badge>
+                      <Badge color="zinc">{t('baseRisk')} {tmpl.base_risk}</Badge>
                       <Badge color="zinc">{(tmpl.rules || []).length} rules</Badge>
                     </div>
                   </div>
@@ -496,7 +496,7 @@ export default function ScoringPage() {
             <div className="grid grid-cols-2 gap-3">
               <input value={calibrateForm.action_type}
                 onChange={e => setCalibrateForm(f => ({ ...f, action_type: e.target.value }))}
-                placeholder="Action type (optional, blank = all)"
+                placeholder={t('actionTypePlaceholder')}
                 className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <div className="flex items-center gap-2">
                 <label className="text-xs text-tertiary">Lookback:</label>

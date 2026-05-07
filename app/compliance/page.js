@@ -290,7 +290,7 @@ export default function CompliancePage() {
                 <EmptyState
                   icon={Scale}
                   title={t('selectFramework')}
-                  description="Choose a compliance framework above to view its control map."
+                  description={t('chooseFramework')}
                 />
               ) : !controlMap ? (
                 <ListSkeleton rows={6} />
@@ -542,7 +542,7 @@ export default function CompliancePage() {
                   onChange={(e) => setReportFormat(e.target.value)}
                   className="rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm text-secondary transition-colors hover:border-border-hover focus:border-brand/50 focus:outline-none focus:ring-2 focus:ring-brand/20"
                 >
-                  <option value="markdown">Markdown</option>
+                  <option value="markdown">{t('exportMarkdown')}</option>
                   <option value="json">JSON</option>
                 </select>
                 <button

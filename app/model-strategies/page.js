@@ -212,7 +212,7 @@ export default function ModelStrategiesPage() {
         <EmptyState
           icon={Cpu}
           title="No model strategies yet"
-          description="Define reusable model/provider strategies with fallback chains, budget caps, and task-mode overrides. Link them to workflow templates."
+          description={t('empty.description')}
           action={
             <Link
               href="/model-strategies/new"

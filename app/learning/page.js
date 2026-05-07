@@ -299,7 +299,7 @@ export default function LearningDashboard() {
                 <EmptyState
                   icon={BookOpen}
                   title={t('empty.title')}
-                  description="Start tracking decisions to build your knowledge base."
+                  description={t('empty.description')}
                 />
               ) : (
                 decisions.map((decision) => {
@@ -342,14 +342,14 @@ export default function LearningDashboard() {
 
         {/* Lessons */}
         <Card>
-          <CardHeader title="Distilled Lessons" icon={Lightbulb} count={lessons.length} />
+          <CardHeader title={t('distilledLessons')} icon={Lightbulb} count={lessons.length} />
           <CardContent>
             <div className="space-y-3 max-h-[500px] overflow-y-auto">
               {lessons.length === 0 ? (
                 <EmptyState
                   icon={BookOpen}
                   title="No lessons captured yet"
-                  description="Lessons are distilled from your tracked decisions."
+                  description={t('emptyLessons.description')}
                 />
               ) : (
                 lessons.map((lesson) => (
@@ -393,7 +393,7 @@ export default function LearningDashboard() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
         <Card>
-          <CardHeader title="Recommendation Ops" icon={Power} count={recommendations.length} />
+          <CardHeader title={t('recommendationOps')} icon={Power} count={recommendations.length} />
           <CardContent>
             <div className="flex items-center gap-2 mb-3">
               <button
@@ -402,7 +402,7 @@ export default function LearningDashboard() {
                 className="px-3 py-1.5 text-xs font-medium text-secondary hover:text-white bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg hover:border-brand/40 transition-colors disabled:opacity-50 flex items-center gap-1.5"
               >
                 <Sparkles size={12} />
-                {rebuilding ? 'Rebuilding...' : 'Rebuild Now'}
+                {rebuilding ? 'Rebuilding...' : t('rebuildNow')}
               </button>
               {rebuildResult && (
                 <span className="text-xs text-success">{rebuildResult}</span>
@@ -418,7 +418,7 @@ export default function LearningDashboard() {
                 <EmptyState
                   icon={Power}
                   title="No recommendations yet"
-                  description="Click 'Rebuild Now' to generate recommendations from your action history."
+                  description={t('emptyRecommendations.description')}
                 />
               ) : (
                 recommendations.map((rec) => (

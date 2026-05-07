@@ -445,7 +445,12 @@
     "readOnly": "只读访问",
     "allClear": "全部通过",
     "awaiting": "等待审批",
-    "noneDeclared": "无声明"
+    "noneDeclared": "无声明",
+    "columns": {
+      "agent": "智能体",
+      "type": "类型",
+      "triggered": "触发时间"
+    }
   },
   "scoring": {
     "title": "评分配置",
@@ -501,11 +506,21 @@
     "roles": {
       "member": "成员",
       "admin": "管理员"
+    },
+    "stats": {
+      "totalMembers": "成员总数",
+      "admins": "管理员",
+      "pendingInvites": "待处理邀请"
+    },
+    "empty": {
+      "description": "邀请你的第一位团队成员开始使用。"
     }
   },
   "integrations": {
     "title": "集成",
     "subtitle": "组织级服务连接 — 可在舰队 → 智能体 → 集成中按智能体覆盖",
+    "searchPlaceholder": "搜索集成…",
+    "aboutSettings": "关于设置",
     "stats": {
       "available": "可用",
       "connected": "已连接",
@@ -526,13 +541,16 @@
   "workflows": {
     "title": "工作流模板",
     "subtitle": "可复用的受治理工作流封装",
+    "searchPlaceholder": "搜索工作流…",
     "empty": {
-      "title": "尚无工作流模板"
+      "title": "尚无工作流模板",
+      "description": "将可重复的运营模式打包为可复用的版本化资产，并关联到策略、知识库、能力和模型策略。"
     }
   },
   "capabilities": {
     "title": "能力注册表",
     "subtitle": "包含风险、审批与健康元数据的受治理可调用能力注册表",
+    "searchPlaceholder": "搜索名称、描述、标签…",
     "empty": {
       "title": "无匹配能力"
     }
@@ -546,7 +564,10 @@
   },
   "auditLog": {
     "title": "审计日志",
-    "subtitle": "系统与管理事件的永久记录"
+    "subtitle": "系统与管理事件的永久记录",
+    "empty": {
+      "description": "对 workspace 进行变更后，活动记录将在此显示。"
+    }
   },
   "notifications": {
     "title": "通知",
@@ -556,25 +577,53 @@
   "drift": {
     "title": "漂移检测",
     "subtitle": "统计行为漂移分析",
-    "alerts": "漂移告警"
+    "alerts": "漂移告警",
+    "baseline": "基线：{mean} ± {stddev}",
+    "current": "当前：{mean} ± {stddev}",
+    "samples": "样本数：{count}",
+    "recentBaselines": "近期基线",
+    "alertsByMetric": "按指标的告警"
   },
   "compliance": {
     "title": "合规",
     "subtitle": "将策略映射到监管框架并跟踪控制覆盖率",
     "selectFramework": "选择框架",
-    "noControls": "未映射控制项"
+    "noControls": "未映射控制项",
+    "chooseFramework": "请在上方选择一个合规框架以查看其控制映射。",
+    "exportMarkdown": "Markdown"
   },
   "evaluations": {
     "title": "评估",
     "subtitle": "评分和衡量智能体决策质量",
-    "recentScores": "近期评分"
+    "recentScores": "近期评分",
+    "scorers": "评分器",
+    "scorerNamePlaceholder": "评分器名称",
+    "descriptionPlaceholder": "描述（可选）",
+    "noScores": {
+      "title": "尚无评分",
+      "description": "创建评分器并运行评估，或通过 SDK 提交评分。"
+    },
+    "noScorers": {
+      "title": "尚无评分器",
+      "description": "创建一个评分器以开始评估智能体决策。"
+    }
   },
   "learning": {
     "title": "学习数据库",
     "subtitle": "决策、结果与经验教训",
     "recentDecisions": "近期决策",
+    "distilledLessons": "精炼经验",
+    "recommendationOps": "推荐操作",
+    "rebuildNow": "立即重建",
     "empty": {
-      "title": "尚无决策记录"
+      "title": "尚无决策记录",
+      "description": "开始追踪决策以构建知识库。"
+    },
+    "emptyLessons": {
+      "description": "经验从追踪的决策中提炼而来。"
+    },
+    "emptyRecommendations": {
+      "description": "点击「立即重建」从动作历史中生成推荐。"
     }
   },
   "activity": {
@@ -637,6 +686,13 @@
   "identities": {
     "title": "智能体身份",
     "subtitle": "管理智能体配对与已批准身份",
+    "stats": {
+      "totalIdentities": "身份总数",
+      "pendingPairings": "待配对"
+    },
+    "empty": {
+      "description": "已批准的智能体身份将在此显示。请使用上方「待配对」部分批准智能体。"
+    },
     "status": {
       "expired": "已过期",
       "expiresNow": "即将过期",
@@ -701,6 +757,7 @@
   "knowledge": {
     "title": "知识库",
     "subtitle": "为智能体提供结构化上下文集合",
+    "syncedAt": "同步于 {time}",
     "delete": "确认删除？",
     "deleting": "删除中…",
     "status": {
@@ -729,6 +786,9 @@
       "low": "低",
       "balanced": "均衡",
       "highQuality": "高质量"
+    },
+    "empty": {
+      "description": "定义带备用链、预算上限和任务模式覆盖的可复用模型/供应商策略，并关联到工作流模板。"
     }
   },
   "footer": {

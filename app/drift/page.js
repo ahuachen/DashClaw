@@ -286,9 +286,9 @@ export default function DriftPage() {
                         </div>
                         <p className="mt-1 text-xs text-secondary">{alert.description}</p>
                         <div className="mt-1.5 flex flex-wrap items-center gap-4 text-[11px] tabular-nums text-tertiary">
-                          <span>Baseline: {alert.baseline_mean} ± {alert.baseline_stddev}</span>
-                          <span>Current: {alert.current_mean} ± {alert.current_stddev}</span>
-                          <span>Samples: {alert.sample_count}</span>
+                          <span>{t('baseline', { mean: alert.baseline_mean, stddev: alert.baseline_stddev })}</span>
+                          <span>{t('current', { mean: alert.current_mean, stddev: alert.current_stddev })}</span>
+                          <span>{t('samples', { count: alert.sample_count })}</span>
                           <span className="ml-auto">{new Date(alert.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
@@ -305,7 +305,7 @@ export default function DriftPage() {
             {stats?.recent_baselines && stats.recent_baselines.length > 0 ? (
               <>
                 <Card>
-                  <CardHeader title="Recent baselines" icon={BarChart3} count={stats.recent_baselines.length} />
+                  <CardHeader title={t('recentBaselines')} icon={BarChart3} count={stats.recent_baselines.length} />
                   <CardContent>
                     <div className="space-y-2">
                       {stats.recent_baselines.map((b, i) => (
@@ -330,7 +330,7 @@ export default function DriftPage() {
 
                 {stats?.by_metric && stats.by_metric.length > 0 && (
                   <Card>
-                    <CardHeader title="Alerts by metric" />
+                    <CardHeader title={t('alertsByMetric')} />
                     <CardContent>
                       <div className="space-y-2">
                         {stats.by_metric.map(m => (

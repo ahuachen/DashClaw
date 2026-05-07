@@ -294,17 +294,17 @@ export default function TeamPage() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Total Members" value={data?.member_count || 0} color="text-white" />
+            <StatCompact label={t('stats.totalMembers')} value={data?.member_count || 0} color="text-white" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Admins" value={adminCount} color="text-brand" />
+            <StatCompact label={t('stats.admins')} value={adminCount} color="text-brand" />
           </CardContent>
         </Card>
         <Card hover={false}>
           <CardContent className="pt-4 pb-4">
-            <StatCompact label="Pending Invites" value={invites.length} color="text-info" />
+            <StatCompact label={t('stats.pendingInvites')} value={invites.length} color="text-info" />
           </CardContent>
         </Card>
       </div>
@@ -423,7 +423,7 @@ export default function TeamPage() {
             <EmptyState
               icon={UsersRound}
               title="No members"
-              description="Invite your first team member to get started."
+              description={t('empty.description')}
             />
           </CardContent>
         ) : (

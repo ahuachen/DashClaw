@@ -445,7 +445,12 @@
     "readOnly": "Read-only access",
     "allClear": "All clear",
     "awaiting": "Awaiting Approval",
-    "noneDeclared": "None declared"
+    "noneDeclared": "None declared",
+    "columns": {
+      "agent": "Agent",
+      "type": "Type",
+      "triggered": "Triggered"
+    }
   },
   "scoring": {
     "title": "Scoring Profiles",
@@ -501,11 +506,21 @@
     "roles": {
       "member": "Member",
       "admin": "Admin"
+    },
+    "stats": {
+      "totalMembers": "Total Members",
+      "admins": "Admins",
+      "pendingInvites": "Pending Invites"
+    },
+    "empty": {
+      "description": "Invite your first team member to get started."
     }
   },
   "integrations": {
     "title": "Integrations",
     "subtitle": "Org-wide service connections — override per agent from Fleet → Agent → Integrations",
+    "searchPlaceholder": "Search integrations…",
+    "aboutSettings": "About settings",
     "stats": {
       "available": "Available",
       "connected": "Connected",
@@ -526,13 +541,16 @@
   "workflows": {
     "title": "Workflow templates",
     "subtitle": "Reusable, governed workflow packaging",
+    "searchPlaceholder": "Search workflows…",
     "empty": {
-      "title": "No workflow templates yet"
+      "title": "No workflow templates yet",
+      "description": "Package repeatable operational patterns into reusable, versioned assets. Link them to policies, knowledge, capabilities, and a model strategy."
     }
   },
   "capabilities": {
     "title": "Capability Registry",
     "subtitle": "Governed registry of callable capabilities with risk, approval, and health metadata",
+    "searchPlaceholder": "Search name, description, tags…",
     "empty": {
       "title": "No capabilities match"
     }
@@ -546,7 +564,10 @@
   },
   "auditLog": {
     "title": "Audit log",
-    "subtitle": "Permanent record of system and administrative events"
+    "subtitle": "Permanent record of system and administrative events",
+    "empty": {
+      "description": "Activity will appear here as changes are made to your workspace."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -556,25 +577,53 @@
   "drift": {
     "title": "Drift detection",
     "subtitle": "Statistical behavioral drift analysis",
-    "alerts": "Drift alerts"
+    "alerts": "Drift alerts",
+    "baseline": "Baseline: {mean} ± {stddev}",
+    "current": "Current: {mean} ± {stddev}",
+    "samples": "Samples: {count}",
+    "recentBaselines": "Recent baselines",
+    "alertsByMetric": "Alerts by metric"
   },
   "compliance": {
     "title": "Compliance",
     "subtitle": "Map policies to regulatory frameworks and track control coverage",
     "selectFramework": "Select a framework",
-    "noControls": "No controls mapped"
+    "noControls": "No controls mapped",
+    "chooseFramework": "Choose a compliance framework above to view its control map.",
+    "exportMarkdown": "Markdown"
   },
   "evaluations": {
     "title": "Evaluations",
     "subtitle": "Score and measure agent decision quality",
-    "recentScores": "Recent scores"
+    "recentScores": "Recent scores",
+    "scorers": "Scorers",
+    "scorerNamePlaceholder": "Scorer name",
+    "descriptionPlaceholder": "Description (optional)",
+    "noScores": {
+      "title": "No scores yet",
+      "description": "Create a scorer and run an evaluation, or submit scores via the SDK."
+    },
+    "noScorers": {
+      "title": "No scorers defined",
+      "description": "Create a scorer to start evaluating agent decisions."
+    }
   },
   "learning": {
     "title": "Learning Database",
     "subtitle": "Decisions, Outcomes & Lessons",
     "recentDecisions": "Recent Decisions",
+    "distilledLessons": "Distilled Lessons",
+    "recommendationOps": "Recommendation Ops",
+    "rebuildNow": "Rebuild Now",
     "empty": {
-      "title": "No decisions logged yet"
+      "title": "No decisions logged yet",
+      "description": "Start tracking decisions to build your knowledge base."
+    },
+    "emptyLessons": {
+      "description": "Lessons are distilled from your tracked decisions."
+    },
+    "emptyRecommendations": {
+      "description": "Click 'Rebuild Now' to generate recommendations from your action history."
     }
   },
   "activity": {
@@ -637,6 +686,13 @@
   "identities": {
     "title": "Agent Identities",
     "subtitle": "Manage agent pairings and approved identities",
+    "stats": {
+      "totalIdentities": "Total Identities",
+      "pendingPairings": "Pending Pairings"
+    },
+    "empty": {
+      "description": "Approved agent identities will appear here. Use the Pending Pairings section above to approve an agent."
+    },
     "status": {
       "expired": "Expired",
       "expiresNow": "Expires now",
@@ -701,6 +757,7 @@
   "knowledge": {
     "title": "Knowledge",
     "subtitle": "Structured context collections for agent grounding",
+    "syncedAt": "Synced {time}",
     "delete": "Delete?",
     "deleting": "Deleting…",
     "status": {
@@ -729,6 +786,9 @@
       "low": "Low",
       "balanced": "Balanced",
       "highQuality": "High Quality"
+    },
+    "empty": {
+      "description": "Define reusable model/provider strategies with fallback chains, budget caps, and task-mode overrides. Link them to workflow templates."
     }
   },
   "footer": {

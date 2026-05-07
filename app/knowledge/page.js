@@ -61,7 +61,7 @@ function CollectionCard({ c, onDelete }) {
         </div>
         <div className="flex items-center gap-3 mt-3 text-[10px] text-tertiary uppercase tracking-wider">
           <span>{c.doc_count} items</span>
-          <span>Synced {timeAgo(c.last_synced_at, t)}</span>
+          <span>{t('syncedAt', { time: timeAgo(c.last_synced_at, t) })}</span>
         </div>
         {c.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
