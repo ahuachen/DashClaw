@@ -406,6 +406,10 @@ function getCorsHeaders(request) {
 
 const I18N_SUPPORTED_LOCALES = ['en', 'zh-CN'];
 const I18N_LOCALE_PREFIX_RE = /^\/(zh-CN)(?=\/|$)/;
+// Pages that should NOT go through inner auth/demo when accessed via a locale
+// prefix. These are public marketing/setup pages — without this list, the
+// inner middleware would treat them as protected and bounce to /login.
+const I18N_PUBLIC_PAGES = new Set(['/setup', '/connect', '/']);
 
 export async function middleware(request) {
   // ---------- 1. Locale prefix detection (before auth runs) ------------
@@ -436,7 +440,16 @@ export async function middleware(request) {
   //   - NextResponse.redirect()  (e.g. /login when unauthenticated)
   //   - NextResponse.rewrite()   (e.g. demo fixtures)
   //   - NextResponse.json()      (API responses)
-  let response = await innerMiddleware(request);
+  //
+  // Skip inner for public pages reached via locale prefix — they're not in
+  // the original matcher, so running inner would incorrectly treat them as
+  // protected and redirect to /login.
+  let response;
+  if (hadLocalePrefix && I18N_PUBLIC_PAGES.has(request.nextUrl.pathname)) {
+    response = NextResponse.rewrite(request.nextUrl);
+  } else {
+    response = await innerMiddleware(request);
+  }
 
   // ---------- 3. If we had a locale prefix and inner returned a plain
   // pass-through, convert it into an explicit rewrite to the de-prefixed

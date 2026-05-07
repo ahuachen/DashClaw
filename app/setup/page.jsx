@@ -1,3 +1,4 @@
+import { getTranslations, getLocale } from 'next-intl/server';
 import { projectReadinessReport, getReadinessReport } from '../lib/readiness.mjs';
 
 function statusTone(status) {
@@ -28,7 +29,7 @@ function checkTone(status) {
   }
 }
 
-function CheckList({ checks = [] }) {
+function CheckList({ checks = [], nextLabel }) {
   if (!checks.length) return null;
 
   return (
@@ -43,7 +44,7 @@ function CheckList({ checks = [] }) {
                 <div className="mt-2 text-xs text-secondary">{check.subDetail}</div>
               ) : null}
               {check.nextAction ? (
-                <div className="mt-2 text-xs text-secondary">Next: {check.nextAction}</div>
+                <div className="mt-2 text-xs text-secondary">{nextLabel}{check.nextAction}</div>
               ) : null}
             </div>
             <div className={`shrink-0 text-xs font-semibold uppercase tracking-wide ${checkTone(check.status)}`}>
@@ -95,6 +96,10 @@ export default async function SetupPage() {
   const report = await getReadinessReport(process.env);
   const view = projectReadinessReport(report, { isAuthenticated: true });
   const overall = view.verification;
+  const t = await getTranslations('setup');
+  const locale = await getLocale();
+  const dateLocale = locale === 'zh-CN' ? 'zh-CN' : 'en-US';
+  const checkedNext = t('sections.nextPrefix').replace('{action}', '');
 
   return (
     <main className="min-h-screen bg-primary px-6 py-10 text-primary">
@@ -102,34 +107,39 @@ export default async function SetupPage() {
         <section className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary">
-              Setup
+              {t('badge')}
             </span>
             <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${statusTone(overall.overall)}`}>
               {overall.label}
             </span>
           </div>
           <div className="space-y-2">
-            <h1 className="text-4xl font-semibold text-white">Deployment truth surface</h1>
+            <h1 className="text-4xl font-semibold text-white">{t('h1')}</h1>
             <p className="max-w-3xl text-base text-secondary">{overall.summary}</p>
-            <p className="text-sm text-tertiary">Checked at {new Date(view.checkedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+            <p className="text-sm text-tertiary">
+              {t('checkedAt', { time: new Date(view.checkedAt).toLocaleString(dateLocale, { dateStyle: 'medium', timeStyle: 'short' }) })}
+            </p>
           </div>
         </section>
 
         <section className="grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-secondary">Readiness</div>
+            <div className="text-sm text-secondary">{t('kpis.readiness')}</div>
             <div className="mt-2 text-2xl font-semibold text-white">{overall.readiness}</div>
-            <p className="mt-2 text-sm text-secondary">Overall state projected from database, config, auth, deploy, and SDK checks.</p>
+            <p className="mt-2 text-sm text-secondary">{t('kpis.readinessNote')}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-secondary">Live verification</div>
-            <div className="mt-2 text-2xl font-semibold text-white">{overall.fullyVerified ? 'Attached' : 'Pending'}</div>
-            <p className="mt-2 text-sm text-secondary">A setup page can be healthy without live proof. Proof becomes attached after a successful validation flow.</p>
+            <div className="text-sm text-secondary">{t('kpis.liveVerification')}</div>
+            <div className="mt-2 text-2xl font-semibold text-white">{overall.fullyVerified ? t('kpis.liveAttached') : t('kpis.livePending')}</div>
+            <p className="mt-2 text-sm text-secondary">{t('kpis.liveNote')}</p>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-secondary">Proof artifact</div>
-            <div className="mt-2 text-2xl font-semibold text-white">Ready</div>
-            <p className="mt-2 text-sm text-secondary">Use <code>/api/setup/status</code> for machine checks and this page for operator truth.</p>
+            <div className="text-sm text-secondary">{t('kpis.proof')}</div>
+            <div className="mt-2 text-2xl font-semibold text-white">{t('kpis.proofValue')}</div>
+            <p
+              className="mt-2 text-sm text-secondary"
+              dangerouslySetInnerHTML={{ __html: t.raw('kpis.proofNote') }}
+            />
           </div>
         </section>
 
@@ -147,10 +157,10 @@ export default async function SetupPage() {
                   </span>
                 </div>
                 {section.whatWasChecked ? (
-                  <p className="mt-3 text-xs text-tertiary">Checked: {section.whatWasChecked}</p>
+                  <p className="mt-3 text-xs text-tertiary">{t('sections.checkedPrefix', { what: section.whatWasChecked })}</p>
                 ) : null}
                 <div className="mt-4">
-                  <CheckList checks={section.checks} />
+                  <CheckList checks={section.checks} nextLabel={checkedNext} />
                 </div>
               </article>
             ))}
@@ -158,7 +168,7 @@ export default async function SetupPage() {
 
           <aside className="space-y-6">
             <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <h2 className="text-lg font-semibold text-white">Workflow</h2>
+              <h2 className="text-lg font-semibold text-white">{t('sidebar.workflow')}</h2>
               <div className="mt-4 space-y-3">
                 {view.workflow.map((step) => (
                   <div key={step.id} className="rounded-xl border border-white/10 bg-primary/40 p-3">
@@ -167,14 +177,14 @@ export default async function SetupPage() {
                       <div className={`text-xs font-semibold uppercase tracking-wide ${checkTone(step.status)}`}>{step.status}</div>
                     </div>
                     <p className="mt-2 text-sm text-secondary">{step.summary}</p>
-                    {step.nextAction ? <p className="mt-2 text-xs text-tertiary">Next: {step.nextAction}</p> : null}
+                    {step.nextAction ? <p className="mt-2 text-xs text-tertiary">{t('sections.nextPrefix', { action: step.nextAction })}</p> : null}
                   </div>
                 ))}
               </div>
             </section>
 
             <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <h2 className="text-lg font-semibold text-white">Recommended next steps</h2>
+              <h2 className="text-lg font-semibold text-white">{t('sidebar.recommendedNext')}</h2>
               <div className="mt-4">
                 <RecommendationList recommendations={view.recommendations} />
               </div>

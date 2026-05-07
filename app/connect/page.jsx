@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export default async function ConnectPage() {
   const headerStore = await headers();
   const host = headerStore.get('host') || 'localhost:3000';
   const baseUrl = host === 'dashclaw.io' ? 'https://my-dashclaw.vercel.app' : `https://${host}`;
+  const t = await getTranslations('connect');
 
   return (
     <div className="min-h-screen bg-surface-primary text-text-primary">
@@ -27,18 +29,18 @@ export default async function ConnectPage() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-8 flex items-center gap-2 text-sm text-text-tertiary">
             <Link href="/" className="transition-colors hover:text-text-secondary">
-              Home
+              {t('breadcrumb.home')}
             </Link>
             <ChevronRight size={14} />
-            <span className="text-text-secondary">Connect Claude Code</span>
+            <span className="text-text-secondary">{t('breadcrumb.current')}</span>
           </div>
 
           <header className="mb-10">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
-              Connect Claude Code in 5 minutes.
+              {t('header.title')}
             </h1>
             <p className="mt-3 text-base text-text-secondary max-w-2xl">
-              Top-to-bottom runbook. Copy one command, paste one workspace token, configure Discord for phone approvals. Done.
+              {t('header.subtitle')}
             </p>
           </header>
 
@@ -47,8 +49,8 @@ export default async function ConnectPage() {
           {/* Linear runbook — D-15 single-page, no multi-step wizard. */}
           <section className="mt-10 space-y-6">
             <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Runbook</p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">1. Install the Claude Code hooks</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">{t('runbook.label')}</p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">{t('runbook.step1')}</h2>
               <p className="mt-2 text-sm text-text-secondary">
                 Clone the repo and run the installer. One command copies the PreToolUse, PostToolUse, and Stop hooks into <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-secondary">.claude/hooks/</code> and merges settings.
               </p>
@@ -59,7 +61,7 @@ npm run hooks:install`}</pre>
             </article>
 
             <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
-              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">2. Paste your workspace token</h2>
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">{t('runbook.step2')}</h2>
               <p className="mt-2 text-sm text-text-secondary">
                 Generate a workspace token above (hosted trial) or from your self-hosted instance settings. Export it alongside your instance URL:
               </p>
@@ -71,7 +73,7 @@ export DASHCLAW_API_KEY=dc_live_...`}</pre>
             </article>
 
             <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
-              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">3. Configure Discord for phone approvals</h2>
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">{t('runbook.step3')}</h2>
               <p className="mt-2 text-sm text-text-secondary">
                 When Claude Code tries something risky, DashClaw pauses and sends a Discord DM with Approve / Reject buttons. Three env vars unlock the phone loop:
               </p>
@@ -88,7 +90,7 @@ DISCORD_APPROVER_ORG_ID=<your-org-id>`}</pre>
             </article>
 
             <article className="rounded-2xl border border-border bg-surface-secondary p-6 sm:p-8">
-              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">Verify</h2>
+              <h2 className="mt-0 text-2xl font-semibold tracking-tight text-text-primary">{t('runbook.verify')}</h2>
               <p className="mt-2 text-sm text-text-secondary">
                 Run <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">dashclaw doctor</code> from any terminal. Exit 0 = healthy. Ask Claude Code to run something risky (<code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">rm -rf test/</code>) — you should receive a Discord DM within ~1 second.
               </p>
@@ -100,22 +102,22 @@ dashclaw doctor`}</pre>
           {/* MCP Server — Zero Code Path */}
           <section className="mt-12 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
             <div className="flex items-center gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Fastest path</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">{t('mcp.fastestPath')}</p>
               <span className="rounded-full border border-brand/20 bg-brand/10 px-2.5 py-0.5 text-[11px] font-medium text-brand">
-                Under 2 minutes
+                {t('mcp.underTwoMinutes')}
               </span>
             </div>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">
-              MCP Server <span className="font-normal text-text-tertiary">(zero code)</span>
+              {t('mcp.title')} <span className="font-normal text-text-tertiary">{t('mcp.titleSuffix')}</span>
             </h2>
             <p className="mt-2 text-sm text-text-secondary">
-              Connect any MCP-compatible client — Claude Code, Claude Desktop, or Claude Managed Agents — to DashClaw governance with one config line. No SDK, no hooks, no code changes.
+              {t('mcp.summary')}
             </p>
 
             <div className="mt-6 space-y-4">
               {/* Claude Code / Claude Desktop */}
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Claude Code / Claude Desktop</h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('mcp.claudeDesktop')}</h3>
                 <p className="mt-1 text-xs text-text-tertiary">
                   Add to your <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[11px] text-text-secondary">claude_desktop_config.json</code> or Claude Code settings:
                 </p>
@@ -135,7 +137,7 @@ dashclaw doctor`}</pre>
 
               {/* Claude Managed Agents */}
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Claude Managed Agents</h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('mcp.managedAgents')}</h3>
                 <p className="mt-1 text-xs text-text-tertiary">Pass DashClaw as an MCP server when creating your agent:</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`agent = client.beta.agents.create(
     name="Governed Agent",
@@ -153,10 +155,10 @@ dashclaw doctor`}</pre>
 
             {/* What you get */}
             <div className="mt-4 rounded-2xl border border-border bg-surface-tertiary p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-tertiary">What you get</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-tertiary">{t('mcp.whatYouGet')}</p>
               <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-text-secondary">8 Governance Tools</p>
+                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-text-secondary">{t('mcp.tools')}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {['guard', 'record', 'invoke', 'capabilities_list', 'policies_list', 'wait_for_approval', 'session_start', 'session_end'].map((tool) => (
                       <span key={tool} className="rounded-md border border-border bg-surface-tertiary px-2 py-0.5 font-mono text-[11px] text-text-secondary">{tool}</span>
@@ -164,7 +166,7 @@ dashclaw doctor`}</pre>
                   </div>
                 </div>
                 <div>
-                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-text-secondary">4 Resources</p>
+                  <p className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-text-secondary">{t('mcp.resources')}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {['policies', 'capabilities', 'agent history', 'status'].map((res) => (
                       <span key={res} className="rounded-md border border-border bg-surface-tertiary px-2 py-0.5 font-mono text-[11px] text-text-secondary">{res}</span>
@@ -177,20 +179,20 @@ dashclaw doctor`}</pre>
 
           {/* Verify with Doctor */}
           <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Verify</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">Confirm your instance is healthy</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">{t('doctor.label')}</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">{t('doctor.title')}</h2>
             <p className="mt-2 text-sm text-text-secondary">
               Once the agent is connected, run <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">dashclaw doctor</code> from any terminal. It checks database, configuration, auth, deployment, SDK reachability, governance staleness, and shape drift — and auto-fixes safe issues.
             </p>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">From any terminal</h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('doctor.fromTerminal')}</h3>
                 <p className="mt-1 text-xs text-text-tertiary">Diagnoses and applies safe fixes via your instance&rsquo;s API.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`npm install -g @dashclaw/cli
 dashclaw doctor`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Self-host operator</h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('doctor.selfHostOperator')}</h3>
                 <p className="mt-1 text-xs text-text-tertiary">Adds filesystem-level fixes (env writes, migrations, default-policy seed). Backs up <code className="font-mono text-text-secondary">.env</code> before any write.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`npm run doctor`}</pre>
               </div>
@@ -202,37 +204,37 @@ dashclaw doctor`}</pre>
 
           {/* Approval channels */}
           <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Resolve approvals</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">Where humans unblock the agent</h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">{t('approvals.label')}</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">{t('approvals.title')}</h2>
             <p className="mt-2 text-sm text-text-secondary">
               When your agent calls <code className="rounded border border-border bg-surface-elevated px-1 py-0.5 font-mono text-[12px] text-text-primary">waitForApproval</code>, any of the four surfaces below can resolve the action. They all hit the same <code className="font-mono text-text-secondary">/api/approvals/:id</code> endpoint and sync over SSE within ~1 second.
             </p>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Dashboard <span className="font-normal text-text-tertiary">— always on</span></h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('approvals.dashboard')} <span className="font-normal text-text-tertiary">{t('approvals.dashboardSuffix')}</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Interactive queue with triggering policy, risk score, and replay link.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`https://<your-instance>/approvals`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">CLI <span className="font-normal text-text-tertiary">— for terminal-first devs</span></h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('approvals.cli')} <span className="font-normal text-text-tertiary">{t('approvals.cliSuffix')}</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Interactive inbox or targeted approve / deny by action ID.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`npm install -g @dashclaw/cli
 dashclaw approvals`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Mobile PWA <span className="font-normal text-text-tertiary">— on-call</span></h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('approvals.mobile')} <span className="font-normal text-text-tertiary">{t('approvals.mobileSuffix')}</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Add <code className="font-mono text-text-secondary">/approve</code> to your home screen. One-tap Allow / Deny from the phone.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`https://<your-instance>/approve`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Discord bot <span className="font-normal text-text-tertiary">— phone-first</span></h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('approvals.discord')} <span className="font-normal text-text-tertiary">{t('approvals.discordSuffix')}</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Inline Approve / Deny buttons DM&rsquo;d to the registered user. Fire-and-forget — action creation succeeds even if Discord is unreachable.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`DISCORD_BOT_TOKEN=<token>
 DISCORD_APPROVER_USER_ID=<user-id>`}</pre>
               </div>
               <div className="rounded-2xl border border-border bg-surface-tertiary p-5">
-                <h3 className="text-sm font-semibold text-text-primary">Telegram bot <span className="font-normal text-text-tertiary">— optional</span></h3>
+                <h3 className="text-sm font-semibold text-text-primary">{t('approvals.telegram')} <span className="font-normal text-text-tertiary">{t('approvals.telegramSuffix')}</span></h3>
                 <p className="mt-1 text-xs text-text-tertiary">Inline Approve / Reject buttons pushed to an admin chat. Warn-logs and moves on if Telegram is unreachable.</p>
                 <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-surface-primary p-4 text-xs leading-relaxed text-text-secondary">{`npm run telegram:setup`}</pre>
               </div>
@@ -241,9 +243,9 @@ DISCORD_APPROVER_USER_ID=<user-id>`}</pre>
 
           {/* Framework Guides */}
           <section className="mt-6 rounded-3xl border border-border bg-surface-secondary p-6 sm:p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">Framework guides</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">Connect your framework</h2>
-            <p className="mt-2 text-sm text-text-secondary">Step-by-step guides for popular agent frameworks. Each takes under 20 minutes.</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-tertiary">{t('frameworkGuides.label')}</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-text-primary">{t('frameworkGuides.title')}</h2>
+            <p className="mt-2 text-sm text-text-secondary">{t('frameworkGuides.subtitle')}</p>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[

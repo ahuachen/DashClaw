@@ -114,8 +114,52 @@
     }
   },
   "decisions": {
-    "title": "Decisions",
-    "subtitle": "Causal-chain ledger of every governed action.",
+    "title": "Decisions Ledger",
+    "subtitleBase": "Global stream of governed agent actions",
+    "subtitleUpdatedSuffix": " · Updated {time}",
+    "breadcrumbs": {
+      "governance": "Governance",
+      "decisions": "Decisions"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "deleteSelected": "Delete {count} selected",
+      "deleting": "Deleting…",
+      "clear": "Clear actions",
+      "clearing": "Clearing…"
+    },
+    "stats": {
+      "total": "Total",
+      "success": "Success",
+      "running": "Running",
+      "highRisk": "High Risk",
+      "spend": "Spend"
+    },
+    "filters": {
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "anyRisk": "Any risk",
+      "governed": "Governed (1+)",
+      "mediumPlus": "Medium+ (40+)",
+      "highPlus": "High (70+)",
+      "criticalPlus": "Critical (90+)",
+      "hidingRoutine": "Hiding routine",
+      "showingAll": "Showing all"
+    },
+    "list": {
+      "header": "Decisions",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "noActionsFound": "No actions found",
+      "noActionsDescription": "Adjust filters or wait for agent activity",
+      "selectAll": "Select all ({count})",
+      "deselectAll": "Deselect all"
+    },
+    "signature": {
+      "verifiedTooltip": "Cryptographically signed by agent",
+      "invalidTooltip": "Signature invalid or tampered",
+      "missingTooltip": "No cryptographic signature provided"
+    },
     "columns": {
       "timestamp": "Time",
       "agent": "Agent",
@@ -125,45 +169,84 @@
       "reason": "Reason",
       "approver": "Approver"
     },
-    "filters": {
-      "decision": "Decision",
-      "agent": "Agent",
-      "timeWindow": "Time window",
-      "riskRange": "Risk range"
-    },
     "empty": "No decisions match the current filters."
   },
   "setup": {
-    "title": "Setup",
-    "subtitle": "Bring your DashClaw runtime online and verify it's healthy.",
-    "steps": {
-      "database": "Database",
-      "apiKey": "API key",
-      "smokeTest": "Smoke test",
-      "firstAgent": "First agent connected"
+    "badge": "Setup",
+    "h1": "Deployment truth surface",
+    "checkedAt": "Checked at {time}",
+    "kpis": {
+      "readiness": "Readiness",
+      "readinessNote": "Overall state projected from database, config, auth, deploy, and SDK checks.",
+      "liveVerification": "Live verification",
+      "liveAttached": "Attached",
+      "livePending": "Pending",
+      "liveNote": "A setup page can be healthy without live proof. Proof becomes attached after a successful validation flow.",
+      "proof": "Proof artifact",
+      "proofValue": "Ready",
+      "proofNote": "Use <code>/api/setup/status</code> for machine checks and this page for operator truth."
     },
-    "actions": {
-      "runMigrations": "Run migrations",
-      "createApiKey": "Create API key",
-      "runSmokeTest": "Run smoke test",
-      "openConnect": "Open Connect"
+    "sections": {
+      "checkedPrefix": "Checked: {what}",
+      "nextPrefix": "Next: {action}"
+    },
+    "sidebar": {
+      "workflow": "Workflow",
+      "recommendedNext": "Recommended next steps"
     }
   },
   "connect": {
-    "title": "Connect",
-    "subtitle": "Wire your first agent to DashClaw — eight minutes to first governed action.",
-    "frameworks": {
-      "openclaw": "OpenClaw",
-      "opencode": "opencode",
-      "hermes": "Hermes",
-      "claudeCode": "Claude Code",
-      "custom": "Custom (HTTP)"
+    "breadcrumb": {
+      "home": "Home",
+      "current": "Connect Claude Code"
     },
-    "steps": {
-      "install": "Install",
-      "configure": "Configure",
-      "test": "Verify",
-      "done": "Done"
+    "header": {
+      "title": "Connect Claude Code in 5 minutes.",
+      "subtitle": "Top-to-bottom runbook. Copy one command, paste one workspace token, configure Discord for phone approvals. Done."
+    },
+    "runbook": {
+      "label": "Runbook",
+      "step1": "1. Install the Claude Code hooks",
+      "step2": "2. Paste your workspace token",
+      "step3": "3. Configure Discord for phone approvals",
+      "verify": "Verify"
+    },
+    "mcp": {
+      "fastestPath": "Fastest path",
+      "underTwoMinutes": "Under 2 minutes",
+      "title": "MCP Server",
+      "titleSuffix": "(zero code)",
+      "summary": "Connect any MCP-compatible client — Claude Code, Claude Desktop, or Claude Managed Agents — to DashClaw governance with one config line. No SDK, no hooks, no code changes.",
+      "claudeDesktop": "Claude Code / Claude Desktop",
+      "managedAgents": "Claude Managed Agents",
+      "whatYouGet": "What you get",
+      "tools": "8 Governance Tools",
+      "resources": "4 Resources"
+    },
+    "doctor": {
+      "label": "Verify",
+      "title": "Confirm your instance is healthy",
+      "fromTerminal": "From any terminal",
+      "selfHostOperator": "Self-host operator"
+    },
+    "approvals": {
+      "label": "Resolve approvals",
+      "title": "Where humans unblock the agent",
+      "dashboard": "Dashboard",
+      "dashboardSuffix": "— always on",
+      "cli": "CLI",
+      "cliSuffix": "— for terminal-first devs",
+      "mobile": "Mobile PWA",
+      "mobileSuffix": "— on-call",
+      "discord": "Discord bot",
+      "discordSuffix": "— phone-first",
+      "telegram": "Telegram bot",
+      "telegramSuffix": "— optional"
+    },
+    "frameworkGuides": {
+      "label": "Framework guides",
+      "title": "Connect your framework",
+      "subtitle": "Step-by-step guides for popular agent frameworks. Each takes under 20 minutes."
     }
   },
   "policy": {

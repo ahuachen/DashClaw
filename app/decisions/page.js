@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
@@ -53,6 +54,7 @@ const statusTextMap = {
 };
 
 export default function DecisionsLedger() {
+  const t = useTranslations('decisions');
   const { agentId: globalAgentId } = useAgentFilter();
   const { isAdmin } = useEffectiveRole();
 
@@ -264,9 +266,9 @@ export default function DecisionsLedger() {
 
   return (
     <PageLayout
-      title="Decisions Ledger"
-      subtitle={`Global stream of governed agent actions${lastUpdated ? ` \u00B7 Updated ${lastUpdated}` : ''}`}
-      breadcrumbs={['Governance', 'Decisions']}
+      title={t('title')}
+      subtitle={`${t('subtitleBase')}${lastUpdated ? t('subtitleUpdatedSuffix', { time: lastUpdated }) : ''}`}
+      breadcrumbs={[t('breadcrumbs.governance'), t('breadcrumbs.decisions')]}
       maturity="stable"
       actions={
         <div className="flex items-center gap-2">
@@ -277,7 +279,7 @@ export default function DecisionsLedger() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-error/20 bg-error-subtle px-3 py-1.5 text-sm font-medium text-error transition-colors hover:border-error/40 hover:bg-error-subtle disabled:opacity-50"
             >
               <Trash2 size={14} />
-              {bulkDeleting ? 'Deleting…' : `Delete ${selectedActions.size} selected`}
+              {bulkDeleting ? t('actions.deleting') : t('actions.deleteSelected', { count: selectedActions.size })}
             </button>
           )}
           {isAdmin && (
@@ -287,7 +289,7 @@ export default function DecisionsLedger() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-error transition-colors hover:border-error/30 hover:text-error disabled:opacity-50"
             >
               <Trash2 size={14} />
-              {clearing ? 'Clearing…' : 'Clear actions'}
+              {clearing ? t('actions.clearing') : t('actions.clear')}
             </button>
           )}
           <button
@@ -295,7 +297,7 @@ export default function DecisionsLedger() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
           >
             <RotateCw size={14} />
-            Refresh
+            {t('actions.refresh')}
           </button>
         </div>
       }
@@ -304,16 +306,16 @@ export default function DecisionsLedger() {
       <div className="mb-6 overflow-hidden rounded-xl border border-border bg-surface-tertiary">
         <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-5">
           {[
-            { label: 'Total', value: stats.total || 0, color: 'text-white' },
-            { label: 'Success', value: `${successRate}%`, color: 'text-success' },
-            { label: 'Running', value: stats.running || 0, color: 'text-warning' },
+            { label: t('stats.total'), value: stats.total || 0, color: 'text-white' },
+            { label: t('stats.success'), value: `${successRate}%`, color: 'text-success' },
+            { label: t('stats.running'), value: stats.running || 0, color: 'text-warning' },
             {
-              label: 'High Risk',
+              label: t('stats.highRisk'),
               value: stats.high_risk || 0,
               color: parseInt(stats.high_risk, 10) > 0 ? 'text-error' : 'text-success',
             },
             {
-              label: 'Spend',
+              label: t('stats.spend'),
               value: `$${parseFloat(stats.total_cost || 0).toFixed(2)}`,
               color: 'text-white',
             },
@@ -336,21 +338,21 @@ export default function DecisionsLedger() {
         <div className="p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
-              <option value="">All types</option>
-              {['build','deploy','post','apply','security','message','api','calendar','research','review','fix','refactor','test','config','monitor','alert','cleanup','sync','migrate','other'].map(t => (
-                <option key={t} value={t}>{t}</option>
+              <option value="">{t('filters.allTypes')}</option>
+              {['build','deploy','post','apply','security','message','api','calendar','research','review','fix','refactor','test','config','monitor','alert','cleanup','sync','migrate','other'].map(typeOpt => (
+                <option key={typeOpt} value={typeOpt}>{typeOpt}</option>
               ))}
             </select>
             <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
-              <option value="">All statuses</option>
+              <option value="">{t('filters.allStatuses')}</option>
               {['running','completed','failed','cancelled','pending','blocked'].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
             <select value={filterRiskMin} onChange={(e) => { setFilterRiskMin(e.target.value); setPage(0); }} className={`${selectClass} md:flex-1`}>
-              <option value="">Any risk</option>
-              <option value="1">Governed (1+)</option>
-              <option value="40">Medium+ (40+)</option>
-              <option value="70">High (70+)</option>
-              <option value="90">Critical (90+)</option>
+              <option value="">{t('filters.anyRisk')}</option>
+              <option value="1">{t('filters.governed')}</option>
+              <option value="40">{t('filters.mediumPlus')}</option>
+              <option value="70">{t('filters.highPlus')}</option>
+              <option value="90">{t('filters.criticalPlus')}</option>
             </select>
             <button
               onClick={() => { setHideRoutine(!hideRoutine); setPage(0); }}
@@ -360,7 +362,7 @@ export default function DecisionsLedger() {
                   : 'border-border bg-white/5 text-secondary hover:border-border-hover hover:text-white'
               }`}
             >
-              {hideRoutine ? 'Hiding routine' : 'Showing all'}
+              {hideRoutine ? t('filters.hidingRoutine') : t('filters.showingAll')}
             </button>
           </div>
         </div>
@@ -371,7 +373,7 @@ export default function DecisionsLedger() {
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <div className="flex items-baseline gap-2">
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
-              Decisions
+              {t('list.header')}
             </h2>
             <span className="text-[11px] tabular-nums text-tertiary">· {total}</span>
           </div>
@@ -381,7 +383,7 @@ export default function DecisionsLedger() {
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
                 className="rounded-md p-1 text-secondary transition-colors hover:bg-white/5 disabled:opacity-30"
-                aria-label="Previous page"
+                aria-label={t('list.previousPage')}
               >
                 <ChevronLeft size={16} />
               </button>
@@ -392,7 +394,7 @@ export default function DecisionsLedger() {
                 onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
                 className="rounded-md p-1 text-secondary transition-colors hover:bg-white/5 disabled:opacity-30"
-                aria-label="Next page"
+                aria-label={t('list.nextPage')}
               >
                 <ChevronRight size={16} />
               </button>
@@ -408,7 +410,7 @@ export default function DecisionsLedger() {
               ))}
             </div>
           ) : actions.length === 0 ? (
-            <EmptyState icon={Inbox} title="No actions found" description="Adjust filters or wait for agent activity" />
+            <EmptyState icon={Inbox} title={t('list.noActionsFound')} description={t('list.noActionsDescription')} />
           ) : (
             <div className="space-y-2">
               {/* Select all row */}
@@ -420,7 +422,7 @@ export default function DecisionsLedger() {
                       : <Square size={16} />}
                   </button>
                   <span className="text-xs text-tertiary">
-                    {selectedActions.size === actions.length ? 'Deselect all' : `Select all (${actions.length})`}
+                    {selectedActions.size === actions.length ? t('list.deselectAll') : t('list.selectAll', { count: actions.length })}
                   </span>
                 </div>
               )}
@@ -483,15 +485,15 @@ export default function DecisionsLedger() {
                         <div className="flex items-center justify-between gap-4 md:min-w-[200px]">
                           <div className="mr-2 flex flex-col items-end gap-1">
                             {action.verified ? (
-                              <div className="inline-flex items-center gap-1 rounded border border-success/20 bg-success-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-success" title="Cryptographically signed by agent">
+                              <div className="inline-flex items-center gap-1 rounded border border-success/20 bg-success-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-success" title={t('signature.verifiedTooltip')}>
                                 <ShieldCheck size={10} /> Verified
                               </div>
                             ) : action.signature ? (
-                              <div className="inline-flex items-center gap-1 rounded border border-error/20 bg-error-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-error" title="Signature invalid or tampered">
+                              <div className="inline-flex items-center gap-1 rounded border border-error/20 bg-error-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-error" title={t('signature.invalidTooltip')}>
                                 <ShieldAlert size={10} /> Invalid
                               </div>
                             ) : (
-                              <div className="inline-flex items-center gap-1 rounded border border-border bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-tertiary" title="No cryptographic signature provided">
+                              <div className="inline-flex items-center gap-1 rounded border border-border bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-tertiary" title={t('signature.missingTooltip')}>
                                 <Info size={10} /> Unsigned
                               </div>
                             )}
@@ -522,7 +524,7 @@ export default function DecisionsLedger() {
                                 disabled={deletingId === action.action_id}
                                 className="rounded-md p-1 text-tertiary transition-colors hover:bg-error-subtle hover:text-error disabled:opacity-50"
                                 aria-label="Delete decision"
-                                title="Delete decision"
+                                title={t('actions.clear')}
                               >
                                 <Trash2 size={13} />
                               </button>

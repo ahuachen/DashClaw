@@ -115,7 +115,51 @@
   },
   "decisions": {
     "title": "决策台账",
-    "subtitle": "所有受治动作的因果链账本。",
+    "subtitleBase": "受治智能体动作的全局流",
+    "subtitleUpdatedSuffix": " · 更新于 {time}",
+    "breadcrumbs": {
+      "governance": "治理",
+      "decisions": "决策"
+    },
+    "actions": {
+      "refresh": "刷新",
+      "deleteSelected": "删除选中的 {count} 项",
+      "deleting": "删除中…",
+      "clear": "清空动作",
+      "clearing": "清空中…"
+    },
+    "stats": {
+      "total": "总计",
+      "success": "成功",
+      "running": "运行中",
+      "highRisk": "高风险",
+      "spend": "消耗"
+    },
+    "filters": {
+      "allTypes": "全部类型",
+      "allStatuses": "全部状态",
+      "anyRisk": "任意风险",
+      "governed": "已治理 (1+)",
+      "mediumPlus": "中等+ (40+)",
+      "highPlus": "高 (70+)",
+      "criticalPlus": "严重 (90+)",
+      "hidingRoutine": "已隐藏常规",
+      "showingAll": "显示全部"
+    },
+    "list": {
+      "header": "决策",
+      "previousPage": "上一页",
+      "nextPage": "下一页",
+      "noActionsFound": "未找到动作",
+      "noActionsDescription": "请调整筛选条件或等待智能体活动",
+      "selectAll": "全选({count})",
+      "deselectAll": "取消全选"
+    },
+    "signature": {
+      "verifiedTooltip": "智能体已用密码学签名",
+      "invalidTooltip": "签名无效或被篡改",
+      "missingTooltip": "未提供密码学签名"
+    },
     "columns": {
       "timestamp": "时间",
       "agent": "智能体",
@@ -125,45 +169,84 @@
       "reason": "原因",
       "approver": "审批人"
     },
-    "filters": {
-      "decision": "决策",
-      "agent": "智能体",
-      "timeWindow": "时间范围",
-      "riskRange": "风险区间"
-    },
     "empty": "没有符合当前筛选条件的决策。"
   },
   "setup": {
-    "title": "接入配置",
-    "subtitle": "启动你的 DashClaw 运行时并验证它是否健康。",
-    "steps": {
-      "database": "数据库",
-      "apiKey": "API 密钥",
-      "smokeTest": "联通性测试",
-      "firstAgent": "首个智能体接入"
+    "badge": "接入配置",
+    "h1": "部署真相面板",
+    "checkedAt": "检查时间 {time}",
+    "kpis": {
+      "readiness": "就绪度",
+      "readinessNote": "基于数据库、配置、鉴权、部署、SDK 检查计算的整体状态。",
+      "liveVerification": "实时验证",
+      "liveAttached": "已附着",
+      "livePending": "待处理",
+      "liveNote": "Setup 页可在无实时证据的情况下显示健康。验证流程成功后会附着证据。",
+      "proof": "证据产物",
+      "proofValue": "就绪",
+      "proofNote": "机器检查请用 <code>/api/setup/status</code>，运维人员的真相则在本页。"
     },
-    "actions": {
-      "runMigrations": "执行迁移",
-      "createApiKey": "创建 API 密钥",
-      "runSmokeTest": "运行联通性测试",
-      "openConnect": "打开通道接入"
+    "sections": {
+      "checkedPrefix": "已检查：{what}",
+      "nextPrefix": "下一步：{action}"
+    },
+    "sidebar": {
+      "workflow": "工作流",
+      "recommendedNext": "推荐的下一步"
     }
   },
   "connect": {
-    "title": "通道接入",
-    "subtitle": "把你的第一个智能体接入 DashClaw — 八分钟完成首个受治动作。",
-    "frameworks": {
-      "openclaw": "OpenClaw",
-      "opencode": "opencode",
-      "hermes": "Hermes",
-      "claudeCode": "Claude Code",
-      "custom": "自定义(HTTP)"
+    "breadcrumb": {
+      "home": "首页",
+      "current": "接入 Claude Code"
     },
-    "steps": {
-      "install": "安装",
-      "configure": "配置",
-      "test": "验证",
-      "done": "完成"
+    "header": {
+      "title": "5 分钟接入 Claude Code。",
+      "subtitle": "完整 Runbook。复制一条命令、粘贴一个 workspace token、配置 Discord 用于移动端审批。完成。"
+    },
+    "runbook": {
+      "label": "Runbook",
+      "step1": "1. 安装 Claude Code hooks",
+      "step2": "2. 粘贴你的 workspace token",
+      "step3": "3. 配置 Discord 移动端审批",
+      "verify": "验证"
+    },
+    "mcp": {
+      "fastestPath": "最快路径",
+      "underTwoMinutes": "2 分钟内",
+      "title": "MCP Server",
+      "titleSuffix": "（零代码）",
+      "summary": "用一行配置把任何兼容 MCP 的客户端 — Claude Code、Claude Desktop、Claude Managed Agents — 接入 DashClaw 治理。无 SDK、无 hook、无代码改动。",
+      "claudeDesktop": "Claude Code / Claude Desktop",
+      "managedAgents": "Claude Managed Agents",
+      "whatYouGet": "你将获得",
+      "tools": "8 个治理工具",
+      "resources": "4 项资源"
+    },
+    "doctor": {
+      "label": "验证",
+      "title": "确认你的实例健康",
+      "fromTerminal": "从任意终端",
+      "selfHostOperator": "自托管运维"
+    },
+    "approvals": {
+      "label": "处置审批",
+      "title": "人在何处解锁智能体",
+      "dashboard": "Dashboard",
+      "dashboardSuffix": "— 始终在线",
+      "cli": "CLI",
+      "cliSuffix": "— 终端优先开发者",
+      "mobile": "移动 PWA",
+      "mobileSuffix": "— 值班",
+      "discord": "Discord bot",
+      "discordSuffix": "— 移动端优先",
+      "telegram": "Telegram bot",
+      "telegramSuffix": "— 可选"
+    },
+    "frameworkGuides": {
+      "label": "框架指南",
+      "title": "接入你的框架",
+      "subtitle": "热门智能体框架的分步指南。每个不超过 20 分钟。"
     }
   },
   "policy": {
