@@ -48,27 +48,69 @@
   },
   "missionControl": {
     "title": "决策中心",
-    "subtitle": "受治智能体的实时决策流与战略态势。",
-    "tabs": {
-      "live": "实时",
-      "interventions": "人工介入",
-      "posture": "态势"
+    "subtitle": "智能体集群态势、人工介入、决策洞察",
+    "actions": {
+      "viewDecisions": "查看决策"
     },
-    "kpis": {
-      "approvalsPending": "待审批",
-      "decisionsLastHour": "近一小时决策",
-      "blockRate": "拦截率",
-      "averageRisk": "平均风险分"
+    "relativeTime": {
+      "fallback": "--",
+      "justNow": "刚刚",
+      "minutes": "{minutes} 分钟前",
+      "hours": "{hours} 小时前",
+      "days": "{days} 天前"
     },
-    "decisionStream": {
-      "header": "实时决策流",
-      "empty": "暂无决策 — 请到「通道接入」连接你的第一个智能体。",
-      "filterByAgent": "按智能体筛选",
-      "filterByDecision": "按决策筛选"
+    "intervention": {
+      "fallbackDescription": "待处理动作",
+      "loopFallback": "未闭合循环"
     },
-    "interventions": {
-      "header": "人工介入队列",
-      "empty": "当前没有等待人工审批的动作。"
+    "commandStrip": {
+      "posture": "态势",
+      "agents": "智能体",
+      "database": "数据库",
+      "intervention_one": "项介入",
+      "intervention_other": "项介入"
+    },
+    "health": {
+      "healthy": "健康",
+      "degraded": "降级",
+      "unknown": "未知"
+    },
+    "interventionCard": {
+      "title": "需要人工介入",
+      "urgent": "紧急",
+      "queue": "队列",
+      "noIntervention": "无需人工介入",
+      "item_one": "项",
+      "item_other": "项",
+      "approvalBadge": "审批",
+      "loopBadge": "循环",
+      "systemFallback": "系统",
+      "moreCount": "+{count} 项更多"
+    },
+    "riskSignals": {
+      "title": "风险信号",
+      "view": "查看",
+      "noSignals": "无风险信号",
+      "critical": "{count} 个严重",
+      "elevated": "{count} 个升级"
+    },
+    "decisions24h": {
+      "title": "决策 · 24 小时",
+      "history": "历史",
+      "vsPrevious": "对比前 24 小时",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消",
+      "approval": "待审批"
+    },
+    "fleet": {
+      "title": "集群状态",
+      "manage": "管理",
+      "noAgents": "尚未接入智能体",
+      "moreCount": "+{count} 个更多"
+    },
+    "errors": {
+      "capabilityHealthUnavailable": "能力健康状态不可用"
     }
   },
   "decisions": {

@@ -48,27 +48,69 @@
   },
   "missionControl": {
     "title": "Mission Control",
-    "subtitle": "Live decision stream and strategic posture for governed agents.",
-    "tabs": {
-      "live": "Live",
-      "interventions": "Interventions",
-      "posture": "Posture"
+    "subtitle": "Fleet posture, interventions, and decision intelligence",
+    "actions": {
+      "viewDecisions": "View Decisions"
     },
-    "kpis": {
-      "approvalsPending": "Pending approvals",
-      "decisionsLastHour": "Decisions (last hour)",
-      "blockRate": "Block rate",
-      "averageRisk": "Average risk score"
+    "relativeTime": {
+      "fallback": "--",
+      "justNow": "Just now",
+      "minutes": "{minutes}m ago",
+      "hours": "{hours}h ago",
+      "days": "{days}d ago"
     },
-    "decisionStream": {
-      "header": "Live decision stream",
-      "empty": "No decisions yet — connect an agent at /connect.",
-      "filterByAgent": "Filter by agent",
-      "filterByDecision": "Filter by decision"
+    "intervention": {
+      "fallbackDescription": "Pending action",
+      "loopFallback": "Open loop"
     },
-    "interventions": {
-      "header": "Interventions queue",
-      "empty": "No actions awaiting human approval."
+    "commandStrip": {
+      "posture": "Posture",
+      "agents": "agents",
+      "database": "Database",
+      "intervention_one": "intervention",
+      "intervention_other": "interventions"
+    },
+    "health": {
+      "healthy": "Healthy",
+      "degraded": "Degraded",
+      "unknown": "Unknown"
+    },
+    "interventionCard": {
+      "title": "Intervention Required",
+      "urgent": "Urgent",
+      "queue": "Queue",
+      "noIntervention": "No intervention required",
+      "item_one": "item",
+      "item_other": "items",
+      "approvalBadge": "Approval",
+      "loopBadge": "Loop",
+      "systemFallback": "system",
+      "moreCount": "+{count} more"
+    },
+    "riskSignals": {
+      "title": "Risk Signals",
+      "view": "View",
+      "noSignals": "No signals",
+      "critical": "{count} critical",
+      "elevated": "{count} elevated"
+    },
+    "decisions24h": {
+      "title": "Decisions · 24h",
+      "history": "History",
+      "vsPrevious": "vs. previous 24h",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "approval": "Approval"
+    },
+    "fleet": {
+      "title": "Fleet Status",
+      "manage": "Manage",
+      "noAgents": "No agents connected",
+      "moreCount": "+{count} more"
+    },
+    "errors": {
+      "capabilityHealthUnavailable": "Capability health unavailable"
     }
   },
   "decisions": {

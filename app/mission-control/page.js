@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Activity, ShieldCheck, ArrowRight, TrendingUp, TrendingDown,
@@ -22,17 +23,6 @@ import { computePosture } from '../components/SystemStatusBar';
 
 /* ---------- Helpers ---------- */
 
-function formatRelativeTime(ts) {
-  if (!ts) return '--';
-  const diffMs = Date.now() - new Date(ts).getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${Math.floor(diffHours / 24)}d ago`;
-}
-
 function truncateText(text, maxLen) {
   if (!text) return '';
   return text.length > maxLen ? text.substring(0, maxLen) + '\u2026' : text;
@@ -42,7 +32,7 @@ function truncateText(text, maxLen) {
 
 const PRIORITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
 
-function buildInterventionList(pendingActions, openLoops) {
+function buildInterventionList(pendingActions, openLoops, fallbackPending, fallbackLoop) {
   const items = [];
 
   for (const action of pendingActions) {
@@ -51,7 +41,7 @@ function buildInterventionList(pendingActions, openLoops) {
       kind: 'approval',
       agentId: action.agent_id,
       agentName: action.agent_name || action.agent_id,
-      description: action.declared_goal || action.action_type || 'Pending action',
+      description: action.declared_goal || action.action_type || fallbackPending,
       href: '/approvals',
       sortKey: -1,
     });
@@ -65,7 +55,7 @@ function buildInterventionList(pendingActions, openLoops) {
       kind: 'loop',
       agentId: loop.agent_id,
       agentName: loop.agent_name || loop.agent_id,
-      description: loop.description || loop.loop_type || 'Open loop',
+      description: loop.description || loop.loop_type || fallbackLoop,
       href: '/dashboard',
       sortKey: PRIORITY_ORDER[loop.priority] ?? 2,
     });
@@ -118,6 +108,17 @@ function MetricSkeleton() {
 /* ---------- Main page ---------- */
 
 export default function MissionControlPage() {
+  const t = useTranslations('missionControl');
+  const formatRelativeTime = useCallback((ts) => {
+    if (!ts) return t('relativeTime.fallback');
+    const diffMs = Date.now() - new Date(ts).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    if (diffMins < 1) return t('relativeTime.justNow');
+    if (diffMins < 60) return t('relativeTime.minutes', { minutes: diffMins });
+    if (diffHours < 24) return t('relativeTime.hours', { hours: diffHours });
+    return t('relativeTime.days', { days: Math.floor(diffHours / 24) });
+  }, [t]);
   const { agentId, agents } = useAgentFilter();
   const [signals, setSignals] = useState(null);
   const [loops, setLoops] = useState(null);
@@ -169,16 +170,16 @@ export default function MissionControlPage() {
         setCapabilityHealthError(null);
       } else {
         setCapabilityHealth([]);
-        setCapabilityHealthError('Capability health unavailable');
+        setCapabilityHealthError(t('errors.capabilityHealthUnavailable'));
       }
     } catch (error) {
       console.error('Mission Control fetch error:', error);
       setCapabilityHealth([]);
-      setCapabilityHealthError('Capability health unavailable');
+      setCapabilityHealthError(t('errors.capabilityHealthUnavailable'));
     } finally {
       setLoading(false);
     }
-  }, [agentId]);
+  }, [agentId, t]);
 
   useEffect(() => {
     setLoading(true);
@@ -248,16 +249,18 @@ export default function MissionControlPage() {
 
   const healthStatus = health?.status || 'unknown';
   const healthDot = healthStatus === 'healthy' ? 'bg-status-success' : healthStatus === 'degraded' ? 'bg-status-warning' : 'bg-zinc-500';
-  const healthLabel = healthStatus === 'healthy' ? 'Healthy' : healthStatus === 'degraded' ? 'Degraded' : 'Unknown';
+  const healthLabel = healthStatus === 'healthy' ? t('health.healthy') : healthStatus === 'degraded' ? t('health.degraded') : t('health.unknown');
   const healthColor = healthStatus === 'healthy' ? 'text-success' : healthStatus === 'degraded' ? 'text-warning' : 'text-tertiary';
 
   const lastActivity = actions[0]?.timestamp_start || loopList[0]?.created_at || null;
   const fleetCount = agents.length;
 
   // Intervention card data
+  const fallbackPending = t('intervention.fallbackDescription');
+  const fallbackLoop = t('intervention.loopFallback');
   const interventions = useMemo(
-    () => buildInterventionList(pendingActions, loopList),
-    [pendingActions, loopList]
+    () => buildInterventionList(pendingActions, loopList, fallbackPending, fallbackLoop),
+    [pendingActions, loopList, fallbackPending, fallbackLoop]
   );
   const hasPendingApprovals = pendingActions.length > 0;
 
@@ -298,15 +301,15 @@ export default function MissionControlPage() {
       href="/decisions"
       className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
     >
-      View Decisions <ArrowRight size={14} />
+      {t('actions.viewDecisions')} <ArrowRight size={14} />
     </Link>
   );
 
   return (
     <PageLayout
-      title="Mission Control"
-      subtitle="Fleet posture, interventions, and decision intelligence"
-      breadcrumbs={['Mission Control']}
+      title={t('title')}
+      subtitle={t('subtitle')}
+      breadcrumbs={[t('title')]}
       actions={actionButton}
       maturity="stable"
     >
@@ -321,7 +324,7 @@ export default function MissionControlPage() {
           <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
             {/* System Posture */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Posture</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('commandStrip.posture')}</span>
               <div className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-0.5 ${posture.bg} ${posture.border}`}>
                 <div className={`h-1.5 w-1.5 rounded-full ${posture.color.replace('text-', 'bg-')} ${posture.pulse ? 'animate-pulse' : ''}`} />
                 <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${posture.color}`}>
@@ -336,14 +339,14 @@ export default function MissionControlPage() {
             <div className="flex items-center gap-2">
               <Users size={13} className="text-tertiary" />
               <span className="text-sm font-medium tabular-nums text-white">{fleetCount}</span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">agents</span>
+              <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">{t('commandStrip.agents')}</span>
             </div>
 
             <div className="hidden h-3.5 w-px bg-border sm:block" />
 
             {/* DB Health */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Database</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('commandStrip.database')}</span>
               <span className={`h-1.5 w-1.5 rounded-full ${healthDot}`} />
               <span className={`text-sm font-medium ${healthColor}`}>{healthLabel}</span>
             </div>
@@ -355,7 +358,7 @@ export default function MissionControlPage() {
               <Activity size={13} className="text-tertiary" />
               <span className="text-sm font-medium tabular-nums text-white">{interventions.length}</span>
               <span className="text-[11px] uppercase tracking-[0.14em] text-tertiary">
-                {interventions.length === 1 ? 'intervention' : 'interventions'}
+                {interventions.length === 1 ? t('commandStrip.intervention_one') : t('commandStrip.intervention_other')}
               </span>
             </div>
 
@@ -378,12 +381,12 @@ export default function MissionControlPage() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
-                  Intervention Required
+                  {t('interventionCard.title')}
                 </span>
                 {hasPendingApprovals && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-error/30 bg-error-subtle px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-error">
                     <span className="h-1 w-1 animate-pulse rounded-full bg-status-error" />
-                    Urgent
+                    {t('interventionCard.urgent')}
                   </span>
                 )}
               </div>
@@ -392,21 +395,21 @@ export default function MissionControlPage() {
                   href="/approvals"
                   className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover"
                 >
-                  Queue <ArrowRight size={10} />
+                  {t('interventionCard.queue')} <ArrowRight size={10} />
                 </Link>
               )}
             </div>
             {loading ? <InterventionSkeleton /> : interventions.length === 0 ? (
               <div className="flex items-center gap-2 py-1">
                 <CheckCircle2 size={16} className="text-success/60" />
-                <span className="text-sm text-secondary">No intervention required</span>
+                <span className="text-sm text-secondary">{t('interventionCard.noIntervention')}</span>
               </div>
             ) : (
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="flex shrink-0 items-baseline gap-1.5 sm:w-28">
                   <div className="text-4xl font-semibold tabular-nums text-white">{interventions.length}</div>
                   <div className="text-[11px] uppercase tracking-[0.14em] text-tertiary">
-                    {interventions.length === 1 ? 'item' : 'items'}
+                    {interventions.length === 1 ? t('interventionCard.item_one') : t('interventionCard.item_other')}
                   </div>
                 </div>
                 <div className="min-w-0 flex-1 space-y-0.5">
@@ -420,10 +423,10 @@ export default function MissionControlPage() {
                         variant={item.kind === 'approval' ? 'error' : 'warning'}
                         size="xs"
                       >
-                        {item.kind === 'approval' ? 'Approval' : 'Loop'}
+                        {item.kind === 'approval' ? t('interventionCard.approvalBadge') : t('interventionCard.loopBadge')}
                       </Badge>
                       <span className={`shrink-0 truncate rounded border px-1.5 py-0.5 text-[10px] font-medium ${getAgentColor(item.agentId)}`} style={{ maxWidth: '7.5rem' }}>
-                        {(item.agentName || '').substring(0, 14) || item.agentId?.substring(0, 8) || 'system'}
+                        {(item.agentName || '').substring(0, 14) || item.agentId?.substring(0, 8) || t('interventionCard.systemFallback')}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-secondary">
                         {truncateText(item.description, 80)}
@@ -433,7 +436,7 @@ export default function MissionControlPage() {
                   ))}
                   {interventions.length > 4 && (
                     <Link href="/approvals" className="block px-2 pt-1 text-xs text-brand transition-colors hover:text-brand-hover">
-                      +{interventions.length - 4} more
+                      {t('interventionCard.moreCount', { count: interventions.length - 4 })}
                     </Link>
                   )}
                 </div>
@@ -446,15 +449,15 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Risk Signals</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('riskSignals.title')}</span>
               <Link href="/security" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
-                View <ArrowRight size={10} />
+                {t('riskSignals.view')} <ArrowRight size={10} />
               </Link>
             </div>
             {loading ? <MetricSkeleton /> : signalCounts.total === 0 ? (
               <div className="flex items-center gap-2 py-1">
                 <ShieldCheck size={16} className="text-success/60" />
-                <span className="text-sm text-secondary">No signals</span>
+                <span className="text-sm text-secondary">{t('riskSignals.noSignals')}</span>
               </div>
             ) : (
               <>
@@ -463,13 +466,13 @@ export default function MissionControlPage() {
                   {signalCounts.red > 0 && (
                     <span className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-status-error" />
-                      <span className="font-medium text-error">{signalCounts.red} critical</span>
+                      <span className="font-medium text-error">{t('riskSignals.critical', { count: signalCounts.red })}</span>
                     </span>
                   )}
                   {signalCounts.amber > 0 && (
                     <span className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-status-warning" />
-                      <span className="font-medium text-warning">{signalCounts.amber} elevated</span>
+                      <span className="font-medium text-warning">{t('riskSignals.elevated', { count: signalCounts.amber })}</span>
                     </span>
                   )}
                 </div>
@@ -482,9 +485,9 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Decisions · 24h</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('decisions24h.title')}</span>
               <Link href="/decisions" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
-                History <ArrowRight size={10} />
+                {t('decisions24h.history')} <ArrowRight size={10} />
               </Link>
             </div>
             {loading || !decisionMetrics ? <MetricSkeleton /> : (
@@ -496,23 +499,23 @@ export default function MissionControlPage() {
                     {decisionMetrics.change_percent >= 0 ? '+' : ''}{decisionMetrics.change_percent}%
                   </div>
                 </div>
-                <div className="mb-4 text-[11px] text-tertiary">vs. previous 24h</div>
+                <div className="mb-4 text-[11px] text-tertiary">{t('decisions24h.vsPrevious')}</div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-tertiary">Completed</span>
+                    <span className="text-xs text-tertiary">{t('decisions24h.completed')}</span>
                     <span className="text-xs font-semibold tabular-nums text-success">{decisionMetrics.completed}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-tertiary">Failed</span>
+                    <span className="text-xs text-tertiary">{t('decisions24h.failed')}</span>
                     <span className="text-xs font-semibold tabular-nums text-error">{decisionMetrics.failed}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-tertiary">Cancelled</span>
+                    <span className="text-xs text-tertiary">{t('decisions24h.cancelled')}</span>
                     <span className="text-xs font-semibold tabular-nums text-warning">{decisionMetrics.cancelled}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-tertiary">Approval</span>
+                    <span className="text-xs text-tertiary">{t('decisions24h.approval')}</span>
                     <span className="text-xs font-semibold tabular-nums text-brand">{decisionMetrics.approval}</span>
                   </div>
                 </div>
@@ -525,13 +528,13 @@ export default function MissionControlPage() {
         <Card>
           <div className="p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Fleet Status</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('fleet.title')}</span>
               <Link href="/agents" className="inline-flex items-center gap-1 text-[11px] font-medium text-brand transition-colors hover:text-brand-hover">
-                Manage <ArrowRight size={10} />
+                {t('fleet.manage')} <ArrowRight size={10} />
               </Link>
             </div>
             {loading ? <MetricSkeleton /> : agents.length === 0 ? (
-              <div className="text-sm text-tertiary">No agents connected</div>
+              <div className="text-sm text-tertiary">{t('fleet.noAgents')}</div>
             ) : (
               <div className="space-y-1.5">
                 {sortedAgents.slice(0, 5).map((agent) => {
@@ -553,7 +556,7 @@ export default function MissionControlPage() {
                 })}
                 {agents.length > 5 && (
                   <Link href="/agents" className="block px-1.5 pt-1 text-[11px] text-tertiary transition-colors hover:text-secondary">
-                    +{agents.length - 5} more
+                    {t('fleet.moreCount', { count: agents.length - 5 })}
                   </Link>
                 )}
               </div>

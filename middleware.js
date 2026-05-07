@@ -1468,8 +1468,18 @@ export const config = {
     '/invite/:path*',
     '/login',
     // i18n: locale-prefixed variants for plan E (mission-control / decisions /
-    // setup / connect). Catches all /zh-CN/* so the wrapper can strip the
-    // prefix and signal locale via header + cookie. See top of file.
-    '/zh-CN/:path*',
+    // setup / connect + login + landing /). Narrow on purpose — adding
+    // /zh-CN/:path* would force routes that are normally outside this matcher
+    // (e.g. /self-host, /docs) through auth, which they're not designed for.
+    '/zh-CN',
+    '/zh-CN/login',
+    '/zh-CN/mission-control',
+    '/zh-CN/mission-control/:path*',
+    '/zh-CN/decisions',
+    '/zh-CN/decisions/:path*',
+    '/zh-CN/setup',
+    '/zh-CN/setup/:path*',
+    '/zh-CN/connect',
+    '/zh-CN/connect/:path*',
   ],
 };
