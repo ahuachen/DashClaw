@@ -1,0 +1,149 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "close": "Close",
+    "search": "Search",
+    "refresh": "Refresh",
+    "more": "More",
+    "yes": "Yes",
+    "no": "No",
+    "approve": "Approve",
+    "deny": "Deny",
+    "block": "Block",
+    "allow": "Allow",
+    "requireApproval": "Require approval",
+    "viewDetails": "View details",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "noData": "No data",
+    "languageSwitcher": {
+      "label": "Language",
+      "english": "English",
+      "chinese": "中文"
+    }
+  },
+  "nav": {
+    "missionControl": "Mission Control",
+    "decisions": "Decisions",
+    "setup": "Setup",
+    "connect": "Connect",
+    "agents": "Agents",
+    "actions": "Actions",
+    "policies": "Policies",
+    "audit": "Audit",
+    "myAgent": "My Agent",
+    "settings": "Settings",
+    "logout": "Log out",
+    "docs": "Docs"
+  },
+  "missionControl": {
+    "title": "Mission Control",
+    "subtitle": "Live decision stream and strategic posture for governed agents.",
+    "tabs": {
+      "live": "Live",
+      "interventions": "Interventions",
+      "posture": "Posture"
+    },
+    "kpis": {
+      "approvalsPending": "Pending approvals",
+      "decisionsLastHour": "Decisions (last hour)",
+      "blockRate": "Block rate",
+      "averageRisk": "Average risk score"
+    },
+    "decisionStream": {
+      "header": "Live decision stream",
+      "empty": "No decisions yet — connect an agent at /connect.",
+      "filterByAgent": "Filter by agent",
+      "filterByDecision": "Filter by decision"
+    },
+    "interventions": {
+      "header": "Interventions queue",
+      "empty": "No actions awaiting human approval."
+    }
+  },
+  "decisions": {
+    "title": "Decisions",
+    "subtitle": "Causal-chain ledger of every governed action.",
+    "columns": {
+      "timestamp": "Time",
+      "agent": "Agent",
+      "actionType": "Action type",
+      "decision": "Decision",
+      "riskScore": "Risk",
+      "reason": "Reason",
+      "approver": "Approver"
+    },
+    "filters": {
+      "decision": "Decision",
+      "agent": "Agent",
+      "timeWindow": "Time window",
+      "riskRange": "Risk range"
+    },
+    "empty": "No decisions match the current filters."
+  },
+  "setup": {
+    "title": "Setup",
+    "subtitle": "Bring your DashClaw runtime online and verify it's healthy.",
+    "steps": {
+      "database": "Database",
+      "apiKey": "API key",
+      "smokeTest": "Smoke test",
+      "firstAgent": "First agent connected"
+    },
+    "actions": {
+      "runMigrations": "Run migrations",
+      "createApiKey": "Create API key",
+      "runSmokeTest": "Run smoke test",
+      "openConnect": "Open Connect"
+    }
+  },
+  "connect": {
+    "title": "Connect",
+    "subtitle": "Wire your first agent to DashClaw — eight minutes to first governed action.",
+    "frameworks": {
+      "openclaw": "OpenClaw",
+      "opencode": "opencode",
+      "hermes": "Hermes",
+      "claudeCode": "Claude Code",
+      "custom": "Custom (HTTP)"
+    },
+    "steps": {
+      "install": "Install",
+      "configure": "Configure",
+      "test": "Verify",
+      "done": "Done"
+    }
+  },
+  "policy": {
+    "decisions": {
+      "allow": "Allow",
+      "block": "Block",
+      "require_approval": "Requires approval"
+    },
+    "reasonCodes": {
+      "policy.production.deny": "Production access denied by policy",
+      "policy.risk.threshold": "Risk score exceeds organisation threshold",
+      "policy.tool.blocked": "This tool is blocked by policy",
+      "policy.agent.unknown": "Unknown agent",
+      "policy.approval.required": "Human approval required",
+      "policy.approval.denied": "Human reviewer denied the request",
+      "policy.approval.timeout": "Approval not granted before timeout",
+      "policy.governance.unreachable": "DashClaw governance unreachable",
+      "policy.default.allow": "No matching policy — defaulting to allow"
+    }
+  },
+  "footer": {
+    "version": "Version {version}",
+    "openSource": "Open source · MIT licensed"
+  }
+}

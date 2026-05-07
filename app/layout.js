@@ -1,4 +1,6 @@
 import { Inter } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
 import './globals.css'
 import SessionWrapper from './components/SessionWrapper'
 import { Analytics } from '@vercel/analytics/next'
@@ -51,21 +53,29 @@ export const viewport = {
   themeColor: '#0a0a0a',
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   const enableAnalytics =
     // Vercel sets this in deployments; keeps self-host/non-Vercel installs from emitting analytics by default.
     process.env.VERCEL === '1' ||
     // Explicit opt-in for non-Vercel hosts.
     process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === 'true'
 
+  // Locale is resolved by `i18n/request.js` from the `x-locale` header that
+  // middleware.js sets when the URL starts with `/zh-CN/`. Falls back to
+  // `en` for non-prefixed paths.
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang={locale} className={inter.variable}>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#0a0a0a" />
       </head>
       <body className="font-sans antialiased">
-        <SessionWrapper>{children}</SessionWrapper>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <SessionWrapper>{children}</SessionWrapper>
+        </NextIntlClientProvider>
         {enableAnalytics ? <Analytics /> : null}
       </body>
     </html>

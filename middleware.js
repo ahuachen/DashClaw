@@ -386,7 +386,99 @@ function getCorsHeaders(request) {
   return headers;
 }
 
+// ---------------------------------------------------------------------------
+// i18n wrapper (next-intl path-prefix mode)
+// ---------------------------------------------------------------------------
+//
+// Strategy: detect a /<locale>/... URL prefix at the top of the middleware,
+// strip it from `request.nextUrl.pathname` so all downstream auth/demo/CORS
+// logic sees the de-prefixed path, then signal the resolved locale to the
+// renderer via:
+//   - `x-locale` request header (read by i18n/request.js → next-intl provider)
+//   - `NEXT_LOCALE` cookie (persists across non-prefixed navigation)
+//
+// We deliberately do NOT use next-intl's bundled middleware — composing it
+// with the existing 1300-line auth/demo/CORS pipeline below is brittle.
+// See docs/i18n/strategy.md §3 (plan E).
+//
+// Default locale = `en` (no prefix). Other locales use `/<code>/...` prefix
+// e.g. `/zh-CN/mission-control`.
+
+const I18N_SUPPORTED_LOCALES = ['en', 'zh-CN'];
+const I18N_LOCALE_PREFIX_RE = /^\/(zh-CN)(?=\/|$)/;
+
 export async function middleware(request) {
+  // ---------- 1. Locale prefix detection (before auth runs) ------------
+  const originalPathname = request.nextUrl.pathname;
+  let locale = 'en';
+  let hadLocalePrefix = false;
+  const prefixMatch = originalPathname.match(I18N_LOCALE_PREFIX_RE);
+  if (prefixMatch) {
+    locale = prefixMatch[1];
+    hadLocalePrefix = true;
+    // Strip prefix in-place. NextURL.pathname is a setter inherited from URL.
+    // Auth/demo/CORS logic below reads `request.nextUrl.pathname` and now
+    // sees the de-prefixed path (e.g. `/mission-control`).
+    request.nextUrl.pathname = originalPathname.replace(I18N_LOCALE_PREFIX_RE, '') || '/';
+  } else {
+    // Honor previously-set cookie for non-prefixed paths so users stay in
+    // their chosen language across navigation.
+    const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+    if (cookieLocale && I18N_SUPPORTED_LOCALES.includes(cookieLocale)) {
+      locale = cookieLocale;
+    }
+  }
+
+  // ---------- 2. Run the original auth/demo/CORS pipeline --------------
+  // innerMiddleware reads `request.nextUrl.pathname` (now de-prefixed) and
+  // routes auth accordingly. It returns one of:
+  //   - NextResponse.next()      (pass to renderer)
+  //   - NextResponse.redirect()  (e.g. /login when unauthenticated)
+  //   - NextResponse.rewrite()   (e.g. demo fixtures)
+  //   - NextResponse.json()      (API responses)
+  let response = await innerMiddleware(request);
+
+  // ---------- 3. If we had a locale prefix and inner returned a plain
+  // pass-through, convert it into an explicit rewrite to the de-prefixed
+  // URL — otherwise Next.js routing layer still sees /zh-CN/<page> and
+  // returns 404. Redirects/rewrites/json responses are left as-is.
+  if (hadLocalePrefix && response) {
+    const isPassthrough =
+      response.status >= 200 &&
+      response.status < 300 &&
+      !response.headers.get('location') &&
+      !response.headers.get('x-middleware-rewrite');
+    if (isPassthrough) {
+      const rewritten = NextResponse.rewrite(request.nextUrl);
+      // Carry over every header/cookie innerMiddleware set.
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() === 'x-middleware-rewrite') return;
+        rewritten.headers.set(key, value);
+      });
+      response.cookies.getAll().forEach((c) => rewritten.cookies.set(c));
+      response = rewritten;
+    }
+  }
+
+  // ---------- 4. Inject locale signal into the response ----------------
+  if (response && response.headers && typeof response.headers.set === 'function') {
+    response.headers.set('x-locale', locale);
+    if (hadLocalePrefix && locale !== 'en') {
+      response.cookies.set('NEXT_LOCALE', locale, {
+        path: '/',
+        maxAge: 365 * 24 * 60 * 60,
+        sameSite: 'lax',
+      });
+    }
+  }
+
+  // Restore the original URL on the request object as a safety net for
+  // anything downstream of middleware that might read it.
+  if (hadLocalePrefix) request.nextUrl.pathname = originalPathname;
+  return response;
+}
+
+async function innerMiddleware(request) {
   const { pathname } = request.nextUrl;
   const mode = getDashclawMode();
   const demoCookie = isDemoCookieSet(request);
@@ -1375,5 +1467,9 @@ export const config = {
     '/api/settings/llm-status',
     '/invite/:path*',
     '/login',
+    // i18n: locale-prefixed variants for plan E (mission-control / decisions /
+    // setup / connect). Catches all /zh-CN/* so the wrapper can strip the
+    // prefix and signal locale via header + cookie. See top of file.
+    '/zh-CN/:path*',
   ],
 };
