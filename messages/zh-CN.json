@@ -26,11 +26,101 @@
     "all": "全部",
     "none": "无",
     "noData": "暂无数据",
+    "submit": "提交",
+    "add": "添加",
+    "revoke": "吊销",
+    "archive": "归档",
+    "restore": "恢复",
+    "dismiss": "忽略",
+    "copy": "复制",
+    "copied": "已复制！",
+    "never": "从未",
+    "pending": "待处理",
+    "active": "活跃",
+    "inactive": "未激活",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "failedToLoad": "加载数据失败",
+    "failedToConnect": "无法连接到 API",
+    "networkError": "网络错误 — 请重试",
+    "status": {
+      "active": "活跃",
+      "inactive": "未激活",
+      "pending": "待处理",
+      "running": "运行中",
+      "success": "成功",
+      "failed": "失败",
+      "cancelled": "已取消",
+      "approved": "已批准",
+      "denied": "已拒绝",
+      "online": "在线",
+      "offline": "离线",
+      "critical": "严重",
+      "degraded": "降级",
+      "unknown": "未知"
+    },
     "languageSwitcher": {
       "label": "语言",
       "english": "English",
       "chinese": "中文"
     }
+  },
+  "sidebar": {
+    "groups": {
+      "govern": "治理",
+      "observe": "观测",
+      "configure": "配置",
+      "labs": "实验室"
+    },
+    "items": {
+      "missionControl": "决策中心",
+      "decisions": "决策台账",
+      "approvals": "审批队列",
+      "policies": "策略",
+      "fleet": "智能体舰队",
+      "security": "安全",
+      "analytics": "分析",
+      "activity": "活动流",
+      "compliance": "合规",
+      "apiKeys": "API 密钥",
+      "integrations": "集成",
+      "webhooks": "Webhooks",
+      "identities": "身份",
+      "settings": "设置",
+      "assumptions": "假设追踪",
+      "sessions": "会话",
+      "drift": "漂移检测",
+      "learning": "学习数据库",
+      "quality": "质量",
+      "prompts": "提示词",
+      "feedback": "反馈",
+      "messages": "消息",
+      "workflows": "工作流",
+      "modelStrategies": "模型策略",
+      "knowledge": "知识库",
+      "capabilities": "能力注册表"
+    },
+    "collapse": "收起",
+    "poweredBy": "Powered by",
+    "practicalSystems": "Practical Systems",
+    "backToDashclaw": "返回 dashclaw.io"
+  },
+  "pageLayout": {
+    "maturity": {
+      "stable": "稳定版",
+      "beta": "Beta",
+      "experimental": "实验性"
+    }
+  },
+  "demoBanner": {
+    "badge": "演示",
+    "description": "模拟数据。部署你自己的 DashClaw 实例以连接真实智能体。",
+    "getStarted": "快速开始",
+    "whatIsDashclaw": "什么是 DashClaw？"
+  },
+  "connectAgentButton": {
+    "default": "复制接入提示词",
+    "copied": "已复制！"
   },
   "nav": {
     "missionControl": "决策中心",
@@ -500,6 +590,145 @@
     "subtitle": "决策依据追踪 — 智能体行动时的信念状态",
     "empty": {
       "title": "尚无假设记录"
+    }
+  },
+  "security": {
+    "title": "安全",
+    "subtitle": "决策完整性、风险信号与会话健康状态",
+    "runCheck": "运行安全检查",
+    "scanning": "扫描中…",
+    "stats": {
+      "score": "评分",
+      "activeSignals": "活跃信号",
+      "highRisk24h": "高风险 · 24 小时",
+      "unscoped": "未限定范围",
+      "invalidated7d": "已失效 · 7 天"
+    },
+    "allPassed": "所有安全检查通过 — 评分 100/100",
+    "scanResults": "扫描结果",
+    "riskSignals": "风险信号",
+    "highRiskActions": "高风险动作",
+    "noSignals": "无活跃信号",
+    "allClear": "全部通过。未检测到风险信号。",
+    "noHighRisk": "无高风险动作",
+    "noHighRiskDesc": "没有被标记为高风险的动作。",
+    "dismissSignal": "忽略信号",
+    "restoreSignal": "恢复信号"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "subtitle": "将治理事件推送到外部端点",
+    "eventTypes": {
+      "allEvents": "全部事件",
+      "autonomySpike": "自主性激增",
+      "highImpact": "高影响低监督",
+      "repeatedFailures": "重复失败",
+      "staleLoop": "停滞循环",
+      "assumptionDrift": "假设漂移",
+      "staleAssumption": "假设过期",
+      "staleRunning": "运行中动作过期"
+    },
+    "errors": {
+      "failedToLoad": "加载 Webhooks 失败",
+      "failedToConnect": "无法连接到 API",
+      "httpsRequired": "Webhook URL 必须使用 HTTPS"
+    }
+  },
+  "identities": {
+    "title": "智能体身份",
+    "subtitle": "管理智能体配对与已批准身份",
+    "status": {
+      "expired": "已过期",
+      "expiresNow": "即将过期",
+      "on": "开启",
+      "off": "关闭",
+      "pending": "待处理"
+    },
+    "approve": "批准",
+    "approving": "批准中…",
+    "revoke": "吊销",
+    "approvedSuccess": "配对已成功批准。",
+    "revokedSuccess": "身份已吊销。",
+    "errors": {
+      "failedToLoad": "加载身份数据失败",
+      "failedToApprove": "批准配对失败",
+      "failedToRevoke": "吊销身份失败"
+    }
+  },
+  "feedback": {
+    "title": "反馈",
+    "subtitle": "与智能体决策关联的用户反馈",
+    "tabs": {
+      "all": "全部反馈",
+      "unresolved": "未解决",
+      "analytics": "分析"
+    },
+    "filters": {
+      "allSentiment": "所有情感",
+      "positive": "正面",
+      "neutral": "中性",
+      "negative": "负面"
+    },
+    "addFeedback": "添加反馈",
+    "submitFeedback": "提交",
+    "placeholder": "发生了什么？智能体的表现如何？",
+    "stats": {
+      "total": "总计",
+      "avgRating": "平均评分",
+      "positive": "正面",
+      "negative": "负面",
+      "unresolved": "未解决"
+    },
+    "categories": {
+      "general": "通用",
+      "quality": "质量",
+      "performance": "性能",
+      "accuracy": "准确性",
+      "safety": "安全性",
+      "ux": "用户体验"
+    },
+    "sections": {
+      "ratingDist": "评分分布",
+      "topTags": "热门标签",
+      "byCategory": "按类别",
+      "byAgent": "按智能体"
+    }
+  },
+  "messages": {
+    "title": "消息",
+    "subtitle": "智能体通信线程与发件箱"
+  },
+  "knowledge": {
+    "title": "知识库",
+    "subtitle": "为智能体提供结构化上下文集合",
+    "delete": "确认删除？",
+    "deleting": "删除中…",
+    "status": {
+      "empty": "空",
+      "pending": "待处理",
+      "syncing": "同步中",
+      "synced": "已同步",
+      "failed": "失败"
+    },
+    "time": {
+      "never": "从未",
+      "justNow": "刚刚",
+      "minutesAgo": "{m} 分钟前",
+      "hoursAgo": "{h} 小时前",
+      "daysAgo": "{d} 天前"
+    }
+  },
+  "modelStrategies": {
+    "title": "模型策略",
+    "subtitle": "定义 LLM 选择的路由规则",
+    "sections": {
+      "primary": "主要",
+      "fallback": "备用"
+    },
+    "costSensitivity": {
+      "low": "低",
+      "balanced": "均衡",
+      "highQuality": "高质量"
     }
   },
   "footer": {

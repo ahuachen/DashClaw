@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Sidebar from './Sidebar';
 import NotificationCenter from './NotificationCenter';
 import AgentFilterDropdown from './AgentFilterDropdown';
@@ -8,13 +9,15 @@ import RealtimeIndicator from './RealtimeIndicator';
 import DemoBanner from './DemoBanner';
 import SystemStatusBar from './SystemStatusBar';
 
-const MATURITY_BADGE = {
-  stable: { label: 'Stable', color: 'bg-success-subtle text-success border-success/20' },
-  beta: { label: 'Beta', color: 'bg-warning-subtle text-warning border-warning/20' },
-  experimental: { label: 'Experimental', color: 'bg-surface-tertiary text-secondary border-border-hover' },
-};
-
 export default function PageLayout({ title, subtitle, breadcrumbs, actions, maturity, children }) {
+  const t = useTranslations('pageLayout');
+
+  const MATURITY_BADGE = {
+    stable: { label: t('maturity.stable'), color: 'bg-success-subtle text-success border-success/20' },
+    beta: { label: t('maturity.beta'), color: 'bg-warning-subtle text-warning border-warning/20' },
+    experimental: { label: t('maturity.experimental'), color: 'bg-surface-tertiary text-secondary border-border-hover' },
+  };
+
   return (
     <div className="flex h-screen">
       <Sidebar />

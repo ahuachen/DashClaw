@@ -26,11 +26,101 @@
     "all": "All",
     "none": "None",
     "noData": "No data",
+    "submit": "Submit",
+    "add": "Add",
+    "revoke": "Revoke",
+    "archive": "Archive",
+    "restore": "Restore",
+    "dismiss": "Dismiss",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "never": "Never",
+    "pending": "Pending",
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "failedToLoad": "Failed to load data",
+    "failedToConnect": "Failed to connect to API",
+    "networkError": "Network error — please try again",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "running": "Running",
+      "success": "Success",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "approved": "Approved",
+      "denied": "Denied",
+      "online": "Online",
+      "offline": "Offline",
+      "critical": "Critical",
+      "degraded": "Degraded",
+      "unknown": "Unknown"
+    },
     "languageSwitcher": {
       "label": "Language",
       "english": "English",
       "chinese": "中文"
     }
+  },
+  "sidebar": {
+    "groups": {
+      "govern": "Govern",
+      "observe": "Observe",
+      "configure": "Configure",
+      "labs": "Labs"
+    },
+    "items": {
+      "missionControl": "Mission Control",
+      "decisions": "Decisions",
+      "approvals": "Approvals",
+      "policies": "Policies",
+      "fleet": "Fleet",
+      "security": "Security",
+      "analytics": "Analytics",
+      "activity": "Activity",
+      "compliance": "Compliance",
+      "apiKeys": "API Keys",
+      "integrations": "Integrations",
+      "webhooks": "Webhooks",
+      "identities": "Identities",
+      "settings": "Settings",
+      "assumptions": "Assumptions",
+      "sessions": "Sessions",
+      "drift": "Drift",
+      "learning": "Learning",
+      "quality": "Quality",
+      "prompts": "Prompts",
+      "feedback": "Feedback",
+      "messages": "Messages",
+      "workflows": "Workflows",
+      "modelStrategies": "Model Strategies",
+      "knowledge": "Knowledge",
+      "capabilities": "Capabilities"
+    },
+    "collapse": "Collapse",
+    "poweredBy": "Powered by",
+    "practicalSystems": "Practical Systems",
+    "backToDashclaw": "Back to dashclaw.io"
+  },
+  "pageLayout": {
+    "maturity": {
+      "stable": "Stable",
+      "beta": "Beta",
+      "experimental": "Experimental"
+    }
+  },
+  "demoBanner": {
+    "badge": "Demo",
+    "description": "Simulated data. Deploy your own DashClaw instance to connect real agents.",
+    "getStarted": "Get started",
+    "whatIsDashclaw": "What is DashClaw?"
+  },
+  "connectAgentButton": {
+    "default": "Copy Agent Prompt",
+    "copied": "Copied!"
   },
   "nav": {
     "missionControl": "Mission Control",
@@ -500,6 +590,145 @@
     "subtitle": "Decision basis tracking — what agents believe while acting",
     "empty": {
       "title": "No assumptions recorded"
+    }
+  },
+  "security": {
+    "title": "Security",
+    "subtitle": "Decision integrity, risk signals, and session health",
+    "runCheck": "Run security check",
+    "scanning": "Scanning…",
+    "stats": {
+      "score": "Score",
+      "activeSignals": "Active Signals",
+      "highRisk24h": "High Risk · 24h",
+      "unscoped": "Unscoped",
+      "invalidated7d": "Invalidated · 7d"
+    },
+    "allPassed": "All security checks passed — score 100/100",
+    "scanResults": "Scan results",
+    "riskSignals": "Risk Signals",
+    "highRiskActions": "High-Risk Actions",
+    "noSignals": "No active signals",
+    "allClear": "All clear. No risk signals detected.",
+    "noHighRisk": "No high-risk actions",
+    "noHighRiskDesc": "No actions flagged as high-risk.",
+    "dismissSignal": "Dismiss signal",
+    "restoreSignal": "Restore signal"
+  },
+  "webhooks": {
+    "title": "Webhooks",
+    "subtitle": "Push governance events to external endpoints",
+    "eventTypes": {
+      "allEvents": "All events",
+      "autonomySpike": "Autonomy spike",
+      "highImpact": "High impact, low oversight",
+      "repeatedFailures": "Repeated failures",
+      "staleLoop": "Stale loop",
+      "assumptionDrift": "Assumption drift",
+      "staleAssumption": "Stale assumption",
+      "staleRunning": "Stale running action"
+    },
+    "errors": {
+      "failedToLoad": "Failed to load webhooks",
+      "failedToConnect": "Failed to connect to API",
+      "httpsRequired": "Webhook URL must use HTTPS"
+    }
+  },
+  "identities": {
+    "title": "Agent Identities",
+    "subtitle": "Manage agent pairings and approved identities",
+    "status": {
+      "expired": "Expired",
+      "expiresNow": "Expires now",
+      "on": "On",
+      "off": "Off",
+      "pending": "Pending"
+    },
+    "approve": "Approve",
+    "approving": "Approving…",
+    "revoke": "Revoke",
+    "approvedSuccess": "Pairing approved successfully.",
+    "revokedSuccess": "Identity revoked.",
+    "errors": {
+      "failedToLoad": "Failed to load identity data",
+      "failedToApprove": "Failed to approve pairing",
+      "failedToRevoke": "Failed to revoke identity"
+    }
+  },
+  "feedback": {
+    "title": "Feedback",
+    "subtitle": "User feedback tied to agent decisions",
+    "tabs": {
+      "all": "All Feedback",
+      "unresolved": "Unresolved",
+      "analytics": "Analytics"
+    },
+    "filters": {
+      "allSentiment": "All sentiment",
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative"
+    },
+    "addFeedback": "Add Feedback",
+    "submitFeedback": "Submit",
+    "placeholder": "What happened? How did the agent perform?",
+    "stats": {
+      "total": "Total",
+      "avgRating": "Avg Rating",
+      "positive": "Positive",
+      "negative": "Negative",
+      "unresolved": "Unresolved"
+    },
+    "categories": {
+      "general": "General",
+      "quality": "Quality",
+      "performance": "Performance",
+      "accuracy": "Accuracy",
+      "safety": "Safety",
+      "ux": "UX"
+    },
+    "sections": {
+      "ratingDist": "Rating Distribution",
+      "topTags": "Top Tags",
+      "byCategory": "By Category",
+      "byAgent": "By Agent"
+    }
+  },
+  "messages": {
+    "title": "Messages",
+    "subtitle": "Agent communication threads and outbox"
+  },
+  "knowledge": {
+    "title": "Knowledge",
+    "subtitle": "Structured context collections for agent grounding",
+    "delete": "Delete?",
+    "deleting": "Deleting…",
+    "status": {
+      "empty": "Empty",
+      "pending": "Pending",
+      "syncing": "Syncing",
+      "synced": "Synced",
+      "failed": "Failed"
+    },
+    "time": {
+      "never": "Never",
+      "justNow": "Just now",
+      "minutesAgo": "{m}m ago",
+      "hoursAgo": "{h}h ago",
+      "daysAgo": "{d}d ago"
+    }
+  },
+  "modelStrategies": {
+    "title": "Model Strategies",
+    "subtitle": "Define routing rules for LLM selection",
+    "sections": {
+      "primary": "Primary",
+      "fallback": "Fallback"
+    },
+    "costSensitivity": {
+      "low": "Low",
+      "balanced": "Balanced",
+      "highQuality": "High Quality"
     }
   },
   "footer": {

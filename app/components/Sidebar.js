@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { isDemoMode } from '../lib/isDemoMode';
 import {
   Radar, Zap, ShieldAlert, Users, KeyRound,
@@ -14,58 +15,60 @@ import {
 } from 'lucide-react';
 import DashClawLogo from './DashClawLogo';
 
-const navGroups = [
-  {
-    label: 'Govern',
-    items: [
-      { href: '/mission-control', icon: Radar, label: 'Mission Control' },
-      { href: '/decisions', icon: Zap, label: 'Decisions' },
-      { href: '/approvals', icon: Clock, label: 'Approvals' },
-      { href: '/policies', icon: Shield, label: 'Policies' },
-      { href: '/agents', icon: Users, label: 'Fleet' },
-    ],
-  },
-  {
-    label: 'Observe',
-    items: [
-      { href: '/security', icon: ShieldAlert, label: 'Security' },
-      { href: '/analytics', icon: TrendingUp, label: 'Analytics' },
-      { href: '/activity', icon: Activity, label: 'Activity' },
-      { href: '/compliance/exports', icon: Download, label: 'Compliance' },
-    ],
-  },
-  {
-    label: 'Configure',
-    items: [
-      { href: '/api-keys', icon: KeyRound, label: 'API Keys' },
-      { href: '/integrations', icon: Plug, label: 'Integrations' },
-      { href: '/webhooks', icon: Bell, label: 'Webhooks' },
-      { href: '/identities', icon: Fingerprint, label: 'Identities' },
-      { href: '/settings', icon: Settings, label: 'Settings' },
-    ],
-  },
-  {
-    label: 'Labs',
-    collapsible: true,
-    headerIcon: FlaskConical,
-    items: [
-      { href: '/assumptions', icon: Microscope, label: 'Assumptions' },
-      { href: '/sessions', icon: Activity, label: 'Sessions' },
-      { href: '/drift', icon: TrendingUp, label: 'Drift' },
-      { href: '/learning', icon: GraduationCap, label: 'Learning' },
-      { href: '/quality', icon: BarChart3, label: 'Quality' },
-      { href: '/prompts', icon: Terminal, label: 'Prompts' },
-      { href: '/feedback', icon: MessageSquare, label: 'Feedback' },
-      { href: '/messages', icon: Inbox, label: 'Messages' },
-      { href: '/workflows', icon: Workflow, label: 'Workflows' },
-      { href: '/model-strategies', icon: Cpu, label: 'Model Strategies' },
-      { href: '/knowledge', icon: BookOpen, label: 'Knowledge' },
-      { href: '/capabilities', icon: Wrench, label: 'Capabilities' },
-    ],
-  },
-];
-
 export default function Sidebar() {
+  const t = useTranslations('sidebar');
+
+  const navGroups = [
+    {
+      label: t('groups.govern'),
+      items: [
+        { href: '/mission-control', icon: Radar, label: t('items.missionControl') },
+        { href: '/decisions', icon: Zap, label: t('items.decisions') },
+        { href: '/approvals', icon: Clock, label: t('items.approvals') },
+        { href: '/policies', icon: Shield, label: t('items.policies') },
+        { href: '/agents', icon: Users, label: t('items.fleet') },
+      ],
+    },
+    {
+      label: t('groups.observe'),
+      items: [
+        { href: '/security', icon: ShieldAlert, label: t('items.security') },
+        { href: '/analytics', icon: TrendingUp, label: t('items.analytics') },
+        { href: '/activity', icon: Activity, label: t('items.activity') },
+        { href: '/compliance/exports', icon: Download, label: t('items.compliance') },
+      ],
+    },
+    {
+      label: t('groups.configure'),
+      items: [
+        { href: '/api-keys', icon: KeyRound, label: t('items.apiKeys') },
+        { href: '/integrations', icon: Plug, label: t('items.integrations') },
+        { href: '/webhooks', icon: Bell, label: t('items.webhooks') },
+        { href: '/identities', icon: Fingerprint, label: t('items.identities') },
+        { href: '/settings', icon: Settings, label: t('items.settings') },
+      ],
+    },
+    {
+      label: t('groups.labs'),
+      collapsible: true,
+      headerIcon: FlaskConical,
+      items: [
+        { href: '/assumptions', icon: Microscope, label: t('items.assumptions') },
+        { href: '/sessions', icon: Activity, label: t('items.sessions') },
+        { href: '/drift', icon: TrendingUp, label: t('items.drift') },
+        { href: '/learning', icon: GraduationCap, label: t('items.learning') },
+        { href: '/quality', icon: BarChart3, label: t('items.quality') },
+        { href: '/prompts', icon: Terminal, label: t('items.prompts') },
+        { href: '/feedback', icon: MessageSquare, label: t('items.feedback') },
+        { href: '/messages', icon: Inbox, label: t('items.messages') },
+        { href: '/workflows', icon: Workflow, label: t('items.workflows') },
+        { href: '/model-strategies', icon: Cpu, label: t('items.modelStrategies') },
+        { href: '/knowledge', icon: BookOpen, label: t('items.knowledge') },
+        { href: '/capabilities', icon: Wrench, label: t('items.capabilities') },
+      ],
+    },
+  ];
+
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -140,7 +143,7 @@ export default function Sidebar() {
           <a
             href="https://www.dashclaw.io/"
             className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
-            title="Back to dashclaw.io"
+            title={t('backToDashclaw')}
           >
             <DashClawLogo size={20} />
             {!collapsed && <span className="text-lg font-semibold text-white">DashClaw</span>}
@@ -219,9 +222,9 @@ export default function Sidebar() {
           <div className="space-y-1">
             <div className="text-[11px] tabular-nums text-tertiary">DashClaw v{process.env.NEXT_PUBLIC_DASHCLAW_VERSION || '2.13.0'}</div>
             <div className="text-[11px] text-tertiary">
-              Powered by{' '}
+              {t('poweredBy')}{' '}
               <Link href="/practical-systems" className="text-secondary transition-colors hover:text-brand">
-                Practical Systems
+                {t('practicalSystems')}
               </Link>
             </div>
           </div>
@@ -233,7 +236,7 @@ export default function Sidebar() {
           className="mt-2 hidden items-center gap-2 rounded text-xs text-tertiary transition-colors hover:text-secondary md:flex"
         >
           {collapsed ? <PanelLeft size={14} aria-hidden="true" /> : <PanelLeftClose size={14} aria-hidden="true" />}
-          {!collapsed && <span>Collapse</span>}
+          {!collapsed && <span>{t('collapse')}</span>}
         </button>
       </div>
     </>

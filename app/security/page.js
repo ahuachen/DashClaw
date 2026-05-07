@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ShieldAlert, AlertTriangle, Zap, Eye, RotateCw,
   ChevronRight, CircleAlert, X as XIcon, EyeOff, Undo2,
@@ -18,6 +19,7 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { getAgentColor } from '../lib/colors';
 
 export default function SecurityDashboard() {
+  const t = useTranslations('security');
   const { agentId } = useAgentFilter();
   const [signals, setSignals] = useState([]);
   const [highRiskActions, setHighRiskActions] = useState([]);
@@ -193,8 +195,8 @@ export default function SecurityDashboard() {
 
   return (
     <PageLayout
-      title="Security"
-      subtitle={`Decision Integrity & Risk Signals${lastUpdated ? ` -- Updated ${lastUpdated}` : ''}`}
+      title={t('title')}
+      subtitle={`${t('subtitle')}${lastUpdated ? ` -- Updated ${lastUpdated}` : ''}`}
       breadcrumbs={['Dashboard', 'Security']}
       maturity="stable"
       actions={
@@ -205,7 +207,7 @@ export default function SecurityDashboard() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
           >
             <ShieldAlert size={14} />
-            {scanning ? 'Scanning…' : 'Run security check'}
+            {scanning ? t('scanning') : t('runCheck')}
           </button>
           <button
             onClick={fetchData}
@@ -221,7 +223,7 @@ export default function SecurityDashboard() {
       {scanResults && (
         <Card className="mb-6" hover={false}>
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Scan results</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('scanResults')}</span>
             <button
               onClick={() => setScanResults(null)}
               className="rounded-md p-1 text-tertiary transition-colors hover:bg-white/5 hover:text-white"
@@ -237,7 +239,7 @@ export default function SecurityDashboard() {
               </p>
             ) : scanResults.score === 100 ? (
               <p className="flex items-center gap-1.5 text-xs text-success">
-                <ShieldCheck size={14} /> All security checks passed — score 100/100
+                <ShieldCheck size={14} /> {t('allPassed')}
               </p>
             ) : (
               <div className="space-y-2">
@@ -265,27 +267,27 @@ export default function SecurityDashboard() {
         <div className="grid grid-cols-2 divide-x divide-border md:grid-cols-5">
           {[
             {
-              label: 'Score',
+              label: t('stats.score'),
               value: securityScore,
               color: securityScore >= 90 ? 'text-success' : securityScore >= 70 ? 'text-warning' : 'text-error',
             },
             {
-              label: 'Active Signals',
+              label: t('stats.activeSignals'),
               value: totalSignals,
               color: totalSignals > 0 ? 'text-error' : 'text-white',
             },
             {
-              label: 'High Risk · 24h',
+              label: t('stats.highRisk24h'),
               value: highRisk24h,
               color: highRisk24h > 0 ? 'text-warning' : 'text-white',
             },
             {
-              label: 'Unscoped',
+              label: t('stats.unscoped'),
               value: unscopedCount,
               color: unscopedCount > 0 ? 'text-warning' : 'text-white',
             },
             {
-              label: 'Invalidated · 7d',
+              label: t('stats.invalidated7d'),
               value: invalidatedCount,
               color: invalidatedCount > 0 ? 'text-error' : 'text-white',
             },
@@ -323,7 +325,7 @@ export default function SecurityDashboard() {
         {/* Signal Feed - left */}
         <div className="lg:col-span-3">
           <Card>
-            <CardHeader title={<span className="flex items-center">Risk Signals<HelpIcon sectionKey="security-signals" tip={HELP_TIPS['security-signals']} /></span>} icon={ShieldAlert} count={activeSignals.length}>
+            <CardHeader title={<span className="flex items-center">{t('riskSignals')}<HelpIcon sectionKey="security-signals" tip={HELP_TIPS['security-signals']} /></span>} icon={ShieldAlert} count={activeSignals.length}>
               <div className="flex items-center gap-2">
                 {activeSignals.length > 0 && (
                   <button
@@ -350,8 +352,8 @@ export default function SecurityDashboard() {
               ) : activeSignals.length === 0 && !showDismissed ? (
                 <EmptyState
                   icon={ShieldAlert}
-                  title="No active signals"
-                  description={dismissedList.length > 0 ? `${dismissedList.length} signal${dismissedList.length !== 1 ? 's' : ''} dismissed.` : 'All clear. No risk signals detected.'}
+                  title={t('noSignals')}
+                  description={dismissedList.length > 0 ? `${dismissedList.length} signal${dismissedList.length !== 1 ? 's' : ''} dismissed.` : t('allClear')}
                 />
               ) : (
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
@@ -388,7 +390,7 @@ export default function SecurityDashboard() {
                           <button
                             onClick={(e) => { e.stopPropagation(); dismissSignal(signal); }}
                             className="p-1 text-tertiary hover:text-secondary transition-colors"
-                            title="Dismiss signal"
+                            title={t('dismissSignal')}
                           >
                             <XIcon size={14} />
                           </button>
@@ -427,7 +429,7 @@ export default function SecurityDashboard() {
                             <button
                               onClick={(e) => { e.stopPropagation(); restoreSignal(signal); }}
                               className="p-1 text-tertiary hover:text-secondary transition-colors shrink-0"
-                              title="Restore signal"
+                              title={t('restoreSignal')}
                             >
                               <Undo2 size={14} />
                             </button>
@@ -445,15 +447,15 @@ export default function SecurityDashboard() {
         {/* High-Risk Actions - right */}
         <div className="lg:col-span-2">
           <Card>
-            <CardHeader title={<span className="flex items-center">High-Risk Actions<HelpIcon sectionKey="risk-signals" tip={HELP_TIPS['risk-signals']} /></span>} icon={Zap} count={highRiskActions.length} />
+            <CardHeader title={<span className="flex items-center">{t('highRiskActions')}<HelpIcon sectionKey="risk-signals" tip={HELP_TIPS['risk-signals']} /></span>} icon={Zap} count={highRiskActions.length} />
             <CardContent>
               {loading ? (
                 <ListSkeleton rows={5} />
               ) : highRiskActions.length === 0 ? (
                 <EmptyState
                   icon={Eye}
-                  title="No high-risk actions"
-                  description="No actions flagged as high-risk."
+                  title={t('noHighRisk')}
+                  description={t('noHighRiskDesc')}
                 />
               ) : (
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">

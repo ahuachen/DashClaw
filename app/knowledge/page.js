@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { BookOpen, Plus, RotateCw, FileText, Globe, Archive, StickyNote, Pencil, Trash2 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
@@ -23,16 +24,18 @@ const ingestionVariant = {
   failed: 'error',
 };
 
-function timeAgo(dateString) {
-  if (!dateString) return 'never';
+function timeAgo(dateString, t) {
+  if (!dateString) return t('time.never');
   const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
-  if (seconds < 60) return 'just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
+  if (seconds < 60) return t('time.justNow');
+  if (seconds < 3600) return t('time.minutesAgo', { m: Math.floor(seconds / 60) });
+  if (seconds < 86400) return t('time.hoursAgo', { h: Math.floor(seconds / 3600) });
+  return t('time.daysAgo', { d: Math.floor(seconds / 86400) });
 }
 
 function CollectionCard({ c, onDelete }) {
+  const t = useTranslations('knowledge');
+  const tCommon = useTranslations('common');
   const Icon = sourceIcons[c.source_type] || FileText;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -53,12 +56,12 @@ function CollectionCard({ c, onDelete }) {
             </div>
           </div>
           <Badge variant={ingestionVariant[c.ingestion_status] || 'default'}>
-            {c.ingestion_status}
+            {t(`status.${c.ingestion_status}`) ?? c.ingestion_status}
           </Badge>
         </div>
         <div className="flex items-center gap-3 mt-3 text-[10px] text-tertiary uppercase tracking-wider">
           <span>{c.doc_count} items</span>
-          <span>Synced {timeAgo(c.last_synced_at)}</span>
+          <span>Synced {timeAgo(c.last_synced_at, t)}</span>
         </div>
         {c.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
@@ -78,11 +81,11 @@ function CollectionCard({ c, onDelete }) {
             className="inline-flex items-center gap-1 text-xs text-secondary hover:text-white"
             aria-label={`Edit ${c.name}`}
           >
-            <Pencil size={11} /> Edit
+            <Pencil size={11} /> {tCommon('edit')}
           </Link>
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1.5 text-xs">
-              <span className="text-error">Delete?</span>
+              <span className="text-error">{t('delete')}</span>
               <button
                 onClick={async () => {
                   setDeleting(true);
@@ -93,13 +96,13 @@ function CollectionCard({ c, onDelete }) {
                 disabled={deleting}
                 className="text-error hover:text-error disabled:opacity-50"
               >
-                {deleting ? 'Deleting...' : 'Yes'}
+                {deleting ? t('deleting') : tCommon('yes')}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
                 className="text-secondary hover:text-white"
               >
-                No
+                {tCommon('no')}
               </button>
             </span>
           ) : (
@@ -108,7 +111,7 @@ function CollectionCard({ c, onDelete }) {
               className="inline-flex items-center gap-1 text-xs text-secondary hover:text-error"
               aria-label={`Delete ${c.name}`}
             >
-              <Trash2 size={11} /> Delete
+              <Trash2 size={11} /> {tCommon('delete')}
             </button>
           )}
         </div>
@@ -118,6 +121,7 @@ function CollectionCard({ c, onDelete }) {
 }
 
 export default function KnowledgePage() {
+  const t = useTranslations('knowledge');
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -181,8 +185,8 @@ export default function KnowledgePage() {
 
   return (
     <PageLayout
-      title="Knowledge Collections"
-      subtitle="Named knowledge sources that workflows and agents can bind to"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Studio', 'Knowledge']}
       maturity="beta"
       actions={

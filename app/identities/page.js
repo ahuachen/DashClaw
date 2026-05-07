@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Fingerprint, Shield, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
@@ -28,13 +29,14 @@ function formatDate(dateStr) {
 function timeLeft(expiresAt) {
   if (!expiresAt) return null;
   const ms = new Date(expiresAt).getTime() - Date.now();
-  if (ms <= 0) return 'Expired';
+  if (ms <= 0) return '__expired__';
   const mins = Math.floor(ms / 60000);
-  if (mins < 1) return 'Expires now';
+  if (mins < 1) return '__expiresNow__';
   return `${mins}m left`;
 }
 
 export default function IdentitiesPage() {
+  const t = useTranslations('identities');
   const { isAdmin, settled: sessionSettled } = useEffectiveRole();
 
   const [pendingPairings, setPendingPairings] = useState([]);
@@ -80,11 +82,11 @@ export default function IdentitiesPage() {
         setEnforcementOn(setting?.value === 'true' || setting?.value === true);
       }
     } catch (err) {
-      setError('Failed to load identity data');
+      setError(t('errors.failedToLoad'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchAll();
@@ -106,13 +108,13 @@ export default function IdentitiesPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to approve pairing');
+        setError(data.error || t('errors.failedToApprove'));
         return;
       }
-      showSuccess('Pairing approved successfully.');
+      showSuccess(t('approvedSuccess'));
       await fetchAll();
     } catch (err) {
-      setError('Failed to approve pairing');
+      setError(t('errors.failedToApprove'));
     } finally {
       setApprovingId(null);
     }
@@ -126,14 +128,14 @@ export default function IdentitiesPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Failed to revoke identity');
+        setError(data.error || t('errors.failedToRevoke'));
         return;
       }
       setRevokingId(null);
-      showSuccess('Identity revoked.');
+      showSuccess(t('revokedSuccess'));
       await fetchAll();
     } catch (err) {
-      setError('Failed to revoke identity');
+      setError(t('errors.failedToRevoke'));
     } finally {
       setRevokeLoading(false);
     }
@@ -142,9 +144,9 @@ export default function IdentitiesPage() {
   if (loading || !sessionSettled) {
     return (
       <PageLayout
-        title="Agent Identities"
-        subtitle="Manage agent pairings and approved identities"
-        breadcrumbs={['Dashboard', 'Agent Identities']}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={['Dashboard', t('title')]}
       >
         <div className="flex items-center justify-center py-20">
           <div className="text-sm text-tertiary">Loading identities...</div>
@@ -156,9 +158,9 @@ export default function IdentitiesPage() {
   if (!isAdmin) {
     return (
       <PageLayout
-        title="Agent Identities"
-        subtitle="Manage agent pairings and approved identities"
-        breadcrumbs={['Dashboard', 'Agent Identities']}
+        title={t('title')}
+        subtitle={t('subtitle')}
+        breadcrumbs={['Dashboard', t('title')]}
         maturity="stable"
       >
         <Card hover={false}>
@@ -176,9 +178,9 @@ export default function IdentitiesPage() {
 
   return (
     <PageLayout
-      title="Agent Identities"
-      subtitle="Manage agent pairings and approved identities"
-      breadcrumbs={['Dashboard', 'Agent Identities']}
+      title={t('title')}
+      subtitle={t('subtitle')}
+      breadcrumbs={['Dashboard', t('title')]}
       maturity="stable"
     >
       {/* Error banner */}
@@ -216,7 +218,7 @@ export default function IdentitiesPage() {
           <CardContent className="pt-4 pb-4">
             <StatCompact
               label="Signature Enforcement"
-              value={enforcementOn ? 'On' : 'Off'}
+              value={enforcementOn ? t('status.on') : t('status.off')}
               color={enforcementOn ? 'text-success' : 'text-tertiary'}
             />
           </CardContent>
@@ -248,7 +250,8 @@ export default function IdentitiesPage() {
             <div className="divide-y divide-[rgba(255,255,255,0.04)]">
               {pendingPairings.map((pairing) => {
                 const remaining = timeLeft(pairing.expires_at);
-                const isExpired = remaining === 'Expired';
+                const isExpired = remaining === '__expired__';
+                const remainingDisplay = remaining === '__expired__' ? t('status.expired') : remaining === '__expiresNow__' ? t('status.expiresNow') : remaining;
 
                 return (
                   <div key={pairing.id} className="px-5 py-4 flex items-center gap-4">
@@ -265,14 +268,14 @@ export default function IdentitiesPage() {
                           <code className="text-[10px] font-mono text-tertiary truncate">{pairing.agent_id}</code>
                         )}
                         <Badge variant={isExpired ? 'error' : 'warning'} size="xs">
-                          {isExpired ? 'Expired' : 'Pending'}
+                          {isExpired ? t('status.expired') : t('status.pending')}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
                         <span className="text-[10px] text-disabled">Requested {formatDate(pairing.created_at)}</span>
                         {remaining && (
                           <span className={`text-[10px] ${isExpired ? 'text-error' : 'text-warning'}`}>
-                            {remaining}
+                            {remainingDisplay}
                           </span>
                         )}
                       </div>
@@ -299,7 +302,7 @@ export default function IdentitiesPage() {
                           disabled={approvingId === pairing.id}
                           className="px-3 py-1.5 text-xs font-medium bg-brand hover:bg-brand/90 text-white rounded-lg transition-colors disabled:opacity-50"
                         >
-                          {approvingId === pairing.id ? 'Approving...' : 'Approve'}
+                          {approvingId === pairing.id ? t('approving') : t('approve')}
                         </button>
                       </div>
                     )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Plus, Archive, CheckCheck, X, ArrowLeft,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import SmartInbox from './_components/SmartInbox';
 import CreateThreadForm from './_components/CreateThreadForm';
 
 export default function MessagesPage() {
+  const t = useTranslations('messages');
   const { agentId: filterAgentId } = useAgentFilter();
   const isDemo = isDemoMode();
   const [tab, setTab] = useState('inbox');
@@ -341,8 +343,8 @@ export default function MessagesPage() {
 
   return (
     <PageLayout
-      title="Messages"
-      subtitle="Agent-to-agent communication"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Dashboard', 'Messages']}
       actions={
         <button

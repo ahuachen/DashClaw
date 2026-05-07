@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FlaskConical } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { isDemoMode } from '../lib/isDemoMode';
 
 // Demo mode is a sustained "this is not production data" notice. Per
@@ -9,6 +10,7 @@ import { isDemoMode } from '../lib/isDemoMode';
 // so the banner sits on a neutral elevated surface with an amber accent
 // (warning-state token) rather than an always-on brand wash.
 export default function DemoBanner() {
+  const t = useTranslations('demoBanner');
   if (!isDemoMode()) return null;
 
   return (
@@ -21,10 +23,10 @@ export default function DemoBanner() {
         <div className="flex items-center gap-3 text-xs text-secondary">
           <span className="flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-warning">
             <FlaskConical size={11} aria-hidden="true" />
-            Demo
+            {t('badge')}
           </span>
           <span className="text-secondary">
-            Simulated data. Deploy your own DashClaw instance to connect real agents.
+            {t('description')}
           </span>
         </div>
         <div className="flex items-center gap-4 text-xs">
@@ -32,13 +34,13 @@ export default function DemoBanner() {
             href="/self-host"
             className="text-brand transition-colors hover:text-brand-hover"
           >
-            Get started
+            {t('getStarted')}
           </Link>
           <Link
             href="/"
             className="text-secondary transition-colors hover:text-white"
           >
-            What is DashClaw?
+            {t('whatIsDashclaw')}
           </Link>
         </div>
       </div>

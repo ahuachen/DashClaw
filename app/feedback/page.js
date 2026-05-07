@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   MessageCircle, Plus, ThumbsUp, ThumbsDown, Minus,
   CheckCircle, XCircle, Star, RefreshCw, Tag, Filter,
@@ -15,9 +16,9 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { isDemoMode } from '../lib/isDemoMode';
 
 const TABS = [
-  { id: 'all', label: 'All Feedback' },
-  { id: 'unresolved', label: 'Unresolved' },
-  { id: 'analytics', label: 'Analytics' },
+  { id: 'all', labelKey: 'tabs.all' },
+  { id: 'unresolved', labelKey: 'tabs.unresolved' },
+  { id: 'analytics', labelKey: 'tabs.analytics' },
 ];
 
 const CATEGORIES = ['general', 'quality', 'performance', 'accuracy', 'safety', 'ux'];
@@ -57,6 +58,7 @@ function RatingBar({ rating, count, maxCount }) {
 }
 
 export default function FeedbackPage() {
+  const t = useTranslations('feedback');
   const { agentId } = useAgentFilter();
   const isDemo = isDemoMode();
   const [activeTab, setActiveTab] = useState('all');
@@ -142,7 +144,7 @@ export default function FeedbackPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Feedback" subtitle="User feedback tied to agent decisions">
+      <PageLayout title={t('title')} subtitle={t('subtitle')}>
         <ListSkeleton />
       </PageLayout>
     );
@@ -152,8 +154,8 @@ export default function FeedbackPage() {
 
   return (
     <PageLayout
-      title="Feedback"
-      subtitle="User feedback tied to agent decisions"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Operations', 'Feedback']}
       actions={
         <button onClick={fetchData} className="p-2 rounded-lg text-secondary hover:text-white hover:bg-white/5 transition-colors">
@@ -166,27 +168,27 @@ export default function FeedbackPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Total" value={overall.total_feedback || 0} />
+              <StatCompact label={t('stats.total')} value={overall.total_feedback || 0} />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Avg Rating" value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-success' : parseFloat(overall.avg_rating) >= 3 ? 'text-warning' : 'text-error'} />
+              <StatCompact label={t('stats.avgRating')} value={overall.avg_rating ? `${overall.avg_rating}/5` : '--'} color={parseFloat(overall.avg_rating) >= 4 ? 'text-success' : parseFloat(overall.avg_rating) >= 3 ? 'text-warning' : 'text-error'} />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Positive" value={overall.positive_count || 0} color="text-success" />
+              <StatCompact label={t('stats.positive')} value={overall.positive_count || 0} color="text-success" />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Negative" value={overall.negative_count || 0} color="text-error" />
+              <StatCompact label={t('stats.negative')} value={overall.negative_count || 0} color="text-error" />
             </CardContent>
           </Card>
           <Card hover={false}>
             <CardContent className="py-4">
-              <StatCompact label="Unresolved" value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-warning' : 'text-secondary'} />
+              <StatCompact label={t('stats.unresolved')} value={overall.unresolved_count || 0} color={parseInt(overall.unresolved_count) > 0 ? 'text-warning' : 'text-secondary'} />
             </CardContent>
           </Card>
         </div>
@@ -200,19 +202,19 @@ export default function FeedbackPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id ? 'text-white border-brand' : 'text-tertiary border-transparent hover:text-secondary'}`}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             ))}
           </div>
           <div className="flex items-center gap-2">
             <select value={sentimentFilter} onChange={e => setSentimentFilter(e.target.value)} className="px-2 py-1 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-xs text-white focus:outline-none focus:border-brand">
-              <option value="">All sentiment</option>
-              <option value="positive">Positive</option>
-              <option value="neutral">Neutral</option>
-              <option value="negative">Negative</option>
+              <option value="">{t('filters.allSentiment')}</option>
+              <option value="positive">{t('filters.positive')}</option>
+              <option value="neutral">{t('filters.neutral')}</option>
+              <option value="negative">{t('filters.negative')}</option>
             </select>
             <button onClick={() => setShowCreate(!showCreate)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors">
-              <Plus size={14} /> Add Feedback
+              <Plus size={14} /> {t('addFeedback')}
             </button>
           </div>
         </div>
@@ -230,16 +232,16 @@ export default function FeedbackPage() {
                   ))}
                 </div>
               </div>
-              <textarea value={newFeedback.comment} onChange={e => setNewFeedback(s => ({ ...s, comment: e.target.value }))} placeholder="What happened? How did the agent perform?" rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-disabled focus:outline-none focus:border-brand" />
+              <textarea value={newFeedback.comment} onChange={e => setNewFeedback(s => ({ ...s, comment: e.target.value }))} placeholder={t('placeholder')} rows={3} className="w-full px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-disabled focus:outline-none focus:border-brand" />
               <div className="grid grid-cols-2 gap-3">
                 <select value={newFeedback.category} onChange={e => setNewFeedback(s => ({ ...s, category: e.target.value }))} className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white focus:outline-none focus:border-brand">
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {CATEGORIES.map(c => <option key={c} value={c}>{t(`categories.${c}`)}</option>)}
                 </select>
                 <input value={newFeedback.action_id} onChange={e => setNewFeedback(s => ({ ...s, action_id: e.target.value }))} placeholder="Action ID (optional)" className="px-3 py-2 rounded-lg bg-[#111] border border-[rgba(255,255,255,0.1)] text-sm text-white placeholder:text-disabled focus:outline-none focus:border-brand" />
               </div>
               <div className="flex justify-end gap-2">
                 <button onClick={() => setShowCreate(false)} className="px-3 py-1.5 rounded-lg text-xs text-secondary hover:text-white transition-colors">Cancel</button>
-                <button onClick={handleCreate} disabled={!newFeedback.rating && !newFeedback.comment} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">Submit</button>
+                <button onClick={handleCreate} disabled={!newFeedback.rating && !newFeedback.comment} className="px-3 py-1.5 rounded-lg bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors disabled:opacity-50">{t('submitFeedback')}</button>
               </div>
             </CardContent>
           </Card>
@@ -247,7 +249,7 @@ export default function FeedbackPage() {
 
         {activeTab !== 'analytics' && (
           <Card>
-            <CardHeader title={activeTab === 'unresolved' ? 'Unresolved Feedback' : 'All Feedback'} icon={MessageCircle} count={feedback.length} />
+            <CardHeader title={activeTab === 'unresolved' ? t('tabs.unresolved') : t('tabs.all')} icon={MessageCircle} count={feedback.length} />
             <CardContent>
               {feedback.length === 0 ? (
                 <EmptyState icon={MessageCircle} title="No feedback yet" description={activeTab === 'unresolved' ? 'All feedback has been resolved.' : 'Submit feedback to track agent quality.'} />
@@ -305,7 +307,7 @@ export default function FeedbackPage() {
             {/* Rating distribution */}
             {stats.rating_distribution && stats.rating_distribution.length > 0 && (
               <Card>
-                <CardHeader title="Rating Distribution" icon={Star} />
+                <CardHeader title={t('sections.ratingDist')} icon={Star} />
                 <CardContent>
                   <div className="space-y-2">
                     {[5, 4, 3, 2, 1].map(r => {
@@ -322,7 +324,7 @@ export default function FeedbackPage() {
             {/* Top tags */}
             {stats.top_tags && stats.top_tags.length > 0 && (
               <Card>
-                <CardHeader title="Top Tags" icon={Tag} />
+                <CardHeader title={t('sections.topTags')} icon={Tag} />
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {stats.top_tags.map(t => (
@@ -338,7 +340,7 @@ export default function FeedbackPage() {
             {/* By category */}
             {stats.by_category && stats.by_category.length > 0 && (
               <Card>
-                <CardHeader title="By Category" icon={Filter} />
+                <CardHeader title={t('sections.byCategory')} icon={Filter} />
                 <CardContent>
                   <div className="space-y-2">
                     {stats.by_category.map(c => (
@@ -358,7 +360,7 @@ export default function FeedbackPage() {
             {/* By agent */}
             {stats.by_agent && stats.by_agent.length > 0 && (
               <Card>
-                <CardHeader title="By Agent" />
+                <CardHeader title={t('sections.byAgent')} />
                 <CardContent>
                   <div className="space-y-2">
                     {stats.by_agent.map(a => (

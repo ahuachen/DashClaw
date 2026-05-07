@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Cpu, Plus, RotateCw, DollarSign, Shield, Pencil, Trash2 } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
@@ -15,6 +16,8 @@ const costVariant = {
 };
 
 function StrategyCard({ s, onDelete }) {
+  const t = useTranslations('modelStrategies');
+  const tCommon = useTranslations('common');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const primary = s.config?.primary || {};
@@ -34,18 +37,18 @@ function StrategyCard({ s, onDelete }) {
           </div>
           {s.config?.costSensitivity && (
             <Badge variant={costVariant[s.config.costSensitivity] || 'default'}>
-              {s.config.costSensitivity}
+              {t(`costSensitivity.${s.config.costSensitivity === 'high-quality' ? 'highQuality' : s.config.costSensitivity}`) ?? s.config.costSensitivity}
             </Badge>
           )}
         </div>
         <div className="mt-3 space-y-1.5">
-          <div className="text-[10px] text-tertiary uppercase tracking-wider">Primary</div>
+          <div className="text-[10px] text-tertiary uppercase tracking-wider">{t('sections.primary')}</div>
           <div className="text-xs text-secondary font-mono">
             {primary.provider || '—'} · {primary.model || '—'}
           </div>
           {fallbacks.length > 0 && (
             <>
-              <div className="text-[10px] text-tertiary uppercase tracking-wider mt-2">Fallback</div>
+              <div className="text-[10px] text-tertiary uppercase tracking-wider mt-2">{t('sections.fallback')}</div>
               <div className="text-xs text-secondary font-mono">
                 {fallbacks.map((f) => `${f.provider}·${f.model}`).join(' → ')}
               </div>
@@ -66,11 +69,11 @@ function StrategyCard({ s, onDelete }) {
             className="inline-flex items-center gap-1 text-xs text-secondary hover:text-white"
             aria-label={`Edit ${s.name}`}
           >
-            <Pencil size={11} /> Edit
+            <Pencil size={11} /> {tCommon('edit')}
           </Link>
           {confirmDelete ? (
             <span className="inline-flex items-center gap-1.5 text-xs">
-              <span className="text-error">Delete?</span>
+              <span className="text-error">{tCommon('delete')}?</span>
               <button
                 onClick={async () => {
                   setDeleting(true);
@@ -81,13 +84,13 @@ function StrategyCard({ s, onDelete }) {
                 disabled={deleting}
                 className="text-error hover:text-error disabled:opacity-50"
               >
-                {deleting ? 'Deleting...' : 'Yes'}
+                {deleting ? 'Deleting...' : tCommon('yes')}
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
                 className="text-secondary hover:text-white"
               >
-                No
+                {tCommon('no')}
               </button>
             </span>
           ) : (
@@ -96,7 +99,7 @@ function StrategyCard({ s, onDelete }) {
               className="inline-flex items-center gap-1 text-xs text-secondary hover:text-error"
               aria-label={`Delete ${s.name}`}
             >
-              <Trash2 size={11} /> Delete
+              <Trash2 size={11} /> {tCommon('delete')}
             </button>
           )}
         </div>
@@ -106,6 +109,7 @@ function StrategyCard({ s, onDelete }) {
 }
 
 export default function ModelStrategiesPage() {
+  const t = useTranslations('modelStrategies');
   const [strategies, setStrategies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -175,8 +179,8 @@ export default function ModelStrategiesPage() {
 
   return (
     <PageLayout
-      title="Model Strategies"
-      subtitle="Reusable provider/model strategy records linked to workflows"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Studio', 'Model Strategies']}
       maturity="beta"
       actions={

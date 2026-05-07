@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Webhook, Plus, Trash2, Play, Check, Copy, ChevronDown, ChevronRight,
   AlertTriangle,
@@ -47,19 +48,33 @@ const WEBHOOK_TEMPLATES = [
 ];
 
 const EVENT_TYPES = [
-  { value: 'all', label: 'All events' },
-  { value: 'autonomy_spike', label: 'Autonomy spike' },
-  { value: 'high_impact_low_oversight', label: 'High impact, low oversight' },
-  { value: 'repeated_failures', label: 'Repeated failures' },
-  { value: 'stale_loop', label: 'Stale loop' },
-  { value: 'assumption_drift', label: 'Assumption drift' },
-  { value: 'stale_assumption', label: 'Stale assumption' },
-  { value: 'stale_running_action', label: 'Stale running action' },
+  { value: 'all' },
+  { value: 'autonomy_spike' },
+  { value: 'high_impact_low_oversight' },
+  { value: 'repeated_failures' },
+  { value: 'stale_loop' },
+  { value: 'assumption_drift' },
+  { value: 'stale_assumption' },
+  { value: 'stale_running_action' },
 ];
 
+const EVENT_TYPE_KEY_MAP = {
+  all: 'allEvents',
+  autonomy_spike: 'autonomySpike',
+  high_impact_low_oversight: 'highImpact',
+  repeated_failures: 'repeatedFailures',
+  stale_loop: 'staleLoop',
+  assumption_drift: 'assumptionDrift',
+  stale_assumption: 'staleAssumption',
+  stale_running_action: 'staleRunning',
+};
+
 export default function WebhooksPage() {
+  const t = useTranslations('webhooks');
+  const tCommon = useTranslations('common');
   const { isAdmin } = useEffectiveRole();
   const isDemo = isDemoMode();
+  const getEventLabel = (value) => t(`eventTypes.${EVENT_TYPE_KEY_MAP[value] || value}`);
   const canEdit = isAdmin && !isDemo;
 
   const [webhooks, setWebhooks] = useState([]);
@@ -95,17 +110,17 @@ export default function WebhooksPage() {
       const res = await fetch('/api/webhooks');
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || 'Failed to load webhooks');
+        setError(json.error || t('errors.failedToLoad'));
         setLoading(false);
         return;
       }
       setWebhooks(json.webhooks || []);
     } catch {
-      setError('Failed to connect to API');
+      setError(t('errors.failedToConnect'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchWebhooks();
@@ -128,7 +143,7 @@ export default function WebhooksPage() {
   const handleCreate = async () => {
     if (!url.trim()) return;
     if (!url.startsWith('https://')) {
-      setError('Webhook URL must use HTTPS');
+      setError(t('errors.httpsRequired'));
       return;
     }
 
@@ -268,8 +283,8 @@ export default function WebhooksPage() {
   return (
     <PageLayout
       breadcrumbs={['Dashboard', 'Webhooks']}
-      title="Webhooks"
-      subtitle="Receive real-time notifications when security signals are detected"
+      title={t('title')}
+      subtitle={t('subtitle')}
       actions={
         canEdit && (
           <button
@@ -334,7 +349,7 @@ export default function WebhooksPage() {
               className="flex items-center gap-2 rounded border border-border bg-surface-tertiary px-3 py-2 text-xs text-secondary transition-colors hover:border-border-hover hover:text-white"
             >
               {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
-              {copied ? 'Copied' : 'Copy'}
+              {copied ? tCommon('copied') : tCommon('copy')}
             </button>
           </div>
         </div>
@@ -393,7 +408,7 @@ export default function WebhooksPage() {
                         onChange={() => handleEventToggle(event.value)}
                         className="h-4 w-4 accent-brand"
                       />
-                      <span className="text-sm text-secondary">{event.label}</span>
+                      <span className="text-sm text-secondary">{getEventLabel(event.value)}</span>
                     </label>
                   ))}
                 </div>
@@ -479,7 +494,7 @@ export default function WebhooksPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         {events.map((event) => (
                           <Badge key={event} variant="default" size="xs">
-                            {EVENT_TYPES.find((e) => e.value === event)?.label || event}
+                            {getEventLabel(event)}
                           </Badge>
                         ))}
                       </div>
@@ -568,8 +583,7 @@ export default function WebhooksPage() {
                               {webhookDeliveries.slice(0, 20).map((delivery) => (
                                 <tr key={delivery.id} className="border-b border-border last:border-0">
                                   <td className="py-2 text-secondary">
-                                    {EVENT_TYPES.find((e) => e.value === delivery.event_type)?.label ||
-                                      delivery.event_type}
+                                    {getEventLabel(delivery.event_type)}
                                   </td>
                                   <td className="py-2">
                                     <Badge
