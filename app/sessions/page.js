@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Activity, RotateCw, ChevronRight, Circle,
@@ -41,6 +42,7 @@ const statusBadge = {
 const FILTERS = ['all', 'running', 'blocked', 'failed', 'finished'];
 
 export default function SessionsPage() {
+  const t = useTranslations('sessions');
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -81,8 +83,8 @@ export default function SessionsPage() {
 
   return (
     <PageLayout
-      title="Agent Sessions"
-      subtitle="Track active sessions, detect stalls, monitor health"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Observe', 'Sessions']}
       maturity="beta"
       actions={
@@ -156,7 +158,7 @@ export default function SessionsPage() {
             <div className="p-12">
               <EmptyState
                 icon={Activity}
-                title="No sessions found"
+                title={t('empty.title')}
                 description={filterStatus === 'all'
                   ? 'Sessions will appear here once agents start running.'
                   : `No ${filterStatus} sessions right now.`}

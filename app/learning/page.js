@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { BookOpen, Zap, Lightbulb, Sparkles, FileText, RotateCw, CheckCircle2, XCircle, AlertTriangle, Clock, Power, BarChart3, TrendingUp } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
@@ -11,6 +12,7 @@ import { useAgentFilter } from '../lib/AgentFilterContext';
 import { useRealtime } from '../hooks/useRealtime';
 
 export default function LearningDashboard() {
+  const t = useTranslations('learning');
   const { agentId } = useAgentFilter();
   const [decisions, setDecisions] = useState([]);
   const [lessons, setLessons] = useState([]);
@@ -240,8 +242,8 @@ export default function LearningDashboard() {
 
   return (
     <PageLayout
-      title="Learning Database"
-      subtitle={`Decisions, Outcomes & Lessons${lastUpdated ? ` -- Updated ${lastUpdated}` : ''}`}
+      title={t('title')}
+      subtitle={lastUpdated ? `${t('subtitle')} — Updated ${lastUpdated}` : t('subtitle')}
       breadcrumbs={['Dashboard', 'Learning']}
       maturity="beta"
       actions={
@@ -290,13 +292,13 @@ export default function LearningDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Decisions */}
         <Card>
-          <CardHeader title="Recent Decisions" icon={Zap} count={decisions.length} />
+          <CardHeader title={t('recentDecisions')} icon={Zap} count={decisions.length} />
           <CardContent>
             <div className="space-y-3 max-h-[500px] overflow-y-auto">
               {decisions.length === 0 ? (
                 <EmptyState
                   icon={BookOpen}
-                  title="No decisions logged yet"
+                  title={t('empty.title')}
                   description="Start tracking decisions to build your knowledge base."
                 />
               ) : (

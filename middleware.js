@@ -456,6 +456,21 @@ export async function middleware(request) {
   // URL — otherwise Next.js routing layer still sees /zh-CN/<page> and
   // returns 404. Redirects/rewrites/json responses are left as-is.
   if (hadLocalePrefix && response) {
+    const locationHeader = response.headers.get('location');
+    // If innerMiddleware issued a redirect to /login, re-add the locale prefix
+    // so the user stays in their chosen language.
+    if (locationHeader && locale !== 'en') {
+      try {
+        const redirectUrl = new URL(locationHeader, request.url);
+        if (redirectUrl.pathname === '/login' || redirectUrl.pathname === '/login/') {
+          redirectUrl.pathname = `/${locale}/login`;
+          response = NextResponse.redirect(redirectUrl.toString(), { status: response.status });
+        }
+      } catch {
+        // malformed location header — leave as-is
+      }
+    }
+
     const isPassthrough =
       response.status >= 200 &&
       response.status < 300 &&
@@ -1480,19 +1495,12 @@ export const config = {
     '/api/settings/llm-status',
     '/invite/:path*',
     '/login',
-    // i18n: locale-prefixed variants for plan E (mission-control / decisions /
-    // setup / connect + login + landing /). Narrow on purpose — adding
-    // /zh-CN/:path* would force routes that are normally outside this matcher
-    // (e.g. /self-host, /docs) through auth, which they're not designed for.
+    // i18n: locale-prefixed variants (zh-CN). Covers all app routes since the
+    // i18n wrapper strips the prefix and passes the canonical path to
+    // innerMiddleware, which applies normal auth/demo logic. Public pages
+    // (setup, connect, /) that are not in the original matcher are handled
+    // via I18N_PUBLIC_PAGES — innerMiddleware is skipped for them.
     '/zh-CN',
-    '/zh-CN/login',
-    '/zh-CN/mission-control',
-    '/zh-CN/mission-control/:path*',
-    '/zh-CN/decisions',
-    '/zh-CN/decisions/:path*',
-    '/zh-CN/setup',
-    '/zh-CN/setup/:path*',
-    '/zh-CN/connect',
-    '/zh-CN/connect/:path*',
+    '/zh-CN/:path*',
   ],
 };

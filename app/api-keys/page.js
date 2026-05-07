@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { KeyRound, Plus, Copy, Check, Ban, ArrowRight } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardContent } from '../components/ui/Card';
@@ -10,6 +11,8 @@ import ConnectAgentButton from '../components/ConnectAgentButton';
 import { useEffectiveRole } from '../hooks/useEffectiveRole';
 
 export default function ApiKeysPage() {
+  const t = useTranslations('apiKeys');
+  const tCommon = useTranslations('common');
   const { isAdmin } = useEffectiveRole();
 
   const [keys, setKeys] = useState([]);
@@ -113,7 +116,7 @@ export default function ApiKeysPage() {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'Never';
+    if (!dateStr) return tCommon('noData');
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
@@ -126,8 +129,8 @@ export default function ApiKeysPage() {
   if (loading) {
     return (
       <PageLayout
-        title="API keys"
-        subtitle="Manage your workspace API keys"
+        title={t('title')}
+        subtitle={t('subtitle')}
         breadcrumbs={['Dashboard', 'API keys']}
       >
         <div className="space-y-4">
@@ -151,8 +154,8 @@ export default function ApiKeysPage() {
 
   return (
     <PageLayout
-      title="API keys"
-      subtitle="Manage your workspace API keys"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Dashboard', 'API keys']}
       maturity="stable"
       actions={
@@ -164,7 +167,7 @@ export default function ApiKeysPage() {
               className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
             >
               <Plus size={14} aria-hidden="true" />
-              Generate new key
+              {t('generate')}
             </button>
           )}
         </div>
@@ -202,8 +205,8 @@ export default function ApiKeysPage() {
               <KeyRound size={16} className="text-success" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="mb-1 text-sm font-semibold text-success">Key created: {newKey.label}</div>
-              <p className="mb-3 text-xs text-secondary">Copy your API key now. It will not be shown again.</p>
+              <div className="mb-1 text-sm font-semibold text-success">{t('keyCreated', { label: newKey.label })}</div>
+              <p className="mb-3 text-xs text-secondary">{t('copyNow')}</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 overflow-x-auto rounded-lg border border-border bg-surface-tertiary px-3 py-2 font-mono text-sm text-success">
                   {newKey.raw_key}
@@ -213,7 +216,7 @@ export default function ApiKeysPage() {
                   className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary transition-colors hover:border-border-hover hover:text-white"
                 >
                   {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
-                  {copied ? 'Copied' : 'Copy'}
+                  {copied ? t('copied') : t('copy')}
                 </button>
                 <ConnectAgentButton className="shrink-0" />
               </div>
@@ -232,15 +235,15 @@ export default function ApiKeysPage() {
       {/* Instrument rail */}
       <div className="mb-6 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Total keys</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.total')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{keys.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Active</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.active')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{activeKeys.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Revoked</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.revoked')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-error">{revokedKeys.length}</div>
         </div>
       </div>
@@ -248,13 +251,13 @@ export default function ApiKeysPage() {
       {/* Setup callout */}
       <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-tertiary px-4 py-2.5">
         <p className="text-xs text-tertiary">
-          Need to verify your instance is configured correctly before connecting agents?
+          {t('setupPrompt')}
         </p>
         <a
           href="/setup"
           className="flex shrink-0 items-center gap-1 text-xs text-brand transition-colors hover:text-brand-hover"
         >
-          Setup & verify <ArrowRight size={11} aria-hidden="true" />
+          {t('setupLink')} <ArrowRight size={11} aria-hidden="true" />
         </a>
       </div>
 
@@ -272,7 +275,7 @@ export default function ApiKeysPage() {
                 type="text"
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                placeholder="Key label (e.g. Production, Staging)"
+                placeholder={t('keyLabelPlaceholder')}
                 maxLength={256}
                 autoFocus
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
@@ -283,13 +286,13 @@ export default function ApiKeysPage() {
                 disabled={creating || !newLabel.trim()}
                 className="rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15 disabled:opacity-50"
               >
-                {creating ? 'Creating…' : 'Create'}
+                {creating ? t('creating') : t('create')}
               </button>
               <button
                 onClick={() => { setShowCreateForm(false); setNewLabel(''); }}
                 className="rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm text-secondary transition-colors hover:border-border-hover hover:text-white"
               >
-                Cancel
+                {tCommon('cancel')}
               </button>
             </div>
           </CardContent>
@@ -302,8 +305,8 @@ export default function ApiKeysPage() {
           <CardContent className="pt-4">
             <EmptyState
               icon={KeyRound}
-              title="No API keys yet"
-              description={isAdmin ? 'Generate an API key to connect your agents to this workspace.' : 'No API keys have been created yet. Ask a workspace admin to generate one.'}
+              title={t('noKeys.title')}
+              description={isAdmin ? t('noKeys.descriptionAdmin') : t('noKeys.descriptionMember')}
               action={
                 isAdmin ? (
                   <button
@@ -311,7 +314,7 @@ export default function ApiKeysPage() {
                     className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand transition-colors hover:border-brand/40 hover:bg-brand/15"
                   >
                     <Plus size={14} aria-hidden="true" />
-                    Generate key
+                    {t('generateKey')}
                   </button>
                 ) : null
               }
@@ -338,7 +341,7 @@ export default function ApiKeysPage() {
                           {key.label || 'API key'}
                         </span>
                         <Badge variant={isRevoked ? 'error' : 'success'} size="xs">
-                          {isRevoked ? 'Revoked' : 'Active'}
+                          {isRevoked ? t('status.revoked') : t('status.active')}
                         </Badge>
                       </div>
                       <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs">
@@ -349,7 +352,7 @@ export default function ApiKeysPage() {
                           Created {formatDate(key.created_at)}
                         </span>
                         <span className="tabular-nums text-tertiary">
-                          Last used: {formatDate(key.last_used_at)}
+                          {t('lastUsed', { date: formatDate(key.last_used_at) })}
                         </span>
                       </div>
                     </div>
@@ -360,19 +363,19 @@ export default function ApiKeysPage() {
                     <div className="shrink-0">
                       {isConfirmingRevoke ? (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-secondary">Revoke?</span>
+                          <span className="text-xs text-secondary">{t('revokeConfirm')}</span>
                           <button
                             onClick={() => handleRevoke(key.id)}
                             disabled={revokeLoading}
                             className="rounded-md border border-error/30 bg-error-subtle px-2.5 py-1 text-xs font-medium text-error transition-colors hover:border-error/50 hover:bg-error-subtle disabled:opacity-50"
                           >
-                            {revokeLoading ? 'Revoking…' : 'Confirm'}
+                            {revokeLoading ? t('revoking') : t('revokeAction')}
                           </button>
                           <button
                             onClick={() => setRevokingId(null)}
                             className="rounded-md px-2.5 py-1 text-xs text-secondary transition-colors hover:bg-white/5 hover:text-white"
                           >
-                            Cancel
+                            {tCommon('cancel')}
                           </button>
                         </div>
                       ) : (
@@ -381,7 +384,7 @@ export default function ApiKeysPage() {
                           className="flex items-center gap-1 rounded px-2.5 py-1 text-xs text-tertiary transition-colors hover:bg-error-subtle hover:text-error"
                         >
                           <Ban size={12} aria-hidden="true" />
-                          Revoke
+                          {t('revoke')}
                         </button>
                       )}
                     </div>

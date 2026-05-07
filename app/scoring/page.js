@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoScoringProfiles, demoRiskTemplates, demoScoringScores, demoCalibration } from '../lib/demoScoringData';
+import { useTranslations } from 'next-intl';
 
 const TABS = ['Profiles', 'Score Explorer', 'Risk Templates', 'Calibrate'];
 
@@ -28,6 +29,7 @@ const COMPOSITE_METHODS = [
 ];
 
 export default function ScoringPage() {
+  const t = useTranslations('scoring');
   const [activeTab, setActiveTab] = useState('Profiles');
   const [profiles, setProfiles] = useState([]);
   const [riskTemplates, setRiskTemplates] = useState([]);
@@ -214,7 +216,7 @@ export default function ScoringPage() {
 
   return (
     <PageLayout
-      title="Scoring Profiles"
+      title={t('title')}
       description="Define what 'good' means for your agents with weighted multi-dimensional scoring."
       maturity="stable"
     >
@@ -232,7 +234,7 @@ export default function ScoringPage() {
       {activeTab === 'Profiles' && (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">Scoring Profiles</h2>
+            <h2 className="text-lg font-semibold">{t('title')}</h2>
             <button onClick={() => setShowCreate(!showCreate)}
               className="px-4 py-2 rounded-lg bg-brand text-black text-sm font-medium hover:bg-brand/90">
               {showCreate ? 'Cancel' : 'Create Profile'}
@@ -242,14 +244,14 @@ export default function ScoringPage() {
           {showCreate && (
             <Card className="mb-6 p-4 space-y-4">
               <input value={newProfile.name} onChange={e => setNewProfile(p => ({ ...p, name: e.target.value }))}
-                placeholder="Profile name (e.g. 'Production Deploy Quality')"
+                placeholder={t('profileNamePlaceholder')}
                 className="w-full px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <input value={newProfile.description} onChange={e => setNewProfile(p => ({ ...p, description: e.target.value }))}
-                placeholder="Description (optional)"
+                placeholder={t('descriptionPlaceholder')}
                 className="w-full px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <div className="grid grid-cols-2 gap-3">
                 <input value={newProfile.action_type} onChange={e => setNewProfile(p => ({ ...p, action_type: e.target.value }))}
-                  placeholder="Action type filter (optional)"
+                  placeholder={t('actionTypePlaceholder')}
                   className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
                 <select value={newProfile.composite_method} onChange={e => setNewProfile(p => ({ ...p, composite_method: e.target.value }))}
                   className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white">
@@ -259,14 +261,14 @@ export default function ScoringPage() {
                 </select>
               </div>
 
-              <h4 className="text-sm font-medium text-secondary mt-2">Dimensions</h4>
+              <h4 className="text-sm font-medium text-secondary mt-2">{t('dimensions')}</h4>
               {newProfile.dimensions.map((dim, i) => (
                 <div key={i} className="grid grid-cols-3 gap-2 items-center">
                   <input value={dim.name} onChange={e => {
                     const dims = [...newProfile.dimensions];
                     dims[i] = { ...dims[i], name: e.target.value };
                     setNewProfile(p => ({ ...p, dimensions: dims }));
-                  }} placeholder="Dimension name" className="px-2 py-1.5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] rounded text-sm text-white" />
+                  }} placeholder={t('dimensionNamePlaceholder')} className="px-2 py-1.5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] rounded text-sm text-white" />
                   <select value={dim.data_source} onChange={e => {
                     const dims = [...newProfile.dimensions];
                     dims[i] = { ...dims[i], data_source: e.target.value };
@@ -275,7 +277,7 @@ export default function ScoringPage() {
                     {DATA_SOURCES.map(ds => <option key={ds.value} value={ds.value}>{ds.label}</option>)}
                   </select>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs text-tertiary">Weight:</label>
+                    <label className="text-xs text-tertiary">{t('weight')}</label>
                     <input type="range" min="0" max="1" step="0.05" value={dim.weight}
                       onChange={e => {
                         const dims = [...newProfile.dimensions];
@@ -306,7 +308,7 @@ export default function ScoringPage() {
           )}
 
           {profiles.length === 0 && !loading && (
-            <EmptyState title="No scoring profiles yet" description="Create a profile to define what quality means for your agents." />
+            <EmptyState title={t('noProfiles.title')} description={t('noProfiles.description')} />
           )}
 
           <div className="space-y-3">
@@ -324,9 +326,9 @@ export default function ScoringPage() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => { setSelectedProfile(profile); fetchScores(profile.id); setActiveTab('Score Explorer'); }}
-                      className="text-xs text-brand hover:text-brand/80">View Scores</button>
+                      className="text-xs text-brand hover:text-brand/80">{t('viewScores')}</button>
                     <button onClick={() => handleArchiveProfile(profile.id)}
-                      className="text-xs text-tertiary hover:text-error">Archive</button>
+                      className="text-xs text-tertiary hover:text-error">{t('archive')}</button>
                   </div>
                 </div>
 
@@ -358,7 +360,7 @@ export default function ScoringPage() {
           <h2 className="text-lg font-semibold mb-4">
             {selectedProfile ? `Scores: ${selectedProfile.name}` : 'Recent Scores (all profiles)'}
           </h2>
-          {scores.length === 0 && <EmptyState title="No scores yet" description="Score actions against a profile to see results here." />}
+          {scores.length === 0 && <EmptyState title={t('noScores.title')} description={t('noScores.description')} />}
           <div className="space-y-2">
             {scores.map(score => (
               <Card key={score.id} className="p-3">
@@ -398,37 +400,37 @@ export default function ScoringPage() {
       {/* -- Risk Templates Tab ----------------------------- */}
       {activeTab === 'Risk Templates' && (
         <div>
-          <h2 className="text-lg font-semibold mb-4">Risk Templates</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('riskTemplates')}</h2>
           <p className="text-sm text-secondary mb-4">
             Define rules for automatic risk scoring. Instead of agents hardcoding a number,
             DashClaw computes risk based on action properties matching your rules.
           </p>
 
           <Card className="mb-6 p-4 space-y-3">
-            <h3 className="text-sm font-medium text-secondary">Create Risk Template</h3>
+            <h3 className="text-sm font-medium text-secondary">{t('createRiskTemplate')}</h3>
             <input value={newTemplate.name} onChange={e => setNewTemplate(t => ({ ...t, name: e.target.value }))}
-              placeholder="Template name (e.g. 'Production Safety')"
+              placeholder={t('templateNamePlaceholder')}
               className="w-full px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
             <div className="grid grid-cols-2 gap-3">
               <input value={newTemplate.action_type} onChange={e => setNewTemplate(t => ({ ...t, action_type: e.target.value }))}
-                placeholder="Action type (optional)"
+                placeholder={t('actionTypePlaceholder')}
                 className="px-3 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               <div className="flex items-center gap-2">
-                <label className="text-xs text-tertiary">Base risk:</label>
+                <label className="text-xs text-tertiary">{t('baseRisk')}</label>
                 <input type="number" min="0" max="100" value={newTemplate.base_risk}
                   onChange={e => setNewTemplate(t => ({ ...t, base_risk: parseInt(e.target.value) || 0 }))}
                   className="w-20 px-2 py-2 bg-[#111] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm text-white" />
               </div>
             </div>
 
-            <h4 className="text-xs font-medium text-secondary mt-2">Rules (condition -&gt; add risk)</h4>
+            <h4 className="text-xs font-medium text-secondary mt-2">{t('rules')}</h4>
             {newTemplate.rules.map((rule, i) => (
               <div key={i} className="flex gap-2 items-center">
                 <input value={rule.condition} onChange={e => {
                   const rules = [...newTemplate.rules];
                   rules[i] = { ...rules[i], condition: e.target.value };
                   setNewTemplate(t => ({ ...t, rules }));
-                }} placeholder="e.g. metadata.environment == 'production'"
+                }} placeholder={t('conditionPlaceholder')}
                   className="flex-1 px-2 py-1.5 bg-[#0a0a0a] border border-[rgba(255,255,255,0.06)] rounded text-sm text-white font-mono" />
                 <span className="text-xs text-tertiary">+</span>
                 <input type="number" value={rule.add} onChange={e => {
@@ -449,7 +451,7 @@ export default function ScoringPage() {
             </button>
           </Card>
 
-          {riskTemplates.length === 0 && <EmptyState title="No risk templates" description="Create templates to replace hardcoded agent risk scores." />}
+          {riskTemplates.length === 0 && <EmptyState title={t('noTemplates.title')} description={t('noTemplates.description')} />}
 
           <div className="space-y-2">
             {riskTemplates.map(tmpl => (
@@ -464,7 +466,7 @@ export default function ScoringPage() {
                     </div>
                   </div>
                   <button onClick={() => handleDeleteTemplate(tmpl.id)}
-                    className="text-xs text-tertiary hover:text-error">Delete</button>
+                    className="text-xs text-tertiary hover:text-error">{t('delete')}</button>
                 </div>
                 {tmpl.rules && tmpl.rules.length > 0 && (
                   <div className="mt-2 space-y-1">
@@ -484,7 +486,7 @@ export default function ScoringPage() {
       {/* -- Calibrate Tab ---------------------------------- */}
       {activeTab === 'Calibrate' && (
         <div>
-          <h2 className="text-lg font-semibold mb-2">Auto-Calibration</h2>
+          <h2 className="text-lg font-semibold mb-2">{t('autoCalibration')}</h2>
           <p className="text-sm text-secondary mb-4">
             Analyze your historical action data to generate suggested scoring scales.
             Based on percentile analysis of your real data  --  no LLM involved.
@@ -534,7 +536,7 @@ export default function ScoringPage() {
                       </p>
                     </div>
                     <button onClick={() => handleApplyCalibration(s)}
-                      className="text-xs text-brand hover:text-brand/80">Apply as Profile</button>
+                      className="text-xs text-brand hover:text-brand/80">{t('applyAsProfile')}</button>
                   </div>
 
                   {/* Distribution visualization */}

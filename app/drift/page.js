@@ -12,6 +12,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
+import { useTranslations } from 'next-intl';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoDriftAlerts, demoDriftStats, demoDriftSnapshots } from '../lib/demoDriftData';
 
@@ -51,6 +52,7 @@ function ZScoreBar({ zScore }) {
 }
 
 export default function DriftPage() {
+  const t = useTranslations('drift');
   const { agentId } = useAgentFilter();
   const isDemo = isDemoMode();
   const [activeTab, setActiveTab] = useState('alerts');
@@ -141,7 +143,7 @@ export default function DriftPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Drift detection" subtitle="Statistical behavioral drift analysis">
+      <PageLayout title={t('title')} subtitle={t('subtitle')}>
         <ListSkeleton />
       </PageLayout>
     );
@@ -151,8 +153,8 @@ export default function DriftPage() {
 
   return (
     <PageLayout
-      title="Drift detection"
-      subtitle="Statistical behavioral drift analysis"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Operations', 'Drift detection']}
       maturity="beta"
       actions={
@@ -227,7 +229,7 @@ export default function DriftPage() {
 
         {activeTab === 'alerts' && (
           <Card>
-            <CardHeader title="Drift alerts" icon={Activity} count={alerts.length} />
+            <CardHeader title={t('alerts')} icon={Activity} count={alerts.length} />
             <CardContent>
               {alerts.length === 0 ? (
                 <EmptyState icon={Activity} title="No drift detected" description="Run drift detection to analyze behavioral patterns against baselines." />

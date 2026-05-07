@@ -12,6 +12,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
 import { parseJsonArray as safeJsonArray } from '../lib/parseJson';
 import { useEffectiveRole } from '../hooks/useEffectiveRole';
+import { useTranslations } from 'next-intl';
 
 function Banner({ icon: Icon, tone, title, children }) {
   const tones = {
@@ -34,6 +35,7 @@ function Banner({ icon: Icon, tone, title, children }) {
 }
 
 export default function ApprovalsPage() {
+  const t = useTranslations('approvals');
   const [pendingActions, setPendingActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -87,8 +89,8 @@ export default function ApprovalsPage() {
 
   return (
     <PageLayout
-      title="Approval Queue"
-      subtitle="Human-in-the-loop intervention for sensitive agent actions"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Operations', 'Approvals']}
       maturity="stable"
       actions={
@@ -104,12 +106,12 @@ export default function ApprovalsPage() {
     >
       <div className="mx-auto max-w-5xl">
         {isDemo && (
-          <Banner icon={Info} tone="neutral" title="Demo Mode">
+          <Banner icon={Info} tone="neutral" title={t('demoMode')}>
             Approvals are read-only in the demo. Self-host to approve or deny actions for real agents.
           </Banner>
         )}
         {sessionSettled && !isAdmin && (
-          <Banner icon={ShieldAlert} tone="warning" title="Read-only access">
+          <Banner icon={ShieldAlert} tone="warning" title={t('readOnly')}>
             Only administrators can approve or deny actions. You are currently viewing as a member.
           </Banner>
         )}
@@ -118,7 +120,7 @@ export default function ApprovalsPage() {
           <div className="py-12">
             <EmptyState
               icon={Check}
-              title="All clear"
+              title={t('allClear')}
               description="No actions currently require human approval."
             />
           </div>
@@ -137,7 +139,7 @@ export default function ApprovalsPage() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
                             <div className="mb-2 flex flex-wrap items-center gap-2">
-                              <Badge variant="warning">Awaiting Approval</Badge>
+                              <Badge variant="warning">{t('awaiting')}</Badge>
                               <span className="font-mono text-[11px] text-tertiary">{action.action_id}</span>
                             </div>
                             <h3 className="text-lg font-semibold text-white">{action.declared_goal}</h3>
@@ -183,7 +185,7 @@ export default function ApprovalsPage() {
                                 ))}
                               </div>
                             ) : (
-                              <div className="text-xs text-tertiary">None declared</div>
+                              <div className="text-xs text-tertiary">{t('noneDeclared')}</div>
                             )}
                           </div>
                         </div>

@@ -18,6 +18,7 @@ import ModelPricingPanel from './components/ModelPricingPanel.js';
 import AgentIdentityPanel from './components/AgentIdentityPanel';
 import PageLayout from '../components/PageLayout';
 import { LogIn } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,7 @@ function getMaskedApiKey(env) {
 }
 
 export default async function SettingsPage({ searchParams }) {
+  const t = await getTranslations('settings');
   const headerStore = await headers();
   const host = headerStore.get('host') || 'localhost';
   const cookieHeader = headerStore.get('cookie') || '';
@@ -89,8 +91,8 @@ export default async function SettingsPage({ searchParams }) {
 
   return (
     <PageLayout
-      title="Settings"
-      subtitle="Instance configuration, verification, model pricing, and agent identity"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['System', 'Settings']}
       maturity="stable"
       actions={
@@ -204,23 +206,23 @@ export default async function SettingsPage({ searchParams }) {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-tertiary">Version</span>
+                  <span className="text-xs text-tertiary">{t('labels.version')}</span>
                   <span className="font-mono text-xs tabular-nums text-white">v2.5</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-tertiary">Mode</span>
+                  <span className="text-xs text-tertiary">{t('labels.mode')}</span>
                   <span className={`text-xs font-medium ${view.verification?.overall === 'green' ? 'text-success' : 'text-warning'}`}>
                     {process.env.DASHCLAW_MODE === 'demo' ? 'Demo' : 'Self-hosted'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-tertiary">Database</span>
+                  <span className="text-xs text-tertiary">{t('labels.database')}</span>
                   <span className={`text-xs font-medium ${view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'text-success' : 'text-error'}`}>
                     {view.sections?.find(s => s.id === 'database')?.status === 'green' ? 'Connected' : 'Not connected'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-tertiary">Auth</span>
+                  <span className="text-xs text-tertiary">{t('labels.auth')}</span>
                   <span className={`text-xs font-medium ${viewer.isAuthenticated ? 'text-success' : 'text-secondary'}`}>
                     {viewer.isAuthenticated ? 'Configured' : 'Not configured'}
                   </span>
@@ -235,14 +237,14 @@ export default async function SettingsPage({ searchParams }) {
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="mb-1 text-[11px] font-medium text-tertiary">Host</div>
+                  <div className="mb-1 text-[11px] font-medium text-tertiary">{t('labels.host')}</div>
                   <div className="break-all rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
                     {host}
                   </div>
                 </div>
                 <ApiKeyReveal maskedApiKey={maskedApiKey} />
                 <div>
-                  <div className="mb-1 text-[11px] font-medium text-tertiary">Runtime</div>
+                  <div className="mb-1 text-[11px] font-medium text-tertiary">{t('labels.runtime')}</div>
                   <div className="rounded border border-border bg-surface-tertiary p-2 font-mono text-xs text-secondary">
                     Node {typeof process !== 'undefined' ? process.version : '—'}
                   </div>

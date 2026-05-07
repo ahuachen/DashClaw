@@ -12,8 +12,10 @@ import { Badge } from '../components/ui/Badge';
 import { StatCompact } from '../components/ui/Stat';
 import { EmptyState } from '../components/ui/EmptyState';
 import { isDemoMode } from '../lib/isDemoMode';
+import { useTranslations } from 'next-intl';
 
 export default function TeamPage() {
+  const t = useTranslations('team');
   const isDemo = isDemoMode();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -214,9 +216,9 @@ export default function TeamPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Team" subtitle="Manage workspace members" breadcrumbs={['Dashboard', 'Team']}>
+      <PageLayout title={t('title')} subtitle={t('subtitle')} breadcrumbs={['Dashboard', 'Team']}>
         <div className="flex items-center justify-center py-20">
-          <div className="text-sm text-tertiary">Loading team...</div>
+          <div className="text-sm text-tertiary">{t('loading')}</div>
         </div>
       </PageLayout>
     );
@@ -224,8 +226,8 @@ export default function TeamPage() {
 
   return (
     <PageLayout
-      title="Team"
-      subtitle={data?.org ? `${data.org.name} workspace` : 'Manage workspace members'}
+      title={t('title')}
+      subtitle={data?.org ? `${data.org.name} workspace` : t('subtitle')}
       breadcrumbs={['Dashboard', 'Team']}
       actions={
         isAdmin && !isDemo ? (
@@ -311,7 +313,7 @@ export default function TeamPage() {
       {showInviteForm && canEdit && (
         <Card hover={false} className="mb-6">
           <CardContent className="pt-5">
-            <div className="text-sm font-medium text-secondary mb-3">Create Invite Link</div>
+            <div className="text-sm font-medium text-secondary mb-3">{t('createInvite')}</div>
             <div className="flex items-center gap-3">
               <input
                 type="email"
@@ -325,8 +327,8 @@ export default function TeamPage() {
                 onChange={(e) => setInviteRole(e.target.value)}
                 className="bg-surface-tertiary border border-[rgba(255,255,255,0.06)] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand transition-colors"
               >
-                <option value="member">Member</option>
-                <option value="admin">Admin</option>
+                <option value="member">{t('roles.member')}</option>
+                <option value="admin">{t('roles.admin')}</option>
               </select>
               <button
                 onClick={handleCreateInvite}
@@ -350,7 +352,7 @@ export default function TeamPage() {
       {invites.length > 0 && (
         <Card hover={false} className="mb-6">
           <div className="px-5 py-3 border-b border-[rgba(255,255,255,0.04)]">
-            <div className="text-sm font-medium text-secondary">Pending Invites</div>
+            <div className="text-sm font-medium text-secondary">{t('pendingInvites')}</div>
           </div>
           <div className="divide-y divide-[rgba(255,255,255,0.04)]">
             {invites.map((inv) => (

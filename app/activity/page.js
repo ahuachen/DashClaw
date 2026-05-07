@@ -6,6 +6,7 @@ import { Card, CardContent } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useRealtime } from '../hooks/useRealtime';
+import { useTranslations } from 'next-intl';
 import {
   Activity, Zap, Shield, Terminal,
   ChevronRight, AlertTriangle,
@@ -26,6 +27,7 @@ const categoryIconMap = {
 };
 
 export default function GlobalActivityFeed() {
+  const t = useTranslations('activity');
   const { agentId } = useAgentFilter();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,8 +169,8 @@ export default function GlobalActivityFeed() {
 
   return (
     <PageLayout
-      title="Activity stream"
-      subtitle={`Real-time operational telemetry across decisions, governance, and system events${lastUpdated ? ` · Updated ${lastUpdated}` : ''}`}
+      title={t('title')}
+      subtitle={lastUpdated ? `${t('subtitle')} · Updated ${lastUpdated}` : t('subtitle')}
       breadcrumbs={['Command', 'Activity']}
       maturity="beta"
     >
@@ -190,7 +192,7 @@ export default function GlobalActivityFeed() {
               </div>
             ) : events.length === 0 ? (
               <div className="p-12">
-                <EmptyState icon={Activity} title="No activity recorded" description="Waiting for agent actions or system events…" />
+                <EmptyState icon={Activity} title={t('empty.title')} description={t('empty.description')} />
               </div>
             ) : (
               <div>

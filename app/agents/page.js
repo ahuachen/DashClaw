@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Users, ShieldCheck, ShieldAlert,
@@ -24,6 +25,8 @@ const statusDotMap = {
 };
 
 export default function AgentsFleetPage() {
+  const t = useTranslations('agents');
+  const tCommon = useTranslations('common');
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -77,8 +80,8 @@ export default function AgentsFleetPage() {
   return (
     <PageLayout
       maturity="stable"
-      title="Agent Fleet"
-      subtitle="Fleet-wide observability and permission governance"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Command', 'Agents']}
       actions={
         <button
@@ -86,7 +89,7 @@ export default function AgentsFleetPage() {
           className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-tertiary px-3 py-1.5 text-sm font-medium text-secondary transition-colors hover:border-border-hover hover:text-white"
         >
           <RotateCw size={14} className={loading ? 'animate-spin' : ''} />
-          Refresh
+          {tCommon('refresh')}
         </button>
       }
     >
@@ -113,7 +116,7 @@ export default function AgentsFleetPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-tertiary" size={16} />
           <input
             type="text"
-            placeholder="Search agents by ID or name…"
+            placeholder={t('search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-lg border border-border bg-surface-secondary py-2 pl-10 pr-4 text-sm text-white transition-colors focus:border-brand/40 focus:outline-none"
@@ -128,7 +131,7 @@ export default function AgentsFleetPage() {
           }`}
         >
           <Filter size={14} />
-          {filterStatus === 'all' ? 'Filter' : <span className="capitalize">Status · {filterStatus}</span>}
+          {filterStatus === 'all' ? t('filter') : <span className="capitalize">{t('filterStatus', { status: filterStatus })}</span>}
         </button>
 
         {showFilters && (
@@ -167,8 +170,8 @@ export default function AgentsFleetPage() {
             <div className="p-8">
               <EmptyState
                 icon={Users}
-                title="No agents connected"
-                description="Connect your first agent using the DashClaw SDK to see it in the fleet overview."
+                title={t('empty.title')}
+                description={t('empty.description')}
               />
             </div>
           ) : (
@@ -176,11 +179,11 @@ export default function AgentsFleetPage() {
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">
-                    <th className="px-6 py-4">Agent</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Governance</th>
-                    <th className="px-6 py-4">Last Action</th>
-                    <th className="px-6 py-4 text-right">Inspect</th>
+                    <th className="px-6 py-4">{t('columns.agent')}</th>
+                    <th className="px-6 py-4">{t('columns.status')}</th>
+                    <th className="px-6 py-4">{t('columns.governance')}</th>
+                    <th className="px-6 py-4">{t('columns.lastAction')}</th>
+                    <th className="px-6 py-4 text-right">{t('columns.inspect')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -229,14 +232,14 @@ export default function AgentsFleetPage() {
                             {agent.verified ? (
                               <div
                                 className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-success"
-                                title="Agent identity cryptographically verified"
+                                title={t('verified')}
                               >
                                 <Lock size={10} /> Verified
                               </div>
                             ) : (
                               <div
                                 className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-tertiary"
-                                title="Agent is using an unsigned session"
+                                title={t('unsigned')}
                               >
                                 <Info size={10} /> Unsigned
                               </div>
@@ -250,7 +253,7 @@ export default function AgentsFleetPage() {
                               <span className="text-[11px] text-tertiary tabular-nums">{new Date(agent.last_action_at).toLocaleTimeString()}</span>
                             </div>
                           ) : (
-                            <span className="text-xs text-tertiary">Never</span>
+                            <span className="text-xs text-tertiary">{t('never')}</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -258,7 +261,7 @@ export default function AgentsFleetPage() {
                             href={`/agents/${encodeURIComponent(agent.agent_id)}`}
                             className="inline-flex items-center gap-1 text-xs font-medium text-brand transition-colors hover:text-brand-hover"
                           >
-                            Inspect <ChevronRight size={14} />
+                            {t('columns.inspect')} <ChevronRight size={14} />
                           </Link>
                         </td>
                       </tr>

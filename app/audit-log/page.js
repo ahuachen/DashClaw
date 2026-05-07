@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Clock, KeyRound, Mail, UsersRound, Settings,
   ShieldAlert, Webhook, Filter, ChevronDown, User, Cog, BarChart3,
@@ -14,6 +15,7 @@ import { isDemoMode } from '../lib/isDemoMode';
 import { demoAuditLogs, demoAuditStats } from '../lib/demoAuditData';
 
 export default function AuditLogPage() {
+  const t = useTranslations('auditLog');
   const [logs, setLogs] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -177,8 +179,8 @@ export default function AuditLogPage() {
   if (loading) {
     return (
       <PageLayout
-        title="Audit log"
-        subtitle="Permanent record of system and administrative events"
+        title={t('title')}
+        subtitle={t('subtitle')}
         breadcrumbs={['Evidence', 'Audit log']}
       >
         <div className="space-y-4">
@@ -202,8 +204,8 @@ export default function AuditLogPage() {
 
   return (
     <PageLayout
-      title="Audit log"
-      subtitle="Permanent record of system and administrative events"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Evidence', 'Audit log']}
       actions={
         <button

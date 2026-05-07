@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Bell, Mail, Check, ShieldAlert, AlertCircle } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
@@ -17,6 +18,7 @@ const SIGNAL_TYPES = [
 ];
 
 export default function NotificationsPage() {
+  const t = useTranslations('notifications');
   const [emailEnabled, setEmailEnabled] = useState(false);
   const [signalTypes, setSignalTypes] = useState([]);
   const [originalPrefs, setOriginalPrefs] = useState(null);
@@ -117,8 +119,8 @@ export default function NotificationsPage() {
 
   return (
     <PageLayout
-      title="Notifications"
-      subtitle="Configure how you receive security alerts"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['System', 'Notifications']}
     >
       {/* Success banner */}
@@ -135,7 +137,7 @@ export default function NotificationsPage() {
       <div className="max-w-3xl">
         {/* Email Alerts Card */}
         <Card hover={false}>
-          <CardHeader title="Email alerts" icon={Mail} />
+          <CardHeader title={t('emailAlerts')} icon={Mail} />
           <CardContent>
             {loading ? (
               <div className="space-y-4">

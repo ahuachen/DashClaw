@@ -14,6 +14,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { HelpIcon } from '../components/HelpIcon';
 import { HELP_TIPS } from '../lib/demo/fixtures/help-tips.js';
+import { useTranslations } from 'next-intl';
 import { isDemoMode } from '../lib/isDemoMode';
 
 const FRAMEWORK_LABELS = {
@@ -47,6 +48,7 @@ const SIGNAL_CONTROL_MAP = {
 };
 
 export default function CompliancePage() {
+  const t = useTranslations('compliance');
   const isDemo = isDemoMode();
 
   // Data
@@ -177,8 +179,8 @@ export default function CompliancePage() {
 
   return (
     <PageLayout
-      title="Compliance"
-      subtitle="Map policies to regulatory frameworks and track control coverage"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Compliance']}
       actions={
         <Link
@@ -287,7 +289,7 @@ export default function CompliancePage() {
               {!selectedFramework ? (
                 <EmptyState
                   icon={Scale}
-                  title="Select a framework"
+                  title={t('selectFramework')}
                   description="Choose a compliance framework above to view its control map."
                 />
               ) : !controlMap ? (
@@ -295,7 +297,7 @@ export default function CompliancePage() {
               ) : controls.length === 0 ? (
                 <EmptyState
                   icon={Scale}
-                  title="No controls mapped"
+                  title={t('noControls')}
                   description="No controls found for this framework."
                 />
               ) : (

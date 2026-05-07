@@ -11,6 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
 import { ListSkeleton } from '../components/ui/Skeleton';
 import { useAgentFilter } from '../lib/AgentFilterContext';
+import { useTranslations } from 'next-intl';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoEvalScorers, demoEvalScores, demoEvalRuns, demoEvalStats } from '../lib/demoEvaluationsData';
 
@@ -49,6 +50,7 @@ function ScoreBar({ score }) {
 }
 
 export default function EvaluationsPage() {
+  const t = useTranslations('evaluations');
   const { agentId } = useAgentFilter();
   const isDemo = isDemoMode();
   const [activeTab, setActiveTab] = useState('scores');
@@ -176,7 +178,7 @@ export default function EvaluationsPage() {
 
   if (loading) {
     return (
-      <PageLayout title="Evaluations" subtitle="Score and measure agent decision quality">
+      <PageLayout title={t('title')} subtitle={t('subtitle')}>
         <ListSkeleton />
       </PageLayout>
     );
@@ -196,8 +198,8 @@ export default function EvaluationsPage() {
 
   return (
     <PageLayout
-      title="Evaluations"
-      subtitle="Score and measure agent decision quality"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Operations', 'Evaluations']}
       maturity="beta"
       actions={
@@ -259,7 +261,7 @@ export default function EvaluationsPage() {
         {/* Tab content */}
         {activeTab === 'scores' && (
           <Card>
-            <CardHeader title="Recent scores" icon={BarChart3} count={scores.length} />
+            <CardHeader title={t('recentScores')} icon={BarChart3} count={scores.length} />
             <CardContent>
               {scores.length === 0 ? (
                 <EmptyState icon={BarChart3} title="No scores yet" description="Create a scorer and run an evaluation, or submit scores via the SDK." />

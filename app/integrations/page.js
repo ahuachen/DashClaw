@@ -10,8 +10,10 @@ import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { isDemoMode } from '../lib/isDemoMode';
 import { demoIntegrationsConnections, demoIntegrationsSettings } from '../lib/demoIntegrationsData';
 import { useEffectiveRole } from '../hooks/useEffectiveRole';
+import { useTranslations } from 'next-intl';
 
 export default function IntegrationsPage() {
+  const t = useTranslations('integrations');
   const { isAdmin } = useEffectiveRole();
 
   const [settings, setSettings] = useState({});
@@ -260,8 +262,8 @@ export default function IntegrationsPage() {
   if (loading) {
     return (
       <PageLayout
-        title="Integrations"
-        subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
+        title={t('title')}
+        subtitle={t('subtitle')}
         breadcrumbs={['Dashboard', 'Integrations']}
       >
         <div className="space-y-4">
@@ -285,27 +287,27 @@ export default function IntegrationsPage() {
 
   return (
     <PageLayout
-      title="Integrations"
-      subtitle="Org-wide service connections — override per agent from Fleet → Agent → Integrations"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Dashboard', 'Integrations']}
       maturity="stable"
     >
       {/* Instrument rail */}
       <div className="mb-3 grid grid-cols-2 divide-x divide-border overflow-hidden rounded-xl border border-border bg-surface-secondary sm:grid-cols-4">
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Available</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.available')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-white">{allIntegrations.length}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Connected</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.connected')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-success">{connectedCount}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Agent overrides</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.agentOverrides')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-info">{agentOverrideCount}</div>
         </div>
         <div className="p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">Not configured</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-tertiary">{t('stats.notConfigured')}</div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-secondary">{notConfiguredCount}</div>
         </div>
       </div>

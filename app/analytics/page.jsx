@@ -8,6 +8,7 @@ import CostTrendChart from './components/CostTrendChart';
 import ActionVolumeChart from './components/ActionVolumeChart';
 import BreakdownCard from './components/BreakdownCard';
 import TokenUsage from './components/TokenUsage';
+import { useTranslations } from 'next-intl';
 
 const RANGES = [
   { value: 7, label: '7d' },
@@ -16,6 +17,7 @@ const RANGES = [
 ];
 
 export default function AnalyticsPage() {
+  const t = useTranslations('analytics');
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,8 @@ export default function AnalyticsPage() {
 
   return (
     <PageLayout
-      title="Analytics"
-      subtitle="Cost, usage, and efficiency metrics"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Measure', 'Analytics']}
       maturity="beta"
       actions={
@@ -83,19 +85,19 @@ export default function AnalyticsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <BreakdownCard
-              title="By Agent"
+              title={t('tabs.byAgent')}
               items={data.by_agent}
               labelKey="agent_name"
               countLabel="cost"
             />
             <BreakdownCard
-              title="By Action Type"
+              title={t('tabs.byActionType')}
               items={data.by_action_type}
               labelKey="action_type"
               countLabel="cost"
             />
             <BreakdownCard
-              title="Policy Enforcement"
+              title={t('tabs.policyEnforcement')}
               items={policyItems}
               labelKey="label"
               countLabel="count"
@@ -105,7 +107,7 @@ export default function AnalyticsPage() {
           <TokenUsage tokens={data.tokens} />
         </div>
       ) : (
-        <div className="text-center py-12 text-sm text-tertiary">Failed to load analytics data.</div>
+        <div className="text-center py-12 text-sm text-tertiary">{t('loadError')}</div>
       )}
     </PageLayout>
   );

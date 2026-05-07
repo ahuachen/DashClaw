@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Brain, CheckCircle2, XCircle, HelpCircle, Clock,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ const FILTER_OPTIONS = [
 ];
 
 export default function AssumptionsPage() {
+  const t = useTranslations('assumptions');
   const { selectedAgentId } = useAgentFilter();
   const [assumptions, setAssumptions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,8 +70,8 @@ export default function AssumptionsPage() {
 
   return (
     <PageLayout
-      title="Assumptions"
-      subtitle="Decision basis tracking — what agents believe while acting"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Governance', 'Assumptions']}
     >
       {/* Instrument rail — one container, divided columns */}
@@ -121,7 +123,7 @@ export default function AssumptionsPage() {
       ) : assumptions.length === 0 ? (
         <EmptyState
           icon={Brain}
-          title="No assumptions recorded"
+          title={t('empty.title')}
           description="Agents record assumptions using dc.recordAssumption() when making decisions based on uncertain information."
         />
       ) : (

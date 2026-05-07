@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Workflow, Plus, RotateCw, FileText, CheckSquare, Trash2, Sparkles, Pencil } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
@@ -135,6 +136,7 @@ function WorkflowCard({ t, selected, selectionMode, onToggleSelect, onDelete }) 
 }
 
 export default function WorkflowsPage() {
+  const t = useTranslations('workflows');
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectionMode, setSelectionMode] = useState(false);
@@ -201,8 +203,8 @@ export default function WorkflowsPage() {
 
   return (
     <PageLayout
-      title="Workflow templates"
-      subtitle="Reusable, governed workflow packaging"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Studio', 'Workflows']}
       maturity="beta"
       actions={
@@ -291,7 +293,7 @@ export default function WorkflowsPage() {
       ) : templates.length === 0 ? (
         <EmptyState
           icon={Workflow}
-          title="No workflow templates yet"
+          title={t('empty.title')}
           description="Package repeatable operational patterns into reusable, versioned assets. Link them to policies, knowledge, capabilities, and a model strategy."
           action={(
             <div className="flex flex-wrap items-center justify-center gap-2">

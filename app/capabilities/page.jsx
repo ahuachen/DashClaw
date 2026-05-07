@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Wrench, Plus, Search, RotateCw } from 'lucide-react';
 import PageLayout from '../components/PageLayout';
@@ -12,6 +13,7 @@ import CapabilityRegistryCard from './components/CapabilityRegistryCard';
 const RISK_LEVELS = ['all', 'low', 'medium', 'high', 'critical'];
 
 export default function CapabilitiesPage() {
+  const t = useTranslations('capabilities');
   const [capabilities, setCapabilities] = useState([]);
   const [healthRows, setHealthRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,8 +155,8 @@ export default function CapabilitiesPage() {
 
   return (
     <PageLayout
-      title="Capability Registry"
-      subtitle="Governed registry of callable capabilities with risk, approval, and health metadata"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Studio', 'Capabilities']}
       maturity="stable"
       actions={(
@@ -230,7 +232,7 @@ export default function CapabilitiesPage() {
       ) : filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={Wrench}
-          title="No capabilities match"
+          title={t('empty.title')}
           description={
             search || riskFilter !== 'all'
               ? 'Try clearing filters or searching for a different term.'

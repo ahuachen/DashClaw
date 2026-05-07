@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import PageLayout from '../components/PageLayout';
 import ShieldsGrid from './components/ShieldsGrid';
 import CustomTab from './components/CustomTab';
 import ActivityTab from './components/ActivityTab';
 
-const TABS = [
-  { id: 'shields', label: 'Shields' },
-  { id: 'custom', label: 'Custom' },
-  { id: 'activity', label: 'Activity' },
-];
-
 export default function PoliciesPage() {
+  const t = useTranslations('policies');
+  const TABS = [
+    { id: 'shields', label: t('tabs.shields') },
+    { id: 'custom', label: t('tabs.custom') },
+    { id: 'activity', label: t('tabs.activity') },
+  ];
   const [activeTab, setActiveTab] = useState('shields');
   const [stats, setStats] = useState({ active: 0, blocks: 0, approvals: 0, agents: 0 });
 
@@ -40,20 +41,20 @@ export default function PoliciesPage() {
 
   return (
     <PageLayout
-      title="Policies"
-      subtitle="Governance shields and guard rules"
+      title={t('title')}
+      subtitle={t('subtitle')}
       breadcrumbs={['Governance', 'Policies']}
       maturity="stable"
     >
       {/* Stats bar — prose rail, not another card grid */}
       <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary">
-        <span><span className="font-semibold tabular-nums text-white">{stats.active}</span> active shields</span>
+        <span>{t('stats.activeShields', { count: stats.active })}</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-error">{stats.blocks}</span> blocks this week</span>
+        <span>{t('stats.blocksThisWeek', { count: stats.blocks })}</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-warning">{stats.approvals}</span> approvals this week</span>
+        <span>{t('stats.approvalsThisWeek', { count: stats.approvals })}</span>
         <span aria-hidden="true" className="text-zinc-700">&middot;</span>
-        <span><span className="font-semibold tabular-nums text-white">{stats.agents}</span> agents governed</span>
+        <span>{t('stats.agentsGoverned', { count: stats.agents })}</span>
       </div>
 
       {/* Tabs */}

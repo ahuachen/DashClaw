@@ -267,6 +267,241 @@
       "policy.default.allow": "No matching policy — defaulting to allow"
     }
   },
+  "agents": {
+    "title": "Agent Fleet",
+    "subtitle": "Fleet-wide observability and permission governance",
+    "search": "Search agents by ID or name…",
+    "filter": "Filter",
+    "filterStatus": "Status · {status}",
+    "columns": {
+      "agent": "Agent",
+      "status": "Status",
+      "governance": "Governance",
+      "lastAction": "Last Action",
+      "inspect": "Inspect"
+    },
+    "status": {
+      "active": "Active",
+      "online": "Online",
+      "critical": "Critical",
+      "error": "Error",
+      "degraded": "Degraded",
+      "offline": "Offline",
+      "unknown": "Unknown"
+    },
+    "verified": "Agent identity cryptographically verified",
+    "unsigned": "Agent is using an unsigned session",
+    "never": "Never",
+    "empty": {
+      "title": "No agents connected",
+      "description": "Connect your first agent using the DashClaw SDK to see it in the fleet overview."
+    }
+  },
+  "apiKeys": {
+    "title": "API keys",
+    "subtitle": "Manage your workspace API keys",
+    "stats": {
+      "total": "Total keys",
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "generate": "Generate new key",
+    "keyLabel": "Key label",
+    "keyLabelPlaceholder": "Key label (e.g. Production, Staging)",
+    "create": "Create",
+    "creating": "Creating…",
+    "revoking": "Revoking…",
+    "revokeConfirm": "Revoke?",
+    "revokeAction": "Confirm",
+    "revoke": "Revoke",
+    "copy": "Copy",
+    "copied": "Copied",
+    "keyCreated": "Key created: {label}",
+    "copyNow": "Copy your API key now. It will not be shown again.",
+    "noKeys": {
+      "title": "No API keys yet",
+      "descriptionAdmin": "Generate an API key to connect your agents to this workspace.",
+      "descriptionMember": "No API keys have been created yet. Ask a workspace admin to generate one."
+    },
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "created": "Created {date}",
+    "lastUsed": "Last used: {date}",
+    "setupPrompt": "Need to verify your instance is configured correctly before connecting agents?",
+    "setupLink": "Setup & verify",
+    "generateKey": "Generate key"
+  },
+  "policies": {
+    "title": "Policies",
+    "subtitle": "Governance shields and guard rules",
+    "stats": {
+      "activeShields": "{count} active shields",
+      "blocksThisWeek": "{count} blocks this week",
+      "approvalsThisWeek": "{count} approvals this week",
+      "agentsGoverned": "{count} agents governed"
+    },
+    "tabs": {
+      "shields": "Shields",
+      "custom": "Custom",
+      "activity": "Activity"
+    }
+  },
+  "approvals": {
+    "title": "Approval Queue",
+    "subtitle": "Human-in-the-loop intervention for sensitive agent actions",
+    "demoMode": "Demo Mode",
+    "readOnly": "Read-only access",
+    "allClear": "All clear",
+    "awaiting": "Awaiting Approval",
+    "noneDeclared": "None declared"
+  },
+  "scoring": {
+    "title": "Scoring Profiles",
+    "subtitle": "Define quality metrics and risk templates for agent actions",
+    "profileNamePlaceholder": "Profile name (e.g. 'Production Deploy Quality')",
+    "descriptionPlaceholder": "Description (optional)",
+    "actionTypePlaceholder": "Action type filter (optional)",
+    "dimensions": "Dimensions",
+    "dimensionNamePlaceholder": "Dimension name",
+    "weight": "Weight:",
+    "viewScores": "View Scores",
+    "archive": "Archive",
+    "noProfiles": {
+      "title": "No scoring profiles yet",
+      "description": "Create a profile to define what quality means for your agents."
+    },
+    "noScores": {
+      "title": "No scores yet",
+      "description": "Score actions against a profile to see results here."
+    },
+    "riskTemplates": "Risk Templates",
+    "createRiskTemplate": "Create Risk Template",
+    "templateNamePlaceholder": "Template name (e.g. 'Production Safety')",
+    "baseRisk": "Base risk:",
+    "rules": "Rules (condition → add risk)",
+    "conditionPlaceholder": "e.g. metadata.environment == 'production'",
+    "noTemplates": {
+      "title": "No risk templates",
+      "description": "Create templates to replace hardcoded agent risk scores."
+    },
+    "autoCalibration": "Auto-Calibration",
+    "applyAsProfile": "Apply as Profile",
+    "delete": "Delete"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Instance configuration, verification, model pricing, and agent identity",
+    "labels": {
+      "version": "Version",
+      "mode": "Mode",
+      "database": "Database",
+      "auth": "Auth",
+      "host": "Host",
+      "runtime": "Runtime"
+    }
+  },
+  "team": {
+    "title": "Team",
+    "subtitle": "Manage workspace members",
+    "loading": "Loading team...",
+    "createInvite": "Create Invite Link",
+    "pendingInvites": "Pending Invites",
+    "roles": {
+      "member": "Member",
+      "admin": "Admin"
+    }
+  },
+  "integrations": {
+    "title": "Integrations",
+    "subtitle": "Org-wide service connections — override per agent from Fleet → Agent → Integrations",
+    "stats": {
+      "available": "Available",
+      "connected": "Connected",
+      "agentOverrides": "Agent overrides",
+      "notConfigured": "Not configured"
+    }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Cost, usage, and efficiency metrics",
+    "tabs": {
+      "byAgent": "By Agent",
+      "byActionType": "By Action Type",
+      "policyEnforcement": "Policy Enforcement"
+    },
+    "loadError": "Failed to load analytics data."
+  },
+  "workflows": {
+    "title": "Workflow templates",
+    "subtitle": "Reusable, governed workflow packaging",
+    "empty": {
+      "title": "No workflow templates yet"
+    }
+  },
+  "capabilities": {
+    "title": "Capability Registry",
+    "subtitle": "Governed registry of callable capabilities with risk, approval, and health metadata",
+    "empty": {
+      "title": "No capabilities match"
+    }
+  },
+  "sessions": {
+    "title": "Agent Sessions",
+    "subtitle": "Track active sessions, detect stalls, monitor health",
+    "empty": {
+      "title": "No sessions found"
+    }
+  },
+  "auditLog": {
+    "title": "Audit log",
+    "subtitle": "Permanent record of system and administrative events"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Configure how you receive security alerts",
+    "emailAlerts": "Email alerts"
+  },
+  "drift": {
+    "title": "Drift detection",
+    "subtitle": "Statistical behavioral drift analysis",
+    "alerts": "Drift alerts"
+  },
+  "compliance": {
+    "title": "Compliance",
+    "subtitle": "Map policies to regulatory frameworks and track control coverage",
+    "selectFramework": "Select a framework",
+    "noControls": "No controls mapped"
+  },
+  "evaluations": {
+    "title": "Evaluations",
+    "subtitle": "Score and measure agent decision quality",
+    "recentScores": "Recent scores"
+  },
+  "learning": {
+    "title": "Learning Database",
+    "subtitle": "Decisions, Outcomes & Lessons",
+    "recentDecisions": "Recent Decisions",
+    "empty": {
+      "title": "No decisions logged yet"
+    }
+  },
+  "activity": {
+    "title": "Activity stream",
+    "subtitle": "Real-time operational telemetry across decisions, governance, and system events",
+    "empty": {
+      "title": "No activity recorded",
+      "description": "Waiting for agent actions or system events…"
+    }
+  },
+  "assumptions": {
+    "title": "Assumptions",
+    "subtitle": "Decision basis tracking — what agents believe while acting",
+    "empty": {
+      "title": "No assumptions recorded"
+    }
+  },
   "footer": {
     "version": "Version {version}",
     "openSource": "Open source · MIT licensed"
