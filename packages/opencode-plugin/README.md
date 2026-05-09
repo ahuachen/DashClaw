@@ -1,4 +1,4 @@
-# @dashclaw/opencode-plugin
+# @swarmxai_guardrails/opencode-plugin
 
 DashClaw governance for [opencode](https://github.com/sst/opencode) — every
 tool call is policy-gated, optionally human-approved, and recorded as a
@@ -23,7 +23,7 @@ preventing the tool from executing.
 
 ```bash
 # In your opencode project
-bun add @dashclaw/opencode-plugin
+bun add @swarmxai_guardrails/opencode-plugin
 ```
 
 Then register in `~/.config/opencode/opencode.json` (global) or
@@ -33,7 +33,7 @@ Then register in `~/.config/opencode/opencode.json` (global) or
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    ["@dashclaw/opencode-plugin", {
+    ["@swarmxai_guardrails/opencode-plugin", {
       "baseUrl": "http://localhost:3310",
       "apiKey": "${DASHCLAW_API_KEY}",
       "agentId": "opencode-local",

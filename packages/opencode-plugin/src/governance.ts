@@ -69,7 +69,7 @@ export class GovernanceBridge {
       await this.client.heartbeat('online', {
         agent_type: 'opencode',
         adapter_version: '0.1.0',
-        adapter: '@dashclaw/opencode-plugin',
+        adapter: '@swarmxai_guardrails/opencode-plugin',
         ...metadata,
       });
       this.log.info?.(`registered with DashClaw as ${this.cfg.agentId} (${this.cfg.agentName})`);

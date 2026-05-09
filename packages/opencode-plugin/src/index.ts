@@ -1,5 +1,5 @@
 /**
- * @dashclaw/opencode-plugin
+ * @swarmxai_guardrails/opencode-plugin
  *
  * Routes every opencode tool call through the DashClaw governance loop:
  *

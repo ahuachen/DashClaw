@@ -1,5 +1,5 @@
 {
-  "name": "@dashclaw/opencode-plugin",
+  "name": "@swarmxai_guardrails/opencode-plugin",
   "version": "0.1.0",
   "description": "DashClaw governance for opencode — policy enforcement, human approval, and decision recording for every tool call.",
   "type": "module",
