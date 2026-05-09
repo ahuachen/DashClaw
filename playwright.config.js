@@ -1,8 +1,8 @@
 // playwright.config.js
 //
 // Smoke-test config for the DashClaw dashboard. Runs a headless Chromium
-// against a dedicated demo-mode dev server on port 3099, separate from any
-// dev server the operator might be running on 3000.
+// against a dedicated demo-mode dev server on port 3319, separate from any
+// dev server the operator might be running on 3310.
 //
 // Usage:
 //   npm run test:smoke                  # headless, full sweep
@@ -11,7 +11,7 @@
 
 import { defineConfig, devices } from '@playwright/test';
 
-const SMOKE_PORT = Number(process.env.PW_SMOKE_PORT || 3099);
+const SMOKE_PORT = Number(process.env.PW_SMOKE_PORT || 3319);
 const BASE_URL = process.env.PW_BASE_URL || `http://localhost:${SMOKE_PORT}`;
 // When PW_BASE_URL is set, we assume an already-deployed target (staging/prod)
 // and skip the local webServer boot.
@@ -62,9 +62,9 @@ export default defineConfig({
         // Demo mode — fixture data, no login required, writes return 403.
         // Ensures every dashboard route has something to render even on a
         // fresh clone with no DB. Uses the dedicated `dev:smoke` script on
-        // port 3099 so it can't collide with a regular `npm run dev` the
-        // operator may already have running on 3000.
-        command: 'npm run dev:smoke',
+        // port 3319 so it can't collide with a regular `pnpm dev` the
+        // operator may already have running on 3310.
+        command: 'pnpm dev:smoke',
         url: `${BASE_URL}/api/health`,
         timeout: 120_000,
         reuseExistingServer: !process.env.CI,

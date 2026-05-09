@@ -38,14 +38,14 @@ DashClaw is a **minimal governance runtime**, not an agent platform. We do not p
 ## Essential Commands
 
 ```bash
-npm run dev
-npm run lint
-npm run openapi:check              # Detect API contract drift
-npm run db:migrate                 # Apply pending schema changes to local DB (run after pulls that touch schema/)
-python -m livingcode start         # One-shot: sense + snapshot + refresh + open /livingcode/ dashboard
+pnpm dev                               # starts on http://localhost:3310
+pnpm lint
+pnpm openapi:check              # Detect API contract drift
+pnpm db:migrate                 # Apply pending schema changes to local DB (run after pulls that touch schema/)
+python -m livingcode start      # One-shot: sense + snapshot + refresh + open /livingcode/ dashboard
 ```
 
-**After pulling changes that touch `schema/schema.js` or `drizzle/*.sql`:** run `npm run db:migrate` against your local DB. It auto-loads `.env.local` and is idempotent. Skipping this leaves the local DB at the old schema while middleware/routes expect new columns — every authenticated request then 401s with "Invalid or missing API key" (the SQL fails silently and `resolveApiKey` returns null).
+**After pulling changes that touch `schema/schema.js` or `drizzle/*.sql`:** run `pnpm db:migrate` against your local DB. It auto-loads `.env.local` and is idempotent. Skipping this leaves the local DB at the old schema while middleware/routes expect new columns — every authenticated request then 401s with "Invalid or missing API key" (the SQL fails silently and `resolveApiKey` returns null).
 
 ## Where To Look First
 
