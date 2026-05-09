@@ -132,7 +132,7 @@ export class DashClawClient {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': this.apiKey,
-          'User-Agent': `dashclaw-opencode-plugin/0.1.0 (agent_id=${this.agentId})`,
+          'User-Agent': `swarmxai-guardrails-opencode-plugin/0.1.0 (agent_id=${this.agentId})`,
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: ac.signal,

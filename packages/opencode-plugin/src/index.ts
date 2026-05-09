@@ -22,19 +22,19 @@ import {
   GovernanceBridge,
 } from './governance.js';
 
-const dashclaw: Plugin = async (input: PluginInput, options?: PluginOptions): Promise<Hooks> => {
+const guardrails: Plugin = async (input: PluginInput, options?: PluginOptions): Promise<Hooks> => {
   const cfg = resolveConfig(options as Record<string, unknown> | undefined);
 
-  if (!cfg.baseUrl || !cfg.apiKey) {
+  if (!cfg.behaviorSecurity.baseUrl || !cfg.behaviorSecurity.apiKey) {
     console.warn(
-      '[dashclaw] DashClaw governance is NOT active — set baseUrl + apiKey ' +
-        '(or DASHCLAW_BASE_URL + DASHCLAW_API_KEY env vars). All tool calls ' +
+      '[swarmxai-guardrails] Behavior security is NOT active — set behaviorSecurity.baseUrl + apiKey ' +
+        '(or BEHAVIOR_SECURITY_BASE_URL + BEHAVIOR_SECURITY_API_KEY env vars). All tool calls ' +
         'will run uncontrolled.',
     );
     return {};
   }
 
-  const bridge = new GovernanceBridge(cfg);
+  const bridge = new GovernanceBridge(cfg.behaviorSecurity);
   // Fire-and-forget — heartbeat shouldn't delay opencode startup.
   void bridge.start({
     project: input.project?.id,
@@ -117,8 +117,8 @@ const dashclaw: Plugin = async (input: PluginInput, options?: PluginOptions): Pr
   };
 };
 
-export default dashclaw;
-export { dashclaw };
+export default guardrails;
+export { guardrails };
 export { GovernanceBlockedError, GovernanceBridge } from './governance.js';
 export { resolveConfig } from './config.js';
 export type { PluginConfig } from './config.js';

@@ -32,9 +32,9 @@ export interface BridgeLogger {
 
 const consoleLogger: BridgeLogger = {
   debug: () => {},
-  info: (m, meta) => console.log(`[dashclaw] ${m}`, meta ?? ''),
-  warn: (m, meta) => console.warn(`[dashclaw] ${m}`, meta ?? ''),
-  error: (m, meta) => console.error(`[dashclaw] ${m}`, meta ?? ''),
+  info: (m, meta) => console.log(`[swarmxai-guardrails] ${m}`, meta ?? ''),
+  warn: (m, meta) => console.warn(`[swarmxai-guardrails] ${m}`, meta ?? ''),
+  error: (m, meta) => console.error(`[swarmxai-guardrails] ${m}`, meta ?? ''),
 };
 
 interface PendingCall {
