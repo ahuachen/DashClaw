@@ -1,13 +1,19 @@
 /**
- * Minimal HTTP client for the DashClaw governance runtime.
+ * Behavior security HTTP client.
  *
- * We don't depend on the `dashclaw` npm package here because:
- *   - We only need 4 endpoints (guard, createAction, updateOutcome, heartbeat).
- *   - This keeps the plugin's install footprint tiny when dropped into
- *     opencode (no transitive deps, runs in Bun without resolution issues).
+ * Implements the SwarmXAI behavior security protocol, which is compatible
+ * with the DashClaw REST API. Both 'dashclaw' and 'custom' providers use
+ * this client — the custom provider must expose the same endpoint contract.
  *
- * Surface mirrors the relevant subset of `sdk/dashclaw.js`.
+ * Endpoints used:
+ *   POST /api/guard
+ *   POST /api/actions
+ *   PATCH /api/actions/:id
+ *   GET  /api/actions/:id
+ *   POST /api/agents/heartbeat
  */
+
+// ── Request / response types ──────────────────────────────────────────────────
 
 export interface GuardContext {
   action_type: string;
@@ -17,7 +23,6 @@ export interface GuardContext {
   systems_touched?: string[];
   agent_id?: string;
   agent_name?: string;
-  /** Free-form context mirrored back into guard_decisions.context. */
   metadata?: Record<string, unknown>;
 }
 
@@ -62,60 +67,65 @@ export interface OutcomeInput {
   metadata?: Record<string, unknown>;
 }
 
-export class GovernanceUnreachableError extends Error {
+// ── Errors ────────────────────────────────────────────────────────────────────
+
+export class BehaviorSecurityUnreachableError extends Error {
   constructor(public override cause: unknown) {
-    super(`DashClaw governance unreachable: ${stringifyError(cause)}`);
-    this.name = 'GovernanceUnreachableError';
+    super(`Behavior security service unreachable: ${stringifyError(cause)}`);
+    this.name = 'BehaviorSecurityUnreachableError';
   }
 }
 
+/** Thrown to abort tool execution — caught by opencode's Effect runtime. */
 export class GovernanceBlockedError extends Error {
-  constructor(public decision: GuardDecision) {
-    super(decision.reason || 'Action blocked by DashClaw policy');
+  constructor(public decision: Pick<GuardDecision, 'decision' | 'action_id' | 'reason'>) {
+    super(decision.reason ?? 'Action blocked by behavior security policy');
     this.name = 'GovernanceBlockedError';
   }
 }
 
 export class ApprovalDeniedError extends Error {
   constructor(public action: ActionRecord) {
-    super(`Approval denied for ${action.id}`);
+    super(`Approval denied for action ${action.id}`);
     this.name = 'ApprovalDeniedError';
   }
 }
 
 export class ApprovalTimeoutError extends Error {
-  constructor(public actionId: string, public timeoutMs: number) {
-    super(`Approval timed out for ${actionId} after ${timeoutMs}ms`);
+  constructor(
+    public actionId: string,
+    public timeoutMs: number,
+  ) {
+    super(`Approval timed out for action ${actionId} after ${timeoutMs}ms`);
     this.name = 'ApprovalTimeoutError';
   }
 }
 
-function stringifyError(e: unknown): string {
-  if (e instanceof Error) return e.message;
-  if (typeof e === 'string') return e;
-  try { return JSON.stringify(e); } catch { return String(e); }
-}
+// ── Client ────────────────────────────────────────────────────────────────────
 
-export interface DashClawClientOptions {
+export interface BehaviorSecurityClientOptions {
+  /** Provider tag — used in User-Agent and log context only. */
+  provider: string;
   baseUrl: string;
   apiKey: string;
   agentId: string;
   agentName?: string;
-  /** Per-request timeout. Defaults to 10s. */
   requestTimeoutMs?: number;
 }
 
-export class DashClawClient {
+export class BehaviorSecurityClient {
+  readonly provider: string;
   readonly baseUrl: string;
-  readonly apiKey: string;
+  private readonly apiKey: string;
   readonly agentId: string;
   readonly agentName: string | null;
-  readonly requestTimeoutMs: number;
+  private readonly requestTimeoutMs: number;
 
-  constructor(opts: DashClawClientOptions) {
-    if (!opts.baseUrl) throw new Error('baseUrl is required');
-    if (!opts.apiKey) throw new Error('apiKey is required');
-    if (!opts.agentId) throw new Error('agentId is required');
+  constructor(opts: BehaviorSecurityClientOptions) {
+    if (!opts.baseUrl) throw new Error('behaviorSecurity.baseUrl is required');
+    if (!opts.apiKey) throw new Error('behaviorSecurity.apiKey is required');
+    if (!opts.agentId) throw new Error('behaviorSecurity.agentId is required');
+    this.provider = opts.provider;
     this.baseUrl = opts.baseUrl.replace(/\/$/, '');
     this.apiKey = opts.apiKey;
     this.agentId = opts.agentId;
@@ -123,7 +133,11 @@ export class DashClawClient {
     this.requestTimeoutMs = opts.requestTimeoutMs ?? 10_000;
   }
 
-  private async request<T>(path: string, method: 'GET' | 'POST' | 'PATCH', body?: unknown): Promise<T> {
+  private async request<T>(
+    path: string,
+    method: 'GET' | 'POST' | 'PATCH',
+    body?: unknown,
+  ): Promise<T> {
     const ac = new AbortController();
     const timer = setTimeout(() => ac.abort(), this.requestTimeoutMs);
     try {
@@ -132,7 +146,7 @@ export class DashClawClient {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': this.apiKey,
-          'User-Agent': `swarmxai-guardrails-opencode-plugin/0.1.0 (agent_id=${this.agentId})`,
+          'User-Agent': `swarmxai-guardrails/${this.provider}/0.1.0 (agent_id=${this.agentId})`,
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: ac.signal,
@@ -140,20 +154,18 @@ export class DashClawClient {
       const text = await res.text();
       const data: unknown = text ? safeJson(text) : null;
       if (!res.ok) {
-        const err = new Error(
-          `DashClaw ${method} ${path} failed (${res.status}): ${text || res.statusText}`,
+        const err = Object.assign(
+          new Error(`BehaviorSecurity ${method} ${path} → ${res.status}: ${text || res.statusText}`),
+          { status: res.status, data },
         );
-        (err as Error & { status?: number; data?: unknown }).status = res.status;
-        (err as Error & { status?: number; data?: unknown }).data = data;
         throw err;
       }
       return data as T;
     } catch (err) {
       if ((err as Error).name === 'AbortError') {
-        throw new GovernanceUnreachableError(`request to ${path} timed out`);
+        throw new BehaviorSecurityUnreachableError(`${path} timed out`);
       }
-      // Network errors, DNS failures, connection refused, etc.
-      if (err instanceof TypeError) throw new GovernanceUnreachableError(err);
+      if (err instanceof TypeError) throw new BehaviorSecurityUnreachableError(err);
       throw err;
     } finally {
       clearTimeout(timer);
@@ -187,7 +199,10 @@ export class DashClawClient {
     return this.request<ActionRecord>(`/api/actions/${actionId}`, 'GET');
   }
 
-  async heartbeat(status: 'online' | 'offline' | 'busy', metadata?: Record<string, unknown>): Promise<void> {
+  async heartbeat(
+    status: 'online' | 'offline' | 'busy',
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
     await this.request<unknown>('/api/agents/heartbeat', 'POST', {
       agent_id: this.agentId,
       status,
@@ -195,11 +210,6 @@ export class DashClawClient {
     });
   }
 
-  /**
-   * Wait for a human approval decision via polling. The hosted SDK has SSE
-   * fallback to polling — for the plugin we keep polling-only to avoid the
-   * extra parser surface.
-   */
   async waitForApproval(
     actionId: string,
     opts: { timeoutMs?: number; intervalMs?: number } = {},
@@ -211,14 +221,21 @@ export class DashClawClient {
     while (Date.now() < deadline) {
       const action = await this.getAction(actionId);
       if (action.approved_by) return action;
-      if (action.status === 'failed' || action.status === 'cancelled' || action.status === 'denied') {
+      if (['failed', 'cancelled', 'denied'].includes(action.status)) {
         throw new ApprovalDeniedError(action);
       }
-      await sleep(intervalMs);
+      await sleep(Math.min(intervalMs, deadline - Date.now()));
     }
     throw new ApprovalTimeoutError(actionId, timeoutMs);
   }
 }
+
+// ── Backwards-compat alias (used internally by governance.ts) ─────────────────
+/** @deprecated Use BehaviorSecurityClient */
+export { BehaviorSecurityClient as DashClawClient };
+export { BehaviorSecurityUnreachableError as GovernanceUnreachableError };
+
+// ── Private helpers ───────────────────────────────────────────────────────────
 
 function safeJson(text: string): unknown {
   try { return JSON.parse(text); } catch { return text; }
@@ -226,4 +243,10 @@ function safeJson(text: string): unknown {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+export function stringifyError(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === 'string') return e;
+  try { return JSON.stringify(e); } catch { return String(e); }
 }

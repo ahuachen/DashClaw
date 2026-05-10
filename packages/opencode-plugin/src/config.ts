@@ -1,59 +1,96 @@
 /**
- * @swarmxai_guardrails/opencode-plugin configuration.
+ * @swarmxai_guardrails/opencode-plugin — configuration
  *
- * Two independent security domains, each independently configurable:
+ * Two independent security domains:
  *
- *   behaviorSecurity — what the agent is allowed to DO
- *     Controls tool-call interception, approval flows, and policy enforcement.
- *     Backed by DashClaw (DASHCLAW_* env vars).
+ *   behaviorSecurity  — what the agent is allowed to DO
+ *     Intercepts tool calls, runs approval flows, enforces action policies.
+ *     Provider: 'dashclaw' (default) | 'custom'
+ *     Env prefix: BEHAVIOR_SECURITY_*
  *
- *   modelSafety — what the agent is allowed to SAY / process
- *     Controls input content scanning and output compliance checking.
- *     Provider-agnostic (MODEL_SAFETY_* env vars).
+ *   modelSafety  — what the agent is allowed to PROCESS / SAY
+ *     Scans input content before tool execution and output before LLM ingestion.
+ *     Provider: 'openai-moderation' | 'llamaguard' | 'azure-content-safety' | 'custom'
+ *     Env prefix: MODEL_SAFETY_*
  */
 
-// ── Behavior Security (DashClaw) ─────────────────────────────────────────────
+// ── Behavior Security ─────────────────────────────────────────────────────────
+
+/**
+ * 'dashclaw'  — DashClaw governance runtime (default).
+ *              API contract: /api/guard, /api/actions, /api/agents/heartbeat
+ * 'custom'    — Any service implementing the same REST contract.
+ *              Drop-in replacement; same endpoint paths are called.
+ */
+export type BehaviorSecurityProvider = 'dashclaw' | 'custom';
 
 export interface BehaviorSecurityConfig {
+  provider: BehaviorSecurityProvider;
   baseUrl: string;
   apiKey: string;
   agentId: string;
   agentName: string;
-  /** Block all tool calls when DashClaw is unreachable. Default: true. */
+  /** Block all tool calls when the behavior security service is unreachable. Default: true. */
   failClosed: boolean;
   riskScoreDefault: number;
+  /** Tools that always get the maximum risk score (≥90). */
   highRiskTools: ReadonlySet<string>;
+  /** Milliseconds to wait for a human approval before auto-denying. */
   approvalTimeoutMs: number;
-  /** Tools skipped entirely — not reported to DashClaw. */
+  /** Tools completely skipped — not reported to the behavior security service. */
   ignoredTools: ReadonlySet<string>;
-  /** Override action_type per tool name. */
+  /** Override the action_type sent to the backend per tool name. */
   toolActionTypes: Readonly<Record<string, string>>;
 }
 
 // ── Model Safety ─────────────────────────────────────────────────────────────
 
+/**
+ * 'openai-moderation'      — OpenAI Moderation API (free, text/image).
+ *                            POST /v1/moderations
+ * 'llamaguard'             — Meta LlamaGuard via any OpenAI-compatible endpoint
+ *                            (Ollama, vLLM, Together, etc.).
+ *                            POST /v1/chat/completions
+ * 'azure-content-safety'   — Azure AI Content Safety.
+ *                            POST /contentsafety/text:analyze
+ * 'custom'                 — Any HTTP endpoint implementing the SwarmXAI
+ *                            model safety contract (see model-safety.ts).
+ */
 export type ModelSafetyProvider =
-  | 'llamaguard'
   | 'openai-moderation'
+  | 'llamaguard'
   | 'azure-content-safety'
   | 'custom';
 
 export interface ModelSafetyConfig {
   enabled: boolean;
   provider: ModelSafetyProvider;
+  /** Base URL of the model safety service. */
   endpoint: string;
   apiKey: string;
-  /** Scan tool arguments and declared_goal before execution. Default: true. */
+  /**
+   * LlamaGuard only: model name to pass to the chat completions endpoint.
+   * Default: 'meta-llama/LlamaGuard-3-8B'
+   */
+  model?: string;
+  /** Scan tool arguments + declared_goal before tool execution. Default: true. */
   checkInput: boolean;
-  /** Scan tool output before it is fed back to the LLM. Default: true. */
+  /** Scan tool output before it is returned to the LLM. Default: true. */
   checkOutput: boolean;
-  /** Block when model safety service is unreachable. Default: false. */
+  /** Block when the model safety service is unreachable. Default: false. */
   failClosed: boolean;
-  /** Content categories to enforce. Empty = provider defaults. */
+  /**
+   * Content categories to enforce.
+   * Empty = use provider defaults.
+   * openai-moderation: ['hate', 'harassment', 'violence', 'self-harm', ...]
+   * llamaguard: ['S1'–'S14'] (LlamaGuard 3 hazard taxonomy)
+   * azure-content-safety: ['Hate', 'Sexual', 'Violence', 'SelfHarm']
+   * custom: passed through as-is
+   */
   categories: ReadonlyArray<string>;
 }
 
-// ── Top-level plugin config ───────────────────────────────────────────────────
+// ── Top-level ─────────────────────────────────────────────────────────────────
 
 export interface PluginConfig {
   behaviorSecurity: BehaviorSecurityConfig;
@@ -105,7 +142,7 @@ function asStringArray(v: unknown): string[] {
 }
 
 function asStringMap(v: unknown): Record<string, string> {
-  if (v && typeof v === 'object' && !Array.isArray(v)) {
+  if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
     const out: Record<string, string> = {};
     for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
       if (typeof val === 'string') out[k] = val;
@@ -123,21 +160,19 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 function resolveBehaviorSecurity(
   raw: Record<string, unknown>,
-  env: Record<string, string | undefined>,
+  env: NodeJS.ProcessEnv,
 ): BehaviorSecurityConfig {
-  // Support both nested { behaviorSecurity: {...} } and legacy flat shape
   const cfg = isRecord(raw.behaviorSecurity) ? raw.behaviorSecurity : raw;
 
-  const baseUrl = firstString(
-    cfg.baseUrl,
-    env.BEHAVIOR_SECURITY_BASE_URL,
-  ).replace(/\/$/, '');
-
+  const baseUrl = firstString(cfg.baseUrl, env.BEHAVIOR_SECURITY_BASE_URL).replace(/\/$/, '');
   const apiKey = firstString(cfg.apiKey, env.BEHAVIOR_SECURITY_API_KEY);
   const agentId = firstString(cfg.agentId, env.BEHAVIOR_SECURITY_AGENT_ID) || 'opencode';
   const agentName = firstString(cfg.agentName, env.BEHAVIOR_SECURITY_AGENT_NAME) || agentId;
+  const provider = (firstString(cfg.provider, env.BEHAVIOR_SECURITY_PROVIDER) ||
+    'dashclaw') as BehaviorSecurityProvider;
 
   return {
+    provider,
     baseUrl,
     apiKey,
     agentId,
@@ -145,7 +180,10 @@ function resolveBehaviorSecurity(
     failClosed: asBool(cfg.failClosed ?? env.BEHAVIOR_SECURITY_FAIL_CLOSED, true),
     riskScoreDefault: asNumber(cfg.riskScoreDefault ?? env.BEHAVIOR_SECURITY_RISK_DEFAULT, 50),
     highRiskTools: asStringSet(cfg.highRiskTools ?? env.BEHAVIOR_SECURITY_HIGH_RISK_TOOLS),
-    approvalTimeoutMs: asNumber(cfg.approvalTimeoutMs ?? env.BEHAVIOR_SECURITY_APPROVAL_TIMEOUT_MS, 300_000),
+    approvalTimeoutMs: asNumber(
+      cfg.approvalTimeoutMs ?? env.BEHAVIOR_SECURITY_APPROVAL_TIMEOUT_MS,
+      300_000,
+    ),
     ignoredTools: asStringSet(cfg.ignoredTools ?? env.BEHAVIOR_SECURITY_IGNORED_TOOLS),
     toolActionTypes: asStringMap(cfg.toolActionTypes),
   };
@@ -153,7 +191,7 @@ function resolveBehaviorSecurity(
 
 function resolveModelSafety(
   raw: Record<string, unknown>,
-  env: Record<string, string | undefined>,
+  env: NodeJS.ProcessEnv,
 ): ModelSafetyConfig {
   const cfg = isRecord(raw.modelSafety) ? raw.modelSafety : {};
 
@@ -161,12 +199,16 @@ function resolveModelSafety(
   const enabled = endpoint.length > 0
     ? asBool(cfg.enabled ?? env.MODEL_SAFETY_ENABLED, true)
     : false;
+  const provider = (firstString(cfg.provider, env.MODEL_SAFETY_PROVIDER) ||
+    'custom') as ModelSafetyProvider;
+  const model = firstString(cfg.model, env.MODEL_SAFETY_MODEL) || undefined;
 
   return {
     enabled,
-    provider: (firstString(cfg.provider, env.MODEL_SAFETY_PROVIDER) || 'custom') as ModelSafetyProvider,
+    provider,
     endpoint,
     apiKey: firstString(cfg.apiKey, env.MODEL_SAFETY_API_KEY),
+    model,
     checkInput: asBool(cfg.checkInput ?? env.MODEL_SAFETY_CHECK_INPUT, true),
     checkOutput: asBool(cfg.checkOutput ?? env.MODEL_SAFETY_CHECK_OUTPUT, true),
     failClosed: asBool(cfg.failClosed ?? env.MODEL_SAFETY_FAIL_CLOSED, false),
@@ -176,9 +218,8 @@ function resolveModelSafety(
 
 export function resolveConfig(raw: Record<string, unknown> | undefined): PluginConfig {
   const cfg = raw ?? {};
-  const env = typeof process !== 'undefined' && process?.env
-    ? (process.env as Record<string, string | undefined>)
-    : {};
+  const env: NodeJS.ProcessEnv =
+    typeof process !== 'undefined' && process?.env ? process.env : {};
 
   return {
     behaviorSecurity: resolveBehaviorSecurity(cfg, env),
@@ -186,27 +227,20 @@ export function resolveConfig(raw: Record<string, unknown> | undefined): PluginC
   };
 }
 
-// ── Utility exports (used by governance.ts) ───────────────────────────────────
+// ── Utilities (used by governance.ts) ────────────────────────────────────────
 
 export function resolveActionType(
   toolName: string,
   overrides: Readonly<Record<string, string>>,
 ): string {
-  if (overrides[toolName]) return overrides[toolName];
-  return toolName.toLowerCase();
+  return overrides[toolName] ?? toolName.toLowerCase();
 }
 
 const BUILTIN_RISK: Record<string, number> = {
-  read: 5,
-  glob: 5,
-  grep: 5,
-  list: 5,
-  todoread: 5,
+  read: 5, glob: 5, grep: 5, list: 5, todoread: 5,
   webfetch: 20,
-  edit: 60,
-  write: 65,
-  patch: 65,
   todowrite: 30,
+  edit: 60, write: 65, patch: 65,
   bash: 80,
 };
 

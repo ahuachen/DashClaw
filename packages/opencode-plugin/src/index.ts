@@ -1,124 +1,188 @@
 /**
  * @swarmxai_guardrails/opencode-plugin
  *
- * Routes every opencode tool call through the DashClaw governance loop:
+ * Unified security aspect for opencode — behavior security + model safety
+ * as a single plugin entry point.
  *
- *   1. tool.execute.before → guard() + (optional waitForApproval) + createAction()
- *   2. tool.execute.after  → updateOutcome()
- *   3. permission.ask      → guard() (override deny when policy says block)
- *   4. event               → session lifecycle heartbeat
+ * Execution order per tool call:
  *
- * Install: see `docs/integrations/opencode.md`.
+ *   tool.execute.before
+ *     1. modelSafety.checkInput  — scan declared_goal + tool args
+ *     2. behaviorSecurity.guard  — policy decision (allow/block/approve)
+ *     3. behaviorSecurity.createAction + optional waitForApproval
  *
- * Configuration shape mirrors the Multi-Agent Adapter Protocol — see
- * `docs/architecture/multi-agent-adapter.md` §3.
+ *   tool.execute.after
+ *     4. behaviorSecurity.updateOutcome — record result
+ *     5. modelSafety.checkOutput        — scan tool output (best-effort)
+ *
+ *   permission.ask
+ *     → behaviorSecurity.guard (soft gate)
+ *
+ * Configure via opencode.json or env vars — see config.ts for full reference.
  */
 
 import type { Hooks, Plugin, PluginInput, PluginOptions } from '@opencode-ai/plugin';
 
 import { resolveConfig } from './config.js';
+import { GovernanceBlockedError, GovernanceBridge } from './governance.js';
 import {
-  GovernanceBlockedError,
-  GovernanceBridge,
-} from './governance.js';
+  ModelSafetyBridge,
+  ModelSafetyUnreachableError,
+  ModelSafetyViolationError,
+} from './model-safety.js';
 
-const guardrails: Plugin = async (input: PluginInput, options?: PluginOptions): Promise<Hooks> => {
+const guardrails: Plugin = async (
+  input: PluginInput,
+  options?: PluginOptions,
+): Promise<Hooks> => {
   const cfg = resolveConfig(options as Record<string, unknown> | undefined);
 
-  if (!cfg.behaviorSecurity.baseUrl || !cfg.behaviorSecurity.apiKey) {
+  // ── Validate required config ─────────────────────────────────────────────
+
+  const bs = cfg.behaviorSecurity;
+  if (!bs.baseUrl || !bs.apiKey) {
     console.warn(
-      '[swarmxai-guardrails] Behavior security is NOT active — set behaviorSecurity.baseUrl + apiKey ' +
-        '(or BEHAVIOR_SECURITY_BASE_URL + BEHAVIOR_SECURITY_API_KEY env vars). All tool calls ' +
-        'will run uncontrolled.',
+      '[swarmxai-guardrails] Behavior security is NOT active — ' +
+        'set behaviorSecurity.baseUrl + apiKey ' +
+        '(or BEHAVIOR_SECURITY_BASE_URL + BEHAVIOR_SECURITY_API_KEY). ' +
+        'All tool calls will run uncontrolled.',
     );
     return {};
   }
 
-  const bridge = new GovernanceBridge(cfg.behaviorSecurity);
-  // Fire-and-forget — heartbeat shouldn't delay opencode startup.
-  void bridge.start({
+  // ── Initialize bridges ───────────────────────────────────────────────────
+
+  const behavior = new GovernanceBridge(bs);
+  const modelSafety = new ModelSafetyBridge(cfg.modelSafety);
+
+  void behavior.start({
     project: input.project?.id,
     directory: input.directory,
     worktree: input.worktree,
   });
 
-  // Best-effort offline heartbeat on process exit.
   if (typeof process !== 'undefined' && typeof process.on === 'function') {
-    const off = (): void => {
-      void bridge.stop();
-    };
+    const off = (): void => { void behavior.stop(); };
     process.once('SIGINT', off);
     process.once('SIGTERM', off);
     process.once('beforeExit', off);
   }
 
+  // ── Hooks ────────────────────────────────────────────────────────────────
+
   return {
     'tool.execute.before': async (i, _o) => {
+      const args = (_o as { args: unknown }).args;
+      const declaredGoal = `opencode tool call: ${i.tool}`;
+
+      // Step 1 — model safety: scan input
+      if (modelSafety.enabled && cfg.modelSafety.checkInput) {
+        const inputText = buildInputText(declaredGoal, args);
+        try {
+          const result = await modelSafety.scan(inputText, 'input', {
+            tool: i.tool,
+            session_id: i.sessionID,
+            call_id: i.callID,
+          });
+          if (!result.safe) {
+            throw new ModelSafetyViolationError(result);
+          }
+        } catch (err) {
+          if (err instanceof ModelSafetyViolationError) throw err;
+          if (err instanceof ModelSafetyUnreachableError) {
+            if (cfg.modelSafety.failClosed) throw err;
+            console.warn('[swarmxai-guardrails:model-safety] unreachable (failClosed=false), continuing');
+          }
+        }
+      }
+
+      // Step 2+3 — behavior security: guard + approve
       try {
-        await bridge.beforeToolCall({
+        await behavior.beforeToolCall({
           tool: i.tool,
           sessionID: i.sessionID,
           callID: i.callID,
-          // The output object holds the real args; the input object only
-          // holds the routing identifiers. Pull args from the trigger output.
-          // opencode passes the same `output.args` reference into our hook,
-          // so we can read it from there.
-          args: (_o as { args: unknown }).args,
+          args,
         });
       } catch (err) {
-        // Re-throw to abort the tool call. The opencode plugin trigger
-        // wraps hooks in `Effect.promise`, so a thrown error here will
-        // surface as a tool failure (which is exactly what `block` means).
         if (err instanceof GovernanceBlockedError) throw err;
-        // Unexpected error — don't pretend it's a block, but do surface it.
         throw err;
       }
     },
 
     'tool.execute.after': async (i, o) => {
-      // opencode uses metadata.error / metadata.errorMessage when a tool
-      // surfaces a structured failure. Best-effort detection — anything
-      // missing just gets reported as `ok`.
       const meta = (o.metadata ?? {}) as Record<string, unknown>;
       const failed = Boolean(meta.error) || typeof meta.errorMessage === 'string';
       const errorMessage =
-        typeof meta.errorMessage === 'string'
-          ? (meta.errorMessage as string)
-          : typeof meta.error === 'string'
-            ? (meta.error as string)
-            : undefined;
-      await bridge.afterToolCall({
+        typeof meta.errorMessage === 'string' ? meta.errorMessage
+        : typeof meta.error === 'string' ? meta.error
+        : undefined;
+
+      const toolOutput = o as { title: string; output: string; metadata: unknown };
+
+      // Step 4 — behavior security: record outcome
+      await behavior.afterToolCall({
         tool: i.tool,
         sessionID: i.sessionID,
         callID: i.callID,
-        output: o as { title: string; output: string; metadata: unknown },
+        output: toolOutput,
         failed,
         errorMessage,
       });
+
+      // Step 5 — model safety: scan output (best-effort, non-blocking)
+      if (modelSafety.enabled && cfg.modelSafety.checkOutput && !failed) {
+        const outputText = toolOutput.output ?? '';
+        if (outputText) {
+          modelSafety.scan(outputText, 'output', {
+            tool: i.tool,
+            session_id: i.sessionID,
+            call_id: i.callID,
+          }).then((result) => {
+            if (!result.safe) {
+              console.warn(
+                `[swarmxai-guardrails:model-safety] output flagged for tool=${i.tool}: ` +
+                  result.flaggedCategories.join(', '),
+                result.reason ?? '',
+              );
+            }
+          }).catch(() => {
+            // output scanning is always best-effort
+          });
+        }
+      }
     },
 
     'permission.ask': async (i, o) => {
-      await bridge.permissionAsk(
+      await behavior.permissionAsk(
         i as { id?: string; type?: string; pattern?: string; metadata?: Record<string, unknown> },
         o,
       );
     },
 
     event: async ({ event }) => {
-      // Session-end hook. opencode fires `session.deleted` and similar
-      // lifecycle events on the global bus; we only do best-effort flush.
-      const evt = event as { type?: string };
-      if (evt && typeof evt.type === 'string' && evt.type.startsWith('session.')) {
-        // Nothing strict to do here — heartbeats are debounced per-session,
-        // and updateOutcome is called from the after hook. Reserved for
-        // future use (token attribution, session-scoped flush, etc.).
-      }
+      // Reserved for session lifecycle events (session.deleted, etc.).
+      void event;
     },
   };
 };
 
 export default guardrails;
 export { guardrails };
+
+// Named re-exports for advanced consumers
 export { GovernanceBlockedError, GovernanceBridge } from './governance.js';
+export { ModelSafetyBridge, ModelSafetyViolationError, ModelSafetyUnreachableError } from './model-safety.js';
 export { resolveConfig } from './config.js';
-export type { PluginConfig } from './config.js';
+export type { PluginConfig, BehaviorSecurityConfig, ModelSafetyConfig } from './config.js';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function buildInputText(goal: string, args: unknown): string {
+  try {
+    const argsStr = typeof args === 'string' ? args : JSON.stringify(args);
+    return `${goal}\n\nArguments:\n${argsStr}`.slice(0, 4000);
+  } catch {
+    return goal;
+  }
+}

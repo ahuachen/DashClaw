@@ -1,26 +1,28 @@
 /**
- * GovernanceBridge — translates opencode tool/permission/event hooks into
- * DashClaw's 4-step governance loop:
+ * GovernanceBridge — behavior security orchestration.
  *
- *   1. before tool call → guard()  + createAction()
- *   2. (block / require_approval handled here)
+ * Translates opencode tool/permission/event hooks into the behavior security
+ * provider's 4-step governance loop:
+ *
+ *   1. tool.execute.before → guard()  + createAction()
+ *   2. block / require_approval handled here (throws to abort)
  *   3. tool runs
- *   4. after tool call → updateOutcome()
+ *   4. tool.execute.after  → updateOutcome()
  */
 
 import {
   ApprovalDeniedError,
   ApprovalTimeoutError,
-  DashClawClient,
+  BehaviorSecurityClient,
+  BehaviorSecurityUnreachableError,
   GovernanceBlockedError,
-  GovernanceUnreachableError,
   type ActionRecord,
 } from './client.js';
 import {
   inferReversible,
   inferRiskScore,
   resolveActionType,
-  type PluginConfig,
+  type BehaviorSecurityConfig,
 } from './config.js';
 
 export interface BridgeLogger {
@@ -32,9 +34,9 @@ export interface BridgeLogger {
 
 const consoleLogger: BridgeLogger = {
   debug: () => {},
-  info: (m, meta) => console.log(`[swarmxai-guardrails] ${m}`, meta ?? ''),
-  warn: (m, meta) => console.warn(`[swarmxai-guardrails] ${m}`, meta ?? ''),
-  error: (m, meta) => console.error(`[swarmxai-guardrails] ${m}`, meta ?? ''),
+  info: (m, meta) => console.log(`[swarmxai-guardrails:behavior] ${m}`, meta ?? ''),
+  warn: (m, meta) => console.warn(`[swarmxai-guardrails:behavior] ${m}`, meta ?? ''),
+  error: (m, meta) => console.error(`[swarmxai-guardrails:behavior] ${m}`, meta ?? ''),
 };
 
 interface PendingCall {
@@ -44,18 +46,17 @@ interface PendingCall {
 }
 
 export class GovernanceBridge {
-  private readonly client: DashClawClient;
-  private readonly cfg: PluginConfig;
+  private readonly client: BehaviorSecurityClient;
+  private readonly cfg: BehaviorSecurityConfig;
   private readonly log: BridgeLogger;
-  /** keyed by `${sessionID}:${callID}` — set in before, consumed in after. */
   private readonly inflight = new Map<string, PendingCall>();
-  /** sessions we've already heartbeated for. */
   private readonly seenSessions = new Set<string>();
 
-  constructor(cfg: PluginConfig, opts: { logger?: BridgeLogger } = {}) {
+  constructor(cfg: BehaviorSecurityConfig, opts: { logger?: BridgeLogger } = {}) {
     this.cfg = cfg;
     this.log = opts.logger ?? consoleLogger;
-    this.client = new DashClawClient({
+    this.client = new BehaviorSecurityClient({
+      provider: cfg.provider,
       baseUrl: cfg.baseUrl,
       apiKey: cfg.apiKey,
       agentId: cfg.agentId,
@@ -63,35 +64,28 @@ export class GovernanceBridge {
     });
   }
 
-  /** Call once at plugin init. Best-effort heartbeat. */
   async start(metadata: Record<string, unknown> = {}): Promise<void> {
     try {
       await this.client.heartbeat('online', {
         agent_type: 'opencode',
-        adapter_version: '0.1.0',
         adapter: '@swarmxai_guardrails/opencode-plugin',
+        provider: this.cfg.provider,
         ...metadata,
       });
-      this.log.info?.(`registered with DashClaw as ${this.cfg.agentId} (${this.cfg.agentName})`);
+      this.log.info?.(`registered with ${this.cfg.provider} as ${this.cfg.agentId}`);
     } catch (err) {
-      // Non-fatal — heartbeat is metadata only.
-      this.log.warn?.('heartbeat failed at startup', { error: stringifyError(err) });
+      this.log.warn?.('startup heartbeat failed', { error: str(err) });
     }
   }
 
-  /** Best-effort offline heartbeat. */
   async stop(): Promise<void> {
     try {
       await this.client.heartbeat('offline');
-    } catch (err) {
-      this.log.debug?.('heartbeat(offline) failed', { error: stringifyError(err) });
+    } catch {
+      // best-effort
     }
   }
 
-  /**
-   * Translate `tool.execute.before` into guard() + createAction().
-   * Throws to abort the tool call when policy says block / approval denied.
-   */
   async beforeToolCall(input: {
     tool: string;
     sessionID: string;
@@ -107,7 +101,14 @@ export class GovernanceBridge {
     const riskScore = this.cfg.highRiskTools.has(input.tool) ? Math.max(baseRisk, 90) : baseRisk;
     const reversible = inferReversible(input.tool);
     const declaredGoal = `opencode tool call: ${input.tool}`;
+    const sharedMeta = {
+      tool: input.tool,
+      session_id: input.sessionID,
+      call_id: input.callID,
+      args_preview: previewArgs(input.args),
+    };
 
+    // Step 1 — guard
     let decision: { decision: string; action_id: string; reason?: string };
     try {
       decision = await this.client.guard({
@@ -115,20 +116,15 @@ export class GovernanceBridge {
         declared_goal: declaredGoal,
         risk_score: riskScore,
         reversible,
-        metadata: {
-          tool: input.tool,
-          session_id: input.sessionID,
-          call_id: input.callID,
-          args_preview: previewArgs(input.args),
-        },
+        metadata: sharedMeta,
       });
     } catch (err) {
       this.handleUnreachable('guard', err);
-      return; // fail-open path returns silently
+      return;
     }
 
     if (decision.decision === 'block') {
-      this.log.warn?.(`BLOCK ${input.tool} (callID=${input.callID}): ${decision.reason ?? 'no reason'}`);
+      this.log.warn?.(`BLOCK ${input.tool} (${input.callID}): ${decision.reason ?? ''}`);
       throw new GovernanceBlockedError({
         decision: 'block',
         action_id: decision.action_id,
@@ -136,6 +132,7 @@ export class GovernanceBridge {
       });
     }
 
+    // Step 2 — create action record
     let actionRecord: ActionRecord;
     try {
       actionRecord = await this.client.createAction({
@@ -143,21 +140,16 @@ export class GovernanceBridge {
         declared_goal: declaredGoal,
         risk_score: riskScore,
         reversible,
-        metadata: {
-          tool: input.tool,
-          session_id: input.sessionID,
-          call_id: input.callID,
-          args_preview: previewArgs(input.args),
-          guard_decision_id: decision.action_id,
-        },
+        metadata: { ...sharedMeta, guard_decision_id: decision.action_id },
       });
     } catch (err) {
       this.handleUnreachable('createAction', err);
       return;
     }
 
+    // Step 3 — wait for approval if required
     if (decision.decision === 'require_approval') {
-      this.log.info?.(`AWAITING APPROVAL ${input.tool} (action=${actionRecord.id}): ${decision.reason ?? ''}`);
+      this.log.info?.(`AWAITING APPROVAL ${input.tool} (action=${actionRecord.id})`);
       try {
         await this.client.waitForApproval(actionRecord.id, {
           timeoutMs: this.cfg.approvalTimeoutMs,
@@ -185,52 +177,42 @@ export class GovernanceBridge {
       }
     }
 
-    this.inflight.set(this.key(input.sessionID, input.callID), {
+    this.inflight.set(key(input.sessionID, input.callID), {
       actionId: actionRecord.id,
       toolName: input.tool,
       startedAt: Date.now(),
     });
   }
 
-  /**
-   * Translate `tool.execute.after` into updateOutcome().
-   * Always best-effort — never throws back into the tool flow.
-   */
   async afterToolCall(input: {
     tool: string;
     sessionID: string;
     callID: string;
     output: { title: string; output: string; metadata: unknown };
-    /** True iff opencode reported a tool error in metadata. */
     failed?: boolean;
     errorMessage?: string;
   }): Promise<void> {
-    const k = this.key(input.sessionID, input.callID);
+    const k = key(input.sessionID, input.callID);
     const pending = this.inflight.get(k);
-    if (!pending) return; // guard never opened a record (ignored / unreachable)
+    if (!pending) return;
     this.inflight.delete(k);
 
-    const durationMs = Date.now() - pending.startedAt;
     try {
       await this.client.updateOutcome(pending.actionId, {
         status: input.failed ? 'failed' : 'ok',
         error_message: input.errorMessage,
-        duration_ms: durationMs,
-        ...(this.cfg.defaultModel ? { model: this.cfg.defaultModel } : {}),
+        duration_ms: Date.now() - pending.startedAt,
         metadata: {
           tool: input.tool,
-          output_preview: previewString(input.output?.output, 500),
+          output_preview: preview(input.output?.output, 500),
           title: input.output?.title,
         },
       });
     } catch (err) {
-      this.log.warn?.(`updateOutcome failed for action=${pending.actionId}`, {
-        error: stringifyError(err),
-      });
+      this.log.warn?.(`updateOutcome failed (action=${pending.actionId})`, { error: str(err) });
     }
   }
 
-  /** Translate `permission.ask` into a guard() check. */
   async permissionAsk(
     input: { id?: string; type?: string; pattern?: string; metadata?: Record<string, unknown> },
     output: { status: 'ask' | 'deny' | 'allow' },
@@ -250,16 +232,10 @@ export class GovernanceBridge {
       });
       if (decision.decision === 'block') {
         output.status = 'deny';
-        this.log.warn?.(`permission.ask ${input.type ?? input.id} → DENY (${decision.reason ?? ''})`);
-      } else if (decision.decision === 'allow' && output.status === 'ask') {
-        // Don't auto-allow unless the policy explicitly says allow.
-        // Leave status='ask' so opencode falls back to user prompt.
+        this.log.warn?.(`permission.ask ${input.type ?? input.id} → DENY`);
       }
-    } catch (err) {
-      // Don't change output.status on unreachable — let opencode use its
-      // default behaviour. This is a soft-fail because the primary
-      // governance gate is `tool.execute.before`.
-      this.log.debug?.('permission.ask guard failed', { error: stringifyError(err) });
+    } catch {
+      // soft-fail: primary gate is tool.execute.before
     }
   }
 
@@ -269,50 +245,47 @@ export class GovernanceBridge {
     try {
       await this.client.heartbeat('busy', { session_id: sessionId, agent_type: 'opencode' });
     } catch {
-      // ignore — heartbeat is metadata only
+      // ignore
     }
   }
 
   private handleUnreachable(stage: string, err: unknown): void {
-    if (err instanceof GovernanceUnreachableError) {
-      this.log.warn?.(`DashClaw unreachable during ${stage}: ${stringifyError(err)}`);
+    if (err instanceof BehaviorSecurityUnreachableError) {
+      this.log.warn?.(`${this.cfg.provider} unreachable during ${stage}: ${str(err)}`);
       if (this.cfg.failClosed) {
         throw new GovernanceBlockedError({
           decision: 'block',
           action_id: '',
-          reason: `DashClaw governance unreachable (failClosed=true)`,
+          reason: `Behavior security service unreachable (failClosed=true)`,
         });
       }
       return;
     }
-    // Unexpected — re-throw, don't silently swallow.
     throw err;
   }
+}
 
-  private key(sessionId: string, callId: string): string {
-    return `${sessionId}:${callId}`;
-  }
+export { GovernanceBlockedError } from './client.js';
+
+function key(sessionId: string, callId: string): string {
+  return `${sessionId}:${callId}`;
 }
 
 function previewArgs(args: unknown): unknown {
   try {
     const s = JSON.stringify(args);
-    if (s.length <= 1000) return args;
-    return { _truncated: true, preview: s.slice(0, 1000) };
+    return s.length <= 1000 ? args : { _truncated: true, preview: s.slice(0, 1000) };
   } catch {
     return { _unserializable: true };
   }
 }
 
-function previewString(s: string | undefined, max: number): string {
+function preview(s: string | undefined, max: number): string {
   if (!s) return '';
-  return s.length > max ? `${s.slice(0, max)}...` : s;
+  return s.length > max ? `${s.slice(0, max)}…` : s;
 }
 
-function stringifyError(e: unknown): string {
+function str(e: unknown): string {
   if (e instanceof Error) return e.message;
-  if (typeof e === 'string') return e;
   try { return JSON.stringify(e); } catch { return String(e); }
 }
-
-export { GovernanceBlockedError } from './client.js';
